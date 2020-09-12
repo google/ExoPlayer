@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18,"i7":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -126,7 +126,7 @@ var activeTableTab = "activeTableTab";
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.audio">AudioRendererEventListener.EventDispatcher</a></span></code>
-<div class="block">Dispatches events to a <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
+<div class="block">Dispatches events to an <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -172,16 +172,29 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSessionId-int-">onAudioSessionId</a></span>(int&nbsp;audioSessionId)</code>
-<div class="block">Called when the audio session is set.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioPositionAdvancing-long-">onAudioPositionAdvancing</a></span>(long&nbsp;playoutStartSystemTimeMs)</code>
+<div class="block">Called when the audio position has increased for the first time since the last pause or
+ position reset.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSinkUnderrun-int-long-long-">onAudioSinkUnderrun</a></span>(int&nbsp;bufferSize,
-                   long&nbsp;bufferSizeMs,
-                   long&nbsp;elapsedSinceLastFeedMs)</code>
-<div class="block">Called when an <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> underrun occurs.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSessionId-int-">onAudioSessionId</a></span>(int&nbsp;audioSessionId)</code>
+<div class="block">Called when the audio session is set.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioUnderrun-int-long-long-">onAudioUnderrun</a></span>(int&nbsp;bufferSize,
+               long&nbsp;bufferSizeMs,
+               long&nbsp;elapsedSinceLastFeedMs)</code>
+<div class="block">Called when an audio underrun occurs.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onSkipSilenceEnabledChanged-boolean-">onSkipSilenceEnabledChanged</a></span>(boolean&nbsp;skipSilenceEnabled)</code>
+<div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 </td>
 </tr>
 </table>
@@ -261,30 +274,45 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="onAudioSinkUnderrun-int-long-long-">
+<a name="onAudioPositionAdvancing-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>onAudioSinkUnderrun</h4>
-<pre>default&nbsp;void&nbsp;onAudioSinkUnderrun(int&nbsp;bufferSize,
-                                 long&nbsp;bufferSizeMs,
-                                 long&nbsp;elapsedSinceLastFeedMs)</pre>
-<div class="block">Called when an <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> underrun occurs.</div>
+<h4>onAudioPositionAdvancing</h4>
+<pre>default&nbsp;void&nbsp;onAudioPositionAdvancing(long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="block">Called when the audio position has increased for the first time since the last pause or
+ position reset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bufferSize</code> - The size of the <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a>'s buffer, in bytes.</dd>
-<dd><code>bufferSizeMs</code> - The size of the <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a>'s buffer, in milliseconds, if it is
-     configured for PCM output. <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if it is configured for passthrough output,
-     as the buffered media can have a variable bitrate so the duration may be unknown.</dd>
-<dd><code>elapsedSinceLastFeedMs</code> - The time since the <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> was last fed data.</dd>
+<dd><code>playoutStartSystemTimeMs</code> - The approximate derived <a href="https://developer.android.com/reference/java/lang/System.html#currentTimeMillis--" title="class or interface in java.lang" target="_top"><code>System.currentTimeMillis()</code></a> at
+     which playout started.</dd>
+</dl>
+</li>
+</ul>
+<a name="onAudioUnderrun-int-long-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onAudioUnderrun</h4>
+<pre>default&nbsp;void&nbsp;onAudioUnderrun(int&nbsp;bufferSize,
+                             long&nbsp;bufferSizeMs,
+                             long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="block">Called when an audio underrun occurs.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferSize</code> - The size of the audio output buffer, in bytes.</dd>
+<dd><code>bufferSizeMs</code> - The size of the audio output buffer, in milliseconds, if it contains PCM
+     encoded audio. <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the output buffer contains non-PCM encoded audio.</dd>
+<dd><code>elapsedSinceLastFeedMs</code> - The time since audio was last written to the output buffer.</dd>
 </dl>
 </li>
 </ul>
 <a name="onAudioDisabled-com.google.android.exoplayer2.decoder.DecoderCounters-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onAudioDisabled</h4>
 <pre>default&nbsp;void&nbsp;onAudioDisabled(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
@@ -292,6 +320,20 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>counters</code> - <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> that were updated by the renderer.</dd>
+</dl>
+</li>
+</ul>
+<a name="onSkipSilenceEnabledChanged-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onSkipSilenceEnabledChanged</h4>
+<pre>default&nbsp;void&nbsp;onSkipSilenceEnabledChanged(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences in the audio stream is enabled.</dd>
 </dl>
 </li>
 </ul>

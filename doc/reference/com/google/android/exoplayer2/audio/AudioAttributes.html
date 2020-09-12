@@ -108,14 +108,13 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">AudioAttributes</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
-<div class="block">Attributes for audio playback, which configure the underlying platform
- <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>.
- <p>
- To set the audio attributes, create an instance using the <a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes.Builder</code></a> and either pass it to
- <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-"><code>SimpleExoPlayer.setAudioAttributes(AudioAttributes)</code></a> or
- send a message of type <a href="../../../../../com/google/android/exoplayer2/C.html#MSG_SET_AUDIO_ATTRIBUTES"><code>C.MSG_SET_AUDIO_ATTRIBUTES</code></a> to the audio renderers.
- <p>
- This class is based on <a href="https://developer.android.com/reference/android/media/AudioAttributes.html" title="class or interface in android.media" target="_top"><code>AudioAttributes</code></a>, but can be used on all supported
+<div class="block">Attributes for audio playback, which configure the underlying platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>.
+
+ <p>To set the audio attributes, create an instance using the <a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.Builder.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes.Builder</code></a> and either pass it
+ to the player or send a message of type <code>Renderer#MSG_SET_AUDIO_ATTRIBUTES</code> to the audio
+ renderers.
+
+ <p>This class is based on <a href="https://developer.android.com/reference/android/media/AudioAttributes.html" title="class or interface in android.media" target="_top"><code>AudioAttributes</code></a>, but can be used on all supported
  API versions.</div>
 </li>
 </ul>

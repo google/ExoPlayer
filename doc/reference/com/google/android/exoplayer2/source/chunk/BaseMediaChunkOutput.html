@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" target="_top">Frames</a></li>
@@ -106,14 +106,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.TrackOutputProvider</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">BaseMediaChunkOutput</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
-implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a></pre>
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> that provides <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutputs</code></a> based on a
+implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.TrackOutputProvider</a></pre>
+<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor.TrackOutputProvider</code></a> that provides <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutputs</code></a> based on a
  predefined mapping from track type to output.</div>
 </li>
 </ul>
@@ -224,17 +224,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 <h4>track</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;track(int&nbsp;id,
                          int&nbsp;type)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html#track-int-int-">ChunkExtractorWrapper.TrackOutputProvider</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html#track-int-int-">ChunkExtractor.TrackOutputProvider</a></code></span></div>
 <div class="block">Called to get the <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for a specific track.
- <p>
- The same <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> is returned if multiple calls are made with the same <code>id</code>.</div>
+
+ <p>The same <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> is returned if multiple calls are made with the same <code>id</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html#track-int-int-">track</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html#track-int-int-">track</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.TrackOutputProvider</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - A track identifier.</dd>
-<dd><code>type</code> - The type of the track. Typically one of the
-     <a href="../../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code> constants.</dd>
+<dd><code>type</code> - The type of the track. Typically one of the <a href="../../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>TRACK_TYPE_*</code>
+     constants.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for the given track identifier.</dd>
 </dl>
@@ -289,7 +289,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/chunk
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkIterator.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" target="_top">Frames</a></li>

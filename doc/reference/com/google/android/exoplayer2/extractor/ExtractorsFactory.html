@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":6,"i1":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -110,6 +110,27 @@ var activeTableTab = "activeTableTab";
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#EMPTY">EMPTY</a></span></code>
+<div class="block">Extractor factory that returns an empty list of extractors.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -117,7 +138,7 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -125,6 +146,13 @@ var activeTableTab = "activeTableTab";
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#createExtractors--">createExtractors</a></span>()</code>
+<div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>default <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html#createExtractors-android.net.Uri-java.util.Map-">createExtractors</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</code>
 <div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 </td>
 </tr>
@@ -137,6 +165,24 @@ var activeTableTab = "activeTableTab";
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="EMPTY">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>EMPTY</h4>
+<pre>static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a> EMPTY</pre>
+<div class="block">Extractor factory that returns an empty list of extractors. Can be used whenever <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractors</code></a> are not required.</div>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.detail">
@@ -146,11 +192,30 @@ var activeTableTab = "activeTableTab";
 <a name="createExtractors--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>createExtractors</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors()</pre>
 <div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+</li>
+</ul>
+<a name="createExtractors-android.net.Uri-java.util.Map-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>createExtractors</h4>
+<pre>default&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                                     <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</pre>
+<div class="block">Returns an array of new <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the media to extract.</dd>
+<dd><code>responseHeaders</code> - The response headers of the media to extract, or an empty map if there
+     are none. The map lookup should be case-insensitive.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -206,13 +271,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

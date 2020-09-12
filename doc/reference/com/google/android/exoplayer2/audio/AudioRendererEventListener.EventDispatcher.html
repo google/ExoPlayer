@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -112,7 +112,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public static final class <span class="typeNameLabel">AudioRendererEventListener.EventDispatcher</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
-<div class="block">Dispatches events to a <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
+<div class="block">Dispatches events to an <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -157,36 +157,48 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#audioTrackUnderrun-int-long-long-">audioTrackUnderrun</a></span>(int&nbsp;bufferSize,
-                  long&nbsp;bufferSizeMs,
-                  long&nbsp;elapsedSinceLastFeedMs)</code>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSinkUnderrun-int-long-long-"><code>AudioRendererEventListener.onAudioSinkUnderrun(int, long, long)</code></a>.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#decoderInitialized-java.lang.String-long-long-">decoderInitialized</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;decoderName,
                   long&nbsp;initializedTimestampMs,
                   long&nbsp;initializationDurationMs)</code>
 <div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioDecoderInitialized-java.lang.String-long-long-"><code>AudioRendererEventListener.onAudioDecoderInitialized(String, long, long)</code></a>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#disabled-com.google.android.exoplayer2.decoder.DecoderCounters-">disabled</a></span>(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code>
 <div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioDisabled-com.google.android.exoplayer2.decoder.DecoderCounters-"><code>AudioRendererEventListener.onAudioDisabled(DecoderCounters)</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#enabled-com.google.android.exoplayer2.decoder.DecoderCounters-">enabled</a></span>(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code>
 <div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioEnabled-com.google.android.exoplayer2.decoder.DecoderCounters-"><code>AudioRendererEventListener.onAudioEnabled(DecoderCounters)</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#inputFormatChanged-com.google.android.exoplayer2.Format-">inputFormatChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioInputFormatChanged-com.google.android.exoplayer2.Format-"><code>AudioRendererEventListener.onAudioInputFormatChanged(Format)</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#positionAdvancing-long-">positionAdvancing</a></span>(long&nbsp;playoutStartSystemTimeMs)</code>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioPositionAdvancing-long-"><code>AudioRendererEventListener.onAudioPositionAdvancing(long)</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#skipSilenceEnabledChanged-boolean-">skipSilenceEnabledChanged</a></span>(boolean&nbsp;skipSilenceEnabled)</code>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onSkipSilenceEnabledChanged-boolean-"><code>AudioRendererEventListener.onSkipSilenceEnabledChanged(boolean)</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html#underrun-int-long-long-">underrun</a></span>(int&nbsp;bufferSize,
+        long&nbsp;bufferSizeMs,
+        long&nbsp;elapsedSinceLastFeedMs)</code>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioUnderrun-int-long-long-"><code>AudioRendererEventListener.onAudioUnderrun(int, long, long)</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -223,9 +235,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                        <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;listener)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>handler</code> - A handler for dispatching events, or null if creating a dummy instance.</dd>
-<dd><code>listener</code> - The listener to which events should be dispatched, or null if creating a
-     dummy instance.</dd>
+<dd><code>handler</code> - A handler for dispatching events, or null if events should not be dispatched.</dd>
+<dd><code>listener</code> - The listener to which events should be dispatched, or null if events should
+     not be dispatched.</dd>
 </dl>
 </li>
 </ul>
@@ -269,16 +281,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioInputFormatChanged-com.google.android.exoplayer2.Format-"><code>AudioRendererEventListener.onAudioInputFormatChanged(Format)</code></a>.</div>
 </li>
 </ul>
-<a name="audioTrackUnderrun-int-long-long-">
+<a name="positionAdvancing-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>audioTrackUnderrun</h4>
-<pre>public&nbsp;void&nbsp;audioTrackUnderrun(int&nbsp;bufferSize,
-                               long&nbsp;bufferSizeMs,
-                               long&nbsp;elapsedSinceLastFeedMs)</pre>
-<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSinkUnderrun-int-long-long-"><code>AudioRendererEventListener.onAudioSinkUnderrun(int, long, long)</code></a>.</div>
+<h4>positionAdvancing</h4>
+<pre>public&nbsp;void&nbsp;positionAdvancing(long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioPositionAdvancing-long-"><code>AudioRendererEventListener.onAudioPositionAdvancing(long)</code></a>.</div>
+</li>
+</ul>
+<a name="underrun-int-long-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>underrun</h4>
+<pre>public&nbsp;void&nbsp;underrun(int&nbsp;bufferSize,
+                     long&nbsp;bufferSizeMs,
+                     long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioUnderrun-int-long-long-"><code>AudioRendererEventListener.onAudioUnderrun(int, long, long)</code></a>.</div>
 </li>
 </ul>
 <a name="disabled-com.google.android.exoplayer2.decoder.DecoderCounters-">
@@ -294,11 +316,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a name="audioSessionId-int-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>audioSessionId</h4>
 <pre>public&nbsp;void&nbsp;audioSessionId(int&nbsp;audioSessionId)</pre>
 <div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onAudioSessionId-int-"><code>AudioRendererEventListener.onAudioSessionId(int)</code></a>.</div>
+</li>
+</ul>
+<a name="skipSilenceEnabledChanged-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>skipSilenceEnabledChanged</h4>
+<pre>public&nbsp;void&nbsp;skipSilenceEnabledChanged(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html#onSkipSilenceEnabledChanged-boolean-"><code>AudioRendererEventListener.onSkipSilenceEnabledChanged(boolean)</code></a>.</div>
 </li>
 </ul>
 </li>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var methods = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DataSpec.html" target="_top">Frames</a></li>
@@ -108,7 +108,7 @@ var activeTableTab = "activeTableTab";
 <br>
 <pre>public final class <span class="typeNameLabel">DataSpec</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
-<div class="block">Defines a region of data.</div>
+<div class="block">Defines a region of data in a resource.</div>
 </li>
 </ul>
 </div>
@@ -128,15 +128,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Class and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a></span></code>
+<div class="block">Builds <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">DataSpec.Flags</a></span></code>
 <div class="block">The flags that apply to any request for data.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">DataSpec.HttpMethod</a></span></code>
-<div class="block">The set of HTTP methods that are supported by ExoPlayer <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a>s.</div>
+<div class="block">HTTP methods supported by ExoPlayer <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a>s.</div>
 </td>
 </tr>
 </table>
@@ -157,26 +163,43 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition">absoluteStreamPosition</a></span></code>
-<div class="block">The absolute position of the data in the full stream.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> except for specific use cases where the absolute position
+     within the resource is required within a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> chain. Where the absolute
+     position is required, use <code>uriPositionOffset + position</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#customData">customData</a></span></code>
+<div class="block">Application specific data.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_ALLOW_CACHE_FRAGMENTATION">FLAG_ALLOW_CACHE_FRAGMENTATION</a></span></code>
 <div class="block">Allows fragmentation of this request into multiple cache files, meaning a cache eviction policy
  will be able to evict individual fragments of the data.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_ALLOW_GZIP">FLAG_ALLOW_GZIP</a></span></code>
 <div class="block">Allows an underlying network stack to request that the server use gzip compression.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN">FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN</a></span></code>
 <div class="block">Prevents caching if the length cannot be resolved when the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> is opened.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED">FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED</a></span></code>
+<div class="block">Indicates there are known external factors that might prevent the data from being loaded at
+ full network speed (e.g.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -187,15 +210,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_GET">HTTP_METHOD_GET</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_GET">HTTP_METHOD_GET</a></span></code>
+<div class="block">HTTP GET method.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_HEAD">HTTP_METHOD_HEAD</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_HEAD">HTTP_METHOD_HEAD</a></span></code>
+<div class="block">HTTP HEAD method.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_POST">HTTP_METHOD_POST</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_POST">HTTP_METHOD_POST</a></span></code>
+<div class="block">HTTP POST method.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
@@ -206,19 +235,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod">httpMethod</a></span></code>
-<div class="block">The HTTP method, which will be used by <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> when requesting this DataSpec.</div>
+<div class="block">The HTTP method to use when requesting the data.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpRequestHeaders">httpRequestHeaders</a></span></code>
-<div class="block">Immutable map containing the headers to use in HTTP requests.</div>
+<div class="block">Additional HTTP headers to use when requesting the data.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key">key</a></span></code>
-<div class="block">A key that uniquely identifies the original stream.</div>
+<div class="block">A key that uniquely identifies the resource.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -236,7 +265,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri">uri</a></span></code>
-<div class="block">The source from which data should be read.</div>
+<div class="block">A <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> from which data belonging to the resource can be read.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset">uriPositionOffset</a></span></code>
+<div class="block">The offset of the data located at <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a> within the resource.</div>
 </td>
 </tr>
 </table>
@@ -255,7 +290,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri)</code>
-<div class="block">Construct a data spec for the given uri and with <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a> set to null.</div>
+<div class="block">Constructs an instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -266,14 +301,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
         long&nbsp;length,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
         int&nbsp;flags)</code>
-<div class="block">Construct a data spec by inferring the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a> based on the <code>postBody</code>
- parameter.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>. Note that the httpMethod must be set explicitly for the
+     Builder.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-int-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
         int&nbsp;flags)</code>
-<div class="block">Construct a data spec for the given uri and with <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a> set to null.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -285,7 +324,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
         long&nbsp;length,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
         int&nbsp;flags)</code>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> may differ from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -298,45 +339,61 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
         int&nbsp;flags,
         <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</code>
-<div class="block">Construct a data spec with request parameters to be used as HTTP headers inside HTTP requests.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-long-long-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+        long&nbsp;position,
+        long&nbsp;length)</code>
+<div class="block">Constructs an instance.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-long-long-long-java.lang.String-int-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
         long&nbsp;absoluteStreamPosition,
         long&nbsp;position,
         long&nbsp;length,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
         int&nbsp;flags)</code>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> may differ from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-long-long-java.lang.String-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-        long&nbsp;absoluteStreamPosition,
-        long&nbsp;length,
-        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</code>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> equals <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-long-long-java.lang.String-int-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-        long&nbsp;absoluteStreamPosition,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-long-long-java.lang.String-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+        long&nbsp;position,
         long&nbsp;length,
-        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-        int&nbsp;flags)</code>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> equals <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
+        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-long-long-java.lang.String-int-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+        long&nbsp;position,
+        long&nbsp;length,
+        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+        int&nbsp;flags)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#DataSpec-android.net.Uri-long-long-java.lang.String-int-java.util.Map-">DataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-        long&nbsp;absoluteStreamPosition,
+        long&nbsp;position,
         long&nbsp;length,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
         int&nbsp;flags,
         <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</code>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> equals <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a> and has
- request headers.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -355,53 +412,61 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#getHttpMethodString--">getHttpMethodString</a></span>()</code>
-<div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>.</div>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#buildUpon--">buildUpon</a></span>()</code>
+<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a> initialized with the values of this instance.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#getStringForHttpMethod-int-">getStringForHttpMethod</a></span>(int&nbsp;httpMethod)</code>
-<div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the <code>httpMethod</code>.</div>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#getHttpMethodString--">getHttpMethodString</a></span>()</code>
+<div class="block">Returns the uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the
+ <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#getStringForHttpMethod-int-">getStringForHttpMethod</a></span>(int&nbsp;httpMethod)</code>
+<div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the given
+ <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream"><code>DataSpec.HttpMethod</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#isFlagSet-int-">isFlagSet</a></span>(int&nbsp;flag)</code>
 <div class="block">Returns whether the given flag is set.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#subrange-long-">subrange</a></span>(long&nbsp;offset)</code>
 <div class="block">Returns a data spec that represents a subrange of the data defined by this DataSpec.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#subrange-long-long-">subrange</a></span>(long&nbsp;offset,
         long&nbsp;length)</code>
 <div class="block">Returns a data spec that represents a subrange of the data defined by this DataSpec.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#toString--">toString</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#withAdditionalHeaders-java.util.Map-">withAdditionalHeaders</a></span>(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;requestHeaders)</code>
-<div class="block">Returns a copy this data spec with additional request headers.</div>
-</td>
-</tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#withRequestHeaders-java.util.Map-">withRequestHeaders</a></span>(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;requestHeaders)</code>
-<div class="block">Returns a copy of this data spec with the specified request headers.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#withAdditionalHeaders-java.util.Map-">withAdditionalHeaders</a></span>(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;additionalHttpRequestHeaders)</code>
+<div class="block">Returns a copy this data spec with additional HTTP request headers.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#withRequestHeaders-java.util.Map-">withRequestHeaders</a></span>(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</code>
+<div class="block">Returns a copy of this data spec with the specified HTTP request headers.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#withUri-android.net.Uri-">withUri</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri)</code>
 <div class="block">Returns a copy of this data spec with the specified Uri.</div>
@@ -441,7 +506,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <p>Should not typically be set if the data being requested is already compressed (e.g. most
  audio and video requests). May be set when requesting other data.
 
- <p>When a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> is used to request data with this flag set, and if the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> does make a network request, then the value returned from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(DataSpec)</code></a> will typically be <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>. The data read from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-"><code>DataSource.read(byte[], int, int)</code></a> will be the decompressed data.</div>
+ <p>When a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> is used to request data with this flag set, and if the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> does make a network request, then the value returned from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(DataSpec)</code></a> will typically be <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>. The data read from <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-"><code>DataReader.read(byte[], int, int)</code></a> will be the decompressed data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DataSpec.FLAG_ALLOW_GZIP">Constant Field Values</a></dd>
@@ -479,6 +544,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a name="FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED</h4>
+<pre>public static final&nbsp;int FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED</pre>
+<div class="block">Indicates there are known external factors that might prevent the data from being loaded at
+ full network speed (e.g. server throttling or unfinished live media chunks).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="HTTP_METHOD_GET">
 <!--   -->
 </a>
@@ -486,6 +566,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>HTTP_METHOD_GET</h4>
 <pre>public static final&nbsp;int HTTP_METHOD_GET</pre>
+<div class="block">HTTP GET method.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DataSpec.HTTP_METHOD_GET">Constant Field Values</a></dd>
@@ -499,6 +580,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>HTTP_METHOD_POST</h4>
 <pre>public static final&nbsp;int HTTP_METHOD_POST</pre>
+<div class="block">HTTP POST method.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DataSpec.HTTP_METHOD_POST">Constant Field Values</a></dd>
@@ -512,6 +594,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>HTTP_METHOD_HEAD</h4>
 <pre>public static final&nbsp;int HTTP_METHOD_HEAD</pre>
+<div class="block">HTTP HEAD method.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DataSpec.HTTP_METHOD_HEAD">Constant Field Values</a></dd>
@@ -525,7 +608,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>uri</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a> uri</pre>
-<div class="block">The source from which data should be read.</div>
+<div class="block">A <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> from which data belonging to the resource can be read.</div>
+</li>
+</ul>
+<a name="uriPositionOffset">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>uriPositionOffset</h4>
+<pre>public final&nbsp;long uriPositionOffset</pre>
+<div class="block">The offset of the data located at <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a> within the resource.
+
+ <p>Equal to 0 unless <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a> provides access to a subset of the resource. As an example,
+ consider a resource that can be requested over the network and is 1000 bytes long. If <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a> points to a local file that contains just bytes [200-300], then this field will be set to
+ <code>200</code>.
+
+ <p>This field can be ignored except for in specific circumstances where the absolute position
+ in the resource is required in a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> chain. One example is when a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> needs to decrypt the content as it's read. In this case the absolute position in
+ the resource is typically needed to correctly initialize the decryption algorithm.</div>
 </li>
 </ul>
 <a name="httpMethod">
@@ -536,8 +637,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>httpMethod</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.HttpMethod</a>
 public final&nbsp;int httpMethod</pre>
-<div class="block">The HTTP method, which will be used by <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> when requesting this DataSpec.
- This value will be ignored by non-http <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>s.</div>
+<div class="block">The HTTP method to use when requesting the data. This value will be ignored by non-HTTP <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> implementations.</div>
 </li>
 </ul>
 <a name="httpBody">
@@ -548,8 +648,8 @@ public final&nbsp;int httpMethod</pre>
 <h4>httpBody</h4>
 <pre>@Nullable
 public final&nbsp;byte[] httpBody</pre>
-<div class="block">The HTTP request body, null otherwise. If the body is non-null, then httpBody.length will be
- non-zero.</div>
+<div class="block">The HTTP request body, null otherwise. If the body is non-null, then <code>httpBody.length</code>
+ will be non-zero.</div>
 </li>
 </ul>
 <a name="httpRequestHeaders">
@@ -559,7 +659,21 @@ public final&nbsp;byte[] httpBody</pre>
 <li class="blockList">
 <h4>httpRequestHeaders</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt; httpRequestHeaders</pre>
-<div class="block">Immutable map containing the headers to use in HTTP requests.</div>
+<div class="block">Additional HTTP headers to use when requesting the data.
+
+ <p>Note: This map is for additional headers specific to the data being requested. It does not
+ include headers that are set directly by <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> implementations. In particular,
+ this means the following headers are not included:
+
+ <ul>
+   <li><code>Range</code>: <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> implementations derive the <code>Range</code> header
+       from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.
+   <li><code>Accept-Encoding</code>: <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> implementations derive the <code>Accept-Encoding</code> header based on whether <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#flags"><code>flags</code></a> includes <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#FLAG_ALLOW_GZIP"><code>FLAG_ALLOW_GZIP</code></a>.
+   <li><code>User-Agent</code>: <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> implementations set the <code>User-Agent</code>
+       header directly.
+   <li>Other headers set at the <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> layer. I.e., headers set using <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#setRequestProperty-java.lang.String-java.lang.String-"><code>HttpDataSource.setRequestProperty(String, String)</code></a>, and using <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html#set-java.lang.String-java.lang.String-"><code>HttpDataSource.RequestProperties.set(String, String)</code></a> on the default properties obtained
+       from <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html#getDefaultRequestProperties--"><code>HttpDataSource.Factory.getDefaultRequestProperties()</code></a>.
+ </ul></div>
 </li>
 </ul>
 <a name="absoluteStreamPosition">
@@ -568,8 +682,12 @@ public final&nbsp;byte[] httpBody</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>absoluteStreamPosition</h4>
-<pre>public final&nbsp;long absoluteStreamPosition</pre>
-<div class="block">The absolute position of the data in the full stream.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public final&nbsp;long absoluteStreamPosition</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> except for specific use cases where the absolute position
+     within the resource is required within a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> chain. Where the absolute
+     position is required, use <code>uriPositionOffset + position</code>.</span></div>
+<div class="block">The absolute position of the data in the resource.</div>
 </li>
 </ul>
 <a name="position">
@@ -579,10 +697,7 @@ public final&nbsp;byte[] httpBody</pre>
 <li class="blockList">
 <h4>position</h4>
 <pre>public final&nbsp;long position</pre>
-<div class="block">The position of the data when read from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.
- <p>
- Always equal to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a> unless the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a> defines the location
- of a subset of the underlying data.</div>
+<div class="block">The position of the data when read from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</div>
 </li>
 </ul>
 <a name="length">
@@ -603,19 +718,33 @@ public final&nbsp;byte[] httpBody</pre>
 <h4>key</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> key</pre>
-<div class="block">A key that uniquely identifies the original stream. Used for cache indexing. May be null if the
- data spec is not intended to be used in conjunction with a cache.</div>
+<div class="block">A key that uniquely identifies the resource. Used for cache indexing. May be null if the data
+ spec is not intended to be used in conjunction with a cache.</div>
 </li>
 </ul>
 <a name="flags">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>flags</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
 public final&nbsp;int flags</pre>
 <div class="block">Request <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream"><code>flags</code></a>.</div>
+</li>
+</ul>
+<a name="customData">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>customData</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a> customData</pre>
+<div class="block">Application specific data.
+
+ <p>This field is intended for advanced use cases in which applications require the ability to
+ attach custom data to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> instances. The custom data should be immutable.</div>
 </li>
 </ul>
 </li>
@@ -633,10 +762,28 @@ public final&nbsp;int flags</pre>
 <li class="blockList">
 <h4>DataSpec</h4>
 <pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri)</pre>
-<div class="block">Construct a data spec for the given uri and with <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a> set to null.</div>
+<div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="DataSpec-android.net.Uri-long-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DataSpec</h4>
+<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                long&nbsp;position,
+                long&nbsp;length)</pre>
+<div class="block">Constructs an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
+<dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
+<dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -646,10 +793,12 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
-                int&nbsp;flags)</pre>
-<div class="block">Construct a data spec for the given uri and with <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a> set to null.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
+                            int&nbsp;flags)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+<div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
@@ -663,16 +812,18 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                long&nbsp;absoluteStreamPosition,
-                long&nbsp;length,
-                @Nullable
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</pre>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> equals <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            long&nbsp;position,
+                            long&nbsp;length,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+<div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
-<dd><code>absoluteStreamPosition</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>, equal to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
+<dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 <dd><code>key</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a>.</dd>
 </dl>
@@ -684,18 +835,20 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                long&nbsp;absoluteStreamPosition,
-                long&nbsp;length,
-                @Nullable
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
-                int&nbsp;flags)</pre>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> equals <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            long&nbsp;position,
+                            long&nbsp;length,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
+                            int&nbsp;flags)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+<div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
-<dd><code>absoluteStreamPosition</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>, equal to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
+<dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 <dd><code>key</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a>.</dd>
 <dd><code>flags</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#flags"><code>flags</code></a>.</dd>
@@ -708,20 +861,21 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                long&nbsp;absoluteStreamPosition,
-                long&nbsp;length,
-                @Nullable
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
-                int&nbsp;flags,
-                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> equals <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a> and has
- request headers.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            long&nbsp;position,
+                            long&nbsp;length,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
+                            int&nbsp;flags,
+                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+<div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
-<dd><code>absoluteStreamPosition</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>, equal to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
+<dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>, equal to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 <dd><code>key</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a>.</dd>
 <dd><code>flags</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#flags"><code>flags</code></a>.</dd>
@@ -735,19 +889,21 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                long&nbsp;absoluteStreamPosition,
-                long&nbsp;position,
-                long&nbsp;length,
-                @Nullable
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
-                int&nbsp;flags)</pre>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> may differ from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            long&nbsp;absoluteStreamPosition,
+                            long&nbsp;position,
+                            long&nbsp;length,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
+                            int&nbsp;flags)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+<div class="block">Constructs an instance where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> may be non-zero.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
-<dd><code>absoluteStreamPosition</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</dd>
+<dd><code>absoluteStreamPosition</code> - The sum of <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 <dd><code>key</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a>.</dd>
@@ -761,25 +917,29 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                @Nullable
-                byte[]&nbsp;postBody,
-                long&nbsp;absoluteStreamPosition,
-                long&nbsp;position,
-                long&nbsp;length,
-                @Nullable
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
-                int&nbsp;flags)</pre>
-<div class="block">Construct a data spec by inferring the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a> based on the <code>postBody</code>
- parameter. If postBody is non-null, then httpMethod is set to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_POST"><code>HTTP_METHOD_POST</code></a>. If
- postBody is null, then httpMethod is set to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_GET"><code>HTTP_METHOD_GET</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            @Nullable
+                            byte[]&nbsp;postBody,
+                            long&nbsp;absoluteStreamPosition,
+                            long&nbsp;position,
+                            long&nbsp;length,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
+                            int&nbsp;flags)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>. Note that the httpMethod must be set explicitly for the
+     Builder.</span></div>
+<div class="block">Construct a instance where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> may be non-zero. The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>
+ is inferred from <code>postBody</code>. If <code>postBody</code> is non-null then <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a> is
+ set to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_POST"><code>HTTP_METHOD_POST</code></a>. If <code>postBody</code> is null then <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a> is set
+ to <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#HTTP_METHOD_GET"><code>HTTP_METHOD_GET</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
 <dd><code>postBody</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpBody"><code>httpBody</code></a> The body of the HTTP request, which is also used to infer the
      <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>.</dd>
-<dd><code>absoluteStreamPosition</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</dd>
+<dd><code>absoluteStreamPosition</code> - The sum of <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 <dd><code>key</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a>.</dd>
@@ -793,25 +953,27 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.HttpMethod</a>
-                int&nbsp;httpMethod,
-                @Nullable
-                byte[]&nbsp;httpBody,
-                long&nbsp;absoluteStreamPosition,
-                long&nbsp;position,
-                long&nbsp;length,
-                @Nullable
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
-                int&nbsp;flags)</pre>
-<div class="block">Construct a data spec where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a> may differ from <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.HttpMethod</a>
+                            int&nbsp;httpMethod,
+                            @Nullable
+                            byte[]&nbsp;httpBody,
+                            long&nbsp;absoluteStreamPosition,
+                            long&nbsp;position,
+                            long&nbsp;length,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
+                            int&nbsp;flags)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+<div class="block">Construct a instance where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> may be non-zero.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
 <dd><code>httpMethod</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>.</dd>
 <dd><code>httpBody</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpBody"><code>httpBody</code></a>.</dd>
-<dd><code>absoluteStreamPosition</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</dd>
+<dd><code>absoluteStreamPosition</code> - The sum of <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 <dd><code>key</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a>.</dd>
@@ -825,26 +987,28 @@ public final&nbsp;int flags</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DataSpec</h4>
-<pre>public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.HttpMethod</a>
-                int&nbsp;httpMethod,
-                @Nullable
-                byte[]&nbsp;httpBody,
-                long&nbsp;absoluteStreamPosition,
-                long&nbsp;position,
-                long&nbsp;length,
-                @Nullable
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
-                int&nbsp;flags,
-                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
-<div class="block">Construct a data spec with request parameters to be used as HTTP headers inside HTTP requests.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DataSpec(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.HttpMethod</a>
+                            int&nbsp;httpMethod,
+                            @Nullable
+                            byte[]&nbsp;httpBody,
+                            long&nbsp;absoluteStreamPosition,
+                            long&nbsp;position,
+                            long&nbsp;length,
+                            @Nullable
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">@DataSpec.Flags</a>
+                            int&nbsp;flags,
+                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a>.</span></div>
+<div class="block">Construct a instance where <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> may be non-zero.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uri"><code>uri</code></a>.</dd>
 <dd><code>httpMethod</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>.</dd>
 <dd><code>httpBody</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpBody"><code>httpBody</code></a>.</dd>
-<dd><code>absoluteStreamPosition</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#absoluteStreamPosition"><code>absoluteStreamPosition</code></a>.</dd>
+<dd><code>absoluteStreamPosition</code> - The sum of <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#uriPositionOffset"><code>uriPositionOffset</code></a> and <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>position</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>position</code></a>.</dd>
 <dd><code>length</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>length</code></a>.</dd>
 <dd><code>key</code> - <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#key"><code>key</code></a>.</dd>
@@ -861,6 +1025,18 @@ public final&nbsp;int flags</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getStringForHttpMethod-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getStringForHttpMethod</h4>
+<pre>public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang">String</a>&nbsp;getStringForHttpMethod(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream" target="_top">@DataSpec.HttpMethod</a>
+                                            int&nbsp;httpMethod)</pre>
+<div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the given
+ <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream"><code>DataSpec.HttpMethod</code></a>.</div>
+</li>
+</ul>
 <a name="isFlagSet-int-">
 <!--   -->
 </a>
@@ -876,19 +1052,6 @@ public final&nbsp;int flags</pre>
 </dl>
 </li>
 </ul>
-<a name="toString--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>toString</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;toString()</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString--" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a></code></dd>
-</dl>
-</li>
-</ul>
 <a name="getHttpMethodString--">
 <!--   -->
 </a>
@@ -896,18 +1059,18 @@ public final&nbsp;int flags</pre>
 <li class="blockList">
 <h4>getHttpMethodString</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;getHttpMethodString()</pre>
-<div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>.</div>
+<div class="block">Returns the uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the
+ <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#httpMethod"><code>httpMethod</code></a>.</div>
 </li>
 </ul>
-<a name="getStringForHttpMethod-int-">
+<a name="buildUpon--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>getStringForHttpMethod</h4>
-<pre>public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang">String</a>&nbsp;getStringForHttpMethod(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream" target="_top">@DataSpec.HttpMethod</a>
-                                            int&nbsp;httpMethod)</pre>
-<div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the <code>httpMethod</code>.</div>
+<h4>buildUpon</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;buildUpon()</pre>
+<div class="block">Returns a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a> initialized with the values of this instance.</div>
 </li>
 </ul>
 <a name="subrange-long-">
@@ -967,32 +1130,44 @@ public final&nbsp;int flags</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>withRequestHeaders</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;withRequestHeaders(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;requestHeaders)</pre>
-<div class="block">Returns a copy of this data spec with the specified request headers.</div>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;withRequestHeaders(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
+<div class="block">Returns a copy of this data spec with the specified HTTP request headers. Headers already in
+ the data spec are not copied to the new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>requestHeaders</code> - The HTTP request headers.</dd>
+<dd><code>httpRequestHeaders</code> - The HTTP request headers.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The copied data spec with the specified request headers.</dd>
+<dd>The copied data spec with the specified HTTP request headers.</dd>
 </dl>
 </li>
 </ul>
 <a name="withAdditionalHeaders-java.util.Map-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>withAdditionalHeaders</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;withAdditionalHeaders(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;requestHeaders)</pre>
-<div class="block">Returns a copy this data spec with additional request headers.
-
- <p>Note: Values in <code>requestHeaders</code> will overwrite values with the same header key that
- were previously set in this instance's <code>#httpRequestHeaders</code>.</div>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;withAdditionalHeaders(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;additionalHttpRequestHeaders)</pre>
+<div class="block">Returns a copy this data spec with additional HTTP request headers. Headers in <code>additionalHttpRequestHeaders</code> will overwrite any headers already in the data spec that have the
+ same keys.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>requestHeaders</code> - The additional HTTP request headers.</dd>
+<dd><code>additionalHttpRequestHeaders</code> - The additional HTTP request headers.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The copied data with the additional HTTP request headers.</dd>
+<dd>The copied data spec with the additional HTTP request headers.</dd>
+</dl>
+</li>
+</ul>
+<a name="toString--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString--" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -1024,7 +1199,7 @@ public final&nbsp;int flags</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSourceInputStream.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/DataSpec.html" target="_top">Frames</a></li>

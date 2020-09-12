@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -106,7 +106,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>Enclosing class:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="type parameter in DefaultDrmSessionManager">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></dd>
 </dl>
 <hr>
 <br>
@@ -153,7 +153,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</code></td>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html#build-com.google.android.exoplayer2.drm.MediaDrmCallback-">build</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;mediaDrmCallback)</code>
 <div class="block">Builds a <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> instance.</div>
 </td>
@@ -185,12 +185,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html#setSessionKeepaliveMs-long-">setSessionKeepaliveMs</a></span>(long&nbsp;sessionKeepaliveMs)</code>
+<div class="block">Sets the time to keep <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> alive when they're not in use.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html#setUseDrmSessionsForClearContent-int...-">setUseDrmSessionsForClearContent</a></span>(int...&nbsp;useDrmSessionsForClearContentTrackTypes)</code>
 <div class="block">Sets whether this session manager should attach <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> to the clear
  sections of the media content.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html#setUuidAndExoMediaDrmProvider-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.Provider-">setUuidAndExoMediaDrmProvider</a></span>(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" target="_top">UUID</a>&nbsp;uuid,
                              <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&nbsp;exoMediaDrmProvider)</code>
@@ -253,8 +259,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setKeyRequestParameters</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setKeyRequestParameters(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;keyRequestParameters)</pre>
-<div class="block">Sets the key request parameters to pass as the last argument to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>.
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setKeyRequestParameters(@Nullable
+                                                                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;keyRequestParameters)</pre>
+<div class="block">Sets the key request parameters to pass as the last argument to <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null if not parameters need to
+ be passed.
 
  <p>Custom data for PlayReady should be set under <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#PLAYREADY_CUSTOM_DATA_KEY"><code>DefaultDrmSessionManager.PLAYREADY_CUSTOM_DATA_KEY</code></a>.</div>
 <dl>
@@ -362,13 +370,38 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a name="setSessionKeepaliveMs-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSessionKeepaliveMs</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a>&nbsp;setSessionKeepaliveMs(long&nbsp;sessionKeepaliveMs)</pre>
+<div class="block">Sets the time to keep <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a> alive when they're not in use.
+
+ <p>It can be useful to keep sessions alive during playback of short clear sections of media
+ (e.g. ad breaks) to avoid opening new DRM sessions (and re-requesting keys) at the transition
+ back into secure content. This assumes the secure sections before and after the clear section
+ are encrypted with the same keys.
+
+ <p>Defaults to <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#DEFAULT_SESSION_KEEPALIVE_MS"><code>DefaultDrmSessionManager.DEFAULT_SESSION_KEEPALIVE_MS</code></a>. Pass <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to disable
+ keep-alive.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sessionKeepaliveMs</code> - The time to keep <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>s alive before fully releasing,
+     in milliseconds. Must be &gt; 0 or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to disable keep-alive.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
 <a name="build-com.google.android.exoplayer2.drm.MediaDrmCallback-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;build(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;mediaDrmCallback)</pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&nbsp;build(<a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;mediaDrmCallback)</pre>
 <div class="block">Builds a <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> instance.</div>
 </li>
 </ul>

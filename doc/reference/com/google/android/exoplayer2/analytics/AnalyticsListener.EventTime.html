@@ -16,6 +16,12 @@
     catch(err) {
     }
 //-->
+var methods = {"i0":10,"i1":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 </script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -68,13 +74,13 @@
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.top">
@@ -126,46 +132,66 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentPlaybackPositionMs">currentPlaybackPositionMs</a></span></code>
-<div class="block">Position in the current timeline window (<a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--"><code>Player.getCurrentWindowIndex()</code></a>) or the
- currently playing ad at the time of the event, in milliseconds.</div>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentMediaPeriodId">currentMediaPeriodId</a></span></code>
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>Media period identifier</code></a> for the currently playing media period at the
+ time of the event, or <code>null</code> if no current media period identifier is available.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentPlaybackPositionMs">currentPlaybackPositionMs</a></span></code>
+<div class="block">Position in the <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentWindowIndex"><code>current timeline window</code></a> or the currently playing
+ ad at the time of the event, in milliseconds.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentTimeline">currentTimeline</a></span></code>
+<div class="block">The current <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> at the time of the event (equivalent to <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>Player.getCurrentTimeline()</code></a>).</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentWindowIndex">currentWindowIndex</a></span></code>
+<div class="block">The current window index in <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentTimeline"><code>currentTimeline</code></a> at the time of the event, or the
+ prospective window index if the timeline is not yet known and empty (equivalent to <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--"><code>Player.getCurrentWindowIndex()</code></a>).</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#eventPlaybackPositionMs">eventPlaybackPositionMs</a></span></code>
 <div class="block">Position in the window or ad this event belongs to at the time of the event, in milliseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#mediaPeriodId">mediaPeriodId</a></span></code>
-<div class="block">Media period identifier for the media period this event belongs to, or <code>null</code> if the
- event is not associated with a specific media period.</div>
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>Media period identifier</code></a> for the media period this event belongs to, or
+ <code>null</code> if the event is not associated with a specific media period.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#realtimeMs">realtimeMs</a></span></code>
 <div class="block">Elapsed real-time as returned by <code>SystemClock.elapsedRealtime()</code> at the time of the
  event, in milliseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#timeline">timeline</a></span></code>
-<div class="block">Timeline at the time of the event.</div>
+<div class="block">Most recent <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> that contains the event position.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#totalBufferedDurationMs">totalBufferedDurationMs</a></span></code>
 <div class="block">Total buffered duration from <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentPlaybackPositionMs"><code>currentPlaybackPositionMs</code></a> at the time of the event, in
  milliseconds.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#windowIndex">windowIndex</a></span></code>
 <div class="block">Window index in the <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#timeline"><code>timeline</code></a> this event belongs to, or the prospective window index
@@ -187,11 +213,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#EventTime-long-com.google.android.exoplayer2.Timeline-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-long-long-">EventTime</a></span>(long&nbsp;realtimeMs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#EventTime-long-com.google.android.exoplayer2.Timeline-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-com.google.android.exoplayer2.Timeline-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-long-">EventTime</a></span>(long&nbsp;realtimeMs,
          <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
          int&nbsp;windowIndex,
          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
          long&nbsp;eventPlaybackPositionMs,
+         <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;currentTimeline,
+         int&nbsp;currentWindowIndex,
+         <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;currentMediaPeriodId,
          long&nbsp;currentPlaybackPositionMs,
          long&nbsp;totalBufferedDurationMs)</code>&nbsp;</td>
 </tr>
@@ -204,12 +233,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#equals-java.lang.Object-">equals</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;o)</code>&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#hashCode--">hashCode</a></span>()</code>&nbsp;</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -243,7 +287,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>timeline</h4>
 <pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a> timeline</pre>
-<div class="block">Timeline at the time of the event.</div>
+<div class="block">Most recent <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> that contains the event position.</div>
 </li>
 </ul>
 <a name="windowIndex">
@@ -265,8 +309,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>mediaPeriodId</h4>
 <pre>@Nullable
 public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a> mediaPeriodId</pre>
-<div class="block">Media period identifier for the media period this event belongs to, or <code>null</code> if the
- event is not associated with a specific media period.</div>
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>Media period identifier</code></a> for the media period this event belongs to, or
+ <code>null</code> if the event is not associated with a specific media period.</div>
 </li>
 </ul>
 <a name="eventPlaybackPositionMs">
@@ -279,6 +323,39 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/M
 <div class="block">Position in the window or ad this event belongs to at the time of the event, in milliseconds.</div>
 </li>
 </ul>
+<a name="currentTimeline">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentTimeline</h4>
+<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a> currentTimeline</pre>
+<div class="block">The current <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> at the time of the event (equivalent to <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>Player.getCurrentTimeline()</code></a>).</div>
+</li>
+</ul>
+<a name="currentWindowIndex">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentWindowIndex</h4>
+<pre>public final&nbsp;int currentWindowIndex</pre>
+<div class="block">The current window index in <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentTimeline"><code>currentTimeline</code></a> at the time of the event, or the
+ prospective window index if the timeline is not yet known and empty (equivalent to <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--"><code>Player.getCurrentWindowIndex()</code></a>).</div>
+</li>
+</ul>
+<a name="currentMediaPeriodId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>currentMediaPeriodId</h4>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a> currentMediaPeriodId</pre>
+<div class="block"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>Media period identifier</code></a> for the currently playing media period at the
+ time of the event, or <code>null</code> if no current media period identifier is available.</div>
+</li>
+</ul>
 <a name="currentPlaybackPositionMs">
 <!--   -->
 </a>
@@ -286,8 +363,8 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/M
 <li class="blockList">
 <h4>currentPlaybackPositionMs</h4>
 <pre>public final&nbsp;long currentPlaybackPositionMs</pre>
-<div class="block">Position in the current timeline window (<a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--"><code>Player.getCurrentWindowIndex()</code></a>) or the
- currently playing ad at the time of the event, in milliseconds.</div>
+<div class="block">Position in the <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentWindowIndex"><code>current timeline window</code></a> or the currently playing
+ ad at the time of the event, in milliseconds.</div>
 </li>
 </ul>
 <a name="totalBufferedDurationMs">
@@ -309,7 +386,7 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/M
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="EventTime-long-com.google.android.exoplayer2.Timeline-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-long-long-">
+<a name="EventTime-long-com.google.android.exoplayer2.Timeline-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-com.google.android.exoplayer2.Timeline-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -321,23 +398,72 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/M
                  @Nullable
                  <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                  long&nbsp;eventPlaybackPositionMs,
+                 <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;currentTimeline,
+                 int&nbsp;currentWindowIndex,
+                 @Nullable
+                 <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;currentMediaPeriodId,
                  long&nbsp;currentPlaybackPositionMs,
                  long&nbsp;totalBufferedDurationMs)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>realtimeMs</code> - Elapsed real-time as returned by <code>SystemClock.elapsedRealtime()</code> at
      the time of the event, in milliseconds.</dd>
-<dd><code>timeline</code> - Timeline at the time of the event.</dd>
-<dd><code>windowIndex</code> - Window index in the <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#timeline"><code>timeline</code></a> this event belongs to, or the
+<dd><code>timeline</code> - Most recent <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> that contains the event position.</dd>
+<dd><code>windowIndex</code> - Window index in the <code>timeline</code> this event belongs to, or the
      prospective window index if the timeline is not yet known and empty.</dd>
-<dd><code>mediaPeriodId</code> - Media period identifier for the media period this event belongs to, or
-     <code>null</code> if the event is not associated with a specific media period.</dd>
+<dd><code>mediaPeriodId</code> - <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>Media period identifier</code></a> for the media period this
+     event belongs to, or <code>null</code> if the event is not associated with a specific media
+     period.</dd>
 <dd><code>eventPlaybackPositionMs</code> - Position in the window or ad this event belongs to at the time
      of the event, in milliseconds.</dd>
-<dd><code>currentPlaybackPositionMs</code> - Position in the current timeline window (<a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--"><code>Player.getCurrentWindowIndex()</code></a>) or the currently playing ad at the time of the event, in
-     milliseconds.</dd>
-<dd><code>totalBufferedDurationMs</code> - Total buffered duration from <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html#currentPlaybackPositionMs"><code>currentPlaybackPositionMs</code></a> at the time of the event, in milliseconds. This includes
-     pre-buffered data for subsequent ads and windows.</dd>
+<dd><code>currentTimeline</code> - The current <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> at the time of the event (equivalent to
+     <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>Player.getCurrentTimeline()</code></a>).</dd>
+<dd><code>currentWindowIndex</code> - The current window index in <code>currentTimeline</code> at the time of
+     the event, or the prospective window index if the timeline is not yet known and empty
+     (equivalent to <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentWindowIndex--"><code>Player.getCurrentWindowIndex()</code></a>).</dd>
+<dd><code>currentMediaPeriodId</code> - <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>Media period identifier</code></a> for the currently
+     playing media period at the time of the event, or <code>null</code> if no current media period
+     identifier is available.</dd>
+<dd><code>currentPlaybackPositionMs</code> - Position in the current timeline window or the currently
+     playing ad at the time of the event, in milliseconds.</dd>
+<dd><code>totalBufferedDurationMs</code> - Total buffered duration from <code>currentPlaybackPositionMs</code>
+     at the time of the event, in milliseconds. This includes pre-buffered data for subsequent
+     ads and windows.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="equals-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>equals</h4>
+<pre>public&nbsp;boolean&nbsp;equals(@Nullable
+                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;o)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals-java.lang.Object-" title="class or interface in java.lang">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="hashCode--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>hashCode</h4>
+<pre>public&nbsp;int&nbsp;hashCode()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode--" title="class or interface in java.lang">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -396,13 +522,13 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/M
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.bottom">

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -120,33 +120,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#AUDIO_FORMAT">AUDIO_FORMAT</a></span></code>
-<div class="block">A generic audio <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up media sources and renderers.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#VIDEO_FORMAT">VIDEO_FORMAT</a></span></code>
-<div class="block">A generic video <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up media sources and renderers.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -159,7 +132,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#Builder--">Builder</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#Builder-android.content.Context-">Builder</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -178,94 +151,106 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#build-android.content.Context-">build</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#build--">build</a></span>()</code>
 <div class="block">Builds an <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil"><code>ExoPlayerTestRunner</code></a> using the provided values or their defaults.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#initialSeek-int-long-">initialSeek</a></span>(int&nbsp;windowIndex,
+           long&nbsp;positionMs)</code>
+<div class="block">Seeks before setting the media sources and preparing the player.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setActionSchedule-com.google.android.exoplayer2.testutil.ActionSchedule-">setActionSchedule</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a>&nbsp;actionSchedule)</code>
 <div class="block">Sets an <a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><code>ActionSchedule</code></a> to be run by the test runner.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setAnalyticsListener-com.google.android.exoplayer2.analytics.AnalyticsListener-">setAnalyticsListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;analyticsListener)</code>
 <div class="block">Sets an <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListener</code></a> to be registered.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setBandwidthMeter-com.google.android.exoplayer2.upstream.BandwidthMeter-">setBandwidthMeter</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> to be used by the test runner.</div>
-</td>
-</tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setClock-com.google.android.exoplayer2.util.Clock-">setClock</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> to be used by the test runner.</div>
-</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setBandwidthMeter-com.google.android.exoplayer2.upstream.BandwidthMeter-">setBandwidthMeter</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setClock-com.google.android.exoplayer2.util.Clock-">setClock</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setEventListener-com.google.android.exoplayer2.Player.EventListener-">setEventListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;eventListener)</code>
 <div class="block">Sets an <code>Player.EventListener</code> to be registered to listen to player events.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setExpectedPlayerEndedCount-int-">setExpectedPlayerEndedCount</a></span>(int&nbsp;expectedPlayerEndedCount)</code>
 <div class="block">Sets the number of times the test runner is expected to reach the <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>
  or <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a>.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setLoadControl-com.google.android.exoplayer2.LoadControl-">setLoadControl</a></span>(<a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</code>
-<div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> to be used by the test runner.</div>
-</td>
-</tr>
 <tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setLoadControl-com.google.android.exoplayer2.LoadControl-">setLoadControl</a></span>(<a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</code>&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setManifest-java.lang.Object-">setManifest</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest)</code>
 <div class="block">Sets a manifest to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> in the test runner.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-">setMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code>
-<div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to be used by the test runner.</div>
-</td>
-</tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderers-com.google.android.exoplayer2.Renderer...-">setRenderers</a></span>(<a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>...&nbsp;renderers)</code>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s to be used by the test runner.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSources-com.google.android.exoplayer2.source.MediaSource...-">setMediaSources</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to be used by the test runner.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderersFactory-com.google.android.exoplayer2.RenderersFactory-">setRenderersFactory</a></span>(<a href="../../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> to be used by the test runner.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setPauseAtEndOfMediaItems-boolean-">setPauseAtEndOfMediaItems</a></span>(boolean&nbsp;pauseAtEndOfMediaItems)</code>
+<div class="block">Sets whether to enable pausing at the end of media items.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setSupportedFormats-com.google.android.exoplayer2.Format...-">setSupportedFormats</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;supportedFormats)</code>
-<div class="block">Sets a list of <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> to create media
- periods and for setting up a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeRenderer</code></a>.</div>
-</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderers-com.google.android.exoplayer2.Renderer...-">setRenderers</a></span>(<a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>...&nbsp;renderers)</code>&nbsp;</td>
 </tr>
 <tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderersFactory-com.google.android.exoplayer2.RenderersFactory-">setRenderersFactory</a></span>(<a href="../../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</code>&nbsp;</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setSupportedFormats-com.google.android.exoplayer2.Format...-">setSupportedFormats</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;supportedFormats)</code>
+<div class="block">Sets a list of <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> to create media
+ periods.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTimeline-com.google.android.exoplayer2.Timeline-">setTimeline</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</code>
 <div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> in the test runner.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTrackSelector-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-">setTrackSelector</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector)</code>
-<div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> to be used by the test runner.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTrackSelector-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-">setTrackSelector</a></span>(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector)</code>&nbsp;</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setUseLazyPreparation-boolean-">setUseLazyPreparation</a></span>(boolean&nbsp;useLazyPreparation)</code>&nbsp;</td>
+</tr>
+<tr id="i18" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#skipSettingMediaSources--">skipSettingMediaSources</a></span>()</code>
+<div class="block">Skips calling <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSources-java.util.List-"><code>ExoPlayer.setMediaSources(List)</code></a> before
+ preparing.</div>
 </td>
 </tr>
 </table>
@@ -284,47 +269,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a name="VIDEO_FORMAT">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>VIDEO_FORMAT</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> VIDEO_FORMAT</pre>
-<div class="block">A generic video <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up media sources and renderers.</div>
-</li>
-</ul>
-<a name="AUDIO_FORMAT">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>AUDIO_FORMAT</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> AUDIO_FORMAT</pre>
-<div class="block">A generic audio <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> which can be used to set up media sources and renderers.</div>
-</li>
-</ul>
-</li>
-</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Builder--">
+<a name="Builder-android.content.Context-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
-<pre>public&nbsp;Builder()</pre>
+<pre>public&nbsp;Builder(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</pre>
 </li>
 </ul>
 </li>
@@ -344,7 +301,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setTimeline(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</pre>
 <div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> in the test runner. The
  default value is a seekable, non-dynamic <a href="../../../../../com/google/android/exoplayer2/testutil/FakeTimeline.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTimeline</code></a> with a duration of <a href="../../../../../com/google/android/exoplayer2/testutil/FakeTimeline.TimelineWindowDefinition.html#DEFAULT_WINDOW_DURATION_US"><code>FakeTimeline.TimelineWindowDefinition.DEFAULT_WINDOW_DURATION_US</code></a>. Setting the timeline is
- not allowed after a call to <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a>.</div>
+ not allowed after a call to <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSources-com.google.android.exoplayer2.source.MediaSource...-"><code>setMediaSources(MediaSource...)</code></a> or <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#skipSettingMediaSources--"><code>skipSettingMediaSources()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeline</code> - A <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> in the test
@@ -362,7 +319,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setManifest</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setManifest(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest)</pre>
 <div class="block">Sets a manifest to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> in the test runner. The default value
- is null. Setting the manifest is not allowed after a call to <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a>.</div>
+ is null. Setting the manifest is not allowed after a call to <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSources-com.google.android.exoplayer2.source.MediaSource...-"><code>setMediaSources(MediaSource...)</code></a> or <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#skipSettingMediaSources--"><code>skipSettingMediaSources()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifest</code> - A manifest to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> in the test runner.</dd>
@@ -371,69 +328,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="setMediaSource-com.google.android.exoplayer2.source.MediaSource-">
+<a name="initialSeek-int-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setMediaSource</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
-<div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to be used by the test runner. The default value is a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> with the timeline and manifest provided by <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTimeline-com.google.android.exoplayer2.Timeline-"><code>setTimeline(Timeline)</code></a>
- and <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setManifest-java.lang.Object-"><code>setManifest(Object)</code></a>. Setting the media source is not allowed after calls to
- <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTimeline-com.google.android.exoplayer2.Timeline-"><code>setTimeline(Timeline)</code></a> and/or <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setManifest-java.lang.Object-"><code>setManifest(Object)</code></a>.</div>
+<h4>initialSeek</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;initialSeek(int&nbsp;windowIndex,
+                                               long&nbsp;positionMs)</pre>
+<div class="block">Seeks before setting the media sources and preparing the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaSource</code> - A <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> to be used by the test runner.</dd>
+<dd><code>windowIndex</code> - The window index to seek to.</dd>
+<dd><code>positionMs</code> - The position in milliseconds to seek to.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
 </li>
 </ul>
-<a name="setTrackSelector-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-">
+<a name="setMediaSources-com.google.android.exoplayer2.source.MediaSource...-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setTrackSelector</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setTrackSelector(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector)</pre>
-<div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> to be used by the test runner. The default value is a
- <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> in its initial configuration.</div>
+<h4>setMediaSources</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setMediaSources(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to be used by the test runner. The default value is a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> with the timeline and manifest provided by <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTimeline-com.google.android.exoplayer2.Timeline-"><code>setTimeline(Timeline)</code></a>
+ and <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setManifest-java.lang.Object-"><code>setManifest(Object)</code></a>. Setting media sources is not allowed after calls to <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#skipSettingMediaSources--"><code>skipSettingMediaSources()</code></a>, <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTimeline-com.google.android.exoplayer2.Timeline-"><code>setTimeline(Timeline)</code></a> and/or <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setManifest-java.lang.Object-"><code>setManifest(Object)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>trackSelector</code> - A <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> to be used by the test runner.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a name="setLoadControl-com.google.android.exoplayer2.LoadControl-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setLoadControl</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setLoadControl(<a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
-<div class="block">Sets a <a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> to be used by the test runner. The default value is a
- <a href="../../../../../com/google/android/exoplayer2/DefaultLoadControl.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>loadControl</code> - A <a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> to be used by the test runner.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a name="setBandwidthMeter-com.google.android.exoplayer2.upstream.BandwidthMeter-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setBandwidthMeter</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setBandwidthMeter(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> to be used by the test runner. The default value is a <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter</code></a> in its default configuration.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bandwidthMeter</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter</code></a> to be used by the test runner.</dd>
+<dd><code>mediaSources</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s to be used by the test runner.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -447,13 +371,105 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setSupportedFormats</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setSupportedFormats(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;supportedFormats)</pre>
 <div class="block">Sets a list of <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s to be used by a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a> to create media
- periods and for setting up a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeRenderer</code></a>. The default value is a single <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#VIDEO_FORMAT"><code>VIDEO_FORMAT</code></a>. Note that this parameter doesn't have any influence if both a media source
- with <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and renderers with <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderers-com.google.android.exoplayer2.Renderer...-"><code>setRenderers(Renderer...)</code></a> or <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderersFactory-com.google.android.exoplayer2.RenderersFactory-"><code>setRenderersFactory(RenderersFactory)</code></a> are set.</div>
+ periods. The default value is a single <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html#VIDEO_FORMAT"><code>ExoPlayerTestRunner.VIDEO_FORMAT</code></a>. Note that this parameter
+ doesn't have any influence if a media source with <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSources-com.google.android.exoplayer2.source.MediaSource...-"><code>setMediaSources(MediaSource...)</code></a> is
+ set.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>supportedFormats</code> - A list of supported <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a name="skipSettingMediaSources--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>skipSettingMediaSources</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;skipSettingMediaSources()</pre>
+<div class="block">Skips calling <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSources-java.util.List-"><code>ExoPlayer.setMediaSources(List)</code></a> before
+ preparing. Calling this method is not allowed after calls to <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setMediaSources-com.google.android.exoplayer2.source.MediaSource...-"><code>setMediaSources(MediaSource...)</code></a>, <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setTimeline-com.google.android.exoplayer2.Timeline-"><code>setTimeline(Timeline)</code></a> and/or <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setManifest-java.lang.Object-"><code>setManifest(Object)</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a name="setUseLazyPreparation-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseLazyPreparation</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setUseLazyPreparation(boolean&nbsp;useLazyPreparation)</pre>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.Builder.html#setUseLazyPreparation-boolean-"><code>TestExoPlayer.Builder.setUseLazyPreparation(boolean)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="setPauseAtEndOfMediaItems-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setPauseAtEndOfMediaItems</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setPauseAtEndOfMediaItems(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
+<div class="block">Sets whether to enable pausing at the end of media items.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>pauseAtEndOfMediaItems</code> - Whether to pause at the end of media items.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
+<a name="setTrackSelector-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTrackSelector</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setTrackSelector(<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector</a>&nbsp;trackSelector)</pre>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.Builder.html#setTrackSelector-com.google.android.exoplayer2.trackselection.DefaultTrackSelector-"><code>TestExoPlayer.Builder.setTrackSelector(DefaultTrackSelector)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="setLoadControl-com.google.android.exoplayer2.LoadControl-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setLoadControl</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setLoadControl(<a href="../../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl)</pre>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.Builder.html#setLoadControl-com.google.android.exoplayer2.LoadControl-"><code>TestExoPlayer.Builder.setLoadControl(LoadControl)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="setBandwidthMeter-com.google.android.exoplayer2.upstream.BandwidthMeter-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setBandwidthMeter</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setBandwidthMeter(<a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.Builder.html#setBandwidthMeter-com.google.android.exoplayer2.upstream.BandwidthMeter-"><code>TestExoPlayer.Builder.setBandwidthMeter(BandwidthMeter)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -464,15 +480,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setRenderers</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setRenderers(<a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>...&nbsp;renderers)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s to be used by the test runner. The default value is a single
- <a href="../../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeRenderer</code></a> supporting the formats set by <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setSupportedFormats-com.google.android.exoplayer2.Format...-"><code>setSupportedFormats(Format...)</code></a>.
- Setting the renderers is not allowed after a call to
- <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderersFactory-com.google.android.exoplayer2.RenderersFactory-"><code>setRenderersFactory(RenderersFactory)</code></a>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>renderers</code> - A list of <a href="../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s to be used by the test runner.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.Builder.html#setRenderers-com.google.android.exoplayer2.Renderer...-"><code>TestExoPlayer.Builder.setRenderers(Renderer...)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -483,14 +495,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setRenderersFactory</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setRenderersFactory(<a href="../../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> to be used by the test runner. The default factory creates
- all renderers set by <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderers-com.google.android.exoplayer2.Renderer...-"><code>setRenderers(Renderer...)</code></a>. Setting the renderer factory is not
- allowed after a call to <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html#setRenderers-com.google.android.exoplayer2.Renderer...-"><code>setRenderers(Renderer...)</code></a>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>renderersFactory</code> - A <a href="../../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> to be used by the test runner.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.Builder.html#setRenderersFactory-com.google.android.exoplayer2.RenderersFactory-"><code>TestExoPlayer.Builder.setRenderersFactory(RenderersFactory)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -501,12 +510,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setClock</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setClock(<a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> to be used by the test runner. The default value is a <a href="../../../../../com/google/android/exoplayer2/testutil/AutoAdvancingFakeClock.html" title="class in com.google.android.exoplayer2.testutil"><code>AutoAdvancingFakeClock</code></a>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>clock</code> - A <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> to be used by the test runner.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.Builder.html#setClock-com.google.android.exoplayer2.util.Clock-"><code>TestExoPlayer.Builder.setClock(Clock)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -518,7 +526,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setActionSchedule</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner.Builder</a>&nbsp;setActionSchedule(<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil">ActionSchedule</a>&nbsp;actionSchedule)</pre>
 <div class="block">Sets an <a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><code>ActionSchedule</code></a> to be run by the test runner. The first action will be
- executed immediately before <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-"><code>SimpleExoPlayer.prepare(MediaSource)</code></a>.</div>
+ executed immediately before <a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.html#prepare--"><code>SimpleExoPlayer.prepare()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>actionSchedule</code> - An <a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.html" title="class in com.google.android.exoplayer2.testutil"><code>ActionSchedule</code></a> to be used by the test runner.</dd>
@@ -579,17 +587,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="build-android.content.Context-">
+<a name="build--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;build(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil">ExoPlayerTestRunner</a>&nbsp;build()</pre>
 <div class="block">Builds an <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil"><code>ExoPlayerTestRunner</code></a> using the provided values or their defaults.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The context.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The built <a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.html" title="class in com.google.android.exoplayer2.testutil"><code>ExoPlayerTestRunner</code></a>.</dd>
 </dl>
@@ -648,13 +654,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

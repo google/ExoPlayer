@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -123,20 +123,23 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 
  <pre><code>
  SimpleCache cache = new SimpleCache(downloadFolder, new NoOpCacheEvictor(), databaseProvider);
- DefaultHttpDataSourceFactory factory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
- DownloaderConstructorHelper constructorHelper =
-     new DownloaderConstructorHelper(cache, factory);
+ CacheDataSource.Factory cacheDataSourceFactory =
+     new CacheDataSource.Factory()
+         .setCache(cache)
+         .setUpstreamDataSourceFactory(new DefaultHttpDataSourceFactory(userAgent));
  // Create a downloader for the first track of the first stream element.
  SsDownloader ssDownloader =
      new SsDownloader(
-         manifestUrl,
-         Collections.singletonList(new StreamKey(0, 0)),
-         constructorHelper);
+         new MediaItem.Builder()
+             .setUri(manifestUri)
+             .setStreamKeys(Collections.singletonList(new StreamKey(0, 0)))
+             .build(),
+         cacheDataSourceFactory);
  // Perform the download.
  ssDownloader.download(progressListener);
- // Access downloaded data using CacheDataSource
- CacheDataSource cacheDataSource =
-     new CacheDataSource(cache, factory.createDataSource(), CacheDataSource.FLAG_BLOCK_ON_CACHE);
+ // Use the downloaded data for playback.
+ SsMediaSource mediaSource =
+     new SsMediaSource.Factory(cacheDataSourceFactory).createMediaSource(mediaItem);
  </code></pre></div>
 </li>
 </ul>
@@ -178,9 +181,44 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">SsDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-">SsDownloader</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory)</code>
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">SsDownloader</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+            <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</code>
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">SsDownloader</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            <a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;manifestParser,
+            <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+            <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</code>
+<div class="block">Creates a new instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-">SsDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys,
-            <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</code>&nbsp;</td>
+            <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-"><code>SsDownloader(MediaItem, CacheDataSource.Factory, Executor)</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">SsDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
+            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys,
+            <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+            <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-"><code>SsDownloader(MediaItem, CacheDataSource.Factory, Executor)</code></a> instead.</span></div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -198,13 +236,6 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">getManifest</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-           <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
-<div class="block">Loads and parses the manifest.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline" target="_top">SegmentDownloader.Segment</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-boolean-">getSegments</a></span>(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
            <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
@@ -218,7 +249,7 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.offline.<a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a></h3>
-<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#cancel--">cancel</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getCompressibleDataSpec-android.net.Uri-">getCompressibleDataSpec</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#remove--">remove</a></code></li>
+<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#cancel--">cancel</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#execute-com.google.android.exoplayer2.util.RunnableFutureTask-boolean-">execute</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getCompressibleDataSpec-android.net.Uri-">getCompressibleDataSpec</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">getManifest</a>, <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#remove--">remove</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -241,21 +272,91 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SsDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">
+<a name="SsDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SsDownloader</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;SsDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
+                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys,
+                                <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-"><code>SsDownloader(MediaItem, CacheDataSource.Factory, Executor)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SsDownloader</h4>
+<pre>public&nbsp;SsDownloader(<a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                    <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItem</code> - The <a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to be downloaded.</dd>
+<dd><code>cacheDataSourceFactory</code> - A <code>CacheDataSource.Factory</code> for the cache into which the
+     download will be written.</dd>
+</dl>
+</li>
+</ul>
+<a name="SsDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SsDownloader</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;SsDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
+                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys,
+                                <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+                                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/offline/SsDownloader.html#SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-"><code>SsDownloader(MediaItem, CacheDataSource.Factory, Executor)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SsDownloader</h4>
+<pre>public&nbsp;SsDownloader(<a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                    <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+                    <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItem</code> - The <a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to be downloaded.</dd>
+<dd><code>cacheDataSourceFactory</code> - A <code>CacheDataSource.Factory</code> for the cache into which the
+     download will be written.</dd>
+<dd><code>executor</code> - An <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a> used to make requests for the media being downloaded.
+     Providing an <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a> that uses multiple threads will speed up the download by
+     allowing parts of it to be executed in parallel.</dd>
+</dl>
+</li>
+</ul>
+<a name="SsDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SsDownloader</h4>
-<pre>public&nbsp;SsDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
-                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys,
-                    <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
+<pre>public&nbsp;SsDownloader(<a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                    <a href="../../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;&nbsp;manifestParser,
+                    <a href="../../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+                    <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>manifestUri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the manifest to be downloaded.</dd>
-<dd><code>streamKeys</code> - Keys defining which streams in the manifest should be selected for download.
-     If empty, all streams are downloaded.</dd>
-<dd><code>constructorHelper</code> - A <a href="../../../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloaderConstructorHelper</code></a> instance.</dd>
+<dd><code>mediaItem</code> - The <a href="../../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to be downloaded.</dd>
+<dd><code>manifestParser</code> - A parser for SmoothStreaming manifests.</dd>
+<dd><code>cacheDataSourceFactory</code> - A <code>CacheDataSource.Factory</code> for the cache into which the
+     download will be written.</dd>
+<dd><code>executor</code> - An <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a> used to make requests for the media being downloaded.
+     Providing an <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a> that uses multiple threads will speed up the download by
+     allowing parts of it to be executed in parallel.</dd>
 </dl>
 </li>
 </ul>
@@ -267,30 +368,6 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getManifest</h4>
-<pre>protected&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;getManifest(<a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-                                 <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
-                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">SegmentDownloader</a></code></span></div>
-<div class="block">Loads and parses the manifest.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">getManifest</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSource</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load.</dd>
-<dd><code>dataSpec</code> - The manifest <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The manifest.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading data.</dd>
-</dl>
-</li>
-</ul>
 <a name="getSegments-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest-boolean-">
 <!--   -->
 </a>
@@ -301,16 +378,17 @@ extends <a href="../../../../../../../com/google/android/exoplayer2/offline/Segm
                                                       <a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
                                                       boolean&nbsp;allowIncompleteList)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">SegmentDownloader</a></code></span></div>
-<div class="block">Returns a list of all downloadable <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
+<div class="block">Returns a list of all downloadable <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest. Any required data
+ should be loaded using <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-"><code>SegmentDownloader.getManifest(com.google.android.exoplayer2.upstream.DataSource, com.google.android.exoplayer2.upstream.DataSpec, boolean)</code></a> or <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#execute-com.google.android.exoplayer2.util.RunnableFutureTask-boolean-"><code>SegmentDownloader.execute(com.google.android.exoplayer2.util.RunnableFutureTask&lt;T, ?&gt;, boolean)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">getSegments</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;<a href="../../../../../../../com/google/android/exoplayer2/source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load any required data.</dd>
 <dd><code>manifest</code> - The manifest containing the segments.</dd>
-<dd><code>allowIncompleteList</code> - Whether to continue in the case that a load error prevents all
-     segments from being listed. If true then a partial segment list will be returned. If false
-     an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top"><code>IOException</code></a> will be thrown.</dd>
+<dd><code>allowIncompleteList</code> - Whether the segments are being obtained as part of a removal. If true then a
+     partial segment list is returned in the case that a load error prevents all segments from
+     being listed. If false then an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top"><code>IOException</code></a> will be thrown in this case.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The list of downloadable <a href="../../../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s.</dd>
 </dl>

@@ -206,35 +206,41 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_MIN_BUFFER_SIZE">DEFAULT_MIN_BUFFER_SIZE</a></span></code>
+<div class="block">The buffer size in bytes that will be used as a minimum target buffer in all cases.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_MUXED_BUFFER_SIZE">DEFAULT_MUXED_BUFFER_SIZE</a></span></code>
 <div class="block">A default size in bytes for a muxed buffer (e.g.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS">DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS</a></span></code>
 <div class="block">The default prioritization of buffer time constraints over size constraints.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME">DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</a></span></code>
 <div class="block">The default for whether the back buffer is retained from the previous keyframe.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_TARGET_BUFFER_BYTES">DEFAULT_TARGET_BUFFER_BYTES</a></span></code>
 <div class="block">The default target buffer size in bytes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_TEXT_BUFFER_SIZE">DEFAULT_TEXT_BUFFER_SIZE</a></span></code>
 <div class="block">A default size in bytes for a text buffer.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DEFAULT_VIDEO_BUFFER_SIZE">DEFAULT_VIDEO_BUFFER_SIZE</a></span></code>
 <div class="block">A default size in bytes for a video buffer.</div>
@@ -285,9 +291,8 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected </code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-int-boolean-int-boolean-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
-                  int&nbsp;minBufferAudioMs,
-                  int&nbsp;minBufferVideoMs,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-int-boolean-">DefaultLoadControl</a></span>(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
+                  int&nbsp;minBufferMs,
                   int&nbsp;maxBufferMs,
                   int&nbsp;bufferForPlaybackMs,
                   int&nbsp;bufferForPlaybackAfterRebufferMs,
@@ -313,8 +318,8 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#calculateTargetBufferSize-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">calculateTargetBufferSize</a></span>(<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
-                         <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelectionArray)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#calculateTargetBufferBytes-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">calculateTargetBufferBytes</a></span>(<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
+                          <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelectionArray)</code>
 <div class="block">Calculate target buffer size in bytes based on the selected tracks.</div>
 </td>
 </tr>
@@ -366,7 +371,8 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#shouldContinueLoading-long-float-">shouldContinueLoading</a></span>(long&nbsp;bufferedDurationUs,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.html#shouldContinueLoading-long-long-float-">shouldContinueLoading</a></span>(long&nbsp;playbackPositionUs,
+                     long&nbsp;bufferedDurationUs,
                      float&nbsp;playbackSpeed)</code>
 <div class="block">Called by the player to determine whether it should continue to load the source.</div>
 </td>
@@ -410,7 +416,7 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <h4>DEFAULT_MIN_BUFFER_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_MIN_BUFFER_MS</pre>
 <div class="block">The default minimum duration of media that the player will attempt to ensure is buffered at all
- times, in milliseconds. This value is only applied to playbacks without video.</div>
+ times, in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_MS">Constant Field Values</a></dd>
@@ -424,9 +430,7 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <li class="blockList">
 <h4>DEFAULT_MAX_BUFFER_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_MAX_BUFFER_MS</pre>
-<div class="block">The default maximum duration of media that the player will attempt to buffer, in milliseconds.
- For playbacks with video, this is also the default minimum duration of media that the player
- will attempt to ensure is buffered.</div>
+<div class="block">The default maximum duration of media that the player will attempt to buffer, in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MAX_BUFFER_MS">Constant Field Values</a></dd>
@@ -593,7 +597,7 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <a name="DEFAULT_MUXED_BUFFER_SIZE">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_MUXED_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_MUXED_BUFFER_SIZE</pre>
@@ -601,6 +605,21 @@ implements <a href="../../../../com/google/android/exoplayer2/LoadControl.html" 
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MUXED_BUFFER_SIZE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="DEFAULT_MIN_BUFFER_SIZE">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_MIN_BUFFER_SIZE</h4>
+<pre>public static final&nbsp;int DEFAULT_MIN_BUFFER_SIZE</pre>
+<div class="block">The buffer size in bytes that will be used as a minimum target buffer in all cases. This is
+ also the default target buffer before tracks are selected.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.DefaultLoadControl.DEFAULT_MIN_BUFFER_SIZE">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -650,15 +669,14 @@ public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-int-boolean-int-boolean-">
+<a name="DefaultLoadControl-com.google.android.exoplayer2.upstream.DefaultAllocator-int-int-int-int-int-boolean-int-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultLoadControl</h4>
 <pre>protected&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer2/upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator,
-                             int&nbsp;minBufferAudioMs,
-                             int&nbsp;minBufferVideoMs,
+                             int&nbsp;minBufferMs,
                              int&nbsp;maxBufferMs,
                              int&nbsp;bufferForPlaybackMs,
                              int&nbsp;bufferForPlaybackAfterRebufferMs,
@@ -809,20 +827,26 @@ public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer
 </dl>
 </li>
 </ul>
-<a name="shouldContinueLoading-long-float-">
+<a name="shouldContinueLoading-long-long-float-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>shouldContinueLoading</h4>
-<pre>public&nbsp;boolean&nbsp;shouldContinueLoading(long&nbsp;bufferedDurationUs,
+<pre>public&nbsp;boolean&nbsp;shouldContinueLoading(long&nbsp;playbackPositionUs,
+                                     long&nbsp;bufferedDurationUs,
                                      float&nbsp;playbackSpeed)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/LoadControl.html#shouldContinueLoading-long-float-">LoadControl</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/LoadControl.html#shouldContinueLoading-long-long-float-">LoadControl</a></code></span></div>
 <div class="block">Called by the player to determine whether it should continue to load the source.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../com/google/android/exoplayer2/LoadControl.html#shouldContinueLoading-long-float-">shouldContinueLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
+<dd><code><a href="../../../../com/google/android/exoplayer2/LoadControl.html#shouldContinueLoading-long-long-float-">shouldContinueLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackPositionUs</code> - The current playback position in microseconds, relative to the start
+     of the <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>period</code></a> that will continue to be loaded if this method
+     returns <code>true</code>. If playback of this period has not yet started, the value will be
+     negative and equal in magnitude to the duration of any media in previous periods still to
+     be played.</dd>
 <dd><code>bufferedDurationUs</code> - The duration of media that's currently buffered.</dd>
 <dd><code>playbackSpeed</code> - The current playback speed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -857,14 +881,14 @@ public&nbsp;DefaultLoadControl(<a href="../../../../com/google/android/exoplayer
 </dl>
 </li>
 </ul>
-<a name="calculateTargetBufferSize-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">
+<a name="calculateTargetBufferBytes-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>calculateTargetBufferSize</h4>
-<pre>protected&nbsp;int&nbsp;calculateTargetBufferSize(<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
-                                        <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelectionArray)</pre>
+<h4>calculateTargetBufferBytes</h4>
+<pre>protected&nbsp;int&nbsp;calculateTargetBufferBytes(<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
+                                         <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelectionArray)</pre>
 <div class="block">Calculate target buffer size in bytes based on the selected tracks. The player will try not to
  exceed this target buffer. Only used when <code>targetBufferBytes</code> is <a href="../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
 <dl>

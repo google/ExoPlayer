@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":42,"i3":10,"i4":10,"i5":10,"i6":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -217,7 +217,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -231,31 +231,39 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#getTag--">getTag</a></span>()</code>
-<div class="block">Returns the tag set on the media source, or null if none was set.</div>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#getMediaItem--">getMediaItem</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#getTag--">getTag</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#getMediaItem--"><code>getMediaItem()</code></a> and <code>MediaItem.PlaybackProperties#tag</code> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#maybeThrowSourceInfoRefreshError--">maybeThrowSourceInfoRefreshError</a></span>()</code>
 <div class="block">Throws any pending error encountered while loading or refreshing source information.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code>
 <div class="block">Starts source preparation and enables the source, see <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-"><code>MediaSource.prepareSource(MediaSourceCaller,
  TransferListener)</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-">releasePeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code>
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></span>()</code>
 <div class="block">Releases the source, see <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-"><code>MediaSource.releaseSource(MediaSourceCaller)</code></a>.</div>
@@ -267,7 +275,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">disable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disableInternal--">disableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">enable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enableInternal--">enableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#isEnabled--">isEnabled</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-">refreshSourceInfo</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">releaseSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addDrmEventListener-android.os.Handler-com.google.android.exoplayer2.drm.DrmSessionEventListener-">addDrmEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createDrmEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createDrmEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createDrmEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createDrmEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">disable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disableInternal--">disableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">enable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enableInternal--">enableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#isEnabled--">isEnabled</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-">refreshSourceInfo</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">releaseSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeDrmEventListener-com.google.android.exoplayer2.drm.DrmSessionEventListener-">removeDrmEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -275,6 +283,13 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.MediaSource">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#getInitialTimeline--">getInitialTimeline</a>, <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#isSingleWindow--">isSingleWindow</a></code></li>
 </ul>
 </li>
 </ul>
@@ -302,14 +317,6 @@ public&nbsp;SingleSampleMediaSource(<a href="https://developer.android.com/refer
                                            <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                            long&nbsp;durationUs)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource.Factory</code></a> instead.</span></div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the media stream.</dd>
-<dd><code>dataSourceFactory</code> - The factory from which the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to read the media will
-     be obtained.</dd>
-<dd><code>format</code> - The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> associated with the output track.</dd>
-<dd><code>durationUs</code> - The duration of the media stream in microseconds.</dd>
-</dl>
 </li>
 </ul>
 <a name="SingleSampleMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.Format-long-int-">
@@ -325,15 +332,6 @@ public&nbsp;SingleSampleMediaSource(<a href="https://developer.android.com/refer
                                            long&nbsp;durationUs,
                                            int&nbsp;minLoadableRetryCount)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource.Factory</code></a> instead.</span></div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the media stream.</dd>
-<dd><code>dataSourceFactory</code> - The factory from which the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to read the media will
-     be obtained.</dd>
-<dd><code>format</code> - The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> associated with the output track.</dd>
-<dd><code>durationUs</code> - The duration of the media stream in microseconds.</dd>
-<dd><code>minLoadableRetryCount</code> - The minimum number of times to retry if a loading error occurs.</dd>
-</dl>
 </li>
 </ul>
 <a name="SingleSampleMediaSource-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.Format-long-int-android.os.Handler-com.google.android.exoplayer2.source.SingleSampleMediaSource.EventListener-int-boolean-">
@@ -348,26 +346,13 @@ public&nbsp;SingleSampleMediaSource(<a href="https://developer.android.com/refer
                                            <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                            long&nbsp;durationUs,
                                            int&nbsp;minLoadableRetryCount,
+                                           @Nullable
                                            <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+                                           @Nullable
                                            <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source">SingleSampleMediaSource.EventListener</a>&nbsp;eventListener,
                                            int&nbsp;eventSourceId,
                                            boolean&nbsp;treatLoadErrorsAsEndOfStream)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source"><code>SingleSampleMediaSource.Factory</code></a> instead.</span></div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the media stream.</dd>
-<dd><code>dataSourceFactory</code> - The factory from which the <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> to read the media will
-     be obtained.</dd>
-<dd><code>format</code> - The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> associated with the output track.</dd>
-<dd><code>durationUs</code> - The duration of the media stream in microseconds.</dd>
-<dd><code>minLoadableRetryCount</code> - The minimum number of times to retry if a loading error occurs.</dd>
-<dd><code>eventHandler</code> - A handler for events. May be null if delivery of events is not required.</dd>
-<dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
-<dd><code>eventSourceId</code> - An identifier that gets passed to <code>eventListener</code> methods.</dd>
-<dd><code>treatLoadErrorsAsEndOfStream</code> - If true, load errors will not be propagated by sample
-     streams, treating them as ended instead. If false, load errors will be propagated normally
-     by <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html#maybeThrowError--"><code>SampleStream.maybeThrowError()</code></a>.</dd>
-</dl>
 </li>
 </ul>
 </li>
@@ -384,10 +369,21 @@ public&nbsp;SingleSampleMediaSource(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>getTag</h4>
-<pre>@Nullable
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+ @Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;getTag()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#getTag--">MediaSource</a></code></span></div>
-<div class="block">Returns the tag set on the media source, or null if none was set.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SingleSampleMediaSource.html#getMediaItem--"><code>getMediaItem()</code></a> and <code>MediaItem.PlaybackProperties#tag</code> instead.</span></div>
+</li>
+</ul>
+<a name="getMediaItem--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMediaItem</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;getMediaItem()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#getMediaItem--">MediaSource</a></code></span></div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
 </li>
 </ul>
 <a name="prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">
@@ -418,18 +414,13 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>maybeThrowSourceInfoRefreshError</h4>
-<pre>public&nbsp;void&nbsp;maybeThrowSourceInfoRefreshError()
-                                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<pre>public&nbsp;void&nbsp;maybeThrowSourceInfoRefreshError()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#maybeThrowSourceInfoRefreshError--">MediaSource</a></code></span></div>
 <div class="block">Throws any pending error encountered while loading or refreshing source information.
 
  <p>Should not be called directly from application code.
 
  <p>Must only be called after <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener)</code></a>.</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code></dd>
-</dl>
 </li>
 </ul>
 <a name="createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-">

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -140,13 +140,19 @@ var activeTableTab = "activeTableTab";
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a></span></code>
-<div class="block">Provides views for the ad UI.</div>
+<div class="block">Provides information about views for the ad playback UI.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a></span></code>
 <div class="block">Listener for ads loader events.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads">AdsLoader.OverlayInfo</a></span></code>
+<div class="block">Provides information about an overlay view shown on top of an ad view group.</div>
 </td>
 </tr>
 </table>
@@ -166,38 +172,45 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#handlePrepareComplete-int-int-">handlePrepareComplete</a></span>(int&nbsp;adGroupIndex,
+                     int&nbsp;adIndexInAdGroup)</code>
+<div class="block">Notifies the ads loader that preparation of an ad media period is complete.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#handlePrepareError-int-int-java.io.IOException-">handlePrepareError</a></span>(int&nbsp;adGroupIndex,
                   int&nbsp;adIndexInAdGroup,
                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;exception)</code>
 <div class="block">Notifies the ads loader that the player was not able to prepare media for a given ad.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#release--">release</a></span>()</code>
 <div class="block">Releases the loader.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
 <div class="block">Sets the player that will play the loaded ads.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#setSupportedContentTypes-int...-">setSupportedContentTypes</a></span>(int...&nbsp;contentTypes)</code>
 <div class="block">Sets the supported content types for ad media.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#start-com.google.android.exoplayer2.source.ads.AdsLoader.EventListener-com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider-">start</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener,
      <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a>&nbsp;adViewProvider)</code>
 <div class="block">Starts using the ads loader for playback.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html#stop--">stop</a></span>()</code>
 <div class="block">Stops using the ads loader for playback and deregisters the event listener.</div>
@@ -293,6 +306,23 @@ var activeTableTab = "activeTableTab";
 <pre>void&nbsp;stop()</pre>
 <div class="block">Stops using the ads loader for playback and deregisters the event listener. Called on the main
  thread by <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
+</li>
+</ul>
+<a name="handlePrepareComplete-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>handlePrepareComplete</h4>
+<pre>void&nbsp;handlePrepareComplete(int&nbsp;adGroupIndex,
+                           int&nbsp;adIndexInAdGroup)</pre>
+<div class="block">Notifies the ads loader that preparation of an ad media period is complete. Called on the main
+ thread by <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The index of the ad group.</dd>
+<dd><code>adIndexInAdGroup</code> - The index of the ad in the ad group.</dd>
+</dl>
 </li>
 </ul>
 <a name="handlePrepareError-int-int-java.io.IOException-">

@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":6,"i1":18,"i2":6,"i3":18,"i4":6,"i5":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -128,6 +128,45 @@ var activeTableTab = "activeTableTab";
 <div class="block">Holds data required to decrypt a sample.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">TrackOutput.SampleDataPart</a></span></code>
+<div class="block">Defines the part of the sample data to which a call to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>sampleData(com.google.android.exoplayer2.upstream.DataReader, int, boolean)</code></a> corresponds.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_ENCRYPTION">SAMPLE_DATA_PART_ENCRYPTION</a></span></code>
+<div class="block">Sample encryption data.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_MAIN">SAMPLE_DATA_PART_MAIN</a></span></code>
+<div class="block">Main media sample data.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_SUPPLEMENTAL">SAMPLE_DATA_PART_SUPPLEMENTAL</a></span></code>
+<div class="block">Sample supplemental data.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -138,7 +177,7 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -150,21 +189,40 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+<td class="colFirst"><code>default int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
           int&nbsp;length,
           boolean&nbsp;allowEndOfInput)</code>
-<div class="block">Called to write sample data to the output.</div>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-"><code>sampleData(input, length,
+ allowEndOfInput, SAMPLE_DATA_PART_MAIN)</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-          int&nbsp;length)</code>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
+          int&nbsp;length,
+          boolean&nbsp;allowEndOfInput,
+          int&nbsp;sampleDataPart)</code>
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+          int&nbsp;length)</code>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-"><code>sampleData(ParsableByteArray, int, int)</code></a> sampleData(data, length,
+ SAMPLE_DATA_PART_MAIN)}.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+          int&nbsp;length,
+          int&nbsp;sampleDataPart)</code>
+<div class="block">Called to write sample data to the output.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleMetadata-long-int-int-int-com.google.android.exoplayer2.extractor.TrackOutput.CryptoData-">sampleMetadata</a></span>(long&nbsp;timeUs,
               int&nbsp;flags,
@@ -183,6 +241,86 @@ var activeTableTab = "activeTableTab";
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="SAMPLE_DATA_PART_MAIN">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SAMPLE_DATA_PART_MAIN</h4>
+<pre>static final&nbsp;int SAMPLE_DATA_PART_MAIN</pre>
+<div class="block">Main media sample data.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.TrackOutput.SAMPLE_DATA_PART_MAIN">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="SAMPLE_DATA_PART_ENCRYPTION">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SAMPLE_DATA_PART_ENCRYPTION</h4>
+<pre>static final&nbsp;int SAMPLE_DATA_PART_ENCRYPTION</pre>
+<div class="block">Sample encryption data.
+
+ <p>The format for encryption information is:
+
+ <ul>
+   <li>(1 byte) <code>encryption_signal_byte</code>: Most significant bit signals whether the
+       encryption data contains subsample encryption data. The remaining bits contain <code>initialization_vector_size</code>.
+   <li>(<code>initialization_vector_size</code> bytes) Initialization vector.
+   <li>If subsample encryption data is present, as per <code>encryption_signal_byte</code>, the
+       encryption data also contains:
+       <ul>
+         <li>(2 bytes) <code>subsample_encryption_data_length</code>.
+         <li>(<code>subsample_encryption_data_length * 6</code> bytes) Subsample encryption data
+             (repeated <code>subsample_encryption_data_length</code> times:
+             <ul>
+               <li>(2 bytes) Size of a clear section in sample.
+               <li>(4 bytes) Size of an encryption section in sample.
+             </ul>
+       </ul>
+ </ul></div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.TrackOutput.SAMPLE_DATA_PART_ENCRYPTION">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="SAMPLE_DATA_PART_SUPPLEMENTAL">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>SAMPLE_DATA_PART_SUPPLEMENTAL</h4>
+<pre>static final&nbsp;int SAMPLE_DATA_PART_SUPPLEMENTAL</pre>
+<div class="block">Sample supplemental data.
+
+ <p>If a sample contains supplemental data, the format of the entire sample data will be:
+
+ <ul>
+   <li>If the sample has the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_ENCRYPTED"><code>C.BUFFER_FLAG_ENCRYPTED</code></a> flag set, all encryption
+       information.
+   <li>(4 bytes) <code>sample_data_size</code>: The size of the actual sample data, not including
+       supplemental data or encryption information.
+   <li>(<code>sample_data_size</code> bytes): The media sample data.
+   <li>(remaining bytes) The supplemental data.
+ </ul></div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.TrackOutput.SAMPLE_DATA_PART_SUPPLEMENTAL">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.detail">
@@ -203,30 +341,21 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">
+<a name="sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleData</h4>
-<pre>int&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
-               int&nbsp;length,
-               boolean&nbsp;allowEndOfInput)
-        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-               <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Called to write sample data to the output.</div>
+<pre>default&nbsp;int&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
+                       int&nbsp;length,
+                       boolean&nbsp;allowEndOfInput)
+                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-"><code>sampleData(input, length,
+ allowEndOfInput, SAMPLE_DATA_PART_MAIN)</code></a>.</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>input</code> - An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> from which to read the sample data.</dd>
-<dd><code>length</code> - The maximum length to read from the input.</dd>
-<dd><code>allowEndOfInput</code> - True if encountering the end of the input having read no data is
-     allowed, and should result in <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> being returned. False if it
-     should be considered an error, causing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top"><code>EOFException</code></a> to be thrown.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes appended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurred reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -236,13 +365,56 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleData</h4>
+<pre>default&nbsp;void&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+                        int&nbsp;length)</pre>
+<div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-"><code>sampleData(ParsableByteArray, int, int)</code></a> sampleData(data, length,
+ SAMPLE_DATA_PART_MAIN)}.</div>
+</li>
+</ul>
+<a name="sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleData</h4>
+<pre>int&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
+               int&nbsp;length,
+               boolean&nbsp;allowEndOfInput,
+               <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@TrackOutput.SampleDataPart</a>
+               int&nbsp;sampleDataPart)
+        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Called to write sample data to the output.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>input</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a> from which to read the sample data.</dd>
+<dd><code>length</code> - The maximum length to read from the input.</dd>
+<dd><code>allowEndOfInput</code> - True if encountering the end of the input having read no data is
+     allowed, and should result in <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> being returned. False if it
+     should be considered an error, causing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top"><code>EOFException</code></a> to be thrown.</dd>
+<dd><code>sampleDataPart</code> - The part of the sample data to which this call corresponds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The number of bytes appended.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurred reading from the input.</dd>
+</dl>
+</li>
+</ul>
+<a name="sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleData</h4>
 <pre>void&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-                int&nbsp;length)</pre>
+                int&nbsp;length,
+                <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@TrackOutput.SampleDataPart</a>
+                int&nbsp;sampleDataPart)</pre>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - A <a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> from which to read the sample data.</dd>
 <dd><code>length</code> - The number of bytes to read, starting from <code>data.getPosition()</code>.</dd>
+<dd><code>sampleDataPart</code> - The part of the sample data to which this call corresponds.</dd>
 </dl>
 </li>
 </ul>
@@ -262,16 +434,15 @@ var activeTableTab = "activeTableTab";
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.
 
  <p>The corresponding sample data will have already been passed to the output via calls to
- <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>sampleData(ExtractorInput, int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray,
- int)</code></a>.</div>
+ <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>sampleData(DataReader, int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray, int)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - The media timestamp associated with the sample, in microseconds.</dd>
 <dd><code>flags</code> - Flags associated with the sample. See <code>C.BUFFER_FLAG_*</code>.</dd>
 <dd><code>size</code> - The size of the sample data, in bytes.</dd>
-<dd><code>offset</code> - The number of bytes that have been passed to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>sampleData(ExtractorInput,
-     int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray, int)</code></a> since the last byte belonging
-     to the sample whose metadata is being passed.</dd>
+<dd><code>offset</code> - The number of bytes that have been passed to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>sampleData(DataReader, int,
+     boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>sampleData(ParsableByteArray, int)</code></a> since the last byte belonging to
+     the sample whose metadata is being passed.</dd>
 <dd><code>encryptionData</code> - The encryption data required to decrypt the sample. May be null.</dd>
 </dl>
 </li>
@@ -329,13 +500,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

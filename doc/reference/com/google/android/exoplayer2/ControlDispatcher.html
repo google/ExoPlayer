@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -97,10 +97,6 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
-<dt>All Known Subinterfaces:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/ui/PlaybackControlView.ControlDispatcher.html" title="interface in com.google.android.exoplayer2.ui">PlaybackControlView.ControlDispatcher</a></dd>
-</dl>
-<dl>
 <dt>All Known Implementing Classes:</dt>
 <dd><a href="../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2">DefaultControlDispatcher</a></dd>
 </dl>
@@ -132,38 +128,74 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchFastForward-com.google.android.exoplayer2.Player-">dispatchFastForward</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<div class="block">Dispatches a fast forward operation.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchNext-com.google.android.exoplayer2.Player-">dispatchNext</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#next--"><code>Player.next()</code></a> operation.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrevious-com.google.android.exoplayer2.Player-">dispatchPrevious</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#previous--"><code>Player.previous()</code></a> operation.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchRewind-com.google.android.exoplayer2.Player-">dispatchRewind</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code>
+<div class="block">Dispatches a rewind operation.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSeekTo-com.google.android.exoplayer2.Player-int-long-">dispatchSeekTo</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
               int&nbsp;windowIndex,
               long&nbsp;positionMs)</code>
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-"><code>Player.seekTo(int, long)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetPlayWhenReady-com.google.android.exoplayer2.Player-boolean-">dispatchSetPlayWhenReady</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                         boolean&nbsp;playWhenReady)</code>
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetRepeatMode-com.google.android.exoplayer2.Player-int-">dispatchSetRepeatMode</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                      int&nbsp;repeatMode)</code>
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetShuffleModeEnabled-com.google.android.exoplayer2.Player-boolean-">dispatchSetShuffleModeEnabled</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              boolean&nbsp;shuffleModeEnabled)</code>
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">dispatchStop</a></span>(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
             boolean&nbsp;reset)</code>
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> operation.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isFastForwardEnabled--">isFastForwardEnabled</a></span>()</code>
+<div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isRewindEnabled--">isRewindEnabled</a></span>()</code>
+<div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
 </td>
 </tr>
 </table>
@@ -220,6 +252,70 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
+<a name="dispatchPrevious-com.google.android.exoplayer2.Player-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dispatchPrevious</h4>
+<pre>boolean&nbsp;dispatchPrevious(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#previous--"><code>Player.previous()</code></a> operation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the operation was dispatched. False if suppressed.</dd>
+</dl>
+</li>
+</ul>
+<a name="dispatchNext-com.google.android.exoplayer2.Player-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dispatchNext</h4>
+<pre>boolean&nbsp;dispatchNext(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#next--"><code>Player.next()</code></a> operation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the operation was dispatched. False if suppressed.</dd>
+</dl>
+</li>
+</ul>
+<a name="dispatchRewind-com.google.android.exoplayer2.Player-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dispatchRewind</h4>
+<pre>boolean&nbsp;dispatchRewind(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Dispatches a rewind operation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the operation was dispatched. False if suppressed.</dd>
+</dl>
+</li>
+</ul>
+<a name="dispatchFastForward-com.google.android.exoplayer2.Player-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dispatchFastForward</h4>
+<pre>boolean&nbsp;dispatchFastForward(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Dispatches a fast forward operation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the operation was dispatched. False if suppressed.</dd>
+</dl>
+</li>
+</ul>
 <a name="dispatchSetRepeatMode-com.google.android.exoplayer2.Player-int-">
 <!--   -->
 </a>
@@ -260,7 +356,7 @@ var activeTableTab = "activeTableTab";
 <a name="dispatchStop-com.google.android.exoplayer2.Player-boolean-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>dispatchStop</h4>
 <pre>boolean&nbsp;dispatchStop(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
@@ -273,6 +369,26 @@ var activeTableTab = "activeTableTab";
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>True if the operation was dispatched. False if suppressed.</dd>
 </dl>
+</li>
+</ul>
+<a name="isRewindEnabled--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isRewindEnabled</h4>
+<pre>boolean&nbsp;isRewindEnabled()</pre>
+<div class="block">Returns <code>true</code> if rewind is enabled, <code>false</code> otherwise.</div>
+</li>
+</ul>
+<a name="isFastForwardEnabled--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isFastForwardEnabled</h4>
+<pre>boolean&nbsp;isFastForwardEnabled()</pre>
+<div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 </li>
 </ul>
 </li>

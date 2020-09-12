@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -186,54 +186,66 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdErrorListener-com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener-">setAdErrorListener</a></span>(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</code>
+<div class="block">Sets a listener for ad errors that will be passed to <code>AdsLoader#addAdErrorListener(AdErrorListener)</code> and <code>AdsManager#addAdErrorListener(AdErrorListener)</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdEventListener-com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener-">setAdEventListener</a></span>(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</code>
 <div class="block">Sets a listener for ad events that will be passed to <code>AdsManager#addAdEventListener(AdEventListener)</code>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdPreloadTimeoutMs-long-">setAdPreloadTimeoutMs</a></span>(long&nbsp;adPreloadTimeoutMs)</code>
 <div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
  group before that ad group is skipped and marked as having failed to load.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdUiElements-java.util.Set-">setAdUiElements</a></span>(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</code>
 <div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setCompanionAdSlots-java.util.Collection-">setCompanionAdSlots</a></span>(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</code>
+<div class="block">Sets the slots to use for companion ads, if they are present in the loaded ad.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setFocusSkipButtonWhenAvailable-boolean-">setFocusSkipButtonWhenAvailable</a></span>(boolean&nbsp;focusSkipButtonWhenAvailable)</code>
 <div class="block">Sets whether to focus the skip button (when available) on Android TV devices.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setImaSdkSettings-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">setImaSdkSettings</a></span>(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code>
 <div class="block">Sets the IMA SDK settings.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMaxMediaBitrate-int-">setMaxMediaBitrate</a></span>(int&nbsp;bitrate)</code>
 <div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMediaLoadTimeoutMs-int-">setMediaLoadTimeoutMs</a></span>(int&nbsp;mediaLoadTimeoutMs)</code>
 <div class="block">Sets the ad media load timeout, in milliseconds.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setPlayAdBeforeStartPosition-boolean-">setPlayAdBeforeStartPosition</a></span>(boolean&nbsp;playAdBeforeStartPosition)</code>
 <div class="block">Sets whether to play an ad before the start position when beginning playback.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-int-">setVastLoadTimeoutMs</a></span>(int&nbsp;vastLoadTimeoutMs)</code>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
@@ -329,6 +341,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a name="setAdErrorListener-com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdErrorListener</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdErrorListener(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</pre>
+<div class="block">Sets a listener for ad errors that will be passed to <code>AdsLoader#addAdErrorListener(AdErrorListener)</code> and <code>AdsManager#addAdErrorListener(AdErrorListener)</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adErrorListener</code> - The ad error listener.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a name="setAdEventListener-com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener-">
 <!--   -->
 </a>
@@ -360,6 +388,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd>This builder, for convenience.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><code>AdsRenderingSettings.setUiElements(Set)</code></dd>
+</dl>
+</li>
+</ul>
+<a name="setCompanionAdSlots-java.util.Collection-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCompanionAdSlots</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setCompanionAdSlots(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</pre>
+<div class="block">Sets the slots to use for companion ads, if they are present in the loaded ad.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>companionAdSlots</code> - The slots to use for companion ads.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>BaseDisplayContainer.setCompanionSlots(Collection)</code></dd>
 </dl>
 </li>
 </ul>

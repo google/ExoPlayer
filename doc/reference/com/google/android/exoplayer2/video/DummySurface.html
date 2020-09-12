@@ -283,16 +283,14 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
                                           boolean&nbsp;secure)</pre>
 <div class="block">Returns a newly created dummy surface. The surface must be released by calling <a href="../../../../../com/google/android/exoplayer2/video/DummySurface.html#release--"><code>release()</code></a>
  when it's no longer required.
- <p>
- Must only be called if <a href="../../../../../com/google/android/exoplayer2/util/Util.html#SDK_INT"><code>Util.SDK_INT</code></a> is 17 or higher.</div>
+
+ <p>Must only be called if <a href="../../../../../com/google/android/exoplayer2/util/Util.html#SDK_INT"><code>Util.SDK_INT</code></a> is 17 or higher.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - Any <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a>.</dd>
-<dd><code>secure</code> - Whether a secure surface is required. Must only be requested if
-     <a href="../../../../../com/google/android/exoplayer2/video/DummySurface.html#isSecureSupported-android.content.Context-"><code>isSecureSupported(Context)</code></a> returns <code>true</code>.</dd>
+<dd><code>secure</code> - Whether a secure surface is required. Must only be requested if <a href="../../../../../com/google/android/exoplayer2/video/DummySurface.html#isSecureSupported-android.content.Context-"><code>isSecureSupported(Context)</code></a> returns <code>true</code>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If a secure surface is requested on a device for which
-     <a href="../../../../../com/google/android/exoplayer2/video/DummySurface.html#isSecureSupported-android.content.Context-"><code>isSecureSupported(Context)</code></a> returns <code>false</code>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang">IllegalStateException</a></code> - If a secure surface is requested on a device for which <a href="../../../../../com/google/android/exoplayer2/video/DummySurface.html#isSecureSupported-android.content.Context-" target="_top"><code>isSecureSupported(Context)</code></a> returns <code>false</code>.</dd>
 </dl>
 </li>
 </ul>

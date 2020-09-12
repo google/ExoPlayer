@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/FakeSampleStream.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -110,17 +110,44 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public final class <span class="typeNameLabel">FakeSampleStream</span>
+<pre>public class <span class="typeNameLabel">FakeSampleStream</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></pre>
-<div class="block">Fake <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> that outputs a given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, an optional sample containing a
- single zero byte, then end of stream.</div>
+<div class="block">Fake <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> that outputs a given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, any amount of <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>, then end of stream.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a></span></code>
+<div class="block">Item to customize a return value of <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#readData-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-"><code>readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, boolean)</code></a>.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.SampleStream">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadDataResult</a></code></li>
+</ul>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -133,19 +160,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#FakeSampleStream-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-boolean-">FakeSampleStream</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-                boolean&nbsp;shouldOutputSample)</code>
-<div class="block">Creates fake sample stream which outputs the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, optionally one sample with
- zero bytes, then end of stream.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#FakeSampleStream-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-byte:A-">FakeSampleStream</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-                byte[]&nbsp;sampleData)</code>
-<div class="block">Creates fake sample stream which outputs the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, one sample with the provided
- bytes, then end of stream.</div>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#FakeSampleStream-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.Format-java.util.List-">FakeSampleStream</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher,
+                <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
+                <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;initialFormat,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil" target="_top">FakeSampleStream.FakeSampleStreamItem</a>&gt;&nbsp;fakeSampleStreamItems)</code>
+<div class="block">Creates a fake sample stream which outputs the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> followed by the provided
+ <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -164,18 +185,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#addFakeSampleStreamItem-com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem-">addFakeSampleStreamItem</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a>&nbsp;item)</code>
+<div class="block">Adds an item to the end of the queue of <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#isReady--">isReady</a></span>()</code>
 <div class="block">Returns whether data is available to be read.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#maybeThrowError--">maybeThrowError</a></span>()</code>
 <div class="block">Throws an error that's preventing data from being read.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#readData-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readData</a></span>(<a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
         <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
@@ -183,7 +210,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <div class="block">Attempts to read from the stream.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#release--">release</a></span>()</code>
+<div class="block">Release this SampleStream and all underlying resources.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#seekTo-long-">seekTo</a></span>(long&nbsp;timeUs)</code>
+<div class="block">Seeks inside this sample stream.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#skipData-long-">skipData</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Attempts to skip to the keyframe before the specified position, or to the end of the stream if
@@ -212,43 +251,32 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="FakeSampleStream-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FakeSampleStream</h4>
-<pre>public&nbsp;FakeSampleStream(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                        @Nullable
-                        <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-                        boolean&nbsp;shouldOutputSample)</pre>
-<div class="block">Creates fake sample stream which outputs the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, optionally one sample with
- zero bytes, then end of stream.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>format</code> - The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> to output.</dd>
-<dd><code>eventDispatcher</code> - An <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> to notify of read events.</dd>
-<dd><code>shouldOutputSample</code> - Whether the sample stream should output a sample.</dd>
-</dl>
-</li>
-</ul>
-<a name="FakeSampleStream-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-byte:A-">
+<a name="FakeSampleStream-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.Format-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>FakeSampleStream</h4>
-<pre>public&nbsp;FakeSampleStream(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                        @Nullable
-                        <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-                        byte[]&nbsp;sampleData)</pre>
-<div class="block">Creates fake sample stream which outputs the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, one sample with the provided
- bytes, then end of stream.</div>
+<pre>public&nbsp;FakeSampleStream(@Nullable
+                        <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                        <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
+                        <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;initialFormat,
+                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil" target="_top">FakeSampleStream.FakeSampleStreamItem</a>&gt;&nbsp;fakeSampleStreamItems)</pre>
+<div class="block">Creates a fake sample stream which outputs the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> followed by the provided
+ <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>format</code> - The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> to output.</dd>
-<dd><code>eventDispatcher</code> - An <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> to notify of read events.</dd>
-<dd><code>sampleData</code> - The sample data to output.</dd>
+<dd><code>mediaSourceEventDispatcher</code> - A <code>MediaSourceEventListener.EventDispatcher</code> to notify
+     of media events.</dd>
+<dd><code>drmSessionManager</code> - A <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> for DRM interactions.</dd>
+<dd><code>drmEventDispatcher</code> - A <code>DrmSessionEventListener.EventDispatcher</code> to notify of DRM
+     events.</dd>
+<dd><code>initialFormat</code> - The first <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> to output.</dd>
+<dd><code>fakeSampleStreamItems</code> - The <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a> to customize the return
+     values of <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.html#readData-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-"><code>readData(FormatHolder, DecoderInputBuffer, boolean)</code></a>. This is assumed to
+     be in ascending order of sampleTime. Note that once an EOS buffer has been read, that will
+     return every time readData is called. This should usually end with <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html#END_OF_STREAM_ITEM"><code>FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -260,6 +288,33 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="seekTo-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>seekTo</h4>
+<pre>public&nbsp;void&nbsp;seekTo(long&nbsp;timeUs)</pre>
+<div class="block">Seeks inside this sample stream.
+
+ <p>Seeks to just before the first sample with <code>sampleTime &gt;= timeUs</code>, or to the end of
+ the stream otherwise.</div>
+</li>
+</ul>
+<a name="addFakeSampleStreamItem-com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addFakeSampleStreamItem</h4>
+<pre>public&nbsp;void&nbsp;addFakeSampleStreamItem(<a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream.FakeSampleStreamItem</a>&nbsp;item)</pre>
+<div class="block">Adds an item to the end of the queue of <a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><code>items</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>item</code> - The item to add.</dd>
+</dl>
+</li>
+</ul>
 <a name="isReady--">
 <!--   -->
 </a>
@@ -307,8 +362,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
      it's not changing. A sample will never be read if set to true, however it is still possible
      for the end of stream or nothing to be read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result, which can be <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a> or
-     <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a>.</dd>
+<dd>The status of read, one of <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><code>SampleStream.ReadDataResult</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -333,7 +387,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <a name="skipData-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>skipData</h4>
 <pre>public&nbsp;int&nbsp;skipData(long&nbsp;positionUs)</pre>
@@ -348,6 +402,16 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of samples that were skipped.</dd>
 </dl>
+</li>
+</ul>
+<a name="release--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre>public&nbsp;void&nbsp;release()</pre>
+<div class="block">Release this SampleStream and all underlying resources.</div>
 </li>
 </ul>
 </li>
@@ -378,7 +442,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeSampleStream.FakeSampleStreamItem.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/FakeSampleStream.html" target="_top">Frames</a></li>
@@ -402,7 +466,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/SampleSt
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

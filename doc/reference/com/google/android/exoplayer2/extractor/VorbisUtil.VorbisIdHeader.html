@@ -16,12 +16,6 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
-var altColor = "altColor";
-var rowColor = "rowColor";
-var tableTab = "tableTab";
-var activeTableTab = "activeTableTab";
 </script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -74,13 +68,13 @@ var activeTableTab = "activeTableTab";
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a name="skip.navbar.top">
@@ -113,6 +107,11 @@ var activeTableTab = "activeTableTab";
 <pre>public static final class <span class="typeNameLabel">VorbisUtil.VorbisIdHeader</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
 <div class="block">Vorbis identification header.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-630004.2.2">Vorbis
+     spec/Identification header</a></dd>
+</dl>
 </li>
 </ul>
 </div>
@@ -133,43 +132,63 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateMax">bitrateMax</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateMaximum">bitrateMaximum</a></span></code>
+<div class="block">The <code>bitrate_maximum</code> field, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not greater than zero.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateMin">bitrateMin</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateMinimum">bitrateMinimum</a></span></code>
+<div class="block">The <code>bitrate_minimum</code> field, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not greater than zero.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateNominal">bitrateNominal</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateNominal">bitrateNominal</a></span></code>
+<div class="block">The <code>bitrate_nominal</code> field, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not greater than zero.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#blockSize0">blockSize0</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#blockSize0">blockSize0</a></span></code>
+<div class="block">The <code>blocksize_0</code> field.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#blockSize1">blockSize1</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#blockSize1">blockSize1</a></span></code>
+<div class="block">The <code>blocksize_1</code> field.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#channels">channels</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#channels">channels</a></span></code>
+<div class="block">The <code>audio_channels</code> field.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#data">data</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#data">data</a></span></code>
+<div class="block">The raw header data.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#framingFlag">framingFlag</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#framingFlag">framingFlag</a></span></code>
+<div class="block">The <code>framing_flag</code> field.</div>
+</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#sampleRate">sampleRate</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#sampleRate">sampleRate</a></span></code>
+<div class="block">The <code>audio_sample_rate</code> field.</div>
+</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#version">version</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#version">version</a></span></code>
+<div class="block">The <code>vorbis_version</code> field.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -186,12 +205,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#VorbisIdHeader-long-int-long-int-int-int-int-int-boolean-byte:A-">VorbisIdHeader</a></span>(long&nbsp;version,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#VorbisIdHeader-int-int-int-int-int-int-int-int-boolean-byte:A-">VorbisIdHeader</a></span>(int&nbsp;version,
               int&nbsp;channels,
-              long&nbsp;sampleRate,
-              int&nbsp;bitrateMax,
+              int&nbsp;sampleRate,
+              int&nbsp;bitrateMaximum,
               int&nbsp;bitrateNominal,
-              int&nbsp;bitrateMin,
+              int&nbsp;bitrateMinimum,
               int&nbsp;blockSize0,
               int&nbsp;blockSize1,
               boolean&nbsp;framingFlag,
@@ -206,17 +225,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
-</tr>
-<tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#getApproximateBitrate--">getApproximateBitrate</a></span>()</code>&nbsp;</td>
-</tr>
-</table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -244,7 +252,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>version</h4>
-<pre>public final&nbsp;long version</pre>
+<pre>public final&nbsp;int version</pre>
+<div class="block">The <code>vorbis_version</code> field.</div>
 </li>
 </ul>
 <a name="channels">
@@ -254,6 +263,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>channels</h4>
 <pre>public final&nbsp;int channels</pre>
+<div class="block">The <code>audio_channels</code> field.</div>
 </li>
 </ul>
 <a name="sampleRate">
@@ -262,16 +272,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleRate</h4>
-<pre>public final&nbsp;long sampleRate</pre>
+<pre>public final&nbsp;int sampleRate</pre>
+<div class="block">The <code>audio_sample_rate</code> field.</div>
 </li>
 </ul>
-<a name="bitrateMax">
+<a name="bitrateMaximum">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>bitrateMax</h4>
-<pre>public final&nbsp;int bitrateMax</pre>
+<h4>bitrateMaximum</h4>
+<pre>public final&nbsp;int bitrateMaximum</pre>
+<div class="block">The <code>bitrate_maximum</code> field, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not greater than zero.</div>
 </li>
 </ul>
 <a name="bitrateNominal">
@@ -281,15 +293,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>bitrateNominal</h4>
 <pre>public final&nbsp;int bitrateNominal</pre>
+<div class="block">The <code>bitrate_nominal</code> field, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not greater than zero.</div>
 </li>
 </ul>
-<a name="bitrateMin">
+<a name="bitrateMinimum">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>bitrateMin</h4>
-<pre>public final&nbsp;int bitrateMin</pre>
+<h4>bitrateMinimum</h4>
+<pre>public final&nbsp;int bitrateMinimum</pre>
+<div class="block">The <code>bitrate_minimum</code> field, or <a href="../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not greater than zero.</div>
 </li>
 </ul>
 <a name="blockSize0">
@@ -299,6 +313,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>blockSize0</h4>
 <pre>public final&nbsp;int blockSize0</pre>
+<div class="block">The <code>blocksize_0</code> field.</div>
 </li>
 </ul>
 <a name="blockSize1">
@@ -308,6 +323,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>blockSize1</h4>
 <pre>public final&nbsp;int blockSize1</pre>
+<div class="block">The <code>blocksize_1</code> field.</div>
 </li>
 </ul>
 <a name="framingFlag">
@@ -317,6 +333,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>framingFlag</h4>
 <pre>public final&nbsp;boolean framingFlag</pre>
+<div class="block">The <code>framing_flag</code> field.</div>
 </li>
 </ul>
 <a name="data">
@@ -326,6 +343,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>data</h4>
 <pre>public final&nbsp;byte[] data</pre>
+<div class="block">The raw header data.</div>
 </li>
 </ul>
 </li>
@@ -336,39 +354,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="VorbisIdHeader-long-int-long-int-int-int-int-int-boolean-byte:A-">
+<a name="VorbisIdHeader-int-int-int-int-int-int-int-int-boolean-byte:A-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>VorbisIdHeader</h4>
-<pre>public&nbsp;VorbisIdHeader(long&nbsp;version,
+<pre>public&nbsp;VorbisIdHeader(int&nbsp;version,
                       int&nbsp;channels,
-                      long&nbsp;sampleRate,
-                      int&nbsp;bitrateMax,
+                      int&nbsp;sampleRate,
+                      int&nbsp;bitrateMaximum,
                       int&nbsp;bitrateNominal,
-                      int&nbsp;bitrateMin,
+                      int&nbsp;bitrateMinimum,
                       int&nbsp;blockSize0,
                       int&nbsp;blockSize1,
                       boolean&nbsp;framingFlag,
                       byte[]&nbsp;data)</pre>
-</li>
-</ul>
-</li>
-</ul>
-<!-- ============ METHOD DETAIL ========== -->
-<ul class="blockList">
-<li class="blockList"><a name="method.detail">
-<!--   -->
-</a>
-<h3>Method Detail</h3>
-<a name="getApproximateBitrate--">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getApproximateBitrate</h4>
-<pre>public&nbsp;int&nbsp;getApproximateBitrate()</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>version</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#version"><code>version</code></a>.</dd>
+<dd><code>channels</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#channels"><code>channels</code></a>.</dd>
+<dd><code>sampleRate</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#sampleRate"><code>sampleRate</code></a>.</dd>
+<dd><code>bitrateMaximum</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateMaximum"><code>bitrateMaximum</code></a>.</dd>
+<dd><code>bitrateNominal</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateNominal"><code>bitrateNominal</code></a>.</dd>
+<dd><code>bitrateMinimum</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#bitrateMinimum"><code>bitrateMinimum</code></a>.</dd>
+<dd><code>blockSize0</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#version"><code>version</code></a>.</dd>
+<dd><code>blockSize1</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#blockSize1"><code>blockSize1</code></a>.</dd>
+<dd><code>framingFlag</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#framingFlag"><code>framingFlag</code></a>.</dd>
+<dd><code>data</code> - See <a href="../../../../../com/google/android/exoplayer2/extractor/VorbisUtil.VorbisIdHeader.html#data"><code>data</code></a>.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -426,13 +440,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.summary">Method</a></li>
+<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#method.detail">Method</a></li>
+<li>Method</li>
 </ul>
 </div>
 <a name="skip.navbar.bottom">

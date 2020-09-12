@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -116,7 +116,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 <div class="block">Default <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics"><code>PlaybackSessionManager</code></a> which instantiates a new session for each window in the
  timeline and also for each ad within the windows.
 
- <p>Sessions are identified by Base64-encoded, URL-safe, random strings.</div>
+ <p>By default, sessions are identified by Base64-encoded, URL-safe, random strings.</div>
 </li>
 </ul>
 </div>
@@ -138,6 +138,27 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 </ul>
 </li>
 </ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#DEFAULT_SESSION_ID_GENERATOR">DEFAULT_SESSION_ID_GENERATOR</a></span></code>
+<div class="block">Default generator for unique session ids that are random, Based64-encoded and URL-safe.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -151,6 +172,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#DefaultPlaybackSessionManager--">DefaultPlaybackSessionManager</a></span>()</code>
+<div class="block">Creates session manager with a <a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#DEFAULT_SESSION_ID_GENERATOR"><code>DEFAULT_SESSION_ID_GENERATOR</code></a> to generate session ids.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#DefaultPlaybackSessionManager-com.google.common.base.Supplier-">DefaultPlaybackSessionManager</a></span>(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;sessionIdGenerator)</code>
 <div class="block">Creates session manager.</div>
 </td>
 </tr>
@@ -191,27 +217,27 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#handlePositionDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">handlePositionDiscontinuity</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                           int&nbsp;reason)</code>
-<div class="block">Handles a position discontinuity.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#handleTimelineUpdate-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">handleTimelineUpdate</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
-<div class="block">Updates the session associations to a new timeline.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#setListener-com.google.android.exoplayer2.analytics.PlaybackSessionManager.Listener-">setListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</code>
 <div class="block">Sets the listener to be notified of session updates.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessions</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
 <div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">updateSessionsWithDiscontinuity</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                               int&nbsp;reason)</code>
+<div class="block">Updates or creates sessions based on a position discontinuity at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessionsWithTimelineChange</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
+<div class="block">Updates or creates sessions based on a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -230,6 +256,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DEFAULT_SESSION_ID_GENERATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_SESSION_ID_GENERATOR</h4>
+<pre>public static final&nbsp;<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt; DEFAULT_SESSION_ID_GENERATOR</pre>
+<div class="block">Default generator for unique session ids that are random, Based64-encoded and URL-safe.</div>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
@@ -239,11 +283,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 <a name="DefaultPlaybackSessionManager--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DefaultPlaybackSessionManager</h4>
 <pre>public&nbsp;DefaultPlaybackSessionManager()</pre>
+<div class="block">Creates session manager with a <a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html#DEFAULT_SESSION_ID_GENERATOR"><code>DEFAULT_SESSION_ID_GENERATOR</code></a> to generate session ids.</div>
+</li>
+</ul>
+<a name="DefaultPlaybackSessionManager-com.google.common.base.Supplier-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DefaultPlaybackSessionManager</h4>
+<pre>public&nbsp;DefaultPlaybackSessionManager(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Supplier.html?is-external=true" title="class or interface in com.google.common.base">Supplier</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;sessionIdGenerator)</pre>
 <div class="block">Creates session manager.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>sessionIdGenerator</code> - A generator for new session ids. All generated session ids must be
+     unique.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -323,7 +382,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 <h4>updateSessions</h4>
 <pre>public&nbsp;void&nbsp;updateSessions(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">PlaybackSessionManager</a></code></span></div>
-<div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
+<div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
+
+ <p>Call <code>#updateSessionsWithTimelineChange(EventTime)</code> or <code>#updateSessionsWithDiscontinuity(EventTime, int)</code> if the event is a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change or
+ a position discontinuity respectively.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessions</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager</a></code></dd>
@@ -332,39 +394,45 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 </dl>
 </li>
 </ul>
-<a name="handleTimelineUpdate-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">
+<a name="updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>handleTimelineUpdate</h4>
-<pre>public&nbsp;void&nbsp;handleTimelineUpdate(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#handleTimelineUpdate-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">PlaybackSessionManager</a></code></span></div>
-<div class="block">Updates the session associations to a new timeline.</div>
+<h4>updateSessionsWithTimelineChange</h4>
+<pre>public&nbsp;void&nbsp;updateSessionsWithTimelineChange(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">PlaybackSessionManager</a></code></span></div>
+<div class="block">Updates or creates sessions based on a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
+
+ <p>Should be called instead of <code>#updateSessions(EventTime)</code> if a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change
+ occurred.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#handleTimelineUpdate-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">handleTimelineUpdate</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessionsWithTimelineChange</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>eventTime</code> - The event time with the timeline change.</dd>
+<dd><code>eventTime</code> - The <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> with the timeline change.</dd>
 </dl>
 </li>
 </ul>
-<a name="handlePositionDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">
+<a name="updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>handlePositionDiscontinuity</h4>
-<pre>public&nbsp;void&nbsp;handlePositionDiscontinuity(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                                        <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@Player.DiscontinuityReason</a>
-                                        int&nbsp;reason)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#handlePositionDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">PlaybackSessionManager</a></code></span></div>
-<div class="block">Handles a position discontinuity.</div>
+<h4>updateSessionsWithDiscontinuity</h4>
+<pre>public&nbsp;void&nbsp;updateSessionsWithDiscontinuity(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                            <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@Player.DiscontinuityReason</a>
+                                            int&nbsp;reason)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">PlaybackSessionManager</a></code></span></div>
+<div class="block">Updates or creates sessions based on a position discontinuity at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
+
+ <p>Should be called instead of <code>#updateSessions(EventTime)</code> if a position discontinuity
+ occurred.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#handlePositionDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">handlePositionDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">updateSessionsWithDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>eventTime</code> - The event time of the position discontinuity.</dd>
+<dd><code>eventTime</code> - The <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> of the position discontinuity.</dd>
 <dd><code>reason</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a>.</dd>
 </dl>
 </li>
@@ -439,13 +507,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/analytics/Playb
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

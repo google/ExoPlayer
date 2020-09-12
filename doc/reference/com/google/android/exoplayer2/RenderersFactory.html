@@ -124,12 +124,11 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RenderersFactory.html#createRenderers-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.text.TextOutput-com.google.android.exoplayer2.metadata.MetadataOutput-com.google.android.exoplayer2.drm.DrmSessionManager-">createRenderers</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RenderersFactory.html#createRenderers-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.text.TextOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">createRenderers</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
                <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;videoRendererEventListener,
                <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;audioRendererEventListener,
                <a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;textRendererOutput,
-               <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;metadataRendererOutput,
-               <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</code>
+               <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;metadataRendererOutput)</code>
 <div class="block">Builds the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> instances for a <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a>.</div>
 </td>
 </tr>
@@ -148,7 +147,7 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createRenderers-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.text.TextOutput-com.google.android.exoplayer2.metadata.MetadataOutput-com.google.android.exoplayer2.drm.DrmSessionManager-">
+<a name="createRenderers-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.text.TextOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -158,9 +157,7 @@ var activeTableTab = "activeTableTab";
                            <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;videoRendererEventListener,
                            <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;audioRendererEventListener,
                            <a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;textRendererOutput,
-                           <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;metadataRendererOutput,
-                           @Nullable
-                           <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</pre>
+                           <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;metadataRendererOutput)</pre>
 <div class="block">Builds the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> instances for a <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -169,7 +166,6 @@ var activeTableTab = "activeTableTab";
 <dd><code>audioRendererEventListener</code> - An event listener for audio renderers.</dd>
 <dd><code>textRendererOutput</code> - An output for text renderers.</dd>
 <dd><code>metadataRendererOutput</code> - An output for metadata renderers.</dd>
-<dd><code>drmSessionManager</code> - A drm session manager used by renderers.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>instances</code></a>.</dd>
 </dl>

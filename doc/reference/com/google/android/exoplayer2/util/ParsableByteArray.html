@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -116,25 +116,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- =========== FIELD SUMMARY =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#data">data</a></span></code>&nbsp;</td>
-</tr>
-</table>
-</li>
-</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -195,30 +176,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>byte[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#getData--">getData</a></span>()</code>
+<div class="block">Returns the underlying array.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#getPosition--">getPosition</a></span>()</code>
 <div class="block">Returns the current offset in the array, in bytes.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#limit--">limit</a></span>()</code>
 <div class="block">Returns the limit.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>char</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#peekChar--">peekChar</a></span>()</code>
 <div class="block">Peeks at the next char.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#peekUnsignedByte--">peekUnsignedByte</a></span>()</code>
 <div class="block">Peeks at the next byte as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readBytes-byte:A-int-int-">readBytes</a></span>(byte[]&nbsp;buffer,
          int&nbsp;offset,
@@ -226,14 +213,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code> at <code>offset</code>.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readBytes-java.nio.ByteBuffer-int-">readBytes</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
          int&nbsp;length)</code>
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readBytes-com.google.android.exoplayer2.util.ParsableBitArray-int-">readBytes</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;bitArray,
          int&nbsp;length)</code>
@@ -241,180 +228,174 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <code>bitArray</code> to zero.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>double</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readDouble--">readDouble</a></span>()</code>
 <div class="block">Reads the next eight bytes as a 64-bit floating point value.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readFloat--">readFloat</a></span>()</code>
 <div class="block">Reads the next four bytes as a 32-bit floating point value.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readInt--">readInt</a></span>()</code>
 <div class="block">Reads the next four bytes as a signed value</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readInt24--">readInt24</a></span>()</code>
 <div class="block">Reads the next three bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLine--">readLine</a></span>()</code>
 <div class="block">Reads a line of text.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianInt--">readLittleEndianInt</a></span>()</code>
 <div class="block">Reads the next four bytes as a signed value in little endian order.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianInt24--">readLittleEndianInt24</a></span>()</code>
 <div class="block">Reads the next three bytes as a signed value in little endian order.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianLong--">readLittleEndianLong</a></span>()</code>
 <div class="block">Reads the next eight bytes as a signed value in little endian order.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>short</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianShort--">readLittleEndianShort</a></span>()</code>
 <div class="block">Reads the next two bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianUnsignedInt--">readLittleEndianUnsignedInt</a></span>()</code>
 <div class="block">Reads the next four bytes as an unsigned value in little endian order.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianUnsignedInt24--">readLittleEndianUnsignedInt24</a></span>()</code>
 <div class="block">Reads the next three bytes as an unsigned value in little endian order.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianUnsignedIntToInt--">readLittleEndianUnsignedIntToInt</a></span>()</code>
 <div class="block">Reads the next four bytes as a little endian unsigned integer into an integer, if the top bit
  is a zero.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLittleEndianUnsignedShort--">readLittleEndianUnsignedShort</a></span>()</code>
 <div class="block">Reads the next two bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readLong--">readLong</a></span>()</code>
 <div class="block">Reads the next eight bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readNullTerminatedString--">readNullTerminatedString</a></span>()</code>
 <div class="block">Reads up to the next NUL byte (or the limit) as UTF-8 characters.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readNullTerminatedString-int-">readNullTerminatedString</a></span>(int&nbsp;length)</code>
 <div class="block">Reads the next <code>length</code> bytes as UTF-8 characters.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>short</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readShort--">readShort</a></span>()</code>
 <div class="block">Reads the next two bytes as a signed value.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readString-int-">readString</a></span>(int&nbsp;length)</code>
 <div class="block">Reads the next <code>length</code> bytes as UTF-8 characters.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readString-int-java.nio.charset.Charset-">readString</a></span>(int&nbsp;length,
           <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" target="_top">Charset</a>&nbsp;charset)</code>
 <div class="block">Reads the next <code>length</code> bytes as characters in the specified <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" target="_top"><code>Charset</code></a>.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readSynchSafeInt--">readSynchSafeInt</a></span>()</code>
 <div class="block">Reads a Synchsafe integer.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUnsignedByte--">readUnsignedByte</a></span>()</code>
 <div class="block">Reads the next byte as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUnsignedFixedPoint1616--">readUnsignedFixedPoint1616</a></span>()</code>
 <div class="block">Reads the next four bytes, returning the integer portion of the fixed point 16.16 integer.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUnsignedInt--">readUnsignedInt</a></span>()</code>
 <div class="block">Reads the next four bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUnsignedInt24--">readUnsignedInt24</a></span>()</code>
 <div class="block">Reads the next three bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUnsignedIntToInt--">readUnsignedIntToInt</a></span>()</code>
 <div class="block">Reads the next four bytes as an unsigned integer into an integer, if the top bit is a zero.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUnsignedLongToLong--">readUnsignedLongToLong</a></span>()</code>
 <div class="block">Reads the next eight bytes as an unsigned long into a long, if the top bit is a zero.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUnsignedShort--">readUnsignedShort</a></span>()</code>
 <div class="block">Reads the next two bytes as an unsigned value.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#readUtf8EncodedLong--">readUtf8EncodedLong</a></span>()</code>
 <div class="block">Reads a long value encoded by UTF-8 encoding</div>
-</td>
-</tr>
-<tr id="i37" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#reset--">reset</a></span>()</code>
-<div class="block">Sets the position and limit to zero.</div>
 </td>
 </tr>
 <tr id="i38" class="altColor">
@@ -471,23 +452,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a name="data">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>data</h4>
-<pre>public&nbsp;byte[] data</pre>
-</li>
-</ul>
-</li>
-</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.detail">
@@ -556,16 +520,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="reset--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>reset</h4>
-<pre>public&nbsp;void&nbsp;reset()</pre>
-<div class="block">Sets the position and limit to zero.</div>
-</li>
-</ul>
 <a name="reset-int-">
 <!--   -->
 </a>
@@ -656,16 +610,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns the current offset in the array, in bytes.</div>
 </li>
 </ul>
-<a name="capacity--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>capacity</h4>
-<pre>public&nbsp;int&nbsp;capacity()</pre>
-<div class="block">Returns the capacity of the array, which may be larger than the limit.</div>
-</li>
-</ul>
 <a name="setPosition-int-">
 <!--   -->
 </a>
@@ -681,6 +625,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" target="_top">IllegalArgumentException</a></code> - Thrown if the new position is neither in nor at the end of the
      array.</dd>
 </dl>
+</li>
+</ul>
+<a name="getData--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getData</h4>
+<pre>public&nbsp;byte[]&nbsp;getData()</pre>
+<div class="block">Returns the underlying array.
+
+ <p>Changes to this array are reflected in the results of the <code>read...()</code> methods.
+
+ <p>This reference must be assumed to become invalid when <a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html#reset-int-"><code>reset(int)</code></a> is called (because the
+ array might get reallocated).</div>
+</li>
+</ul>
+<a name="capacity--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>capacity</h4>
+<pre>public&nbsp;int&nbsp;capacity()</pre>
+<div class="block">Returns the capacity of the array, which may be larger than the limit.</div>
 </li>
 </ul>
 <a name="skipBytes-int-">
@@ -1171,13 +1140,13 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.ht
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

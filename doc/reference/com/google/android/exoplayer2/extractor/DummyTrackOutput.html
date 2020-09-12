@@ -113,7 +113,7 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">DummyTrackOutput</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></pre>
-<div class="block">A dummy <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> implementation.</div>
+<div class="block">A fake <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> implementation.</div>
 </li>
 </ul>
 </div>
@@ -131,7 +131,22 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">TrackOutput.SampleDataPart</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.extractor.TrackOutput">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_ENCRYPTION">SAMPLE_DATA_PART_ENCRYPTION</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_MAIN">SAMPLE_DATA_PART_MAIN</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_SUPPLEMENTAL">SAMPLE_DATA_PART_SUPPLEMENTAL</a></code></li>
 </ul>
 </li>
 </ul>
@@ -172,16 +187,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyTrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyTrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
           int&nbsp;length,
-          boolean&nbsp;allowEndOfInput)</code>
+          boolean&nbsp;allowEndOfInput,
+          int&nbsp;sampleDataPart)</code>
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyTrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-          int&nbsp;length)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyTrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+          int&nbsp;length,
+          int&nbsp;sampleDataPart)</code>
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
@@ -202,6 +219,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.extractor.TrackOutput">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-">sampleData</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></code></li>
 </ul>
 </li>
 </ul>
@@ -251,52 +275,56 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 </dl>
 </li>
 </ul>
-<a name="sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">
+<a name="sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleData</h4>
-<pre>public&nbsp;int&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+<pre>public&nbsp;int&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
                       int&nbsp;length,
-                      boolean&nbsp;allowEndOfInput)
-               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                      <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">TrackOutput</a></code></span></div>
+                      boolean&nbsp;allowEndOfInput,
+                      <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@TrackOutput.SampleDataPart</a>
+                      int&nbsp;sampleDataPart)
+               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">TrackOutput</a></code></span></div>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>input</code> - An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> from which to read the sample data.</dd>
+<dd><code>input</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a> from which to read the sample data.</dd>
 <dd><code>length</code> - The maximum length to read from the input.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input having read no data is
      allowed, and should result in <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> being returned. False if it
      should be considered an error, causing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top"><code>EOFException</code></a> to be thrown.</dd>
+<dd><code>sampleDataPart</code> - The part of the sample data to which this call corresponds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes appended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurred reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
 </dl>
 </li>
 </ul>
-<a name="sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">
+<a name="sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleData</h4>
 <pre>public&nbsp;void&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-                       int&nbsp;length)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">TrackOutput</a></code></span></div>
+                       int&nbsp;length,
+                       <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@TrackOutput.SampleDataPart</a>
+                       int&nbsp;sampleDataPart)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">TrackOutput</a></code></span></div>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - A <a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> from which to read the sample data.</dd>
 <dd><code>length</code> - The number of bytes to read, starting from <code>data.getPosition()</code>.</dd>
+<dd><code>sampleDataPart</code> - The part of the sample data to which this call corresponds.</dd>
 </dl>
 </li>
 </ul>
@@ -317,8 +345,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.
 
  <p>The corresponding sample data will have already been passed to the output via calls to
- <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>TrackOutput.sampleData(ExtractorInput, int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray,
- int)</code></a>.</div>
+ <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>TrackOutput.sampleData(DataReader, int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray, int)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleMetadata-long-int-int-int-com.google.android.exoplayer2.extractor.TrackOutput.CryptoData-">sampleMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
@@ -326,9 +353,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <dd><code>timeUs</code> - The media timestamp associated with the sample, in microseconds.</dd>
 <dd><code>flags</code> - Flags associated with the sample. See <code>C.BUFFER_FLAG_*</code>.</dd>
 <dd><code>size</code> - The size of the sample data, in bytes.</dd>
-<dd><code>offset</code> - The number of bytes that have been passed to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>TrackOutput.sampleData(ExtractorInput,
-     int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray, int)</code></a> since the last byte belonging
-     to the sample whose metadata is being passed.</dd>
+<dd><code>offset</code> - The number of bytes that have been passed to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>TrackOutput.sampleData(DataReader, int,
+     boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray, int)</code></a> since the last byte belonging to
+     the sample whose metadata is being passed.</dd>
 <dd><code>cryptoData</code> - The encryption data required to decrypt the sample. May be null.</dd>
 </dl>
 </li>

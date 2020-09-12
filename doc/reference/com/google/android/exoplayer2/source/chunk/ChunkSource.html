@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -168,9 +168,23 @@ var activeTableTab = "activeTableTab";
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-long-">onChunkLoadError</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                 boolean&nbsp;cancelable,
                 <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;e,
-                long&nbsp;blacklistDurationMs)</code>
+                long&nbsp;exclusionDurationMs)</code>
 <div class="block">Called when the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#release--">release</a></span>()</code>
+<div class="block">Releases any held resources.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#shouldCancelLoad-long-com.google.android.exoplayer2.source.chunk.Chunk-java.util.List-">shouldCancelLoad</a></span>(long&nbsp;playbackPositionUs,
+                <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
+                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code>
+<div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
 </td>
 </tr>
 </table>
@@ -216,9 +230,7 @@ var activeTableTab = "activeTableTab";
 <pre>void&nbsp;maybeThrowError()
               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">If the source is currently having difficulty providing chunks, then this method throws the
- underlying error. Otherwise does nothing.
- <p>
- This method should only be called after the source has been prepared.</div>
+ underlying error. Otherwise does nothing.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - The underlying error.</dd>
@@ -234,16 +246,38 @@ var activeTableTab = "activeTableTab";
 <pre>int&nbsp;getPreferredQueueSize(long&nbsp;playbackPositionUs,
                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
 <div class="block">Evaluates whether <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s should be removed from the back of the queue.
- <p>
- Removing <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s from the back of the queue can be useful if they could be replaced
- with chunks of a significantly higher quality (e.g. because the available bandwidth has
- substantially increased).</div>
+
+ <p>Removing <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s from the back of the queue can be useful if they could be
+ replaced with chunks of a significantly higher quality (e.g. because the available bandwidth
+ has substantially increased).
+
+ <p>Will only be called if no <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a> in the queue is currently loading.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackPositionUs</code> - The current playback position.</dd>
+<dd><code>playbackPositionUs</code> - The current playback position, in microseconds.</dd>
 <dd><code>queue</code> - The queue of buffered <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The preferred queue size.</dd>
+</dl>
+</li>
+</ul>
+<a name="shouldCancelLoad-long-com.google.android.exoplayer2.source.chunk.Chunk-java.util.List-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>shouldCancelLoad</h4>
+<pre>boolean&nbsp;shouldCancelLoad(long&nbsp;playbackPositionUs,
+                         <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
+                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackPositionUs</code> - The current playback position, in microseconds.</dd>
+<dd><code>loadingChunk</code> - The currently loading <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>Chunk</code></a>.</dd>
+<dd><code>queue</code> - The queue of buffered <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunks</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the ongoing load of <code>loadingChunk</code> should be canceled.</dd>
 </dl>
 </li>
 </ul>
@@ -284,9 +318,7 @@ var activeTableTab = "activeTableTab";
 <h4>onChunkLoadCompleted</h4>
 <pre>void&nbsp;onChunkLoadCompleted(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk)</pre>
 <div class="block">Called when the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
- source.
-
- <p>This method should only be called when the source is enabled.</div>
+ source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunk</code> - The chunk whose load has been completed.</dd>
@@ -296,29 +328,37 @@ var activeTableTab = "activeTableTab";
 <a name="onChunkLoadError-com.google.android.exoplayer2.source.chunk.Chunk-boolean-java.lang.Exception-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onChunkLoadError</h4>
 <pre>boolean&nbsp;onChunkLoadError(<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk,
                          boolean&nbsp;cancelable,
                          <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;e,
-                         long&nbsp;blacklistDurationMs)</pre>
+                         long&nbsp;exclusionDurationMs)</pre>
 <div class="block">Called when the <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
- this source.
-
- <p>This method should only be called when the source is enabled.</div>
+ this source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunk</code> - The chunk whose load encountered the error.</dd>
 <dd><code>cancelable</code> - Whether the load can be canceled.</dd>
 <dd><code>e</code> - The error.</dd>
-<dd><code>blacklistDurationMs</code> - The duration for which the associated track may be blacklisted, or
-     <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the track may not be blacklisted.</dd>
+<dd><code>exclusionDurationMs</code> - The duration for which the associated track may be excluded, or
+     <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the track may not be excluded.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the load should be canceled so that a replacement chunk can be loaded instead.
      Must be <code>false</code> if <code>cancelable</code> is <code>false</code>. If <code>true</code>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html#getNextChunk-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.ChunkHolder-"><code>getNextChunk(long, long, List, ChunkHolder)</code></a> will be called to obtain the replacement
      chunk.</dd>
 </dl>
+</li>
+</ul>
+<a name="release--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre>void&nbsp;release()</pre>
+<div class="block">Releases any held resources.</div>
 </li>
 </ul>
 </li>

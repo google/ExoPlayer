@@ -136,7 +136,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.source.chunk.<a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#dataSource">dataSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#dataSpec">dataSpec</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#endTimeUs">endTimeUs</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#startTimeUs">startTimeUs</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackFormat">trackFormat</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionData">trackSelectionData</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionReason">trackSelectionReason</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#type">type</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#dataSource">dataSource</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#dataSpec">dataSpec</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#endTimeUs">endTimeUs</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#loadTaskId">loadTaskId</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#startTimeUs">startTimeUs</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackFormat">trackFormat</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionData">trackSelectionData</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionReason">trackSelectionReason</a>, <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#type">type</a></code></li>
 </ul>
 </li>
 </ul>
@@ -242,6 +242,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
                  int&nbsp;trackSelectionReason,
                  @Nullable
                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;trackSelectionData,
+                 @Nullable
                  byte[]&nbsp;data)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -271,8 +272,8 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 <h4>getDataHolder</h4>
 <pre>public&nbsp;byte[]&nbsp;getDataHolder()</pre>
 <div class="block">Returns the array in which the data is held.
- <p>
- This method should be used for recycling the holder only, and not for reading the data.</div>
+
+ <p>This method should be used for recycling the holder only, and not for reading the data.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The array in which the data is held.</dd>
@@ -311,14 +312,12 @@ extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Ch
 <li class="blockList">
 <h4>load</h4>
 <pre>public final&nbsp;void&nbsp;load()
-                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                       <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html#load--">Loader.Loadable</a></code></span></div>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If the input could not be loaded.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
 </dl>
 </li>
 </ul>

@@ -134,7 +134,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html#DefaultDownloaderFactory-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">DefaultDownloaderFactory</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;downloaderConstructorHelper)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html#DefaultDownloaderFactory-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-">DefaultDownloaderFactory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html#DefaultDownloaderFactory-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-"><code>DefaultDownloaderFactory(CacheDataSource.Factory, Executor)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html#DefaultDownloaderFactory-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">DefaultDownloaderFactory</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+                        <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</code>
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -179,16 +189,40 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultDownloaderFactory-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">
+<a name="DefaultDownloaderFactory-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultDownloaderFactory</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;DefaultDownloaderFactory(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html#DefaultDownloaderFactory-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-"><code>DefaultDownloaderFactory(CacheDataSource.Factory, Executor)</code></a>.</span></div>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cacheDataSourceFactory</code> - A <code>CacheDataSource.Factory</code> for the cache into which
+     downloads will be written.</dd>
+</dl>
+</li>
+</ul>
+<a name="DefaultDownloaderFactory-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultDownloaderFactory</h4>
-<pre>public&nbsp;DefaultDownloaderFactory(<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;downloaderConstructorHelper)</pre>
+<pre>public&nbsp;DefaultDownloaderFactory(<a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+                                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>downloaderConstructorHelper</code> - A helper for instantiating downloaders.</dd>
+<dd><code>cacheDataSourceFactory</code> - A <code>CacheDataSource.Factory</code> for the cache into which
+     downloads will be written.</dd>
+<dd><code>executor</code> - An <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a> used to download data. Passing <code>Runnable::run</code> will
+     cause each download task to download data on its own thread. Passing an <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a>
+     that uses multiple threads will speed up download tasks that can be split into smaller
+     parts for parallel execution.</dd>
 </dl>
 </li>
 </ul>

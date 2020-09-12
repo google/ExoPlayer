@@ -172,25 +172,31 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/CeaUtil.html" title="class in com.google.android.exoplayer2.extractor">CeaUtil</a></td>
+<td class="colLast">
+<div class="block">Utility methods for handling CEA-608/708 messages.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></td>
 <td class="colLast">
 <div class="block">Defines chunks of samples within a media stream.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/ConstantBitrateSeekMap.html" title="class in com.google.android.exoplayer2.extractor">ConstantBitrateSeekMap</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> implementation that assumes the stream has a constant bitrate and consists of
  multiple independent frames of the same size.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorInput</a></td>
 <td class="colLast">
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> that wraps a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</div>
+<div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> that wraps a <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></td>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorsFactory</code></a> that provides an array of extractors for the following formats:
@@ -211,70 +217,76 @@
    AMR (<a href="../../../../../com/google/android/exoplayer2/extractor/amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a>)
    FLAC
        
-         If available, the FLAC extension extractor is used.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyExtractorOutput.html" title="class in com.google.android.exoplayer2.extractor">DummyExtractorOutput</a></td>
-<td class="colLast">
-<div class="block">A dummy <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> implementation.</div>
+         If available, the FLAC extension's <code>com.google.android.exoplayer2.ext.flac.FlacExtractor</code> is used.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyTrackOutput.html" title="class in com.google.android.exoplayer2.extractor">DummyTrackOutput</a></td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyExtractorOutput.html" title="class in com.google.android.exoplayer2.extractor">DummyExtractorOutput</a></td>
 <td class="colLast">
-<div class="block">A dummy <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> implementation.</div>
+<div class="block">A fake <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> implementation.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/DummyTrackOutput.html" title="class in com.google.android.exoplayer2.extractor">DummyTrackOutput</a></td>
+<td class="colLast">
+<div class="block">A fake <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> implementation.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacFrameReader.html" title="class in com.google.android.exoplayer2.extractor">FlacFrameReader</a></td>
 <td class="colLast">
 <div class="block">Reads and peeks FLAC frame elements according to the <a
  href="https://xiph.org/flac/format.html">FLAC format specification</a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacFrameReader.SampleNumberHolder.html" title="class in com.google.android.exoplayer2.extractor">FlacFrameReader.SampleNumberHolder</a></td>
 <td class="colLast">
 <div class="block">Holds a sample number.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacMetadataReader.html" title="class in com.google.android.exoplayer2.extractor">FlacMetadataReader</a></td>
 <td class="colLast">
 <div class="block">Reads and peeks FLAC stream metadata elements according to the <a
  href="https://xiph.org/flac/format.html">FLAC format specification</a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacMetadataReader.FlacStreamMetadataHolder.html" title="class in com.google.android.exoplayer2.extractor">FlacMetadataReader.FlacStreamMetadataHolder</a></td>
 <td class="colLast">
-<div class="block">Holds a <a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util"><code>FlacStreamMetadata</code></a>.</div>
+<div class="block">Holds a <a href="../../../../../com/google/android/exoplayer2/extractor/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor"><code>FlacStreamMetadata</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacSeekTableSeekMap.html" title="class in com.google.android.exoplayer2.extractor">FlacSeekTableSeekMap</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> implementation for FLAC streams that contain a <a
  href="https://xiph.org/flac/format.html#metadata_block_seektable">seek table</a>.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata</a></td>
+<td class="colLast">
+<div class="block">Holder for FLAC metadata.</div>
+</td>
+</tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a></td>
+<td class="colLast">
+<div class="block">A FLAC seek table.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/GaplessInfoHolder.html" title="class in com.google.android.exoplayer2.extractor">GaplessInfoHolder</a></td>
 <td class="colLast">
 <div class="block">Holder for gapless playback information.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/Id3Peeker.html" title="class in com.google.android.exoplayer2.extractor">Id3Peeker</a></td>
 <td class="colLast">
 <div class="block">Peeks data from the beginning of an <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> to determine if there is any ID3 tag.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/MpegAudioHeader.html" title="class in com.google.android.exoplayer2.extractor">MpegAudioHeader</a></td>
-<td class="colLast">
-<div class="block">An MPEG audio frame header.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -352,6 +364,12 @@
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.ReadResult.html" title="annotation in com.google.android.exoplayer2.extractor">Extractor.ReadResult</a></td>
 <td class="colLast">
 <div class="block">Result values that can be returned by <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-"><code>Extractor.read(ExtractorInput, PositionHolder)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">TrackOutput.SampleDataPart</a></td>
+<td class="colLast">
+<div class="block">Defines the part of the sample data to which a call to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>TrackOutput.sampleData(com.google.android.exoplayer2.upstream.DataReader, int, boolean)</code></a> corresponds.</div>
 </td>
 </tr>
 </tbody>

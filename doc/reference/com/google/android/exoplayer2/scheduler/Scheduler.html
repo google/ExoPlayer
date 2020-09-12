@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var methods = {"i0":6,"i1":6,"i2":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,6 +129,12 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html#getSupportedRequirements-com.google.android.exoplayer2.scheduler.Requirements-">getSupportedRequirements</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements)</code>
+<div class="block">Checks whether this <a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> supports the provided <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html#schedule-com.google.android.exoplayer2.scheduler.Requirements-java.lang.String-java.lang.String-">schedule</a></span>(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;servicePackage,
@@ -179,7 +185,7 @@ var activeTableTab = "activeTableTab";
 <a name="cancel--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>cancel</h4>
 <pre>boolean&nbsp;cancel()</pre>
@@ -187,6 +193,24 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether cancellation was successful.</dd>
+</dl>
+</li>
+</ul>
+<a name="getSupportedRequirements-com.google.android.exoplayer2.scheduler.Requirements-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getSupportedRequirements</h4>
+<pre><a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;getSupportedRequirements(<a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements)</pre>
+<div class="block">Checks whether this <a href="../../../../../com/google/android/exoplayer2/scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> supports the provided <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a>. If all of the
+ requirements are supported then the same <a href="../../../../../com/google/android/exoplayer2/scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> instance is returned. If not then
+ a new instance is returned containing the subset of the requirements that are supported.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>requirements</code> - The requirements to check.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The supported requirements.</dd>
 </dl>
 </li>
 </ul>

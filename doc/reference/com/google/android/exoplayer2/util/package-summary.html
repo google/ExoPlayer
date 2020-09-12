@@ -86,21 +86,21 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/Consumer.html" title="interface in com.google.android.exoplayer2.util">Consumer</a>&lt;T&gt;</td>
+<td class="colLast">
+<div class="block">Represents an operation that accepts a single input argument and returns no result.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.TextureImageListener.html" title="interface in com.google.android.exoplayer2.util">EGLSurfaceTexture.TextureImageListener</a></td>
 <td class="colLast">
 <div class="block">Listener to be called when the texture image on <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" target="_top"><code>SurfaceTexture</code></a> has been updated.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;T extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&gt;</td>
 <td class="colLast">
 <div class="block">Converts throwables into error codes and user readable error messages.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EventDispatcher.Event.html" title="interface in com.google.android.exoplayer2.util">EventDispatcher.Event</a>&lt;T&gt;</td>
-<td class="colLast">
-<div class="block">Functional interface to send an event.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -116,9 +116,9 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;T&gt;</td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/SntpClient.InitializationCallback.html" title="interface in com.google.android.exoplayer2.util">SntpClient.InitializationCallback</a></td>
 <td class="colLast">
-<div class="block">Determines a true or false value for a given input.</div>
+<div class="block">Callback for calls to <a href="../../../../../com/google/android/exoplayer2/util/SntpClient.html#initialize-com.google.android.exoplayer2.upstream.Loader-com.google.android.exoplayer2.util.SntpClient.InitializationCallback-"><code>SntpClient.initialize(Loader, InitializationCallback)</code></a>.</div>
 </td>
 </tr>
 </tbody>
@@ -148,7 +148,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/CodecSpecificDataUtil.html" title="class in com.google.android.exoplayer2.util">CodecSpecificDataUtil</a></td>
 <td class="colLast">
-<div class="block">Provides static utility methods for manipulating various types of codec specific data.</div>
+<div class="block">Provides utilities for handling various types of codec-specific data.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -164,15 +164,16 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/CopyOnWriteMultiset.html" title="class in com.google.android.exoplayer2.util">CopyOnWriteMultiset</a>&lt;E&gt;</td>
 <td class="colLast">
-<div class="block">Generates a <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" target="_top"><code>SurfaceTexture</code></a> using EGL/GLES functions.</div>
+<div class="block">An unordered collection of elements that allows duplicates, but also allows access to a set of
+ unique elements.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EventDispatcher.html" title="class in com.google.android.exoplayer2.util">EventDispatcher</a>&lt;T&gt;</td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util">EGLSurfaceTexture</a></td>
 <td class="colLast">
-<div class="block">Event dispatcher which allows listener registration.</div>
+<div class="block">Generates a <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html" title="class or interface in android.graphics" target="_top"><code>SurfaceTexture</code></a> using EGL/GLES functions.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -182,39 +183,39 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/FileTypes.html" title="class in com.google.android.exoplayer2.util">FileTypes</a></td>
+<td class="colLast">
+<div class="block">Defines common file type constants and helper methods.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/FlacConstants.html" title="class in com.google.android.exoplayer2.util">FlacConstants</a></td>
 <td class="colLast">
 <div class="block">Defines constants used by the FLAC extractor.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata</a></td>
-<td class="colLast">
-<div class="block">Holder for FLAC metadata.</div>
-</td>
-</tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata.SeekTable</a></td>
-<td class="colLast">
-<div class="block">A FLAC seek table.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.html" title="class in com.google.android.exoplayer2.util">GlUtil</a></td>
 <td class="colLast">
 <div class="block">GL utilities.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html" title="class in com.google.android.exoplayer2.util">GlUtil.Attribute</a></td>
 <td class="colLast">
 <div class="block">GL attribute, which can be attached to a buffer with <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Attribute.html#setBuffer-float:A-int-"><code>GlUtil.Attribute.setBuffer(float[], int)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html" title="class in com.google.android.exoplayer2.util">GlUtil.Uniform</a></td>
 <td class="colLast">
 <div class="block">GL uniform, which can be attached to a sampler using <a href="../../../../../com/google/android/exoplayer2/util/GlUtil.Uniform.html#setSamplerTexId-int-int-"><code>GlUtil.Uniform.setSamplerTexId(int, int)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/IntArrayQueue.html" title="class in com.google.android.exoplayer2.util">IntArrayQueue</a></td>
+<td class="colLast">
+<div class="block">Array-based unbounded queue for int primitives with amortized O(1) add and remove.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -303,9 +304,22 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="class in com.google.android.exoplayer2.util">RunnableFutureTask</a>&lt;R,E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&gt;</td>
+<td class="colLast">
+<div class="block">A <a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html" title="class or interface in java.util.concurrent" target="_top"><code>RunnableFuture</code></a> that supports additional uninterruptible operations to query whether
+ execution has started and finished.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/SlidingPercentile.html" title="class in com.google.android.exoplayer2.util">SlidingPercentile</a></td>
 <td class="colLast">
 <div class="block">Calculate any percentile over a sliding window of weighted values.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/SntpClient.html" title="class in com.google.android.exoplayer2.util">SntpClient</a></td>
+<td class="colLast">
+<div class="block">Static utility to retrieve the device time offset using SNTP.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -398,22 +412,34 @@
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util">FileTypes.Type</a></td>
+<td class="colLast">
+<div class="block">File types.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/NonNullApi.html" title="annotation in com.google.android.exoplayer2.util">NonNullApi</a></td>
 <td class="colLast">
 <div class="block">Annotation to declare all type usages in the annotated instance as <code>Nonnull</code>, unless
  explicitly marked with a nullable annotation.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/NotificationUtil.Importance.html" title="annotation in com.google.android.exoplayer2.util">NotificationUtil.Importance</a></td>
 <td class="colLast">
 <div class="block">Notification channel importance levels.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">RepeatModeUtil.RepeatToggleModes</a></td>
 <td class="colLast">
 <div class="block">Set of repeat toggle modes.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/util/UnknownNull.html" title="annotation in com.google.android.exoplayer2.util">UnknownNull</a></td>
+<td class="colLast">
+<div class="block">Annotation for specifying unknown nullness.</div>
 </td>
 </tr>
 </tbody>

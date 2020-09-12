@@ -255,7 +255,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onDiscontinuity--">onDiscontinuity</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onDiscontinuity--">onDiscontinuity</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#shouldCancelChunkLoad-long-com.google.android.exoplayer2.source.chunk.Chunk-java.util.List-">shouldCancelChunkLoad</a></code></li>
 </ul>
 </li>
 </ul>
@@ -345,7 +345,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">TrackSelection</a></code></span></div>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
 
- <p>This method may only be called when the selection is enabled.</div>
+ <p>This method will only be called when the selection is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackPositionUs</code> - The current playback position in microseconds. If playback of the

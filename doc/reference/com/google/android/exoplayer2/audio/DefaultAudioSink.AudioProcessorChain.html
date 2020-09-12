@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -133,23 +133,30 @@ var activeTableTab = "activeTableTab";
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html#applyPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">applyPlaybackParameters</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
 <div class="block">Configures audio processors to apply the specified playback parameters immediately, returning
- the new parameters, which may differ from those passed in.</div>
+ the new playback parameters, which may differ from those passed in.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html#applySkipSilenceEnabled-boolean-">applySkipSilenceEnabled</a></span>(boolean&nbsp;skipSilenceEnabled)</code>
+<div class="block">Configures audio processors to apply whether to skip silences immediately, returning the new
+ value.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html#getAudioProcessors--">getAudioProcessors</a></span>()</code>
 <div class="block">Returns the fixed chain of audio processors that will process audio.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html#getMediaDuration-long-">getMediaDuration</a></span>(long&nbsp;playoutDuration)</code>
 <div class="block">Scales the specified playout duration to take into account speedup due to audio processing,
  returning an input media duration, in arbitrary units.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html#getSkippedOutputFrameCount--">getSkippedOutputFrameCount</a></span>()</code>
 <div class="block">Returns the number of output audio frames skipped since the audio processors were last
@@ -191,13 +198,30 @@ var activeTableTab = "activeTableTab";
 <h4>applyPlaybackParameters</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;applyPlaybackParameters(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block">Configures audio processors to apply the specified playback parameters immediately, returning
- the new parameters, which may differ from those passed in. Only called when processors have
- no input pending.</div>
+ the new playback parameters, which may differ from those passed in. Only called when
+ processors have no input pending.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackParameters</code> - The playback parameters to try to apply.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The playback parameters that were actually applied.</dd>
+</dl>
+</li>
+</ul>
+<a name="applySkipSilenceEnabled-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>applySkipSilenceEnabled</h4>
+<pre>boolean&nbsp;applySkipSilenceEnabled(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Configures audio processors to apply whether to skip silences immediately, returning the new
+ value. Only called when processors have no input pending.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether silences should be skipped in the audio stream.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The new value.</dd>
 </dl>
 </li>
 </ul>

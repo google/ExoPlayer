@@ -124,6 +124,21 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.SampleStream">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadDataResult</a></code></li>
+</ul>
+</li>
+</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -310,15 +325,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <ul class="blockList">
 <li class="blockList">
 <h4>maybeThrowError</h4>
-<pre>public&nbsp;void&nbsp;maybeThrowError()
-                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<pre>public&nbsp;void&nbsp;maybeThrowError()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html#maybeThrowError--">SampleStream</a></code></span></div>
 <div class="block">Throws an error that's preventing data from being read. Does nothing if no such error exists.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html#maybeThrowError--">maybeThrowError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - The underlying error.</dd>
 </dl>
 </li>
 </ul>
@@ -348,8 +360,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
      it's not changing. A sample will never be read if set to true, however it is still possible
      for the end of stream or nothing to be read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result, which can be <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a> or
-     <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a>.</dd>
+<dd>The status of read, one of <a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><code>SampleStream.ReadDataResult</code></a>.</dd>
 </dl>
 </li>
 </ul>

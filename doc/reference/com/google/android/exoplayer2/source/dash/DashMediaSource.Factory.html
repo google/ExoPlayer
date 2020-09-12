@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":42,"i2":10,"i3":42,"i4":10,"i5":10,"i6":10,"i7":42,"i8":10,"i9":10,"i10":10,"i11":42,"i12":10,"i13":10};
+var methods = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":42,"i5":42,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":42,"i12":10,"i13":10,"i14":10,"i15":42,"i16":42,"i17":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -180,50 +180,78 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-android.net.Uri-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri)</code>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a> using the current parameters.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-com.google.android.exoplayer2.MediaItem-">createMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                 <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a> using the current parameters and the specified
+ sideloaded manifest.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-">createMediaSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a> using the current parameters.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-android.net.Uri-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-android.net.Uri-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">createMediaSource</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
                  <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
                  <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>createMediaSource(Uri)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
      MediaSourceEventListener)</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#getSupportedTypes--">getSupportedTypes</a></span>()</code>
 <div class="block">Returns the <code>content types</code> supported by media sources created by this
  factory.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setCompositeSequenceableLoaderFactory-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-">setCompositeSequenceableLoaderFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</code>
 <div class="block">Sets the factory to create composite <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source
  loads data from multiple streams (video, audio etc...).</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-">setDrmSessionManager</a></span>(<a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager)</code>
-<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to use for acquiring <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setDrmHttpDataSourceFactory-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-">setDrmHttpDataSourceFactory</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</code>
+<div class="block">Sets the <code>HttpDataSource.Factory</code> to be used for creating <a href="../../../../../../com/google/android/exoplayer2/drm/HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallbacks</code></a> to execute key and provisioning requests over HTTP.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-">setDrmSessionManager</a></span>(<a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</code>
+<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to use for all media items regardless of their <code>MediaItem.DrmConfiguration</code>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setDrmUserAgent-java.lang.String-">setDrmUserAgent</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</code>
+<div class="block">Sets the optional user agent to be used for DRM requests.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLivePresentationDelayMs-long-">setLivePresentationDelayMs</a></span>(long&nbsp;livePresentationDelayMs)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLivePresentationDelayMs-long-boolean-"><code>setLivePresentationDelayMs(long, boolean)</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLivePresentationDelayMs-long-boolean-"><code>setLivePresentationDelayMs(long, boolean)</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLivePresentationDelayMs-long-boolean-">setLivePresentationDelayMs</a></span>(long&nbsp;livePresentationDelayMs,
                           boolean&nbsp;overridesManifest)</code>
@@ -231,19 +259,19 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
  of the live window for live playbacks.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-">setLoadErrorHandlingPolicy</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setManifestParser-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-">setManifestParser</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;&nbsp;manifestParser)</code>
 <div class="block">Sets the manifest parser to parse loaded manifest data when loading a manifest URI.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setMinLoadableRetryCount-int-">setMinLoadableRetryCount</a></span>(int&nbsp;minLoadableRetryCount)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -251,16 +279,20 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 </div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setStreamKeys-java.util.List-">setStreamKeys</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code>
-<div class="block">Sets a list of <a href="../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline"><code>StreamKeys</code></a> by which the manifest is filtered.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>MediaItem.Builder#setStreamKeys(List)</code> and <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setTag-java.lang.Object-">setTag</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</code>
-<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>MediaItem.Builder#setTag(Object)</code> and <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -333,16 +365,91 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <ul class="blockList">
 <li class="blockList">
 <h4>setTag</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setTag(@Nullable
-                                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
-<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setTag(@Nullable
+                                                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>MediaItem.Builder#setTag(Object)</code> and <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="setStreamKeys-java.util.List-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setStreamKeys</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setStreamKeys(@Nullable
+                                                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>MediaItem.Builder#setStreamKeys(List)</code> and <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> instead.</span></div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setStreamKeys-java.util.List-">setStreamKeys</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmSessionManager</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmSessionManager(@Nullable
+                                                    <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-">MediaSourceFactory</a></code></span></div>
+<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to use for all media items regardless of their <code>MediaItem.DrmConfiguration</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-">setDrmSessionManager</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>tag</code> - A tag for the media source.</dd>
+<dd><code>drmSessionManager</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>, or <code>null</code> to use the <a href="../../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
+</dl>
+</li>
+</ul>
+<a name="setDrmHttpDataSourceFactory-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmHttpDataSourceFactory</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmHttpDataSourceFactory(@Nullable
+                                                           <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource.Factory</a>&nbsp;drmHttpDataSourceFactory)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmHttpDataSourceFactory-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-">MediaSourceFactory</a></code></span></div>
+<div class="block">Sets the <code>HttpDataSource.Factory</code> to be used for creating <a href="../../../../../../com/google/android/exoplayer2/drm/HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm"><code>HttpMediaDrmCallbacks</code></a> to execute key and provisioning requests over HTTP.
+
+ <p>In case a <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> has been set by <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-"><code>MediaSourceFactory.setDrmSessionManager(DrmSessionManager)</code></a>, this data source factory is ignored.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmHttpDataSourceFactory-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-">setDrmHttpDataSourceFactory</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>drmHttpDataSourceFactory</code> - The HTTP data source factory, or <code>null</code> to use <a href="../../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultHttpDataSourceFactory</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a name="setDrmUserAgent-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDrmUserAgent</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmUserAgent(@Nullable
+                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmUserAgent-java.lang.String-">MediaSourceFactory</a></code></span></div>
+<div class="block">Sets the optional user agent to be used for DRM requests.
+
+ <p>In case a factory has been set by <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmHttpDataSourceFactory-com.google.android.exoplayer2.upstream.HttpDataSource.Factory-"><code>MediaSourceFactory.setDrmHttpDataSourceFactory(HttpDataSource.Factory)</code></a> or a <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> has been
+ set by <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-"><code>MediaSourceFactory.setDrmSessionManager(DrmSessionManager)</code></a>, this user agent is ignored.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmUserAgent-java.lang.String-">setDrmUserAgent</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>userAgent</code> - The user agent to be used for DRM requests, or <code>null</code> to use the
+     default.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
 </dl>
 </li>
 </ul>
@@ -355,18 +462,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setMinLoadableRetryCount(int&nbsp;minLoadableRetryCount)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-"><code>setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)</code></a> instead.</span></div>
-<div class="block">Sets the minimum number of times to retry if a loading error occurs. See <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-"><code>setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)</code></a> for the default value.
-
- <p>Calling this method is equivalent to calling <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-"><code>setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)</code></a> with
- <a href="../../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html#DefaultLoadErrorHandlingPolicy-int-"><code>DefaultLoadErrorHandlingPolicy(minLoadableRetryCount)</code></a></div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>minLoadableRetryCount</code> - The minimum number of times to retry if a loading error occurs.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This factory, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
-</dl>
 </li>
 </ul>
 <a name="setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-">
@@ -375,17 +470,18 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
 <ul class="blockList">
 <li class="blockList">
 <h4>setLoadErrorHandlingPolicy</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy(<a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setLoadErrorHandlingPolicy(@Nullable
+                                                          <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
 <div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>. The default value is created by calling <a href="../../../../../../com/google/android/exoplayer2/upstream/DefaultLoadErrorHandlingPolicy.html#DefaultLoadErrorHandlingPolicy--"><code>DefaultLoadErrorHandlingPolicy.DefaultLoadErrorHandlingPolicy()</code></a>.
 
  <p>Calling this method overrides any calls to <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setMinLoadableRetryCount-int-"><code>setMinLoadableRetryCount(int)</code></a>.</div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setLoadErrorHandlingPolicy-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-">setLoadErrorHandlingPolicy</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadErrorHandlingPolicy</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
 </dl>
 </li>
 </ul>
@@ -397,7 +493,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
 <h4>setLivePresentationDelayMs</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
 public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setLivePresentationDelayMs(long&nbsp;livePresentationDelayMs)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLivePresentationDelayMs-long-boolean-"><code>setLivePresentationDelayMs(long, boolean)</code></a>.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#setLivePresentationDelayMs-long-boolean-"><code>setLivePresentationDelayMs(long, boolean)</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="setLivePresentationDelayMs-long-boolean-">
@@ -421,8 +517,6 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
      present.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
 </dl>
 </li>
 </ul>
@@ -432,15 +526,14 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
 <ul class="blockList">
 <li class="blockList">
 <h4>setManifestParser</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setManifestParser(<a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;&nbsp;manifestParser)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setManifestParser(@Nullable
+                                                 <a href="../../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;&nbsp;manifestParser)</pre>
 <div class="block">Sets the manifest parser to parse loaded manifest data when loading a manifest URI.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestParser</code> - A parser for loaded manifest data.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
 </dl>
 </li>
 </ul>
@@ -450,7 +543,8 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompositeSequenceableLoaderFactory</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setCompositeSequenceableLoaderFactory(<a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setCompositeSequenceableLoaderFactory(@Nullable
+                                                                     <a href="../../../../../../com/google/android/exoplayer2/source/CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</pre>
 <div class="block">Sets the factory to create composite <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source
  loads data from multiple streams (video, audio etc...). The default is an instance of <a href="../../../../../../com/google/android/exoplayer2/source/DefaultCompositeSequenceableLoaderFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultCompositeSequenceableLoaderFactory</code></a>.</div>
 <dl>
@@ -459,8 +553,6 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
      audio etc...).</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
 </dl>
 </li>
 </ul>
@@ -476,6 +568,27 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifest</code> - The manifest. <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#dynamic"><code>DashManifest.dynamic</code></a> must be false.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang">IllegalArgumentException</a></code> - If <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#dynamic" target="_top"><code>DashManifest.dynamic</code></a> is true.</dd>
+</dl>
+</li>
+</ul>
+<a name="createMediaSource-com.google.android.exoplayer2.source.dash.manifest.DashManifest-com.google.android.exoplayer2.MediaItem-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createMediaSource</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a>&nbsp;createMediaSource(<a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
+                                         <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a> using the current parameters and the specified
+ sideloaded manifest.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>manifest</code> - The manifest. <a href="../../../../../../com/google/android/exoplayer2/source/dash/manifest/DashManifest.html#dynamic"><code>DashManifest.dynamic</code></a> must be false.</dd>
+<dd><code>mediaItem</code> - The <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to be included in the timeline.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -510,29 +623,8 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
                                                      <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
                                                      @Nullable
                                                      <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-android.net.Uri-"><code>createMediaSource(Uri)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-"><code>BaseMediaSource.addEventListener(Handler,
      MediaSourceEventListener)</code></a> instead.</span></div>
-</li>
-</ul>
-<a name="setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDrmSessionManager</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setDrmSessionManager(<a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager)</pre>
-<div class="block">Sets the <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to use for acquiring <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a>. The
- default value is <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html#DUMMY"><code>DrmSessionManager.DUMMY</code></a>.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setDrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionManager-">setDrmSessionManager</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmSessionManager</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This factory, for convenience.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If one of the <code>create</code> methods has already been called.</dd>
-</dl>
 </li>
 </ul>
 <a name="createMediaSource-android.net.Uri-">
@@ -541,34 +633,32 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaSource</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri)</pre>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a> using the current parameters.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a>&nbsp;createMediaSource(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-"><code>createMediaSource(MediaItem)</code></a> instead.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#createMediaSource-android.net.Uri-">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>manifestUri</code> - The manifest <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="setStreamKeys-java.util.List-">
+<a name="createMediaSource-com.google.android.exoplayer2.MediaItem-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setStreamKeys</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setStreamKeys(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setStreamKeys-java.util.List-">MediaSourceFactory</a></code></span></div>
-<div class="block">Sets a list of <a href="../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline"><code>StreamKeys</code></a> by which the manifest is filtered.</div>
+<h4>createMediaSource</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a>&nbsp;createMediaSource(<a href="../../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a> using the current parameters.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#setStreamKeys-java.util.List-">setStreamKeys</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html#createMediaSource-com.google.android.exoplayer2.MediaItem-">createMediaSource</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source">MediaSourceFactory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>streamKeys</code> - A list of <a href="../../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline"><code>StreamKeys</code></a>.</dd>
+<dd><code>mediaItem</code> - The media item of the dash stream.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>This factory, for convenience.</dd>
+<dd>The new <a href="../../../../../../com/google/android/exoplayer2/source/dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash"><code>DashMediaSource</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang">NullPointerException</a></code> - if <a href="../../../../../../com/google/android/exoplayer2/MediaItem.html#playbackProperties" target="_top"><code>MediaItem.playbackProperties</code></a> is <code>null</code>.</dd>
 </dl>
 </li>
 </ul>

@@ -41,7 +41,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/database/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/drm/package-summary.html">Next&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/device/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/decoder/package-summary.html" target="_top">Frames</a></li>
@@ -80,9 +80,15 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;I,O,E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&gt;</td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;I,O,E extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</td>
 <td class="colLast">
 <div class="block">A media decoder.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;S extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>&gt;</td>
+<td class="colLast">
+<div class="block">Buffer owner.</div>
 </td>
 </tr>
 </tbody>
@@ -127,15 +133,33 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;I extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,O extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&gt;</td>
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;I extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,O extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>,E extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</td>
 <td class="colLast">
-<div class="block">Base class for <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>s that use their own decode thread.</div>
+<div class="block">Base class for <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>s that use their own decode thread and decode each input buffer
+ immediately into a corresponding output buffer.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a></td>
 <td class="colLast">
 <div class="block">Buffer for <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder"><code>SimpleDecoder</code></a> output.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li class="blockList">
+<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Exception Summary table, listing exceptions, and an explanation">
+<caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Exception</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></td>
+<td class="colLast">
+<div class="block">Thrown when a <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a> error occurs.</div>
 </td>
 </tr>
 </tbody>
@@ -152,7 +176,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">DecoderInputBuffer.BufferReplacementMode</a></td>
 <td class="colLast">
-<div class="block">The buffer replacement mode, which may disable replacement.</div>
+<div class="block">The buffer replacement mode.</div>
 </td>
 </tr>
 </tbody>
@@ -181,7 +205,7 @@
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/database/package-summary.html">Prev&nbsp;Package</a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/drm/package-summary.html">Next&nbsp;Package</a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/device/package-summary.html">Next&nbsp;Package</a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/decoder/package-summary.html" target="_top">Frames</a></li>

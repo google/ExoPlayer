@@ -97,7 +97,12 @@
 <li><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">java.lang.Exception</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.DecoderException</a></li>
+<li>
+<ul class="inheritance">
 <li>com.google.android.exoplayer2.text.SubtitleDecoderException</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -115,7 +120,7 @@
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">SubtitleDecoderException</span>
-extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></pre>
+extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Thrown when an error occurs decoding subtitle data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -139,14 +144,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html#SubtitleDecoderException-java.lang.Exception-">SubtitleDecoderException</a></span>(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;cause)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html#SubtitleDecoderException-java.lang.String-">SubtitleDecoderException</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html#SubtitleDecoderException-java.lang.String-java.lang.Throwable-">SubtitleDecoderException</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
                         <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;cause)</code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html#SubtitleDecoderException-java.lang.Throwable-">SubtitleDecoderException</a></span>(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;cause)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -198,16 +203,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </dl>
 </li>
 </ul>
-<a name="SubtitleDecoderException-java.lang.Exception-">
+<a name="SubtitleDecoderException-java.lang.Throwable-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>SubtitleDecoderException</h4>
-<pre>public&nbsp;SubtitleDecoderException(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;cause)</pre>
+<pre>public&nbsp;SubtitleDecoderException(@Nullable
+                                <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;cause)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>cause</code> - The cause of this exception.</dd>
+<dd><code>cause</code> - The cause of this exception, or <code>null</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -218,11 +224,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>SubtitleDecoderException</h4>
 <pre>public&nbsp;SubtitleDecoderException(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
+                                @Nullable
                                 <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;cause)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>message</code> - The detail message for this exception.</dd>
-<dd><code>cause</code> - The cause of this exception.</dd>
+<dd><code>cause</code> - The cause of this exception, or <code>null</code>.</dd>
 </dl>
 </li>
 </ul>

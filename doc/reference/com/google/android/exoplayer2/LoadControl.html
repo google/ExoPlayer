@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/IllegalSeekPositionException.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/LoadControl.html" target="_top">Frames</a></li>
@@ -170,7 +170,8 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/LoadControl.html#shouldContinueLoading-long-float-">shouldContinueLoading</a></span>(long&nbsp;bufferedDurationUs,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/LoadControl.html#shouldContinueLoading-long-long-float-">shouldContinueLoading</a></span>(long&nbsp;playbackPositionUs,
+                     long&nbsp;bufferedDurationUs,
                      float&nbsp;playbackSpeed)</code>
 <div class="block">Called by the player to determine whether it should continue to load the source.</div>
 </td>
@@ -303,17 +304,23 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="shouldContinueLoading-long-float-">
+<a name="shouldContinueLoading-long-long-float-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>shouldContinueLoading</h4>
-<pre>boolean&nbsp;shouldContinueLoading(long&nbsp;bufferedDurationUs,
+<pre>boolean&nbsp;shouldContinueLoading(long&nbsp;playbackPositionUs,
+                              long&nbsp;bufferedDurationUs,
                               float&nbsp;playbackSpeed)</pre>
 <div class="block">Called by the player to determine whether it should continue to load the source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playbackPositionUs</code> - The current playback position in microseconds, relative to the start
+     of the <a href="../../../../com/google/android/exoplayer2/Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>period</code></a> that will continue to be loaded if this method
+     returns <code>true</code>. If playback of this period has not yet started, the value will be
+     negative and equal in magnitude to the duration of any media in previous periods still to
+     be played.</dd>
 <dd><code>bufferedDurationUs</code> - The duration of media that's currently buffered.</dd>
 <dd><code>playbackSpeed</code> - The current playback speed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -373,7 +380,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/IllegalSeekPositionException.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/LoadControl.html" target="_top">Frames</a></li>

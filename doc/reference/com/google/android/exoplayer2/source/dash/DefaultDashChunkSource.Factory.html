@@ -249,7 +249,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/dash/
 <dd><code>trackSelection</code> - The track selection.</dd>
 <dd><code>elapsedRealtimeOffsetMs</code> - If known, an estimate of the instantaneous difference between
      server-side unix time and <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" target="_top"><code>SystemClock.elapsedRealtime()</code></a> in milliseconds,
-     specified as the server's unix time minus the local elapsed time. If unknown, set to 0.</dd>
+     specified as the server's unix time minus the local elapsed time. Or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</dd>
 <dd><code>enableEventMessageTrack</code> - Whether to output an event message track.</dd>
 <dd><code>closedCaptionFormats</code> - The <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> of closed caption tracks to be output.</dd>
 <dd><code>transferListener</code> - The transfer listener which should be informed of any data transfers.

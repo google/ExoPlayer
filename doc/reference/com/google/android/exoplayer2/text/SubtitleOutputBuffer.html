@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":6,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -130,6 +130,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/Subtitle.h
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">OutputBuffer.Owner</a>&lt;<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.Owner.html" title="type parameter in OutputBuffer.Owner">S</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a>&gt;</code></li>
+</ul>
+</li>
+</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -169,7 +184,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/Subtitle.h
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -206,12 +221,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/Subtitle.h
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>abstract void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html#release--">release</a></span>()</code>
-<div class="block">Releases the output buffer for reuse.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html#setContent-long-com.google.android.exoplayer2.text.Subtitle-long-">setContent</a></span>(long&nbsp;timeUs,
           <a href="../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a>&nbsp;subtitle,
@@ -221,6 +230,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/Subtitle.h
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html#release--">release</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.decoder.Buffer">
 <!--   -->
@@ -362,21 +378,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/Subtitle.h
 </dl>
 </li>
 </ul>
-<a name="release--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>release</h4>
-<pre>public abstract&nbsp;void&nbsp;release()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html#release--">OutputBuffer</a></code></span></div>
-<div class="block">Releases the output buffer for reuse. Must be called when the buffer is no longer needed.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html#release--">release</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/OutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">OutputBuffer</a></code></dd>
-</dl>
-</li>
-</ul>
 <a name="clear--">
 <!--   -->
 </a>
@@ -444,7 +445,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/Subtitle.h
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.classes.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#fields.inherited.from.class.com.google.android.exoplayer2.decoder.OutputBuffer">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

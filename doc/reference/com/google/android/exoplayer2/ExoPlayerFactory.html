@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41,"i10":41,"i11":41,"i12":41,"i13":41,"i14":41,"i15":41,"i16":41,"i17":41,"i18":41};
+var methods = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41,"i10":41,"i11":41,"i12":41,"i13":41,"i14":41,"i15":41};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -158,7 +158,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
            <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
            <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
            <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-           <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</code>
+           <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer.Builder</code></a> instead.</span></div>
 </div>
@@ -170,7 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
            <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
            <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
            <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-           <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</code>
+           <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer.Builder</code></a> instead.</span></div>
 </div>
@@ -196,18 +196,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.drm.DrmSessionManager-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                 <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
-                 <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
-</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
@@ -217,93 +205,70 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.analytics.AnalyticsCollector-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                  <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</code>
+                 <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                 <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
+                 <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
+                 <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
+                 <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector,
+                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.upstream.BandwidthMeter-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                  <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                 <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</code>
+                 <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.upstream.BandwidthMeter-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                  <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
+                 <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                  <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector,
-                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</code>
+                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.BandwidthMeter-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-android.os.Looper-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                  <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                 <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>
+                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.BandwidthMeter-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                 <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
-                 <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                 <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                 <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-                 <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector,
-                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
-</div>
-</td>
-</tr>
-<tr id="i13" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-android.os.Looper-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                 <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
-                 <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                 <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                 <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
-</div>
-</td>
-</tr>
-<tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector)</code>
@@ -312,7 +277,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
@@ -322,42 +287,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-int-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                  <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
-</div>
-</td>
-</tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-int-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                 <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                 <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                  int&nbsp;extensionRendererMode)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-int-long-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ExoPlayerFactory.html#newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-int-long-">newSimpleInstance</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                  <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                 <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                  int&nbsp;extensionRendererMode,
                  long&nbsp;allowedVideoJoiningTimeMs)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </div>
 </td>
 </tr>
@@ -383,7 +332,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-int-">
+<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-int-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -393,15 +342,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;newSimpleInstance(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                                                             <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                             <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                                             <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
                                                             int&nbsp;extensionRendererMode)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-int-long-">
+<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-int-long-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -411,13 +357,10 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
 public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;newSimpleInstance(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                                                             <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                             <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                                             <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
                                                             int&nbsp;extensionRendererMode,
                                                             long&nbsp;allowedVideoJoiningTimeMs)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="newSimpleInstance-android.content.Context-">
@@ -469,38 +412,6 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>newSimpleInstance</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;newSimpleInstance(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                                            <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                                                            <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
-</li>
-</ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.drm.DrmSessionManager-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>newSimpleInstance</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;newSimpleInstance(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                                            <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
-                                                            <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
-</li>
-</ul>
 <a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-">
 <!--   -->
 </a>
@@ -515,7 +426,7 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-">
+<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.upstream.BandwidthMeter-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -526,31 +437,11 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
                                                             <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                                                             <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                             <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
-</li>
-</ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.BandwidthMeter-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>newSimpleInstance</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2">SimpleExoPlayer</a>&nbsp;newSimpleInstance(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                                            <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
-                                                            <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
-                                                            <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                                             <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector-">
+<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.analytics.AnalyticsCollector-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -561,14 +452,11 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
                                                             <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                                                             <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                             <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                                             <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-android.os.Looper-">
+<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-android.os.Looper-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -579,14 +467,11 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
                                                             <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                                                             <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                             <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                                                            <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+                                                            <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">
+<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -597,15 +482,12 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
                                                             <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                                                             <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                             <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                                             <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector,
-                                                            <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+                                                            <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.BandwidthMeter-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">
+<a name="newSimpleInstance-android.content.Context-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.trackselection.TrackSelector-com.google.android.exoplayer2.LoadControl-com.google.android.exoplayer2.upstream.BandwidthMeter-com.google.android.exoplayer2.analytics.AnalyticsCollector-android.os.Looper-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -616,13 +498,10 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/SimpleExoP
                                                             <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a>&nbsp;renderersFactory,
                                                             <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                             <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                            @Nullable
-                                                            <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a>&gt;&nbsp;drmSessionManager,
                                                             <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                                                             <a href="../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>&nbsp;analyticsCollector,
-                                                            <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead. The <a href="../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> cannot
-     be passed to <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> and should instead be injected into the <a href="../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> factories.</span></div>
+                                                            <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="newInstance-android.content.Context-com.google.android.exoplayer2.Renderer:A-com.google.android.exoplayer2.trackselection.TrackSelector-">
@@ -663,7 +542,7 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlayer.
                                                 <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
                                                 <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                 <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
-                                                <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</pre>
+                                                <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>
@@ -679,7 +558,7 @@ public static&nbsp;<a href="../../../../com/google/android/exoplayer2/ExoPlayer.
                                                 <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a>&nbsp;trackSelector,
                                                 <a href="../../../../com/google/android/exoplayer2/LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a>&nbsp;loadControl,
                                                 <a href="../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
-                                                <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;looper)</pre>
+                                                <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;applicationLooper)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/ExoPlayer.Builder.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer.Builder</code></a> instead.</span></div>
 </li>
 </ul>

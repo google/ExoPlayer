@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -136,7 +136,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">AudioSink.SinkFormatSupport</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></code></li>
 </ul>
 </li>
 </ul>
@@ -151,7 +151,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#CURRENT_POSITION_NOT_SET">CURRENT_POSITION_NOT_SET</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#CURRENT_POSITION_NOT_SET">CURRENT_POSITION_NOT_SET</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#SINK_FORMAT_SUPPORTED_DIRECTLY">SINK_FORMAT_SUPPORTED_DIRECTLY</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#SINK_FORMAT_SUPPORTED_WITH_TRANSCODING">SINK_FORMAT_SUPPORTED_WITH_TRANSCODING</a>, <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#SINK_FORMAT_UNSUPPORTED">SINK_FORMAT_UNSUPPORTED</a></code></li>
 </ul>
 </li>
 </ul>
@@ -186,50 +186,40 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#assertOutput-android.content.Context-java.lang.String-">assertOutput</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;dumpFile)</code>
-<div class="block">Asserts that dump of this sink is equal to expected dump which is read from <code>dumpFile</code>.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#configure-int-int-int-int-int:A-int-int-">configure</a></span>(int&nbsp;inputEncoding,
-         int&nbsp;inputChannelCount,
-         int&nbsp;inputSampleRate,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-">configure</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
          int&nbsp;specifiedBufferSize,
-         int[]&nbsp;outputChannels,
-         int&nbsp;trimStartFrames,
-         int&nbsp;trimEndFrames)</code>
+         int[]&nbsp;outputChannels)</code>
 <div class="block">Configures (or reconfigures) the sink.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#dump-com.google.android.exoplayer2.testutil.Dumper-">dump</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/Dumper.html" title="class in com.google.android.exoplayer2.testutil">Dumper</a>&nbsp;dumper)</code>
 <div class="block">Dumps the fields of the object using the <code>dumper</code>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#flush--">flush</a></span>()</code>
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
-            long&nbsp;presentationTimeUs)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-int-">handleBuffer</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
+            long&nbsp;presentationTimeUs,
+            int&nbsp;encodedAccessUnitCount)</code>
 <div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
  ending at its limit (exclusive).</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#handleDiscontinuity--">handleDiscontinuity</a></span>()</code>
 <div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#reset--">reset</a></span>()</code>
 <div class="block">Resets the renderer, releasing any resources that it currently holds.</div>
@@ -241,7 +231,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#disableTunneling--">disableTunneling</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#enableTunnelingV21-int-">enableTunnelingV21</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#getCurrentPositionUs-boolean-">getCurrentPositionUs</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#getPlaybackParameters--">getPlaybackParameters</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#hasPendingData--">hasPendingData</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#isEnded--">isEnded</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#pause--">pause</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#play--">play</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#playToEndOfStream--">playToEndOfStream</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">setAudioAttributes</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setAudioSessionId-int-">setAudioSessionId</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">setAuxEffectInfo</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setListener-com.google.android.exoplayer2.audio.AudioSink.Listener-">setListener</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setVolume-float-">setVolume</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#supportsOutput-int-int-">supportsOutput</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#disableTunneling--">disableTunneling</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#enableTunnelingV21-int-">enableTunnelingV21</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#experimentalFlushWithoutAudioTrackRelease--">experimentalFlushWithoutAudioTrackRelease</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#getCurrentPositionUs-boolean-">getCurrentPositionUs</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#getFormatSupport-com.google.android.exoplayer2.Format-">getFormatSupport</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#getPlaybackParameters--">getPlaybackParameters</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#getSkipSilenceEnabled--">getSkipSilenceEnabled</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#hasPendingData--">hasPendingData</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#isEnded--">isEnded</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#pause--">pause</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#play--">play</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#playToEndOfStream--">playToEndOfStream</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">setAudioAttributes</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setAudioSessionId-int-">setAudioSessionId</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">setAuxEffectInfo</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setListener-com.google.android.exoplayer2.audio.AudioSink.Listener-">setListener</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setSkipSilenceEnabled-boolean-">setSkipSilenceEnabled</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#setVolume-float-">setVolume</a>, <a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -281,32 +271,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="configure-int-int-int-int-int:A-int-int-">
+<a name="configure-com.google.android.exoplayer2.Format-int-int:A-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre>public&nbsp;void&nbsp;configure(int&nbsp;inputEncoding,
-                      int&nbsp;inputChannelCount,
-                      int&nbsp;inputSampleRate,
+<pre>public&nbsp;void&nbsp;configure(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
                       int&nbsp;specifiedBufferSize,
                       @Nullable
-                      int[]&nbsp;outputChannels,
-                      int&nbsp;trimStartFrames,
-                      int&nbsp;trimEndFrames)
+                      int[]&nbsp;outputChannels)
                throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-">AudioSink</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-">AudioSink</a></code></span></div>
 <div class="block">Configures (or reconfigures) the sink.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-">configure</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-">configure</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#configure-int-int-int-int-int:A-int-int-">configure</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-">configure</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputEncoding</code> - The encoding of audio data provided in the input buffers.</dd>
-<dd><code>inputChannelCount</code> - The number of channels.</dd>
-<dd><code>inputSampleRate</code> - The sample rate in Hz.</dd>
+<dd><code>inputFormat</code> - The format of audio data provided in the input buffers.</dd>
 <dd><code>specifiedBufferSize</code> - A specific size for the playback buffer in bytes, or 0 to infer a
      suitable buffer size.</dd>
 <dd><code>outputChannels</code> - A mapping from input to output channels that is applied to this sink's
@@ -314,10 +298,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
      input unchanged. Otherwise, the element at index <code>i</code> specifies index of the input
      channel to map to output channel <code>i</code> when preprocessing input buffers. After the map
      is applied the audio data will have <code>outputChannels.length</code> channels.</dd>
-<dd><code>trimStartFrames</code> - The number of audio frames to trim from the start of data written to the
-     sink after this call.</dd>
-<dd><code>trimEndFrames</code> - The number of audio frames to trim from data written to the sink
-     immediately preceding the next call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>AudioSink.flush()</code></a> or this method.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></code> - If an error occurs configuring the sink.</dd>
 </dl>
@@ -340,17 +320,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 </dl>
 </li>
 </ul>
-<a name="handleBuffer-java.nio.ByteBuffer-long-">
+<a name="handleBuffer-java.nio.ByteBuffer-long-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>handleBuffer</h4>
 <pre>public&nbsp;boolean&nbsp;handleBuffer(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
-                            long&nbsp;presentationTimeUs)
+                            long&nbsp;presentationTimeUs,
+                            int&nbsp;encodedAccessUnitCount)
                      throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>,
                             <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">AudioSink</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-int-">AudioSink</a></code></span></div>
 <div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
  ending at its limit (exclusive). The position of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> is advanced by the
  number of bytes that were handled. <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onPositionDiscontinuity--"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a> will be called if
@@ -358,16 +339,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 
  <p>Returns whether the data was handled in full. If the data was not handled in full then the
  same <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
- except in the case of an intervening call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>AudioSink.flush()</code></a> (or to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-int-int-int-int-int:A-int-int-"><code>AudioSink.configure(int,
- int, int, int, int[], int, int)</code></a> that causes the sink to be flushed).</div>
+ except in the case of an intervening call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>AudioSink.flush()</code></a> (or to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-"><code>AudioSink.configure(Format,
+ int, int[])</code></a> that causes the sink to be flushed).</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-int-">handleBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-">handleBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-int-">handleBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - The buffer containing audio data.</dd>
 <dd><code>presentationTimeUs</code> - The presentation timestamp of the buffer in microseconds.</dd>
+<dd><code>encodedAccessUnitCount</code> - The number of encoded access units in the buffer, or 1 if the
+     buffer contains PCM audio. This allows batching multiple encoded access units in one
+     buffer.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the buffer was handled fully.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -409,27 +393,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/testutil/Dumper
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#reset--">reset</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html#reset--">reset</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="assertOutput-android.content.Context-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>assertOutput</h4>
-<pre>public&nbsp;void&nbsp;assertOutput(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;dumpFile)
-                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block">Asserts that dump of this sink is equal to expected dump which is read from <code>dumpFile</code>.
-
- <p>If assertion fails because of an intended change in the output or a new dump file needs to
- be created, set <a href="../../../../../com/google/android/exoplayer2/testutil/CapturingAudioSink.html#WRITE_DUMP"><code>WRITE_DUMP</code></a> flag to true and run the test again. Instead of assertion,
- actual dump will be written to <code>dumpFile</code>. This new dump file needs to be copied to the
- project, <code>library/src/androidTest/assets</code> folder manually.</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code></dd>
 </dl>
 </li>
 </ul>

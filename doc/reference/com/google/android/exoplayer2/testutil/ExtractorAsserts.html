@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.AssertionConfig.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ExtractorAsserts.html" target="_top">Frames</a></li>
@@ -128,9 +128,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Class and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.AssertionConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.AssertionConfig</a></span></code>
+<div class="block">A config for the assertions made (e.g.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a></span></code>
 <div class="block">A factory for <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.SimulationConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.SimulationConfig</a></span></code>
+<div class="block">A config of different environments to simulate and extractor behaviours to test.</div>
 </td>
 </tr>
 </table>
@@ -150,16 +162,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-">assertBehavior</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
-              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertAllBehaviors-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-">assertAllBehaviors</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file)</code>
 <div class="block">Asserts that an extractor behaves correctly given valid input data.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-android.content.Context-">assertBehavior</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
-              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
-              <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertAllBehaviors-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-java.lang.String-">assertAllBehaviors</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
+                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;dumpFilesPrefix)</code>
 <div class="block">Asserts that an extractor behaves correctly given valid input data:
 
  
@@ -169,28 +181,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-byte:A-android.content.Context-">assertOutput</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
-            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
-            byte[]&nbsp;data,
-            <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</code>
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-"><code>assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
- boolean)</code></a> with all possible combinations of "simulate" parameters with <code>sniffFirst</code> set
- to true, and makes one additional call with the "simulate" and <code>sniffFirst</code> parameters
- all set to false.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig-com.google.android.exoplayer2.testutil.ExtractorAsserts.SimulationConfig-">assertBehavior</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
+              <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.AssertionConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.AssertionConfig</a>&nbsp;assertionConfig,
+              <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.SimulationConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.SimulationConfig</a>&nbsp;simulationConfig)</code>
+<div class="block">Asserts that an extractor consumes valid input data successfully successfully under the
+ conditions specified by <code>simulationConfig</code>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-">assertOutput</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
-            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
-            byte[]&nbsp;data,
-            <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-            boolean&nbsp;sniffFirst,
-            boolean&nbsp;simulateIOErrors,
-            boolean&nbsp;simulateUnknownLength,
-            boolean&nbsp;simulatePartialReads)</code>
-<div class="block">Asserts that <code>extractor</code> consumes <code>sampleFile</code> successfully and its output equals
- to a prerecorded output dump file with the name <code>sampleFile</code> + "".</div>
+<td class="colFirst"><code>static void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-com.google.android.exoplayer2.testutil.ExtractorAsserts.SimulationConfig-">assertBehavior</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
+              <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.SimulationConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.SimulationConfig</a>&nbsp;simulationConfig)</code>
+<div class="block">Asserts that an extractor consumes valid input data successfully under the conditions specified
+ by <code>simulationConfig</code>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -203,13 +208,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertThrows-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-android.content.Context-java.lang.Class-">assertThrows</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
-            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;sampleFile,
-            <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-            <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang">Class</a>&lt;? extends <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" target="_top">Throwable</a>&gt;&nbsp;expectedThrowable)</code>
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertThrows-com.google.android.exoplayer2.extractor.Extractor-byte:A-java.lang.Class-boolean-boolean-boolean-"><code>assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)</code></a> with all
- possible combinations of "simulate" parameters.</div>
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a>[]&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#configs--">configs</a></span>()</code>
+<div class="block">Returns a list of arrays containing <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.SimulationConfig.html" title="class in com.google.android.exoplayer2.testutil"><code>ExtractorAsserts.SimulationConfig</code></a> objects to exercise different
+ extractor paths.</div>
 </td>
 </tr>
 </table>
@@ -234,6 +236,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="configs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>configs</h4>
+<pre>public static&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a>[]&gt;&nbsp;configs()</pre>
+<div class="block">Returns a list of arrays containing <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.SimulationConfig.html" title="class in com.google.android.exoplayer2.testutil"><code>ExtractorAsserts.SimulationConfig</code></a> objects to exercise different
+ extractor paths.
+
+ <p>This is intended to be used from tests using <code>ParameterizedRobolectricTestRunner</code> or
+ <code>org.junit.runners.Parameterized</code>.</div>
+</li>
+</ul>
 <a name="assertSniff-com.google.android.exoplayer2.extractor.Extractor-com.google.android.exoplayer2.testutil.FakeExtractorInput-boolean-">
 <!--   -->
 </a>
@@ -243,8 +259,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public static&nbsp;void&nbsp;assertSniff(<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
                                <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorInput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorInput</a>&nbsp;input,
                                boolean&nbsp;expectedResult)
-                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                               <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Asserts that <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#sniff-com.google.android.exoplayer2.extractor.ExtractorInput-"><code>Extractor.sniff(ExtractorInput)</code></a> returns the <code>expectedResult</code> for a
  given <code>input</code>, retrying repeatedly when <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorInput.SimulatedIOException.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExtractorInput.SimulatedIOException</code></a> is thrown.</div>
 <dl>
@@ -254,28 +269,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>expectedResult</code> - The expected return value.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from the input.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-">
+<a name="assertAllBehaviors-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>assertBehavior</h4>
-<pre>public static&nbsp;void&nbsp;assertBehavior(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
-                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file)
-                           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                  <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Asserts that an extractor behaves correctly given valid input data. Can only be used from
- Robolectric tests.
+<h4>assertAllBehaviors</h4>
+<pre>public static&nbsp;void&nbsp;assertAllBehaviors(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
+                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file)
+                               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Asserts that an extractor behaves correctly given valid input data.
 
  <ul>
    <li>Calls <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#seek-long-long-"><code>Extractor.seek(long, long)</code></a> and <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#release--"><code>Extractor.release()</code></a> without calling
        <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-"><code>Extractor.init(ExtractorOutput)</code></a> to check these calls do not fail.
-   <li>Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-"><code>assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
-       boolean)</code></a> with all possible combinations of "simulate" parameters.
+   <li>Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-boolean-"><code>assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
+       boolean, boolean)</code></a> with all possible combinations of "simulate" parameters.
  </ul></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -284,11 +296,39 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>file</code> - The path to the input sample.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from the input.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-android.content.Context-">
+<a name="assertAllBehaviors-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertAllBehaviors</h4>
+<pre>public static&nbsp;void&nbsp;assertAllBehaviors(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
+                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
+                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;dumpFilesPrefix)
+                               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Asserts that an extractor behaves correctly given valid input data:
+
+ <ul>
+   <li>Calls <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#seek-long-long-"><code>Extractor.seek(long, long)</code></a> and <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#release--"><code>Extractor.release()</code></a> without calling
+       <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-"><code>Extractor.init(ExtractorOutput)</code></a> to check these calls do not fail.
+   <li>Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-boolean-"><code>assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
+       boolean, boolean)</code></a> with all possible combinations of "simulate" parameters.
+ </ul></div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>factory</code> - An <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil"><code>ExtractorAsserts.ExtractorFactory</code></a> which creates instances of the <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>
+     class which is to be tested.</dd>
+<dd><code>file</code> - The path to the input sample.</dd>
+<dd><code>dumpFilesPrefix</code> - The dump files prefix appended to the dump files path.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails.</dd>
+</dl>
+</li>
+</ul>
+<a name="assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-com.google.android.exoplayer2.testutil.ExtractorAsserts.SimulationConfig-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -296,121 +336,45 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>assertBehavior</h4>
 <pre>public static&nbsp;void&nbsp;assertBehavior(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
-                                  <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)
-                           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                  <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Asserts that an extractor behaves correctly given valid input data:
+                                  <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.SimulationConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.SimulationConfig</a>&nbsp;simulationConfig)
+                           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Asserts that an extractor consumes valid input data successfully under the conditions specified
+ by <code>simulationConfig</code>.
 
- <ul>
-   <li>Calls <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#seek-long-long-"><code>Extractor.seek(long, long)</code></a> and <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#release--"><code>Extractor.release()</code></a> without calling
-       <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-"><code>Extractor.init(ExtractorOutput)</code></a> to check these calls do not fail.
-   <li>Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-"><code>assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
-       boolean)</code></a> with all possible combinations of "simulate" parameters.
- </ul></div>
+ <p>The output of the extractor is compared against prerecorded dump files whose names are
+ derived from the <code>file</code> parameter as specified in the docs for <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.AssertionConfig.html#dumpFilesPrefix"><code>ExtractorAsserts.AssertionConfig.dumpFilesPrefix</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>factory</code> - An <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil"><code>ExtractorAsserts.ExtractorFactory</code></a> which creates instances of the <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>
      class which is to be tested.</dd>
 <dd><code>file</code> - The path to the input sample.</dd>
-<dd><code>context</code> - To be used to load the sample file.</dd>
+<dd><code>simulationConfig</code> - Details on the environment to simulate and behaviours to assert.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from the input.</dd>
 </dl>
 </li>
 </ul>
-<a name="assertOutput-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-byte:A-android.content.Context-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>assertOutput</h4>
-<pre>public static&nbsp;void&nbsp;assertOutput(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
-                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
-                                byte[]&nbsp;data,
-                                <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)
-                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-"><code>assertOutput(Extractor, String, byte[], Context, boolean, boolean, boolean,
- boolean)</code></a> with all possible combinations of "simulate" parameters with <code>sniffFirst</code> set
- to true, and makes one additional call with the "simulate" and <code>sniffFirst</code> parameters
- all set to false.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>factory</code> - An <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil"><code>ExtractorAsserts.ExtractorFactory</code></a> which creates instances of the <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>
-     class which is to be tested.</dd>
-<dd><code>file</code> - The path to the input sample.</dd>
-<dd><code>data</code> - Content of the input file.</dd>
-<dd><code>context</code> - To be used to load the sample file.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from the input.</dd>
-</dl>
-</li>
-</ul>
-<a name="assertOutput-com.google.android.exoplayer2.extractor.Extractor-java.lang.String-byte:A-android.content.Context-boolean-boolean-boolean-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>assertOutput</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a>&nbsp;assertOutput(<a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
-                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
-                                               byte[]&nbsp;data,
-                                               <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                               boolean&nbsp;sniffFirst,
-                                               boolean&nbsp;simulateIOErrors,
-                                               boolean&nbsp;simulateUnknownLength,
-                                               boolean&nbsp;simulatePartialReads)
-                                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                               <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Asserts that <code>extractor</code> consumes <code>sampleFile</code> successfully and its output equals
- to a prerecorded output dump file with the name <code>sampleFile</code> + "". If <code>simulateUnknownLength</code> is true and <code>sampleFile</code> + "" exists, it's preferred.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>extractor</code> - The <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to be tested.</dd>
-<dd><code>file</code> - The path to the input sample.</dd>
-<dd><code>data</code> - Content of the input file.</dd>
-<dd><code>context</code> - To be used to load the sample file.</dd>
-<dd><code>sniffFirst</code> - Whether to sniff the data by calling <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html#sniff-com.google.android.exoplayer2.extractor.ExtractorInput-"><code>Extractor.sniff(ExtractorInput)</code></a>
-     prior to consuming it.</dd>
-<dd><code>simulateIOErrors</code> - Whether to simulate IO errors.</dd>
-<dd><code>simulateUnknownLength</code> - Whether to simulate unknown input length.</dd>
-<dd><code>simulatePartialReads</code> - Whether to simulate partial reads.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExtractorOutput</code></a> used in the test.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from the input.</dd>
-</dl>
-</li>
-</ul>
-<a name="assertThrows-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-android.content.Context-java.lang.Class-">
+<a name="assertBehavior-com.google.android.exoplayer2.testutil.ExtractorAsserts.ExtractorFactory-java.lang.String-com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig-com.google.android.exoplayer2.testutil.ExtractorAsserts.SimulationConfig-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>assertThrows</h4>
-<pre>public static&nbsp;void&nbsp;assertThrows(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
-                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;sampleFile,
-                                <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang">Class</a>&lt;? extends <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang" target="_top">Throwable</a>&gt;&nbsp;expectedThrowable)
-                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertThrows-com.google.android.exoplayer2.extractor.Extractor-byte:A-java.lang.Class-boolean-boolean-boolean-"><code>assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)</code></a> with all
- possible combinations of "simulate" parameters.</div>
+<h4>assertBehavior</h4>
+<pre>public static&nbsp;void&nbsp;assertBehavior(<a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil">ExtractorAsserts.ExtractorFactory</a>&nbsp;factory,
+                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;file,
+                                  <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.AssertionConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.AssertionConfig</a>&nbsp;assertionConfig,
+                                  <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.SimulationConfig.html" title="class in com.google.android.exoplayer2.testutil">ExtractorAsserts.SimulationConfig</a>&nbsp;simulationConfig)
+                           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Asserts that an extractor consumes valid input data successfully successfully under the
+ conditions specified by <code>simulationConfig</code>.
+
+ <p>The output of the extractor is compared against prerecorded dump files.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>factory</code> - An <a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil"><code>ExtractorAsserts.ExtractorFactory</code></a> which creates instances of the <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>
-     class which is to be tested.</dd>
-<dd><code>sampleFile</code> - The path to the input sample.</dd>
-<dd><code>context</code> - To be used to load the sample file.</dd>
-<dd><code>expectedThrowable</code> - Expected <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a> class.</dd>
+<dd><code>assertionConfig</code> - Details of how to read and process the source and dump files.</dd>
+<dd><code>simulationConfig</code> - Details on the environment to simulate and behaviours to assert.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from the input.</dd>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.html#assertThrows-com.google.android.exoplayer2.extractor.Extractor-byte:A-java.lang.Class-boolean-boolean-boolean-"><code>assertThrows(Extractor, byte[], Class, boolean, boolean, boolean)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -442,7 +406,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/ExoPlayerTestRunner.Builder.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.ExtractorFactory.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/ExtractorAsserts.AssertionConfig.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ExtractorAsserts.html" target="_top">Frames</a></li>

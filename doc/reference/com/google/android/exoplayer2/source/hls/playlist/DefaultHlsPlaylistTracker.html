@@ -287,7 +287,7 @@ implements <a href="../../../../../../../com/google/android/exoplayer2/source/hl
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/DefaultHlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">refreshPlaylist</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url)</code>
-<div class="block">Requests a playlist refresh and whitelists it.</div>
+<div class="block">Requests a playlist refresh and removes it from the exclusion list.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -619,10 +619,10 @@ public&nbsp;<a href="../../../../../../../com/google/android/exoplayer2/source/h
 <h4>refreshPlaylist</h4>
 <pre>public&nbsp;void&nbsp;refreshPlaylist(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">HlsPlaylistTracker</a></code></span></div>
-<div class="block">Requests a playlist refresh and whitelists it.
+<div class="block">Requests a playlist refresh and removes it from the exclusion list.
 
- <p>The playlist tracker may choose the delay the playlist refresh. The request is discarded if
- a refresh was already pending.</div>
+ <p>The playlist tracker may choose to delay the playlist refresh. The request is discarded if a
+ refresh was already pending.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">refreshPlaylist</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code></dd>

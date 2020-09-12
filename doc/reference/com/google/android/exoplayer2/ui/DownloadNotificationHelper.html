@@ -147,7 +147,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" target="_top">Notification</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildDownloadCompletedNotification-int-android.app.PendingIntent-java.lang.String-">buildDownloadCompletedNotification</a></span>(int&nbsp;smallIcon,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildDownloadCompletedNotification-android.content.Context-int-android.app.PendingIntent-java.lang.String-">buildDownloadCompletedNotification</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                                  int&nbsp;smallIcon,
                                   <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" target="_top">PendingIntent</a>&nbsp;contentIntent,
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</code>
 <div class="block">Returns a notification for a completed download.</div>
@@ -155,7 +156,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" target="_top">Notification</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildDownloadFailedNotification-int-android.app.PendingIntent-java.lang.String-">buildDownloadFailedNotification</a></span>(int&nbsp;smallIcon,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildDownloadFailedNotification-android.content.Context-int-android.app.PendingIntent-java.lang.String-">buildDownloadFailedNotification</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                               int&nbsp;smallIcon,
                                <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" target="_top">PendingIntent</a>&nbsp;contentIntent,
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</code>
 <div class="block">Returns a notification for a failed download.</div>
@@ -163,7 +165,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" target="_top">Notification</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildProgressNotification-int-android.app.PendingIntent-java.lang.String-java.util.List-">buildProgressNotification</a></span>(int&nbsp;smallIcon,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/DownloadNotificationHelper.html#buildProgressNotification-android.content.Context-int-android.app.PendingIntent-java.lang.String-java.util.List-">buildProgressNotification</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                         int&nbsp;smallIcon,
                          <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" target="_top">PendingIntent</a>&nbsp;contentIntent,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads)</code>
@@ -215,13 +218,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="buildProgressNotification-int-android.app.PendingIntent-java.lang.String-java.util.List-">
+<a name="buildProgressNotification-android.content.Context-int-android.app.PendingIntent-java.lang.String-java.util.List-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildProgressNotification</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" target="_top">Notification</a>&nbsp;buildProgressNotification(@DrawableRes
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app">Notification</a>&nbsp;buildProgressNotification(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                                              @DrawableRes
                                               int&nbsp;smallIcon,
                                               @Nullable
                                               <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" target="_top">PendingIntent</a>&nbsp;contentIntent,
@@ -231,6 +235,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a progress notification for the given downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A context.</dd>
 <dd><code>smallIcon</code> - A small icon for the notification.</dd>
 <dd><code>contentIntent</code> - An optional content intent to send when the notification is clicked.</dd>
 <dd><code>message</code> - An optional message to display on the notification.</dd>
@@ -240,13 +245,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="buildDownloadCompletedNotification-int-android.app.PendingIntent-java.lang.String-">
+<a name="buildDownloadCompletedNotification-android.content.Context-int-android.app.PendingIntent-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildDownloadCompletedNotification</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" target="_top">Notification</a>&nbsp;buildDownloadCompletedNotification(@DrawableRes
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app">Notification</a>&nbsp;buildDownloadCompletedNotification(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                                                       @DrawableRes
                                                        int&nbsp;smallIcon,
                                                        @Nullable
                                                        <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" target="_top">PendingIntent</a>&nbsp;contentIntent,
@@ -255,6 +261,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a notification for a completed download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A context.</dd>
 <dd><code>smallIcon</code> - A small icon for the notifications.</dd>
 <dd><code>contentIntent</code> - An optional content intent to send when the notification is clicked.</dd>
 <dd><code>message</code> - An optional message to display on the notification.</dd>
@@ -263,13 +270,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="buildDownloadFailedNotification-int-android.app.PendingIntent-java.lang.String-">
+<a name="buildDownloadFailedNotification-android.content.Context-int-android.app.PendingIntent-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>buildDownloadFailedNotification</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" target="_top">Notification</a>&nbsp;buildDownloadFailedNotification(@DrawableRes
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app">Notification</a>&nbsp;buildDownloadFailedNotification(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                                                    @DrawableRes
                                                     int&nbsp;smallIcon,
                                                     @Nullable
                                                     <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" target="_top">PendingIntent</a>&nbsp;contentIntent,
@@ -278,6 +286,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a notification for a failed download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A context.</dd>
 <dd><code>smallIcon</code> - A small icon for the notifications.</dd>
 <dd><code>contentIntent</code> - An optional content intent to send when the notification is clicked.</dd>
 <dd><code>message</code> - An optional message to display on the notification.</dd>

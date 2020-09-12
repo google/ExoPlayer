@@ -162,10 +162,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-boolean-">SinglePeriodTimeline</a></span>(long&nbsp;durationUs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-">SinglePeriodTimeline</a></span>(long&nbsp;durationUs,
                     boolean&nbsp;isSeekable,
                     boolean&nbsp;isDynamic,
-                    boolean&nbsp;isLive)</code>
+                    boolean&nbsp;isLive,
+                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
+                    <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
 <div class="block">Creates a timeline containing a single period and a window that spans it.</div>
 </td>
 </tr>
@@ -176,10 +178,27 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                     boolean&nbsp;isLive,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</code>
-<div class="block">Creates a timeline containing a single period and a window that spans it.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-"><code>SinglePeriodTimeline(long, boolean, boolean, boolean, Object,
+     MediaItem)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-">SinglePeriodTimeline</a></span>(long&nbsp;periodDurationUs,
+                    long&nbsp;windowDurationUs,
+                    long&nbsp;windowPositionInPeriodUs,
+                    long&nbsp;windowDefaultStartPositionUs,
+                    boolean&nbsp;isSeekable,
+                    boolean&nbsp;isDynamic,
+                    boolean&nbsp;isLive,
+                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
+                    <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
+<div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
+ position in the period.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;periodDurationUs,
                     long&nbsp;windowDurationUs,
                     long&nbsp;windowPositionInPeriodUs,
@@ -189,13 +208,33 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                     boolean&nbsp;isLive,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-"><code>SinglePeriodTimeline(long, long, long, long, boolean, boolean, boolean,
+     Object, MediaItem)</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-">SinglePeriodTimeline</a></span>(long&nbsp;presentationStartTimeMs,
+                    long&nbsp;windowStartTimeMs,
+                    long&nbsp;elapsedRealtimeEpochOffsetMs,
+                    long&nbsp;periodDurationUs,
+                    long&nbsp;windowDurationUs,
+                    long&nbsp;windowPositionInPeriodUs,
+                    long&nbsp;windowDefaultStartPositionUs,
+                    boolean&nbsp;isSeekable,
+                    boolean&nbsp;isDynamic,
+                    boolean&nbsp;isLive,
+                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
+                    <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
 <div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
  position in the period.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;presentationStartTimeMs,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">SinglePeriodTimeline</a></span>(long&nbsp;presentationStartTimeMs,
                     long&nbsp;windowStartTimeMs,
+                    long&nbsp;elapsedRealtimeEpochOffsetMs,
                     long&nbsp;periodDurationUs,
                     long&nbsp;windowDurationUs,
                     long&nbsp;windowPositionInPeriodUs,
@@ -205,8 +244,10 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                     boolean&nbsp;isLive,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</code>
-<div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
- position in the period.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-"><code>SinglePeriodTimeline(long, long, long, long, long, long, long, boolean,
+     boolean, boolean, Object, MediaItem)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -293,27 +334,26 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SinglePeriodTimeline-long-boolean-boolean-boolean-">
+<a name="SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>SinglePeriodTimeline</h4>
-<pre>public&nbsp;SinglePeriodTimeline(long&nbsp;durationUs,
-                            boolean&nbsp;isSeekable,
-                            boolean&nbsp;isDynamic,
-                            boolean&nbsp;isLive)</pre>
-<div class="block">Creates a timeline containing a single period and a window that spans it.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>durationUs</code> - The duration of the period, in microseconds.</dd>
-<dd><code>isSeekable</code> - Whether seeking is supported within the period.</dd>
-<dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
-<dd><code>isLive</code> - Whether the window is live.</dd>
-</dl>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;SinglePeriodTimeline(long&nbsp;durationUs,
+                                        boolean&nbsp;isSeekable,
+                                        boolean&nbsp;isDynamic,
+                                        boolean&nbsp;isLive,
+                                        @Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
+                                        @Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-"><code>SinglePeriodTimeline(long, boolean, boolean, boolean, Object,
+     MediaItem)</code></a> instead.</span></div>
 </li>
 </ul>
-<a name="SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
+<a name="SinglePeriodTimeline-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -325,8 +365,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                             boolean&nbsp;isLive,
                             @Nullable
                             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
-                            @Nullable
-                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
+                            <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block">Creates a timeline containing a single period and a window that spans it.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -335,11 +374,33 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
 <dd><code>isLive</code> - Whether the window is live.</dd>
 <dd><code>manifest</code> - The manifest. May be <code>null</code>.</dd>
-<dd><code>tag</code> - A tag used for <code>Window#tag</code>.</dd>
+<dd><code>mediaItem</code> - A media item used for <code>Window#mediaItem</code>.</dd>
 </dl>
 </li>
 </ul>
 <a name="SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SinglePeriodTimeline</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;SinglePeriodTimeline(long&nbsp;periodDurationUs,
+                                        long&nbsp;windowDurationUs,
+                                        long&nbsp;windowPositionInPeriodUs,
+                                        long&nbsp;windowDefaultStartPositionUs,
+                                        boolean&nbsp;isSeekable,
+                                        boolean&nbsp;isDynamic,
+                                        boolean&nbsp;isLive,
+                                        @Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
+                                        @Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-"><code>SinglePeriodTimeline(long, long, long, long, boolean, boolean, boolean,
+     Object, MediaItem)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="SinglePeriodTimeline-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -354,8 +415,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                             boolean&nbsp;isLive,
                             @Nullable
                             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
-                            @Nullable
-                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
+                            <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
  position in the period.</div>
 <dl>
@@ -370,11 +430,36 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
 <dd><code>isLive</code> - Whether the window is live.</dd>
 <dd><code>manifest</code> - The manifest. May be (@code null}.</dd>
-<dd><code>tag</code> - A tag used for <code>Timeline.Window#tag</code>.</dd>
+<dd><code>mediaItem</code> - A media item used for <code>Timeline.Window#mediaItem</code>.</dd>
 </dl>
 </li>
 </ul>
-<a name="SinglePeriodTimeline-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
+<a name="SinglePeriodTimeline-long-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-java.lang.Object-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SinglePeriodTimeline</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;SinglePeriodTimeline(long&nbsp;presentationStartTimeMs,
+                                        long&nbsp;windowStartTimeMs,
+                                        long&nbsp;elapsedRealtimeEpochOffsetMs,
+                                        long&nbsp;periodDurationUs,
+                                        long&nbsp;windowDurationUs,
+                                        long&nbsp;windowPositionInPeriodUs,
+                                        long&nbsp;windowDefaultStartPositionUs,
+                                        boolean&nbsp;isSeekable,
+                                        boolean&nbsp;isDynamic,
+                                        boolean&nbsp;isLive,
+                                        @Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
+                                        @Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/source/SinglePeriodTimeline.html#SinglePeriodTimeline-long-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-"><code>SinglePeriodTimeline(long, long, long, long, long, long, long, boolean,
+     boolean, boolean, Object, MediaItem)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="SinglePeriodTimeline-long-long-long-long-long-long-long-boolean-boolean-boolean-java.lang.Object-com.google.android.exoplayer2.MediaItem-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -382,6 +467,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <h4>SinglePeriodTimeline</h4>
 <pre>public&nbsp;SinglePeriodTimeline(long&nbsp;presentationStartTimeMs,
                             long&nbsp;windowStartTimeMs,
+                            long&nbsp;elapsedRealtimeEpochOffsetMs,
                             long&nbsp;periodDurationUs,
                             long&nbsp;windowDurationUs,
                             long&nbsp;windowPositionInPeriodUs,
@@ -391,15 +477,16 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
                             boolean&nbsp;isLive,
                             @Nullable
                             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
-                            @Nullable
-                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
+                            <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block">Creates a timeline with one period, and a window of known duration starting at a specified
  position in the period.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>presentationStartTimeMs</code> - The start time of the presentation in milliseconds since the
-     epoch.</dd>
-<dd><code>windowStartTimeMs</code> - The window's start time in milliseconds since the epoch.</dd>
+     epoch, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown or not applicable.</dd>
+<dd><code>windowStartTimeMs</code> - The window's start time in milliseconds since the epoch, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown or not applicable.</dd>
+<dd><code>elapsedRealtimeEpochOffsetMs</code> - The offset between <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" target="_top"><code>SystemClock.elapsedRealtime()</code></a> and the time since the Unix epoch according to
+     the clock of the media origin server, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown or not applicable.</dd>
 <dd><code>periodDurationUs</code> - The duration of the period in microseconds.</dd>
 <dd><code>windowDurationUs</code> - The duration of the window in microseconds.</dd>
 <dd><code>windowPositionInPeriodUs</code> - The position of the start of the window in the period, in
@@ -410,7 +497,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/Timeline.html" tit
 <dd><code>isDynamic</code> - Whether the window may change when the timeline is updated.</dd>
 <dd><code>isLive</code> - Whether the window is live.</dd>
 <dd><code>manifest</code> - The manifest. May be <code>null</code>.</dd>
-<dd><code>tag</code> - A tag used for <code>Timeline.Window#tag</code>.</dd>
+<dd><code>mediaItem</code> - A media item used for <code>Timeline.Window#mediaItem</code>.</dd>
 </dl>
 </li>
 </ul>

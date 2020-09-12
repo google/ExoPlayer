@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/Chunk.html" target="_top">Frames</a></li>
@@ -156,31 +156,36 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#loadTaskId">loadTaskId</a></span></code>
+<div class="block">Identifies the load task for this loadable.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#startTimeUs">startTimeUs</a></span></code>
 <div class="block">The start time of the media contained by the chunk, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data
  being loaded does not contain media samples.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackFormat">trackFormat</a></span></code>
-<div class="block">The format of the track to which this chunk belongs, or null if the chunk does not belong to
- a track.</div>
+<div class="block">The format of the track to which this chunk belongs.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionData">trackSelectionData</a></span></code>
 <div class="block">Optional data associated with the selection of the track to which this chunk belongs.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#trackSelectionReason">trackSelectionReason</a></span></code>
 <div class="block">One of the <a href="../../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>SELECTION_REASON_*</code> constants if the chunk belongs to a track.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html#type">type</a></span></code>
 <div class="block">The type of the chunk.</div>
@@ -278,6 +283,16 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a name="loadTaskId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>loadTaskId</h4>
+<pre>public final&nbsp;long loadTaskId</pre>
+<div class="block">Identifies the load task for this loadable.</div>
+</li>
+</ul>
 <a name="dataSpec">
 <!--   -->
 </a>
@@ -306,8 +321,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 <li class="blockList">
 <h4>trackFormat</h4>
 <pre>public final&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> trackFormat</pre>
-<div class="block">The format of the track to which this chunk belongs, or null if the chunk does not belong to
- a track.</div>
+<div class="block">The format of the track to which this chunk belongs.</div>
 </li>
 </ul>
 <a name="trackSelectionReason">
@@ -318,7 +332,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 <h4>trackSelectionReason</h4>
 <pre>public final&nbsp;int trackSelectionReason</pre>
 <div class="block">One of the <a href="../../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C</code></a> <code>SELECTION_REASON_*</code> constants if the chunk belongs to a track.
- <a href="../../../../../../com/google/android/exoplayer2/C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> if the chunk does not belong to a track.</div>
+ <a href="../../../../../../com/google/android/exoplayer2/C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> if the chunk does not belong to a track, or if the selection
+ reason is unknown.</div>
 </li>
 </ul>
 <a name="trackSelectionData">
@@ -330,7 +345,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Loa
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a> trackSelectionData</pre>
 <div class="block">Optional data associated with the selection of the track to which this chunk belongs. Null if
- the chunk does not belong to a track.</div>
+ the chunk does not belong to a track, or if there is no associated track selection data.</div>
 </li>
 </ul>
 <a name="startTimeUs">
@@ -487,8 +502,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/chunk/Chunk.html" target="_top">Frames</a></li>

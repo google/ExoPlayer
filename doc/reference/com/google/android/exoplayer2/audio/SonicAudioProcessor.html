@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -146,30 +146,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Field and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#MAXIMUM_PITCH">MAXIMUM_PITCH</a></span></code>
-<div class="block">The maximum allowed pitch in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setPitch-float-"><code>setPitch(float)</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#MAXIMUM_SPEED">MAXIMUM_SPEED</a></span></code>
-<div class="block">The maximum allowed playback speed in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setSpeed-float-"><code>setSpeed(float)</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#MINIMUM_PITCH">MINIMUM_PITCH</a></span></code>
-<div class="block">The minimum allowed pitch in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setPitch-float-"><code>setPitch(float)</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#MINIMUM_SPEED">MINIMUM_SPEED</a></span></code>
-<div class="block">The minimum allowed playback speed in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setSpeed-float-"><code>setSpeed(float)</code></a>.</div>
-</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
@@ -314,62 +290,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="MAXIMUM_SPEED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MAXIMUM_SPEED</h4>
-<pre>public static final&nbsp;float MAXIMUM_SPEED</pre>
-<div class="block">The maximum allowed playback speed in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setSpeed-float-"><code>setSpeed(float)</code></a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.SonicAudioProcessor.MAXIMUM_SPEED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="MINIMUM_SPEED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MINIMUM_SPEED</h4>
-<pre>public static final&nbsp;float MINIMUM_SPEED</pre>
-<div class="block">The minimum allowed playback speed in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setSpeed-float-"><code>setSpeed(float)</code></a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.SonicAudioProcessor.MINIMUM_SPEED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="MAXIMUM_PITCH">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MAXIMUM_PITCH</h4>
-<pre>public static final&nbsp;float MAXIMUM_PITCH</pre>
-<div class="block">The maximum allowed pitch in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setPitch-float-"><code>setPitch(float)</code></a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.SonicAudioProcessor.MAXIMUM_PITCH">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="MINIMUM_PITCH">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MINIMUM_PITCH</h4>
-<pre>public static final&nbsp;float MINIMUM_PITCH</pre>
-<div class="block">The minimum allowed pitch in <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setPitch-float-"><code>setPitch(float)</code></a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.audio.SonicAudioProcessor.MINIMUM_PITCH">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
 <a name="SAMPLE_RATE_NO_CHANGE">
 <!--   -->
 </a>
@@ -658,7 +578,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

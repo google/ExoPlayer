@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18,"i7":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -154,8 +154,8 @@ var activeTableTab = "activeTableTab";
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onRenderedFirstFrame-android.view.Surface-">onRenderedFirstFrame</a></span>(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top">Surface</a>&nbsp;surface)</code>
-<div class="block">Called when a frame is rendered for the first time since setting the surface, and when a frame
- is rendered for the first time since the renderer was reset.</div>
+<div class="block">Called when a frame is rendered for the first time since setting the surface, or since the
+ renderer was reset, or since the stream being rendered was changed.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -180,11 +180,18 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoFrameProcessingOffset-long-int-">onVideoFrameProcessingOffset</a></span>(long&nbsp;totalProcessingOffsetUs,
+                            int&nbsp;frameCount)</code>
+<div class="block">Called to report the video processing offset of video frames processed by the video renderer.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoInputFormatChanged-com.google.android.exoplayer2.Format-">onVideoInputFormatChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Called when the format of the media being consumed by the renderer changes.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoSizeChanged-int-int-int-float-">onVideoSizeChanged</a></span>(int&nbsp;width,
                   int&nbsp;height,
@@ -277,6 +284,34 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
+<a name="onVideoFrameProcessingOffset-long-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onVideoFrameProcessingOffset</h4>
+<pre>default&nbsp;void&nbsp;onVideoFrameProcessingOffset(long&nbsp;totalProcessingOffsetUs,
+                                          int&nbsp;frameCount)</pre>
+<div class="block">Called to report the video processing offset of video frames processed by the video renderer.
+
+ <p>Video processing offset represents how early a video frame is processed compared to the
+ player's current position. For each video frame, the offset is calculated as <em>P<sub>vf</sub>
+ - P<sub>pl</sub></em> where <em>P<sub>vf</sub></em> is the presentation timestamp of the video
+ frame and <em>P<sub>pl</sub></em> is the current position of the player. Positive values
+ indicate the frame was processed early enough whereas negative values indicate that the
+ player's position had progressed beyond the frame's timestamp when the frame was processed (and
+ the frame was probably dropped).
+
+ <p>The renderer reports the sum of video processing offset samples (one sample per processed
+ video frame: dropped, skipped or rendered) and the total number of samples.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>totalProcessingOffsetUs</code> - The sum of all video frame processing offset samples for the
+     video frames processed by the renderer in microseconds.</dd>
+<dd><code>frameCount</code> - The number of samples included in the <code>totalProcessingOffsetUs</code>.</dd>
+</dl>
+</li>
+</ul>
 <a name="onVideoSizeChanged-int-int-int-float-">
 <!--   -->
 </a>
@@ -314,8 +349,8 @@ var activeTableTab = "activeTableTab";
 <h4>onRenderedFirstFrame</h4>
 <pre>default&nbsp;void&nbsp;onRenderedFirstFrame(@Nullable
                                   <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top">Surface</a>&nbsp;surface)</pre>
-<div class="block">Called when a frame is rendered for the first time since setting the surface, and when a frame
- is rendered for the first time since the renderer was reset.</div>
+<div class="block">Called when a frame is rendered for the first time since setting the surface, or since the
+ renderer was reset, or since the stream being rendered was changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>surface</code> - The <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top"><code>Surface</code></a> to which a first frame has been rendered, or <code>null</code> if

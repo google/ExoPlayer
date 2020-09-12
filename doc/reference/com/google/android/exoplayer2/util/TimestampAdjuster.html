@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":9,"i9":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":9,"i9":9,"i10":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -217,11 +217,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToPts-long-">usToPts</a></span>(long&nbsp;us)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToNonWrappedPts-long-">usToNonWrappedPts</a></span>(long&nbsp;us)</code>
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToWrappedPts-long-">usToWrappedPts</a></span>(long&nbsp;us)</code>
+<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp, performing wraparound to keep
+ the result within 33-bits.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#waitUntilInitialized--">waitUntilInitialized</a></span>()</code>
 <div class="block">Blocks the calling thread until this adjuster is initialized.</div>
@@ -420,14 +427,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="usToPts-long-">
+<a name="usToWrappedPts-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>usToWrappedPts</h4>
+<pre>public static&nbsp;long&nbsp;usToWrappedPts(long&nbsp;us)</pre>
+<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp, performing wraparound to keep
+ the result within 33-bits.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>us</code> - A value in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The corresponding value as a 90 kHz clock timestamp, wrapped to 33 bits.</dd>
+</dl>
+</li>
+</ul>
+<a name="usToNonWrappedPts-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>usToPts</h4>
-<pre>public static&nbsp;long&nbsp;usToPts(long&nbsp;us)</pre>
-<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.</div>
+<h4>usToNonWrappedPts</h4>
+<pre>public static&nbsp;long&nbsp;usToNonWrappedPts(long&nbsp;us)</pre>
+<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.
+
+ <p>Does not perform any wraparound. To get a 90 kHz timestamp suitable for use with MPEG-TS,
+ use <a href="../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html#usToWrappedPts-long-"><code>usToWrappedPts(long)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>us</code> - A value in microseconds.</dd>

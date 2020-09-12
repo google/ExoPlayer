@@ -135,7 +135,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-android.net.Uri-long-">onPlaylistError</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url,
-               long&nbsp;blacklistDurationMs)</code>
+               long&nbsp;exclusionDurationMs)</code>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 </td>
 </tr>
@@ -171,15 +171,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>onPlaylistError</h4>
 <pre>boolean&nbsp;onPlaylistError(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url,
-                        long&nbsp;blacklistDurationMs)</pre>
+                        long&nbsp;exclusionDurationMs)</pre>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - The loaded url that caused the error.</dd>
-<dd><code>blacklistDurationMs</code> - The duration for which the playlist should be blacklisted. Or
-     <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the playlist should not be blacklisted.</dd>
+<dd><code>exclusionDurationMs</code> - The duration for which the playlist should be excluded. Or <a href="../../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the playlist should not be excluded.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>True if blacklisting did not encounter errors. False otherwise.</dd>
+<dd>True if excluding did not encounter errors. False otherwise.</dd>
 </dl>
 </li>
 </ul>

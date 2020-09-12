@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -190,6 +190,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#reportVideoFrameProcessingOffset-long-int-">reportVideoFrameProcessingOffset</a></span>(long&nbsp;totalProcessingOffsetUs,
+                                int&nbsp;frameCount)</code>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoFrameProcessingOffset-long-int-"><code>VideoRendererEventListener.onVideoFrameProcessingOffset(long, int)</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.EventDispatcher.html#videoSizeChanged-int-int-int-float-">videoSizeChanged</a></span>(int&nbsp;width,
                 int&nbsp;height,
                 int&nbsp;unappliedRotationDegrees,
@@ -231,9 +238,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                        <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;listener)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>handler</code> - A handler for dispatching events, or null if creating a dummy instance.</dd>
-<dd><code>listener</code> - The listener to which events should be dispatched, or null if creating a
-     dummy instance.</dd>
+<dd><code>handler</code> - A handler for dispatching events, or null if events should not be dispatched.</dd>
+<dd><code>listener</code> - The listener to which events should be dispatched, or null if events should
+     not be dispatched.</dd>
 </dl>
 </li>
 </ul>
@@ -286,6 +293,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;void&nbsp;droppedFrames(int&nbsp;droppedFrameCount,
                           long&nbsp;elapsedMs)</pre>
 <div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onDroppedFrames-int-long-"><code>VideoRendererEventListener.onDroppedFrames(int, long)</code></a>.</div>
+</li>
+</ul>
+<a name="reportVideoFrameProcessingOffset-long-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reportVideoFrameProcessingOffset</h4>
+<pre>public&nbsp;void&nbsp;reportVideoFrameProcessingOffset(long&nbsp;totalProcessingOffsetUs,
+                                             int&nbsp;frameCount)</pre>
+<div class="block">Invokes <a href="../../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html#onVideoFrameProcessingOffset-long-int-"><code>VideoRendererEventListener.onVideoFrameProcessingOffset(long, int)</code></a>.</div>
 </li>
 </ul>
 <a name="videoSizeChanged-int-int-int-float-">

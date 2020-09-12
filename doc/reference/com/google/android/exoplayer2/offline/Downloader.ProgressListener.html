@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" target="_top">Frames</a></li>
@@ -154,7 +154,11 @@ var activeTableTab = "activeTableTab";
 <pre>void&nbsp;onProgress(long&nbsp;contentLength,
                 long&nbsp;bytesDownloaded,
                 float&nbsp;percentDownloaded)</pre>
-<div class="block">Called when progress is made during a download operation.</div>
+<div class="block">Called when progress is made during a download operation.
+
+ <p>May be called directly from <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-"><code>Downloader.download(com.google.android.exoplayer2.offline.Downloader.ProgressListener)</code></a>, or from any other thread used by the
+ downloader. In all cases, <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-"><code>Downloader.download(com.google.android.exoplayer2.offline.Downloader.ProgressListener)</code></a> is guaranteed not to return until after the last
+ call to this method has finished executing.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>contentLength</code> - The length of the content in bytes, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if
@@ -192,7 +196,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" target="_top">Frames</a></li>

@@ -159,9 +159,10 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#bitrate">bitrate</a></span></code>
-<div class="block">The bitrate as declared by the EXT-X-STREAM-INF tag.</div>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#averageBitrate">averageBitrate</a></span></code>
+<div class="block">The average bitrate as declared by the AVERAGE-BANDWIDTH attribute of the EXT-X-STREAM-INF
+ tag, or <a href="../../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if the attribute is not declared.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -176,13 +177,19 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#CREATOR">CREATOR</a></span></code>&nbsp;</td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#peakBitrate">peakBitrate</a></span></code>
+<div class="block">The peak bitrate as declared by the BANDWIDTH attribute of the EXT-X-STREAM-INF tag.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#subtitleGroupId">subtitleGroupId</a></span></code>
 <div class="block">The SUBTITLES value as defined in the EXT-X-STREAM-INF tag, or null if the SUBTITLES
  attribute is not present.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#videoGroupId">videoGroupId</a></span></code>
 <div class="block">The VIDEO value as defined in the EXT-X-STREAM-INF tag, or null if the VIDEO attribute is not
@@ -211,7 +218,8 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#VariantInfo-long-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">VariantInfo</a></span>(long&nbsp;bitrate,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#VariantInfo-int-int-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">VariantInfo</a></span>(int&nbsp;averageBitrate,
+           int&nbsp;peakBitrate,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;videoGroupId,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;audioGroupId,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;subtitleGroupId,
@@ -273,14 +281,25 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="bitrate">
+<a name="averageBitrate">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>bitrate</h4>
-<pre>public final&nbsp;long bitrate</pre>
-<div class="block">The bitrate as declared by the EXT-X-STREAM-INF tag.</div>
+<h4>averageBitrate</h4>
+<pre>public final&nbsp;int averageBitrate</pre>
+<div class="block">The average bitrate as declared by the AVERAGE-BANDWIDTH attribute of the EXT-X-STREAM-INF
+ tag, or <a href="../../../../../../com/google/android/exoplayer2/Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if the attribute is not declared.</div>
+</li>
+</ul>
+<a name="peakBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>peakBitrate</h4>
+<pre>public final&nbsp;int peakBitrate</pre>
+<div class="block">The peak bitrate as declared by the BANDWIDTH attribute of the EXT-X-STREAM-INF tag.</div>
 </li>
 </ul>
 <a name="videoGroupId">
@@ -348,13 +367,14 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="VariantInfo-long-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
+<a name="VariantInfo-int-int-java.lang.String-java.lang.String-java.lang.String-java.lang.String-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>VariantInfo</h4>
-<pre>public&nbsp;VariantInfo(long&nbsp;bitrate,
+<pre>public&nbsp;VariantInfo(int&nbsp;averageBitrate,
+                   int&nbsp;peakBitrate,
                    @Nullable
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;videoGroupId,
                    @Nullable
@@ -366,7 +386,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bitrate</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#bitrate"><code>bitrate</code></a>.</dd>
+<dd><code>averageBitrate</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#averageBitrate"><code>averageBitrate</code></a>.</dd>
+<dd><code>peakBitrate</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#peakBitrate"><code>peakBitrate</code></a>.</dd>
 <dd><code>videoGroupId</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#videoGroupId"><code>videoGroupId</code></a>.</dd>
 <dd><code>audioGroupId</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#audioGroupId"><code>audioGroupId</code></a>.</dd>
 <dd><code>subtitleGroupId</code> - See <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsTrackMetadataEntry.VariantInfo.html#subtitleGroupId"><code>subtitleGroupId</code></a>.</dd>

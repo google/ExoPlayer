@@ -138,14 +138,14 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeLength">byterangeLength</a></span></code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byteRangeLength">byteRangeLength</a></span></code>
 <div class="block">The segment's byte range length, as defined by #EXT-X-BYTERANGE, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if
  no byte range is specified.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeOffset">byterangeOffset</a></span></code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byteRangeOffset">byteRangeOffset</a></span></code>
 <div class="block">The segment's byte range offset, as defined by #EXT-X-BYTERANGE.</div>
 </td>
 </tr>
@@ -236,14 +236,14 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
        <a href="../../../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;fullSegmentEncryptionKeyUri,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;encryptionIV,
-       long&nbsp;byterangeOffset,
-       long&nbsp;byterangeLength,
+       long&nbsp;byteRangeOffset,
+       long&nbsp;byteRangeLength,
        boolean&nbsp;hasGapTag)</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#Segment-java.lang.String-long-long-java.lang.String-java.lang.String-">Segment</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;uri,
-       long&nbsp;byterangeOffset,
-       long&nbsp;byterangeLength,
+       long&nbsp;byteRangeOffset,
+       long&nbsp;byteRangeLength,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;fullSegmentEncryptionKeyUri,
        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;encryptionIV)</code>&nbsp;</td>
 </tr>
@@ -387,23 +387,23 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
  encrypted.</div>
 </li>
 </ul>
-<a name="byterangeOffset">
+<a name="byteRangeOffset">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>byterangeOffset</h4>
-<pre>public final&nbsp;long byterangeOffset</pre>
+<h4>byteRangeOffset</h4>
+<pre>public final&nbsp;long byteRangeOffset</pre>
 <div class="block">The segment's byte range offset, as defined by #EXT-X-BYTERANGE.</div>
 </li>
 </ul>
-<a name="byterangeLength">
+<a name="byteRangeLength">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>byterangeLength</h4>
-<pre>public final&nbsp;long byterangeLength</pre>
+<h4>byteRangeLength</h4>
+<pre>public final&nbsp;long byteRangeLength</pre>
 <div class="block">The segment's byte range length, as defined by #EXT-X-BYTERANGE, or <a href="../../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if
  no byte range is specified.</div>
 </li>
@@ -433,8 +433,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>Segment</h4>
 <pre>public&nbsp;Segment(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;uri,
-               long&nbsp;byterangeOffset,
-               long&nbsp;byterangeLength,
+               long&nbsp;byteRangeOffset,
+               long&nbsp;byteRangeLength,
                @Nullable
                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;fullSegmentEncryptionKeyUri,
                @Nullable
@@ -442,8 +442,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#url"><code>url</code></a>.</dd>
-<dd><code>byterangeOffset</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeOffset"><code>byterangeOffset</code></a>.</dd>
-<dd><code>byterangeLength</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeLength"><code>byterangeLength</code></a>.</dd>
+<dd><code>byteRangeOffset</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byteRangeOffset"><code>byteRangeOffset</code></a>.</dd>
+<dd><code>byteRangeLength</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byteRangeLength"><code>byteRangeLength</code></a>.</dd>
 <dd><code>fullSegmentEncryptionKeyUri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#fullSegmentEncryptionKeyUri"><code>fullSegmentEncryptionKeyUri</code></a>.</dd>
 <dd><code>encryptionIV</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#encryptionIV"><code>encryptionIV</code></a>.</dd>
 </dl>
@@ -468,8 +468,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;fullSegmentEncryptionKeyUri,
                @Nullable
                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;encryptionIV,
-               long&nbsp;byterangeOffset,
-               long&nbsp;byterangeLength,
+               long&nbsp;byteRangeOffset,
+               long&nbsp;byteRangeLength,
                boolean&nbsp;hasGapTag)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -482,8 +482,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <dd><code>drmInitData</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#drmInitData"><code>drmInitData</code></a>.</dd>
 <dd><code>fullSegmentEncryptionKeyUri</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#fullSegmentEncryptionKeyUri"><code>fullSegmentEncryptionKeyUri</code></a>.</dd>
 <dd><code>encryptionIV</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#encryptionIV"><code>encryptionIV</code></a>.</dd>
-<dd><code>byterangeOffset</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeOffset"><code>byterangeOffset</code></a>.</dd>
-<dd><code>byterangeLength</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byterangeLength"><code>byterangeLength</code></a>.</dd>
+<dd><code>byteRangeOffset</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byteRangeOffset"><code>byteRangeOffset</code></a>.</dd>
+<dd><code>byteRangeLength</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#byteRangeLength"><code>byteRangeLength</code></a>.</dd>
 <dd><code>hasGapTag</code> - See <a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsMediaPlaylist.Segment.html#hasGapTag"><code>hasGapTag</code></a>.</dd>
 </dl>
 </li>

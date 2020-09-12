@@ -16,6 +16,12 @@
     catch(err) {
     }
 //-->
+var methods = {"i0":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
 </script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -68,13 +74,13 @@
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.top">
@@ -98,13 +104,9 @@
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
-<dl>
-<dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/text/webvtt/WebvttCue.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttCue</a></dd>
-</dl>
 <hr>
 <br>
-<pre>public class <span class="typeNameLabel">Cue</span>
+<pre>public final class <span class="typeNameLabel">Cue</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
 <div class="block">Contains information about a specific cue, including textual content and formatting data.</div>
 </li>
@@ -132,15 +134,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></span></code>
+<div class="block">A builder for <a href="../../../../../com/google/android/exoplayer2/text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cue</code></a> objects.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">Cue.LineType</a></span></code>
 <div class="block">The type of line, which may be unset.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">Cue.TextSizeType</a></span></code>
 <div class="block">The type of default text size for this cue, which may be unset.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">Cue.VerticalType</a></span></code>
+<div class="block">The type of vertical layout for this cue, which may be unset (i.e.</div>
 </td>
 </tr>
 </table>
@@ -207,8 +221,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line">line</a></span></code>
-<div class="block">The position of the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a> of the cue box within the viewport in the direction
- orthogonal to the writing direction, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.</div>
+<div class="block">The position of the cue box within the viewport in the direction orthogonal to the writing
+ direction (determined by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#verticalType"><code>verticalType</code></a>), or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -226,7 +240,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor">lineAnchor</a></span></code>
-<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a>.</div>
+<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> when <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineType"><code>lineType</code></a> is <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -302,16 +316,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET">TYPE_UNSET</a></span></code>
-<div class="block">An unset anchor or line type value.</div>
+<div class="block">An unset anchor, line, text size or vertical type value.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#VERTICAL_TYPE_LR">VERTICAL_TYPE_LR</a></span></code>
+<div class="block">Vertical left-to-right (e.g.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#VERTICAL_TYPE_RL">VERTICAL_TYPE_RL</a></span></code>
+<div class="block">Vertical right-to-left (e.g.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#verticalType">verticalType</a></span></code>
+<div class="block">The vertical formatting of this Cue, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> if the cue has no vertical setting
+ (and so should be horizontal).</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColor">windowColor</a></span></code>
 <div class="block">The fill color of the window.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColorSet">windowColorSet</a></span></code>
 <div class="block">Specifies whether or not the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColor"><code>windowColor</code></a> property is set.</div>
@@ -332,23 +365,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#Cue-android.graphics.Bitmap-float-int-float-int-float-float-">Cue</a></span>(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" target="_top">Bitmap</a>&nbsp;bitmap,
-   float&nbsp;horizontalPosition,
-   int&nbsp;horizontalPositionAnchor,
-   float&nbsp;verticalPosition,
-   int&nbsp;verticalPositionAnchor,
-   float&nbsp;width,
-   float&nbsp;height)</code>
-<div class="block">Creates an image cue.</div>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-">Cue</a></span>(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-">Cue</a></span>(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text)</code>
-<div class="block">Creates a text cue whose <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textAlignment"><code>textAlignment</code></a> is null, whose type parameters are set to
- <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> and whose dimension parameters are set to <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-android.text.Layout.Alignment-float-int-int-float-int-float-">Cue</a></span>(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
    <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
    float&nbsp;line,
@@ -357,10 +380,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
    float&nbsp;position,
    int&nbsp;positionAnchor,
    float&nbsp;size)</code>
-<div class="block">Creates a text cue.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-android.text.Layout.Alignment-float-int-int-float-int-float-boolean-int-">Cue</a></span>(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
    <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
    float&nbsp;line,
@@ -371,10 +396,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
    float&nbsp;size,
    boolean&nbsp;windowColorSet,
    int&nbsp;windowColor)</code>
-<div class="block">Creates a text cue.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#Cue-java.lang.CharSequence-android.text.Layout.Alignment-float-int-int-float-int-float-int-float-">Cue</a></span>(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
    <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
    float&nbsp;line,
@@ -385,7 +412,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
    float&nbsp;size,
    int&nbsp;textSizeType,
    float&nbsp;textSize)</code>
-<div class="block">Creates a text cue.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
+</div>
 </td>
 </tr>
 </table>
@@ -397,6 +426,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#buildUpon--">buildUpon</a></span>()</code>
+<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a> initialized with the same values as this Cue.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -449,7 +491,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TYPE_UNSET</h4>
 <pre>public static final&nbsp;int TYPE_UNSET</pre>
-<div class="block">An unset anchor or line type value.</div>
+<div class="block">An unset anchor, line, text size or vertical type value.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.text.Cue.TYPE_UNSET">Constant Field Values</a></dd>
@@ -570,6 +612,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a name="VERTICAL_TYPE_RL">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>VERTICAL_TYPE_RL</h4>
+<pre>public static final&nbsp;int VERTICAL_TYPE_RL</pre>
+<div class="block">Vertical right-to-left (e.g. for Japanese).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.text.Cue.VERTICAL_TYPE_RL">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="VERTICAL_TYPE_LR">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>VERTICAL_TYPE_LR</h4>
+<pre>public static final&nbsp;int VERTICAL_TYPE_LR</pre>
+<div class="block">Vertical left-to-right (e.g. for Mongolian).</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.text.Cue.VERTICAL_TYPE_LR">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
 <a name="text">
 <!--   -->
 </a>
@@ -611,12 +681,20 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/graph
 <li class="blockList">
 <h4>line</h4>
 <pre>public final&nbsp;float line</pre>
-<div class="block">The position of the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a> of the cue box within the viewport in the direction
- orthogonal to the writing direction, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>. When set, the interpretation of
- the value depends on the value of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineType"><code>lineType</code></a>.
- <p>
- For horizontal text and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineType"><code>lineType</code></a> equal to <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a>, this is the
- fractional vertical position relative to the top of the viewport.</div>
+<div class="block">The position of the cue box within the viewport in the direction orthogonal to the writing
+ direction (determined by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#verticalType"><code>verticalType</code></a>), or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>. When set, the
+ interpretation of the value depends on the value of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineType"><code>lineType</code></a>.
+
+ <p>The measurement direction depends on <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#verticalType"><code>verticalType</code></a>:
+
+ <ul>
+   <li>For <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> (i.e. horizontal), this is the vertical position relative to the
+       top of the viewport.
+   <li>For <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#VERTICAL_TYPE_LR"><code>VERTICAL_TYPE_LR</code></a> this is the horizontal position relative to the left of the
+       viewport.
+   <li>For <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#VERTICAL_TYPE_RL"><code>VERTICAL_TYPE_RL</code></a> this is the horizontal position relative to the right of
+       the viewport.
+ </ul></div>
 </li>
 </ul>
 <a name="lineType">
@@ -629,26 +707,22 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/graph
 public final&nbsp;int lineType</pre>
 <div class="block">The type of the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> value.
 
- <p><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a fractional position within the
- viewport.
-
- <p><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_NUMBER"><code>LINE_TYPE_NUMBER</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a line number, where the size of
- each line is taken to be the size of the first line of the cue. When <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is greater
- than or equal to 0 lines count from the start of the viewport, with 0 indicating zero offset
- from the start edge. When <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is negative lines count from the end of the viewport,
- with -1 indicating zero offset from the end edge. For horizontal text the line spacing is the
- height of the first line of the cue, and the start and end of the viewport are the top and
- bottom respectively.
-
- <p>Note that it's particularly important to consider the effect of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a> when
- using <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_NUMBER"><code>LINE_TYPE_NUMBER</code></a>. <code>(line == 0 &amp;&amp; lineAnchor == ANCHOR_TYPE_START)</code>
- positions a (potentially multi-line) cue at the very top of the viewport. <code>(line == -1 &amp;&amp;
- lineAnchor == ANCHOR_TYPE_END)</code> positions a (potentially multi-line) cue at the very bottom of
- the viewport. <code>(line == 0 &amp;&amp; lineAnchor == ANCHOR_TYPE_END)</code> and <code>(line == -1 &amp;&amp;
- lineAnchor == ANCHOR_TYPE_START)</code> position cues entirely outside of the viewport. <code>(line
- == 1 &amp;&amp; lineAnchor == ANCHOR_TYPE_END)</code> positions a cue so that only the last line is visible
- at the top of the viewport. <code>(line == -2 &amp;&amp; lineAnchor == ANCHOR_TYPE_START)</code> position a
- cue so that only its first line is visible at the bottom of the viewport.</div>
+ <ul>
+   <li><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a fractional position within
+       the viewport (measured to the part of the cue box determined by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a>).
+   <li><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_NUMBER"><code>LINE_TYPE_NUMBER</code></a> indicates that <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> is a viewport line number. The
+       viewport is divided into lines (each equal in size to the first line of the cue box). The
+       cue box is positioned to align with the viewport lines as follows:
+       <ul>
+         <li><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineAnchor"><code>lineAnchor</code></a>) is ignored.
+         <li>When <code>line</code> is greater than or equal to 0 the first line in the cue box is
+             aligned with a viewport line, with 0 meaning the first line of the viewport.
+         <li>When <code>line</code> is negative the last line in the cue box is aligned with a
+             viewport line, with -1 meaning the last line of the viewport.
+         <li>For horizontal text the start and end of the viewport are the top and bottom
+             respectively.
+       </ul>
+ </ul></div>
 </li>
 </ul>
 <a name="lineAnchor">
@@ -659,7 +733,16 @@ public final&nbsp;int lineType</pre>
 <h4>lineAnchor</h4>
 <pre><a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
 public final&nbsp;int lineAnchor</pre>
-<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a>. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.
+<div class="block">The cue box anchor positioned by <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a> when <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#lineType"><code>lineType</code></a> is <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#LINE_TYPE_FRACTION"><code>LINE_TYPE_FRACTION</code></a>.
+
+ <p>One of:
+
+ <ul>
+   <li><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>
+   <li><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>
+   <li><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a>
+   <li><a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>
+ </ul>
 
  <p>For the normal case of horizontal text, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> correspond to the top, middle and bottom of
  the cue box respectively.</div>
@@ -674,10 +757,16 @@ public final&nbsp;int lineAnchor</pre>
 <pre>public final&nbsp;float position</pre>
 <div class="block">The fractional position of the <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#positionAnchor"><code>positionAnchor</code></a> of the cue box within the viewport in
  the direction orthogonal to <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#line"><code>line</code></a>, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.
- <p>
- For horizontal text, this is the horizontal position relative to the left of the viewport. Note
- that positioning is relative to the left of the viewport even in the case of right-to-left
- text.</div>
+
+ <p>The measurement direction depends on <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#verticalType"><code>verticalType</code></a>.
+
+ <ul>
+   <li>For <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> (i.e. horizontal), this is the horizontal position relative to
+       the left of the viewport. Note that positioning is relative to the left of the viewport
+       even in the case of right-to-left text.
+   <li>For <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#VERTICAL_TYPE_LR"><code>VERTICAL_TYPE_LR</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#VERTICAL_TYPE_RL"><code>VERTICAL_TYPE_RL</code></a> (i.e. vertical), this is the
+       vertical position relative to the top of the viewport.
+ </ul></div>
 </li>
 </ul>
 <a name="positionAnchor">
@@ -752,12 +841,24 @@ public final&nbsp;int textSizeType</pre>
 <a name="textSize">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>textSize</h4>
 <pre>public final&nbsp;float textSize</pre>
 <div class="block">The default text size for this cue's text, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a> if this cue has no default
  text size.</div>
+</li>
+</ul>
+<a name="verticalType">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>verticalType</h4>
+<pre><a href="../../../../../com/google/android/exoplayer2/text/Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.VerticalType</a>
+public final&nbsp;int verticalType</pre>
+<div class="block">The vertical formatting of this Cue, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> if the cue has no vertical setting
+ (and so should be horizontal).</div>
 </li>
 </ul>
 </li>
@@ -768,45 +869,15 @@ public final&nbsp;int textSizeType</pre>
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="Cue-android.graphics.Bitmap-float-int-float-int-float-float-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>Cue</h4>
-<pre>public&nbsp;Cue(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" target="_top">Bitmap</a>&nbsp;bitmap,
-           float&nbsp;horizontalPosition,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;horizontalPositionAnchor,
-           float&nbsp;verticalPosition,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;verticalPositionAnchor,
-           float&nbsp;width,
-           float&nbsp;height)</pre>
-<div class="block">Creates an image cue.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bitmap</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#bitmap"><code>bitmap</code></a>.</dd>
-<dd><code>horizontalPosition</code> - The position of the horizontal anchor within the viewport, expressed
-     as a fraction of the viewport width.</dd>
-<dd><code>horizontalPositionAnchor</code> - The horizontal anchor. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>,
-     <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.</dd>
-<dd><code>verticalPosition</code> - The position of the vertical anchor within the viewport, expressed as a
-     fraction of the viewport height.</dd>
-<dd><code>verticalPositionAnchor</code> - The vertical anchor. One of <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_START"><code>ANCHOR_TYPE_START</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_MIDDLE"><code>ANCHOR_TYPE_MIDDLE</code></a>, <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#ANCHOR_TYPE_END"><code>ANCHOR_TYPE_END</code></a> and <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a>.</dd>
-<dd><code>width</code> - The width of the cue as a fraction of the viewport width.</dd>
-<dd><code>height</code> - The height of the cue as a fraction of the viewport height, or <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a> if the bitmap should be displayed at its natural height for the specified
-     <code>width</code>.</dd>
-</dl>
-</li>
-</ul>
 <a name="Cue-java.lang.CharSequence-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>Cue</h4>
-<pre>public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
 <div class="block">Creates a text cue whose <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#textAlignment"><code>textAlignment</code></a> is null, whose type parameters are set to
  <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#TYPE_UNSET"><code>TYPE_UNSET</code></a> and whose dimension parameters are set to <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#DIMEN_UNSET"><code>DIMEN_UNSET</code></a>.</div>
 <dl>
@@ -821,18 +892,20 @@ public final&nbsp;int textSizeType</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>Cue</h4>
-<pre>public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
-           @Nullable
-           <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
-           float&nbsp;line,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
-           int&nbsp;lineType,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;lineAnchor,
-           float&nbsp;position,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;positionAnchor,
-           float&nbsp;size)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
+                       @Nullable
+                       <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
+                       float&nbsp;line,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
+                       int&nbsp;lineType,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+                       int&nbsp;lineAnchor,
+                       float&nbsp;position,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+                       int&nbsp;positionAnchor,
+                       float&nbsp;size)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
 <div class="block">Creates a text cue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -853,21 +926,23 @@ public final&nbsp;int textSizeType</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>Cue</h4>
-<pre>public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
-           @Nullable
-           <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
-           float&nbsp;line,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
-           int&nbsp;lineType,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;lineAnchor,
-           float&nbsp;position,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;positionAnchor,
-           float&nbsp;size,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.TextSizeType</a>
-           int&nbsp;textSizeType,
-           float&nbsp;textSize)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
+                       @Nullable
+                       <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
+                       float&nbsp;line,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
+                       int&nbsp;lineType,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+                       int&nbsp;lineAnchor,
+                       float&nbsp;position,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+                       int&nbsp;positionAnchor,
+                       float&nbsp;size,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.TextSizeType</a>
+                       int&nbsp;textSizeType,
+                       float&nbsp;textSize)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
 <div class="block">Creates a text cue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -890,20 +965,22 @@ public final&nbsp;int textSizeType</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Cue</h4>
-<pre>public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
-           @Nullable
-           <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
-           float&nbsp;line,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
-           int&nbsp;lineType,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;lineAnchor,
-           float&nbsp;position,
-           <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
-           int&nbsp;positionAnchor,
-           float&nbsp;size,
-           boolean&nbsp;windowColorSet,
-           int&nbsp;windowColor)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;Cue(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" target="_top">CharSequence</a>&nbsp;text,
+                       @Nullable
+                       <a href="https://developer.android.com/reference/android/text/Layout.Alignment.html" title="class or interface in android.text" target="_top">Layout.Alignment</a>&nbsp;textAlignment,
+                       float&nbsp;line,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.LineType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.LineType</a>
+                       int&nbsp;lineType,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+                       int&nbsp;lineAnchor,
+                       float&nbsp;position,
+                       <a href="../../../../../com/google/android/exoplayer2/text/Cue.AnchorType.html" title="annotation in com.google.android.exoplayer2.text">@Cue.AnchorType</a>
+                       int&nbsp;positionAnchor,
+                       float&nbsp;size,
+                       boolean&nbsp;windowColorSet,
+                       int&nbsp;windowColor)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a>.</span></div>
 <div class="block">Creates a text cue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -918,6 +995,24 @@ public final&nbsp;int textSizeType</pre>
 <dd><code>windowColorSet</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColorSet"><code>windowColorSet</code></a>.</dd>
 <dd><code>windowColor</code> - See <a href="../../../../../com/google/android/exoplayer2/text/Cue.html#windowColor"><code>windowColor</code></a>.</dd>
 </dl>
+</li>
+</ul>
+</li>
+</ul>
+<!-- ============ METHOD DETAIL ========== -->
+<ul class="blockList">
+<li class="blockList"><a name="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a name="buildUpon--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>buildUpon</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text">Cue.Builder</a>&nbsp;buildUpon()</pre>
+<div class="block">Returns a new <a href="../../../../../com/google/android/exoplayer2/text/Cue.Builder.html" title="class in com.google.android.exoplayer2.text"><code>Cue.Builder</code></a> initialized with the same values as this Cue.</div>
 </li>
 </ul>
 </li>
@@ -975,13 +1070,13 @@ public final&nbsp;int textSizeType</pre>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
-<li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
+<li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
-<li>Method</li>
+<li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
 <a name="skip.navbar.bottom">

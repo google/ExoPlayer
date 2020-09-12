@@ -99,7 +99,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">VideoFrameMetadataListener</span></pre>
-<div class="block">A listener for metadata corresponding to video frame being rendered.</div>
+<div class="block">A listener for metadata corresponding to video frames being rendered.</div>
 </li>
 </ul>
 </div>
@@ -124,7 +124,7 @@ var activeTableTab = "activeTableTab";
                              long&nbsp;releaseTimeNs,
                              <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                              <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" target="_top">MediaFormat</a>&nbsp;mediaFormat)</code>
-<div class="block">Called when the video frame about to be rendered.</div>
+<div class="block">Called on the playback thread when a video frame is about to be rendered.</div>
 </td>
 </tr>
 </table>
@@ -153,12 +153,12 @@ var activeTableTab = "activeTableTab";
                                    <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                    @Nullable
                                    <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" target="_top">MediaFormat</a>&nbsp;mediaFormat)</pre>
-<div class="block">Called when the video frame about to be rendered. This method is called on the playback thread.</div>
+<div class="block">Called on the playback thread when a video frame is about to be rendered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>presentationTimeUs</code> - The presentation time of the output buffer, in microseconds.</dd>
+<dd><code>presentationTimeUs</code> - The presentation time of the frame, in microseconds.</dd>
 <dd><code>releaseTimeNs</code> - The wallclock time at which the frame should be displayed, in nanoseconds.
-     If the platform API version of the device is less than 21, then this is the best effort.</dd>
+     If the platform API version of the device is less than 21, then this is a best effort.</dd>
 <dd><code>format</code> - The format associated with the frame.</dd>
 <dd><code>mediaFormat</code> - The framework media format associated with the frame, or <code>null</code> if not
      known or not applicable (e.g., because the frame was not output by a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" target="_top"><code>MediaCodec</code></a>).</dd>

@@ -128,8 +128,9 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">onDownloadChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                 <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-java.lang.Exception-">onDownloadChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                 <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download,
+                 <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;finalException)</code>
 <div class="block">Called when the state of a download changes.</div>
 </td>
 </tr>
@@ -220,19 +221,23 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">
+<a name="onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-java.lang.Exception-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onDownloadChanged</h4>
 <pre>default&nbsp;void&nbsp;onDownloadChanged(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                               <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
+                               <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download,
+                               @Nullable
+                               <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;finalException)</pre>
 <div class="block">Called when the state of a download changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>downloadManager</code> - The reporting instance.</dd>
 <dd><code>download</code> - The state of the download.</dd>
+<dd><code>finalException</code> - If the download is transitioning to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>, this
+     is the final exception that resulted in the failure.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -243,43 +243,56 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBytesAsString-int-">readBytesAsString</a></span>(int&nbsp;length)</code>
+<div class="block">Reads the next <code>length</code> bytes as a UTF-8 string.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#readBytesAsString-int-java.nio.charset.Charset-">readBytesAsString</a></span>(int&nbsp;length,
+                 <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" target="_top">Charset</a>&nbsp;charset)</code>
+<div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" target="_top"><code>Charset</code></a>.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-byte:A-">reset</a></span>(byte[]&nbsp;data)</code>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-byte:A-int-">reset</a></span>(byte[]&nbsp;data,
      int&nbsp;limit)</code>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#reset-com.google.android.exoplayer2.util.ParsableByteArray-">reset</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</code>
 <div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#setPosition-int-">setPosition</a></span>(int&nbsp;position)</code>
 <div class="block">Sets the current bit offset.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBit--">skipBit</a></span>()</code>
 <div class="block">Skips a single bit.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBits-int-">skipBits</a></span>(int&nbsp;numBits)</code>
 <div class="block">Skips bits and moves current reading position forward.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html#skipBytes-int-">skipBytes</a></span>(int&nbsp;length)</code>
 <div class="block">Skips the next <code>length</code> bytes.</div>
@@ -601,6 +614,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>length</code> - The number of bytes to read.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If the position isn't byte aligned.</dd>
+</dl>
+</li>
+</ul>
+<a name="readBytesAsString-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBytesAsString</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;readBytesAsString(int&nbsp;length)</pre>
+<div class="block">Reads the next <code>length</code> bytes as a UTF-8 string. Must only be called when the position is
+ byte aligned.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>length</code> - The number of bytes to read.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The string encoded by the bytes in UTF-8.</dd>
+</dl>
+</li>
+</ul>
+<a name="readBytesAsString-int-java.nio.charset.Charset-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>readBytesAsString</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;readBytesAsString(int&nbsp;length,
+                                <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" target="_top">Charset</a>&nbsp;charset)</pre>
+<div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" target="_top"><code>Charset</code></a>. Must only be called
+ when the position is byte aligned.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>length</code> - The number of bytes to read.</dd>
+<dd><code>charset</code> - The character set of the encoded characters.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The string encoded by the bytes in the specified character set.</dd>
 </dl>
 </li>
 </ul>

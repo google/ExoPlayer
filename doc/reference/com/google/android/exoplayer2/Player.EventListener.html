@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18,"i11":50,"i12":18};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":50,"i4":18,"i5":18,"i6":18,"i7":18,"i8":18,"i9":50,"i10":18,"i11":18,"i12":18,"i13":50,"i14":18,"i15":18,"i16":50,"i17":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/Player.MetadataComponent.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/Player.MediaItemTransitionReason.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/Player.EventListener.html" target="_top">Frames</a></li>
@@ -129,73 +129,112 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsPlayingChanged-boolean-">onIsPlayingChanged</a></span>(boolean&nbsp;isPlaying)</code>
-<div class="block">Called when the value of <a href="../../../../com/google/android/exoplayer2/Player.html#isPlaying--"><code>Player.isPlaying()</code></a> changes.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onExperimentalOffloadSchedulingEnabledChanged-boolean-">onExperimentalOffloadSchedulingEnabledChanged</a></span>(boolean&nbsp;offloadSchedulingEnabled)</code>
+<div class="block">Called when the player has started or stopped offload scheduling after a call to <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-"><code>ExoPlayer.experimentalSetOffloadSchedulingEnabled(boolean)</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onLoadingChanged-boolean-">onLoadingChanged</a></span>(boolean&nbsp;isLoading)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsLoadingChanged-boolean-">onIsLoadingChanged</a></span>(boolean&nbsp;isLoading)</code>
 <div class="block">Called when the player starts or stops loading the source.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsPlayingChanged-boolean-">onIsPlayingChanged</a></span>(boolean&nbsp;isPlaying)</code>
+<div class="block">Called when the value of <a href="../../../../com/google/android/exoplayer2/Player.html#isPlaying--"><code>Player.isPlaying()</code></a> changes.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onLoadingChanged-boolean-">onLoadingChanged</a></span>(boolean&nbsp;isLoading)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsLoadingChanged-boolean-"><code>onIsLoadingChanged(boolean)</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-">onMediaItemTransition</a></span>(<a href="../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                     int&nbsp;reason)</code>
+<div class="block">Called when playback transitions to a media item or starts repeating a media item according
+ to the current <a href="../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--"><code>repeat mode</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackParametersChanged-com.google.android.exoplayer2.PlaybackParameters-">onPlaybackParametersChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
 <div class="block">Called when the current playback parameters change.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-">onPlaybackStateChanged</a></span>(int&nbsp;state)</code>
+<div class="block">Called when the value returned from <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackSuppressionReasonChanged-int-">onPlaybackSuppressionReasonChanged</a></span>(int&nbsp;playbackSuppressionReason)</code>
 <div class="block">Called when the value returned from <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackSuppressionReason--"><code>Player.getPlaybackSuppressionReason()</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-">onPlayerError</a></span>(<a href="../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;error)</code>
 <div class="block">Called when an error occurs.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerStateChanged-boolean-int-">onPlayerStateChanged</a></span>(boolean&nbsp;playWhenReady,
                     int&nbsp;playbackState)</code>
-<div class="block">Called when the value returned from either <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> or <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-"><code>onPlaybackStateChanged(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayWhenReadyChanged-boolean-int-"><code>onPlayWhenReadyChanged(boolean, int)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayWhenReadyChanged-boolean-int-">onPlayWhenReadyChanged</a></span>(boolean&nbsp;playWhenReady,
+                      int&nbsp;reason)</code>
+<div class="block">Called when the value returned from <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> changes.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-">onPositionDiscontinuity</a></span>(int&nbsp;reason)</code>
 <div class="block">Called when a position discontinuity occurs without a change to the timeline.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onRepeatModeChanged-int-">onRepeatModeChanged</a></span>(int&nbsp;repeatMode)</code>
 <div class="block">Called when the value of <a href="../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--"><code>Player.getRepeatMode()</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onSeekProcessed--">onSeekProcessed</a></span>()</code>
-<div class="block">Called when all pending seek requests have been processed by the player.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Seeks are processed without delay. Listen to <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>onPositionDiscontinuity(int)</code></a> with reason <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_SEEK"><code>Player.DISCONTINUITY_REASON_SEEK</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onShuffleModeEnabledChanged-boolean-">onShuffleModeEnabledChanged</a></span>(boolean&nbsp;shuffleModeEnabled)</code>
 <div class="block">Called when the value of <a href="../../../../com/google/android/exoplayer2/Player.html#getShuffleModeEnabled--"><code>Player.getShuffleModeEnabled()</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-">onTimelineChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                  int&nbsp;reason)</code>
 <div class="block">Called when the timeline has been refreshed.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-java.lang.Object-int-">onTimelineChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;manifest,
@@ -207,7 +246,7 @@ var activeTableTab = "activeTableTab";
 </div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-">onTracksChanged</a></span>(<a href="../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
                <a href="../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;trackSelections)</code>
@@ -275,8 +314,31 @@ default&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeline</code> - The latest timeline. Never null, but may be empty.</dd>
-<dd><code>manifest</code> - The latest manifest. May be null.</dd>
+<dd><code>manifest</code> - The latest manifest in case the timeline has a single window only. Always
+     null if the timeline has more than a single window.</dd>
 <dd><code>reason</code> - The <a href="../../../../com/google/android/exoplayer2/Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.TimelineChangeReason</code></a> responsible for this timeline change.</dd>
+</dl>
+</li>
+</ul>
+<a name="onMediaItemTransition-com.google.android.exoplayer2.MediaItem-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onMediaItemTransition</h4>
+<pre>default&nbsp;void&nbsp;onMediaItemTransition(@Nullable
+                                   <a href="../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                                   <a href="../../../../com/google/android/exoplayer2/Player.MediaItemTransitionReason.html" title="annotation in com.google.android.exoplayer2">@Player.MediaItemTransitionReason</a>
+                                   int&nbsp;reason)</pre>
+<div class="block">Called when playback transitions to a media item or starts repeating a media item according
+ to the current <a href="../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--"><code>repeat mode</code></a>.
+
+ <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
+ consequence of a playlist change.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaItem</code> - The <a href="../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>. May be null if the playlist becomes empty.</dd>
+<dd><code>reason</code> - The reason for the transition.</dd>
 </dl>
 </li>
 </ul>
@@ -297,18 +359,29 @@ default&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android
 </dl>
 </li>
 </ul>
+<a name="onIsLoadingChanged-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onIsLoadingChanged</h4>
+<pre>default&nbsp;void&nbsp;onIsLoadingChanged(boolean&nbsp;isLoading)</pre>
+<div class="block">Called when the player starts or stops loading the source.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>isLoading</code> - Whether the source is currently being loaded.</dd>
+</dl>
+</li>
+</ul>
 <a name="onLoadingChanged-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onLoadingChanged</h4>
-<pre>default&nbsp;void&nbsp;onLoadingChanged(boolean&nbsp;isLoading)</pre>
-<div class="block">Called when the player starts or stops loading the source.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>isLoading</code> - Whether the source is currently being loaded.</dd>
-</dl>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onLoadingChanged(boolean&nbsp;isLoading)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsLoadingChanged-boolean-"><code>onIsLoadingChanged(boolean)</code></a> instead.</span></div>
 </li>
 </ul>
 <a name="onPlayerStateChanged-boolean-int-">
@@ -317,14 +390,42 @@ default&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>onPlayerStateChanged</h4>
-<pre>default&nbsp;void&nbsp;onPlayerStateChanged(boolean&nbsp;playWhenReady,
-                                  <a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@Player.State</a>
-                                  int&nbsp;playbackState)</pre>
-<div class="block">Called when the value returned from either <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> or <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onPlayerStateChanged(boolean&nbsp;playWhenReady,
+                                              <a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@Player.State</a>
+                                              int&nbsp;playbackState)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-"><code>onPlaybackStateChanged(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayWhenReadyChanged-boolean-int-"><code>onPlayWhenReadyChanged(boolean, int)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="onPlaybackStateChanged-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPlaybackStateChanged</h4>
+<pre>default&nbsp;void&nbsp;onPlaybackStateChanged(<a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@Player.State</a>
+                                    int&nbsp;state)</pre>
+<div class="block">Called when the value returned from <a href="../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> changes.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>state</code> - The new playback <a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>state</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="onPlayWhenReadyChanged-boolean-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPlayWhenReadyChanged</h4>
+<pre>default&nbsp;void&nbsp;onPlayWhenReadyChanged(boolean&nbsp;playWhenReady,
+                                    <a href="../../../../com/google/android/exoplayer2/Player.PlayWhenReadyChangeReason.html" title="annotation in com.google.android.exoplayer2">@Player.PlayWhenReadyChangeReason</a>
+                                    int&nbsp;reason)</pre>
+<div class="block">Called when the value returned from <a href="../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playWhenReady</code> - Whether playback will proceed when ready.</dd>
-<dd><code>playbackState</code> - The new <a href="../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
+<dd><code>reason</code> - The <a href="../../../../com/google/android/exoplayer2/Player.PlayWhenReadyChangeReason.html" title="annotation in com.google.android.exoplayer2"><code>reason</code></a> for the change.</dd>
 </dl>
 </li>
 </ul>
@@ -432,8 +533,8 @@ default&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android
 <pre>default&nbsp;void&nbsp;onPlaybackParametersChanged(<a href="../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block">Called when the current playback parameters change. The playback parameters may change due to
  a call to <a href="../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-"><code>Player.setPlaybackParameters(PlaybackParameters)</code></a>, or the player itself may change
- them (for example, if audio playback switches to passthrough mode, where speed adjustment is
- no longer possible).</div>
+ them (for example, if audio playback switches to passthrough or offload mode, where speed
+ adjustment is no longer possible).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackParameters</code> - The playback parameters.</dd>
@@ -443,12 +544,24 @@ default&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android
 <a name="onSeekProcessed--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onSeekProcessed</h4>
-<pre>default&nbsp;void&nbsp;onSeekProcessed()</pre>
-<div class="block">Called when all pending seek requests have been processed by the player. This is guaranteed
- to happen after any necessary changes to the player state were reported to <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerStateChanged-boolean-int-"><code>onPlayerStateChanged(boolean, int)</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onSeekProcessed()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Seeks are processed without delay. Listen to <a href="../../../../com/google/android/exoplayer2/Player.EventListener.html#onPositionDiscontinuity-int-"><code>onPositionDiscontinuity(int)</code></a> with reason <a href="../../../../com/google/android/exoplayer2/Player.html#DISCONTINUITY_REASON_SEEK"><code>Player.DISCONTINUITY_REASON_SEEK</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="onExperimentalOffloadSchedulingEnabledChanged-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onExperimentalOffloadSchedulingEnabledChanged</h4>
+<pre>default&nbsp;void&nbsp;onExperimentalOffloadSchedulingEnabledChanged(boolean&nbsp;offloadSchedulingEnabled)</pre>
+<div class="block">Called when the player has started or stopped offload scheduling after a call to <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-"><code>ExoPlayer.experimentalSetOffloadSchedulingEnabled(boolean)</code></a>.
+
+ <p>This method is experimental, and will be renamed or removed in a future release.</div>
 </li>
 </ul>
 </li>
@@ -479,7 +592,7 @@ default&nbsp;void&nbsp;onTimelineChanged(<a href="../../../../com/google/android
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../com/google/android/exoplayer2/Player.MetadataComponent.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/Player.MediaItemTransitionReason.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../index.html?com/google/android/exoplayer2/Player.EventListener.html" target="_top">Frames</a></li>

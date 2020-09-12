@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":9,"i3":6,"i4":6,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":10,"i5":6,"i6":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -168,9 +168,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#SegmentDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">SegmentDownloader</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
-                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys,
-                 <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#SegmentDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">SegmentDownloader</a></span>(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                 <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a>&gt;&nbsp;manifestParser,
+                 <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -190,35 +191,43 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#cancel--">cancel</a></span>()</code>
-<div class="block">Cancels the download operation and prevents future download operations from running.</div>
+<div class="block">Permanently cancels the downloading by this downloader.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a>&nbsp;progressListener)</code>
-<div class="block">Downloads the selected streams in the media.</div>
+<div class="block">Downloads the content.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>protected &lt;T&gt;&nbsp;T</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#execute-com.google.android.exoplayer2.util.RunnableFutureTask-boolean-">execute</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="class in com.google.android.exoplayer2.util">RunnableFutureTask</a>&lt;T,?&gt;&nbsp;runnable,
+       boolean&nbsp;removing)</code>
+<div class="block">Executes the provided <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="class in com.google.android.exoplayer2.util"><code>RunnableFutureTask</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected static <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getCompressibleDataSpec-android.net.Uri-">getCompressibleDataSpec</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri)</code>&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>protected abstract <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">getManifest</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
-<div class="block">Loads and parses the manifest.</div>
-</td>
-</tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>protected abstract <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline" target="_top">SegmentDownloader.Segment</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">getSegments</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-           <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a>&nbsp;manifest,
-           boolean&nbsp;allowIncompleteList)</code>
-<div class="block">Returns a list of all downloadable <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
+<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">getManifest</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+           <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+           boolean&nbsp;removing)</code>
+<div class="block">Loads and parses a manifest.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>protected abstract <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline" target="_top">SegmentDownloader.Segment</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getSegments-com.google.android.exoplayer2.upstream.DataSource-M-boolean-">getSegments</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+           <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a>&nbsp;manifest,
+           boolean&nbsp;removing)</code>
+<div class="block">Returns a list of all downloadable <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#remove--">remove</a></span>()</code>
 <div class="block">Removes the content.</div>
@@ -246,21 +255,25 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SegmentDownloader-android.net.Uri-java.util.List-com.google.android.exoplayer2.offline.DownloaderConstructorHelper-">
+<a name="SegmentDownloader-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.upstream.ParsingLoadable.Parser-com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory-java.util.concurrent.Executor-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SegmentDownloader</h4>
-<pre>public&nbsp;SegmentDownloader(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;manifestUri,
-                         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys,
-                         <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline">DownloaderConstructorHelper</a>&nbsp;constructorHelper)</pre>
+<pre>public&nbsp;SegmentDownloader(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+                         <a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a>&gt;&nbsp;manifestParser,
+                         <a href="../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
+                         <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>manifestUri</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the manifest to be downloaded.</dd>
-<dd><code>streamKeys</code> - Keys defining which streams in the manifest should be selected for download.
-     If empty, all streams are downloaded.</dd>
-<dd><code>constructorHelper</code> - A <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderConstructorHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloaderConstructorHelper</code></a> instance.</dd>
+<dd><code>mediaItem</code> - The <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> to be downloaded.</dd>
+<dd><code>manifestParser</code> - A parser for manifests belonging to the media to be downloaded.</dd>
+<dd><code>cacheDataSourceFactory</code> - A <code>CacheDataSource.Factory</code> for the cache into which the
+     download will be written.</dd>
+<dd><code>executor</code> - An <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a> used to make requests for the media being downloaded.
+     Providing an <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top"><code>Executor</code></a> that uses multiple threads will speed up the download by
+     allowing parts of it to be executed in parallel.</dd>
 </dl>
 </li>
 </ul>
@@ -282,16 +295,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
                            <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a>&nbsp;progressListener)
                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
                            <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Downloads the selected streams in the media. If multiple streams are selected, they are
- downloaded in sync with one another.</div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">Downloader</a></code></span></div>
+<div class="block">Downloads the content.
+
+ <p>If downloading fails, this method can be called again to resume the download. It cannot be
+ called again after the download has been <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--"><code>canceled</code></a>.
+
+ <p>If downloading is canceled whilst this method is executing, then it is expected that it will
+ return reasonably quickly. However, there are no guarantees about how the method will return,
+ meaning that it can return without throwing, or by throwing any of its documented exceptions.
+ The caller must use its own knowledge about whether downloading has been canceled to determine
+ whether this is why the method has returned, rather than relying on the method returning in a
+ particular way.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-">download</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>progressListener</code> - A listener to receive progress updates, or <code>null</code>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - Thrown when there is an error downloading.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread has been interrupted.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If the download failed to complete successfully.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the download was interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -303,7 +326,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <h4>cancel</h4>
 <pre>public&nbsp;void&nbsp;cancel()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--">Downloader</a></code></span></div>
-<div class="block">Cancels the download operation and prevents future download operations from running.</div>
+<div class="block">Permanently cancels the downloading by this downloader. The caller should also interrupt the
+ downloading thread immediately after calling this method.
+
+ <p>Once canceled, <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-"><code>Downloader.download(com.google.android.exoplayer2.offline.Downloader.ProgressListener)</code></a> cannot be called again.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--">cancel</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
@@ -316,36 +342,59 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <ul class="blockList">
 <li class="blockList">
 <h4>remove</h4>
-<pre>public final&nbsp;void&nbsp;remove()
-                  throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+<pre>public final&nbsp;void&nbsp;remove()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#remove--">Downloader</a></code></span></div>
 <div class="block">Removes the content.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#remove--">remove</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - Thrown if the thread was interrupted.</dd>
 </dl>
 </li>
 </ul>
-<a name="getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-">
+<a name="getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getManifest</h4>
-<pre>protected abstract&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a>&nbsp;getManifest(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
-                                 <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
-                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block">Loads and parses the manifest.</div>
+<pre>protected final&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a>&nbsp;getManifest(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                              <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                              boolean&nbsp;removing)
+                       throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a>,
+                              <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Loads and parses a manifest.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSource</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load.</dd>
 <dd><code>dataSpec</code> - The manifest <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
+<dd><code>removing</code> - Whether the manifest is being loaded as part of the download being removed.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The manifest.</dd>
+<dd>The loaded manifest.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading data.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread on which the method is called is interrupted.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs during execution.</dd>
+</dl>
+</li>
+</ul>
+<a name="execute-com.google.android.exoplayer2.util.RunnableFutureTask-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>execute</h4>
+<pre>protected final&nbsp;&lt;T&gt;&nbsp;T&nbsp;execute(<a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="class in com.google.android.exoplayer2.util">RunnableFutureTask</a>&lt;T,?&gt;&nbsp;runnable,
+                              boolean&nbsp;removing)
+                       throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a>,
+                              <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block">Executes the provided <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="class in com.google.android.exoplayer2.util"><code>RunnableFutureTask</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>runnable</code> - The <a href="../../../../../com/google/android/exoplayer2/util/RunnableFutureTask.html" title="class in com.google.android.exoplayer2.util"><code>RunnableFutureTask</code></a> to execute.</dd>
+<dd><code>removing</code> - Whether the execution is part of the download being removed.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The result.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread on which the method is called is interrupted.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs during execution.</dd>
 </dl>
 </li>
 </ul>
@@ -359,23 +408,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <h4>getSegments</h4>
 <pre>protected abstract&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a>&gt;&nbsp;getSegments(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream" target="_top">DataSource</a>&nbsp;dataSource,
                                                                <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="type parameter in SegmentDownloader">M</a>&nbsp;manifest,
-                                                               boolean&nbsp;allowIncompleteList)
-                                                        throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a>,
-                                                               <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block">Returns a list of all downloadable <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest.</div>
+                                                               boolean&nbsp;removing)
+                                                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
+                                                               <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+<div class="block">Returns a list of all downloadable <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s for a given manifest. Any required data
+ should be loaded using <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#getManifest-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSpec-boolean-"><code>getManifest(com.google.android.exoplayer2.upstream.DataSource, com.google.android.exoplayer2.upstream.DataSpec, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html#execute-com.google.android.exoplayer2.util.RunnableFutureTask-boolean-"><code>execute(com.google.android.exoplayer2.util.RunnableFutureTask&lt;T, ?&gt;, boolean)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> through which to load any required data.</dd>
 <dd><code>manifest</code> - The manifest containing the segments.</dd>
-<dd><code>allowIncompleteList</code> - Whether to continue in the case that a load error prevents all
-     segments from being listed. If true then a partial segment list will be returned. If false
-     an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top"><code>IOException</code></a> will be thrown.</dd>
+<dd><code>removing</code> - Whether the segments are being obtained as part of a removal. If true then a
+     partial segment list is returned in the case that a load error prevents all segments from
+     being listed. If false then an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top"><code>IOException</code></a> will be thrown in this case.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The list of downloadable <a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><code>SegmentDownloader.Segment</code></a>s.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - Thrown if the thread was interrupted.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - Thrown if <code>allowPartialIndex</code> is false and a load error occurs, or if
-     the media is not in a form that allows for its segments to be listed.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - Thrown if <code>allowPartialIndex</code> is false and an execution error occurs,
+     or if the media is not in a form that allows for its segments to be listed.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code></dd>
 </dl>
 </li>
 </ul>

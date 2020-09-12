@@ -106,14 +106,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">DefaultExtractorInput</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></pre>
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> that wraps a <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</div>
+<div class="block">An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> that wraps a <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -132,7 +132,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#DefaultExtractorInput-com.google.android.exoplayer2.upstream.DataSource-long-long-">DefaultExtractorInput</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/DefaultExtractorInput.html#DefaultExtractorInput-com.google.android.exoplayer2.upstream.DataReader-long-long-">DefaultExtractorInput</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
                      long&nbsp;position,
                      long&nbsp;length)</code>&nbsp;</td>
 </tr>
@@ -288,18 +288,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="DefaultExtractorInput-com.google.android.exoplayer2.upstream.DataSource-long-long-">
+<a name="DefaultExtractorInput-com.google.android.exoplayer2.upstream.DataReader-long-long-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultExtractorInput</h4>
-<pre>public&nbsp;DefaultExtractorInput(<a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+<pre>public&nbsp;DefaultExtractorInput(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
                              long&nbsp;position,
                              long&nbsp;length)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSource</code> - The wrapped <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a>.</dd>
+<dd><code>dataReader</code> - The wrapped <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</dd>
 <dd><code>position</code> - The initial position in the stream.</dd>
 <dd><code>length</code> - The length of the stream, or <a href="../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</dd>
 </dl>
@@ -322,16 +322,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <pre>public&nbsp;int&nbsp;read(byte[]&nbsp;target,
                 int&nbsp;offset,
                 int&nbsp;length)
-         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-">ExtractorInput</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes from the input and resets the peek position.
- <p>
- This method blocks until at least one byte of data can be read, the end of the input is
+
+ <p>This method blocks until at least one byte of data can be read, the end of the input is
  detected, or an exception is thrown.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>target</code> - A target array into which data should be written.</dd>
 <dd><code>offset</code> - The offset into the target array at which to write.</dd>
@@ -340,7 +341,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dd>The number of bytes read, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread has been interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -354,8 +354,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                          int&nbsp;offset,
                          int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
-                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                         <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
 <dl>
@@ -377,7 +376,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
      (i.e. having read at least one byte, but fewer than <code>length</code>), or if no bytes were
      read and <code>allowEndOfInput</code> is false.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread has been interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -390,8 +388,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <pre>public&nbsp;void&nbsp;readFully(byte[]&nbsp;target,
                       int&nbsp;offset,
                       int&nbsp;length)
-               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                      <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-">ExtractorInput</a></code></span></div>
 <div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>readFully(target, offset, length,
  false)</code></a>.</div>
@@ -405,7 +402,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top">EOFException</a></code> - If the end of input was encountered.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread is interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -416,8 +412,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <li class="blockList">
 <h4>skip</h4>
 <pre>public&nbsp;int&nbsp;skip(int&nbsp;length)
-         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skip-int-">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#read-byte:A-int-int-"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 <dl>
@@ -429,7 +424,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dd>The number of bytes skipped, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread has been interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -441,8 +435,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <h4>skipFully</h4>
 <pre>public&nbsp;boolean&nbsp;skipFully(int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
-                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                         <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skipFully-int-boolean-">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-boolean-"><code>ExtractorInput.readFully(byte[], int, int, boolean)</code></a>, except the data is skipped instead of read.</div>
 <dl>
@@ -462,7 +455,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
      (i.e. having skipped at least one byte, but fewer than <code>length</code>), or if no bytes were
      skipped and <code>allowEndOfInput</code> is false.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread has been interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -473,13 +465,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <li class="blockList">
 <h4>skipFully</h4>
 <pre>public&nbsp;void&nbsp;skipFully(int&nbsp;length)
-               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                      <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skipFully-int-">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#readFully-byte:A-int-int-"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.
- <p>
- Encountering the end of input is always considered an error, and will result in an
- <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top"><code>EOFException</code></a> being thrown.</div>
+
+ <p>Encountering the end of input is always considered an error, and will result in an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top"><code>EOFException</code></a> being thrown.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#skipFully-int-">skipFully</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></dd>
@@ -488,7 +478,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top">EOFException</a></code> - If the end of input was encountered.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread is interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -501,8 +490,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <pre>public&nbsp;int&nbsp;peek(byte[]&nbsp;target,
                 int&nbsp;offset,
                 int&nbsp;length)
-         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-">ExtractorInput</a></code></span></div>
 <div class="block">Peeks up to <code>length</code> bytes from the peek position. The current read position is left
  unchanged.
@@ -524,7 +512,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dd>The number of bytes peeked, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs peeking from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread has been interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -538,8 +525,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
                          int&nbsp;offset,
                          int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
-                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                         <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peek-byte:A-int-int-"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
 <dl>
@@ -561,7 +547,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
      (i.e. having peeked at least one byte, but fewer than <code>length</code>), or if no bytes were
      peeked and <code>allowEndOfInput</code> is false.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs peeking from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread is interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -574,8 +559,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <pre>public&nbsp;void&nbsp;peekFully(byte[]&nbsp;target,
                       int&nbsp;offset,
                       int&nbsp;length)
-               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                      <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-">ExtractorInput</a></code></span></div>
 <div class="block">Equivalent to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>peekFully(target, offset, length,
  false)</code></a>.</div>
@@ -589,7 +573,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top">EOFException</a></code> - If the end of input was encountered.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs peeking from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread is interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -601,8 +584,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <h4>advancePeekPosition</h4>
 <pre>public&nbsp;boolean&nbsp;advancePeekPosition(int&nbsp;length,
                                    boolean&nbsp;allowEndOfInput)
-                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                   <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-boolean-">ExtractorInput</a></code></span></div>
 <div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-boolean-"><code>ExtractorInput.peekFully(byte[], int, int,
  boolean)</code></a> except the data is skipped instead of read.</div>
@@ -622,7 +604,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
      advanced by at least one byte, but fewer than <code>length</code>), or if the end of input was
      encountered before advancing and <code>allowEndOfInput</code> is false.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs advancing the peek position.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread is interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -633,8 +614,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <li class="blockList">
 <h4>advancePeekPosition</h4>
 <pre>public&nbsp;void&nbsp;advancePeekPosition(int&nbsp;length)
-                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#advancePeekPosition-int-">ExtractorInput</a></code></span></div>
 <div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#peekFully-byte:A-int-int-"><code>ExtractorInput.peekFully(byte[], int, int)</code></a>
  except the data is skipped instead of read.</div>
@@ -646,7 +626,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Extra
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top">EOFException</a></code> - If the end of input was encountered.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs peeking from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread is interrupted.</dd>
 </dl>
 </li>
 </ul>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":42,"i2":10};
+var methods = {"i0":10,"i1":42,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -219,6 +219,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#increaseClearDataFirstSubSampleBy-int-">increaseClearDataFirstSubSampleBy</a></span>(int&nbsp;count)</code>
+<div class="block">Increases the number of clear data for the first sub sample by <code>count</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#set-int-int:A-int:A-byte:A-byte:A-int-int-int-">set</a></span>(int&nbsp;numSubSamples,
    int[]&nbsp;numBytesOfClearData,
    int[]&nbsp;numBytesOfEncryptedData,
@@ -256,7 +262,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>iv</h4>
-<pre>public&nbsp;byte[] iv</pre>
+<pre>@Nullable
+public&nbsp;byte[] iv</pre>
 <div class="block">The 16 byte initialization vector. If the initialization vector of the content is shorter than
  16 bytes, 0 byte padding is appended to extend the vector to the required 16 byte length.</div>
 <dl>
@@ -271,7 +278,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>key</h4>
-<pre>public&nbsp;byte[] key</pre>
+<pre>@Nullable
+public&nbsp;byte[] key</pre>
 <div class="block">The 16 byte key id.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -300,7 +308,8 @@ public&nbsp;int mode</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>numBytesOfClearData</h4>
-<pre>public&nbsp;int[] numBytesOfClearData</pre>
+<pre>@Nullable
+public&nbsp;int[] numBytesOfClearData</pre>
 <div class="block">The number of leading unencrypted bytes in each sub-sample. If null, all bytes are treated as
  encrypted and <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfEncryptedData"><code>numBytesOfEncryptedData</code></a> must be specified.</div>
 <dl>
@@ -315,7 +324,8 @@ public&nbsp;int mode</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>numBytesOfEncryptedData</h4>
-<pre>public&nbsp;int[] numBytesOfEncryptedData</pre>
+<pre>@Nullable
+public&nbsp;int[] numBytesOfEncryptedData</pre>
 <div class="block">The number of trailing encrypted bytes in each sub-sample. If null, all bytes are treated as
  clear and <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfClearData"><code>numBytesOfClearData</code></a> must be specified.</div>
 <dl>
@@ -431,12 +441,31 @@ public&nbsp;int mode</pre>
 <a name="getFrameworkCryptoInfoV16--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getFrameworkCryptoInfoV16</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
 public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" target="_top">MediaCodec.CryptoInfo</a>&nbsp;getFrameworkCryptoInfoV16()</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#getFrameworkCryptoInfo--"><code>getFrameworkCryptoInfo()</code></a>.</span></div>
+</li>
+</ul>
+<a name="increaseClearDataFirstSubSampleBy-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>increaseClearDataFirstSubSampleBy</h4>
+<pre>public&nbsp;void&nbsp;increaseClearDataFirstSubSampleBy(int&nbsp;count)</pre>
+<div class="block">Increases the number of clear data for the first sub sample by <code>count</code>.
+
+ <p>If <code>count</code> is 0, this method is a no-op. Otherwise, it adds <code>count</code> to <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfClearData"><code>numBytesOfClearData</code></a>[0].
+
+ <p>If <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfClearData"><code>numBytesOfClearData</code></a> is null (which is permitted), this method will instantiate
+ it to a new <code>int[1]</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>count</code> - The number of bytes to be added to the first subSample of <a href="../../../../../com/google/android/exoplayer2/decoder/CryptoInfo.html#numBytesOfClearData"><code>numBytesOfClearData</code></a>.</dd>
+</dl>
 </li>
 </ul>
 </li>

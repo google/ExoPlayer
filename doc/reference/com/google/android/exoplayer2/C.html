@@ -130,19 +130,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.AudioAllowedCapturePolicy.html" title="annotation in com.google.android.exoplayer2">C.AudioAllowedCapturePolicy</a></span></code>
-<div class="block">Capture policies for <a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+<div class="block">Capture policies for audio attributes.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.AudioContentType.html" title="annotation in com.google.android.exoplayer2">C.AudioContentType</a></span></code>
-<div class="block">Content types for <a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+<div class="block">Content types for audio attributes.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.AudioFlags.html" title="annotation in com.google.android.exoplayer2">C.AudioFlags</a></span></code>
-<div class="block">Flags for <a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+<div class="block">Flags for audio attributes.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -154,7 +154,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.AudioUsage.html" title="annotation in com.google.android.exoplayer2">C.AudioUsage</a></span></code>
-<div class="block">Usage types for <a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a>.</div>
+<div class="block">Usage types for audio attributes.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -250,7 +250,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">C.VideoScalingMode</a></span></code>
-<div class="block">Video scaling modes for <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media"><code>MediaCodec</code></a>-based <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Renderer</code></a>s.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.VideoScalingMode</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -295,7 +297,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ASCII_NAME">ASCII_NAME</a></span></code>
-<div class="block">The name of the ASCII charset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -537,6 +541,32 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ENCODING_AAC_ELD">ENCODING_AAC_ELD</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ENCODING_AAC_ER_BSAC">ENCODING_AAC_ER_BSAC</a></span></code>
+<div class="block">AAC Error Resilient Bit-Sliced Arithmetic Coding.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ENCODING_AAC_HE_V1">ENCODING_AAC_HE_V1</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ENCODING_AAC_HE_V2">ENCODING_AAC_HE_V2</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ENCODING_AAC_LC">ENCODING_AAC_LC</a></span></code>&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ENCODING_AAC_XHE">ENCODING_AAC_XHE</a></span></code>&nbsp;</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ENCODING_AC3">ENCODING_AC3</a></span></code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
@@ -614,7 +644,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#ISO88591_NAME">ISO88591_NAME</a></span></code>
-<div class="block">The name of the ISO-8859-1 charset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -644,57 +676,73 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a></span></code>
-<div class="block">Applications or extensions may define custom <code>MSG_*</code> constants that can be passed to
- <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_CUSTOM_BASE</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a></span></code>
-<div class="block">A type of a message that can be passed to an audio <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_AUDIO_ATTRIBUTES</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a></span></code>
-<div class="block">A type of a message that can be passed to an audio <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_AUX_EFFECT_INFO</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a></span></code>
-<div class="block">The type of a message that can be passed to a camera motion <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_CAMERA_MOTION_LISTENER</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a></span></code>
-<div class="block">The type of a message that can be passed to a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media"><code>MediaCodec</code></a>-based video <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Renderer</code></a>
- via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_SCALING_MODE</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_SURFACE">MSG_SET_SURFACE</a></span></code>
-<div class="block">The type of a message that can be passed to a video <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_SURFACE</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER">MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</a></span></code>
-<div class="block">The type of a message that can be passed to a <a href="../../../../com/google/android/exoplayer2/video/SimpleDecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>SimpleDecoderVideoRenderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a></span></code>
-<div class="block">The type of a message that can be passed to a video <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a></span></code>
-<div class="block">A type of a message that can be passed to an audio <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.MSG_SET_VOLUME</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -1115,7 +1163,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_NONE">TRACK_TYPE_NONE</a></span></code>
-<div class="block">A type constant for a dummy or empty track.</div>
+<div class="block">A type constant for a fake or empty track.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -1228,19 +1276,25 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#UTF16_NAME">UTF16_NAME</a></span></code>
-<div class="block">The name of the UTF-16 charset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#UTF16LE_NAME">UTF16LE_NAME</a></span></code>
-<div class="block">The name of the UTF-16 little-endian charset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#UTF8_NAME">UTF8_NAME</a></span></code>
-<div class="block">The name of the UTF-8 charset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -1271,16 +1325,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#VIDEO_SCALING_MODE_DEFAULT">VIDEO_SCALING_MODE_DEFAULT</a></span></code>
-<div class="block">A default video scaling mode for <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media"><code>MediaCodec</code></a>-based <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Renderer</code></a>s.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.VIDEO_SCALING_MODE_DEFAULT</code>.</span></div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT">VIDEO_SCALING_MODE_SCALE_TO_FIT</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT">VIDEO_SCALING_MODE_SCALE_TO_FIT</a></span></code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT</code>.</span></div>
+</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</a></span></code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/C.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</a></span></code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <code>Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</code>.</span></div>
+</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
@@ -1528,8 +1592,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>ASCII_NAME</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> ASCII_NAME</pre>
-<div class="block">The name of the ASCII charset.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> ASCII_NAME</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ASCII_NAME">Constant Field Values</a></dd>
@@ -1542,8 +1607,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>UTF8_NAME</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> UTF8_NAME</pre>
-<div class="block">The name of the UTF-8 charset.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> UTF8_NAME</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.UTF8_NAME">Constant Field Values</a></dd>
@@ -1556,8 +1622,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>ISO88591_NAME</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> ISO88591_NAME</pre>
-<div class="block">The name of the ISO-8859-1 charset.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> ISO88591_NAME</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ISO88591_NAME">Constant Field Values</a></dd>
@@ -1570,8 +1637,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>UTF16_NAME</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> UTF16_NAME</pre>
-<div class="block">The name of the UTF-16 charset.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> UTF16_NAME</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.UTF16_NAME">Constant Field Values</a></dd>
@@ -1584,8 +1652,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>UTF16LE_NAME</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> UTF16LE_NAME</pre>
-<div class="block">The name of the UTF-16 little-endian charset.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> UTF16LE_NAME</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="https://developer.android.com/reference/java/nio/charset/StandardCharsets.html" title="class or interface in java.nio.charset"><code>StandardCharsets</code></a> or <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Charsets.html?is-external=true" title="class or interface in com.google.common.base" target="_top"><code>Charsets</code></a> instead.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.UTF16LE_NAME">Constant Field Values</a></dd>
@@ -1786,6 +1855,90 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/AudioFormat.html#ENCODING_MP3" title="class or interface in android.media" target="_top"><code>AudioFormat.ENCODING_MP3</code></a>, 
 <a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ENCODING_MP3">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="ENCODING_AAC_LC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENCODING_AAC_LC</h4>
+<pre>public static final&nbsp;int ENCODING_AAC_LC</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/AudioFormat.html#ENCODING_AAC_LC" title="class or interface in android.media" target="_top"><code>AudioFormat.ENCODING_AAC_LC</code></a>, 
+<a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ENCODING_AAC_LC">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="ENCODING_AAC_HE_V1">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENCODING_AAC_HE_V1</h4>
+<pre>public static final&nbsp;int ENCODING_AAC_HE_V1</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/AudioFormat.html#ENCODING_AAC_HE_V1" title="class or interface in android.media" target="_top"><code>AudioFormat.ENCODING_AAC_HE_V1</code></a>, 
+<a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ENCODING_AAC_HE_V1">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="ENCODING_AAC_HE_V2">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENCODING_AAC_HE_V2</h4>
+<pre>public static final&nbsp;int ENCODING_AAC_HE_V2</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/AudioFormat.html#ENCODING_AAC_HE_V2" title="class or interface in android.media" target="_top"><code>AudioFormat.ENCODING_AAC_HE_V2</code></a>, 
+<a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ENCODING_AAC_HE_V2">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="ENCODING_AAC_XHE">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENCODING_AAC_XHE</h4>
+<pre>public static final&nbsp;int ENCODING_AAC_XHE</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/AudioFormat.html#ENCODING_AAC_XHE" title="class or interface in android.media" target="_top"><code>AudioFormat.ENCODING_AAC_XHE</code></a>, 
+<a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ENCODING_AAC_XHE">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="ENCODING_AAC_ELD">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENCODING_AAC_ELD</h4>
+<pre>public static final&nbsp;int ENCODING_AAC_ELD</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="https://developer.android.com/reference/android/media/AudioFormat.html#ENCODING_AAC_ELD" title="class or interface in android.media" target="_top"><code>AudioFormat.ENCODING_AAC_ELD</code></a>, 
+<a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ENCODING_AAC_ELD">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="ENCODING_AAC_ER_BSAC">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ENCODING_AAC_ER_BSAC</h4>
+<pre>public static final&nbsp;int ENCODING_AAC_ER_BSAC</pre>
+<div class="block">AAC Error Resilient Bit-Sliced Arithmetic Coding.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.ENCODING_AAC_ER_BSAC">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -2565,11 +2718,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>VIDEO_SCALING_MODE_SCALE_TO_FIT</h4>
-<pre>public static final&nbsp;int VIDEO_SCALING_MODE_SCALE_TO_FIT</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int VIDEO_SCALING_MODE_SCALE_TO_FIT</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#VIDEO_SCALING_MODE_SCALE_TO_FIT" title="class or interface in android.media" target="_top"><code>MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT</code></a>, 
-<a href="../../../../constant-values.html#com.google.android.exoplayer2.C.VIDEO_SCALING_MODE_SCALE_TO_FIT">Constant Field Values</a></dd>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.VIDEO_SCALING_MODE_SCALE_TO_FIT">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -2579,11 +2733,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</h4>
-<pre>public static final&nbsp;int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaCodec.html#VIDEO_SCALING_MODE_SCALE_TO_FIT" title="class or interface in android.media" target="_top"><code>MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT</code></a>, 
-<a href="../../../../constant-values.html#com.google.android.exoplayer2.C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">Constant Field Values</a></dd>
+<dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -2593,8 +2748,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>VIDEO_SCALING_MODE_DEFAULT</h4>
-<pre>public static final&nbsp;int VIDEO_SCALING_MODE_DEFAULT</pre>
-<div class="block">A default video scaling mode for <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media"><code>MediaCodec</code></a>-based <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Renderer</code></a>s.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int VIDEO_SCALING_MODE_DEFAULT</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.VIDEO_SCALING_MODE_DEFAULT</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.VIDEO_SCALING_MODE_DEFAULT">Constant Field Values</a></dd>
@@ -3017,7 +3173,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TRACK_TYPE_NONE</h4>
 <pre>public static final&nbsp;int TRACK_TYPE_NONE</pre>
-<div class="block">A type constant for a dummy or empty track.</div>
+<div class="block">A type constant for a fake or empty track.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.TRACK_TYPE_NONE">Constant Field Values</a></dd>
@@ -3260,9 +3416,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_SURFACE</h4>
-<pre>public static final&nbsp;int MSG_SET_SURFACE</pre>
-<div class="block">The type of a message that can be passed to a video <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be the target <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top"><code>Surface</code></a>, or
- null.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_SURFACE</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_SURFACE</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_SURFACE">Constant Field Values</a></dd>
@@ -3275,9 +3431,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_VOLUME</h4>
-<pre>public static final&nbsp;int MSG_SET_VOLUME</pre>
-<div class="block">A type of a message that can be passed to an audio <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be a <a href="https://developer.android.com/reference/java/lang/Float.html" title="class or interface in java.lang" target="_top"><code>Float</code></a> with 0 being
- silence and 1 being unity gain.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_VOLUME</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_VOLUME</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_VOLUME">Constant Field Values</a></dd>
@@ -3290,24 +3446,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_AUDIO_ATTRIBUTES</h4>
-<pre>public static final&nbsp;int MSG_SET_AUDIO_ATTRIBUTES</pre>
-<div class="block">A type of a message that can be passed to an audio <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be an <a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> instance that will configure the
- underlying audio track. If not set, the default audio attributes will be used. They are
- suitable for general media playback.
-
- <p>Setting the audio attributes during playback may introduce a short gap in audio output as
- the audio track is recreated. A new audio session id will also be generated.
-
- <p>If tunneling is enabled by the track selector, the specified audio attributes will be
- ignored, but they will take effect if audio is later played without tunneling.
-
- <p>If the device is running a build before platform API version 21, audio attributes cannot be
- set directly on the underlying audio track. In this case, the usage will be mapped onto an
- equivalent stream type using <a href="../../../../com/google/android/exoplayer2/util/Util.html#getStreamTypeForAudioUsage-int-"><code>Util.getStreamTypeForAudioUsage(int)</code></a>.
-
- <p>To get audio attributes that are equivalent to a legacy stream type, pass the stream type to
- <a href="../../../../com/google/android/exoplayer2/util/Util.html#getAudioUsageForStreamType-int-"><code>Util.getAudioUsageForStreamType(int)</code></a> and use the returned <a href="../../../../com/google/android/exoplayer2/C.AudioUsage.html" title="annotation in com.google.android.exoplayer2"><code>C.AudioUsage</code></a> to build
- an audio attributes instance.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_AUDIO_ATTRIBUTES</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_AUDIO_ATTRIBUTES</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_AUDIO_ATTRIBUTES">Constant Field Values</a></dd>
@@ -3320,13 +3461,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_SCALING_MODE</h4>
-<pre>public static final&nbsp;int MSG_SET_SCALING_MODE</pre>
-<div class="block">The type of a message that can be passed to a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media"><code>MediaCodec</code></a>-based video <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Renderer</code></a>
- via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be one of the integer
- scaling modes in <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.
-
- <p>Note that the scaling mode only applies if the <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" target="_top"><code>Surface</code></a> targeted by the renderer is
- owned by a <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" target="_top"><code>SurfaceView</code></a>.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_SCALING_MODE</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_SCALING_MODE</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_SCALING_MODE">Constant Field Values</a></dd>
@@ -3339,9 +3476,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_AUX_EFFECT_INFO</h4>
-<pre>public static final&nbsp;int MSG_SET_AUX_EFFECT_INFO</pre>
-<div class="block">A type of a message that can be passed to an audio <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be an <a href="../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio"><code>AuxEffectInfo</code></a>
- instance representing an auxiliary audio effect for the underlying audio track.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_AUX_EFFECT_INFO</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_AUX_EFFECT_INFO</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_AUX_EFFECT_INFO">Constant Field Values</a></dd>
@@ -3354,8 +3491,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_VIDEO_FRAME_METADATA_LISTENER</h4>
-<pre>public static final&nbsp;int MSG_SET_VIDEO_FRAME_METADATA_LISTENER</pre>
-<div class="block">The type of a message that can be passed to a video <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be a <a href="../../../../com/google/android/exoplayer2/video/VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video"><code>VideoFrameMetadataListener</code></a> instance, or null.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_VIDEO_FRAME_METADATA_LISTENER</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_VIDEO_FRAME_METADATA_LISTENER</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_VIDEO_FRAME_METADATA_LISTENER">Constant Field Values</a></dd>
@@ -3368,9 +3506,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_CAMERA_MOTION_LISTENER</h4>
-<pre>public static final&nbsp;int MSG_SET_CAMERA_MOTION_LISTENER</pre>
-<div class="block">The type of a message that can be passed to a camera motion <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be a <a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical"><code>CameraMotionListener</code></a>
- instance, or null.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_CAMERA_MOTION_LISTENER</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_CAMERA_MOTION_LISTENER</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_CAMERA_MOTION_LISTENER">Constant Field Values</a></dd>
@@ -3383,11 +3521,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</h4>
-<pre>public static final&nbsp;int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</pre>
-<div class="block">The type of a message that can be passed to a <a href="../../../../com/google/android/exoplayer2/video/SimpleDecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>SimpleDecoderVideoRenderer</code></a> via <code>ExoPlayer#createMessage(Target)</code>. The message payload should be the target <a href="../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video"><code>VideoDecoderOutputBufferRenderer</code></a>, or null.
-
- <p>This message is intended only for use with extension renderers that expect a <a href="../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video"><code>VideoDecoderOutputBufferRenderer</code></a>. For other use cases, an output surface should be passed via
- <a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_SURFACE"><code>MSG_SET_SURFACE</code></a> instead.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER">Constant Field Values</a></dd>
@@ -3400,9 +3536,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>MSG_CUSTOM_BASE</h4>
-<pre>public static final&nbsp;int MSG_CUSTOM_BASE</pre>
-<div class="block">Applications or extensions may define custom <code>MSG_*</code> constants that can be passed to
- <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s. These custom constants must be greater than or equal to this value.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public static final&nbsp;int MSG_CUSTOM_BASE</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>Renderer.MSG_CUSTOM_BASE</code>.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.C.MSG_CUSTOM_BASE">Constant Field Values</a></dd>

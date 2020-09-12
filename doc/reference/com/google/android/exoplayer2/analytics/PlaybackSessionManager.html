@@ -168,27 +168,27 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#handlePositionDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">handlePositionDiscontinuity</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                           int&nbsp;reason)</code>
-<div class="block">Handles a position discontinuity.</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#handleTimelineUpdate-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">handleTimelineUpdate</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
-<div class="block">Updates the session associations to a new timeline.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#setListener-com.google.android.exoplayer2.analytics.PlaybackSessionManager.Listener-">setListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</code>
 <div class="block">Sets the listener to be notified of session updates.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessions</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
 <div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">updateSessionsWithDiscontinuity</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                               int&nbsp;reason)</code>
+<div class="block">Updates or creates sessions based on a position discontinuity at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessionsWithTimelineChange</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
+<div class="block">Updates or creates sessions based on a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -265,40 +265,49 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>updateSessions</h4>
 <pre>void&nbsp;updateSessions(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
-<div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
+<div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
+
+ <p>Call <code>#updateSessionsWithTimelineChange(EventTime)</code> or <code>#updateSessionsWithDiscontinuity(EventTime, int)</code> if the event is a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change or
+ a position discontinuity respectively.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventTime</code> - The <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="handleTimelineUpdate-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">
+<a name="updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>handleTimelineUpdate</h4>
-<pre>void&nbsp;handleTimelineUpdate(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
-<div class="block">Updates the session associations to a new timeline.</div>
+<h4>updateSessionsWithTimelineChange</h4>
+<pre>void&nbsp;updateSessionsWithTimelineChange(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="block">Updates or creates sessions based on a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
+
+ <p>Should be called instead of <code>#updateSessions(EventTime)</code> if a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change
+ occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>eventTime</code> - The event time with the timeline change.</dd>
+<dd><code>eventTime</code> - The <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> with the timeline change.</dd>
 </dl>
 </li>
 </ul>
-<a name="handlePositionDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">
+<a name="updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>handlePositionDiscontinuity</h4>
-<pre>void&nbsp;handlePositionDiscontinuity(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                                 <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@Player.DiscontinuityReason</a>
-                                 int&nbsp;reason)</pre>
-<div class="block">Handles a position discontinuity.</div>
+<h4>updateSessionsWithDiscontinuity</h4>
+<pre>void&nbsp;updateSessionsWithDiscontinuity(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                     <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@Player.DiscontinuityReason</a>
+                                     int&nbsp;reason)</pre>
+<div class="block">Updates or creates sessions based on a position discontinuity at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
+
+ <p>Should be called instead of <code>#updateSessions(EventTime)</code> if a position discontinuity
+ occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>eventTime</code> - The event time of the position discontinuity.</dd>
+<dd><code>eventTime</code> - The <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> of the position discontinuity.</dd>
 <dd><code>reason</code> - The <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2"><code>Player.DiscontinuityReason</code></a>.</dd>
 </dl>
 </li>

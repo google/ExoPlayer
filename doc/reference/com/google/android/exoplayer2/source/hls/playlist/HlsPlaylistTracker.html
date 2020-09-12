@@ -111,7 +111,7 @@ var activeTableTab = "activeTableTab";
  media playlists while the master playlist is an optional kind of playlist defined by the HLS
  specification (RFC 8216).
 
- <p>Playlist loads might encounter errors. The tracker may choose to blacklist them to ensure a
+ <p>Playlist loads might encounter errors. The tracker may choose to exclude them to ensure a
  primary playlist is always available.</div>
 </li>
 </ul>
@@ -232,7 +232,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html#refreshPlaylist-android.net.Uri-">refreshPlaylist</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url)</code>
-<div class="block">Requests a playlist refresh and whitelists it.</div>
+<div class="block">Requests a playlist refresh and removes it from the exclusion list.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -441,10 +441,10 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>refreshPlaylist</h4>
 <pre>void&nbsp;refreshPlaylist(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url)</pre>
-<div class="block">Requests a playlist refresh and whitelists it.
+<div class="block">Requests a playlist refresh and removes it from the exclusion list.
 
- <p>The playlist tracker may choose the delay the playlist refresh. The request is discarded if
- a refresh was already pending.</div>
+ <p>The playlist tracker may choose to delay the playlist refresh. The request is discarded if a
+ refresh was already pending.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> of the playlist to be refreshed.</dd>

@@ -367,16 +367,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>isNalUnitSei</h4>
-<pre>public static&nbsp;boolean&nbsp;isNalUnitSei(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;mimeType,
+<pre>public static&nbsp;boolean&nbsp;isNalUnitSei(@Nullable
+                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;mimeType,
                                    byte&nbsp;nalUnitHeaderFirstByte)</pre>
 <div class="block">Returns whether the NAL unit with the specified header contains supplemental enhancement
  information.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mimeType</code> - The sample MIME type.</dd>
+<dd><code>mimeType</code> - The sample MIME type, or <code>null</code> if unknown.</dd>
 <dd><code>nalUnitHeaderFirstByte</code> - The first byte of nal_unit().</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether the NAL unit with the specified header is an SEI NAL unit.</dd>
+<dd>Whether the NAL unit with the specified header is an SEI NAL unit. False is returned if
+     the <code>MimeType</code> is <code>null</code>.</dd>
 </dl>
 </li>
 </ul>

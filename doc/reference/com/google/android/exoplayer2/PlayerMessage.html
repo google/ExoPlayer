@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -192,103 +192,110 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#experimentalBlockUntilDelivered-long-">experimentalBlockUntilDelivered</a></span>(long&nbsp;timeoutMs)</code>
+<div class="block">Blocks until after the message has been delivered or the player is no longer able to deliver
+ the message or the specified waiting time elapses.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getDeleteAfterDelivery--">getDeleteAfterDelivery</a></span>()</code>
 <div class="block">Returns whether the message will be deleted after delivery.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getHandler--">getHandler</a></span>()</code>
 <div class="block">Returns the handler the message is delivered on.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getPayload--">getPayload</a></span>()</code>
 <div class="block">Returns the message payload forwarded to <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getPositionMs--">getPositionMs</a></span>()</code>
 <div class="block">Returns position in window at <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getWindowIndex--"><code>getWindowIndex()</code></a> at which the message will be delivered,
  in milliseconds.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getTarget--">getTarget</a></span>()</code>
 <div class="block">Returns the target the message is sent to.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getTimeline--">getTimeline</a></span>()</code>
 <div class="block">Returns the timeline used for setting the position with <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setPosition-long-"><code>setPosition(long)</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getType--">getType</a></span>()</code>
 <div class="block">Returns the message type forwarded to <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getWindowIndex--">getWindowIndex</a></span>()</code>
 <div class="block">Returns window index at which the message will be delivered.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#isCanceled--">isCanceled</a></span>()</code>
 <div class="block">Returns whether the message delivery has been canceled.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#markAsProcessed-boolean-">markAsProcessed</a></span>(boolean&nbsp;isDelivered)</code>
 <div class="block">Marks the message as processed.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#send--">send</a></span>()</code>
 <div class="block">Sends the message.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setDeleteAfterDelivery-boolean-">setDeleteAfterDelivery</a></span>(boolean&nbsp;deleteAfterDelivery)</code>
 <div class="block">Sets whether the message will be deleted after delivery.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setHandler-android.os.Handler-">setHandler</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;handler)</code>
 <div class="block">Sets the handler the message is delivered on.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setPayload-java.lang.Object-">setPayload</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;payload)</code>
 <div class="block">Sets the message payload forwarded to <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setPosition-int-long-">setPosition</a></span>(int&nbsp;windowIndex,
            long&nbsp;positionMs)</code>
 <div class="block">Sets a position in a window at which the message will be delivered.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setPosition-long-">setPosition</a></span>(long&nbsp;positionMs)</code>
 <div class="block">Sets a position in the current window at which the message will be delivered.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setType-int-">setType</a></span>(int&nbsp;messageType)</code>
 <div class="block">Sets the message type forwarded to <a href="../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-"><code>PlayerMessage.Target.handleMessage(int, Object)</code></a>.</div>
@@ -463,7 +470,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <h4>getPositionMs</h4>
 <pre>public&nbsp;long&nbsp;getPositionMs()</pre>
 <div class="block">Returns position in window at <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getWindowIndex--"><code>getWindowIndex()</code></a> at which the message will be delivered,
- in milliseconds. If <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the message will be delivered immediately.</div>
+ in milliseconds. If <a href="../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the message will be delivered immediately. If <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a>, the message will be delivered at the end of the window at <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#getWindowIndex--"><code>getWindowIndex()</code></a>.</div>
 </li>
 </ul>
 <a name="setPosition-long-">
@@ -477,7 +484,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>positionMs</code> - The position in the current window at which the message will be sent, in
-     milliseconds.</dd>
+     milliseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to deliver the message at the end of the
+     current window.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This message.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -498,7 +506,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The index of the window at which the message will be sent.</dd>
 <dd><code>positionMs</code> - The position in the window with index <code>windowIndex</code> at which the
-     message will be sent, in milliseconds.</dd>
+     message will be sent, in milliseconds, or <a href="../../../../com/google/android/exoplayer2/C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> to deliver the
+     message at the end of the window with index <code>windowIndex</code>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This message.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -619,7 +628,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <a name="markAsProcessed-boolean-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>markAsProcessed</h4>
 <pre>public&nbsp;void&nbsp;markAsProcessed(boolean&nbsp;isDelivered)</pre>
@@ -630,6 +639,36 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dd><code>isDelivered</code> - Whether the message has been delivered to its target. The message is
      considered as being delivered when this method has been called with <code>isDelivered</code> set
      to true at least once.</dd>
+</dl>
+</li>
+</ul>
+<a name="experimentalBlockUntilDelivered-long-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>experimentalBlockUntilDelivered</h4>
+<pre>public&nbsp;boolean&nbsp;experimentalBlockUntilDelivered(long&nbsp;timeoutMs)
+                                        throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a>,
+                                               <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" target="_top">TimeoutException</a></pre>
+<div class="block">Blocks until after the message has been delivered or the player is no longer able to deliver
+ the message or the specified waiting time elapses.
+
+ <p>Note that this method can't be called if the current thread is the same thread used by the
+ message handler set with <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setHandler-android.os.Handler-"><code>setHandler(Handler)</code></a> as it would cause a deadlock.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeoutMs</code> - the maximum time to wait in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the message was delivered successfully.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang">IllegalStateException</a></code> - If this method is called before <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#send--" target="_top"><code>send()</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - If this method is called on the same thread used by the message
+     handler set with <a href="../../../../com/google/android/exoplayer2/PlayerMessage.html#setHandler-android.os.Handler-"><code>setHandler(Handler)</code></a>.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" target="_top">TimeoutException</a></code> - If the waiting time elapsed and this message has not been delivered
+     and the player is still able to deliver the message.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the current thread is interrupted while waiting for the message
+     to be delivered.</dd>
 </dl>
 </li>
 </ul>

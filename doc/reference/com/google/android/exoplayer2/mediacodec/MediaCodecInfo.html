@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":9,"i12":9,"i13":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":9,"i12":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li>Prev&nbsp;Class</li>
+<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecDecoderException.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -143,8 +143,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#codecMimeType">codecMimeType</a></span></code>
-<div class="block">The MIME type that the codec uses for media of type <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType"><code>mimeType</code></a>, or <code>null</code> if this
- is a passthrough codec.</div>
+<div class="block">The MIME type that the codec uses for media of type <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType"><code>mimeType</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -163,7 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType">mimeType</a></span></code>
-<div class="block">The MIME type handled by the codec, or <code>null</code> if this is a passthrough codec.</div>
+<div class="block">The MIME type handled by the codec.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -174,33 +173,27 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#passthrough">passthrough</a></span></code>
-<div class="block">Whether this instance describes a passthrough codec.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#secure">secure</a></span></code>
 <div class="block">Whether the decoder is secure.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#softwareOnly">softwareOnly</a></span></code>
 <div class="block">Whether the codec is software only.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#TAG">TAG</a></span></code>&nbsp;</td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#tunneling">tunneling</a></span></code>
 <div class="block">Whether the decoder supports tunneling.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#vendor">vendor</a></span></code>
 <div class="block">Whether the codec is from the vendor.</div>
@@ -309,12 +302,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#newPassthroughInstance-java.lang.String-">newPassthroughInstance</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;name)</code>
-<div class="block">Creates an instance representing an audio passthrough decoder.</div>
-</td>
-</tr>
-<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#toString--">toString</a></span>()</code>&nbsp;</td>
 </tr>
@@ -387,9 +374,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>mimeType</h4>
-<pre>@Nullable
-public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> mimeType</pre>
-<div class="block">The MIME type handled by the codec, or <code>null</code> if this is a passthrough codec.</div>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> mimeType</pre>
+<div class="block">The MIME type handled by the codec.</div>
 </li>
 </ul>
 <a name="codecMimeType">
@@ -398,11 +384,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <ul class="blockList">
 <li class="blockList">
 <h4>codecMimeType</h4>
-<pre>@Nullable
-public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> codecMimeType</pre>
-<div class="block">The MIME type that the codec uses for media of type <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType"><code>mimeType</code></a>, or <code>null</code> if this
- is a passthrough codec. Equal to <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType"><code>mimeType</code></a> unless the codec is known to use a
- non-standard MIME type alias.</div>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> codecMimeType</pre>
+<div class="block">The MIME type that the codec uses for media of type <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType"><code>mimeType</code></a>. Equal to <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html#mimeType"><code>mimeType</code></a> unless the codec is known to use a non-standard MIME type alias.</div>
 </li>
 </ul>
 <a name="capabilities">
@@ -462,16 +445,6 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 </dl>
 </li>
 </ul>
-<a name="passthrough">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>passthrough</h4>
-<pre>public final&nbsp;boolean passthrough</pre>
-<div class="block">Whether this instance describes a passthrough codec.</div>
-</li>
-</ul>
 <a name="hardwareAccelerated">
 <!--   -->
 </a>
@@ -528,22 +501,6 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="newPassthroughInstance-java.lang.String-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>newPassthroughInstance</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;newPassthroughInstance(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;name)</pre>
-<div class="block">Creates an instance representing an audio passthrough decoder.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>name</code> - The name of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" target="_top"><code>MediaCodec</code></a>.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The created instance.</dd>
-</dl>
-</li>
-</ul>
 <a name="newInstance-java.lang.String-java.lang.String-java.lang.String-android.media.MediaCodecInfo.CodecCapabilities-boolean-boolean-boolean-boolean-boolean-">
 <!--   -->
 </a>
@@ -735,12 +692,13 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <ul class="blockList">
 <li class="blockList">
 <h4>alignVideoSizeV21</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Point.html" title="class or interface in android.graphics" target="_top">Point</a>&nbsp;alignVideoSizeV21(int&nbsp;width,
-                               int&nbsp;height)</pre>
+<pre>@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Point.html" title="class or interface in android.graphics" target="_top">Point</a>&nbsp;alignVideoSizeV21(int&nbsp;width,
+                                         int&nbsp;height)</pre>
 <div class="block">Returns the smallest video size greater than or equal to a specified size that also satisfies
  the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" target="_top"><code>MediaCodec</code></a>'s width and height alignment requirements.
- <p>
- Must not be called if the device SDK version is less than 21.</div>
+
+ <p>Must not be called if the device SDK version is less than 21.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>width</code> - Width in pixels.</dd>
@@ -760,8 +718,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <h4>isAudioSampleRateSupportedV21</h4>
 <pre>public&nbsp;boolean&nbsp;isAudioSampleRateSupportedV21(int&nbsp;sampleRate)</pre>
 <div class="block">Whether the decoder supports audio with a given sample rate.
- <p>
- Must not be called if the device SDK version is less than 21.</div>
+
+ <p>Must not be called if the device SDK version is less than 21.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>sampleRate</code> - The sample rate in Hz.</dd>
@@ -778,8 +736,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <h4>isAudioChannelCountSupportedV21</h4>
 <pre>public&nbsp;boolean&nbsp;isAudioChannelCountSupportedV21(int&nbsp;channelCount)</pre>
 <div class="block">Whether the decoder supports audio with a given channel count.
- <p>
- Must not be called if the device SDK version is less than 21.</div>
+
+ <p>Must not be called if the device SDK version is less than 21.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>channelCount</code> - The channel count.</dd>
@@ -815,7 +773,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 </div>
 <div class="subNav">
 <ul class="navList">
-<li>Prev&nbsp;Class</li>
+<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecDecoderException.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

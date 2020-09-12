@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -100,7 +100,7 @@ var activeTableTab = "activeTableTab";
 <li><a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">com.google.android.exoplayer2.BaseRenderer</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer</a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">com.google.android.exoplayer2.audio.DecoderAudioRenderer</a>&lt;com.google.android.exoplayer2.ext.opus.OpusDecoder&gt;</li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.ext.opus.LibopusAudioRenderer</li>
@@ -121,7 +121,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">LibopusAudioRenderer</span>
-extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></pre>
+extends <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;com.google.android.exoplayer2.ext.opus.OpusDecoder&gt;</pre>
 <div class="block">Decodes and renders audio using the native Opus decoder.</div>
 </li>
 </ul>
@@ -140,7 +140,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2">Renderer.State</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">Renderer.VideoScalingMode</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2">Renderer.WakeupListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -162,7 +162,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../../../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_SURFACE">MSG_SET_SURFACE</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER">MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#STATE_STARTED">STATE_STARTED</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#VIDEO_SCALING_MODE_DEFAULT">VIDEO_SCALING_MODE_DEFAULT</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT">VIDEO_SCALING_MODE_SCALE_TO_FIT</a>, <a href="../../../../../../com/google/android/exoplayer2/Renderer.html#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING">VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -190,19 +190,15 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#LibopusAudioRenderer-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.audio.AudioProcessor...-">LibopusAudioRenderer</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
                     <a href="../../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
-                    <a href="../../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</code>&nbsp;</td>
+                    <a href="../../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</code>
+<div class="block">Creates a new instance.</div>
+</td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#LibopusAudioRenderer-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-com.google.android.exoplayer2.audio.AudioProcessor...-">LibopusAudioRenderer</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#LibopusAudioRenderer-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.audio.AudioSink-">LibopusAudioRenderer</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
                     <a href="../../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
-                    <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                    boolean&nbsp;playClearSamplesWithoutKeys,
-                    <a href="../../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#LibopusAudioRenderer-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.audio.AudioProcessor...-"><code>LibopusAudioRenderer(Handler, AudioRendererEventListener,
-     AudioProcessor...)</code></a> instead, and pass DRM-related parameters to the <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>
-     factories.</span></div>
-</div>
+                    <a href="../../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</code>
+<div class="block">Creates a new instance.</div>
 </td>
 </tr>
 </table>
@@ -228,32 +224,37 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#getOutputFormat--">getOutputFormat</a></span>()</code>
-<div class="block">Returns the format of audio buffers output by the decoder.</div>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#getName--">getName</a></span>()</code>
+<div class="block">Returns the name of this renderer, for logging and debugging purposes.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#getOutputFormat-com.google.android.exoplayer2.ext.opus.OpusDecoder-">getOutputFormat</a></span>(com.google.android.exoplayer2.ext.opus.OpusDecoder&nbsp;decoder)</code>
+<div class="block">Returns the format of audio buffers output by the decoder.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">supportsFormatInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                      <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.Format-">supportsFormatInternal</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Returns the <code>FormatSupport</code> for the given <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.audio.SimpleDecoderAudioRenderer">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.audio.DecoderAudioRenderer">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#canKeepCodec-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">canKeepCodec</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#getMediaClock--">getMediaClock</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#getPlaybackParameters--">getPlaybackParameters</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#getPositionUs--">getPositionUs</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#handleMessage-int-java.lang.Object-">handleMessage</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#isEnded--">isEnded</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#isReady--">isReady</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onAudioSessionId-int-">onAudioSessionId</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onAudioTrackPositionDiscontinuity--">onAudioTrackPositionDiscontinuity</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onAudioTrackUnderrun-int-long-long-">onAudioTrackUnderrun</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onDisabled--">onDisabled</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onEnabled-boolean-">onEnabled</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onPositionReset-long-boolean-">onPositionReset</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onReset--">onReset</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onStarted--">onStarted</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#onStopped--">onStopped</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#render-long-long-">render</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsOutput-int-int-">supportsOutput</a></code></li>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.audio.<a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#canKeepCodec-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-">canKeepCodec</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#experimentalSetEnableKeepAudioTrackOnSeek-boolean-">experimentalSetEnableKeepAudioTrackOnSeek</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#getMediaClock--">getMediaClock</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#getPlaybackParameters--">getPlaybackParameters</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#getPositionUs--">getPositionUs</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#getSinkFormatSupport-com.google.android.exoplayer2.Format-">getSinkFormatSupport</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#handleMessage-int-java.lang.Object-">handleMessage</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#isEnded--">isEnded</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#isReady--">isReady</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#onAudioSessionId-int-">onAudioSessionId</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#onDisabled--">onDisabled</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#onEnabled-boolean-boolean-">onEnabled</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#onPositionDiscontinuity--">onPositionDiscontinuity</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#onPositionReset-long-boolean-">onPositionReset</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#onStarted--">onStarted</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#onStopped--">onStopped</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#render-long-long-">render</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#sinkSupportsFormat-com.google.android.exoplayer2.Format-">sinkSupportsFormat</a>, <a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.BaseRenderer">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#createRendererException-java.lang.Exception-com.google.android.exoplayer2.Format-">createRendererException</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#disable--">disable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#enable-com.google.android.exoplayer2.RendererConfiguration-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-boolean-long-">enable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getCapabilities--">getCapabilities</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getConfiguration--">getConfiguration</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getFormatHolder--">getFormatHolder</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getIndex--">getIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getReadingPositionUs--">getReadingPositionUs</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getState--">getState</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStream--">getStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStreamFormats--">getStreamFormats</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getTrackType--">getTrackType</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getUpdatedSourceDrmSession-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSession-">getUpdatedSourceDrmSession</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#hasReadStreamToEnd--">hasReadStreamToEnd</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isCurrentStreamFinal--">isCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isSourceReady--">isSourceReady</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#maybeThrowStreamError--">maybeThrowStreamError</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#onStreamChanged-com.google.android.exoplayer2.Format:A-long-">onStreamChanged</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#readSource-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#replaceStream-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-">replaceStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#reset--">reset</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#resetPosition-long-">resetPosition</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setCurrentStreamFinal--">setCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setIndex-int-">setIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#skipSource-long-">skipSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#start--">start</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#stop--">stop</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsFormatDrm-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmInitData-">supportsFormatDrm</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></code></li>
+<code><a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#createRendererException-java.lang.Exception-com.google.android.exoplayer2.Format-">createRendererException</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#disable--">disable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#enable-com.google.android.exoplayer2.RendererConfiguration-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-boolean-boolean-long-long-">enable</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getCapabilities--">getCapabilities</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getConfiguration--">getConfiguration</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getFormatHolder--">getFormatHolder</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getIndex--">getIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getLastResetPositionUs--">getLastResetPositionUs</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getReadingPositionUs--">getReadingPositionUs</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getState--">getState</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStream--">getStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getStreamFormats--">getStreamFormats</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#getTrackType--">getTrackType</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#hasReadStreamToEnd--">hasReadStreamToEnd</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isCurrentStreamFinal--">isCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#isSourceReady--">isSourceReady</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#maybeThrowStreamError--">maybeThrowStreamError</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#onReset--">onReset</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#onStreamChanged-com.google.android.exoplayer2.Format:A-long-long-">onStreamChanged</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#readSource-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-">readSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#replaceStream-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.SampleStream-long-long-">replaceStream</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#reset--">reset</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#resetPosition-long-">resetPosition</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setCurrentStreamFinal--">setCurrentStreamFinal</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#setIndex-int-">setIndex</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#skipSource-long-">skipSource</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#start--">start</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#stop--">stop</a>, <a href="../../../../../../com/google/android/exoplayer2/BaseRenderer.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -310,6 +311,7 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
                             @Nullable
                             <a href="../../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                             <a href="../../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</pre>
+<div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
@@ -319,37 +321,24 @@ extends <a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDec
 </dl>
 </li>
 </ul>
-<a name="LibopusAudioRenderer-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.drm.DrmSessionManager-boolean-com.google.android.exoplayer2.audio.AudioProcessor...-">
+<a name="LibopusAudioRenderer-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.audio.AudioSink-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>LibopusAudioRenderer</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;LibopusAudioRenderer(@Nullable
-                                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
-                                        @Nullable
-                                        <a href="../../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
-                                        @Nullable
-                                        <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                                        boolean&nbsp;playClearSamplesWithoutKeys,
-                                        <a href="../../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html#LibopusAudioRenderer-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.audio.AudioProcessor...-"><code>LibopusAudioRenderer(Handler, AudioRendererEventListener,
-     AudioProcessor...)</code></a> instead, and pass DRM-related parameters to the <a href="../../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>
-     factories.</span></div>
+<pre>public&nbsp;LibopusAudioRenderer(@Nullable
+                            <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+                            @Nullable
+                            <a href="../../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
+                            <a href="../../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</pre>
+<div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventHandler</code> - A handler to use when delivering events to <code>eventListener</code>. May be
      null if delivery of events is not required.</dd>
 <dd><code>eventListener</code> - A listener of events. May be null if delivery of events is not required.</dd>
-<dd><code>drmSessionManager</code> - For use with encrypted media. May be null if support for encrypted
-     media is not required.</dd>
-<dd><code>playClearSamplesWithoutKeys</code> - Encrypted media may contain clear (un-encrypted) regions.
-     For example a media file may start with a short clear region so as to allow playback to
-     begin in parallel with key acquisition. This parameter specifies whether the renderer is
-     permitted to play clear regions of encrypted media files before <code>drmSessionManager</code>
-     has obtained the keys necessary to decrypt encrypted regions of the media.</dd>
-<dd><code>audioProcessors</code> - Optional <a href="../../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a>s that will process audio before output.</dd>
+<dd><code>audioSink</code> - The sink to which audio will be output.</dd>
 </dl>
 </li>
 </ul>
@@ -361,23 +350,36 @@ public&nbsp;LibopusAudioRenderer(@Nullable
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">
+<a name="getName--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getName</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;getName()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Renderer.html#getName--">Renderer</a></code></span></div>
+<div class="block">Returns the name of this renderer, for logging and debugging purposes. Should typically be the
+ renderer's (un-obfuscated) class name.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The name of this renderer.</dd>
+</dl>
+</li>
+</ul>
+<a name="supportsFormatInternal-com.google.android.exoplayer2.Format-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>supportsFormatInternal</h4>
 <pre><a href="../../../../../../com/google/android/exoplayer2/RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@RendererCapabilities.FormatSupport</a>
-protected&nbsp;int&nbsp;supportsFormatInternal(@Nullable
-                                                                         <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;&nbsp;drmSessionManager,
-                                                                         <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">SimpleDecoderAudioRenderer</a></code></span></div>
+protected&nbsp;int&nbsp;supportsFormatInternal(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.Format-">DecoderAudioRenderer</a></code></span></div>
 <div class="block">Returns the <code>FormatSupport</code> for the given <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format-">supportsFormatInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#supportsFormatInternal-com.google.android.exoplayer2.Format-">supportsFormatInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;com.google.android.exoplayer2.ext.opus.OpusDecoder&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>drmSessionManager</code> - The renderer's <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>.</dd>
 <dd><code>format</code> - The format, which has an audio <a href="../../../../../../com/google/android/exoplayer2/Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <code>FormatSupport</code> for this <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</dd>
@@ -394,11 +396,11 @@ protected&nbsp;int&nbsp;supportsFormatInternal(@Nullable
                                                                            @Nullable
                                                                            <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;mediaCrypto)
                                                                     throws <a href="../../../../../../com/google/android/exoplayer2/ext/opus/OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#createDecoder-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.drm.ExoMediaCrypto-">SimpleDecoderAudioRenderer</a></code></span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#createDecoder-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.drm.ExoMediaCrypto-">DecoderAudioRenderer</a></code></span></div>
 <div class="block">Creates a decoder for the given format.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#createDecoder-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.drm.ExoMediaCrypto-">createDecoder</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#createDecoder-com.google.android.exoplayer2.Format-com.google.android.exoplayer2.drm.ExoMediaCrypto-">createDecoder</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;com.google.android.exoplayer2.ext.opus.OpusDecoder&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The format for which a decoder is required.</dd>
 <dd><code>mediaCrypto</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> object required for decoding encrypted content.
@@ -410,19 +412,21 @@ protected&nbsp;int&nbsp;supportsFormatInternal(@Nullable
 </dl>
 </li>
 </ul>
-<a name="getOutputFormat--">
+<a name="getOutputFormat-com.google.android.exoplayer2.ext.opus.OpusDecoder-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getOutputFormat</h4>
-<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getOutputFormat()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#getOutputFormat--">SimpleDecoderAudioRenderer</a></code></span></div>
+<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getOutputFormat(com.google.android.exoplayer2.ext.opus.OpusDecoder&nbsp;decoder)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#getOutputFormat-T-">DecoderAudioRenderer</a></code></span></div>
 <div class="block">Returns the format of audio buffers output by the decoder. Will not be called until the first
  output buffer has been dequeued, so the decoder may use input data to determine the format.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html#getOutputFormat--">getOutputFormat</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html#getOutputFormat-T-">getOutputFormat</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;com.google.android.exoplayer2.ext.opus.OpusDecoder&gt;</code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>decoder</code> - The decoder.</dd>
 </dl>
 </li>
 </ul>

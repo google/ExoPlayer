@@ -97,7 +97,12 @@ var activeTableTab = "activeTableTab";
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">com.google.android.exoplayer2.metadata.SimpleMetadataDecoder</a></li>
+<li>
+<ul class="inheritance">
 <li>com.google.android.exoplayer2.metadata.scte35.SpliceInfoDecoder</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -111,8 +116,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">SpliceInfoDecoder</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
-implements <a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></pre>
+extends <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></pre>
 <div class="block">Decodes splice info sections and produces splice commands.</div>
 </li>
 </ul>
@@ -150,12 +154,21 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/scte35/SpliceInfoDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">decode</a></span>(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</code>
-<div class="block">Decodes a <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> element from the provided input buffer.</div>
+<td class="colFirst"><code>protected <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/metadata/scte35/SpliceInfoDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">decode</a></span>(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
+      <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer)</code>
+<div class="block">Called by <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
+ performed, except in the case that <a href="../../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.metadata.SimpleMetadataDecoder">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.metadata.<a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">decode</a></code></li>
+</ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -194,22 +207,27 @@ implements <a href="../../../../../../com/google/android/exoplayer2/metadata/Met
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">
+<a name="decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>decode</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">MetadataDecoder</a></code></span></div>
-<div class="block">Decodes a <a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> element from the provided input buffer.</div>
+<pre>protected&nbsp;<a href="../../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode(<a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
+                          <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">SimpleMetadataDecoder</a></code></span></div>
+<div class="block">Called by <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
+ performed, except in the case that <a href="../../../../../../com/google/android/exoplayer2/decoder/Buffer.html#isDecodeOnly--"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-">decode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-java.nio.ByteBuffer-">decode</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The input buffer to decode.</dd>
+<dd><code>buffer</code> - The input buffer's <a href="../../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#data"><code>data buffer</code></a>, for convenience.
+     Validation by <a href="../../../../../../com/google/android/exoplayer2/metadata/SimpleMetadataDecoder.html#decode-com.google.android.exoplayer2.metadata.MetadataInputBuffer-"><code>SimpleMetadataDecoder.decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)</code></a> guarantees that <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#hasArray--" title="class or interface in java.nio"><code>ByteBuffer.hasArray()</code></a>, <a href="https://developer.android.com/reference/java/nio/Buffer.html?is-external=true#position--" title="class or interface in java.nio"><code>Buffer.position()</code></a> and <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html?is-external=true#arrayOffset--" title="class or interface in java.nio" target="_top"><code>ByteBuffer.arrayOffset()</code></a> are <code>true</code>, <code>0</code> and
+     <code>0</code> respectively.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The decoded metadata object, or null if the metadata could not be decoded.</dd>
+<dd>The decoded metadata object, or <code>null</code> if the metadata could not be decoded.</dd>
 </dl>
 </li>
 </ul>

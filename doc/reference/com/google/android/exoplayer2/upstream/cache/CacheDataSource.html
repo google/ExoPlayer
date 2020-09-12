@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -106,7 +106,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></dd>
 </dl>
 <hr>
 <br>
@@ -147,19 +147,18 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a></span></code>
+<div class="block"><code>DataSource.Factory</code> for <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Flags</a></span></code>
 <div class="block">Flags controlling the CacheDataSource's behavior.</div>
 </td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.upstream.DataSource">
-<!--   -->
-</a>
-<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></h3>
-<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></code></li>
-</ul>
 </li>
 </ul>
 <!-- =========== FIELD SUMMARY =========== -->
@@ -220,14 +219,14 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-">CacheDataSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream)</code>
+               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource)</code>
 <div class="block">Constructs an instance with default <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSink-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-">CacheDataSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
+               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;cacheReadDataSource,
                <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;cacheWriteDataSink,
                int&nbsp;flags,
@@ -238,7 +237,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSource-com.google.android.exoplayer2.upstream.DataSink-int-com.google.android.exoplayer2.upstream.cache.CacheDataSource.EventListener-com.google.android.exoplayer2.upstream.cache.CacheKeyFactory-">CacheDataSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
+               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;cacheReadDataSource,
                <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;cacheWriteDataSink,
                int&nbsp;flags,
@@ -250,7 +249,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#CacheDataSource-com.google.android.exoplayer2.upstream.cache.Cache-com.google.android.exoplayer2.upstream.DataSource-int-">CacheDataSource</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
+               <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                int&nbsp;flags)</code>
 <div class="block">Constructs an instance with default <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
@@ -284,31 +283,42 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#getCache--">getCache</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> used by this instance.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#getCacheKeyFactory--">getCacheKeyFactory</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a> used by this instance.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#getResponseHeaders--">getResponseHeaders</a></span>()</code>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#getUri--">getUri</a></span>()</code>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-">open</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;readLength)</code>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.</div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
 </tr>
 </table>
@@ -422,13 +432,15 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <li class="blockList">
 <h4>CacheDataSource</h4>
 <pre>public&nbsp;CacheDataSource(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream)</pre>
+                       @Nullable
+                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource)</pre>
 <div class="block">Constructs an instance with default <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The cache.</dd>
-<dd><code>upstream</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache.</dd>
+<dd><code>upstreamDataSource</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache. If null,
+     reading will fail if a cache miss occurs.</dd>
 </dl>
 </li>
 </ul>
@@ -439,7 +451,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <li class="blockList">
 <h4>CacheDataSource</h4>
 <pre>public&nbsp;CacheDataSource(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
+                       @Nullable
+                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                        <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache">@CacheDataSource.Flags</a>
                        int&nbsp;flags)</pre>
 <div class="block">Constructs an instance with default <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
@@ -447,7 +460,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The cache.</dd>
-<dd><code>upstream</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache.</dd>
+<dd><code>upstreamDataSource</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache. If null,
+     reading will fail if a cache miss occurs.</dd>
 <dd><code>flags</code> - A combination of <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#FLAG_BLOCK_ON_CACHE"><code>FLAG_BLOCK_ON_CACHE</code></a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#FLAG_IGNORE_CACHE_ON_ERROR"><code>FLAG_IGNORE_CACHE_ON_ERROR</code></a>
      and <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html#FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS"><code>FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS</code></a>, or 0.</dd>
 </dl>
@@ -460,7 +474,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <li class="blockList">
 <h4>CacheDataSource</h4>
 <pre>public&nbsp;CacheDataSource(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
+                       @Nullable
+                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                        <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;cacheReadDataSource,
                        @Nullable
                        <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;cacheWriteDataSink,
@@ -474,7 +489,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The cache.</dd>
-<dd><code>upstream</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache.</dd>
+<dd><code>upstreamDataSource</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache. If null,
+     reading will fail if a cache miss occurs.</dd>
 <dd><code>cacheReadDataSource</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data from the cache.</dd>
 <dd><code>cacheWriteDataSink</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> for writing data to the cache. If null, cache is
      accessed read-only.</dd>
@@ -491,7 +507,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <li class="blockList">
 <h4>CacheDataSource</h4>
 <pre>public&nbsp;CacheDataSource(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
-                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstream,
+                       @Nullable
+                       <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                        <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;cacheReadDataSource,
                        @Nullable
                        <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;cacheWriteDataSink,
@@ -507,7 +524,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cache</code> - The cache.</dd>
-<dd><code>upstream</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache.</dd>
+<dd><code>upstreamDataSource</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data not in the cache. If null,
+     reading will fail if a cache miss occurs.</dd>
 <dd><code>cacheReadDataSource</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for reading data from the cache.</dd>
 <dd><code>cacheWriteDataSink</code> - A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> for writing data to the cache. If null, cache is
      accessed read-only.</dd>
@@ -526,6 +544,26 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getCache--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCache</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;getCache()</pre>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> used by this instance.</div>
+</li>
+</ul>
+<a name="getCacheKeyFactory--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCacheKeyFactory</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;getCacheKeyFactory()</pre>
+<div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a> used by this instance.</div>
+</li>
+</ul>
 <a name="addTransferListener-com.google.android.exoplayer2.upstream.TransferListener-">
 <!--   -->
 </a>
@@ -583,9 +621,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
                 int&nbsp;offset,
                 int&nbsp;readLength)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">DataSource</a></code></span></div>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">DataReader</a></code></span></div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.
 
  <p>If <code>readLength</code> is zero then 0 is returned. Otherwise, if no data is available because
  the end of the opened range has been reached, then <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
@@ -593,16 +630,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Dat
  bytes read is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The buffer into which the read data should be stored.</dd>
-<dd><code>offset</code> - The start offset into <code>buffer</code> at which data should be written.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read.</dd>
+<dd><code>buffer</code> - A target array into which data should be written.</dd>
+<dd><code>offset</code> - The offset into the target array at which to write.</dd>
+<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
-     because the end of the opened range has been reached.</dd>
+<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
+     may be less than <code>length</code> because the end of the input (or available data) was
+     reached, the method was interrupted, or the operation was aborted early for another reason.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the source.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
 </dl>
 </li>
 </ul>
@@ -636,7 +674,9 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
- call. Otherwise, returns an empty map.</div>
+ call. Otherwise, returns an empty map.
+
+ <p>Key look-up in the returned map is case-insensitive.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>

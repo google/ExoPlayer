@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackOutput.Factory.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackSelector.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -195,9 +195,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackSelection.html#blacklist-int-long-">blacklist</a></span>(int&nbsp;index,
-         long&nbsp;blacklistDurationMs)</code>
-<div class="block">Attempts to blacklist the track at the specified index in the selection, making it ineligible
- for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
+         long&nbsp;exclusionDurationMs)</code>
+<div class="block">Attempts to exclude the track at the specified index in the selection, making it ineligible for
+ selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
  MediaChunkIterator[])</code></a> for the specified period of time.</div>
 </td>
 </tr>
@@ -217,8 +217,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackSelection.html#evaluateQueueSize-long-java.util.List-">evaluateQueueSize</a></span>(long&nbsp;playbackPositionUs,
                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code>
-<div class="block">May be called periodically by sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s and
- support discarding of buffered chunks in order to re-buffer using a different selected track.</div>
+<div class="block">Returns the number of chunks that should be retained in the queue.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -316,7 +315,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onDiscontinuity--">onDiscontinuity</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onDiscontinuity--">onDiscontinuity</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#shouldCancelChunkLoad-long-com.google.android.exoplayer2.source.chunk.Chunk-java.util.List-">shouldCancelChunkLoad</a></code></li>
 </ul>
 </li>
 </ul>
@@ -393,8 +392,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <pre>public&nbsp;void&nbsp;enable()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#enable--">TrackSelection</a></code></span></div>
 <div class="block">Enables the track selection. Dynamic changes via <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long,
- List, MediaChunkIterator[])</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>TrackSelection.evaluateQueueSize(long, List)</code></a> will only happen after
- this call.
+ List, MediaChunkIterator[])</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>TrackSelection.evaluateQueueSize(long, List)</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#shouldCancelChunkLoad-long-com.google.android.exoplayer2.source.chunk.Chunk-java.util.List-"><code>TrackSelection.shouldCancelChunkLoad(long, Chunk, List)</code></a> will only happen after this call.
 
  <p>This method may not be called when the track selection is already enabled.</div>
 <dl>
@@ -412,8 +410,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <pre>public&nbsp;void&nbsp;disable()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#disable--">TrackSelection</a></code></span></div>
 <div class="block">Disables this track selection. No further dynamic changes via <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long,
- long, long, List, MediaChunkIterator[])</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>TrackSelection.evaluateQueueSize(long, List)</code></a> will happen
- after this call.
+ long, long, List, MediaChunkIterator[])</code></a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>TrackSelection.evaluateQueueSize(long, List)</code></a> or <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#shouldCancelChunkLoad-long-com.google.android.exoplayer2.source.chunk.Chunk-java.util.List-"><code>TrackSelection.shouldCancelChunkLoad(long, Chunk, List)</code></a> will happen after this call.
 
  <p>This method may only be called when the track selection is already enabled.</div>
 <dl>
@@ -598,7 +595,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <ul class="blockList">
 <li class="blockList">
 <h4>getSelectionData</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;getSelectionData()</pre>
+<pre>@Nullable
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;getSelectionData()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectionData--">TrackSelection</a></code></span></div>
 <div class="block">Returns optional data associated with the current track selection.</div>
 <dl>
@@ -639,7 +637,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">TrackSelection</a></code></span></div>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
 
- <p>This method may only be called when the selection is enabled.</div>
+ <p>This method will only be called when the selection is enabled.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>
@@ -673,15 +671,23 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <pre>public&nbsp;int&nbsp;evaluateQueueSize(long&nbsp;playbackPositionUs,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-">TrackSelection</a></code></span></div>
-<div class="block">May be called periodically by sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s and
- support discarding of buffered chunks in order to re-buffer using a different selected track.
- Returns the number of chunks that should be retained in the queue.
- <p>
- To avoid excessive re-buffering, implementations should normally return the size of the queue.
- An example of a case where a smaller value may be returned is if network conditions have
+<div class="block">Returns the number of chunks that should be retained in the queue.
+
+ <p>May be called by sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunks</code></a> and
+ support discarding of buffered chunks.
+
+ <p>To avoid excessive re-buffering, implementations should normally return the size of the
+ queue. An example of a case where a smaller value may be returned is if network conditions have
  improved dramatically, allowing chunks to be discarded and re-buffered in a track of
  significantly higher quality. Discarding chunks may allow faster switching to a higher quality
- track in this case. This method may only be called when the selection is enabled.</div>
+ track in this case.
+
+ <p>Note that even if the source supports discarding of buffered chunks, the actual number of
+ discarded chunks is not guaranteed. The source will call <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long,
+ long, long, List, MediaChunkIterator[])</code></a> with the updated queue of chunks before loading a new
+ chunk to allow switching to another quality.
+
+ <p>This method will only be called when the selection is enabled and none of the <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunks</code></a> in the queue are currently loading.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-">evaluateQueueSize</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>
@@ -690,7 +696,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
      period to which this track selection belongs has not yet started, the value will be the
      starting position in the period minus the duration of any media in previous periods still
      to be played.</dd>
-<dd><code>queue</code> - The queue of buffered <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s. Must not be modified.</dd>
+<dd><code>queue</code> - The queue of buffered <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunks</code></a>. Must not be modified.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of chunks to retain in the queue.</dd>
 </dl>
@@ -703,25 +709,25 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 <li class="blockList">
 <h4>blacklist</h4>
 <pre>public&nbsp;boolean&nbsp;blacklist(int&nbsp;index,
-                         long&nbsp;blacklistDurationMs)</pre>
+                         long&nbsp;exclusionDurationMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#blacklist-int-long-">TrackSelection</a></code></span></div>
-<div class="block">Attempts to blacklist the track at the specified index in the selection, making it ineligible
- for selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
- MediaChunkIterator[])</code></a> for the specified period of time. Blacklisting will fail if all other
- tracks are currently blacklisted. If blacklisting the currently selected track, note that it
- will remain selected until the next call to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
- MediaChunkIterator[])</code></a>.
+<div class="block">Attempts to exclude the track at the specified index in the selection, making it ineligible for
+ selection by calls to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List,
+ MediaChunkIterator[])</code></a> for the specified period of time.
 
- <p>This method may only be called when the selection is enabled.</div>
+ <p>Exclusion will fail if all other tracks are currently excluded. If excluding the currently
+ selected track, note that it will remain selected until the next call to <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-"><code>TrackSelection.updateSelectedTrack(long, long, long, List, MediaChunkIterator[])</code></a>.
+
+ <p>This method will only be called when the selection is enabled.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#blacklist-int-long-">blacklist</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>index</code> - The index of the track in the selection.</dd>
-<dd><code>blacklistDurationMs</code> - The duration of time for which the track should be blacklisted, in
+<dd><code>exclusionDurationMs</code> - The duration of time for which the track should be excluded, in
      milliseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Whether blacklisting was successful.</dd>
+<dd>Whether exclusion was successful.</dd>
 </dl>
 </li>
 </ul>
@@ -752,7 +758,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/trackselection/
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackOutput.Factory.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeTrackSelector.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

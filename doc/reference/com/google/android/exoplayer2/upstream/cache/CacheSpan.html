@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheWriter.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/upstream/cache/CacheSpan.html" target="_top">Frames</a></li>
@@ -147,7 +147,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#key">key</a></span></code>
-<div class="block">The cache key that uniquely identifies the original stream.</div>
+<div class="block">The cache key that uniquely identifies the resource.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -165,7 +165,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#position">position</a></span></code>
-<div class="block">The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the original stream.</div>
+<div class="block">The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the resource.</div>
 </td>
 </tr>
 </table>
@@ -230,13 +230,17 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <div class="block">Returns whether this is an open-ended <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</div>
 </td>
 </tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#toString--">toString</a></span>()</code>&nbsp;</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -259,7 +263,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <li class="blockList">
 <h4>key</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> key</pre>
-<div class="block">The cache key that uniquely identifies the original stream.</div>
+<div class="block">The cache key that uniquely identifies the resource.</div>
 </li>
 </ul>
 <a name="position">
@@ -269,7 +273,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <li class="blockList">
 <h4>position</h4>
 <pre>public final&nbsp;long position</pre>
-<div class="block">The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the original stream.</div>
+<div class="block">The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the resource.</div>
 </li>
 </ul>
 <a name="length">
@@ -334,8 +338,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
  associated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The cache key that uniquely identifies the original stream.</dd>
-<dd><code>position</code> - The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the original stream.</dd>
+<dd><code>key</code> - The cache key that uniquely identifies the resource.</dd>
+<dd><code>position</code> - The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the resource.</dd>
 <dd><code>length</code> - The length of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if this is an
      open-ended hole.</dd>
 </dl>
@@ -356,8 +360,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <div class="block">Creates a CacheSpan.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>key</code> - The cache key that uniquely identifies the original stream.</dd>
-<dd><code>position</code> - The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the original stream.</dd>
+<dd><code>key</code> - The cache key that uniquely identifies the resource.</dd>
+<dd><code>position</code> - The position of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the resource.</dd>
 <dd><code>length</code> - The length of the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if this is an
      open-ended hole.</dd>
 <dd><code>lastTouchTimestamp</code> - The last touch timestamp, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html#isCached"><code>isCached</code></a> is false.</dd>
@@ -396,14 +400,26 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <a name="compareTo-com.google.android.exoplayer2.upstream.cache.CacheSpan-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>compareTo</h4>
-<pre>public&nbsp;int&nbsp;compareTo(@NonNull
-                     <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;another)</pre>
+<pre>public&nbsp;int&nbsp;compareTo(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;another)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Comparable.html#compareTo-T-" title="class or interface in java.lang">compareTo</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang">Comparable</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</code></dd>
+</dl>
+</li>
+</ul>
+<a name="toString--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;toString()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString--" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -435,7 +451,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheWriter.html" title="class in com.google.android.exoplayer2.upstream.cache"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/upstream/cache/CacheSpan.html" target="_top">Frames</a></li>

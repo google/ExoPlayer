@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":42,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -46,8 +46,8 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.TrackDataFactory.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.InitialTimeline.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/FakeMediaSource.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -134,6 +134,19 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.InitialTimeline.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaSource.InitialTimeline</a></span></code>
+<div class="block">A forwarding timeline to provide an initial timeline for fake multi window sources.</div>
+</td>
+</tr>
+</table>
 <ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.MediaSource">
 <!--   -->
@@ -156,8 +169,10 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#timeline">timeline</a></span></code>&nbsp;</td>
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#FAKE_MEDIA_ITEM">FAKE_MEDIA_ITEM</a></span></code>
+<div class="block">The media item used by the fake media source.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -174,14 +189,31 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.Format...-">FakeMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.testutil.FakeMediaPeriod.TrackDataFactory-com.google.android.exoplayer2.Format...-">FakeMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+               <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+               <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.TrackDataFactory.html" title="interface in com.google.android.exoplayer2.testutil">FakeMediaPeriod.TrackDataFactory</a>&nbsp;trackDataFactory,
                <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</code>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.source.TrackGroupArray-">FakeMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.testutil.FakeMediaPeriod.TrackDataFactory-com.google.android.exoplayer2.source.TrackGroupArray-">FakeMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+               <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+               <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.TrackDataFactory.html" title="interface in com.google.android.exoplayer2.testutil">FakeMediaPeriod.TrackDataFactory</a>&nbsp;trackDataFactory,
                <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray)</code>
+<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format...-">FakeMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+               <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+               <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</code>
+<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.Format...-">FakeMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+               <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</code>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>.</div>
 </td>
 </tr>
@@ -195,7 +227,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -214,10 +246,12 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaPeriod</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#createFakeMediaPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.TransferListener-">createFakeMediaPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#createFakeMediaPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.TransferListener-">createFakeMediaPeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
                      <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray,
                      <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
-                     <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
+                     <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher,
+                     <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                     <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
                      <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaPeriod</code></a> for this media source.</div>
 </td>
@@ -237,47 +271,78 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#getTag--">getTag</a></span>()</code>
-<div class="block">Returns the tag set on the media source, or null if none was set.</div>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#getInitialTimeline--">getInitialTimeline</a></span>()</code>
+<div class="block">Returns the initial placeholder timeline that is returned immediately when the real timeline is
+ not yet known, or null to let the player create an initial timeline.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#getMediaItem--">getMediaItem</a></span>()</code>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#getTag--">getTag</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#getMediaItem--"><code>getMediaItem()</code></a> and <code>MediaItem.PlaybackProperties#tag</code> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#getTimeline--">getTimeline</a></span>()</code>&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#isPrepared--">isPrepared</a></span>()</code>
 <div class="block">Returns whether the source is currently prepared.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#isSingleWindow--">isSingleWindow</a></span>()</code>
+<div class="block">Returns true if the media source is guaranteed to never have zero or more than one window.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#maybeThrowSourceInfoRefreshError--">maybeThrowSourceInfoRefreshError</a></span>()</code>
 <div class="block">Throws any pending error encountered while loading or refreshing source information.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">prepareSourceInternal</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code>
 <div class="block">Starts source preparation and enables the source, see <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-"><code>MediaSource.prepareSource(MediaSourceCaller,
  TransferListener)</code></a>.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#releasePeriod-com.google.android.exoplayer2.source.MediaPeriod-">releasePeriod</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code>
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#releaseSourceInternal--">releaseSourceInternal</a></span>()</code>
 <div class="block">Releases the source, see <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-"><code>MediaSource.releaseSource(MediaSourceCaller)</code></a>.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">setNewSourceInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline,
-                <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;newManifest)</code>
-<div class="block">Sets a new timeline and manifest.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-">setNewSourceInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline)</code>
+<div class="block">Sets a new timeline.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-boolean-">setNewSourceInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline,
+                boolean&nbsp;sendManifestLoadEvents)</code>
+<div class="block">Sets a new timeline.</div>
 </td>
 </tr>
 </table>
@@ -286,7 +351,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">disable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disableInternal--">disableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">enable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enableInternal--">enableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#isEnabled--">isEnabled</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-">refreshSourceInfo</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">releaseSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addDrmEventListener-android.os.Handler-com.google.android.exoplayer2.drm.DrmSessionEventListener-">addDrmEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#addEventListener-android.os.Handler-com.google.android.exoplayer2.source.MediaSourceEventListener-">addEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createDrmEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createDrmEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createDrmEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createDrmEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#createEventDispatcher-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-long-">createEventDispatcher</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">disable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#disableInternal--">disableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enable-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">enable</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#enableInternal--">enableInternal</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#isEnabled--">isEnabled</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-">prepareSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#refreshSourceInfo-com.google.android.exoplayer2.Timeline-">refreshSourceInfo</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#releaseSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-">releaseSource</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeDrmEventListener-com.google.android.exoplayer2.drm.DrmSessionEventListener-">removeDrmEventListener</a>, <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#removeEventListener-com.google.android.exoplayer2.source.MediaSourceEventListener-">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -309,13 +374,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="timeline">
+<a name="FAKE_MEDIA_ITEM">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>timeline</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a> timeline</pre>
+<h4>FAKE_MEDIA_ITEM</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a> FAKE_MEDIA_ITEM</pre>
+<div class="block">The media item used by the fake media source.</div>
 </li>
 </ul>
 </li>
@@ -338,10 +404,46 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>. This media source creates <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaPeriod</code></a>s with a
  <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> using the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s. The provided <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> may be
  null to prevent an immediate source info refresh message when preparing the media source. It
- can be manually set later using <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>setNewSourceInfo(Timeline, Object)</code></a>.</div>
+ can be manually set later using <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-"><code>setNewSourceInfo(Timeline)</code></a>.</div>
 </li>
 </ul>
-<a name="FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.source.TrackGroupArray-">
+<a name="FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.Format...-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FakeMediaSource</h4>
+<pre>public&nbsp;FakeMediaSource(@Nullable
+                       <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                       <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                       <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</pre>
+<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>. This media source creates <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaPeriod</code></a>s with a
+ <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> using the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s. It passes <code>drmSessionManager</code>
+ into the created periods. The provided <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> may be null to prevent an immediate
+ source info refresh message when preparing the media source. It can be manually set later using
+ <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-"><code>setNewSourceInfo(Timeline)</code></a>.</div>
+</li>
+</ul>
+<a name="FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.testutil.FakeMediaPeriod.TrackDataFactory-com.google.android.exoplayer2.Format...-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FakeMediaSource</h4>
+<pre>public&nbsp;FakeMediaSource(@Nullable
+                       <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                       <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                       @Nullable
+                       <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.TrackDataFactory.html" title="interface in com.google.android.exoplayer2.testutil">FakeMediaPeriod.TrackDataFactory</a>&nbsp;trackDataFactory,
+                       <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>...&nbsp;formats)</pre>
+<div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>. This media source creates <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaPeriod</code></a>s with a
+ <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> using the given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s. It passes <code>drmSessionManager</code>
+ and <code>trackDataFactory</code> into the created periods. The provided <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> may be
+ null to prevent an immediate source info refresh message when preparing the media source. It
+ can be manually set later using <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-"><code>setNewSourceInfo(Timeline)</code></a>.</div>
+</li>
+</ul>
+<a name="FakeMediaSource-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.testutil.FakeMediaPeriod.TrackDataFactory-com.google.android.exoplayer2.source.TrackGroupArray-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -349,11 +451,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <h4>FakeMediaSource</h4>
 <pre>public&nbsp;FakeMediaSource(@Nullable
                        <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                       <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                       @Nullable
+                       <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.TrackDataFactory.html" title="interface in com.google.android.exoplayer2.testutil">FakeMediaPeriod.TrackDataFactory</a>&nbsp;trackDataFactory,
                        <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray)</pre>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaSource</code></a>. This media source creates <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaPeriod</code></a>s with the
- given <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>. The provided <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> may be null to prevent an
+ provided <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a>, <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> and <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.TrackDataFactory.html" title="interface in com.google.android.exoplayer2.testutil"><code>FakeMediaPeriod.TrackDataFactory</code></a>. The provided <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> may be null to prevent an
  immediate source info refresh message when preparing the media source. It can be manually set
- later using <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-"><code>setNewSourceInfo(Timeline, Object)</code></a>.</div>
+ later using <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-"><code>setNewSourceInfo(Timeline)</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -364,16 +469,74 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="getTimeline--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTimeline</h4>
+<pre>@Nullable
+protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;getTimeline()</pre>
+</li>
+</ul>
 <a name="getTag--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>getTag</h4>
-<pre>@Nullable
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+ @Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;getTag()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#getTag--">MediaSource</a></code></span></div>
-<div class="block">Returns the tag set on the media source, or null if none was set.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#getMediaItem--"><code>getMediaItem()</code></a> and <code>MediaItem.PlaybackProperties#tag</code> instead.</span></div>
+</li>
+</ul>
+<a name="getMediaItem--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getMediaItem</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;getMediaItem()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#getMediaItem--">MediaSource</a></code></span></div>
+<div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
+</li>
+</ul>
+<a name="getInitialTimeline--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInitialTimeline</h4>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;getInitialTimeline()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#getInitialTimeline--">MediaSource</a></code></span></div>
+<div class="block">Returns the initial placeholder timeline that is returned immediately when the real timeline is
+ not yet known, or null to let the player create an initial timeline.
+
+ <p>The initial timeline must use the same uids for windows and periods that the real timeline
+ will use. It also must provide windows which are marked as dynamic to indicate that the window
+ is expected to change when the real timeline arrives.
+
+ <p>Any media source which has multiple windows should typically provide such an initial
+ timeline to make sure the player reports the correct number of windows immediately.</div>
+</li>
+</ul>
+<a name="isSingleWindow--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isSingleWindow</h4>
+<pre>public&nbsp;boolean&nbsp;isSingleWindow()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#isSingleWindow--">MediaSource</a></code></span></div>
+<div class="block">Returns true if the media source is guaranteed to never have zero or more than one window.
+
+ <p>The default implementation returns <code>true</code>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if the source has exactly one window.</dd>
+</dl>
 </li>
 </ul>
 <a name="prepareSourceInternal-com.google.android.exoplayer2.upstream.TransferListener-">
@@ -476,16 +639,37 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 </dl>
 </li>
 </ul>
-<a name="setNewSourceInfo-com.google.android.exoplayer2.Timeline-java.lang.Object-">
+<a name="setNewSourceInfo-com.google.android.exoplayer2.Timeline-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setNewSourceInfo</h4>
+<pre>public&nbsp;void&nbsp;setNewSourceInfo(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline)</pre>
+<div class="block">Sets a new timeline. If the source is already prepared, this triggers a source info refresh
+ message being sent to the listener.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>newTimeline</code> - The new <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="setNewSourceInfo-com.google.android.exoplayer2.Timeline-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setNewSourceInfo</h4>
 <pre>public&nbsp;void&nbsp;setNewSourceInfo(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline,
-                             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;newManifest)</pre>
-<div class="block">Sets a new timeline and manifest. If the source is already prepared, this triggers a source
- info refresh message being sent to the listener.</div>
+                             boolean&nbsp;sendManifestLoadEvents)</pre>
+<div class="block">Sets a new timeline. If the source is already prepared, this triggers a source info refresh
+ message being sent to the listener.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>newTimeline</code> - The new <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.</dd>
+<dd><code>sendManifestLoadEvents</code> - Whether to treat this as a manifest refresh and send manifest
+     load events to listeners.</dd>
+</dl>
 </li>
 </ul>
 <a name="isPrepared--">
@@ -528,25 +712,31 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <div class="block">Returns a list of <code>MediaPeriodId</code>s, with one element for each created media period.</div>
 </li>
 </ul>
-<a name="createFakeMediaPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.TransferListener-">
+<a name="createFakeMediaPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.TransferListener-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createFakeMediaPeriod</h4>
-<pre>protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaPeriod</a>&nbsp;createFakeMediaPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
-                                                <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray,
-                                                <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
-                                                <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
-                                                @Nullable
-                                                <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
+<pre>@RequiresNonNull(value="this.timeline")
+protected&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaPeriod</a>&nbsp;createFakeMediaPeriod(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
+                                                                                        <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroupArray,
+                                                                                        <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+                                                                                        <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher,
+                                                                                        <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                                                                                        <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
+                                                                                        @Nullable
+                                                                                        <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
 <div class="block">Creates a <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeMediaPeriod</code></a> for this media source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The identifier of the period.</dd>
 <dd><code>trackGroupArray</code> - The <a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroupArray</code></a> supported by the media period.</dd>
 <dd><code>allocator</code> - An <a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> from which to obtain media buffer allocations.</dd>
-<dd><code>eventDispatcher</code> - An <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> to dispatch media source events.</dd>
+<dd><code>mediaSourceEventDispatcher</code> - An <code>MediaSourceEventListener.EventDispatcher</code> to
+     dispatch media source events.</dd>
+<dd><code>drmEventDispatcher</code> - An <code>MediaSourceEventListener.EventDispatcher</code> to dispatch DRM
+     events.</dd>
 <dd><code>transferListener</code> - The transfer listener which should be informed of any data transfers.
      May be null if no listener is available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -581,8 +771,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaPeriod.TrackDataFactory.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.InitialTimeline.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/FakeMediaSource.html" target="_top">Frames</a></li>
@@ -606,7 +796,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

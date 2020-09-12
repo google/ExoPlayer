@@ -176,8 +176,9 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createPayloadReader</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a>&nbsp;createPayloadReader(int&nbsp;streamType,
-                                    <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>&nbsp;esInfo)</pre>
+<pre>@Nullable
+<a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a>&nbsp;createPayloadReader(int&nbsp;streamType,
+                                              <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>&nbsp;esInfo)</pre>
 <div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for a given stream type and elementary stream information.
  May return null if the stream type is not supported.</div>
 <dl>
@@ -185,7 +186,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>streamType</code> - Stream type value as defined in the PMT entry or associated descriptors.</dd>
 <dd><code>esInfo</code> - Information associated to the elementary stream provided in the PMT.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for the packet stream carried by the provided pid.
+<dd>A <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for the packet stream carried by the provided pid, or
      <code>null</code> if the stream is not supported.</dd>
 </dl>
 </li>

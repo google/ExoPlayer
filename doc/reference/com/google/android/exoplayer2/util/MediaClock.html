@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaClockRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaClockRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/util/StandaloneMediaClock.html" title="class in com.google.android.exoplayer2.util">StandaloneMediaClock</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaClockRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaClockRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../../com/google/android/exoplayer2/util/StandaloneMediaClock.html" title="class in com.google.android.exoplayer2.util">StandaloneMediaClock</a></dd>
 </dl>
 <hr>
 <br>
@@ -172,8 +172,8 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
 <pre>void&nbsp;setPlaybackParameters(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
-<div class="block">Attempts to set the playback parameters. The media clock may override these parameters if they
- are not supported.</div>
+<div class="block">Attempts to set the playback parameters. The media clock may override the speed if changing the
+ playback parameters is not supported.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>playbackParameters</code> - The playback parameters to attempt to set.</dd>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":42,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":42,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":42,"i32":10,"i33":10,"i34":10,"i35":42,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":42,"i42":42,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -122,10 +122,6 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt>All Implemented Interfaces:</dt>
 <dd><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable">Drawable.Callback</a>, <a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility">AccessibilityEventSource</a>, <a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view">KeyEvent.Callback</a>, <a href="https://developer.android.com/reference/android/view/ViewManager.html?is-external=true" title="class or interface in android.view">ViewManager</a>, <a href="https://developer.android.com/reference/android/view/ViewParent.html?is-external=true" title="class or interface in android.view">ViewParent</a>, <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads" target="_top">AdsLoader.AdViewProvider</a></dd>
-</dl>
-<dl>
-<dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/ui/SimpleExoPlayerView.html" title="class in com.google.android.exoplayer2.ui">SimpleExoPlayerView</a></dd>
 </dl>
 <hr>
 <br>
@@ -246,8 +242,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
  directories. These layouts will override the one provided by the ExoPlayer library, and will be
  inflated for use by PlayerView. The view identifies and binds its children by looking for the
  following ids:
-
- <p>
 
  <ul>
    <li><b><code>exo_content_frame</code></b> - A frame whose aspect ratio is resized based on the video
@@ -457,17 +451,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" target="_top">View</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getAdOverlayViews--">getAdOverlayViews</a></span>()</code>
-<div class="block">Returns an array of views that are shown on top of the ad view group, but that are essential
- for controlling playback and should be excluded from ad viewability measurements by the
- <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).</div>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdsLoader.OverlayInfo</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getAdOverlayInfos--">getAdOverlayInfos</a></span>()</code>
+<div class="block">Returns a list of <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsLoader.OverlayInfo</code></a> instances describing views that are on top of the ad
+ view group, but that are essential for controlling playback and should be excluded from ad
+ viewability measurements by the <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top">ViewGroup</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#getAdViewGroup--">getAdViewGroup</a></span>()</code>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</div>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code>
+ if playing audio-only ads.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -664,7 +659,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
 <tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setFastForwardIncrementMs-int-">setFastForwardIncrementMs</a></span>(int&nbsp;fastForwardMs)</code>
-<div class="block">Sets the fast forward increment in milliseconds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher.DefaultControlDispatcher(long, long)</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i36" class="altColor">
@@ -701,7 +698,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
 <tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setRewindIncrementMs-int-">setRewindIncrementMs</a></span>(int&nbsp;rewindMs)</code>
-<div class="block">Sets the rewind increment in milliseconds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher.DefaultControlDispatcher(long, long)</code></a>.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i42" class="altColor">
@@ -720,52 +719,76 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
 </tr>
 <tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowFastForwardButton-boolean-">setShowFastForwardButton</a></span>(boolean&nbsp;showFastForwardButton)</code>
+<div class="block">Sets whether the fast forward button is shown.</div>
+</td>
+</tr>
+<tr id="i45" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowMultiWindowTimeBar-boolean-">setShowMultiWindowTimeBar</a></span>(boolean&nbsp;showMultiWindowTimeBar)</code>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowNextButton-boolean-">setShowNextButton</a></span>(boolean&nbsp;showNextButton)</code>
+<div class="block">Sets whether the next button is shown.</div>
+</td>
+</tr>
+<tr id="i47" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowPreviousButton-boolean-">setShowPreviousButton</a></span>(boolean&nbsp;showPreviousButton)</code>
+<div class="block">Sets whether the previous button is shown.</div>
+</td>
+</tr>
+<tr id="i48" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowRewindButton-boolean-">setShowRewindButton</a></span>(boolean&nbsp;showRewindButton)</code>
+<div class="block">Sets whether the rewind button is shown.</div>
+</td>
+</tr>
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShowShuffleButton-boolean-">setShowShuffleButton</a></span>(boolean&nbsp;showShuffleButton)</code>
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setShutterBackgroundColor-int-">setShutterBackgroundColor</a></span>(int&nbsp;color)</code>
 <div class="block">Sets the background color of the <code>exo_shutter</code> view.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setUseArtwork-boolean-">setUseArtwork</a></span>(boolean&nbsp;useArtwork)</code>
 <div class="block">Sets whether artwork is displayed if present in the media.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setUseController-boolean-">setUseController</a></span>(boolean&nbsp;useController)</code>
 <div class="block">Sets whether the playback controls can be shown.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setUseSensorRotation-boolean-">setUseSensorRotation</a></span>(boolean&nbsp;useSensorRotation)</code>
 <div class="block">Sets whether to use the orientation sensor for rotation during spherical playbacks (if
  available)</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setVisibility-int-">setVisibility</a></span>(int&nbsp;visibility)</code>&nbsp;</td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#showController--">showController</a></span>()</code>
 <div class="block">Shows the playback controls.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#switchTargetView-com.google.android.exoplayer2.Player-com.google.android.exoplayer2.ui.PlayerView-com.google.android.exoplayer2.ui.PlayerView-">switchTargetView</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                 <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>&nbsp;oldPlayerView,
@@ -801,6 +824,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.source.ads.<a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayViews--">getAdOverlayViews</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.android.view.ViewParent">
@@ -1422,12 +1452,67 @@ public&nbsp;void&nbsp;setShowBuffering(boolean&nbsp;showBuffering)</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setControlDispatcher</h4>
-<pre>public&nbsp;void&nbsp;setControlDispatcher(@Nullable
-                                 <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
+<pre>public&nbsp;void&nbsp;setControlDispatcher(<a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</pre>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>controlDispatcher</code> - The <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>, or null to use <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a>.</dd>
+<dd><code>controlDispatcher</code> - The <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="setShowRewindButton-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShowRewindButton</h4>
+<pre>public&nbsp;void&nbsp;setShowRewindButton(boolean&nbsp;showRewindButton)</pre>
+<div class="block">Sets whether the rewind button is shown.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>showRewindButton</code> - Whether the rewind button is shown.</dd>
+</dl>
+</li>
+</ul>
+<a name="setShowFastForwardButton-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShowFastForwardButton</h4>
+<pre>public&nbsp;void&nbsp;setShowFastForwardButton(boolean&nbsp;showFastForwardButton)</pre>
+<div class="block">Sets whether the fast forward button is shown.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>showFastForwardButton</code> - Whether the fast forward button is shown.</dd>
+</dl>
+</li>
+</ul>
+<a name="setShowPreviousButton-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShowPreviousButton</h4>
+<pre>public&nbsp;void&nbsp;setShowPreviousButton(boolean&nbsp;showPreviousButton)</pre>
+<div class="block">Sets whether the previous button is shown.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>showPreviousButton</code> - Whether the previous button is shown.</dd>
+</dl>
+</li>
+</ul>
+<a name="setShowNextButton-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setShowNextButton</h4>
+<pre>public&nbsp;void&nbsp;setShowNextButton(boolean&nbsp;showNextButton)</pre>
+<div class="block">Sets whether the next button is shown.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>showNextButton</code> - Whether the next button is shown.</dd>
 </dl>
 </li>
 </ul>
@@ -1437,13 +1522,9 @@ public&nbsp;void&nbsp;setShowBuffering(boolean&nbsp;showBuffering)</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setRewindIncrementMs</h4>
-<pre>public&nbsp;void&nbsp;setRewindIncrementMs(int&nbsp;rewindMs)</pre>
-<div class="block">Sets the rewind increment in milliseconds.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rewindMs</code> - The rewind increment in milliseconds. A non-positive value will cause the
-     rewind button to be disabled.</dd>
-</dl>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setRewindIncrementMs(int&nbsp;rewindMs)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher.DefaultControlDispatcher(long, long)</code></a>.</span></div>
 </li>
 </ul>
 <a name="setFastForwardIncrementMs-int-">
@@ -1452,13 +1533,9 @@ public&nbsp;void&nbsp;setShowBuffering(boolean&nbsp;showBuffering)</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setFastForwardIncrementMs</h4>
-<pre>public&nbsp;void&nbsp;setFastForwardIncrementMs(int&nbsp;fastForwardMs)</pre>
-<div class="block">Sets the fast forward increment in milliseconds.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>fastForwardMs</code> - The fast forward increment in milliseconds. A non-positive value will
-     cause the fast forward button to be disabled.</dd>
-</dl>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setFastForwardIncrementMs(int&nbsp;fastForwardMs)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> with <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher.DefaultControlDispatcher(long, long)</code></a>.</span></div>
 </li>
 </ul>
 <a name="setRepeatToggleModes-int-">
@@ -1693,24 +1770,27 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/SubtitleVie
 <h4>getAdViewGroup</h4>
 <pre>public&nbsp;<a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top">ViewGroup</a>&nbsp;getAdViewGroup()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdViewGroup--">AdsLoader.AdViewProvider</a></code></span></div>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</div>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code>
+ if playing audio-only ads. Any views on top of the returned view group must be described by
+ <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads"><code>OverlayInfos</code></a> returned by <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayInfos--"><code>AdsLoader.AdViewProvider.getAdOverlayInfos()</code></a>, for accurate
+ viewability measurement.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdViewGroup--">getAdViewGroup</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="getAdOverlayViews--">
+<a name="getAdOverlayInfos--">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>getAdOverlayViews</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" target="_top">View</a>[]&nbsp;getAdOverlayViews()</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayViews--">AdsLoader.AdViewProvider</a></code></span></div>
-<div class="block">Returns an array of views that are shown on top of the ad view group, but that are essential
- for controlling playback and should be excluded from ad viewability measurements by the
- <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).
+<h4>getAdOverlayInfos</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdsLoader.OverlayInfo</a>&gt;&nbsp;getAdOverlayInfos()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayInfos--">AdsLoader.AdViewProvider</a></code></span></div>
+<div class="block">Returns a list of <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsLoader.OverlayInfo</code></a> instances describing views that are on top of the ad
+ view group, but that are essential for controlling playback and should be excluded from ad
+ viewability measurements by the <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).
 
  <p>Each view must be either a fully transparent overlay (for capturing touch events), or a
  small piece of transient UI that is essential to the user experience of playback (such as a
@@ -1718,7 +1798,7 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/SubtitleVie
  information see the documentation for your ads loader.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayViews--">getAdOverlayViews</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayInfos--">getAdOverlayInfos</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.AdViewProvider</a></code></dd>
 </dl>
 </li>
 </ul>

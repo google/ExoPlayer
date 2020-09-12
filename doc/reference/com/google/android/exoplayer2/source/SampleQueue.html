@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -144,7 +144,22 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">TrackOutput.SampleDataPart</a></code></li>
+</ul>
+</li>
+</ul>
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a name="fields.inherited.from.class.com.google.android.exoplayer2.extractor.TrackOutput">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_ENCRYPTION">SAMPLE_DATA_PART_ENCRYPTION</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_MAIN">SAMPLE_DATA_PART_MAIN</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#SAMPLE_DATA_PART_SUPPLEMENTAL">SAMPLE_DATA_PART_SUPPLEMENTAL</a></code></li>
 </ul>
 </li>
 </ul>
@@ -160,9 +175,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#SampleQueue-com.google.android.exoplayer2.upstream.Allocator-android.os.Looper-com.google.android.exoplayer2.drm.DrmSessionManager-">SampleQueue</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#SampleQueue-com.google.android.exoplayer2.upstream.Allocator-android.os.Looper-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-">SampleQueue</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
            <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;playbackLooper,
-           <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager)</code>
+           <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+           <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher)</code>
 <div class="block">Creates a sample queue.</div>
 </td>
 </tr>
@@ -182,22 +198,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#advanceTo-long-">advanceTo</a></span>(long&nbsp;timeUs)</code>
-<div class="block">Advances the read position to the keyframe before or at the specified time.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#advanceToEnd--">advanceToEnd</a></span>()</code>
-<div class="block">Advances the read position to the end of the queue.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#discardSampleMetadataToRead--">discardSampleMetadataToRead</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#discardTo-long-boolean-boolean-">discardTo</a></span>(long&nbsp;timeUs,
          boolean&nbsp;toKeyframe,
@@ -205,53 +209,65 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <div class="block">Discards up to but not including the sample immediately before or at the specified time.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#discardToEnd--">discardToEnd</a></span>()</code>
 <div class="block">Discards all samples in the queue and advances the read position.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#discardToRead--">discardToRead</a></span>()</code>
 <div class="block">Discards up to but not including the read position.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#discardUpstreamFrom-long-">discardUpstreamFrom</a></span>(long&nbsp;timeUs)</code>
+<div class="block">Discards samples from the write side of the queue.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#discardUpstreamSamples-int-">discardUpstreamSamples</a></span>(int&nbsp;discardFromIndex)</code>
 <div class="block">Discards samples from the write side of the queue.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#format-com.google.android.exoplayer2.Format-">format</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;unadjustedUpstreamFormat)</code>
 <div class="block">Called when the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the track has been extracted from the stream.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getAdjustedUpstreamFormat-com.google.android.exoplayer2.Format-">getAdjustedUpstreamFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Adjusts the upstream <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (i.e., the <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> that was most recently passed to
  <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#format-com.google.android.exoplayer2.Format-"><code>format(Format)</code></a>).</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getFirstIndex--">getFirstIndex</a></span>()</code>
 <div class="block">Returns the current absolute start index.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getFirstTimestampUs--">getFirstTimestampUs</a></span>()</code>
 <div class="block">Returns the timestamp of the first sample, or <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" target="_top"><code>Long.MIN_VALUE</code></a> if the queue is empty.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getLargestQueuedTimestampUs--">getLargestQueuedTimestampUs</a></span>()</code>
 <div class="block">Returns the largest sample timestamp that has been queued since the last <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset--"><code>reset()</code></a>.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getLargestReadTimestampUs--">getLargestReadTimestampUs</a></span>()</code>
+<div class="block">Returns the largest sample timestamp that has been read since the last <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset--"><code>reset()</code></a>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -261,98 +277,107 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 </td>
 </tr>
 <tr id="i13" class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getSkipCount-long-boolean-">getSkipCount</a></span>(long&nbsp;timeUs,
+            boolean&nbsp;allowEndOfQueue)</code>
+<div class="block">Returns the number of samples that need to be <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#skip-int-"><code>skipped</code></a> to advance the read
+ position to the keyframe before or at the specified time.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getUpstreamFormat--">getUpstreamFormat</a></span>()</code>
 <div class="block">Returns the upstream <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> in which samples are being queued.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getWriteIndex--">getWriteIndex</a></span>()</code>
 <div class="block">Returns the current absolute write index.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#invalidateUpstreamFormatAdjustment--">invalidateUpstreamFormatAdjustment</a></span>()</code>
 <div class="block">Invalidates the last upstream format adjustment.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#isLastSampleQueued--">isLastSampleQueued</a></span>()</code>
 <div class="block">Returns whether the last sample of the stream has knowingly been queued.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#isReady-boolean-">isReady</a></span>(boolean&nbsp;loadingFinished)</code>
 <div class="block">Returns whether there is data available for reading.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#maybeThrowError--">maybeThrowError</a></span>()</code>
 <div class="block">Throws an error that's preventing data from being read.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#peekSourceId--">peekSourceId</a></span>()</code>
 <div class="block">Peeks the source id of the next sample to be read, or the current upstream source id if the
  queue is empty or if the read position is at the end of the queue.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#preRelease--">preRelease</a></span>()</code>
 <div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#discardToEnd--"><code>discardToEnd()</code></a> and releases any resources owned by the queue.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#read-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-boolean-long-">read</a></span>(<a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#read-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-boolean-">read</a></span>(<a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
     <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
     boolean&nbsp;formatRequired,
-    boolean&nbsp;loadingFinished,
-    long&nbsp;decodeOnlyUntilUs)</code>
+    boolean&nbsp;loadingFinished)</code>
 <div class="block">Attempts to read from the queue.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#release--">release</a></span>()</code>
 <div class="block">Calls <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset-boolean-"><code>reset(true)</code></a> and releases any resources owned by the queue.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset--">reset</a></span>()</code>
 <div class="block">Convenience method for <code>reset(false)</code>.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset-boolean-">reset</a></span>(boolean&nbsp;resetUpstreamFormat)</code>
 <div class="block">Clears all samples from the queue.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
-          int&nbsp;length,
-          boolean&nbsp;allowEndOfInput)</code>
-<div class="block">Called to write sample data to the output.</div>
-</td>
-</tr>
 <tr id="i26" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;buffer,
-          int&nbsp;length)</code>
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
+          int&nbsp;length,
+          boolean&nbsp;allowEndOfInput,
+          int&nbsp;sampleDataPart)</code>
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">sampleData</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;buffer,
+          int&nbsp;length,
+          int&nbsp;sampleDataPart)</code>
+<div class="block">Called to write sample data to the output.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sampleMetadata-long-int-int-int-com.google.android.exoplayer2.extractor.TrackOutput.CryptoData-">sampleMetadata</a></span>(long&nbsp;timeUs,
               int&nbsp;flags,
@@ -362,39 +387,51 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#seekTo-int-">seekTo</a></span>(int&nbsp;sampleIndex)</code>
 <div class="block">Attempts to seek the read position to the specified sample index.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#seekTo-long-boolean-">seekTo</a></span>(long&nbsp;timeUs,
       boolean&nbsp;allowTimeBeyondBuffer)</code>
 <div class="block">Attempts to seek the read position to the keyframe before or at the specified time.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#setSampleOffsetUs-long-">setSampleOffsetUs</a></span>(long&nbsp;sampleOffsetUs)</code>
 <div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples that
  are subsequently queued.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#setStartTimeUs-long-">setStartTimeUs</a></span>(long&nbsp;startTimeUs)</code>
+<div class="block">Sets the start time for the queue.</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#setUpstreamFormatChangeListener-com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener-">setUpstreamFormatChangeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a>&nbsp;listener)</code>
 <div class="block">Sets a listener to be notified of changes to the upstream format.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i34" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#skip-int-">skip</a></span>(int&nbsp;count)</code>
+<div class="block">Advances the read position by the specified number of samples.</div>
+</td>
+</tr>
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#sourceId-int-">sourceId</a></span>(int&nbsp;sourceId)</code>
 <div class="block">Sets a source identifier for subsequent samples.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#splice--">splice</a></span>()</code>
 <div class="block">Indicates samples that are subsequently queued should be spliced into those already queued.</div>
@@ -407,6 +444,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.extractor.TrackOutput">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.extractor.<a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-">sampleData</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></code></li>
 </ul>
 </li>
 </ul>
@@ -422,7 +466,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="SampleQueue-com.google.android.exoplayer2.upstream.Allocator-android.os.Looper-com.google.android.exoplayer2.drm.DrmSessionManager-">
+<a name="SampleQueue-com.google.android.exoplayer2.upstream.Allocator-android.os.Looper-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -430,7 +474,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <h4>SampleQueue</h4>
 <pre>public&nbsp;SampleQueue(<a href="../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                    <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;playbackLooper,
-                   <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager)</pre>
+                   <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                   <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher)</pre>
 <div class="block">Creates a sample queue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -438,6 +483,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/extractor/Track
 <dd><code>playbackLooper</code> - The looper associated with the media playback thread.</dd>
 <dd><code>drmSessionManager</code> - The <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to obtain <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a>
      from. The created instance does not take ownership of this <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a>.</dd>
+<dd><code>drmEventDispatcher</code> - A <code>DrmSessionEventListener.EventDispatcher</code> to notify of events
+     related to this SampleQueue.</dd>
 </dl>
 </li>
 </ul>
@@ -488,6 +535,21 @@ public&nbsp;void&nbsp;reset(boolean&nbsp;resetUpstreamFormat)</pre>
 </dl>
 </li>
 </ul>
+<a name="setStartTimeUs-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setStartTimeUs</h4>
+<pre>public final&nbsp;void&nbsp;setStartTimeUs(long&nbsp;startTimeUs)</pre>
+<div class="block">Sets the start time for the queue. Samples with earlier timestamps will be discarded or have
+ the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> flag set when read.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>startTimeUs</code> - The start time, in microseconds.</dd>
+</dl>
+</li>
+</ul>
 <a name="sourceId-int-">
 <!--   -->
 </a>
@@ -534,6 +596,22 @@ public&nbsp;void&nbsp;reset(boolean&nbsp;resetUpstreamFormat)</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>discardFromIndex</code> - The absolute index of the first sample to be discarded. Must be in the
      range [<a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getReadIndex--"><code>getReadIndex()</code></a>, <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getWriteIndex--"><code>getWriteIndex()</code></a>].</dd>
+</dl>
+</li>
+</ul>
+<a name="discardUpstreamFrom-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>discardUpstreamFrom</h4>
+<pre>public final&nbsp;void&nbsp;discardUpstreamFrom(long&nbsp;timeUs)</pre>
+<div class="block">Discards samples from the write side of the queue.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeUs</code> - Samples will be discarded from the write end of the queue until a sample with a
+     timestamp smaller than timeUs is encountered (this sample is not discarded). Must be larger
+     than <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getLargestReadTimestampUs--"><code>getLargestReadTimestampUs()</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -605,7 +683,8 @@ public&nbsp;void&nbsp;maybeThrowError()
 <ul class="blockList">
 <li class="blockList">
 <h4>getUpstreamFormat</h4>
-<pre>public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getUpstreamFormat()</pre>
+<pre>@Nullable
+public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getUpstreamFormat()</pre>
 <div class="block">Returns the upstream <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> in which samples are being queued.</div>
 </li>
 </ul>
@@ -625,6 +704,21 @@ public&nbsp;void&nbsp;maybeThrowError()
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The largest sample timestamp that has been queued, or <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" target="_top"><code>Long.MIN_VALUE</code></a> if no
      samples have been queued.</dd>
+</dl>
+</li>
+</ul>
+<a name="getLargestReadTimestampUs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLargestReadTimestampUs</h4>
+<pre>public final&nbsp;long&nbsp;getLargestReadTimestampUs()</pre>
+<div class="block">Returns the largest sample timestamp that has been read since the last <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#reset--"><code>reset()</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The largest sample timestamp that has been read, or <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" target="_top"><code>Long.MIN_VALUE</code></a> if no
+     samples have been read.</dd>
 </dl>
 </li>
 </ul>
@@ -665,7 +759,7 @@ public&nbsp;boolean&nbsp;isReady(boolean&nbsp;loadingFinished)</pre>
 <div class="block">Returns whether there is data available for reading.
 
  <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
- from <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#read-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-boolean-long-"><code>read(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, boolean, boolean, long)</code></a>. Hence an ended stream is always ready.</div>
+ from <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#read-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-boolean-"><code>read(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, boolean, boolean)</code></a>. Hence an ended stream is always ready.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>loadingFinished</code> - Whether no more samples will be written to the sample queue. When true,
@@ -675,7 +769,7 @@ public&nbsp;boolean&nbsp;isReady(boolean&nbsp;loadingFinished)</pre>
 </dl>
 </li>
 </ul>
-<a name="read-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-boolean-long-">
+<a name="read-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -685,18 +779,11 @@ public&nbsp;boolean&nbsp;isReady(boolean&nbsp;loadingFinished)</pre>
 public&nbsp;int&nbsp;read(<a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
                            <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
                            boolean&nbsp;formatRequired,
-                           boolean&nbsp;loadingFinished,
-                           long&nbsp;decodeOnlyUntilUs)</pre>
+                           boolean&nbsp;loadingFinished)</pre>
 <div class="block">Attempts to read from the queue.
 
  <p><a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> read from this method may be associated to a <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>
- through <a href="../../../../../com/google/android/exoplayer2/FormatHolder.html#drmSession"><code>FormatHolder.drmSession</code></a>, which is populated in two scenarios:
-
- <ul>
-   <li>The <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> has a non-null <a href="../../../../../com/google/android/exoplayer2/Format.html#drmInitData"><code>Format.drmInitData</code></a>.
-   <li>The <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> provides placeholder sessions for this queue's track type.
-       See <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html#acquirePlaceholderSession-android.os.Looper-int-"><code>DrmSessionManager.acquirePlaceholderSession(Looper, int)</code></a>.
- </ul></div>
+ through <a href="../../../../../com/google/android/exoplayer2/FormatHolder.html#drmSession"><code>FormatHolder.drmSession</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>formatHolder</code> - A <a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2"><code>FormatHolder</code></a> to populate in the case of reading a format.</dd>
@@ -707,8 +794,6 @@ public&nbsp;int&nbsp;read(<a href="../../../../../com/google/android/exoplayer2/
      it's not changing. A sample will never be read if set to true, however it is still possible
      for the end of stream or nothing to be read.</dd>
 <dd><code>loadingFinished</code> - True if an empty queue should be considered the end of the stream.</dd>
-<dd><code>decodeOnlyUntilUs</code> - If a buffer is read, the <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> flag will
-     be set if the buffer's timestamp is less than this value.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The result, which can be <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a> or
      <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a>.</dd>
@@ -750,33 +835,37 @@ public&nbsp;int&nbsp;read(<a href="../../../../../com/google/android/exoplayer2/
 </dl>
 </li>
 </ul>
-<a name="advanceTo-long-">
+<a name="getSkipCount-long-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>advanceTo</h4>
-<pre>public final&nbsp;int&nbsp;advanceTo(long&nbsp;timeUs)</pre>
-<div class="block">Advances the read position to the keyframe before or at the specified time.</div>
+<h4>getSkipCount</h4>
+<pre>public final&nbsp;int&nbsp;getSkipCount(long&nbsp;timeUs,
+                              boolean&nbsp;allowEndOfQueue)</pre>
+<div class="block">Returns the number of samples that need to be <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#skip-int-"><code>skipped</code></a> to advance the read
+ position to the keyframe before or at the specified time.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeUs</code> - The time to advance to.</dd>
+<dd><code>allowEndOfQueue</code> - Whether the end of the queue is considered a keyframe when <code>timeUs</code> is larger than the largest queued timestamp.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of samples that were skipped, which may be equal to 0.</dd>
+<dd>The number of samples that need to be skipped, which may be equal to 0.</dd>
 </dl>
 </li>
 </ul>
-<a name="advanceToEnd--">
+<a name="skip-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>advanceToEnd</h4>
-<pre>public final&nbsp;int&nbsp;advanceToEnd()</pre>
-<div class="block">Advances the read position to the end of the queue.</div>
+<h4>skip</h4>
+<pre>public final&nbsp;void&nbsp;skip(int&nbsp;count)</pre>
+<div class="block">Advances the read position by the specified number of samples.</div>
 <dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of samples that were skipped.</dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>count</code> - The number of samples to advance the read position by. Must be at least 0 and at
+     most <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getWriteIndex--"><code>getWriteIndex()</code></a> - <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.html#getReadIndex--"><code>getReadIndex()</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -842,7 +931,8 @@ public&nbsp;int&nbsp;read(<a href="../../../../../com/google/android/exoplayer2/
 <ul class="blockList">
 <li class="blockList">
 <h4>setUpstreamFormatChangeListener</h4>
-<pre>public final&nbsp;void&nbsp;setUpstreamFormatChangeListener(<a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a>&nbsp;listener)</pre>
+<pre>public final&nbsp;void&nbsp;setUpstreamFormatChangeListener(@Nullable
+                                                  <a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a>&nbsp;listener)</pre>
 <div class="block">Sets a listener to be notified of changes to the upstream format.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -867,52 +957,56 @@ public&nbsp;int&nbsp;read(<a href="../../../../../com/google/android/exoplayer2/
 </dl>
 </li>
 </ul>
-<a name="sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">
+<a name="sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleData</h4>
-<pre>public final&nbsp;int&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
+<pre>public final&nbsp;int&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;input,
                             int&nbsp;length,
-                            boolean&nbsp;allowEndOfInput)
-                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                            <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">TrackOutput</a></code></span></div>
+                            boolean&nbsp;allowEndOfInput,
+                            <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@TrackOutput.SampleDataPart</a>
+                            int&nbsp;sampleDataPart)
+                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">TrackOutput</a></code></span></div>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-int-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>input</code> - An <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> from which to read the sample data.</dd>
+<dd><code>input</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a> from which to read the sample data.</dd>
 <dd><code>length</code> - The maximum length to read from the input.</dd>
 <dd><code>allowEndOfInput</code> - True if encountering the end of the input having read no data is
      allowed, and should result in <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> being returned. False if it
      should be considered an error, causing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" target="_top"><code>EOFException</code></a> to be thrown.</dd>
+<dd><code>sampleDataPart</code> - The part of the sample data to which this call corresponds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of bytes appended.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurred reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
 </dl>
 </li>
 </ul>
-<a name="sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">
+<a name="sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleData</h4>
 <pre>public final&nbsp;void&nbsp;sampleData(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;buffer,
-                             int&nbsp;length)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">TrackOutput</a></code></span></div>
+                             int&nbsp;length,
+                             <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.SampleDataPart.html" title="annotation in com.google.android.exoplayer2.extractor">@TrackOutput.SampleDataPart</a>
+                             int&nbsp;sampleDataPart)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">TrackOutput</a></code></span></div>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-int-">sampleData</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buffer</code> - A <a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a> from which to read the sample data.</dd>
 <dd><code>length</code> - The number of bytes to read, starting from <code>data.getPosition()</code>.</dd>
+<dd><code>sampleDataPart</code> - The part of the sample data to which this call corresponds.</dd>
 </dl>
 </li>
 </ul>
@@ -922,19 +1016,18 @@ public&nbsp;int&nbsp;read(<a href="../../../../../com/google/android/exoplayer2/
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleMetadata</h4>
-<pre>public final&nbsp;void&nbsp;sampleMetadata(long&nbsp;timeUs,
-                                 <a href="../../../../../com/google/android/exoplayer2/C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@C.BufferFlags</a>
-                                 int&nbsp;flags,
-                                 int&nbsp;size,
-                                 int&nbsp;offset,
-                                 @Nullable
-                                 <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;cryptoData)</pre>
+<pre>public&nbsp;void&nbsp;sampleMetadata(long&nbsp;timeUs,
+                           <a href="../../../../../com/google/android/exoplayer2/C.BufferFlags.html" title="annotation in com.google.android.exoplayer2">@C.BufferFlags</a>
+                           int&nbsp;flags,
+                           int&nbsp;size,
+                           int&nbsp;offset,
+                           @Nullable
+                           <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;cryptoData)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleMetadata-long-int-int-int-com.google.android.exoplayer2.extractor.TrackOutput.CryptoData-">TrackOutput</a></code></span></div>
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.
 
  <p>The corresponding sample data will have already been passed to the output via calls to
- <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>TrackOutput.sampleData(ExtractorInput, int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray,
- int)</code></a>.</div>
+ <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>TrackOutput.sampleData(DataReader, int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray, int)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleMetadata-long-int-int-int-com.google.android.exoplayer2.extractor.TrackOutput.CryptoData-">sampleMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
@@ -942,9 +1035,9 @@ public&nbsp;int&nbsp;read(<a href="../../../../../com/google/android/exoplayer2/
 <dd><code>timeUs</code> - The media timestamp associated with the sample, in microseconds.</dd>
 <dd><code>flags</code> - Flags associated with the sample. See <code>C.BUFFER_FLAG_*</code>.</dd>
 <dd><code>size</code> - The size of the sample data, in bytes.</dd>
-<dd><code>offset</code> - The number of bytes that have been passed to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.extractor.ExtractorInput-int-boolean-"><code>TrackOutput.sampleData(ExtractorInput,
-     int, boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray, int)</code></a> since the last byte belonging
-     to the sample whose metadata is being passed.</dd>
+<dd><code>offset</code> - The number of bytes that have been passed to <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.upstream.DataReader-int-boolean-"><code>TrackOutput.sampleData(DataReader, int,
+     boolean)</code></a> or <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html#sampleData-com.google.android.exoplayer2.util.ParsableByteArray-int-"><code>TrackOutput.sampleData(ParsableByteArray, int)</code></a> since the last byte belonging to
+     the sample whose metadata is being passed.</dd>
 <dd><code>cryptoData</code> - The encryption data required to decrypt the sample. May be null.</dd>
 </dl>
 </li>

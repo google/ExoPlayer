@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsManifest.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -147,11 +147,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-int-boolean-">HlsMediaPeriod</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-int-boolean-">HlsMediaPeriod</a></span>(<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory,
               <a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>&nbsp;playlistTracker,
               <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
-              <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager,
+              <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+              <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
               <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
               <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
@@ -251,7 +252,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaPeriod.html#onPlaylistError-android.net.Uri-long-">onPlaylistError</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url,
-               long&nbsp;blacklistDurationMs)</code>
+               long&nbsp;exclusionDurationMs)</code>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 </td>
 </tr>
@@ -329,7 +330,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-int-boolean-">
+<a name="HlsMediaPeriod-com.google.android.exoplayer2.source.hls.HlsExtractorFactory-com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker-com.google.android.exoplayer2.source.hls.HlsDataSourceFactory-com.google.android.exoplayer2.upstream.TransferListener-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.Allocator-com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory-boolean-int-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -340,7 +341,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
                       <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
                       @Nullable
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
-                      <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager,
+                      <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                      <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
                       <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                       <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
@@ -558,8 +560,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 
  <p>This method is only called after the period has been prepared.
 
- <p>A period may choose to discard buffered media so that it can be re-buffered in a different
- quality.</div>
+ <p>A period may choose to discard buffered media or cancel ongoing loads so that media can be
+ re-buffered in a different quality.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#reevaluateBuffer-long-">reevaluateBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -806,7 +808,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <li class="blockList">
 <h4>onPlaylistError</h4>
 <pre>public&nbsp;boolean&nbsp;onPlaylistError(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;url,
-                               long&nbsp;blacklistDurationMs)</pre>
+                               long&nbsp;exclusionDurationMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-android.net.Uri-long-">HlsPlaylistTracker.PlaylistEventListener</a></code></span></div>
 <div class="block">Called if an error is encountered while loading a playlist.</div>
 <dl>
@@ -814,10 +816,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html#onPlaylistError-android.net.Uri-long-">onPlaylistError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/playlist/HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>url</code> - The loaded url that caused the error.</dd>
-<dd><code>blacklistDurationMs</code> - The duration for which the playlist should be blacklisted. Or
-     <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the playlist should not be blacklisted.</dd>
+<dd><code>exclusionDurationMs</code> - The duration for which the playlist should be excluded. Or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the playlist should not be excluded.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>True if blacklisting did not encounter errors. False otherwise.</dd>
+<dd>True if excluding did not encounter errors. False otherwise.</dd>
 </dl>
 </li>
 </ul>
@@ -848,7 +849,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Media
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsManifest.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

@@ -106,7 +106,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>, <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></dd>
 </dl>
 <hr>
 <br>
@@ -165,20 +165,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-boolean-">DefaultDataSource</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                 boolean&nbsp;allowCrossProtocolRedirects)</code>
+<div class="block">Constructs a new instance, optionally configured to follow cross-protocol redirects.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-com.google.android.exoplayer2.upstream.DataSource-">DefaultDataSource</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;baseDataSource)</code>
 <div class="block">Constructs a new instance that delegates to a provided <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> for URI schemes other
  than file, asset and content.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-java.lang.String-boolean-">DefaultDataSource</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                  boolean&nbsp;allowCrossProtocolRedirects)</code>
 <div class="block">Constructs a new instance, optionally configured to follow cross-protocol redirects.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#DefaultDataSource-android.content.Context-java.lang.String-int-int-boolean-">DefaultDataSource</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                  int&nbsp;connectTimeoutMillis,
@@ -238,8 +244,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultDataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;readLength)</code>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.</div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
 </tr>
 </table>
@@ -264,6 +269,21 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a name="DefaultDataSource-android.content.Context-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultDataSource</h4>
+<pre>public&nbsp;DefaultDataSource(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+                         boolean&nbsp;allowCrossProtocolRedirects)</pre>
+<div class="block">Constructs a new instance, optionally configured to follow cross-protocol redirects.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - A context.</dd>
+</dl>
+</li>
+</ul>
 <a name="DefaultDataSource-android.content.Context-java.lang.String-boolean-">
 <!--   -->
 </a>
@@ -391,9 +411,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
                 int&nbsp;offset,
                 int&nbsp;readLength)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">DataSource</a></code></span></div>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">DataReader</a></code></span></div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.
 
  <p>If <code>readLength</code> is zero then 0 is returned. Otherwise, if no data is available because
  the end of the opened range has been reached, then <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
@@ -401,16 +420,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/upstream/DataSo
  bytes read is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The buffer into which the read data should be stored.</dd>
-<dd><code>offset</code> - The start offset into <code>buffer</code> at which data should be written.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read.</dd>
+<dd><code>buffer</code> - A target array into which data should be written.</dd>
+<dd><code>offset</code> - The offset into the target array at which to write.</dd>
+<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
-     because the end of the opened range has been reached.</dd>
+<dd>The number of bytes read, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
+     may be less than <code>length</code> because the end of the input (or available data) was
+     reached, the method was interrupted, or the operation was aborted early for another reason.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the source.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the input.</dd>
 </dl>
 </li>
 </ul>
@@ -444,7 +464,9 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
- call. Otherwise, returns an empty map.</div>
+ call. Otherwise, returns an empty map.
+
+ <p>Key look-up in the returned map is case-insensitive.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>

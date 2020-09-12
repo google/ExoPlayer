@@ -111,7 +111,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></dd>
 </dl>
 <hr>
 <br>
@@ -204,7 +204,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
-                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</code>&nbsp;</td>
+                <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</code>
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
@@ -212,7 +214,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
                 int&nbsp;connectTimeoutMs,
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
-                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>&nbsp;</td>
+                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
@@ -221,35 +225,37 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
                 <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
-                boolean&nbsp;handleSetCookieRequests)</code>&nbsp;</td>
+                boolean&nbsp;handleSetCookieRequests)</code>
+<div class="block">Creates an instance.</div>
+</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor,
-                <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
+                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-"><code>CronetDataSource(CronetEngine, Executor)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-"><code>CronetDataSource(CronetEngine, Executor)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor,
-                <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                 int&nbsp;connectTimeoutMs,
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
                 <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <code>#CronetDataSource(CronetEngine, Executor, int, int, boolean,
-     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">CronetDataSource</a></span>(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor,
-                <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                 int&nbsp;connectTimeoutMs,
                 int&nbsp;readTimeoutMs,
                 boolean&nbsp;resetTimeoutOnRedirects,
@@ -257,7 +263,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
                 boolean&nbsp;handleSetCookieRequests)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <code>#CronetDataSource(CronetEngine, Executor, int, int, boolean,
-     RequestProperties, boolean)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+     RequestProperties, boolean)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 </div>
 </td>
 </tr>
@@ -336,8 +342,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;readLength)</code>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.</div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
@@ -349,8 +354,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-">setContentTypePredicate</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
-<div class="block">Sets a content type <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-">setContentTypePredicate</a></span>(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
+<div class="block">Sets a content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -440,6 +445,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <h4>CronetDataSource</h4>
 <pre>public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                         <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cronetEngine</code> - A CronetEngine.</dd>
@@ -464,6 +470,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
                         boolean&nbsp;resetTimeoutOnRedirects,
                         @Nullable
                         <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cronetEngine</code> - A CronetEngine.</dd>
@@ -494,6 +501,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
                         @Nullable
                         <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                         boolean&nbsp;handleSetCookieRequests)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cronetEngine</code> - A CronetEngine.</dd>
@@ -512,7 +520,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </dl>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-">
+<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -522,8 +530,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                                     <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor,
                                     @Nullable
-                                    <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-"><code>CronetDataSource(CronetEngine, Executor)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-"><code>CronetDataSource(CronetEngine, Executor)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cronetEngine</code> - A CronetEngine.</dd>
@@ -532,12 +541,12 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
      hop from Cronet's internal network thread to the response handling thread. However, to
      avoid slowing down overall network performance, care must be taken to make sure response
      handling is a fast operation when using a direct executor.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
+<dd><code>contentTypePredicate</code> - An optional <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>. If a content type is rejected by the
      predicate then an <code>InvalidContentTypeException</code> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
+<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -547,14 +556,15 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
 public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                                     <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor,
                                     @Nullable
-                                    <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                                     int&nbsp;connectTimeoutMs,
                                     int&nbsp;readTimeoutMs,
                                     boolean&nbsp;resetTimeoutOnRedirects,
                                     @Nullable
                                     <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#CronetDataSource(CronetEngine, Executor, int, int, boolean,
-     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cronetEngine</code> - A CronetEngine.</dd>
@@ -563,7 +573,7 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
      hop from Cronet's internal network thread to the response handling thread. However, to
      avoid slowing down overall network performance, care must be taken to make sure response
      handling is a fast operation when using a direct executor.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
+<dd><code>contentTypePredicate</code> - An optional <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>. If a content type is rejected by the
      predicate then an <code>InvalidContentTypeException</code> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
 <dd><code>connectTimeoutMs</code> - The connection timeout, in milliseconds.</dd>
 <dd><code>readTimeoutMs</code> - The read timeout, in milliseconds.</dd>
@@ -573,7 +583,7 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
 </dl>
 </li>
 </ul>
-<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.android.exoplayer2.util.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">
+<a name="CronetDataSource-org.chromium.net.CronetEngine-java.util.concurrent.Executor-com.google.common.base.Predicate-int-int-boolean-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-boolean-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -583,7 +593,7 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
 public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                                     <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" target="_top">Executor</a>&nbsp;executor,
                                     @Nullable
-                                    <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                                     int&nbsp;connectTimeoutMs,
                                     int&nbsp;readTimeoutMs,
                                     boolean&nbsp;resetTimeoutOnRedirects,
@@ -591,7 +601,8 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
                                     <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                                     boolean&nbsp;handleSetCookieRequests)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#CronetDataSource(CronetEngine, Executor, int, int, boolean,
-     RequestProperties, boolean)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+     RequestProperties, boolean)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cronetEngine</code> - A CronetEngine.</dd>
@@ -600,7 +611,7 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
      hop from Cronet's internal network thread to the response handling thread. However, to
      avoid slowing down overall network performance, care must be taken to make sure response
      handling is a fast operation when using a direct executor.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
+<dd><code>contentTypePredicate</code> - An optional <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>. If a content type is rejected by the
      predicate then an <code>InvalidContentTypeException</code> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
 <dd><code>connectTimeoutMs</code> - The connection timeout, in milliseconds.</dd>
 <dd><code>readTimeoutMs</code> - The read timeout, in milliseconds.</dd>
@@ -620,19 +631,19 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-">
+<a name="setContentTypePredicate-com.google.common.base.Predicate-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentTypePredicate</h4>
 <pre>public&nbsp;void&nbsp;setContentTypePredicate(@Nullable
-                                    <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
-<div class="block">Sets a content type <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
+                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+<div class="block">Sets a content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
  <code>HttpDataSource.InvalidContentTypeException</code> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/cronet/CronetDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentTypePredicate</code> - The content type <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>, or <code>null</code> to clear a
+<dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>, or <code>null</code> to clear a
      predicate that was previously set.</dd>
 </dl>
 </li>
@@ -718,7 +729,9 @@ public&nbsp;CronetDataSource(org.chromium.net.CronetEngine&nbsp;cronetEngine,
 <pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
- call. Otherwise, returns an empty map.</div>
+ call. Otherwise, returns an empty map.
+
+ <p>Key look-up in the returned map is case-insensitive.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
@@ -790,9 +803,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
                 int&nbsp;offset,
                 int&nbsp;readLength)
          throws <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">DataSource</a></code></span></div>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">DataReader</a></code></span></div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.
 
  <p>If <code>readLength</code> is zero then 0 is returned. Otherwise, if no data is available because
  the end of the opened range has been reached, then <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
@@ -800,16 +812,17 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
  bytes read is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The buffer into which the read data should be stored.</dd>
-<dd><code>offset</code> - The start offset into <code>buffer</code> at which data should be written.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read.</dd>
+<dd><code>buffer</code> - A target array into which data should be written.</dd>
+<dd><code>offset</code> - The offset into the target array at which to write.</dd>
+<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
-     because the end of the opened range has been reached.</dd>
+<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
+     may be less than <code>length</code> because the end of the input (or available data) was
+     reached, the method was interrupted, or the operation was aborted early for another reason.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></dd>
 </dl>

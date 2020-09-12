@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":18,"i3":6,"i4":6,"i5":6};
+var methods = {"i0":6,"i1":6,"i2":18,"i3":6,"i4":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -97,6 +97,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt>All Superinterfaces:</dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></dd>
+</dl>
+<dl>
 <dt>All Known Subinterfaces:</dt>
 <dd><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></dd>
 </dl>
@@ -106,8 +110,9 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public interface <span class="typeNameLabel">DataSource</span></pre>
-<div class="block">A component from which streams of data can be read.</div>
+<pre>public interface <span class="typeNameLabel">DataSource</span>
+extends <a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></pre>
+<div class="block">Reads data from URI-identified resources.</div>
 </li>
 </ul>
 </div>
@@ -178,16 +183,14 @@ var activeTableTab = "activeTableTab";
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
-    int&nbsp;offset,
-    int&nbsp;readLength)</code>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.</div>
-</td>
-</tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.upstream.DataReader">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.upstream.<a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></h3>
+<code><a href="../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code></li>
+</ul>
 </li>
 </ul>
 </li>
@@ -243,36 +246,6 @@ var activeTableTab = "activeTableTab";
 </dl>
 </li>
 </ul>
-<a name="read-byte:A-int-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>read</h4>
-<pre>int&nbsp;read(byte[]&nbsp;buffer,
-         int&nbsp;offset,
-         int&nbsp;readLength)
-  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.
-
- <p>If <code>readLength</code> is zero then 0 is returned. Otherwise, if no data is available because
- the end of the opened range has been reached, then <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
- Otherwise, the call will block until at least one byte of data has been read and the number of
- bytes read is returned.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The buffer into which the read data should be stored.</dd>
-<dd><code>offset</code> - The start offset into <code>buffer</code> at which data should be written.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
-     because the end of the opened range has been reached.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurs reading from the source.</dd>
-</dl>
-</li>
-</ul>
 <a name="getUri--">
 <!--   -->
 </a>
@@ -299,7 +272,9 @@ var activeTableTab = "activeTableTab";
 <h4>getResponseHeaders</h4>
 <pre>default&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
- call. Otherwise, returns an empty map.</div>
+ call. Otherwise, returns an empty map.
+
+ <p>Key look-up in the returned map is case-insensitive.</div>
 </li>
 </ul>
 <a name="close--">

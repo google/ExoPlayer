@@ -82,7 +82,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></td>
 <td class="colLast">
-<div class="block">An interface for cache.</div>
+<div class="block">A cache that supports partial caching of resources.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -110,7 +110,7 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheUtil.ProgressListener</a></td>
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheWriter.ProgressListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheWriter.ProgressListener</a></td>
 <td class="colLast">
 <div class="block">Receives progress updates during cache operations.</div>
 </td>
@@ -139,21 +139,33 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSinkFactory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSinkFactory</a></td>
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.Factory</a></td>
 <td class="colLast">
-<div class="block">A <code>DataSink.Factory</code> that produces <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSink</code></a>.</div>
+<div class="block"><code>DataSink.Factory</code> for <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSink</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSinkFactory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSinkFactory</a></td>
+<td class="colLast">Deprecated
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSink.Factory</code></a>.</span></div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> that reads and writes a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a></td>
+<td class="colLast">
+<div class="block"><code>DataSource.Factory</code> for <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instances.</div>
+</td>
+</tr>
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSourceFactory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSourceFactory</a></td>
-<td class="colLast">
-<div class="block">A <code>DataSource.Factory</code> that produces <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a>.</div>
+<td class="colLast">Deprecated
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource.Factory</code></a>.</span></div>
 </td>
 </tr>
 <tr class="altColor">
@@ -170,7 +182,7 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheUtil.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheUtil</a></td>
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheWriter.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheWriter</a></td>
 <td class="colLast">
 <div class="block">Caching related utility methods.</div>
 </td>
@@ -225,7 +237,7 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheDataSink.CacheDataSinkException.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSink.CacheDataSinkException</a></td>
 <td class="colLast">
-<div class="block">Thrown when IOException is encountered when writing data into sink.</div>
+<div class="block">Thrown when an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top"><code>IOException</code></a> is encountered when writing data to the sink.</div>
 </td>
 </tr>
 </tbody>

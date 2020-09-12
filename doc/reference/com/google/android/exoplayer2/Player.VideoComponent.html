@@ -193,7 +193,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#getVideoScalingMode--">getVideoScalingMode</a></span>()</code>
-<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>Renderer.VideoScalingMode</code></a>.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
@@ -223,7 +223,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoScalingMode-int-">setVideoScalingMode</a></span>(int&nbsp;videoScalingMode)</code>
-<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
+<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>Renderer.VideoScalingMode</code></a>.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
@@ -272,12 +272,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>setVideoScalingMode</h4>
-<pre>void&nbsp;setVideoScalingMode(<a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@C.VideoScalingMode</a>
+<pre>void&nbsp;setVideoScalingMode(<a href="../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@Renderer.VideoScalingMode</a>
                          int&nbsp;videoScalingMode)</pre>
-<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
+<div class="block">Sets the <a href="../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>Renderer.VideoScalingMode</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>videoScalingMode</code> - The <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</dd>
+<dd><code>videoScalingMode</code> - The <a href="../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>Renderer.VideoScalingMode</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -287,9 +287,9 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getVideoScalingMode</h4>
-<pre><a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@C.VideoScalingMode</a>
+<pre><a href="../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@Renderer.VideoScalingMode</a>
 int&nbsp;getVideoScalingMode()</pre>
-<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>.</div>
+<div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/Renderer.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>Renderer.VideoScalingMode</code></a>.</div>
 </li>
 </ul>
 <a name="addVideoListener-com.google.android.exoplayer2.video.VideoListener-">
@@ -534,9 +534,9 @@ int&nbsp;getVideoScalingMode()</pre>
 <pre>void&nbsp;setVideoDecoderOutputBufferRenderer(@Nullable
                                          <a href="../../../../com/google/android/exoplayer2/video/VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video">VideoDecoderOutputBufferRenderer</a>&nbsp;videoDecoderOutputBufferRenderer)</pre>
 <div class="block">Sets the video decoder output buffer renderer. This is intended for use only with extension
- renderers that accept <a href="../../../../com/google/android/exoplayer2/C.html#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER"><code>C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</code></a>. For most use
- cases, an output surface or view should be passed via <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurface-android.view.Surface-"><code>setVideoSurface(Surface)</code></a> or
- <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceView-android.view.SurfaceView-"><code>setVideoSurfaceView(SurfaceView)</code></a> instead.</div>
+ renderers that accept <a href="../../../../com/google/android/exoplayer2/Renderer.html#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER"><code>Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER</code></a>. For most
+ use cases, an output surface or view should be passed via <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurface-android.view.Surface-"><code>setVideoSurface(Surface)</code></a>
+ or <a href="../../../../com/google/android/exoplayer2/Player.VideoComponent.html#setVideoSurfaceView-android.view.SurfaceView-"><code>setVideoSurfaceView(SurfaceView)</code></a> instead.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>videoDecoderOutputBufferRenderer</code> - The video decoder output buffer renderer, or <code>null</code> to clear the output buffer renderer.</dd>

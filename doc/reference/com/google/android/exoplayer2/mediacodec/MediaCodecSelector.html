@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
+var methods = {"i0":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.KeepCodecResult.html" title="annotation in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -148,12 +148,6 @@ var activeTableTab = "activeTableTab";
 <div class="block">Returns a list of decoders that can decode media in the specified MIME type, in priority order.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html#getPassthroughDecoderInfo--">getPassthroughDecoderInfo</a></span>()</code>
-<div class="block">Selects a decoder to instantiate for audio passthrough.</div>
-</td>
-</tr>
 </table>
 </li>
 </ul>
@@ -191,7 +185,7 @@ var activeTableTab = "activeTableTab";
 <a name="getDecoderInfos-java.lang.String-boolean-boolean-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>getDecoderInfos</h4>
 <pre><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;&nbsp;getDecoderInfos(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&nbsp;mimeType,
@@ -207,24 +201,6 @@ var activeTableTab = "activeTableTab";
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An unmodifiable list of <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s corresponding to decoders. May be
      empty.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - Thrown if there was an error querying decoders.</dd>
-</dl>
-</li>
-</ul>
-<a name="getPassthroughDecoderInfo--">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>getPassthroughDecoderInfo</h4>
-<pre>@Nullable
-<a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;getPassthroughDecoderInfo()
-                                            throws <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
-<div class="block">Selects a decoder to instantiate for audio passthrough.</div>
-<dl>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a> describing the decoder, or null if no suitable decoder exists.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - Thrown if there was an error querying decoders.</dd>
 </dl>
@@ -257,7 +233,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.KeepCodecResult.html" title="annotation in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/mediacodec/MediaCodecUtil.html" title="class in com.google.android.exoplayer2.mediacodec"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

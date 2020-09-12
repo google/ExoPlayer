@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":6,"i4":10,"i5":10,"i6":10,"i7":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":6,"i4":10,"i5":10,"i6":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/text/Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -201,12 +201,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/SubtitleDe
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#releaseOutputBuffer-com.google.android.exoplayer2.text.SubtitleOutputBuffer-">releaseOutputBuffer</a></span>(<a href="../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>&nbsp;buffer)</code>
-<div class="block">Releases an output buffer back to the decoder.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/text/SimpleSubtitleDecoder.html#setPositionUs-long-">setPositionUs</a></span>(long&nbsp;timeUs)</code>
 <div class="block">Informs the decoder of the current playback position.</div>
@@ -218,7 +212,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/SubtitleDe
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.decoder.<a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#dequeueInputBuffer--">dequeueInputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#dequeueOutputBuffer--">dequeueOutputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#flush--">flush</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#queueInputBuffer-I-">queueInputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#release--">release</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#setInitialInputBufferSize-int-">setInitialInputBufferSize</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#dequeueInputBuffer--">dequeueInputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#dequeueOutputBuffer--">dequeueOutputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#flush--">flush</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#queueInputBuffer-I-">queueInputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#release--">release</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#releaseOutputBuffer-O-">releaseOutputBuffer</a>, <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#setInitialInputBufferSize-int-">setInitialInputBufferSize</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -354,23 +348,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/text/SubtitleDe
 </dl>
 </li>
 </ul>
-<a name="releaseOutputBuffer-com.google.android.exoplayer2.text.SubtitleOutputBuffer-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>releaseOutputBuffer</h4>
-<pre>protected final&nbsp;void&nbsp;releaseOutputBuffer(<a href="../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>&nbsp;buffer)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#releaseOutputBuffer-O-">SimpleDecoder</a></code></span></div>
-<div class="block">Releases an output buffer back to the decoder.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html#releaseOutputBuffer-O-">releaseOutputBuffer</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../../../../com/google/android/exoplayer2/text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,<a href="../../../../../com/google/android/exoplayer2/text/SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,<a href="../../../../../com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;</code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The output buffer being released.</dd>
-</dl>
-</li>
-</ul>
 <a name="decode-com.google.android.exoplayer2.text.SubtitleInputBuffer-com.google.android.exoplayer2.text.SubtitleOutputBuffer-boolean-">
 <!--   -->
 </a>
@@ -448,7 +425,7 @@ protected final&nbsp;<a href="../../../../../com/google/android/exoplayer2/text/
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/text/Cue.TextSizeType.html" title="annotation in com.google.android.exoplayer2.text"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/text/Cue.VerticalType.html" title="annotation in com.google.android.exoplayer2.text"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/text/Subtitle.html" title="interface in com.google.android.exoplayer2.text"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

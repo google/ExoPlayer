@@ -80,24 +80,30 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper.TrackOutputProvider</a></td>
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor</a></td>
 <td class="colLast">
-<div class="block">Provides <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> instances to be written to by the wrapper.</div>
+<div class="block">Extracts samples and track <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> from chunks.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.TrackOutputProvider</a></td>
+<td class="colLast">
+<div class="block">Provides <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> instances to be written to during extraction.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSampleStream.ReleaseCallback</a>&lt;T extends <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a>&gt;</td>
 <td class="colLast">
 <div class="block">A callback to be notified when a sample stream has finished being released.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></td>
 <td class="colLast">
 <div class="block">A provider of <a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>Chunk</code></a>s for a <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> to load.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></td>
 <td class="colLast">
 <div class="block">Iterator for media chunk sequences.</div>
@@ -129,22 +135,21 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a></td>
 <td class="colLast">
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractorWrapper.TrackOutputProvider</code></a> that provides <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutputs</code></a> based on a
+<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor.TrackOutputProvider</code></a> that provides <a href="../../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutputs</code></a> based on a
  predefined mapping from track type to output.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk">BundledChunkExtractor</a></td>
+<td class="colLast">
+<div class="block"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> implementation that uses ExoPlayer app-bundled <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractors</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></td>
 <td class="colLast">
 <div class="block">An abstract base class for <a href="../../../../../../com/google/android/exoplayer2/upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> implementations that load chunks of data required
  for the playback of streams.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkExtractorWrapper.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkExtractorWrapper</a></td>
-<td class="colLast">
-<div class="block">An <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> wrapper for loading chunks that contain a single primary track, and possibly
- additional embedded tracks.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -185,12 +190,6 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkListIterator.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunkListIterator</a></td>
-<td class="colLast">
-<div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a> which iterates over a <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util"><code>List</code></a> of <a href="../../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top"><code>MediaChunk</code></a>s.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/SingleSampleMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">SingleSampleMediaChunk</a></td>
 <td class="colLast">
 <div class="block">A <a href="../../../../../../com/google/android/exoplayer2/source/chunk/BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunk</code></a> for chunks consisting of a single raw sample.</div>

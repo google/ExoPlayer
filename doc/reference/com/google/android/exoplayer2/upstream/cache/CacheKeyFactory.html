@@ -72,13 +72,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -106,6 +106,27 @@ var activeTableTab = "activeTableTab";
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- =========== FIELD SUMMARY =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Field and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html#DEFAULT">DEFAULT</a></span></code>
+<div class="block">Default <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -121,7 +142,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html#buildCacheKey-com.google.android.exoplayer2.upstream.DataSpec-">buildCacheKey</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
-<div class="block">Returns a cache key for the given <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</div>
+<div class="block">Returns the cache key of the resource containing the data defined by a <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -133,6 +154,24 @@ var activeTableTab = "activeTableTab";
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<ul class="blockList">
+<li class="blockList"><a name="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a name="DEFAULT">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT</h4>
+<pre>static final&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a> DEFAULT</pre>
+<div class="block">Default <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a>.</div>
+</li>
+</ul>
+</li>
+</ul>
 <!-- ============ METHOD DETAIL ========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.detail">
@@ -146,10 +185,16 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>buildCacheKey</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang">String</a>&nbsp;buildCacheKey(<a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream" target="_top">DataSpec</a>&nbsp;dataSpec)</pre>
-<div class="block">Returns a cache key for the given <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</div>
+<div class="block">Returns the cache key of the resource containing the data defined by a <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.
+
+ <p>Note that since the returned cache key corresponds to the whole resource, implementations
+ must not return different cache keys for <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpecs</code></a> that define different
+ ranges of the same resource. As a result, implementations should not use fields such as <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#position"><code>DataSpec.position</code></a> and <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html#length"><code>DataSpec.length</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataSpec</code> - The data being cached.</dd>
+<dd><code>dataSpec</code> - The <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The cache key of the resource.</dd>
 </dl>
 </li>
 </ul>
@@ -206,13 +251,13 @@ var activeTableTab = "activeTableTab";
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

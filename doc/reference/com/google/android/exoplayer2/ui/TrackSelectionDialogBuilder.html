@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -180,7 +180,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/app/AlertDialog.html" title="class or interface in android.app" target="_top">AlertDialog</a></code></td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/app/Dialog.html" title="class or interface in android.app" target="_top">Dialog</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TrackSelectionDialogBuilder.html#build--">build</a></span>()</code>
 <div class="block">Builds the dialog.</div>
 </td>
@@ -222,6 +222,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/ui/TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TrackSelectionDialogBuilder.html#setTheme-int-">setTheme</a></span>(int&nbsp;themeResId)</code>
+<div class="block">Sets the resource ID of the theme used to inflate this dialog.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/ui/TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/TrackSelectionDialogBuilder.html#setTrackNameProvider-com.google.android.exoplayer2.ui.TrackNameProvider-">setTrackNameProvider</a></span>(<a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui">TrackNameProvider</a>&nbsp;trackNameProvider)</code>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track and
@@ -303,6 +309,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setTheme-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTheme</h4>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/TrackSelectionDialogBuilder.html" title="class in com.google.android.exoplayer2.ui">TrackSelectionDialogBuilder</a>&nbsp;setTheme(@StyleRes
+                                            int&nbsp;themeResId)</pre>
+<div class="block">Sets the resource ID of the theme used to inflate this dialog.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>themeResId</code> - The resource ID of the theme.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a name="setIsDisabled-boolean-">
 <!--   -->
 </a>
@@ -429,7 +452,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>build</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/AlertDialog.html" title="class or interface in android.app" target="_top">AlertDialog</a>&nbsp;build()</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/app/Dialog.html" title="class or interface in android.app" target="_top">Dialog</a>&nbsp;build()</pre>
 <div class="block">Builds the dialog.</div>
 </li>
 </ul>

@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.OtherTrackScore.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -182,22 +182,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Tra
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowMixedMimeAdaptiveness">allowMixedMimeAdaptiveness</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoMixedMimeTypeAdaptiveness"><code>allowVideoMixedMimeTypeAdaptiveness</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowAudioMixedMimeTypeAdaptiveness"><code>allowAudioMixedMimeTypeAdaptiveness</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowNonSeamlessAdaptiveness">allowNonSeamlessAdaptiveness</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoNonSeamlessAdaptiveness"><code>allowVideoNonSeamlessAdaptiveness</code></a>.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoMixedMimeTypeAdaptiveness">allowVideoMixedMimeTypeAdaptiveness</a></span></code>
 <div class="block">Whether to allow adaptive video selections containing mixed MIME types.</div>
 </td>
@@ -214,24 +198,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Tra
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#DEFAULT">DEFAULT</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content"><code>Context</code></a> constraints configured. Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getDefaults-android.content.Context-" target="_top"><code>getDefaults(Context)</code></a> instead.</span></div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#DEFAULT_WITHOUT_CONTEXT">DEFAULT_WITHOUT_CONTEXT</a></span></code>
 <div class="block">An instance with default values, except those obtained from the <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a>.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#DEFAULT_WITHOUT_VIEWPORT">DEFAULT_WITHOUT_VIEWPORT</a></span></code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content"><code>Context</code></a> constraints configured. Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getDefaults-android.content.Context-" target="_top"><code>getDefaults(Context)</code></a> instead.</span></div>
-</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -305,6 +273,30 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Tra
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#minVideoBitrate">minVideoBitrate</a></span></code>
+<div class="block">Minimum allowed video bitrate in bits per second.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#minVideoFrameRate">minVideoFrameRate</a></span></code>
+<div class="block">Minimum allowed video frame rate in hertz.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#minVideoHeight">minVideoHeight</a></span></code>
+<div class="block">Minimum allowed video height in pixels.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#minVideoWidth">minVideoWidth</a></span></code>
+<div class="block">Minimum allowed video width in pixels.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#tunnelingAudioSessionId">tunnelingAudioSessionId</a></span></code>
 <div class="block">The audio session id to use when tunneling, or <a href="../../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if tunneling
  is disabled.</div>
@@ -334,7 +326,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Tra
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#disabledTextTrackSelectionFlags">disabledTextTrackSelectionFlags</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredAudioLanguage">preferredAudioLanguage</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextLanguage">preferredTextLanguage</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextRoleFlags">preferredTextRoleFlags</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#DEFAULT">DEFAULT</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#disabledTextTrackSelectionFlags">disabledTextTrackSelectionFlags</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredAudioLanguage">preferredAudioLanguage</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextLanguage">preferredTextLanguage</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#preferredTextRoleFlags">preferredTextRoleFlags</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionParameters.html#selectUndeterminedTextLanguage">selectUndeterminedTextLanguage</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="fields.inherited.from.class.android.os.Parcelable">
@@ -448,28 +440,6 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Tra
  </ul></div>
 </li>
 </ul>
-<a name="DEFAULT_WITHOUT_VIEWPORT">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT_WITHOUT_VIEWPORT</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a> DEFAULT_WITHOUT_VIEWPORT</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content"><code>Context</code></a> constraints configured. Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getDefaults-android.content.Context-" target="_top"><code>getDefaults(Context)</code></a> instead.</span></div>
-</li>
-</ul>
-<a name="DEFAULT">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DEFAULT</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a> DEFAULT</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">This instance does not have <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content"><code>Context</code></a> constraints configured. Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#getDefaults-android.content.Context-" target="_top"><code>getDefaults(Context)</code></a> instead.</span></div>
-</li>
-</ul>
 <a name="maxVideoWidth">
 <!--   -->
 </a>
@@ -517,6 +487,47 @@ public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/t
 <h4>maxVideoBitrate</h4>
 <pre>public final&nbsp;int maxVideoBitrate</pre>
 <div class="block">Maximum allowed video bitrate in bits per second. The default value is <a href="https://developer.android.com/reference/java/lang/Integer.html#MAX_VALUE" title="class or interface in java.lang" target="_top"><code>Integer.MAX_VALUE</code></a> (i.e. no constraint).</div>
+</li>
+</ul>
+<a name="minVideoWidth">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoWidth</h4>
+<pre>public final&nbsp;int minVideoWidth</pre>
+<div class="block">Minimum allowed video width in pixels. The default value is 0 (i.e. no constraint).</div>
+</li>
+</ul>
+<a name="minVideoHeight">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoHeight</h4>
+<pre>public final&nbsp;int minVideoHeight</pre>
+<div class="block">Minimum allowed video height in pixels. The default value is 0 (i.e. no constraint).</div>
+</li>
+</ul>
+<a name="minVideoFrameRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoFrameRate</h4>
+<pre>public final&nbsp;int minVideoFrameRate</pre>
+<div class="block">Minimum allowed video frame rate in hertz. The default value is 0 (i.e. no constraint).</div>
+</li>
+</ul>
+<a name="minVideoBitrate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>minVideoBitrate</h4>
+<pre>public final&nbsp;int minVideoBitrate</pre>
+<div class="block">Minimum allowed video bitrate in bits per second. The default value is 0 (i.e. no
+ constraint).</div>
 </li>
 </ul>
 <a name="exceedVideoConstraintsIfNecessary">
@@ -674,28 +685,6 @@ public static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/t
 <pre>public final&nbsp;boolean forceHighestSupportedBitrate</pre>
 <div class="block">Whether to force selection of the highest bitrate audio and video tracks that comply with all
  other constraints. The default value is <code>false</code>.</div>
-</li>
-</ul>
-<a name="allowMixedMimeAdaptiveness">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>allowMixedMimeAdaptiveness</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public final&nbsp;boolean allowMixedMimeAdaptiveness</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoMixedMimeTypeAdaptiveness"><code>allowVideoMixedMimeTypeAdaptiveness</code></a> and <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowAudioMixedMimeTypeAdaptiveness"><code>allowAudioMixedMimeTypeAdaptiveness</code></a>.</span></div>
-</li>
-</ul>
-<a name="allowNonSeamlessAdaptiveness">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>allowNonSeamlessAdaptiveness</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public final&nbsp;boolean allowNonSeamlessAdaptiveness</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.Parameters.html#allowVideoNonSeamlessAdaptiveness"><code>allowVideoNonSeamlessAdaptiveness</code></a>.</span></div>
 </li>
 </ul>
 <a name="exceedRendererCapabilitiesIfNecessary">
@@ -905,7 +894,7 @@ public final&nbsp;<a href="../../../../../com/google/android/exoplayer2/tracksel
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.AudioTrackScore.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.OtherTrackScore.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/DefaultTrackSelector.ParametersBuilder.html" title="class in com.google.android.exoplayer2.trackselection"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

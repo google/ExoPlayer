@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":18,"i1":50,"i2":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>, <a href="../../../../../../com/google/android/exoplayer2/ui/SimpleExoPlayerView.html" title="class in com.google.android.exoplayer2.ui">SimpleExoPlayerView</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/ui/PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a>, <a href="../../../../../../com/google/android/exoplayer2/ui/StyledPlayerView.html" title="class in com.google.android.exoplayer2.ui">StyledPlayerView</a></dd>
 </dl>
 <dl>
 <dt>Enclosing interface:</dt>
@@ -107,7 +107,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public static interface <span class="typeNameLabel">AdsLoader.AdViewProvider</span></pre>
-<div class="block">Provides views for the ad UI.</div>
+<div class="block">Provides information about views for the ad playback UI.</div>
 </li>
 </ul>
 </div>
@@ -121,23 +121,32 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" target="_top">View</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayViews--">getAdOverlayViews</a></span>()</code>
-<div class="block">Returns an array of views that are shown on top of the ad view group, but that are essential
- for controlling playback and should be excluded from ad viewability measurements by the
- <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).</div>
+<td class="colFirst"><code>default <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdsLoader.OverlayInfo</a>&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayInfos--">getAdOverlayInfos</a></span>()</code>
+<div class="block">Returns a list of <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsLoader.OverlayInfo</code></a> instances describing views that are on top of the ad
+ view group, but that are essential for controlling playback and should be excluded from ad
+ viewability measurements by the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>default <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" target="_top">View</a>[]</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayViews--">getAdOverlayViews</a></span>()</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayInfos--"><code>getAdOverlayInfos()</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top">ViewGroup</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdViewGroup--">getAdViewGroup</a></span>()</code>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</div>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code>
+ if playing audio-only ads.</div>
 </td>
 </tr>
 </table>
@@ -161,20 +170,35 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getAdViewGroup</h4>
-<pre><a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top">ViewGroup</a>&nbsp;getAdViewGroup()</pre>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI.</div>
+<pre>@Nullable
+<a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top">ViewGroup</a>&nbsp;getAdViewGroup()</pre>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code>
+ if playing audio-only ads. Any views on top of the returned view group must be described by
+ <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads"><code>OverlayInfos</code></a> returned by <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayInfos--"><code>getAdOverlayInfos()</code></a>, for accurate
+ viewability measurement.</div>
 </li>
 </ul>
 <a name="getAdOverlayViews--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getAdOverlayViews</h4>
-<pre><a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" target="_top">View</a>[]&nbsp;getAdOverlayViews()</pre>
-<div class="block">Returns an array of views that are shown on top of the ad view group, but that are essential
- for controlling playback and should be excluded from ad viewability measurements by the
- <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+default&nbsp;<a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" target="_top">View</a>[]&nbsp;getAdOverlayViews()</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.AdViewProvider.html#getAdOverlayInfos--"><code>getAdOverlayInfos()</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="getAdOverlayInfos--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getAdOverlayInfos</h4>
+<pre>default&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads" target="_top">AdsLoader.OverlayInfo</a>&gt;&nbsp;getAdOverlayInfos()</pre>
+<div class="block">Returns a list of <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.OverlayInfo.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsLoader.OverlayInfo</code></a> instances describing views that are on top of the ad
+ view group, but that are essential for controlling playback and should be excluded from ad
+ viewability measurements by the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> (if it supports this).
 
  <p>Each view must be either a fully transparent overlay (for capturing touch events), or a
  small piece of transient UI that is essential to the user experience of playback (such as a

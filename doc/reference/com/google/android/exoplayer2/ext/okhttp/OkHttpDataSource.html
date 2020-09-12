@@ -111,7 +111,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></dd>
+<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>, <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></dd>
 </dl>
 <hr>
 <br>
@@ -171,33 +171,42 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-okhttp3.CacheControl-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
-                okhttp3.CacheControl&nbsp;cacheControl,
-                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.android.exoplayer2.util.Predicate-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
-                <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-"><code>OkHttpDataSource(Call.Factory, String)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
-</div>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory)</code>
+<div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.android.exoplayer2.util.Predicate-okhttp3.CacheControl-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
+                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</code>
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-okhttp3.CacheControl-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
-                <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                okhttp3.CacheControl&nbsp;cacheControl,
+                <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.common.base.Predicate-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
+                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
+                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-"><code>OkHttpDataSource(Call.Factory, String)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.common.base.Predicate-okhttp3.CacheControl-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">OkHttpDataSource</a></span>(okhttp3.Call.Factory&nbsp;callFactory,
+                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
+                <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                 okhttp3.CacheControl&nbsp;cacheControl,
                 <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
 <div class="block"><span class="deprecationComment">Use <code>#OkHttpDataSource(Call.Factory, String, CacheControl,
-     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
 </div>
 </td>
 </tr>
@@ -284,14 +293,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#read-byte:A-int-int-">read</a></span>(byte[]&nbsp;buffer,
     int&nbsp;offset,
     int&nbsp;readLength)</code>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.</div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-">setContentTypePredicate</a></span>(<a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
-<div class="block">Sets a content type <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-">setContentTypePredicate</a></span>(<a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code>
+<div class="block">Sets a content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -337,6 +345,21 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a name="OkHttpDataSource-okhttp3.Call.Factory-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>OkHttpDataSource</h4>
+<pre>public&nbsp;OkHttpDataSource(okhttp3.Call.Factory&nbsp;callFactory)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>callFactory</code> - A <code>Call.Factory</code> (typically an <code>OkHttpClient</code>) for use
+     by the source.</dd>
+</dl>
+</li>
+</ul>
 <a name="OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-">
 <!--   -->
 </a>
@@ -346,6 +369,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 <pre>public&nbsp;OkHttpDataSource(okhttp3.Call.Factory&nbsp;callFactory,
                         @Nullable
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callFactory</code> - A <code>Call.Factory</code> (typically an <code>OkHttpClient</code>) for use
@@ -367,6 +391,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
                         okhttp3.CacheControl&nbsp;cacheControl,
                         @Nullable
                         <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callFactory</code> - A <code>Call.Factory</code> (typically an <code>OkHttpClient</code>) for use
@@ -378,7 +403,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/Htt
 </dl>
 </li>
 </ul>
-<a name="OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.android.exoplayer2.util.Predicate-">
+<a name="OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.common.base.Predicate-">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -389,19 +414,20 @@ public&nbsp;OkHttpDataSource(okhttp3.Call.Factory&nbsp;callFactory,
                                     @Nullable
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                                     @Nullable
-                                    <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-"><code>OkHttpDataSource(Call.Factory, String)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-"><code>OkHttpDataSource(Call.Factory, String)</code></a> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callFactory</code> - A <code>Call.Factory</code> (typically an <code>OkHttpClient</code>) for use
      by the source.</dd>
 <dd><code>userAgent</code> - An optional User-Agent string.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
+<dd><code>contentTypePredicate</code> - An optional <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>. If a content type is rejected by the
      predicate then a <code>InvalidContentTypeException</code> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
 </dl>
 </li>
 </ul>
-<a name="OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.android.exoplayer2.util.Predicate-okhttp3.CacheControl-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
+<a name="OkHttpDataSource-okhttp3.Call.Factory-java.lang.String-com.google.common.base.Predicate-okhttp3.CacheControl-com.google.android.exoplayer2.upstream.HttpDataSource.RequestProperties-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -412,19 +438,20 @@ public&nbsp;OkHttpDataSource(okhttp3.Call.Factory&nbsp;callFactory,
                                     @Nullable
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                                     @Nullable
-                                    <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                                     @Nullable
                                     okhttp3.CacheControl&nbsp;cacheControl,
                                     @Nullable
                                     <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties)</pre>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#OkHttpDataSource(Call.Factory, String, CacheControl,
-     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+     RequestProperties)</code> and <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#setContentTypePredicate-com.google.common.base.Predicate-"><code>setContentTypePredicate(Predicate)</code></a>.</span></div>
+<div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>callFactory</code> - A <code>Call.Factory</code> (typically an <code>OkHttpClient</code>) for use
      by the source.</dd>
 <dd><code>userAgent</code> - An optional User-Agent string.</dd>
-<dd><code>contentTypePredicate</code> - An optional <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the
+<dd><code>contentTypePredicate</code> - An optional <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>. If a content type is rejected by the
      predicate then a <code>InvalidContentTypeException</code> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</dd>
 <dd><code>cacheControl</code> - An optional <code>CacheControl</code> for setting the Cache-Control header.</dd>
 <dd><code>defaultRequestProperties</code> - Optional default <code>RequestProperties</code> to be sent to the
@@ -440,19 +467,19 @@ public&nbsp;OkHttpDataSource(okhttp3.Call.Factory&nbsp;callFactory,
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setContentTypePredicate-com.google.android.exoplayer2.util.Predicate-">
+<a name="setContentTypePredicate-com.google.common.base.Predicate-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setContentTypePredicate</h4>
 <pre>public&nbsp;void&nbsp;setContentTypePredicate(@Nullable
-                                    <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
-<div class="block">Sets a content type <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
+                                    <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+<div class="block">Sets a content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
  <code>HttpDataSource.InvalidContentTypeException</code> is thrown from <a href="../../../../../../com/google/android/exoplayer2/ext/okhttp/OkHttpDataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>open(DataSpec)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentTypePredicate</code> - The content type <a href="../../../../../../com/google/android/exoplayer2/util/Predicate.html" title="interface in com.google.android.exoplayer2.util"><code>Predicate</code></a>, or <code>null</code> to clear a
+<dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/27.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base"><code>Predicate</code></a>, or <code>null</code> to clear a
      predicate that was previously set.</dd>
 </dl>
 </li>
@@ -502,7 +529,9 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#open-com.google.android.exoplayer2.upstream.DataSpec-"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
- call. Otherwise, returns an empty map.</div>
+ call. Otherwise, returns an empty map.
+
+ <p>Key look-up in the returned map is case-insensitive.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#getResponseHeaders--">getResponseHeaders</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
@@ -610,9 +639,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
                 int&nbsp;offset,
                 int&nbsp;readLength)
          throws <a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">DataSource</a></code></span></div>
-<div class="block">Reads up to <code>readLength</code> bytes of data and stores them into <code>buffer</code>, starting at
- index <code>offset</code>.
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">DataReader</a></code></span></div>
+<div class="block">Reads up to <code>length</code> bytes of data from the input.
 
  <p>If <code>readLength</code> is zero then 0 is returned. Otherwise, if no data is available because
  the end of the opened range has been reached, then <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> is returned.
@@ -620,16 +648,17 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
  bytes read is returned.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html#read-byte:A-int-int-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The buffer into which the read data should be stored.</dd>
-<dd><code>offset</code> - The start offset into <code>buffer</code> at which data should be written.</dd>
-<dd><code>readLength</code> - The maximum number of bytes to read.</dd>
+<dd><code>buffer</code> - A target array into which data should be written.</dd>
+<dd><code>offset</code> - The offset into the target array at which to write.</dd>
+<dd><code>readLength</code> - The maximum number of bytes to read from the input.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if no data is available
-     because the end of the opened range has been reached.</dd>
+<dd>The number of bytes read, or <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_END_OF_INPUT"><code>C.RESULT_END_OF_INPUT</code></a> if the input has ended. This
+     may be less than <code>length</code> because the end of the input (or available data) was
+     reached, the method was interrupted, or the operation was aborted early for another reason.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></code></dd>
 </dl>

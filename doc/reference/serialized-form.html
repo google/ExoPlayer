@@ -88,6 +88,11 @@
 <div class="block">The <a href="com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </li>
 <li class="blockList">
+<h4>rendererName</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> rendererName</pre>
+<div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this is the name of the renderer.</div>
+</li>
+<li class="blockList">
 <h4>rendererIndex</h4>
 <pre>int rendererIndex</pre>
 <div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this is the index of the renderer.</div>
@@ -105,9 +110,20 @@
  renderer for <a href="com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>ExoPlaybackException.rendererFormat</code></a>. If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>ExoPlaybackException.rendererFormat</code></a> is null, this is <a href="com/google/android/exoplayer2/RendererCapabilities.html#FORMAT_HANDLED"><code>RendererCapabilities.FORMAT_HANDLED</code></a>.</div>
 </li>
 <li class="blockList">
+<h4>timeoutOperation</h4>
+<pre>int timeoutOperation</pre>
+<div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_TIMEOUT"><code>ExoPlaybackException.TYPE_TIMEOUT</code></a>, this is the operation where the timeout happened.</div>
+</li>
+<li class="blockList">
 <h4>timestampMs</h4>
 <pre>long timestampMs</pre>
 <div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime--" title="class or interface in android.os" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
+</li>
+<li class="blockList">
+<h4>mediaPeriodId</h4>
+<pre><a href="com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a> mediaPeriodId</pre>
+<div class="block">The <code>MediaSource.MediaPeriodId</code> of the media associated with this error, or null if
+ undetermined.</div>
 </li>
 <li class="blockListLast">
 <h4>cause</h4>
@@ -154,11 +170,6 @@
 <li class="blockList">
 <h2 title="Package">Package&nbsp;com.google.android.exoplayer2.audio</h2>
 <ul class="blockList">
-<li class="blockList"><a name="com.google.android.exoplayer2.audio.AudioDecoderException">
-<!--   -->
-</a>
-<h3>Class <a href="com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio">com.google.android.exoplayer2.audio.AudioDecoderException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a> implements Serializable</h3>
-</li>
 <li class="blockList"><a name="com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException">
 <!--   -->
 </a>
@@ -224,6 +235,16 @@
 </ul>
 </li>
 <li class="blockList">
+<h2 title="Package">Package&nbsp;com.google.android.exoplayer2.decoder</h2>
+<ul class="blockList">
+<li class="blockList"><a name="com.google.android.exoplayer2.decoder.DecoderException">
+<!--   -->
+</a>
+<h3>Class <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">com.google.android.exoplayer2.decoder.DecoderException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a> implements Serializable</h3>
+</li>
+</ul>
+</li>
+<li class="blockList">
 <h2 title="Package">Package&nbsp;com.google.android.exoplayer2.drm</h2>
 <ul class="blockList">
 <li class="blockList"><a name="com.google.android.exoplayer2.drm.DecryptionException">
@@ -263,6 +284,39 @@
 </a>
 <h3>Class <a href="com/google/android/exoplayer2/drm/KeysExpiredException.html" title="class in com.google.android.exoplayer2.drm">com.google.android.exoplayer2.drm.KeysExpiredException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a> implements Serializable</h3>
 </li>
+<li class="blockList"><a name="com.google.android.exoplayer2.drm.MediaDrmCallbackException">
+<!--   -->
+</a>
+<h3>Class <a href="com/google/android/exoplayer2/drm/MediaDrmCallbackException.html" title="class in com.google.android.exoplayer2.drm">com.google.android.exoplayer2.drm.MediaDrmCallbackException</a> extends <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList">
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockList">
+<h4>dataSpec</h4>
+<pre><a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a> dataSpec</pre>
+<div class="block">The <a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> associated with the request.</div>
+</li>
+<li class="blockList">
+<h4>uriAfterRedirects</h4>
+<pre><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a> uriAfterRedirects</pre>
+<div class="block">The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net"><code>Uri</code></a> after redirections, or <a href="com/google/android/exoplayer2/drm/MediaDrmCallbackException.html#dataSpec" target="_top"><code>dataSpec.uri</code></a> if no redirection
+ occurred.</div>
+</li>
+<li class="blockList">
+<h4>responseHeaders</h4>
+<pre><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/util/Map.html?is-external=true" title="class or interface in java.util">K</a>,<a href="https://developer.android.com/reference/java/util/Map.html?is-external=true" title="class or interface in java.util" target="_top">V</a>&gt; responseHeaders</pre>
+<div class="block">The HTTP request headers included in the response.</div>
+</li>
+<li class="blockListLast">
+<h4>bytesLoaded</h4>
+<pre>long bytesLoaded</pre>
+<div class="block">The number of bytes obtained from the server.</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="blockList"><a name="com.google.android.exoplayer2.drm.UnsupportedDrmException">
 <!--   -->
 </a>
@@ -288,7 +342,7 @@
 <li class="blockList"><a name="com.google.android.exoplayer2.ext.av1.Gav1DecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/ext/av1/Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">com.google.android.exoplayer2.ext.av1.Gav1DecoderException</a> extends <a href="com/google/android/exoplayer2/video/VideoDecoderException.html" title="class in com.google.android.exoplayer2.video">VideoDecoderException</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/ext/av1/Gav1DecoderException.html" title="class in com.google.android.exoplayer2.ext.av1">com.google.android.exoplayer2.ext.av1.Gav1DecoderException</a> extends <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a> implements Serializable</h3>
 </li>
 </ul>
 </li>
@@ -321,7 +375,7 @@
 <li class="blockList"><a name="com.google.android.exoplayer2.ext.ffmpeg.FfmpegDecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/ext/ffmpeg/FfmpegDecoderException.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">com.google.android.exoplayer2.ext.ffmpeg.FfmpegDecoderException</a> extends <a href="com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio">AudioDecoderException</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/ext/ffmpeg/FfmpegDecoderException.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">com.google.android.exoplayer2.ext.ffmpeg.FfmpegDecoderException</a> extends <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a> implements Serializable</h3>
 </li>
 </ul>
 </li>
@@ -331,7 +385,7 @@
 <li class="blockList"><a name="com.google.android.exoplayer2.ext.flac.FlacDecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/ext/flac/FlacDecoderException.html" title="class in com.google.android.exoplayer2.ext.flac">com.google.android.exoplayer2.ext.flac.FlacDecoderException</a> extends <a href="com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio">AudioDecoderException</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/ext/flac/FlacDecoderException.html" title="class in com.google.android.exoplayer2.ext.flac">com.google.android.exoplayer2.ext.flac.FlacDecoderException</a> extends <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a> implements Serializable</h3>
 </li>
 <li class="blockList"><a name="com.google.android.exoplayer2.ext.flac.FlacDecoderJni.FlacFrameDecodeException">
 <!--   -->
@@ -357,7 +411,7 @@
 <li class="blockList"><a name="com.google.android.exoplayer2.ext.opus.OpusDecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/ext/opus/OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">com.google.android.exoplayer2.ext.opus.OpusDecoderException</a> extends <a href="com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio">AudioDecoderException</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/ext/opus/OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">com.google.android.exoplayer2.ext.opus.OpusDecoderException</a> extends <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a> implements Serializable</h3>
 </li>
 </ul>
 </li>
@@ -367,7 +421,7 @@
 <li class="blockList"><a name="com.google.android.exoplayer2.ext.vp9.VpxDecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/ext/vp9/VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9">com.google.android.exoplayer2.ext.vp9.VpxDecoderException</a> extends <a href="com/google/android/exoplayer2/video/VideoDecoderException.html" title="class in com.google.android.exoplayer2.video">VideoDecoderException</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/ext/vp9/VpxDecoderException.html" title="class in com.google.android.exoplayer2.ext.vp9">com.google.android.exoplayer2.ext.vp9.VpxDecoderException</a> extends <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a> implements Serializable</h3>
 </li>
 </ul>
 </li>
@@ -384,10 +438,10 @@
 <li class="blockList">
 <h2 title="Package">Package&nbsp;com.google.android.exoplayer2.mediacodec</h2>
 <ul class="blockList">
-<li class="blockList"><a name="com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderException">
+<li class="blockList"><a name="com.google.android.exoplayer2.mediacodec.MediaCodecDecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderException.html" title="class in com.google.android.exoplayer2.mediacodec">com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/mediacodec/MediaCodecDecoderException.html" title="class in com.google.android.exoplayer2.mediacodec">com.google.android.exoplayer2.mediacodec.MediaCodecDecoderException</a> extends <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a> implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList">
 <h3>Serialized Fields</h3>
@@ -641,7 +695,7 @@
 <li class="blockList"><a name="com.google.android.exoplayer2.text.SubtitleDecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">com.google.android.exoplayer2.text.SubtitleDecoderException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/text/SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">com.google.android.exoplayer2.text.SubtitleDecoderException</a> extends <a href="com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a> implements Serializable</h3>
 </li>
 </ul>
 </li>
@@ -735,10 +789,15 @@
 <pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> responseMessage</pre>
 <div class="block">The http status message.</div>
 </li>
-<li class="blockListLast">
+<li class="blockList">
 <h4>headerFields</h4>
 <pre><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/util/Map.html?is-external=true" title="class or interface in java.util">K</a>,<a href="https://developer.android.com/reference/java/util/Map.html?is-external=true" title="class or interface in java.util" target="_top">V</a>&gt; headerFields</pre>
 <div class="block">An unmodifiable map of the response header fields and values.</div>
+</li>
+<li class="blockListLast">
+<h4>responseBody</h4>
+<pre>byte[] responseBody</pre>
+<div class="block">The response body.</div>
 </li>
 </ul>
 </li>
@@ -794,10 +853,10 @@
 <li class="blockList">
 <h2 title="Package">Package&nbsp;com.google.android.exoplayer2.video</h2>
 <ul class="blockList">
-<li class="blockList"><a name="com.google.android.exoplayer2.video.MediaCodecVideoRenderer.VideoDecoderException">
+<li class="blockList"><a name="com.google.android.exoplayer2.video.MediaCodecVideoDecoderException">
 <!--   -->
 </a>
-<h3>Class <a href="com/google/android/exoplayer2/video/MediaCodecVideoRenderer.VideoDecoderException.html" title="class in com.google.android.exoplayer2.video">com.google.android.exoplayer2.video.MediaCodecVideoRenderer.VideoDecoderException</a> extends <a href="com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.DecoderException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer.DecoderException</a> implements Serializable</h3>
+<h3>Class <a href="com/google/android/exoplayer2/video/MediaCodecVideoDecoderException.html" title="class in com.google.android.exoplayer2.video">com.google.android.exoplayer2.video.MediaCodecVideoDecoderException</a> extends <a href="com/google/android/exoplayer2/mediacodec/MediaCodecDecoderException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecDecoderException</a> implements Serializable</h3>
 <ul class="blockList">
 <li class="blockList">
 <h3>Serialized Fields</h3>
@@ -815,11 +874,6 @@
 </ul>
 </li>
 </ul>
-</li>
-<li class="blockList"><a name="com.google.android.exoplayer2.video.VideoDecoderException">
-<!--   -->
-</a>
-<h3>Class <a href="com/google/android/exoplayer2/video/VideoDecoderException.html" title="class in com.google.android.exoplayer2.video">com.google.android.exoplayer2.video.VideoDecoderException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a> implements Serializable</h3>
 </li>
 </ul>
 </li>

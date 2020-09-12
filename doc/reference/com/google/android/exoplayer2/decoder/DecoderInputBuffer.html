@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -139,7 +139,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">DecoderInputBuffer.BufferReplacementMode</a></span></code>
-<div class="block">The buffer replacement mode, which may disable replacement.</div>
+<div class="block">The buffer replacement mode.</div>
 </td>
 </tr>
 </table>
@@ -221,7 +221,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/Buffer.htm
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#DecoderInputBuffer-int-">DecoderInputBuffer</a></span>(int&nbsp;bufferReplacementMode)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#DecoderInputBuffer-int-">DecoderInputBuffer</a></span>(int&nbsp;bufferReplacementMode)</code>
+<div class="block">Creates a new instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#DecoderInputBuffer-int-int-">DecoderInputBuffer</a></span>(int&nbsp;bufferReplacementMode,
+                  int&nbsp;paddingSize)</code>
+<div class="block">Creates a new instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -418,16 +426,36 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <a name="DecoderInputBuffer-int-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>DecoderInputBuffer</h4>
 <pre>public&nbsp;DecoderInputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderInputBuffer.BufferReplacementMode</a>
                           int&nbsp;bufferReplacementMode)</pre>
+<div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bufferReplacementMode</code> - Determines the behavior of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#ensureSpaceForWrite-int-"><code>ensureSpaceForWrite(int)</code></a>. One
-     of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DISABLED"><code>BUFFER_REPLACEMENT_MODE_DISABLED</code></a>, <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_NORMAL"><code>BUFFER_REPLACEMENT_MODE_NORMAL</code></a> and
-     <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DIRECT"><code>BUFFER_REPLACEMENT_MODE_DIRECT</code></a>.</dd>
+<dd><code>bufferReplacementMode</code> - The <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffer.BufferReplacementMode</code></a> replacement mode.</dd>
+</dl>
+</li>
+</ul>
+<a name="DecoderInputBuffer-int-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DecoderInputBuffer</h4>
+<pre>public&nbsp;DecoderInputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderInputBuffer.BufferReplacementMode</a>
+                          int&nbsp;bufferReplacementMode,
+                          int&nbsp;paddingSize)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferReplacementMode</code> - The <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffer.BufferReplacementMode</code></a> replacement mode.</dd>
+<dd><code>paddingSize</code> - If non-zero, <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#ensureSpaceForWrite-int-"><code>ensureSpaceForWrite(int)</code></a> will ensure that the buffer
+     is this number of bytes larger than the requested length. This can be useful for decoders
+     that consume data in fixed size blocks, for efficiency. Setting the padding size to the
+     decoder's fixed read size is necessary to prevent such a decoder from trying to read beyond
+     the end of the buffer.</dd>
 </dl>
 </li>
 </ul>
@@ -568,7 +596,7 @@ public&nbsp;void&nbsp;ensureSpaceForWrite(int&nbsp;length)</pre>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":17,"i1":17,"i2":17,"i3":17,"i4":17,"i5":6,"i6":17,"i7":6,"i8":6};
+var methods = {"i0":17,"i1":17,"i2":17,"i3":17,"i4":17,"i5":6,"i6":6,"i7":17,"i8":6,"i9":6};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -98,7 +98,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeMediaClockRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaClockRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/av1/Libgav1VideoRenderer.html" title="class in com.google.android.exoplayer2.ext.av1">Libgav1VideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9">LibvpxVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2">NoSampleRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/SimpleDecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">SimpleDecoderVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
+<dd><a href="../../../../com/google/android/exoplayer2/BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/spherical/CameraMotionRenderer.html" title="class in com.google.android.exoplayer2.video.spherical">CameraMotionRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/DecoderVideoRenderer.html" title="class in com.google.android.exoplayer2.video">DecoderVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeAudioRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeMediaClockRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaClockRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeRenderer</a>, <a href="../../../../com/google/android/exoplayer2/testutil/FakeVideoRenderer.html" title="class in com.google.android.exoplayer2.testutil">FakeVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/ffmpeg/FfmpegAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.ffmpeg">FfmpegAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/flac/LibflacAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.flac">LibflacAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/av1/Libgav1VideoRenderer.html" title="class in com.google.android.exoplayer2.ext.av1">Libgav1VideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/opus/LibopusAudioRenderer.html" title="class in com.google.android.exoplayer2.ext.opus">LibopusAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/ext/vp9/LibvpxVideoRenderer.html" title="class in com.google.android.exoplayer2.ext.vp9">LibvpxVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a>, <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>, <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer</a>, <a href="../../../../com/google/android/exoplayer2/metadata/MetadataRenderer.html" title="class in com.google.android.exoplayer2.metadata">MetadataRenderer</a>, <a href="../../../../com/google/android/exoplayer2/NoSampleRenderer.html" title="class in com.google.android.exoplayer2">NoSampleRenderer</a>, <a href="../../../../com/google/android/exoplayer2/text/TextRenderer.html" title="class in com.google.android.exoplayer2.text">TextRenderer</a></dd>
 </dl>
 <hr>
 <br>
@@ -295,24 +295,30 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getName--">getName</a></span>()</code>
+<div class="block">Returns the name of the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getTrackType--">getTrackType</a></span>()</code>
 <div class="block">Returns the track type that the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> handles.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#getTunnelingSupport-int-">getTunnelingSupport</a></span>(int&nbsp;supportFlags)</code>
 <div class="block">Returns the <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.TunnelingSupport</code></a> from the combined <a href="../../../../com/google/android/exoplayer2/RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a>.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></span>(<a href="../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
 <div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.html#supportsMixedMimeTypeAdaptation--">supportsMixedMimeTypeAdaptation</a></span>()</code>
 <div class="block">Returns the extent to which the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
@@ -663,6 +669,16 @@ static&nbsp;int&nbsp;getTunnelingSupport(<a href="../../../../com/google/android
 </dl>
 </li>
 </ul>
+<a name="getName--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getName</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;getName()</pre>
+<div class="block">Returns the name of the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>.</div>
+</li>
+</ul>
 <a name="getTrackType--">
 <!--   -->
 </a>
@@ -748,7 +764,7 @@ int&nbsp;supportsMixedMimeTypeAdaptation()
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../com/google/android/exoplayer2/Renderer.State.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../com/google/android/exoplayer2/Renderer.WakeupListener.html" title="interface in com.google.android.exoplayer2"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../com/google/android/exoplayer2/RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

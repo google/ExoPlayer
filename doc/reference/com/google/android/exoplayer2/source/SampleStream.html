@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/source/SampleStream.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -110,6 +110,27 @@ var activeTableTab = "activeTableTab";
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Interface and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadDataResult</a></span></code>
+<div class="block">Return values of <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.html#readData-com.google.android.exoplayer2.FormatHolder-com.google.android.exoplayer2.decoder.DecoderInputBuffer-boolean-"><code>readData(FormatHolder, DecoderInputBuffer, boolean)</code></a>.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -203,9 +224,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>readData</h4>
-<pre>int&nbsp;readData(<a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
-             <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
-             boolean&nbsp;formatRequired)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">@SampleStream.ReadDataResult</a>
+int&nbsp;readData(<a href="../../../../../com/google/android/exoplayer2/FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
+                                          <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
+                                          boolean&nbsp;formatRequired)</pre>
 <div class="block">Attempts to read from the stream.
 
  <p>If the stream has ended then <a href="../../../../../com/google/android/exoplayer2/C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set on <code>buffer</code> and <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a> is returned. Else if no data is available then <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a> is returned. Else if the format of the media is changing or if <code>formatRequired</code> is set then <code>formatHolder</code> is populated and <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a>
@@ -220,8 +242,7 @@ var activeTableTab = "activeTableTab";
      it's not changing. A sample will never be read if set to true, however it is still possible
      for the end of stream or nothing to be read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result, which can be <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a>, <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a> or
-     <a href="../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a>.</dd>
+<dd>The status of read, one of <a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><code>SampleStream.ReadDataResult</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -270,7 +291,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/source/SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/source/SampleStream.html" target="_top">Frames</a></li>
@@ -294,7 +315,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

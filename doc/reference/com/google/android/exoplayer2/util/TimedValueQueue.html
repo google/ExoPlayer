@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -170,12 +170,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html#pollFirst--">pollFirst</a></span>()</code>
+<div class="block">Removes and returns the first value in the queue, or null if the queue is empty.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html#pollFloor-long-">pollFloor</a></span>(long&nbsp;timestamp)</code>
 <div class="block">Returns the value with the greatest timestamp which is less than or equal to the given
  timestamp.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html#size--">size</a></span>()</code>
 <div class="block">Returns number of the values buffered.</div>
@@ -263,6 +269,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>size</h4>
 <pre>public&nbsp;int&nbsp;size()</pre>
 <div class="block">Returns number of the values buffered.</div>
+</li>
+</ul>
+<a name="pollFirst--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>pollFirst</h4>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a>&nbsp;pollFirst()</pre>
+<div class="block">Removes and returns the first value in the queue, or null if the queue is empty.</div>
 </li>
 </ul>
 <a name="pollFloor-long-">

@@ -188,7 +188,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_IGNORE_SPLICE_INFO_STREAM">FLAG_IGNORE_SPLICE_INFO_STREAM</a></span></code>
-<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/SpliceInfoSectionReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>SpliceInfoSectionReader</code></a> instances.</div>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a>s for splice information sections
+ (SCTE-35).</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -342,7 +343,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <li class="blockList">
 <h4>FLAG_IGNORE_SPLICE_INFO_STREAM</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_SPLICE_INFO_STREAM</pre>
-<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/SpliceInfoSectionReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>SpliceInfoSectionReader</code></a> instances.</div>
+<div class="block">Prevents the creation of <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a>s for splice information sections
+ (SCTE-35).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM">Constant Field Values</a></dd>
@@ -466,8 +468,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createPayloadReader</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a>&nbsp;createPayloadReader(int&nbsp;streamType,
-                                           <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>&nbsp;esInfo)</pre>
+<pre>@Nullable
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a>&nbsp;createPayloadReader(int&nbsp;streamType,
+                                                     <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>&nbsp;esInfo)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.Factory.html#createPayloadReader-int-com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo-">TsPayloadReader.Factory</a></code></span></div>
 <div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for a given stream type and elementary stream information.
  May return null if the stream type is not supported.</div>
@@ -478,7 +481,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/ts
 <dd><code>streamType</code> - Stream type value as defined in the PMT entry or associated descriptors.</dd>
 <dd><code>esInfo</code> - Information associated to the elementary stream provided in the PMT.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for the packet stream carried by the provided pid.
+<dd>A <a href="../../../../../../com/google/android/exoplayer2/extractor/ts/TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for the packet stream carried by the provided pid, or
      <code>null</code> if the stream is not supported.</dd>
 </dl>
 </li>

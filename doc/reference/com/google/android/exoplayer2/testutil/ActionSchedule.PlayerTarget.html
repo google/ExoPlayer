@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":6};
+var methods = {"i0":10,"i1":6,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerRunnable.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/AutoAdvancingFakeClock.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.Callback.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -118,13 +118,37 @@ var activeTableTab = "activeTableTab";
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></pre>
 <div class="block">Provides a wrapper for a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a> which has access to the player when handling messages.
- Can be used with <code>Builder#sendMessage(Target, long)</code>.</div>
+ Can be used with <code>Builder#sendMessage(Target, long)</code>.
+
+ <p>The target can be passed to <code>ActionSchedule.Builder#waitForMessage(PlayerTarget)</code> to
+ wait for a message to arrive at the target.</div>
 </li>
 </ul>
 </div>
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Class and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget.Callback</a></span></code>
+<div class="block">Callback to be called when message arrives.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <ul class="blockList">
 <li class="blockList"><a name="constructor.summary">
@@ -169,6 +193,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.T
 <div class="block">Handles the message send to the component and additionally provides access to the player.</div>
 </td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.html#setCallback-com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget.Callback-">setCallback</a></span>(<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget.Callback</a>&nbsp;callback)</code>&nbsp;</td>
+</tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -208,6 +236,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.T
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setCallback-com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget.Callback-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCallback</h4>
+<pre>public&nbsp;void&nbsp;setCallback(<a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.Callback.html" title="interface in com.google.android.exoplayer2.testutil">ActionSchedule.PlayerTarget.Callback</a>&nbsp;callback)</pre>
+</li>
+</ul>
 <a name="handleMessage-com.google.android.exoplayer2.SimpleExoPlayer-int-java.lang.Object-">
 <!--   -->
 </a>
@@ -229,8 +266,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.T
 <h4>handleMessage</h4>
 <pre>public final&nbsp;void&nbsp;handleMessage(int&nbsp;messageType,
                                 @Nullable
-                                <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;message)
-                         throws <a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+                                <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;message)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html#handleMessage-int-java.lang.Object-">PlayerMessage.Target</a></code></span></div>
 <div class="block">Handles a message delivered to the target.</div>
 <dl>
@@ -239,9 +275,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.T
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>messageType</code> - The message type.</dd>
 <dd><code>message</code> - The message payload.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurred whilst handling the message. Should only be
-     thrown by targets that handle messages on the playback thread.</dd>
 </dl>
 </li>
 </ul>
@@ -273,7 +306,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.T
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerRunnable.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/AutoAdvancingFakeClock.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.Callback.html" title="interface in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/ActionSchedule.PlayerTarget.html" target="_top">Frames</a></li>
@@ -297,7 +330,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.T
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

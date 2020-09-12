@@ -147,6 +147,13 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 </tr>
 </table>
 <ul class="blockList">
+<li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.SampleStream">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.source.<a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></h3>
+<code><a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadDataResult</a></code></li>
+</ul>
+<ul class="blockList">
 <li class="blockList"><a name="nested.classes.inherited.from.class.com.google.android.exoplayer2.source.SequenceableLoader">
 <!--   -->
 </a>
@@ -186,16 +193,17 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">ChunkSampleStream</a></span>(int&nbsp;primaryTrackType,
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html#ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">ChunkSampleStream</a></span>(int&nbsp;primaryTrackType,
                  int[]&nbsp;embeddedTrackTypes,
                  <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;embeddedTrackFormats,
                  <a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&nbsp;chunkSource,
                  <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&gt;&nbsp;callback,
                  <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                  long&nbsp;positionUs,
-                 <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager,
+                 <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                 <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
                  <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
-                 <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code>
+                 <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher)</code>
 <div class="block">Constructs an instance.</div>
 </td>
 </tr>
@@ -389,9 +397,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.chunk.ChunkSource-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
+<a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-com.google.android.exoplayer2.source.chunk.ChunkSource-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
 <!--   -->
-</a><a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
+</a><a name="ChunkSampleStream-int-int:A-com.google.android.exoplayer2.Format:A-T-com.google.android.exoplayer2.source.SequenceableLoader.Callback-com.google.android.exoplayer2.upstream.Allocator-long-com.google.android.exoplayer2.drm.DrmSessionManager-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy-com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher-">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -406,9 +414,10 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
                          <a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/source/chunk/ChunkSampleStream.html" title="type parameter in ChunkSampleStream">T</a>&gt;&gt;&nbsp;callback,
                          <a href="../../../../../../com/google/android/exoplayer2/upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                          long&nbsp;positionUs,
-                         <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&lt;?&gt;&nbsp;drmSessionManager,
+                         <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
+                         <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher,
                          <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
-                         <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+                         <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;mediaSourceEventDispatcher)</pre>
 <div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -421,8 +430,10 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <dd><code>positionUs</code> - The position from which to start loading media.</dd>
 <dd><code>drmSessionManager</code> - The <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> to obtain <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessions</code></a>
      from.</dd>
+<dd><code>drmEventDispatcher</code> - A dispatcher to notify of <a href="../../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener</code></a> events.</dd>
 <dd><code>loadErrorHandlingPolicy</code> - The <a href="../../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</dd>
-<dd><code>eventDispatcher</code> - A dispatcher to notify of events.</dd>
+<dd><code>mediaSourceEventDispatcher</code> - A dispatcher to notify of <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a>
+     events.</dd>
 </dl>
 </li>
 </ul>
@@ -644,8 +655,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
      it's not changing. A sample will never be read if set to true, however it is still possible
      for the end of stream or nothing to be read.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The result, which can be <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_NOTHING_READ"><code>C.RESULT_NOTHING_READ</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_FORMAT_READ"><code>C.RESULT_FORMAT_READ</code></a> or
-     <a href="../../../../../../com/google/android/exoplayer2/C.html#RESULT_BUFFER_READ"><code>C.RESULT_BUFFER_READ</code></a>.</dd>
+<dd>The status of read, one of <a href="../../../../../../com/google/android/exoplayer2/source/SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source"><code>SampleStream.ReadDataResult</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -816,8 +826,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/Sampl
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#reevaluateBuffer-long-">SequenceableLoader</a></code></span></div>
 <div class="block">Re-evaluates the buffer given the playback position.
 
- <p>Re-evaluation may discard buffered media so that it can be re-buffered in a different
- quality.</div>
+ <p>Re-evaluation may discard buffered media or cancel ongoing loads so that media can be
+ re-buffered in a different quality.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#reevaluateBuffer-long-">reevaluateBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>

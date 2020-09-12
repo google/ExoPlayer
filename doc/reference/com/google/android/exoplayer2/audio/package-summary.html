@@ -141,6 +141,18 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.html" title="class in com.google.android.exoplayer2.audio">AacUtil</a></td>
+<td class="colLast">
+<div class="block">Utility methods for handling AAC audio streams.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.Config.html" title="class in com.google.android.exoplayer2.audio">AacUtil.Config</a></td>
+<td class="colLast">
+<div class="block">Holds sample format information for AAC audio.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html" title="class in com.google.android.exoplayer2.audio">Ac3Util</a></td>
 <td class="colLast">
 <div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes.</div>
@@ -167,8 +179,7 @@
 <tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></td>
 <td class="colLast">
-<div class="block">Attributes for audio playback, which configure the underlying platform
- <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>.</div>
+<div class="block">Attributes for audio playback, which configure the underlying platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -199,7 +210,7 @@
 <tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.audio">AudioRendererEventListener.EventDispatcher</a></td>
 <td class="colLast">
-<div class="block">Dispatches events to a <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
+<div class="block">Dispatches events to an <a href="../../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -217,34 +228,58 @@
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">DecoderAudioRenderer</a>&lt;T extends <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,? extends <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleOutputBuffer</a>,? extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;&gt;</td>
+<td class="colLast">
+<div class="block">Decodes and renders audio using a <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></td>
 <td class="colLast">
 <div class="block">Plays audio data.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></td>
 <td class="colLast">
 <div class="block">The default audio processor chain, which applies a (possibly empty) chain of user-defined audio
  processors followed by <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SilenceSkippingAudioProcessor</code></a> and <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DtsUtil.html" title="class in com.google.android.exoplayer2.audio">DtsUtil</a></td>
 <td class="colLast">
 <div class="block">Utility methods for parsing DTS frames.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></td>
 <td class="colLast">
 <div class="block">An overridable <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> implementation forwarding all methods to another sink.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">MediaCodecAudioRenderer</a></td>
 <td class="colLast">
 <div class="block">Decodes and renders audio using <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media"><code>MediaCodec</code></a> and an <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio" target="_top"><code>AudioSink</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/MpegAudioUtil.html" title="class in com.google.android.exoplayer2.audio">MpegAudioUtil</a></td>
+<td class="colLast">
+<div class="block">Utility methods for handling MPEG audio streams.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/MpegAudioUtil.Header.html" title="class in com.google.android.exoplayer2.audio">MpegAudioUtil.Header</a></td>
+<td class="colLast">
+<div class="block">Stores the metadata for an MPEG audio frame.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/OpusUtil.html" title="class in com.google.android.exoplayer2.audio">OpusUtil</a></td>
+<td class="colLast">
+<div class="block">Utility methods for handling Opus audio streams.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -254,30 +289,24 @@
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/SimpleDecoderAudioRenderer.html" title="class in com.google.android.exoplayer2.audio">SimpleDecoderAudioRenderer</a></td>
-<td class="colLast">
-<div class="block">Decodes and renders audio using a <a href="../../../../../com/google/android/exoplayer2/decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder"><code>SimpleDecoder</code></a>.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SonicAudioProcessor</a></td>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> that uses the Sonic library to modify audio speed/pitch/sample rate.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></td>
 <td class="colLast">
 <div class="block">Audio processor that outputs its input unmodified and also outputs its input to a given sink.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/TeeAudioProcessor.WavFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor.WavFileAudioBufferSink</a></td>
 <td class="colLast">
 <div class="block">A sink for audio buffers that writes output audio as .wav files with a given path prefix.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/WavUtil.html" title="class in com.google.android.exoplayer2.audio">WavUtil</a></td>
 <td class="colLast">
 <div class="block">Utilities for handling WAVE files.</div>
@@ -295,36 +324,30 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio">AudioDecoderException</a></td>
-<td class="colLast">
-<div class="block">Thrown when an audio decoder error occurs.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></td>
 <td class="colLast">
 <div class="block">Exception thrown when a processor can't be configured for a given input audio format.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></td>
 <td class="colLast">
 <div class="block">Thrown when a failure occurs configuring the sink.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a></td>
 <td class="colLast">
 <div class="block">Thrown when a failure occurs initializing the sink.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></td>
 <td class="colLast">
 <div class="block">Thrown when a failure occurs writing to the sink.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.InvalidAudioTrackTimestampException</a></td>
 <td class="colLast">
 <div class="block">Thrown when the audio track has provided a spurious timestamp, if <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>DefaultAudioSink.failOnSpuriousAudioTimestamp</code></a> is set.</div>
@@ -342,9 +365,21 @@
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AacUtil.AacAudioObjectType.html" title="annotation in com.google.android.exoplayer2.audio">AacUtil.AacAudioObjectType</a></td>
+<td class="colLast">
+<div class="block">Valid AAC Audio object types.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.StreamType.html" title="annotation in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo.StreamType</a></td>
 <td class="colLast">
 <div class="block">AC3 stream types.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">AudioSink.SinkFormatSupport</a></td>
+<td class="colLast">
+<div class="block">The level of support the sink provides for a format.</div>
 </td>
 </tr>
 </tbody>

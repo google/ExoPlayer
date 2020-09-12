@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.decoder</div>
-<h2 title="Interface Decoder" class="title">Interface Decoder&lt;I,O,E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&gt;</h2>
+<h2 title="Interface Decoder" class="title">Interface Decoder&lt;I,O,E extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -112,7 +112,7 @@ var activeTableTab = "activeTableTab";
 </dl>
 <hr>
 <br>
-<pre>public interface <span class="typeNameLabel">Decoder&lt;I,O,E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&gt;</span></pre>
+<pre>public interface <span class="typeNameLabel">Decoder&lt;I,O,E extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</span></pre>
 <div class="block">A media decoder.</div>
 </li>
 </ul>
@@ -205,14 +205,14 @@ var activeTableTab = "activeTableTab";
 <h4>dequeueInputBuffer</h4>
 <pre>@Nullable
 <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">I</a>&nbsp;dequeueInputBuffer()
-                        throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></pre>
+                        throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The input buffer, which will have been cleared, or null if a buffer isn't available.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>E</code> - If a decoder error has occurred.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -225,14 +225,14 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>queueInputBuffer</h4>
 <pre>void&nbsp;queueInputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">I</a>&nbsp;inputBuffer)
-               throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></pre>
+               throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Queues an input buffer to the decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The input buffer.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>E</code> - If a decoder error has occurred.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -244,14 +244,14 @@ var activeTableTab = "activeTableTab";
 <h4>dequeueOutputBuffer</h4>
 <pre>@Nullable
 <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">O</a>&nbsp;dequeueOutputBuffer()
-                         throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></pre>
+                         throws <a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
 <div class="block">Dequeues the next output buffer from the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The output buffer, or null if an output buffer isn't available.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>E</code> - If a decoder error has occurred.</dd>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/decoder/Decoder.html" title="type parameter in Decoder">E</a> extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></code></dd>
 </dl>
 </li>
 </ul>

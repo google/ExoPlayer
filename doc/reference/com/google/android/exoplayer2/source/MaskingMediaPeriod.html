@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MaskingMediaPeriod.html" target="_top">Frames</a></li>
@@ -135,8 +135,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareErrorListener</a></span></code>
-<div class="block">Listener for preparation errors.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareListener</a></span></code>
+<div class="block">Listener for preparation events.</div>
 </td>
 </tr>
 </table>
@@ -252,79 +252,85 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getPreparePositionOverrideUs--">getPreparePositionOverrideUs</a></span>()</code>
+<div class="block">Returns the prepare position override set by <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#overridePreparePositionUs-long-"><code>overridePreparePositionUs(long)</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getPreparePositionUs--">getPreparePositionUs</a></span>()</code>
 <div class="block">Returns the position at which the masking media period was prepared, in microseconds.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#getTrackGroups--">getTrackGroups</a></span>()</code>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#isLoading--">isLoading</a></span>()</code>
 <div class="block">Returns whether the media period is currently loading.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#maybeThrowPrepareError--">maybeThrowPrepareError</a></span>()</code>
 <div class="block">Throws an error that's preventing the period from becoming prepared.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#onContinueLoadingRequested-com.google.android.exoplayer2.source.MediaPeriod-">onContinueLoadingRequested</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;source)</code>
 <div class="block">Called by the loader to indicate that it wishes for its <a href="../../../../../com/google/android/exoplayer2/source/SequenceableLoader.html#continueLoading-long-"><code>SequenceableLoader.continueLoading(long)</code></a> method
  to be called when it can continue to load data.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#onPrepared-com.google.android.exoplayer2.source.MediaPeriod-">onPrepared</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code>
 <div class="block">Called when preparation completes.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#overridePreparePositionUs-long-">overridePreparePositionUs</a></span>(long&nbsp;preparePositionUs)</code>
 <div class="block">Overrides the default prepare position at which to prepare the media period.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#prepare-com.google.android.exoplayer2.source.MediaPeriod.Callback-long-">prepare</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>&nbsp;callback,
        long&nbsp;preparePositionUs)</code>
 <div class="block">Prepares this media period asynchronously.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#readDiscontinuity--">readDiscontinuity</a></span>()</code>
 <div class="block">Attempts to read a discontinuity.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#reevaluateBuffer-long-">reevaluateBuffer</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#releasePeriod--">releasePeriod</a></span>()</code>
 <div class="block">Releases the period.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#seekToUs-long-">seekToUs</a></span>(long&nbsp;positionUs)</code>
 <div class="block">Attempts to seek to the specified position in microseconds.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#selectTracks-com.google.android.exoplayer2.trackselection.TrackSelection:A-boolean:A-com.google.android.exoplayer2.source.SampleStream:A-boolean:A-long-">selectTracks</a></span>(@NullableType <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;selections,
             boolean[]&nbsp;mayRetainStreamFlags,
@@ -334,10 +340,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="block">Performs a track selection.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#setPrepareErrorListener-com.google.android.exoplayer2.source.MaskingMediaPeriod.PrepareErrorListener-">setPrepareErrorListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareErrorListener</a>&nbsp;listener)</code>
-<div class="block">Sets a listener for preparation errors.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#setPrepareListener-com.google.android.exoplayer2.source.MaskingMediaPeriod.PrepareListener-">setPrepareListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareListener</a>&nbsp;listener)</code>
+<div class="block">Sets a listener for preparation events.</div>
 </td>
 </tr>
 </table>
@@ -425,17 +431,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="setPrepareErrorListener-com.google.android.exoplayer2.source.MaskingMediaPeriod.PrepareErrorListener-">
+<a name="setPrepareListener-com.google.android.exoplayer2.source.MaskingMediaPeriod.PrepareListener-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setPrepareErrorListener</h4>
-<pre>public&nbsp;void&nbsp;setPrepareErrorListener(<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareErrorListener</a>&nbsp;listener)</pre>
-<div class="block">Sets a listener for preparation errors.</div>
+<h4>setPrepareListener</h4>
+<pre>public&nbsp;void&nbsp;setPrepareListener(<a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareListener.html" title="interface in com.google.android.exoplayer2.source">MaskingMediaPeriod.PrepareListener</a>&nbsp;listener)</pre>
+<div class="block">Sets a listener for preparation events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>listener</code> - An listener to be notified of media period preparation errors. If a listener is
+<dd><code>listener</code> - An listener to be notified of media period preparation events. If a listener is
      set, <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#maybeThrowPrepareError--"><code>maybeThrowPrepareError()</code></a> will not throw but will instead pass the first
      preparation error (if any) to the listener.</dd>
 </dl>
@@ -458,12 +464,22 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <li class="blockList">
 <h4>overridePreparePositionUs</h4>
 <pre>public&nbsp;void&nbsp;overridePreparePositionUs(long&nbsp;preparePositionUs)</pre>
-<div class="block">Overrides the default prepare position at which to prepare the media period. This value is only
- used if called before <code>#createPeriod(MediaPeriodId)</code>.</div>
+<div class="block">Overrides the default prepare position at which to prepare the media period. This method must
+ be called before <code>#createPeriod(MediaPeriodId)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>preparePositionUs</code> - The default prepare position to use, in microseconds.</dd>
 </dl>
+</li>
+</ul>
+<a name="getPreparePositionOverrideUs--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPreparePositionOverrideUs</h4>
+<pre>public&nbsp;long&nbsp;getPreparePositionOverrideUs()</pre>
+<div class="block">Returns the prepare position override set by <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#overridePreparePositionUs-long-"><code>overridePreparePositionUs(long)</code></a>.</div>
 </li>
 </ul>
 <a name="createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">
@@ -753,8 +769,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 
  <p>This method is only called after the period has been prepared.
 
- <p>A period may choose to discard buffered media so that it can be re-buffered in a different
- quality.</div>
+ <p>A period may choose to discard buffered media or cancel ongoing loads so that media can be
+ re-buffered in a different quality.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html#reevaluateBuffer-long-">reevaluateBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
@@ -880,7 +896,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/MediaPer
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/source/LoopingMediaSource.html" title="class in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareErrorListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.PrepareListener.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MaskingMediaPeriod.html" target="_top">Frames</a></li>

@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":42,"i6":10,"i7":10,"i8":42,"i9":10,"i10":42,"i11":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":42,"i7":10,"i8":10,"i9":42,"i10":10,"i11":42,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -204,18 +204,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererName-int-">getRendererName</a></span>(int&nbsp;rendererIndex)</code>
+<div class="block">Returns the name of the renderer at a given index.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererSupport-int-">getRendererSupport</a></span>(int&nbsp;rendererIndex)</code>
 <div class="block">Returns the extent to which a renderer can play the tracks that are mapped to it.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getRendererType-int-">getRendererType</a></span>(int&nbsp;rendererIndex)</code>
 <div class="block">Returns the track type that the renderer at a given index handles.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackFormatSupport-int-int-int-">getTrackFormatSupport</a></span>(int&nbsp;rendererIndex,
                      int&nbsp;groupIndex,
@@ -225,13 +231,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackGroups-int-">getTrackGroups</a></span>(int&nbsp;rendererIndex)</code>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s mapped to the renderer at the specified index.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackSupport-int-int-int-">getTrackSupport</a></span>(int&nbsp;rendererIndex,
                int&nbsp;groupIndex,
@@ -239,7 +245,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns the extent to which an individual track is supported by the renderer.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTrackTypeRendererSupport-int-">getTrackTypeRendererSupport</a></span>(int&nbsp;trackType)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -247,13 +253,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getTypeSupport-int-">getTypeSupport</a></span>(int&nbsp;trackType)</code>
 <div class="block">Returns the extent to which tracks of a specified type are supported.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnassociatedTrackGroups--">getUnassociatedTrackGroups</a></span>()</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -261,7 +267,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/MappingTrackSelector.MappedTrackInfo.html#getUnmappedTrackGroups--">getUnmappedTrackGroups</a></span>()</code>
 <div class="block">Returns <a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s not mapped to any renderer.</div>
@@ -377,6 +383,24 @@ public final&nbsp;int length</pre>
 <h4>getRendererCount</h4>
 <pre>public&nbsp;int&nbsp;getRendererCount()</pre>
 <div class="block">Returns the number of renderers.</div>
+</li>
+</ul>
+<a name="getRendererName-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRendererName</h4>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;getRendererName(int&nbsp;rendererIndex)</pre>
+<div class="block">Returns the name of the renderer at a given index.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>rendererIndex</code> - The renderer index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The name of the renderer.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Renderer.html#getName--"><code>Renderer.getName()</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="getRendererType-int-">

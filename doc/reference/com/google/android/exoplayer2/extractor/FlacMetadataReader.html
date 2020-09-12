@@ -131,7 +131,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacMetadataReader.FlacStreamMetadataHolder.html" title="class in com.google.android.exoplayer2.extractor">FlacMetadataReader.FlacStreamMetadataHolder</a></span></code>
-<div class="block">Holds a <a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.util"><code>FlacStreamMetadata</code></a>.</div>
+<div class="block">Holds a <a href="../../../../../com/google/android/exoplayer2/extractor/FlacStreamMetadata.html" title="class in com.google.android.exoplayer2.extractor"><code>FlacStreamMetadata</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -183,7 +183,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata.SeekTable</a></code></td>
+<td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/FlacMetadataReader.html#readSeekTableMetadataBlock-com.google.android.exoplayer2.util.ParsableByteArray-">readSeekTableMetadataBlock</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data)</code>
 <div class="block">Reads a FLAC seek table metadata block.</div>
 </td>
@@ -225,8 +225,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>@Nullable
 public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;peekId3Metadata(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                                                  boolean&nbsp;parseData)
-                                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                                 <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Peeks ID3 Data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -238,8 +237,6 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If peeking from the input fails. In this case, there is no guarantee on the
      peek position.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while peeking from input. In this case, there is no
-     guarantee on the peek position.</dd>
 </dl>
 </li>
 </ul>
@@ -250,8 +247,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <li class="blockList">
 <h4>checkAndPeekStreamMarker</h4>
 <pre>public static&nbsp;boolean&nbsp;checkAndPeekStreamMarker(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
-                                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                               <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Peeks the FLAC stream marker.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -261,8 +257,6 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If peeking from the input fails. In this case, the peek position is left
      unchanged.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while peeking from input. In this case, the peek
-     position is left unchanged.</dd>
 </dl>
 </li>
 </ul>
@@ -275,8 +269,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <pre>@Nullable
 public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;readId3Metadata(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                                                  boolean&nbsp;parseData)
-                                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                                 <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Reads ID3 Data.
 
  <p>If no exception is thrown, the peek position of <code>input</code> is aligned with the read
@@ -291,8 +284,6 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails. In this case, the read position is left
      unchanged and there is no guarantee on the peek position.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from input. In this case, the read
-     position is left unchanged and there is no guarantee on the peek position.</dd>
 </dl>
 </li>
 </ul>
@@ -303,8 +294,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <li class="blockList">
 <h4>readStreamMarker</h4>
 <pre>public static&nbsp;void&nbsp;readStreamMarker(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
-                             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                    <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Reads the FLAC stream marker.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -314,8 +304,6 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
      position of <code>input</code> is advanced by <a href="../../../../../com/google/android/exoplayer2/util/FlacConstants.html#STREAM_MARKER_SIZE"><code>FlacConstants.STREAM_MARKER_SIZE</code></a> bytes.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails. In this case, the position is left
      unchanged.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from input. In this case, the
-     position is left unchanged.</dd>
 </dl>
 </li>
 </ul>
@@ -327,8 +315,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <h4>readMetadataBlock</h4>
 <pre>public static&nbsp;boolean&nbsp;readMetadataBlock(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                                         <a href="../../../../../com/google/android/exoplayer2/extractor/FlacMetadataReader.FlacStreamMetadataHolder.html" title="class in com.google.android.exoplayer2.extractor">FlacMetadataReader.FlacStreamMetadataHolder</a>&nbsp;metadataHolder)
-                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                        <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Reads one FLAC metadata block.
 
  <p>If no exception is thrown, the peek position of <code>input</code> is aligned with the read
@@ -349,9 +336,6 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
      start of a metadata block and there is no guarantee on the peek position.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If reading from the input fails. In this case, the read position will be at
      the start of a metadata block and there is no guarantee on the peek position.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while reading from input. In this case, the read
-     position will be at the start of a metadata block and there is no guarantee on the peek
-     position.</dd>
 </dl>
 </li>
 </ul>
@@ -361,7 +345,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <ul class="blockList">
 <li class="blockList">
 <h4>readSeekTableMetadataBlock</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.util">FlacStreamMetadata.SeekTable</a>&nbsp;readSeekTableMetadataBlock(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data)</pre>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/FlacStreamMetadata.SeekTable.html" title="class in com.google.android.exoplayer2.extractor">FlacStreamMetadata.SeekTable</a>&nbsp;readSeekTableMetadataBlock(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data)</pre>
 <div class="block">Reads a FLAC seek table metadata block.
 
  <p>The position of <code>data</code> is moved to the byte following the seek table metadata block
@@ -382,8 +366,7 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <li class="blockList">
 <h4>getFrameStartMarker</h4>
 <pre>public static&nbsp;int&nbsp;getFrameStartMarker(<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
-                               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                                      <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+                               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Returns the frame start marker, consisting of the 2 first bytes of the first frame.
 
  <p>The read position of <code>input</code> is left unchanged and the peek position is aligned with
@@ -396,7 +379,6 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/metadat
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code> - If an error occurs parsing the frame start marker.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If peeking from the input fails.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If interrupted while peeking from input.</dd>
 </dl>
 </li>
 </ul>

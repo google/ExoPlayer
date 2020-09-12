@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":38,"i7":6,"i8":6,"i9":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":38,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -151,18 +151,24 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#getSkipSilenceEnabled--">getSkipSilenceEnabled</a></span>()</code>
+<div class="block">Returns whether skipping silences in the audio stream is enabled.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>float</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#getVolume--">getVolume</a></span>()</code>
 <div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#removeAudioListener-com.google.android.exoplayer2.audio.AudioListener-">removeAudioListener</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioListener.html" title="interface in com.google.android.exoplayer2.audio">AudioListener</a>&nbsp;listener)</code>
 <div class="block">Removes a listener of audio events.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">setAudioAttributes</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -170,20 +176,32 @@ var activeTableTab = "activeTableTab";
 </div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-boolean-">setAudioAttributes</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes,
                   boolean&nbsp;handleAudioFocus)</code>
 <div class="block">Sets the attributes for audio playback, used by the underlying audio track.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#setAudioSessionId-int-">setAudioSessionId</a></span>(int&nbsp;audioSessionId)</code>
+<div class="block">Sets the ID of the audio session to attach to the underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">setAuxEffectInfo</a></span>(<a href="../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code>
 <div class="block">Sets information on an auxiliary audio effect to attach to the underlying audio track.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#setSkipSilenceEnabled-boolean-">setSkipSilenceEnabled</a></span>(boolean&nbsp;skipSilenceEnabled)</code>
+<div class="block">Sets whether skipping silences in the audio stream is enabled.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/Player.AudioComponent.html#setVolume-float-">setVolume</a></span>(float&nbsp;audioVolume)</code>
 <div class="block">Sets the audio volume, with 0 being silence and 1 being unity gain.</div>
@@ -298,6 +316,24 @@ void&nbsp;setAudioAttributes(<a href="../../../../com/google/android/exoplayer2/
 <div class="block">Returns the attributes for audio playback.</div>
 </li>
 </ul>
+<a name="setAudioSessionId-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioSessionId</h4>
+<pre>void&nbsp;setAudioSessionId(int&nbsp;audioSessionId)</pre>
+<div class="block">Sets the ID of the audio session to attach to the underlying <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>.
+
+ <p>The audio session ID can be generated using <a href="../../../../com/google/android/exoplayer2/C.html#generateAudioSessionIdV21-android.content.Context-"><code>C.generateAudioSessionIdV21(Context)</code></a>
+ for API 21+.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>audioSessionId</code> - The audio session ID, or <a href="../../../../com/google/android/exoplayer2/C.html#AUDIO_SESSION_ID_UNSET"><code>C.AUDIO_SESSION_ID_UNSET</code></a> if it should
+     be generated by the framework.</dd>
+</dl>
+</li>
+</ul>
 <a name="getAudioSessionId--">
 <!--   -->
 </a>
@@ -345,11 +381,35 @@ void&nbsp;setAudioAttributes(<a href="../../../../com/google/android/exoplayer2/
 <a name="getVolume--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getVolume</h4>
 <pre>float&nbsp;getVolume()</pre>
 <div class="block">Returns the audio volume, with 0 being silence and 1 being unity gain.</div>
+</li>
+</ul>
+<a name="setSkipSilenceEnabled-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSkipSilenceEnabled</h4>
+<pre>void&nbsp;setSkipSilenceEnabled(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Sets whether skipping silences in the audio stream is enabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences in the audio stream is enabled.</dd>
+</dl>
+</li>
+</ul>
+<a name="getSkipSilenceEnabled--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getSkipSilenceEnabled</h4>
+<pre>boolean&nbsp;getSkipSilenceEnabled()</pre>
+<div class="block">Returns whether skipping silences in the audio stream is enabled.</div>
 </li>
 </ul>
 </li>

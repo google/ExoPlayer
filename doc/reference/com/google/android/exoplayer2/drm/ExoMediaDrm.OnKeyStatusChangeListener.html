@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.drm</div>
-<h2 title="Interface ExoMediaDrm.OnKeyStatusChangeListener" class="title">Interface ExoMediaDrm.OnKeyStatusChangeListener&lt;T extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</h2>
+<h2 title="Interface ExoMediaDrm.OnKeyStatusChangeListener" class="title">Interface ExoMediaDrm.OnKeyStatusChangeListener</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -98,11 +98,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>Enclosing interface:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public static interface <span class="typeNameLabel">ExoMediaDrm.OnKeyStatusChangeListener&lt;T extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></pre>
+<pre>public static interface <span class="typeNameLabel">ExoMediaDrm.OnKeyStatusChangeListener</span></pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaDrm.OnKeyStatusChangeListener.html" title="class or interface in android.media" target="_top"><code>MediaDrm.OnKeyStatusChangeListener</code></a></dd>
@@ -127,7 +127,7 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html#onKeyStatusChange-com.google.android.exoplayer2.drm.ExoMediaDrm-byte:A-java.util.List-boolean-">onKeyStatusChange</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="type parameter in ExoMediaDrm.OnKeyStatusChangeListener">T</a>&gt;&nbsp;mediaDrm,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html#onKeyStatusChange-com.google.android.exoplayer2.drm.ExoMediaDrm-byte:A-java.util.List-boolean-">onKeyStatusChange</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;mediaDrm,
                  byte[]&nbsp;sessionId,
                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm" target="_top">ExoMediaDrm.KeyStatus</a>&gt;&nbsp;exoKeyInformation,
                  boolean&nbsp;hasNewUsableKey)</code>
@@ -156,7 +156,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onKeyStatusChange</h4>
-<pre>void&nbsp;onKeyStatusChange(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="type parameter in ExoMediaDrm.OnKeyStatusChangeListener">T</a>&gt;&nbsp;mediaDrm,
+<pre>void&nbsp;onKeyStatusChange(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;mediaDrm,
                        byte[]&nbsp;sessionId,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm" target="_top">ExoMediaDrm.KeyStatus</a>&gt;&nbsp;exoKeyInformation,
                        boolean&nbsp;hasNewUsableKey)</pre>
@@ -198,7 +198,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

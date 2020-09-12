@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/util/ColorParser.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/util/Consumer.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/util/ConditionVariable.html" target="_top">Frames</a></li>
@@ -106,7 +106,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <hr>
 <br>
-<pre>public final class <span class="typeNameLabel">ConditionVariable</span>
+<pre>public class <span class="typeNameLabel">ConditionVariable</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
 <div class="block">An interruptible condition variable. This class provides a number of benefits over <a href="https://developer.android.com/reference/android/os/ConditionVariable.html" title="class or interface in android.os" target="_top"><code>ConditionVariable</code></a>:
 
@@ -174,18 +174,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#blockUninterruptible--">blockUninterruptible</a></span>()</code>
+<div class="block">Blocks until the condition is open.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#close--">close</a></span>()</code>
 <div class="block">Closes the condition.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#isOpen--">isOpen</a></span>()</code>
 <div class="block">Returns whether the condition is opened.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#open--">open</a></span>()</code>
 <div class="block">Opens the condition and releases all threads that are blocked.</div>
@@ -309,6 +315,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a name="blockUninterruptible--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>blockUninterruptible</h4>
+<pre>public&nbsp;void&nbsp;blockUninterruptible()</pre>
+<div class="block">Blocks until the condition is open. Unlike <a href="../../../../../com/google/android/exoplayer2/util/ConditionVariable.html#block--"><code>block()</code></a>, this method will continue to block
+ if the calling thread is interrupted. If the calling thread was interrupted then its <a href="https://developer.android.com/reference/java/lang/Thread.html#isInterrupted--" title="class or interface in java.lang" target="_top"><code>interrupted status</code></a> will be set when the method returns.</div>
+</li>
+</ul>
 <a name="isOpen--">
 <!--   -->
 </a>
@@ -347,7 +364,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/util/ColorParser.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/EGLSurfaceTexture.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/util/Consumer.html" title="interface in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/util/ConditionVariable.html" target="_top">Frames</a></li>

@@ -147,8 +147,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInp
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html#colorInfo">colorInfo</a></span></code>&nbsp;</td>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html#format">format</a></span></code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -172,7 +172,15 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInp
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html#VideoDecoderInputBuffer--">VideoDecoderInputBuffer</a></span>()</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html#VideoDecoderInputBuffer-int-">VideoDecoderInputBuffer</a></span>(int&nbsp;bufferReplacementMode)</code>
+<div class="block">Creates a new instance.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoDecoderInputBuffer.html#VideoDecoderInputBuffer-int-int-">VideoDecoderInputBuffer</a></span>(int&nbsp;bufferReplacementMode,
+                       int&nbsp;paddingSize)</code>
+<div class="block">Creates a new instance.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -218,14 +226,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInp
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="colorInfo">
+<a name="format">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>colorInfo</h4>
+<h4>format</h4>
 <pre>@Nullable
-public&nbsp;<a href="../../../../../com/google/android/exoplayer2/video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a> colorInfo</pre>
+public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
 </li>
 </ul>
 </li>
@@ -236,13 +244,44 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/video/ColorInf
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="VideoDecoderInputBuffer--">
+<a name="VideoDecoderInputBuffer-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>VideoDecoderInputBuffer</h4>
+<pre>public&nbsp;VideoDecoderInputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderInputBuffer.BufferReplacementMode</a>
+                               int&nbsp;bufferReplacementMode)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferReplacementMode</code> - Determines the behavior of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#ensureSpaceForWrite-int-"><code>DecoderInputBuffer.ensureSpaceForWrite(int)</code></a>. One
+     of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DISABLED"><code>DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED</code></a>, <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_NORMAL"><code>DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL</code></a> and
+     <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DIRECT"><code>DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a name="VideoDecoderInputBuffer-int-int-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>VideoDecoderInputBuffer</h4>
-<pre>public&nbsp;VideoDecoderInputBuffer()</pre>
+<pre>public&nbsp;VideoDecoderInputBuffer(<a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">@DecoderInputBuffer.BufferReplacementMode</a>
+                               int&nbsp;bufferReplacementMode,
+                               int&nbsp;paddingSize)</pre>
+<div class="block">Creates a new instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferReplacementMode</code> - Determines the behavior of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#ensureSpaceForWrite-int-"><code>DecoderInputBuffer.ensureSpaceForWrite(int)</code></a>. One
+     of <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DISABLED"><code>DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED</code></a>, <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_NORMAL"><code>DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL</code></a> and
+     <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#BUFFER_REPLACEMENT_MODE_DIRECT"><code>DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT</code></a>.</dd>
+<dd><code>paddingSize</code> - If non-zero, <a href="../../../../../com/google/android/exoplayer2/decoder/DecoderInputBuffer.html#ensureSpaceForWrite-int-"><code>DecoderInputBuffer.ensureSpaceForWrite(int)</code></a> will ensure that the buffer
+     is this number of bytes larger than the requested length. This can be useful for decoders
+     that consume data in fixed size blocks, for efficiency. Setting the padding size to the
+     decoder's fixed read size is necessary to prevent such a decoder from trying to read beyond
+     the end of the buffer.</dd>
+</dl>
 </li>
 </ul>
 </li>

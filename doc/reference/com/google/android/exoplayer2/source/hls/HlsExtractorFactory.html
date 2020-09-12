@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.Result.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsManifest.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -110,27 +110,6 @@ var activeTableTab = "activeTableTab";
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
-<!--   -->
-</a>
-<h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Interface and Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.Result.html" title="class in com.google.android.exoplayer2.source.hls">HlsExtractorFactory.Result</a></span></code>
-<div class="block">Holds an <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> and associated parameters.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -163,9 +142,8 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.Result.html" title="class in com.google.android.exoplayer2.source.hls">HlsExtractorFactory.Result</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html#createExtractor-com.google.android.exoplayer2.extractor.Extractor-android.net.Uri-com.google.android.exoplayer2.Format-java.util.List-com.google.android.exoplayer2.util.TimestampAdjuster-java.util.Map-com.google.android.exoplayer2.extractor.ExtractorInput-">createExtractor</a></span>(<a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;previousExtractor,
-               <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html#createExtractor-android.net.Uri-com.google.android.exoplayer2.Format-java.util.List-com.google.android.exoplayer2.util.TimestampAdjuster-java.util.Map-com.google.android.exoplayer2.extractor.ExtractorInput-">createExtractor</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
                <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;muxedCaptionFormats,
                <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
@@ -206,29 +184,23 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="createExtractor-com.google.android.exoplayer2.extractor.Extractor-android.net.Uri-com.google.android.exoplayer2.Format-java.util.List-com.google.android.exoplayer2.util.TimestampAdjuster-java.util.Map-com.google.android.exoplayer2.extractor.ExtractorInput-">
+<a name="createExtractor-android.net.Uri-com.google.android.exoplayer2.Format-java.util.List-com.google.android.exoplayer2.util.TimestampAdjuster-java.util.Map-com.google.android.exoplayer2.extractor.ExtractorInput-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>createExtractor</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.Result.html" title="class in com.google.android.exoplayer2.source.hls">HlsExtractorFactory.Result</a>&nbsp;createExtractor(@Nullable
-                                           <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;previousExtractor,
-                                           <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
-                                           <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                                           @Nullable
-                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;muxedCaptionFormats,
-                                           <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
-                                           <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders,
-                                           <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;sniffingExtractorInput)
-                                    throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a>,
-                                           <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
+<pre><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a>&nbsp;createExtractor(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;uri,
+                                       <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                       @Nullable
+                                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;muxedCaptionFormats,
+                                       <a href="../../../../../../com/google/android/exoplayer2/util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
+                                       <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders,
+                                       <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;sniffingExtractorInput)
+                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block">Creates an <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> for extracting HLS media chunks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>previousExtractor</code> - A previously used <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> which can be reused if the current
-     chunk is a continuation of the previously extracted chunk, or null otherwise. It is the
-     responsibility of implementers to only reuse extractors that are suited for reusage.</dd>
 <dd><code>uri</code> - The URI of the media chunk.</dd>
 <dd><code>format</code> - A <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> associated with the chunk to extract.</dd>
 <dd><code>muxedCaptionFormats</code> - List of muxed caption <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s. Null if no closed caption
@@ -240,9 +212,8 @@ var activeTableTab = "activeTableTab";
      extractor's <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-"><code>Extractor.read(ExtractorInput, PositionHolder)</code></a>. Must only be used to
      call <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#sniff-com.google.android.exoplayer2.extractor.ExtractorInput-"><code>Extractor.sniff(ExtractorInput)</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.Result.html" title="class in com.google.android.exoplayer2.source.hls"><code>HlsExtractorFactory.Result</code></a>.</dd>
+<dd>An <a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls"><code>HlsMediaChunkExtractor</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread is interrupted while sniffing.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an I/O error is encountered while sniffing.</dd>
 </dl>
 </li>
@@ -275,7 +246,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsExtractorFactory.Result.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsManifest.html" title="class in com.google.android.exoplayer2.source.hls"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/source/hls/HlsExtractorFactory.html" target="_top">Frames</a></li>
@@ -299,7 +270,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

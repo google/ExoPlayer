@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/TestUtil.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html" target="_top">Frames</a></li>
@@ -113,7 +113,8 @@ var activeTableTab = "activeTableTab";
 <pre>public final class <span class="typeNameLabel">TestDownloadManagerListener</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></pre>
-<div class="block">A <code>DownloadManager.Listener</code> for testing.</div>
+<div class="block">Allows tests to block for, and assert properties of, calls from a <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> to its
+ <code>DownloadManager.Listener</code>.</div>
 </li>
 </ul>
 </div>
@@ -132,13 +133,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#TestDownloadManagerListener-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.testutil.DummyMainThread-">TestDownloadManagerListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                           <a href="../../../../../com/google/android/exoplayer2/testutil/DummyMainThread.html" title="class in com.google.android.exoplayer2.testutil">DummyMainThread</a>&nbsp;dummyMainThread)</code>&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#TestDownloadManagerListener-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.testutil.DummyMainThread-int-">TestDownloadManagerListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                           <a href="../../../../../com/google/android/exoplayer2/testutil/DummyMainThread.html" title="class in com.google.android.exoplayer2.testutil">DummyMainThread</a>&nbsp;dummyMainThread,
-                           int&nbsp;timeoutMs)</code>&nbsp;</td>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#TestDownloadManagerListener-com.google.android.exoplayer2.offline.DownloadManager-">TestDownloadManagerListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -157,62 +152,61 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#assertRemoved-java.lang.String-int-">assertRemoved</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;taskId,
-             int&nbsp;timeoutMs)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#assertRemoved-java.lang.String-">assertRemoved</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;id)</code>
+<div class="block">Asserts that the specified download is removed.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#assertState-java.lang.String-int-int-">assertState</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;taskId,
-           int&nbsp;expectedState,
-           int&nbsp;timeoutMs)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#assertState-java.lang.String-int-">assertState</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;id,
+           int&nbsp;state)</code>
+<div class="block">Asserts that the specified download transitions to the specified state.</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#blockUntilTasksComplete--">blockUntilTasksComplete</a></span>()</code>
-<div class="block">Blocks until all remove and download tasks are complete.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#blockUntilIdle--">blockUntilIdle</a></span>()</code>
+<div class="block">Blocks until the manager is idle.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#blockUntilTasksCompleteAndThrowAnyDownloadError--">blockUntilTasksCompleteAndThrowAnyDownloadError</a></span>()</code>
-<div class="block">Blocks until all remove and download tasks are complete and throws an exception if there was an
- error.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#blockUntilIdleAndThrowAnyFailure--">blockUntilIdleAndThrowAnyFailure</a></span>()</code>
+<div class="block">Blocks until the manager is idle and throws if any of the downloads failed.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">onDownloadChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                 <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
-<div class="block">Called when the state of a download changes.</div>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#blockUntilInitialized--">blockUntilInitialized</a></span>()</code>
+<div class="block">Blocks until the manager is initialized.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-java.lang.Exception-">onDownloadChanged</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
+                 <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download,
+                 <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;finalException)</code>
+<div class="block">Called when the state of a download changes.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#onDownloadRemoved-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">onDownloadRemoved</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
                  <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code>
 <div class="block">Called when a download is removed.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#onIdle-com.google.android.exoplayer2.offline.DownloadManager-">onIdle</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</code>
 <div class="block">Called when there is no active download left.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#onInitialized-com.google.android.exoplayer2.offline.DownloadManager-">onInitialized</a></span>(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</code>
 <div class="block">Called when all downloads have been restored.</div>
 </td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" target="_top">Integer</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#pollStateChange-java.lang.String-long-">pollStateChange</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;taskId,
-               long&nbsp;timeoutMs)</code>&nbsp;</td>
-</tr>
-<tr id="i9" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html#waitUntilInitialized--">waitUntilInitialized</a></span>()</code>&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -243,25 +237,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="TestDownloadManagerListener-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.testutil.DummyMainThread-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>TestDownloadManagerListener</h4>
-<pre>public&nbsp;TestDownloadManagerListener(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                                   <a href="../../../../../com/google/android/exoplayer2/testutil/DummyMainThread.html" title="class in com.google.android.exoplayer2.testutil">DummyMainThread</a>&nbsp;dummyMainThread)</pre>
-</li>
-</ul>
-<a name="TestDownloadManagerListener-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.testutil.DummyMainThread-int-">
+<a name="TestDownloadManagerListener-com.google.android.exoplayer2.offline.DownloadManager-">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>TestDownloadManagerListener</h4>
-<pre>public&nbsp;TestDownloadManagerListener(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                                   <a href="../../../../../com/google/android/exoplayer2/testutil/DummyMainThread.html" title="class in com.google.android.exoplayer2.testutil">DummyMainThread</a>&nbsp;dummyMainThread,
-                                   int&nbsp;timeoutMs)</pre>
+<pre>public&nbsp;TestDownloadManagerListener(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</pre>
 </li>
 </ul>
 </li>
@@ -272,19 +254,71 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="pollStateChange-java.lang.String-long-">
+<a name="blockUntilInitialized--">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>pollStateChange</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang">Integer</a>&nbsp;pollStateChange(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&nbsp;taskId,
-                               long&nbsp;timeoutMs)
-                        throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+<h4>blockUntilInitialized</h4>
+<pre>public&nbsp;void&nbsp;blockUntilInitialized()
+                           throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+<div class="block">Blocks until the manager is initialized.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code></dd>
 </dl>
+</li>
+</ul>
+<a name="blockUntilIdle--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>blockUntilIdle</h4>
+<pre>public&nbsp;void&nbsp;blockUntilIdle()
+                    throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+<div class="block">Blocks until the manager is idle.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="blockUntilIdleAndThrowAnyFailure--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>blockUntilIdleAndThrowAnyFailure</h4>
+<pre>public&nbsp;void&nbsp;blockUntilIdleAndThrowAnyFailure()
+                                      throws <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></pre>
+<div class="block">Blocks until the manager is idle and throws if any of the downloads failed.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="assertState-java.lang.String-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertState</h4>
+<pre>public&nbsp;void&nbsp;assertState(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;id,
+                        <a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@Download.State</a>
+                        int&nbsp;state)</pre>
+<div class="block">Asserts that the specified download transitions to the specified state.</div>
+</li>
+</ul>
+<a name="assertRemoved-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>assertRemoved</h4>
+<pre>public&nbsp;void&nbsp;assertRemoved(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;id)</pre>
+<div class="block">Asserts that the specified download is removed.</div>
 </li>
 </ul>
 <a name="onInitialized-com.google.android.exoplayer2.offline.DownloadManager-">
@@ -304,36 +338,26 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 </dl>
 </li>
 </ul>
-<a name="waitUntilInitialized--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>waitUntilInitialized</h4>
-<pre>public&nbsp;void&nbsp;waitUntilInitialized()
-                          throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">
+<a name="onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-java.lang.Exception-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onDownloadChanged</h4>
 <pre>public&nbsp;void&nbsp;onDownloadChanged(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager,
-                              <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">DownloadManager.Listener</a></code></span></div>
+                              <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download,
+                              @Nullable
+                              <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">Exception</a>&nbsp;finalException)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-java.lang.Exception-">DownloadManager.Listener</a></code></span></div>
 <div class="block">Called when the state of a download changes.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-">onDownloadChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></code></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html#onDownloadChanged-com.google.android.exoplayer2.offline.DownloadManager-com.google.android.exoplayer2.offline.Download-java.lang.Exception-">onDownloadChanged</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>downloadManager</code> - The reporting instance.</dd>
 <dd><code>download</code> - The state of the download.</dd>
+<dd><code>finalException</code> - If the download is transitioning to <a href="../../../../../com/google/android/exoplayer2/offline/Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>, this
+     is the final exception that resulted in the failure.</dd>
 </dl>
 </li>
 </ul>
@@ -359,7 +383,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <a name="onIdle-com.google.android.exoplayer2.offline.DownloadManager-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>onIdle</h4>
 <pre>public&nbsp;void&nbsp;onIdle(<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;downloadManager)</pre>
@@ -371,59 +395,6 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>downloadManager</code> - The reporting instance.</dd>
 </dl>
-</li>
-</ul>
-<a name="blockUntilTasksCompleteAndThrowAnyDownloadError--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>blockUntilTasksCompleteAndThrowAnyDownloadError</h4>
-<pre>public&nbsp;void&nbsp;blockUntilTasksCompleteAndThrowAnyDownloadError()
-                                                     throws <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a></pre>
-<div class="block">Blocks until all remove and download tasks are complete and throws an exception if there was an
- error.</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="blockUntilTasksComplete--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>blockUntilTasksComplete</h4>
-<pre>public&nbsp;void&nbsp;blockUntilTasksComplete()
-                             throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
-<div class="block">Blocks until all remove and download tasks are complete. Task errors are ignored.</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="assertRemoved-java.lang.String-int-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>assertRemoved</h4>
-<pre>public&nbsp;void&nbsp;assertRemoved(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;taskId,
-                          int&nbsp;timeoutMs)</pre>
-</li>
-</ul>
-<a name="assertState-java.lang.String-int-int-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>assertState</h4>
-<pre>public&nbsp;void&nbsp;assertState(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;taskId,
-                        <a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@Download.State</a>
-                        int&nbsp;expectedState,
-                        int&nbsp;timeoutMs)</pre>
 </li>
 </ul>
 </li>
@@ -454,7 +425,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/offline/Downloa
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/testutil/TestUtil.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/testutil/TestExoPlayer.html" title="class in com.google.android.exoplayer2.testutil"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/testutil/TestDownloadManagerListener.html" target="_top">Frames</a></li>

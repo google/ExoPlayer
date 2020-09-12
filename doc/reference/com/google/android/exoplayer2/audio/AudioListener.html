@@ -16,7 +16,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":18,"i1":18,"i2":18};
+var methods = {"i0":18,"i1":18,"i2":18,"i3":18};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilitiesReceiver.Listener.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -136,6 +136,12 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html#onSkipSilenceEnabledChanged-boolean-">onSkipSilenceEnabledChanged</a></span>(boolean&nbsp;skipSilenceEnabled)</code>
+<div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioListener.html#onVolumeChanged-float-">onVolumeChanged</a></span>(float&nbsp;volume)</code>
 <div class="block">Called when the volume changes.</div>
 </td>
@@ -186,7 +192,7 @@ var activeTableTab = "activeTableTab";
 <a name="onVolumeChanged-float-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onVolumeChanged</h4>
 <pre>default&nbsp;void&nbsp;onVolumeChanged(float&nbsp;volume)</pre>
@@ -194,6 +200,20 @@ var activeTableTab = "activeTableTab";
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>volume</code> - The new volume, with 0 being silence and 1 being unity gain.</dd>
+</dl>
+</li>
+</ul>
+<a name="onSkipSilenceEnabledChanged-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onSkipSilenceEnabledChanged</h4>
+<pre>default&nbsp;void&nbsp;onSkipSilenceEnabledChanged(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences in the audio stream is enabled.</dd>
 </dl>
 </li>
 </ul>
@@ -224,7 +244,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioDecoderException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilitiesReceiver.Listener.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

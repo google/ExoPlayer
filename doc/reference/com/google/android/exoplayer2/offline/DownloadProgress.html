@@ -186,7 +186,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>bytesDownloaded</h4>
-<pre>public&nbsp;long bytesDownloaded</pre>
+<pre>public volatile&nbsp;long bytesDownloaded</pre>
 <div class="block">The number of bytes that have been downloaded.</div>
 </li>
 </ul>
@@ -196,7 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>percentDownloaded</h4>
-<pre>public&nbsp;float percentDownloaded</pre>
+<pre>public volatile&nbsp;float percentDownloaded</pre>
 <div class="block">The percentage that has been downloaded, or <a href="../../../../../com/google/android/exoplayer2/C.html#PERCENTAGE_UNSET"><code>C.PERCENTAGE_UNSET</code></a> if unknown.</div>
 </li>
 </ul>

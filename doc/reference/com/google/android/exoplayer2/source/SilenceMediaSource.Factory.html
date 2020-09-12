@@ -163,7 +163,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource.Factory</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.Factory.html#setTag-java.lang.Object-">setTag</a></span>(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</code>
-<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../com/google/android/exoplayer2/MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -212,7 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setDurationUs</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource.Factory</a>&nbsp;setDurationUs(long&nbsp;durationUs)</pre>
-<div class="block">Sets the duration of the silent audio.</div>
+<div class="block">Sets the duration of the silent audio. The value needs to be a positive value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>durationUs</code> - The duration of silent audio to output, in microseconds.</dd>
@@ -229,7 +229,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setTag</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource.Factory</a>&nbsp;setTag(@Nullable
                                          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;tag)</pre>
-<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html#tag"><code>Timeline.Window.tag</code></a>.</div>
+<div class="block">Sets a tag for the media source which will be published in the <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> of the source as <a href="../../../../../com/google/android/exoplayer2/MediaItem.PlaybackProperties.html#tag"><code>Window#mediaItem.playbackProperties.tag</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>tag</code> - A tag for the media source.</dd>
@@ -246,6 +246,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>createMediaSource</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource</a>&nbsp;createMediaSource()</pre>
 <div class="block">Creates a new <a href="../../../../../com/google/android/exoplayer2/source/SilenceMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>SilenceMediaSource</code></a>.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" target="_top">IllegalStateException</a></code> - if the duration is a non-positive value.</dd>
+</dl>
 </li>
 </ul>
 </li>

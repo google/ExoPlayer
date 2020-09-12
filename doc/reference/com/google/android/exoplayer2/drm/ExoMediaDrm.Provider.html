@@ -90,7 +90,7 @@ var activeTableTab = "activeTableTab";
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="subTitle">com.google.android.exoplayer2.drm</div>
-<h2 title="Interface ExoMediaDrm.Provider" class="title">Interface ExoMediaDrm.Provider&lt;T extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</h2>
+<h2 title="Interface ExoMediaDrm.Provider" class="title">Interface ExoMediaDrm.Provider</h2>
 </div>
 <div class="contentContainer">
 <div class="description">
@@ -102,11 +102,11 @@ var activeTableTab = "activeTableTab";
 </dl>
 <dl>
 <dt>Enclosing interface:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="type parameter in ExoMediaDrm">T</a> extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></dd>
 </dl>
 <hr>
 <br>
-<pre>public static interface <span class="typeNameLabel">ExoMediaDrm.Provider&lt;T extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&gt;</span></pre>
+<pre>public static interface <span class="typeNameLabel">ExoMediaDrm.Provider</span></pre>
 <div class="block"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instances provider.</div>
 </li>
 </ul>
@@ -127,7 +127,7 @@ var activeTableTab = "activeTableTab";
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="type parameter in ExoMediaDrm.Provider">T</a>&gt;</code></td>
+<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html#acquireExoMediaDrm-java.util.UUID-">acquireExoMediaDrm</a></span>(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" target="_top">UUID</a>&nbsp;uuid)</code>
 <div class="block">Returns an <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instance with an incremented reference count.</div>
 </td>
@@ -153,7 +153,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>acquireExoMediaDrm</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="type parameter in ExoMediaDrm.Provider">T</a>&gt;&nbsp;acquireExoMediaDrm(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" target="_top">UUID</a>&nbsp;uuid)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;acquireExoMediaDrm(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" target="_top">UUID</a>&nbsp;uuid)</pre>
 <div class="block">Returns an <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instance with an incremented reference count. When the caller
  no longer needs to use the instance, it must call <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#release--"><code>ExoMediaDrm.release()</code></a> to decrement
  the reference count.</div>

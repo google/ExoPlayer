@@ -146,7 +146,7 @@ var activeTableTab = "activeTableTab";
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--">cancel</a></span>()</code>
-<div class="block">Cancels the download operation and prevents future download operations from running.</div>
+<div class="block">Permanently cancels the downloading by this downloader.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -184,16 +184,26 @@ var activeTableTab = "activeTableTab";
 <h4>download</h4>
 <pre>void&nbsp;download(@Nullable
               <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a>&nbsp;progressListener)
-       throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a>,
-              <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
-<div class="block">Downloads the content.</div>
+       throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
+              <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+<div class="block">Downloads the content.
+
+ <p>If downloading fails, this method can be called again to resume the download. It cannot be
+ called again after the download has been <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#cancel--"><code>canceled</code></a>.
+
+ <p>If downloading is canceled whilst this method is executing, then it is expected that it will
+ return reasonably quickly. However, there are no guarantees about how the method will return,
+ meaning that it can return without throwing, or by throwing any of its documented exceptions.
+ The caller must use its own knowledge about whether downloading has been canceled to determine
+ whether this is why the method has returned, rather than relying on the method returning in a
+ particular way.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>progressListener</code> - A listener to receive progress updates, or <code>null</code>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></code> - Thrown if the content cannot be downloaded.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread has been interrupted.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - Thrown when there is an io error while downloading.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If the download failed to complete successfully.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the download was interrupted.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/CancellationException.html" title="class or interface in java.util.concurrent" target="_top">CancellationException</a></code> - If the download was canceled.</dd>
 </dl>
 </li>
 </ul>
@@ -204,7 +214,10 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>cancel</h4>
 <pre>void&nbsp;cancel()</pre>
-<div class="block">Cancels the download operation and prevents future download operations from running.</div>
+<div class="block">Permanently cancels the downloading by this downloader. The caller should also interrupt the
+ downloading thread immediately after calling this method.
+
+ <p>Once canceled, <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html#download-com.google.android.exoplayer2.offline.Downloader.ProgressListener-"><code>download(com.google.android.exoplayer2.offline.Downloader.ProgressListener)</code></a> cannot be called again.</div>
 </li>
 </ul>
 <a name="remove--">
@@ -213,13 +226,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>remove</h4>
-<pre>void&nbsp;remove()
-     throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+<pre>void&nbsp;remove()</pre>
 <div class="block">Removes the content.</div>
-<dl>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - Thrown if the thread was interrupted.</dd>
-</dl>
 </li>
 </ul>
 </li>

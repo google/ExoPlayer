@@ -136,23 +136,28 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <th class="colOne" scope="col">Constructor and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-">DefaultHttpDataSourceFactory</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</code>
-<div class="block">Constructs a DefaultHttpDataSourceFactory.</div>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory--">DefaultHttpDataSourceFactory</a></span>()</code>
+<div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-">DefaultHttpDataSourceFactory</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</code>
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-int-int-boolean-">DefaultHttpDataSourceFactory</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                             int&nbsp;connectTimeoutMillis,
                             int&nbsp;readTimeoutMillis,
                             boolean&nbsp;allowCrossProtocolRedirects)</code>&nbsp;</td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-">DefaultHttpDataSourceFactory</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                             <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</code>
-<div class="block">Constructs a DefaultHttpDataSourceFactory.</div>
+<div class="block">Creates an instance.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSourceFactory.html#DefaultHttpDataSourceFactory-java.lang.String-com.google.android.exoplayer2.upstream.TransferListener-int-int-boolean-">DefaultHttpDataSourceFactory</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                             <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener,
                             int&nbsp;connectTimeoutMillis,
@@ -209,6 +214,18 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
+<a name="DefaultHttpDataSourceFactory--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>DefaultHttpDataSourceFactory</h4>
+<pre>public&nbsp;DefaultHttpDataSourceFactory()</pre>
+<div class="block">Creates an instance. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
+ connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
+ timeout and disables cross-protocol redirects.</div>
+</li>
+</ul>
 <a name="DefaultHttpDataSourceFactory-java.lang.String-">
 <!--   -->
 </a>
@@ -216,8 +233,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <li class="blockList">
 <h4>DefaultHttpDataSourceFactory</h4>
 <pre>public&nbsp;DefaultHttpDataSourceFactory(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent)</pre>
-<div class="block">Constructs a DefaultHttpDataSourceFactory. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read timeout and disables
- cross-protocol redirects.</div>
+<div class="block">Creates an instance. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
+ connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
+ timeout and disables cross-protocol redirects.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>userAgent</code> - The User-Agent string that should be used.</dd>
@@ -233,8 +251,9 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <pre>public&nbsp;DefaultHttpDataSourceFactory(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;userAgent,
                                     @Nullable
                                     <a href="../../../../../com/google/android/exoplayer2/upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;listener)</pre>
-<div class="block">Constructs a DefaultHttpDataSourceFactory. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read timeout and disables
- cross-protocol redirects.</div>
+<div class="block">Creates an instance. Sets <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_CONNECT_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS</code></a> as the
+ connection timeout, <a href="../../../../../com/google/android/exoplayer2/upstream/DefaultHttpDataSource.html#DEFAULT_READ_TIMEOUT_MILLIS"><code>DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS</code></a> as the read
+ timeout and disables cross-protocol redirects.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>userAgent</code> - The User-Agent string that should be used.</dd>

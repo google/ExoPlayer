@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":50,"i1":18,"i2":6,"i3":50,"i4":18,"i5":18};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" target="_top">Frames</a></li>
@@ -71,7 +71,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
@@ -103,16 +103,16 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public interface <span class="typeNameLabel">LoadErrorHandlingPolicy</span></pre>
-<div class="block">Defines how errors encountered by <a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loaders</code></a> are handled.
+<div class="block">Defines how errors encountered by loaders are handled.
 
- <p>Loader clients may blacklist a resource when a load error occurs. Blacklisting works around
- load errors by loading an alternative resource. Clients do not try blacklisting when a resource
- does not have an alternative. When a resource does have valid alternatives, <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-int-long-java.io.IOException-int-"><code>getBlacklistDurationMsFor(int, long, IOException, int)</code></a> defines whether the resource should be
- blacklisted. Blacklisting will succeed if any of the alternatives is not in the black list.
+ <p>A loader that can choose between one of a number of resources can exclude a resource when a
+ load error occurs. In this case, <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-int-long-java.io.IOException-int-"><code>getBlacklistDurationMsFor(int, long, IOException, int)</code></a>
+ defines whether the resource should be excluded. Exclusion will succeed unless all of the
+ alternatives are already excluded.
 
- <p>When blacklisting does not take place, <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-int-long-java.io.IOException-int-"><code>getRetryDelayMsFor(int, long, IOException,
- int)</code></a> defines whether the load is retried. Errors whose load is not retried are propagated. Load
- errors whose load is retried are propagated according to <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getMinimumLoadableRetryCount-int-"><code>getMinimumLoadableRetryCount(int)</code></a>.
+ <p>When exclusion does not take place, <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-int-long-java.io.IOException-int-"><code>getRetryDelayMsFor(int, long, IOException, int)</code></a>
+ defines whether the load is retried. An error that's not retried will always be propagated. An
+ error that is retried will be propagated according to <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getMinimumLoadableRetryCount-int-"><code>getMinimumLoadableRetryCount(int)</code></a>.
 
  <p>Methods are invoked on the playback thread.</div>
 </li>
@@ -121,6 +121,27 @@ var activeTableTab = "activeTableTab";
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<ul class="blockList">
+<li class="blockList"><a name="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Interface and Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a></span></code>
+<div class="block">Holds information about a load task error.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="method.summary">
@@ -128,35 +149,57 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>long</code></td>
+<td class="colFirst"><code>default long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-int-long-java.io.IOException-int-">getBlacklistDurationMsFor</a></span>(int&nbsp;dataType,
                          long&nbsp;loadDurationMs,
                          <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;exception,
                          int&nbsp;errorCount)</code>
-<div class="block">Returns the number of milliseconds for which a resource associated to a provided load error
- should be blacklisted, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should not be blacklisted.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Implement <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-"><code>getBlacklistDurationMsFor(LoadErrorInfo)</code></a> instead.</span></div>
+</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>default long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-">getBlacklistDurationMsFor</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</code>
+<div class="block">Returns the number of milliseconds for which a resource associated to a provided load error
+ should be excluded, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should not be excluded.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getMinimumLoadableRetryCount-int-">getMinimumLoadableRetryCount</a></span>(int&nbsp;dataType)</code>
 <div class="block">Returns the minimum number of times to retry a load in the case of a load error, before
  propagating the error.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>long</code></td>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-int-long-java.io.IOException-int-">getRetryDelayMsFor</a></span>(int&nbsp;dataType,
                   long&nbsp;loadDurationMs,
                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;exception,
                   int&nbsp;errorCount)</code>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
+<div class="block"><span class="deprecationComment">Implement <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-"><code>getRetryDelayMsFor(LoadErrorInfo)</code></a> instead.</span></div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>default long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-">getRetryDelayMsFor</a></span>(<a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</code>
 <div class="block">Returns the number of milliseconds to wait before attempting the load again, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the error is fatal and should not be retried.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#onLoadTaskConcluded-long-">onLoadTaskConcluded</a></span>(long&nbsp;loadTaskId)</code>
+<div class="block">Called once <code>loadTaskId</code> will not be associated with any more load errors.</div>
 </td>
 </tr>
 </table>
@@ -180,23 +223,29 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getBlacklistDurationMsFor</h4>
-<pre>long&nbsp;getBlacklistDurationMsFor(int&nbsp;dataType,
-                               long&nbsp;loadDurationMs,
-                               <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;exception,
-                               int&nbsp;errorCount)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+default&nbsp;long&nbsp;getBlacklistDurationMsFor(int&nbsp;dataType,
+                                                   long&nbsp;loadDurationMs,
+                                                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;exception,
+                                                   int&nbsp;errorCount)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Implement <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-"><code>getBlacklistDurationMsFor(LoadErrorInfo)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="getBlacklistDurationMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBlacklistDurationMsFor</h4>
+<pre>default&nbsp;long&nbsp;getBlacklistDurationMsFor(<a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</pre>
 <div class="block">Returns the number of milliseconds for which a resource associated to a provided load error
- should be blacklisted, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should not be blacklisted.</div>
+ should be excluded, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should not be excluded.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataType</code> - One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C.DATA_TYPE_*</code></a> constants indicating the type of data to
-     load.</dd>
-<dd><code>loadDurationMs</code> - The duration in milliseconds of the load from the start of the first load
-     attempt up to the point at which the error occurred.</dd>
-<dd><code>exception</code> - The load error.</dd>
-<dd><code>errorCount</code> - The number of errors this load has encountered, including this one.</dd>
+<dd><code>loadErrorInfo</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.LoadErrorInfo</code></a> holding information about the load error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The blacklist duration in milliseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should
-     not be blacklisted.</dd>
+<dd>The exclusion duration in milliseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the resource should
+     not be excluded.</dd>
 </dl>
 </li>
 </ul>
@@ -206,26 +255,45 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getRetryDelayMsFor</h4>
-<pre>long&nbsp;getRetryDelayMsFor(int&nbsp;dataType,
-                        long&nbsp;loadDurationMs,
-                        <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;exception,
-                        int&nbsp;errorCount)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+default&nbsp;long&nbsp;getRetryDelayMsFor(int&nbsp;dataType,
+                                            long&nbsp;loadDurationMs,
+                                            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;exception,
+                                            int&nbsp;errorCount)</pre>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Implement <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-"><code>getRetryDelayMsFor(LoadErrorInfo)</code></a> instead.</span></div>
+</li>
+</ul>
+<a name="getRetryDelayMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRetryDelayMsFor</h4>
+<pre>default&nbsp;long&nbsp;getRetryDelayMsFor(<a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo)</pre>
 <div class="block">Returns the number of milliseconds to wait before attempting the load again, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the error is fatal and should not be retried.
 
- <p><a href="../../../../../com/google/android/exoplayer2/upstream/Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> clients may ignore the retry delay returned by this method in order to wait
- for a specific event before retrying. However, the load is retried if and only if this method
- does not return <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
+ <p>Loaders may ignore the retry delay returned by this method in order to wait for a specific
+ event before retrying. However, the load is retried if and only if this method does not return
+ <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>dataType</code> - One of the <a href="../../../../../com/google/android/exoplayer2/C.html" title="class in com.google.android.exoplayer2"><code>C.DATA_TYPE_*</code></a> constants indicating the type of data to
-     load.</dd>
-<dd><code>loadDurationMs</code> - The duration in milliseconds of the load from the start of the first load
-     attempt up to the point at which the error occurred.</dd>
-<dd><code>exception</code> - The load error.</dd>
-<dd><code>errorCount</code> - The number of errors this load has encountered, including this one.</dd>
+<dd><code>loadErrorInfo</code> - A <a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.LoadErrorInfo</code></a> holding information about the load error.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of milliseconds to wait before attempting the load again, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the error is fatal and should not be retried.</dd>
 </dl>
+</li>
+</ul>
+<a name="onLoadTaskConcluded-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onLoadTaskConcluded</h4>
+<pre>default&nbsp;void&nbsp;onLoadTaskConcluded(long&nbsp;loadTaskId)</pre>
+<div class="block">Called once <code>loadTaskId</code> will not be associated with any more load errors.
+
+ <p>Implementations should clean up any resources associated with <code>loadTaskId</code> when this
+ method is called.</div>
 </li>
 </ul>
 <a name="getMinimumLoadableRetryCount-int-">
@@ -277,7 +345,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/LoaderErrorThrower.Dummy.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html" target="_top">Frames</a></li>
@@ -301,7 +369,7 @@ var activeTableTab = "activeTableTab";
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>

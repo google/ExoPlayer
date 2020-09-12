@@ -16,8 +16,8 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var methods = {"i0":6,"i1":18,"i2":18,"i3":18,"i4":6,"i5":6,"i6":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/AudioSink.Listener.html" target="_top">Frames</a></li>
@@ -117,7 +117,7 @@ var activeTableTab = "activeTableTab";
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -129,13 +129,38 @@ var activeTableTab = "activeTableTab";
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onOffloadBufferEmptying--">onOffloadBufferEmptying</a></span>()</code>
+<div class="block">Called when the offload buffer has been partially emptied.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onOffloadBufferFull-long-">onOffloadBufferFull</a></span>(long&nbsp;bufferEmptyingDeadlineMs)</code>
+<div class="block">Called when the offload buffer has been filled completely.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onPositionAdvancing-long-">onPositionAdvancing</a></span>(long&nbsp;playoutStartSystemTimeMs)</code>
+<div class="block">Called when the audio sink's position has increased for the first time since it was last
+ paused or flushed.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onPositionDiscontinuity--">onPositionDiscontinuity</a></span>()</code>
 <div class="block">Called when the audio sink handles a buffer whose timestamp is discontinuous with the last
  buffer handled since it was reset.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onSkipSilenceEnabledChanged-boolean-">onSkipSilenceEnabledChanged</a></span>(boolean&nbsp;skipSilenceEnabled)</code>
+<div class="block">Called when skipping silences is enabled or disabled.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onUnderrun-int-long-long-">onUnderrun</a></span>(int&nbsp;bufferSize,
           long&nbsp;bufferSizeMs,
@@ -183,18 +208,34 @@ var activeTableTab = "activeTableTab";
  buffer handled since it was reset.</div>
 </li>
 </ul>
+<a name="onPositionAdvancing-long-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onPositionAdvancing</h4>
+<pre>default&nbsp;void&nbsp;onPositionAdvancing(long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="block">Called when the audio sink's position has increased for the first time since it was last
+ paused or flushed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playoutStartSystemTimeMs</code> - The approximate derived <a href="https://developer.android.com/reference/java/lang/System.html#currentTimeMillis--" title="class or interface in java.lang" target="_top"><code>System.currentTimeMillis()</code></a> at
+     which playout started. Only valid if the audio track has not underrun.</dd>
+</dl>
+</li>
+</ul>
 <a name="onUnderrun-int-long-long-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onUnderrun</h4>
 <pre>void&nbsp;onUnderrun(int&nbsp;bufferSize,
                 long&nbsp;bufferSizeMs,
                 long&nbsp;elapsedSinceLastFeedMs)</pre>
 <div class="block">Called when the audio sink runs out of data.
- <p>
- An audio sink implementation may never call this method (for example, if audio data is
+
+ <p>An audio sink implementation may never call this method (for example, if audio data is
  consumed in batches rather than based on the sink's own clock).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -203,6 +244,44 @@ var activeTableTab = "activeTableTab";
      PCM output. <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if it is configured for encoded audio output, as the
      buffered media can have a variable bitrate so the duration may be unknown.</dd>
 <dd><code>elapsedSinceLastFeedMs</code> - The time since the sink was last fed data, in milliseconds.</dd>
+</dl>
+</li>
+</ul>
+<a name="onSkipSilenceEnabledChanged-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onSkipSilenceEnabledChanged</h4>
+<pre>void&nbsp;onSkipSilenceEnabledChanged(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="block">Called when skipping silences is enabled or disabled.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>skipSilenceEnabled</code> - Whether skipping silences is enabled.</dd>
+</dl>
+</li>
+</ul>
+<a name="onOffloadBufferEmptying--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onOffloadBufferEmptying</h4>
+<pre>default&nbsp;void&nbsp;onOffloadBufferEmptying()</pre>
+<div class="block">Called when the offload buffer has been partially emptied.</div>
+</li>
+</ul>
+<a name="onOffloadBufferFull-long-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onOffloadBufferFull</h4>
+<pre>default&nbsp;void&nbsp;onOffloadBufferFull(long&nbsp;bufferEmptyingDeadlineMs)</pre>
+<div class="block">Called when the offload buffer has been filled completely.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bufferEmptyingDeadlineMs</code> - Maximum time in milliseconds until <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onOffloadBufferEmptying--"><code>onOffloadBufferEmptying()</code></a> will be called.</dd>
 </dl>
 </li>
 </ul>
@@ -234,7 +313,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/google/android/exoplayer2/audio/AudioSink.Listener.html" target="_top">Frames</a></li>

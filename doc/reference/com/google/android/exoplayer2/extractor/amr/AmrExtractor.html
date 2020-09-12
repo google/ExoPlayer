@@ -344,13 +344,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <li class="blockList">
 <h4>sniff</h4>
 <pre>public&nbsp;boolean&nbsp;sniff(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
-              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                     <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#sniff-com.google.android.exoplayer2.extractor.ExtractorInput-">Extractor</a></code></span></div>
 <div class="block">Returns whether this extractor can extract samples from the <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, which must
  provide data from the start of the stream.
- <p>
- If <code>true</code> is returned, the <code>input</code>'s reading position may have been modified.
+
+ <p>If <code>true</code> is returned, the <code>input</code>'s reading position may have been modified.
  Otherwise, only its peek position may have been modified.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -361,7 +360,6 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <dd>Whether this extractor can read the provided input.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurred reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
 </dl>
 </li>
 </ul>
@@ -390,8 +388,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <h4>read</h4>
 <pre>public&nbsp;int&nbsp;read(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                 <a href="../../../../../../com/google/android/exoplayer2/extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)
-         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>,
-                <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></pre>
+         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">Extractor</a></code></span></div>
 <div class="block">Extracts data read from a provided <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#init-com.google.android.exoplayer2.extractor.ExtractorOutput-"><code>Extractor.init(ExtractorOutput)</code></a>.
 
@@ -404,8 +401,9 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
  <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#RESULT_SEEK"><code>Extractor.RESULT_SEEK</code></a> is returned. If the extractor reached the end of the data provided by the
  <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, then <a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#RESULT_END_OF_INPUT"><code>Extractor.RESULT_END_OF_INPUT</code></a> is returned.
 
- <p>When this method throws an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io"><code>IOException</code></a> or an <a href="https://developer.android.com/reference/java/lang/InterruptedException.html?is-external=true" title="class or interface in java.lang" target="_top"><code>InterruptedException</code></a>,
- extraction may continue by providing an <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> with an unchanged <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getPosition--"><code>read position</code></a> to a subsequent call to this method.</div>
+ <p>When this method throws an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top"><code>IOException</code></a>, extraction may continue by providing an
+ <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> with an unchanged <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html#getPosition--"><code>read position</code></a> to
+ a subsequent call to this method.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-com.google.android.exoplayer2.extractor.PositionHolder-">read</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></code></dd>
@@ -416,8 +414,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/extractor/Ex
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>One of the <code>RESULT_</code> values defined in this interface.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurred reading from the input.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a></code> - If an error occurred reading from or parsing the input.</dd>
 </dl>
 </li>
 </ul>
