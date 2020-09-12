@@ -158,8 +158,7 @@
         *   Add support for default
             [text](https://www.w3.org/TR/webvtt1/#default-text-color) and
             [background](https://www.w3.org/TR/webvtt1/#default-text-background)
-            colors ([PR #4178](https://github.com/google/ExoPlayer/pull/4178),
-            [issue #6581](https://github.com/google/ExoPlayer/issues/6581)).
+            colors ([#6581](https://github.com/google/ExoPlayer/issues/6581)).
         *   Update position alignment parsing to recognise `line-left`, `center`
             and `line-right`.
         *   Implement steps 4-10 of the
@@ -217,7 +216,7 @@
         ([#7308](https://github.com/google/ExoPlayer/issues/7308)).
     *   Matroska:
         *   Support Dolby Vision
-            ([#7267](https://github.com/google/ExoPlayer/issues/7267).
+            ([#7267](https://github.com/google/ExoPlayer/issues/7267)).
         *   Populate `Format.label` with track titles.
         *   Remove support for the `Invisible` block header flag.
     *   MPEG-TS: Add support for MPEG-4 Part 2 and H.263
