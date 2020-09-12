@@ -27,11 +27,11 @@ locally. Instructions for doing this can be found in ExoPlayer's
 ## Using the extension ##
 
 To use the extension, follow the instructions on the
-[Ad insertion page](https://exoplayer.dev//ad-insertion.html#declarative-ad-support)
-of the developer guide, passing an `AdsLoaderProvider` that returns an
-`ImaAdsLoader` when configuring the player's `DefaultMediaSourceFactory`. Note
-that the IMA extension only supports players which are accessed on the
-application's main thread.
+[Ad insertion page](https://exoplayer.dev/ad-insertion.html#declarative-ad-support)
+of the developer guide. The `AdsLoaderProvider` passed to the player's
+`DefaultMediaSourceFactory` should return an `ImaAdsLoader`. Note that the IMA
+extension only supports players which are accessed on the application's main
+thread.
 
 Resuming the player after entering the background requires some special handling
 when playing ads. The player and its media source are released on entering the
