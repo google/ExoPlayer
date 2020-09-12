@@ -53,23 +53,24 @@ consumption across the Android device and media content ecosystems.
 
 ### Audio playback ###
 
-For audio playback, our measurements show that ExoPlayer can draw significantly
-more power than MediaPlayer. This is particularly true for devices that support
-audio offload, which allows audio processing to be offloaded from the CPU to a
-dedicated signal processor. MediaPlayer is able to make use of audio offload to
-reduce power consumption, whereas ExoPlayer cannot because there are no public
-APIs in the Android framework for enabling it. Note that this also means audio
-offload cannot be used by any other application level media players, or by apps
-that are using `AudioTrack` directly.
+For short audio playbacks or playbacks when the screen is on, using ExoPlayer
+does not have a significant impact on power compared to using MediaPlayer.
 
-Whether the increased robustness, flexibility and feature set that ExoPlayer
-provides over MediaPlayer is worth the increased power consumption for audio
-only use cases is something an app developer must decide, taking their
-requirements and app usage patterns into account.
+For long playbacks with the screen off, ExoPlayer's audio offload mode needs to
+be used or ExoPlayer may consume significantly more power than MediaPlayer.
+Audio offload allows audio processing to be offloaded from the CPU to a
+dedicated signal processor. It is used by default by MediaPlayer but not
+ExoPlayer. ExoPlayer introduced support for audio offload in 2.12 as an
+experimental feature. See `DefaultRenderersFactory.setEnableAudioOffload` and
+`ExoPlayer.experimentalSetOffloadSchedulingEnabled` for more details on how
+to enable it.
 
-New public APIs in Android Q will enable ExoPlayer, as well as other application
-level media players, to utilize audio offload functionality. We plan to make use
-of these APIs in a future ExoPlayer release.
-{:.info}
+Due to SDK API limitations, ExoPlayer's audio offload mode is only available on
+devices running Android 10 and above. MediaPlayer can use audio offload on
+devices running earlier versions of Android. Whether the increased robustness,
+flexibility and feature set that ExoPlayer provides over MediaPlayer is worth
+the increased power consumption for audio only use cases on older devices is
+something an app developer must decide, taking their requirements and app usage
+patterns into account.
 
 [Monsoon power monitor]: https://www.msoon.com/battery-configuration

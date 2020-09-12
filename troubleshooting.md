@@ -2,6 +2,7 @@
 title: Troubleshooting
 redirect_from:
   - /faqs.html
+  - /debugging-playback-issues.html
 ---
 
 * [Fixing "Cleartext HTTP traffic not permitted" errors][]
@@ -61,7 +62,7 @@ If you require seeking but have unseekable media, we suggest converting your
 content to use a more appropriate container format. For MP3, ADTS and AMR files,
 you can also enable seeking under the assumption that the files have a constant
 bitrate, as described
-[here](progressive.html#enabling-constant-bitrate-seeking).
+[here](customization.html#enabling-constant-bitrate-seeking).
 
 #### Why is seeking inaccurate in some MP3 files? ####
 
@@ -86,16 +87,14 @@ require exact seeking. There are two reasons for this:
 
 For these reasons, the only way to perform an exact seek into a VBR MP3 file is
 to scan the entire file and manually build up a time-to-byte mapping in the
-player. This doesn't scale well to large MP3 files, particularly if the user
-tries to seek to near the end of the stream shortly after starting playback,
-which would require the player to wait until it's downloaded and indexed the
-entire stream before performing the seek. For ExoPlayer, we decided to optimize
-for speed over accuracy in this case.
-
-[Issue #6787][] tracks adding support for exact seeking by building up a
-time-to-byte mapping in the player, however when support is added it will likely
-be disabled by default, and will still be subject to the fundamental scaling
-issue described above.
+player. This strategy can be enabled by using [`FLAG_ENABLE_INDEX_SEEKING`][],
+which can be [set on a `DefaultExtractorsFactory`][] using
+[`setMp3ExtractorFlags`][]. Note that it doesn't scale well to large MP3 files,
+particularly if the user tries to seek to near the end of the stream shortly
+after starting playback, which requires the player to wait until it's downloaded
+and indexed the entire stream before performing the seek. In ExoPlayer, we
+decided to optimize for speed over accuracy in this case and
+[`FLAG_ENABLE_INDEX_SEEKING`][] is therefore disabled by default.
 
 If you control the media you're playing, we strongly advise that you use a more
 appropriate container format, such as MP4. There are no use cases we're aware of
@@ -111,10 +110,12 @@ of keyframes considered by ExoPlayer.
 ExoPlayer will appear to be stuck in the buffering state when asked to play an
 MPEG-TS file that lacks AUDs or IDR keyframes. If you need to play such files,
 you can do so using [`FLAG_DETECT_ACCESS_UNITS`][] and
-[`FLAG_ALLOW_NON_IDR_KEYFRAMES`][] respectively. These flags can be set on a
-`DefaultExtractorsFactory` using [`setTsExtractorFlags`][]. Use of
-`FLAG_DETECT_ACCESS_UNITS` has no side effects other than being computationally
-expensive relative to AUD based frame boundary detection. Use of
+[`FLAG_ALLOW_NON_IDR_KEYFRAMES`][] respectively. These flags can be [set on a
+`DefaultExtractorsFactory`][] using [`setTsExtractorFlags`][] or on a
+`DefaultHlsExtractorFactory` using the
+[constructor]({{ site.exo_sdk }}/source/hls/DefaultHlsExtractorFactory.html#DefaultHlsExtractorFactory-int-boolean-).
+Use of `FLAG_DETECT_ACCESS_UNITS` has no side effects other than being
+computationally expensive relative to AUD based frame boundary detection. Use of
 `FLAG_ALLOW_NON_IDR_KEYFRAMES` may result in temporary visual corruption at the
 start of playback and immediately after seeks when playing some MPEG-TS files.
 
@@ -129,8 +130,8 @@ preroll media for edits that don't start on a synchronization sample.
 If you are seeing that part of the media is unexpectedly missing or repeated,
 try setting [`Mp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`][] or
 [`FragmentedMp4Extractor.FLAG_WORKAROUND_IGNORE_EDIT_LISTS`][], which will cause
-the extractor to ignore edit lists entirely. These can be set on a
-DefaultExtractorsFactory using [`setMp4ExtractorFlags`][] or
+the extractor to ignore edit lists entirely. These can be [set on a
+`DefaultExtractorsFactory`][] using [`setMp4ExtractorFlags`][] or
 [`setFragmentedMp4ExtractorFlags`][].
 
 #### Why do some streams fail with HTTP response code 301 or 302? ####
@@ -160,11 +161,9 @@ from HTTPS to HTTP and so is a cross-protocol redirect. ExoPlayer will not
 follow this redirect in its default configuration, meaning playback will fail.
 
 If you need to, you can configure ExoPlayer to follow cross-protocol redirects
-when instantiating the `HttpDataSource.Factory` instances used by ExoPlayer in
-your application. [`DefaultHttpDataSourceFactory`][] has constructors that
-accept an `allowCrossProtocolRedirects` argument for this purpose, as do other
-`HttpDataSource.Factory` implementations. Set these arguments to true to enable
-cross-protocol redirects.
+when instantiating `DefaultHttpDataSourceFactory` instances used in your
+application. Learn about selecting and configuring the network stack
+[here]({{ site.base_url }}/customization.html#configuring-the-network-stack).
 
 #### Why do some streams fail with UnrecognizedInputFormatException? ####
 
@@ -175,11 +174,12 @@ UnrecognizedInputFormatException: None of the available extractors
 ```
 There are two possible causes of this failure. The most common cause is that
 you're trying to play DASH (mpd), HLS (m3u8) or SmoothStreaming (ism, isml)
-content using `ProgressiveMediaSource`. To play such streams you must use the
-correct `MediaSource` implementations, which are `DashMediaSource`,
-`HlsMediaSource` and `SsMediaSource` respectively. If you don't know the type of
-the media then [`Util.inferContentType`][] can often be used, as demonstrated by
-`PlayerActivity` in the ExoPlayer demo app.
+content, but the player tries to play it as a progressive stream. To play such
+streams, you must depend on the respective [ExoPlayer module][]. In cases where
+the stream URI doesn't end with the standard file extension, you can also pass
+`MimeTypes.APPLICATION_MPD`, `MimeTypes.APPLICATION_M3U8` or
+`MimeTypes.APPLICATION_SS` to `setMimeType` of `MediaItem.Builder` to explicitly
+specify the type of stream.
 
 The second, less common cause, is that ExoPlayer does not support the container
 format of the media that you're trying to play. In this case the failure is
@@ -205,7 +205,9 @@ If you are seeing this warning, some code in your app is accessing
 `SimpleExoPlayer` on the wrong thread (check the reported stack trace!).
 ExoPlayer instances need to be accessed from a single thread only. In most
 cases, this should be the application's main thread. For details, please read
-through the ["Threading model" section of the ExoPlayer Javadoc][].
+through the ["Threading model" section of the ExoPlayer Javadoc][]. If you want
+to ensure that the player is always used on the correct thread, you should set
+`SimpleExoPlayer.setThrowsWhenUsingWrongThread(true)` to enforce it.
 
 #### How can I fix "Unexpected status line: ICY 200 OK"? ####
 
@@ -290,7 +292,7 @@ diagnose the issue.
 #### Can I play YouTube videos directly with ExoPlayer? ####
 
 No, ExoPlayer cannot play videos from YouTube, i.e., urls of the form
-` https://www.youtube.com/watch?v=...`. Instead, you should use the [YouTube
+`https://www.youtube.com/watch?v=...`. Instead, you should use the [YouTube
 Android Player API](https://developers.google.com/youtube/android/player/) which
 is the official way to play YouTube videos on Android.
 
@@ -311,12 +313,13 @@ is the official way to play YouTube videos on Android.
 [Why does ExoPlayer support my content but the Cast extension doesn't?]: #why-does-exoplayer-support-my-content-but-the-cast-extension-doesnt
 [Why does content fail to play, but no error is surfaced?]: #why-does-content-fail-to-play-but-no-error-is-surfaced
 [How can I get a decoding extension to load and be used for playback?]: #how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
-[Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-youtube-videos-directly-with-exoplayer
+[Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-yt-videos-with-exoplayer
 
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
+[set on a `DefaultExtractorsFactory`]: {{ site.base_url }}/customization.html#customizing-extractor-flags
 [`setMp3ExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setMp3ExtractorFlags-int-
-[Issue #6787]: https://github.com/google/ExoPlayer/issues/6787
+[`FLAG_ENABLE_INDEX_SEEKING`]: {{ site.exo_sdk }}/extractor/mp3/Mp3Extractor.html#FLAG_ENABLE_INDEX_SEEKING
 [`FLAG_DETECT_ACCESS_UNITS`]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_DETECT_ACCESS_UNITS
 [`FLAG_ALLOW_NON_IDR_KEYFRAMES`]: {{ site.exo_sdk }}/extractor/ts/DefaultTsPayloadReaderFactory.html#FLAG_ALLOW_NON_IDR_KEYFRAMES
 [`setTsExtractorFlags`]: {{ site.exo_sdk }}/extractor/DefaultExtractorsFactory#setTsExtractorFlags-int-
@@ -327,7 +330,7 @@ is the official way to play YouTube videos on Android.
 [Wikipedia]: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 [wget]: https://www.gnu.org/software/wget/manual/wget.html
 [`DefaultHttpDataSourceFactory`]: {{ site.exo_sdk }}/upstream/DefaultHttpDataSourceFactory.html
-[`Util.inferContentType`]: {{ site.exo_sdk }}/util/Util.html#inferContentType-android.net.Uri-
+[ExoPlayer module]: {{ site.base_url }}/hello-world.html#add-exoplayer-modules
 [issue tracker]: https://github.com/google/ExoPlayer/issues
 [`isCurrentWindowLive`]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowLive--
 [`isCurrentWindowDynamic`]: {{ site.exo_sdk }}/ExoPlayer.html#isCurrentWindowDynamic--

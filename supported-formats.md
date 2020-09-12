@@ -27,19 +27,19 @@ and HDR video playback.
 
 ### DASH ###
 
-{% include_relative supported-formats-dash.md %}
+{% include_relative _page_fragments/supported-formats-dash.md %}
 
 ### SmoothStreaming ###
 
-{% include_relative supported-formats-smoothstreaming.md %}
+{% include_relative _page_fragments/supported-formats-smoothstreaming.md %}
 
 ### HLS ###
 
-{% include_relative supported-formats-hls.md %}
+{% include_relative _page_fragments/supported-formats-hls.md %}
 
 ## Progressive container formats ##
 
-{% include_relative supported-formats-progressive.md %}
+{% include_relative _page_fragments/supported-formats-progressive.md %}
 
 ## Sample formats ##
 

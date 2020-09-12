@@ -28,7 +28,7 @@ enabling approximate seeking using a constant bitrate assumption. This
 functionality is not enabled by default. The simplest way to enable this
 functionality for all extractors that support it is to use
 `DefaultExtractorsFactory.setConstantBitrateSeekingEnabled`, as described
-[here](progressive.html#enabling-constant-bitrate-seeking).
+[here](customization.html#enabling-constant-bitrate-seeking).
 
 \*\*\* The [FLAC extension][] extractor outputs raw audio, which can be handled
 by the framework on all API levels. The [core library][] FLAC extractor outputs

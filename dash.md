@@ -2,29 +2,56 @@
 title: DASH
 ---
 
-{% include_relative supported-formats-dash.md %}
+{% include_relative _page_fragments/supported-formats-dash.md %}
 
-## Creating a MediaSource ##
+## Using MediaItem ##
 
-To play a DASH stream, create a `DashMediaSource` and prepare the player with
-it as usual.
+To play a DASH stream, you need to depend on the DASH module.
 
 ~~~
-// Create a data source factory.
-DataSource.Factory dataSourceFactory =
-    new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "app-name"));
-// Create a DASH media source pointing to a DASH manifest uri.
-MediaSource mediaSource = new DashMediaSource.Factory(dataSourceFactory)
-    .createMediaSource(dashUri);
+implementation 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
+~~~
+{: .language-gradle}
+
+You can then create a `MediaItem` for a DASH MPD URI and pass it to the player.
+
+~~~
 // Create a player instance.
 SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
-// Prepare the player with the media source.
-player.prepare(mediaSource);
+// Set the media item to be played.
+player.setMediaItem(MediaItem.fromUri(dashUri));
+// Prepare the player.
+player.prepare();
 ~~~
 {: .language-java}
 
+If your URI doesn't end with `.mpd`, you can pass `MimeTypes.APPLICATION_MPD`
+to `setMimeType` of `MediaItem.Builder` to explicitly indicate the type of the
+content.
+
 ExoPlayer will automatically adapt between representations defined in the
 manifest, taking into account both available bandwidth and device capabilities.
+
+## Using DashMediaSource ##
+
+For more customization options, you can create a `DashMediaSource` and pass it
+directly to the player instead of a `MediaItem`.
+
+~~~
+// Create a data source factory.
+DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory();
+// Create a DASH media source pointing to a DASH manifest uri.
+MediaSource mediaSource =
+    new DashMediaSource.Factory(dataSourceFactory)
+        .createMediaSource(MediaItem.fromUri(dashUri));
+// Create a player instance.
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+// Set the media source to be played.
+player.setMediaSource(mediaSource);
+// Prepare the player.
+player.prepare();
+~~~
+{: .language-java}
 
 ## Accessing the manifest ##
 
@@ -51,116 +78,11 @@ player.addListener(
 ~~~
 {: .language-java}
 
-## Sideloading a manifest ##
-
-For specifc use cases there is an alternative way to provide the manifest, by
-passing a `DashManifest` object to the constructor.
-
-~~~
-DataSource.Factory dataSourceFactory =
-    new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "app-name"));
-// Create a dash media source with a dash manifest.
-MediaSource mediaSource = new DashMediaSource.Factory(dataSourceFactory)
-    .createMediaSource(dashManifest);
-// Create a player instance which gets an adaptive track selector by default.
-SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
-// Prepare the player with the media source.
-player.prepare(mediaSource);
-~~~
-{: .language-java}
-
-## Customizing DASH playback ##
+## Customizing playback ##
 
 ExoPlayer provides multiple ways for you to tailor playback experience to your
-app's needs. The following sections briefly document some of the customization
-options available when building a `DashMediaSource`. See the
-[Customization page][] for more general customization options.
+app's needs. See the [Customization page][] for examples.
 
-### Customizing server interactions ###
-
-Some apps may want to intercept HTTP requests and responses. You may want to
-inject custom request headers, read the server's response headers, modify the
-requests' URIs, etc. For example, your app may authenticate itself by injecting
-a token as a header when requesting the media segments.
-
-The following example demonstrates how to implement these behaviors by
-injecting custom [HttpDataSources][] into a `DashMediaSource`:
-
-~~~
-DashMediaSource dashMediaSource =
-    new DashMediaSource.Factory(
-            () -> {
-              HttpDataSource dataSource = new DefaultHttpDataSource(userAgent);
-              // Set a custom authentication request header.
-              dataSource.setRequestProperty("Header", "Value");
-              return dataSource;
-            })
-        .createMediaSource(dashUri);
-~~~
-{: .language-java}
-
-In the code snippet above, the injected `HttpDataSource` includes the header
-`"Header: Value"` in every HTTP request triggered by `dashMediaSource`. This
-behavior is *fixed* for every interaction of `dashMediaSource` with an HTTP
-source.
-
-For a more granular approach, you can inject just-in-time behavior using a
-`ResolvingDataSource`. The following code snippet shows how to inject
-request headers just before interacting with an HTTP source:
-
-~~~
-DashMediaSource dashMediaSource =
-    new DashMediaSource.Factory(
-        new ResolvingDataSource.Factory(
-            new DefaultHttpDataSourceFactory(userAgent),
-            // Provide just-in-time request headers.
-            (DataSpec dataSpec) ->
-                dataSpec.withRequestHeaders(getCustomHeaders(dataSpec.uri))))
-        .createMediaSource(customSchemeUri);
-~~~
-{: .language-java}
-
-You may also use a `ResolvingDataSource`  to perform
-just-in-time modifications of the URI, as shown in the following snippet:
-
-~~~
-DashMediaSource dashMediaSource =
-    new DashMediaSource.Factory(
-        new ResolvingDataSource.Factory(
-            new DefaultHttpDataSourceFactory(userAgent),
-            // Provide just-in-time URI resolution logic.
-            (DataSpec dataSpec) -> dataSpec.withUri(resolveUri(dataSpec.uri))))
-        .createMediaSource(customSchemeUri);
-~~~
-{: .language-java}
-
-### Customizing error handling ###
-
-Implementing a custom [LoadErrorHandlingPolicy][] allows apps to customize the
-way ExoPlayer reacts to load errors. For example, an app may want fail fast
-instead of retrying many times, or may want to customize the back-off logic that
-controls how long the player waits between each retry. The following snippet
-shows how to implement custom back-off logic when creating a `DashMediaSource`:
-
-~~~
-DashMediaSource dashMediaSource =
-    new DashMediaSource.Factory(dataSourceFactory)
-        .setLoadErrorHandlingPolicy(
-            new DefaultLoadErrorHandlingPolicy() {
-              @Override
-              public long getRetryDelayMsFor(...) {
-                // Implement custom back-off logic here.
-              }
-            })
-        .createMediaSource(dashUri);
-~~~
-{: .language-java}
-
-You will find more information in our [Medium post about error handling][].
-
-{% include_relative behind-live-window.md %}
+{% include_relative _page_fragments/behind-live-window.md %}
 
 [Customization page]: {{ site.baseurl }}/customization.html
-[HttpDataSources]: {{ site.exo_sdk }}/upstream/HttpDataSource.html
-[LoadErrorHandlingPolicy]: {{ site.exo_sdk }}/upstream/LoadErrorHandlingPolicy.html
-[Medium post about error handling]: https://medium.com/google-exoplayer/load-error-handling-in-exoplayer-488ab6908137

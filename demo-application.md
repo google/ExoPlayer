@@ -51,19 +51,6 @@ adb logcat EventLogger:V *:E
 ~~~
 {: .language-shell}
 
-### Enabling interactive media ads ###
-
-ExoPlayer has an [IMA extension][] that makes it easy to monetize your content
-using the [Interactive Media Ads SDK][]. To enable the extension in the demo
-app, navigate to Android Studio's Build Variants view, and set the build variant
-for the demo module to `withExtensionsDebug` or `withExtensionsRelease` as shown
-in Figure 3.
-
-{% include figure.html url="/images/demo-app-build-variants.png" index="3" caption="Selecting the withExtensionsDebug build variant" %}
-
-Once the IMA extension is enabled, you can find samples of monetized content
-under "IMA sample ad tags" in the demo app's list of samples.
-
 ### Enabling extension decoders ###
 
 ExoPlayer has a number of extensions that allow use of bundled software
@@ -74,11 +61,11 @@ can be built to include and use these extensions as follows:
    manual process. Refer to the `README.md` file in each extension for
    instructions.
 1. In Android Studio's Build Variants view, set the build variant for the demo
-   module to `withExtensionsDebug` or `withExtensionsRelease` as shown in Figure
-   3.
+   module to `withDecoderExtensionsDebug` or `withDecoderExtensionsRelease` as
+   shown below.
 1. Compile, install and run the `demo` configuration as normal.
 
-{% include figure.html url="/images/demo-app-build-variants.png" index="4" caption="Selecting the demo_extDebug build variant" %}
+{% include figure.html url="/images/demo-app-build-variants.png" index="3" caption="Selecting the demo withDecoderExtensionsDebug build variant" %}
 
 By default an extension decoder will be used only if a suitable platform decoder
 does not exist. It is possible to specify that extension decoders should be
@@ -103,15 +90,18 @@ app. The schema is as follows, where [O] indicates an optional attribute.
         "name": "Name of sample",
         "uri": "The URI of the sample",
         "extension": "[O] Sample type hint. Values: mpd, ism, m3u8",
+        "clip_start_position_ms": "[O] A start point to which the sample should be clipped, in milliseconds"
+        "clip_end_position_ms": "[O] An end point from which the sample should be clipped, in milliseconds"
         "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
-        "drm_license_url": "[O] URL of the license server if protected",
+        "drm_license_uri": "[O] URI of the license server if protected",
+        "drm_force_default_license_uri": "[O] Whether to force use of "drm_license_uri" for key requests that include their own license URI",
         "drm_key_request_properties": "[O] Key request headers if protected",
+        "drm_session_for_clear_content": "[O] Whether to attach a DRM session to clear video and audio tracks"
         "drm_multi_session": "[O] Enables key rotation if protected",
-        "ad_tag_uri": "[O] The URI of an ad tag, if using the IMA extension"
-        "spherical_stereo_mode": "[O] Enables spherical view. Values: mono, top_bottom, left_right",
         "subtitle_uri": "[O] The URI of a subtitle sidecar file",
         "subtitle_mime_type": "[O] The MIME type of subtitle_uri (required if subtitle_uri is set)",
         "subtitle_language": "[O] The BCP47 language code of the subtitle file (ignored if subtitle_uri is not set)",
+        "ad_tag_uri": "[O] The URI of an ad tag to load via the IMA extension"
       },
       ...etc
     ]
@@ -134,18 +124,21 @@ Playlists of samples can be specified using the schema:
           {
             "uri": "The URI of the first sample in the playlist",
             "extension": "[O] Sample type hint. Values: mpd, ism, m3u8"
+            "clip_start_position_ms": "[O] A start point to which the sample should be clipped, in milliseconds"
+            "clip_end_position_ms": "[O] An end point from which the sample should be clipped, in milliseconds"
             "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
-            "drm_license_url": "[O] URL of the license server if protected",
+            "drm_license_uri": "[O] URI of the license server if protected",
+            "drm_force_default_license_uri": "[O] Whether to force use of "drm_license_uri" for key requests that include their own license URI",
             "drm_key_request_properties": "[O] Key request headers if protected",
-            "drm_multi_session": "[O] Enables key rotation if protected"
+            "drm_session_for_clear_content": "[O] Whether to attach a DRM session to clear video and audio tracks",
+            "drm_multi_session": "[O] Enables key rotation if protected",
+            "subtitle_uri": "[O] The URI of a subtitle sidecar file",
+            "subtitle_mime_type": "[O] The MIME type of subtitle_uri (required if subtitle_uri is set)",
+            "subtitle_language": "[O] The BCP47 language code of the subtitle file (ignored if subtitle_uri is not set)"
           },
           {
-            "uri": "The URI of the first sample in the playlist",
-            "extension": "[O] Sample type hint. Values: mpd, ism, m3u8"
-            "drm_scheme": "[O] Drm scheme if protected. Values: widevine, playready, clearkey",
-            "drm_license_url": "[O] URL of the license server if protected",
-            "drm_key_request_properties": "[O] Key request headers if protected",
-            "drm_multi_session": "[O] Enables key rotation if protected"
+            "uri": "The URI of the second sample in the playlist",
+            ...etc
           },
           ...etc
         ]
@@ -171,8 +164,7 @@ attribute for each header:
 {: .language-json}
 
 In the sample chooser activity, the overflow menu contains options for
-specifying whether to prefer extension decoders, and which ABR algorithm should
-be used.
+specifying whether to prefer extension decoders.
 
 ### 2. Loading an external exolist.json file ###
 
@@ -208,32 +200,37 @@ adb shell am start -a com.google.android.exoplayer.demo.action.VIEW \
 Supported optional extras for a single sample intent are:
 
 * Sample configuration extras:
-  * `extension` [String] Sample type hint. Valid values: `mpd`, `ism`, `m3u8`.
-  * `prefer_extension_decoders` [Boolean] Whether extension decoders are
-    preferred to platform ones.
+  * `mime_type` [String] Sample MIME type hint. For example
+    `application/dash+xml` for DASH content.
+  * `clip_start_position_ms` [Long] A start point to which the sample should be
+    clipped, in milliseconds.
+  * `clip_end_position_ms` [Long] An end point from which the sample should be
+    clipped, in milliseconds.
   * `drm_scheme` [String] DRM scheme if protected. Valid values are `widevine`,
     `playready` and `clearkey`. DRM scheme UUIDs are also accepted.
-  * `drm_license_url` [String] Url of the license server if protected.
+  * `drm_license_uri` [String] URI of the license server if protected.
+  * `drm_force_default_license_uri` [Boolean] Whether to force use of
+    `drm_license_uri` for key requests that include their own license URI.
   * `drm_key_request_properties` [String array] Key request headers packed as
     name1, value1, name2, value2 etc. if protected.
-  * `drm_multi_session`: [Boolean] Enables key rotation if protected.
-  * `ad_tag_uri` [String] The URI of an ad tag, if using the IMA extension.
-  * `spherical_stereo_mode` [String] Enables spherical view. Values: `mono`,
-    `top_bottom` and `left_right`.
+  * `drm_session_for_clear_content` [Boolean] Whether to attach a DRM session
+    to clear video and audio tracks.
+  * `drm_multi_session` [Boolean] Enables key rotation if protected.
   * `subtitle_uri` [String] The URI of a subtitle sidecar file.
-  * `subtitle_mime_type`: [String] The MIME type of subtitle_uri (required if
+  * `subtitle_mime_type` [String] The MIME type of subtitle_uri (required if
     subtitle_uri is set).
-  * `subtitle_language`: [String] The BCP47 language code of the subtitle file
+  * `subtitle_language` [String] The BCP47 language code of the subtitle file
     (ignored if subtitle_uri is not set).
-* Player configuration extras:
-  * `abr_algorithm` [String] ABR algorithm for adaptive playbacks. Valid values
-    are `default` and `random`.
-  * `tunneling` [Boolean] Whether to enable multimedia tunneling.
+  * `ad_tag_uri` [String] The URI of an ad tag to load using the
+    [IMA extension][].
+  * `prefer_extension_decoders` [Boolean] Whether extension decoders are
+    preferred to platform ones.
 
 When using `adb shell am start` to fire an intent, an optional string extra can
 be set with `--es` (e.g., `--es extension mpd`). An optional boolean extra can
 be set with `--ez` (e.g., `--ez prefer_extension_decoders TRUE`). An optional
-string array extra can be set with `--esa` (e.g.,
+long extra can be set with `--el` (e.g., `--el clip_start_position_ms 5000`). An
+optional string array extra can be set with `--esa` (e.g.,
 `--esa drm_key_request_properties name1,value1`).
 
 To play a playlist of samples, set the intent's action to
@@ -258,6 +255,5 @@ adb shell am start -a com.google.android.exoplayer.demo.action.VIEW_LIST \
 {: .language-shell}
 
 [IMA extension]: {{ site.release_v2 }}/extensions/ima
-[Interactive Media Ads SDK]: {{ site.google_sdk }}/interactive-media-ads
 [GitHub project]: https://github.com/google/ExoPlayer
 [Supported devices]: {{ site.baseurl }}/supported-devices.html

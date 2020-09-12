@@ -2,32 +2,59 @@
 title: HLS
 ---
 
-{% include_relative supported-formats-hls.md %}
+{% include_relative _page_fragments/supported-formats-hls.md %}
 
-## Creating a MediaSource ##
+## Using MediaItem ##
 
-To play an HLS stream, create an `HlsMediaSource` and prepare the player with
-it as usual.
+To play an HLS stream, you need to depend on the HLS module.
 
 ~~~
-// Create a data source factory.
-DataSource.Factory dataSourceFactory =
-    new DefaultHttpDataSourceFactory(Util.getUserAgent(context, "app-name"));
-// Create a HLS media source pointing to a playlist uri.
-HlsMediaSource hlsMediaSource =
-    new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+implementation 'com.google.android.exoplayer:exoplayer-hls:2.X.X'
+~~~
+{: .language-gradle}
+
+You can then create a `MediaItem` for an HLS playlist URI and pass it to the
+player.
+
+~~~
 // Create a player instance.
 SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
-// Prepare the player with the media source.
-player.prepare(hlsMediaSource);
+// Set the media item to be played.
+player.setMediaItem(MediaItem.fromUri(hlsUri));
+// Prepare the player.
+player.prepare();
 ~~~
 {: .language-java}
 
-The URI passed to `HlsMediaSource.Factory.createMediaSource()` may point to
-either a media playlist or a master playlist. If the URI points to a master
-playlist that declares multiple `#EXT-X-STREAM-INF` tags then ExoPlayer will
-automatically adapt between variants, taking into account both available
-bandwidth and device capabilities.
+If your URI doesn't end with `.m3u8`, you can pass `MimeTypes.APPLICATION_M3U8`
+to `setMimeType` of `MediaItem.Builder` to explicitly indicate the type of the
+content.
+
+The URI of the media item may point to either a media playlist or a master
+playlist. If the URI points to a master playlist that declares multiple
+`#EXT-X-STREAM-INF` tags then ExoPlayer will automatically adapt between
+variants, taking into account both available bandwidth and device capabilities.
+
+## Using HlsMediaSource ##
+
+For more customization options, you can create a `HlsMediaSource` and pass it
+directly to the player instead of a `MediaItem`.
+
+~~~
+// Create a data source factory.
+DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory();
+// Create a HLS media source pointing to a playlist uri.
+HlsMediaSource hlsMediaSource =
+    new HlsMediaSource.Factory(dataSourceFactory)
+        .createMediaSource(MediaItem.fromUri(hlsUri));
+// Create a player instance.
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context).build();
+// Set the media source to be played.
+player.setMediaSource(hlsMediaSource);
+// Prepare the player.
+player.prepare();
+~~~
+{: .language-java}
 
 ## Accessing the manifest ##
 
@@ -54,115 +81,27 @@ player.addListener(
 ~~~
 {: .language-java}
 
-## Customizing HLS playback ##
+## Customizing playback ##
 
 ExoPlayer provides multiple ways for you to tailor playback experience to your
-app's needs. The following sections briefly document some of the customization
-options available when building a `HlsMediaSource`. See the
-[Customization page][] for more general customization options.
+app's needs. See the [Customization page][] for examples.
 
 ### Enabling faster start-up times ###
 
 You can improve HLS start up times noticeably by enabling chunkless preparation.
 When you enable chunkless preparation and `#EXT-X-STREAM-INF` tags contain the
 `CODECS` attribute, ExoPlayer will avoid downloading media segments as part of
-preparation. The following snippet shows how to enable chunkless preparation:
+preparation. The following snippet shows how to enable chunkless preparation.
 
 ~~~
 HlsMediaSource hlsMediaSource =
     new HlsMediaSource.Factory(dataSourceFactory)
         .setAllowChunklessPreparation(true)
-        .createMediaSource(hlsUri);
+        .createMediaSource(MediaItem.fromUri(hlsUri));
 ~~~
 {: .language-java}
 
 You can find more details in our [Medium post about chunkless preparation][].
-
-### Customizing server interactions ###
-
-Some apps may want to intercept HTTP requests and responses. You may want to
-inject custom request headers, read the server's response headers, modify the
-requests' URIs, etc. For example, your app may authenticate itself by injecting
-a token as a header when requesting the media segments.
-
-The following example demonstrates how to implement these behaviors by
-injecting custom [HttpDataSources][] into an `HlsMediaSource`:
-
-~~~
-HlsMediaSource hlsMediaSource =
-    new HlsMediaSource.Factory(
-            dataType -> {
-              HttpDataSource dataSource =
-                  new DefaultHttpDataSource(userAgent);
-              if (dataType == C.DATA_TYPE_MEDIA) {
-                // The data source will be used for fetching media segments. We
-                // set a custom authentication request header.
-                dataSource.setRequestProperty("Header", "Value");
-              }
-              return dataSource;
-            })
-        .createMediaSource(hlsUri);
-~~~
-{: .language-java}
-
-In the code snippet above, the injected `HttpDataSource` includes the header
-`"Header: Value"` in every HTTP request triggered by `hlsMediaSource`. This
-behavior is *fixed* for every interaction of `hlsMediaSource` with an HTTP
-source.
-
-For a more granular approach, you can inject just-in-time behavior using a
-`ResolvingDataSource`. The following code snippet shows how to inject
-request headers just before interacting with an HTTP source:
-
-~~~
-HlsMediaSource hlsMediaSource =
-    new HlsMediaSource.Factory(
-        new ResolvingDataSource.Factory(
-            new DefaultHttpDataSourceFactory(userAgent),
-            // Provide just-in-time request headers.
-            (DataSpec dataSpec) ->
-                dataSpec.withRequestHeaders(getCustomHeaders(dataSpec.uri))))
-        .createMediaSource(customSchemeUri);
-~~~
-{: .language-java}
-
-You may also use a `ResolvingDataSource`  to perform
-just-in-time modifications of the URI, as shown in the following snippet:
-
-~~~
-HlsMediaSource hlsMediaSource =
-    new HlsMediaSource.Factory(
-        new ResolvingDataSource.Factory(
-            new DefaultHttpDataSourceFactory(userAgent),
-            // Provide just-in-time URI resolution logic.
-            (DataSpec dataSpec) -> dataSpec.withUri(resolveUri(dataSpec.uri))))
-        .createMediaSource(customSchemeUri);
-~~~
-{: .language-java}
-
-### Customizing error handling ###
-
-Implementing a custom [LoadErrorHandlingPolicy][] allows apps to customize the
-way ExoPlayer reacts to load errors. For example, an app may want fail fast
-instead of retrying many times, or may want to customize the back-off logic that
-controls how long the player waits between each retry. The following snippet
-shows how to implement custom back-off logic when creating a `HlsMediaSource`:
-
-~~~
-HlsMediaSource hlsMediaSource =
-    new HlsMediaSource.Factory(dataSourceFactory)
-        .setLoadErrorHandlingPolicy(
-            new DefaultLoadErrorHandlingPolicy() {
-              @Override
-              public long getRetryDelayMsFor(...) {
-                // Implement custom back-off logic here.
-              }
-            })
-        .createMediaSource(hlsUri);
-~~~
-{: .language-java}
-
-You will find more information in our [Medium post about error handling][].
 
 ## Creating high quality HLS content ##
 
@@ -183,15 +122,12 @@ The following guidelines apply specifically for live streams:
 * Use the `#EXT-X-DISCONTINUITY-SEQUENCE` tag.
 * Provide a long live window. One minute or more is great.
 
-{% include_relative behind-live-window.md %}
+{% include_relative _page_fragments/behind-live-window.md %}
 
 [HlsMediaSource]: {{ site.exo_sdk }}/source/hls/HlsMediaSource.html
 [HTTP Live Streaming]: https://tools.ietf.org/html/rfc8216
 [PlayerView]: {{ site.exo_sdk }}/ui/PlayerView.html
 [UI components]: {{ site.baseurl }}/ui-components.html
 [Customization page]: {{ site.baseurl }}/customization.html
-[HttpDataSources]: {{ site.exo_sdk }}/upstream/HttpDataSource.html
-[LoadErrorHandlingPolicy]: {{ site.exo_sdk }}/upstream/LoadErrorHandlingPolicy.html
 [Medium post about chunkless preparation]: https://medium.com/google-exoplayer/faster-hls-preparation-f6611aa15ea6
-[Medium post about error handling]: https://medium.com/google-exoplayer/load-error-handling-in-exoplayer-488ab6908137
 [Medium post about HLS playback in ExoPlayer]: https://medium.com/google-exoplayer/hls-playback-in-exoplayer-a33959a47be7

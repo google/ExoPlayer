@@ -13,8 +13,7 @@ ExoPlayer has a number of advantages over Android's built in MediaPlayer:
 * The ability to [customize and extend the player][] to suit your use case.
   ExoPlayer is designed specifically with this in mind, and allows many
   components to be replaced with custom implementations.
-* Support for [playlists][], as well as the ability to [clip, merge and loop
-  media][].
+* Support for [playlists][].
 * Support for [DASH][] and [SmoothStreaming][], neither of which are supported
   by MediaPlayer. Many other formats are also supported. See the [Supported
   formats page][] for details.
@@ -42,7 +41,6 @@ It's important to note that there are also some disadvantages:
 [customize and extend the player]: {{ site.baseurl }}/customization.html
 [APK shrinking page]: {{ site.baseurl }}/shrinking.html
 [playlists]: {{ site.baseurl }}/playlists.html
-[clip, merge and loop media]: {{ site.baseurl }}/media-sources.html#mediasource-composition
 [DASH]: {{ site.baseurl }}/dash.html
 [SmoothStreaming]: {{ site.baseurl }}/smoothstreaming.html
 [HLS]: {{ site.baseurl }}/hls.html

@@ -3,6 +3,7 @@ title: Hello world!
 redirect_from:
   - /guide.html
   - /guide-v1.html
+  - /getting-started.html
 ---
 
 Another way to get started is to work through
@@ -15,7 +16,7 @@ the following steps:
 1. Add ExoPlayer as a dependency to your project.
 1. Create a `SimpleExoPlayer` instance.
 1. Attach the player to a view (for video output and user input).
-1. Prepare the player with a `MediaSource` to play.
+1. Prepare the player with a `MediaItem` to play.
 1. Release the player when done.
 
 These steps are described in more detail below. For a complete example, refer to
@@ -53,7 +54,7 @@ consulting the [release notes][]).
 As an alternative to the full library, you can depend on only the library
 modules that you actually need. For example the following will add dependencies
 on the Core, DASH and UI library modules, as might be required for an app that
-plays DASH content:
+only plays DASH content:
 
 ~~~
 implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
@@ -128,9 +129,10 @@ For more information about ExoPlayer's treading model, see the
 
 ## Attaching the player to a view ##
 
-The ExoPlayer library provides a `PlayerView`, which encapsulates a
-`PlayerControlView`, a `SubtitleView`, and a `Surface` onto which video is
-rendered. A `PlayerView` can be included in your application's layout xml.
+The ExoPlayer library provides a range of pre-built UI components for media
+playback. These include `StyledPlayerView`, which encapsulates a
+`StyledPlayerControlView`, a `SubtitleView`, and a `Surface` onto which video is
+rendered. A `StyledPlayerView` can be included in your application's layout xml.
 Binding the player to the view is as simple as:
 
 ~~~
@@ -139,42 +141,69 @@ playerView.setPlayer(player);
 ~~~
 {: .language-java}
 
-If you require fine-grained control over the player controls and the `Surface`
-onto which video is rendered, you can set the player's target `SurfaceView`,
-`TextureView`, `SurfaceHolder` or `Surface` directly using `SimpleExoPlayer`'s
+You can also use `StyledPlayerControlView` as a standalone component, which is
+useful for audio only use cases.
+
+Use of ExoPlayer's pre-built UI components is optional. For video applications
+that implement their own UI, the target `SurfaceView`, `TextureView`,
+`SurfaceHolder` or `Surface` can be set using `SimpleExoPlayer`'s
 `setVideoSurfaceView`, `setVideoTextureView`, `setVideoSurfaceHolder` and
-`setVideoSurface` methods respectively. You can also use `PlayerControlView` as
-a standalone component, or implement your own playback controls that interact
-directly with the player. `SimpleExoPlayer`'s `addTextOutput` method can be used
-to receive captions during playback.
+`setVideoSurface` methods respectively. `SimpleExoPlayer`'s `addTextOutput`
+method can be used to receive captions that should be rendered during playback.
 
-# Preparing the player ##
+## Populating the playlist and preparing the player ##
 
-In ExoPlayer every piece of media is represented by a `MediaSource`. To play a
-piece of media you must first create a corresponding `MediaSource` and then
-pass this object to `ExoPlayer.prepare`. The ExoPlayer library provides
-`MediaSource` implementations for DASH (`DashMediaSource`), SmoothStreaming
-(`SsMediaSource`), HLS (`HlsMediaSource`) and regular media files
-(`ProgressiveMediaSource`). The following code shows how to prepare the player
-with a `MediaSource` suitable for playback of an MP4 file.
+In ExoPlayer every piece of media is represented by a `MediaItem`. To play a
+piece of media you need to build a corresponding `MediaItem`, add it to the
+player, prepare the player, and call `play` to start the playback:
 
 ~~~
-// Produces DataSource instances through which media data is loaded.
-DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context,
-    Util.getUserAgent(context, "yourApplicationName"));
-// This is the MediaSource representing the media to be played.
-MediaSource videoSource =
-    new ProgressiveMediaSource.Factory(dataSourceFactory)
-        .createMediaSource(mp4VideoUri);
-// Prepare the player with the source.
-player.prepare(videoSource);
+// Build the media item.
+MediaItem mediaItem = MediaItem.fromUri(videoUri);
+// Set the media item to be played.
+player.setMediaItem(mediaItem);
+// Prepare the player.
+player.prepare();
+// Start the playback.
+player.play();
 ~~~
 {: .language-java}
+
+ExoPlayer supports playlists directly, so it's possible to prepare the player
+with multiple media items to be played one after the other:
+
+~~~
+// Build the media items.
+MediaItem firstItem = MediaItem.fromUri(firstVideoUri);
+MediaItem secondItem = MediaItem.fromUri(secondVideoUri);
+// Add the media items to be played.
+player.addMediaItem(firstItem);
+player.addMediaItem(secondItem);
+// Prepare the player.
+player.prepare();
+// Start the playback.
+player.play();
+~~~
+{: .language-java}
+
+The playlist can be updated during playback without the need to prepare the
+player again. Read more about populating and manipulating the playlist on the
+[Playlists page][]. Read more about the different options available when
+building media items, such as clipping and attaching subtitle files, on the
+[Media items page][].
+
+Prior to ExoPlayer 2.12, the player needed to be given a `MediaSource` rather
+than media items. From 2.12 onwards, the player converts media items to the
+`MediaSource` instances that it needs internally. Read more about this process
+and how it can be customized on the [Media sources page][]. It's still possible
+to provide `MediaSource` instances directly to the player using
+`ExoPlayer.setMediaSource(s)` and `ExoPlayer.addMediaSource(s)`.
+{:.info}
 
 ## Controlling the player ##
 
 Once the player has been prepared, playback can be controlled by calling methods
-on the player. For example `setPlayWhenReady` starts and pauses playback, the
+on the player. For example `play` and `pause` start and pause playback, the
 various `seekTo` methods seek within the media,`setRepeatMode` controls if and
 how media is looped, `setShuffleModeEnabled` controls playlist shuffling, and
 `setPlaybackParameters` adjusts playback speed and pitch.
@@ -193,3 +222,7 @@ can be done by calling `ExoPlayer.release`.
 [extensions directory]: {{ site.release_v2 }}/extensions/
 [release notes]: {{ site.release_v2 }}/RELEASENOTES.md
 ["Threading model" section of the ExoPlayer Javadoc]: {{ site.exo_sdk }}/ExoPlayer.html
+[Playlists page]: {{ site.baseurl }}/playlists.html
+[Media items page]: {{ site.baseurl }}/media-items.html
+[Media sources page]: {{ site.baseurl }}/media-sources.html
+

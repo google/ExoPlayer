@@ -15,11 +15,12 @@ skippable.
 
 When using ExoPlayer's `AdsMediaSource` for client-side ad insertion, the player
 has information about the ads to be played. This has several benefits:
-- The player can expose metadata and functionality relating to ads via its API.
-- [ExoPlayer UI components][] can show markers for ad positions automatically,
-and change behavior depending on whether ad is playing.
-- Internally, the player can keep a consistent buffer across transitions between
-ads and content.
+
+* The player can expose metadata and functionality relating to ads via its API.
+* [ExoPlayer UI components][] can show markers for ad positions automatically,
+  and change their behavior depending on whether ad is playing.
+* Internally, the player can keep a consistent buffer across transitions between
+  ads and content.
 
 In this setup, the player takes care of switching between ads and content, which
 means that apps don't need to take care of controlling multiple separate
@@ -29,25 +30,58 @@ When preparing content videos and ad tags for use with client-side ad insertion,
 ads should ideally be positioned at synchronization samples (keyframes) in the
 content video so that the player can resume content playback seamlessly.
 
+### Declarative ad support ###
+
+An ad tag URI can be specified when building a `MediaItem`:
+
+~~~
+MediaItem mediaItem =
+    new MediaItem.Builder().setUri(videoUri).setAdTagUri(adTagUri).build();
+~~~
+{: .language-java}
+
+To enable player support for media items that specify ad tags, it's necessary to
+build and inject a `DefaultMediaSourceFactory` configured with an
+`AdsLoaderProvider` and an `AdViewProvider` when creating the player:
+
+~~~
+MediaSourceFactory mediaSourceFactory =
+    new DefaultMediaSourceFactory(context)
+        .setAdsLoaderProvider(adsLoaderProvider)
+        .setAdViewProvider(playerView);
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+    .setMediaSourceFactory(mediaSourceFactory)
+    .build();
+~~~
+{: .language-java}
+
+Internally, `DefaultMediaSourceFactory` will wrap the content media source in an
+`AdsMediaSource`. The `AdsMediaSource` will obtain an `AdsLoader` from the
+`AdsLoaderProvider` and use it to insert ads as defined by the media item's ad
+tag.
+
+ExoPlayer's `StyledPlayerView` and `PlayerView` UI components both implement
+`AdViewProvider`. The IMA extension provides an easy to use `AdsLoader`, as
+described below.
+
 ### IMA extension ###
 
-The [ExoPlayer IMA extension][] makes it easy to integrate client-side ad
-insertion into your app. It wraps the functionality of the [client-side IMA
-SDK][] to support playback of VAST/VMAP ad tags. For instructions on how to use
-the extension, please see the [README][], which describes how to set up playback
-using an `AdsMediaSource` and the extension's `ImaAdsLoader`, and how to handle
-backgrounding/resuming playback.
+The [ExoPlayer IMA extension][] provides `ImaAdsLoader`, making it easy to
+integrate client-side ad insertion into your app. It wraps the functionality of
+the [client-side IMA SDK][] to support playback of VAST/VMAP ad tags. For
+instructions on how to use the extension, including how to handle backgrounding
+and resuming playback, please see the [README][].
 
-The [demo application][] can also use the IMA extension when it is built using a
-build variant with extensions, and includes several sample VAST/VMAP ad tags in
-the sample list.
+The [demo application][] uses the IMA extension, and includes several sample
+VAST/VMAP ad tags in the sample list.
 
 #### UI considerations ####
 
-`PlayerView` will hide controls during playback of ads by default, but apps can
-toggle this behavior via `PlayerView.setControllerHideDuringAds(false)`. The IMA
-SDK will show additional views on top of the player while an ad is playing
-(e.g., a 'more info' link and a skip button, if applicable).
+`StyledPlayerView` and `PlayerView` hide controls during playback of ads by
+default, but apps can toggle this behavior by calling
+`setControllerHideDuringAds`, which is defined on both views. The IMA SDK will
+show additional views on top of the player while an ad is playing (e.g., a 'more
+info' link and a skip button, if applicable).
 
 Since advertisers expect a consistent experience across apps, the IMA SDK does
 not allow customization of the views that it shows while an ad is playing.
@@ -56,33 +90,57 @@ not allow customization of the views that it shows while an ad is playing.
 The IMA SDK may report whether ads are obscured by application provided views
 rendered on top of the player. Apps that need to overlay views that are
 essential for controlling playback must register them with the IMA SDK so that
-they can be omitted from viewability calculations. To do that, implement the
-`AdsLoader.AdViewProvider` interface and pass the implementation when
-constructing the `AdsMediaSource`. `PlayerView` implements this interface to
-register its controls overlay. For more information, see [Open Measurement in
-the IMA SDK][].
+they can be omitted from viewability calculations. When using `StyledPlayerView`
+or `PlayerView` as the `AdViewProvider`, they will automatically register their
+control overlays. Apps that use a custom player UI must register overlay views
+by returning them from `AdViewProvider.getAdOverlayInfos`.
+
+For more information about overlay views, see
+[Open Measurement in the IMA SDK][].
 
 #### Companion ads ####
 
 Some ad tags contain additional companion ads that can be shown in 'slots' in an
 app UI. These slots can be passed via
-`ImaAdsLoader.getAdDisplayContainer().setCompanionSlots(slots)`. For more
-information see [Adding Companion Ads][].
+`ImaAdsLoader.Builder.setCompanionAdSlots(slots)`. For more information see
+[Adding Companion Ads][].
 
 ### Using a third-party ads SDK ###
 
-If you need to load ads via a third-party ads SDK, it's worth checking first
-whether it already provides an ExoPlayer integration.
+If you need to load ads via a third-party ads SDK, it's worth checking whether
+it already provides an ExoPlayer integration. If not, implementing a custom
+`AdsLoader` that wraps the third-party ads SDK is the recommended approach,
+since it provides the benefits of `AdsMediaSource` described above.
+`ImaAdsLoader` acts as an example implementation.
 
-If not, implementing a custom `AdsLoader` allows you to take advantage of
-`AdsMediaSource`. `ImaAdsLoader` acts as an example implementation.
+Alternatively, you can use ExoPlayer's [playlist support][] to build a sequence
+of ads and content clips:
 
-Alternatively you can use ExoPlayer's [playlist support][] to build a sequence
-of ads and content clips. To produce a content clip, wrap the content media
-source in a `ClippingMediaSource`, passing the relevant start/end times based on
-positions of the preceding/following ads (if any). In this approach the player
-doesn't know about ads, but it's still possible show ad markers in ExoPlayer's
-PlayerView via `PlayerView.setExtraAdGroupMarkers`.
+~~~
+// A pre-roll ad.
+MediaItem preRollAd = MediaItem.fromUri(preRollAdUri);
+// The start of the content.
+MediaItem contentStart =
+    new MediaItem.Builder()
+        .setUri(contentUri)
+        .setClipEndPositionMs(120_000)
+        .build();
+// A mid-roll ad.
+MediaItem midRollAd = MediaItem.fromUri(midRollAdUri);
+// The rest of the content
+MediaItem contentEnd =
+    new MediaItem.Builder()
+        .setUri(contentUri)
+        .setClipStartPositionMs(120_000)
+        .build();
+
+// Build the playlist.
+player.addMediaItem(preRollAd);
+player.addMediaItem(contentStart);
+player.addMediaItem(midRollAd);
+player.addMediaItem(contentEnd);
+~~~
+{: .language-java}
 
 ## Server-side ad insertion ##
 
@@ -104,13 +162,13 @@ provide any integration with the DAI part of the IMA SDK.
 
 [VAST]: https://www.iab.com/wp-content/uploads/2015/06/VASTv3_0.pdf
 [VMAP]: https://www.iab.com/guidelines/digital-video-multiple-ad-playlist-vmap-1-0-1/
-[ExoPlayer UI components]: {{ site.baseurl }}/ui-components.md
+[ExoPlayer UI components]: {{ site.baseurl }}/ui-components.html
 [ExoPlayer IMA extension]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
 [client-side IMA SDK]: https://developers.google.com/interactive-media-ads/docs/sdks/android
 [README]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/ima
 [demo application]: {{ site.baseurl }}/demo-application.html
 [Open Measurement in the IMA SDK]: https://developers.google.com/interactive-media-ads/docs/sdks/android/omsdk
 [Adding Companion Ads]: https://developers.google.com/interactive-media-ads/docs/sdks/android/companions
-[playlist support]: {{ site.baseurl }}/playlists.md
+[playlist support]: {{ site.baseurl }}/playlists.html
 [incorporating ads into a playlist]: https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming/incorporating_ads_into_a_playlist
 [supported formats]: {{ site.baseurl }}/supported-formats.html

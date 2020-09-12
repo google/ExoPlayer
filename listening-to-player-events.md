@@ -14,14 +14,13 @@ player.addListener(eventListener);
 
 `Player.EventListener` has empty default methods, so you only need to implement
 the methods you're interested in. See the [Javadoc][] for a full description of
-the methods and when they're called. Two of the most important are
-`onPlayerStateChanged` and `onPlayerError`, which are described in more detail
-below.
+the methods and when they're called. Some of the most important methods are
+described in more detail below.
 
 ### Player state changes ###
 
 Changes in player state can be received by implementing
-`onPlayerStateChanged(boolean playWhenReady, int playbackState)` in a registered
+`onPlaybackStateChanged(@State int state)` in a registered
 `Player.EventListener`. The player can be in one of four playback states:
 
 * `Player.STATE_IDLE`: This is the initial state, the state when the player is
@@ -33,10 +32,15 @@ Changes in player state can be received by implementing
 * `Player.STATE_ENDED`: The player finished playing all media.
 
 In addition to these states, the player has a `playWhenReady` flag to indicate
-the user intention to play.
+the user intention to play. Changes in this flag can be received by implementing
+`onPlayWhenReadyChanged(playWhenReady, @PlayWhenReadyChangeReason int reason)`.
 
-You can check if the player is playing (i.e. the position is advancing) with
-`Player.isPlaying`.
+A player is playing (i.e., its position is advancing and media is being
+presented to the user) when it's in the `Player.STATE_READY` state,
+`playWhenReady` is `true`, and playback is not suppressed for a reason returned
+by `Player.getPlaybackSuppressionReason`. Rather than having to check these
+properties individually, `Player.isPlaying` can be called. Changes to this
+state can be received by implementing `onIsPlayingChanged(boolean isPlaying)`:
 
 ~~~
 @Override
@@ -45,9 +49,9 @@ public void onIsPlayingChanged(boolean isPlaying) {
     // Active playback.
   } else {
     // Not playing because playback is paused, ended, suppressed, or the player
-    // is buffering, stopped or failed. Check player.getPlaybackState,
-    // player.getPlayWhenReady, player.getPlaybackError and
-    // player.getPlaybackSuppressionReason for details.
+    // is buffering, stopped or failed. Check player.getPlayWhenReady,
+    // player.getPlaybackState, player.getPlaybackSuppressionReason and
+    // player.getPlaybackError for details.
   }
 }
 ~~~
@@ -98,17 +102,37 @@ Calling `Player.seekTo` methods results in a series of callbacks to registered
 
 1. `onPositionDiscontinuity` with `reason=DISCONTINUITY_REASON_SEEK`. This is
    the direct result of calling `Player.seekTo`.
-1. `onPlayerStateChanged` with any immediate state change related to the seek.
-   Note that there might not be any state change, e.g. if the seek can be
-   resolved within the already loaded buffer.
-1. `onSeekProcessed`. This indicates that the player handled the seek and all
-   necessary changes have been made. If the player needs to buffer new data
-   from the seeked to position, the playback state will be
-   `Player.STATE_BUFFERING` at this point.
+1. `onPlaybackStateChanged` with any immediate state change related to the seek.
+   Note that there might not be such a change.
 
 If you are using an `AnalyticsListener`, there will be an additional event
 `onSeekStarted` just before `onPositionDiscontinuity`, to indicate the playback
 position immediately before the seek started.
+
+## Playback position ##
+
+There are many different events upon which your application can react. However,
+there might be use cases when you need to execute some code which can not be
+tied to an event emitted by the player. In such cases it's possible to have a
+`PlayerMessage` executed at an arbitrary playback position. These can be created
+using `ExoPlayer.createMessage` and then be sent using `PlayerMessage.send`. By
+default, messages are delivered on the playback thread, but this can be
+customized by setting another callback thread (using
+`PlayerMessage.setHandler`):
+
+~~~
+exoPlayer
+    .createMessage(
+        (messageType, payload) -> {
+          // Do something at the specified playback position.
+        })
+    .setHandler(new Handler())
+    .setPosition(/* windowIndex= */ 0, /* positionMs= */ 120_000)
+    .setPayload(customPayloadData)
+    .setDeleteAfterDelivery(false)
+    .send();
+~~~
+{: .language-java }
 
 ## Additional SimpleExoPlayer listeners ##
 
@@ -117,18 +141,19 @@ player.
 
 * `addAnalyticsListener`: Listen to detailed events that may be useful for
   analytics and reporting purposes.
+* `addTextOutput`: Listen to changes in the subtitle or caption cues.
+* `addMetadataOutput`: Listen to timed metadata events, such as timed ID3 and
+  EMSG data.
 * `addVideoListener`: Listen to events related to video rendering that may be
   useful for adjusting the UI (e.g., the aspect ratio of the `Surface` onto
   which video is being rendered).
 * `addAudioListener`: Listen to events related to audio, such as when an audio
   session ID is set, and when the player volume is changed.
-* `addTextOutput`: Listen to changes in the subtitle or caption cues.
-* `addMetadataOutput`: Listen to timed metadata events, such as timed ID3 and
-  EMSG data.
+* `addDeviceListener`: Listen to events related to the state of the device.
 
-ExoPlayer's UI components, such as `PlayerView`, will register themselves as
-listeners to events that they are interested in. Hence manual registration using
-the methods above is only useful for applications that implement their own
+ExoPlayer's UI components, such as `StyledPlayerView`, will register themselves
+as listeners to events that they are interested in. Hence manual registration
+using the methods above is only useful for applications that implement their own
 player UI, or need to listen to events for some other purpose.
 
 ## Using EventLogger ##
@@ -169,32 +194,38 @@ the device and OS the app is running on and the modules of ExoPlayer that have
 been loaded:
 
 ```
-ExoPlayerImpl: Release 2cd6e65 [ExoPlayerLib/2.9.6] [marlin, Pixel XL, Google, 26] [goog.exo.core, goog.exo.ui, goog.exo.dash]
-ExoPlayerImpl: Init 2e5194c [ExoPlayerLib/2.9.6] [marlin, Pixel XL, Google, 26]
+ExoPlayerImpl: Release 2cd6e65 [ExoPlayerLib/2.12.0] [marlin, Pixel XL, Google, 26] [goog.exo.core, goog.exo.ui, goog.exo.dash]
+ExoPlayerImpl: Init 2e5194c [ExoPlayerLib/2.12.0] [marlin, Pixel XL, Google, 26]
 ```
 
 #### Playback state ####
 
-Player state changes are logged in lines like the ones below. In this example
-the playback never rebuffers (after the initial buffering) and is paused by the
-user once:
+Player state changes are logged in lines like the ones below:
 
 ```
-EventLogger: state [eventTime=0.00, mediaPos=0.00, window=0, true, BUFFERING]
-EventLogger: state [eventTime=0.92, mediaPos=0.04, window=0, period=0, true, READY]
-EventLogger: state [eventTime=11.53, mediaPos=10.60, window=0, period=0, false, READY]
-EventLogger: state [eventTime=14.26, mediaPos=10.60, window=0, period=0, true, READY]
-EventLogger: state [eventTime=131.89, mediaPos=128.27, window=0, period=0, true, ENDED]
+EventLogger: playWhenReady [eventTime=0.00, mediaPos=0.00, window=0, true, USER_REQUEST]
+EventLogger: state [eventTime=0.01, mediaPos=0.00, window=0, BUFFERING]
+EventLogger: state [eventTime=0.93, mediaPos=0.00, window=0, period=0, READY]
+EventLogger: isPlaying [eventTime=0.93, mediaPos=0.00, window=0, period=0, true]
+EventLogger: playWhenReady [eventTime=9.40, mediaPos=8.40, window=0, period=0, false, USER_REQUEST]
+EventLogger: isPlaying [eventTime=9.40, mediaPos=8.40, window=0, period=0, false]
+EventLogger: playWhenReady [eventTime=10.40, mediaPos=8.40, window=0, period=0, true, USER_REQUEST]
+EventLogger: isPlaying [eventTime=10.40, mediaPos=8.40, window=0, period=0, true]
+EventLogger: state [eventTime=20.40, mediaPos=18.40, window=0, period=0, ENDED]
+EventLogger: isPlaying [eventTime=20.40, mediaPos=18.40, window=0, period=0, false]
 ```
 
-The elements within the square brackets are:
+In this example playback starts 0.93 seconds after the player is prepared. The
+user pauses playback after 9.4 seconds, and resumes playback one second later at
+10.4 seconds. Playback ends ten seconds later at 20.4 seconds. The common
+elements within the square brackets are:
 
 * `[eventTime=float]`: The wall clock time since player creation.
 * `[mediaPos=float]`: The current playback position.
 * `[window=int]`: The current window index.
 * `[period=int]`: The current period in that window.
-* `[boolean]`: The `playWhenReady` flag.
-* `[string]`: The current playback state.
+
+The final elements in each line indicate the value of the state being reported.
 
 #### Media tracks ####
 
@@ -203,17 +234,17 @@ happens at least once at the start of playback. The example below shows track
 logging for an adaptive stream:
 
 ```
-EventLogger: tracksChanged [2.32, 0.00, window=0, period=0,
-EventLogger:   Renderer:0 [
+EventLogger: tracks [eventTime=0.30, mediaPos=0.00, window=0, period=0,
+EventLogger:   MediaCodecVideoRenderer [
 EventLogger:     Group:0, adaptive_supported=YES [
 EventLogger:       [X] Track:0, id=133, mimeType=video/avc, bitrate=261112, codecs=avc1.4d4015, res=426x240, fps=30.0, supported=YES
 EventLogger:       [X] Track:1, id=134, mimeType=video/avc, bitrate=671331, codecs=avc1.4d401e, res=640x360, fps=30.0, supported=YES
 EventLogger:       [X] Track:2, id=135, mimeType=video/avc, bitrate=1204535, codecs=avc1.4d401f, res=854x480, fps=30.0, supported=YES
 EventLogger:       [X] Track:3, id=160, mimeType=video/avc, bitrate=112329, codecs=avc1.4d400c, res=256x144, fps=30.0, supported=YES
-EventLogger:       [X] Track:4, id=136, mimeType=video/avc, bitrate=2400538, codecs=avc1.4d401f, res=1280x720, fps=30.0, supported=YES
+EventLogger:       [ ] Track:4, id=136, mimeType=video/avc, bitrate=2400538, codecs=avc1.4d401f, res=1280x720, fps=30.0, supported=NO_EXCEEDS_CAPABILITIES
 EventLogger:     ]
 EventLogger:   ]
-EventLogger:   Renderer:1 [
+EventLogger:   MediaCodecAudioRenderer [
 EventLogger:     Group:0, adaptive_supported=YES_NOT_SEAMLESS [
 EventLogger:       [ ] Track:0, id=139, mimeType=audio/mp4a-latm, bitrate=48582, codecs=mp4a.40.5, channels=2, sample_rate=22050, supported=YES
 EventLogger:       [X] Track:1, id=140, mimeType=audio/mp4a-latm, bitrate=127868, codecs=mp4a.40.2, channels=2, sample_rate=44100, supported=YES
@@ -222,23 +253,29 @@ EventLogger:   ]
 EventLogger: ]
 ```
 
-When playing an adaptive stream, changes in the format being played are logged
-during playback, along with the properties of the selected tracks:
+In this example, the player has selected four of the five available video
+tracks. The fifth video track is not selected because it exceeds the
+capabilities of the device, as indicated by `supported=NO_EXCEEDS_CAPABILITIES`.
+The player will adapt between the selected video tracks during playback. When
+the player adapts from one track to another, it's logged in a line like the one
+below:
 
 ```
-EventLogger: downstreamFormatChanged [3.64, 0.00, window=0, period=0, id=134, mimeType=video/avc, bitrate=671331, codecs=avc1.4d401e, res=640x360, fps=30.0]
-EventLogger: downstreamFormatChanged [3.64, 0.00, window=0, period=0, id=140, mimeType=audio/mp4a-latm, bitrate=127868, codecs=mp4a.40.2, channels=2, sample_rate=44100]
+EventLogger: downstreamFormat [eventTime=3.64, mediaPos=3.00, window=0, period=0, id=134, mimeType=video/avc, bitrate=671331, codecs=avc1.4d401e, res=640x360, fps=30.0]
 ```
+
+This log line indicates that the player switched to the 640x360 resolution video
+track three seconds into the media.
 
 #### Decoder selection ####
 
 In most cases ExoPlayer renders media using a `MediaCodec` acquired from the
-underlying platform. Before any playback state is reported you'll find logging
-telling you which decoders have been initialized. For example:
+underlying platform. When a decoder is initialized, this is logged in lines like
+the ones below:
 
 ```
-EventLogger: decoderInitialized [0.77, 0.00, window=0, period=0, video, OMX.qcom.video.decoder.avc]
-EventLogger: decoderInitialized [0.79, 0.00, window=0, period=0, audio, OMX.google.aac.decoder]
+EventLogger: videoDecoderInitialized [0.77, 0.00, window=0, period=0, video, OMX.qcom.video.decoder.avc]
+EventLogger: audioDecoderInitialized [0.79, 0.00, window=0, period=0, audio, OMX.google.aac.decoder]
 ```
 
 [`Player.EventListener`]: {{ site.exo_sdk }}/Player.EventListener.html

@@ -4,10 +4,14 @@ title: Design documents
 
 To get early feedback from developers, we publish design documents for larger
 changes on this page. Feel free to comment on the documents that are still in
-RFC status. Note that we do not typically update the documents once changes are
-implemented.
+"request for comments" (RFC) status. Note that we do not typically update
+documents once changes are implemented.
 
-### Design documents in RFC status ###
+### RFC status ###
+
+* There are no documents in RFC status at this time
+
+### Archive ###
 
 * [Add support for partially fragmented MP4s][] (July 2020)
 * [Audio offload][] (April 2020)

@@ -34,9 +34,6 @@ abstract methods:
   * `PlatformScheduler`, which uses [JobScheduler][] (Minimum API is 21). See
     the [PlatformScheduler][] javadocs for app permission requirements.
   * `WorkManagerScheduler`, which uses [WorkManager][].
-  * `JobDispatcherScheduler`, which uses [Firebase JobDispatcher][]
-  (Deprecated). See the [JobDispatcherScheduler][] javadocs for app permission
-  requirements.
 * `getForegroundNotification()`: Returns a notification to be displayed when the
   service is running in the foreground. You can use
   `DownloadNotificationHelper.buildProgressNotification` to create a
@@ -75,14 +72,21 @@ downloadCache = new SimpleCache(
     databaseProvider);
 
 // Create a factory for reading the data from the network.
-dataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
+dataSourceFactory = new DefaultHttpDataSourceFactory();
+
+// Choose an executor for downloading data. Using Runnable::run will cause each download task to
+// download data on its own thread. Passing an executor that uses multiple threads will speed up
+// download tasks that can be split into smaller parts for parallel execution. Applications that
+// already have an executor for background downloads may wish to reuse their existing executor.
+Executor downloadExecutor = Runnable::run;
 
 // Create the download manager.
 downloadManager = new DownloadManager(
     context,
     databaseProvider,
     downloadCache,
-    dataSourceFactory);
+    dataSourceFactory,
+    downloadExecutor);
 
 // Optionally, setters can be called to configure the download manager.
 downloadManager.setRequirements(requirements);
@@ -90,7 +94,7 @@ downloadManager.setMaxParallelDownloads(3);
 ~~~
 {: .language-java}
 
-See [`DemoApplication`][] in the demo app for a concrete example.
+See [`DemoUtil`][] in the demo app for a concrete example.
 
 The example in the demo app also imports download state from legacy `ActionFile`
 instances. This is only necessary if your app used `ActionFile` prior to
@@ -102,23 +106,21 @@ ExoPlayer 2.10.0.
 To add a download you need to create a `DownloadRequest` and send it to your
 `DownloadService`. For adaptive streams `DownloadHelper` can be used to help
 build a `DownloadRequest`, as described [further down this page][]. The example
-below shows how to create a download request for a progressive stream:
+below shows how to create a download request:
 
 ~~~
-DownloadRequest downloadRequest = new DownloadRequest(
-    contentId,
-    DownloadRequest.TYPE_PROGRESSIVE,
-    contentUri,
-    /* streamKeys= */ Collections.emptyList(),
-    /* customCacheKey= */ null,
-    appData);
+DownloadRequest downloadRequest =
+    new DownloadRequest.Builder(contentId, contentUri).build();
 ~~~
 {: .language-java}
 
-where `contentId` is a unique identifier for the content, and `appData` is any
-data that the app wishes to associate with the download. In simple cases, the
+where `contentId` is a unique identifier for the content. In simple cases, the
 `contentUri` can often be used as the `contentId`, however apps are free to use
-whatever ID scheme best suits their use case.
+whatever ID scheme best suits their use case. `DownloadRequest.Builder` also has
+some optional setters. For example, `setKeySetId` and `setData` can be used to
+set DRM and custom data that the app wishes to associate with the download,
+respectively. The content's MIME type can also be specified using `setMimeType`,
+as a hint for cases where the content type cannot be inferred from `contentUri`.
 
 Once created, the request can be sent to the `DownloadService` to add the
 download:
@@ -300,19 +302,47 @@ It's important that you do not try and read files directly from the download
 directory. Instead, use ExoPlayer library classes as described below.
 {:.info}
 
-To play downloaded content, create a `CacheDataSourceFactory` using the same
-`Cache` instance that was used for downloading. Using this factory, construct
-a `MediaSource` for playback. You should build the `MediaSource` using the
-original `contentUri` (i.e. the one from which the content was downloaded), not
-a URI that points to the download directory or any file within it.
+To play downloaded content, create a `CacheDataSource.Factory` using the same
+`Cache` instance that was used for downloading, and inject it into
+`DefaultMediaSourceFactory` when building the player:
 
 ~~~
-CacheDataSourceFactory dataSourceFactory = new CacheDataSourceFactory(
-    downloadCache, upstreamDataSourceFactory);
-ProgressiveMediaSource mediaSource = new ProgressiveMediaSource
-    .Factory(dataSourceFactory)
-    .createMediaSource(contentUri);
-player.prepare(mediaSource);
+// Create a read-only cache data source factory using the download cache.
+DataSource.Factory cacheDataSourceFactory =
+    new CacheDataSource.Factory()
+        .setCache(downloadCache)
+        .setUpstreamDataSourceFactory(httpDataSourceFactory)
+        .setCacheWriteDataSinkFactory(null); // Disable writing.
+
+SimpleExoPlayer player = new SimpleExoPlayer.Builder(context)
+    .setMediaSourceFactory(
+        new DefaultMediaSourceFactory(cacheDataSourceFactory))
+    .build();
+~~~
+{: .language-java}
+
+If the same player instance will also be used to play non-downloaded content
+then the `CacheDataSource.Factory` should be configured as read-only to avoid
+downloading that content as well during playback.
+
+Once the player has been configured with the `CacheDataSource.Factory`, it will
+have access to the downloaded content for playback. Playing a download is then
+as simple as passing the corresponding `MediaItem` to the player. A `MediaItem`
+can be obtained from a `Download` using `Download.request.toMediaItem`, or
+directly from a `DownloadRequest` using `DownloadRequest.toMediaItem`.
+
+### MediaSource configuration ###
+
+The example above makes the download cache available for playback of all
+`MediaItem`s. It's also possible to make the download cache available for
+individual `MediaSource` instances, which can be passed directly to the player:
+
+~~~
+ProgressiveMediaSource mediaSource =
+    new ProgressiveMediaSource.Factory(cacheDataSourceFactory)
+        .createMediaSource(MediaItem.fromUri(contentUri));
+player.setMediaSource(mediaSource);
+player.prepare();
 ~~~
 {: .language-java}
 
@@ -329,16 +359,15 @@ tracks are played. Similarly, for downloading, a `DownloadHelper` can be used to
 choose which of the tracks are downloaded. Typical usage of a `DownloadHelper`
 follows these steps:
 
-1. Build a `DownloadHelper` using one of the `DownloadHelper.forXXX` methods.
-1. Prepare the helper using `prepare(DownloadHelper.Callback)` and wait for the
-   callback.
+1. Build a `DownloadHelper` using one of the `DownloadHelper.forMediaItem`
+   methods. Prepare the helper and wait for the callback.
    ~~~
    DownloadHelper downloadHelper =
-       DownloadHelper.forDash(
+       DownloadHelper.forMediaItem(
            context,
-           contentUri,
-           dataSourceFactory,
-           new DefaultRenderersFactory(context));
+           MediaItem.fromUri(contentUri),
+           new DefaultRenderersFactory(context),
+           dataSourceFactory);
    downloadHelper.prepare(myCallback);
    ~~~
    {: .language-java}
@@ -350,29 +379,29 @@ follows these steps:
    add the download, as described above.
 1. Release the helper using `release()`.
 
-You can create a `MediaSource` for playback by calling
-`DownloadHelper.createMediaSource`:
+Playback of downloaded adaptive content requires configuring the player and
+passing the corresponding `MediaItem`, as described above.
 
-~~~
-MediaSource mediaSource =
-    DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
-~~~
-{: .language-java}
+When building the `MediaItem`, `MediaItem.playbackProperties.streamKeys` must be
+set to match those in the `DownloadRequest` so that the player only tries to
+play the subset of tracks that have been downloaded. Using
+`Download.request.toMediaItem` and `DownloadRequest.toMediaItem` to build the
+`MediaItem` will take care of this for you. If building a `MediaSource` to pass
+directly to the player, it is similarly important to configure the stream keys
+by calling `MediaSourceFactory.setStreamKeys`.
 
-The created `MediaSource` is aware of which tracks have been downloaded, and so
-will only attempt to use these tracks during playback. See [`PlayerActivity`][]
-in the demo app for a concrete example.
+If you see data being requested from the network when trying to play downloaded
+adaptive content, the most likely cause is that the player is trying to adapt to
+a track that was not downloaded. Ensure you've set the stream keys correctly.
+{:.info}
 
 [JobScheduler]: {{ site.android_sdk }}/android/app/job/JobScheduler
 [PlatformScheduler]: {{ site.exo_sdk }}/scheduler/PlatformScheduler.html
-[JobDispatcherScheduler]: {{ site.exo_sdk }}/ext/jobdispatcher/JobDispatcherScheduler.html
 [WorkManager]: https://developer.android.com/topic/libraries/architecture/workmanager/
-[Firebase JobDispatcher]: https://github.com/firebase/firebase-jobdispatcher-android
 [`DemoDownloadService`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/DemoDownloadService.java
 [`AndroidManifest.xml`]: {{ site.release_v2 }}/demos/main/src/main/AndroidManifest.xml
-[`DemoApplication`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/DemoApplication.java
+[`DemoUtil`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/DemoUtil.java
 [`DownloadTracker`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/DownloadTracker.java
-[`PlayerActivity`]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/PlayerActivity.java
 [`DownloadService`]: {{ site.release_v2 }}/library/core/src/main/java/com/google/android/exoplayer2/offline/DownloadService.java
 [`Requirements`]: {{ site.exo_sdk }}/scheduler/Requirements.html
 [further down this page]: #downloading-and-playing-adaptive-streams

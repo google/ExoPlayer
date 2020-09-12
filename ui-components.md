@@ -5,35 +5,38 @@ title: UI components
 An app playing media requires user interface components for displaying media and
 controlling playback. The ExoPlayer library includes a UI module that contains
 a number of UI components. To depend on the UI module add a dependency as shown
-below, where `2.X.X` is your preferred version (the latest version can be found
-by consulting the [release notes][]).
+below.
 
 ~~~
 implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 ~~~
 {: .language-gradle}
 
-The most important components are `PlayerControlView` and `PlayerView`.
+The most important components are `StyledPlayerControlView`, `StyledPlayerView`,
+`PlayerControlView` and `PlayerView`. The styled variants provide a more
+polished user experience, however are harder to customize.
 
-* [`PlayerControlView`][] is a view for controlling playbacks. It displays
-  standard playback controls including a play/pause button, fast-forward and
-  rewind buttons, and a seek bar.
-* [`PlayerView`][] is a high level view for playbacks. It displays video,
-  subtitles and album art during playback, as well as playback controls using a
-  `PlayerControlView`.
+* [`StyledPlayerControlView`][] and [`PlayerControlView`][] are views for
+  controlling playbacks. They display standard playback controls including a
+  play/pause button, fast-forward and rewind buttons, and a seek bar.
+* [`StyledPlayerView`][] and [`PlayerView`][] are high level views for
+  playbacks. They display video, subtitles and album art during playback, as
+  well as playback controls using a `StyledPlayerControlView` or
+  `PlayerControlView` respectively.
 
-Both views have a `setPlayer` method for attaching and detaching (by passing
+All four views have a `setPlayer` method for attaching and detaching (by passing
 `null`) player instances.
 
-## PlayerView ##
+## Player views ##
 
-`PlayerView` can be used for both video and audio playbacks. It renders video
-and subtitles in the case of video playback, and can display artwork included
-as metadata in audio files. You can include a `PlayerView` in your layout file
-like any other UI component:
+`StyledPlayerView` and `PlayerView` can be used for both video and audio
+playbacks. They render video and subtitles in the case of video playback, and
+can display artwork included as metadata in audio files. You can include them in
+your layout files like any other UI component. For example, a `StyledPlayerView`
+can be included with the following XML:
 
 ~~~
-<com.google.android.exoplayer2.ui.PlayerView
+<com.google.android.exoplayer2.ui.StyledPlayerView
     android:id="@+id/player_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -42,14 +45,14 @@ like any other UI component:
 ~~~
 {: .language-xml}
 
-The code snippet above illustrates that `PlayerView` provides several
+The snippet above illustrates that `StyledPlayerView` provides several
 attributes. These attributes can be used to customize the view's behavior, as
 well as its look and feel. Most of these attributes have corresponding setter
 methods, which can be used to customize the view at runtime. The
-[`PlayerView`][] Javadoc documents these attributes and setter methods in more
-detail.
+[`StyledPlayerView`][] Javadoc lists these attributes and setter methods in
+more detail. [`PlayerView`][] defines similar attributes.
 
-Once the `PlayerView` is declared in the layout file, it can be looked up in the
+Once the view is declared in the layout file, it can be looked up in the
 `onCreate` method of the activity:
 
 ~~~
@@ -70,20 +73,22 @@ When a player has been initialized, it can be attached to the view by calling
 player = new SimpleExoPlayer.Builder(context).build();
 // Attach player to the view.
 playerView.setPlayer(player);
-// Prepare the player with the media source.
-player.prepare(createMediaSource());
+// Set the media source to be played.
+player.setMediaSource(createMediaSource());
+// Prepare the player.
+player.prepare();
 ~~~
 {: .language-java}
 
 ### Choosing a surface type ###
 
-The `surface_type` attribute of `PlayerView` lets you set the type of surface
-used for video playback. Besides the values `spherical_gl_surface_view` (which
-is a special value for spherical video playback) and
-`video_decoder_gl_surface_view` (which is for video rendering using extension
-renderers), the allowed values are `surface_view`, `texture_view` and `none`. If
-the view is for audio playback only, `none` should be used to avoid having to
-create a surface, since doing so can be expensive.
+The `surface_type` attribute of `StyledPlayerView` and `PlayerView` lets you set
+the type of surface used for video playback. Besides the values
+`spherical_gl_surface_view` (which is a special value for spherical video
+playback) and `video_decoder_gl_surface_view` (which is for video rendering
+using extension renderers), the allowed values are `surface_view`,
+`texture_view` and `none`. If the view is for audio playback only, `none` should
+be used to avoid having to create a surface, since doing so can be expensive.
 
 If the view is for regular video playback then `surface_view` or `texture_view`
 should be used. `SurfaceView` has a number of benefits over `TextureView` for
@@ -116,29 +121,31 @@ full resolution of the display, upscaling it for presentation to the user. For
 example, the UI layer may be run at 1080p on an Android TV that has a 4K
 display. On such devices, `SurfaceView` must be used to render content at the
 full resolution of the display. The full resolution of the display (in its
-current display mode) can be queried using [`Util.getPhysicalDisplaySize`][].
+current display mode) can be queried using [`Util.getCurrentDisplayModeSize`][].
 The UI layer resolution can be queried using Android's [`Display.getSize`] API.
 {:.info}
 
-## PlayerControlView ##
+## Player control views ##
 
-When using `PlayerView`, a `PlayerControlView` is used internally to provide
-playback controls. For specific use cases `PlayerControlView` can also be used
-as a standalone component. It can be included in your layout file like any other
-UI component:
+When using `StyledPlayerView`, a `StyledPlayerControlView` is used internally to
+provide playback controls. When using a `PlayerView`, a `PlayerControlView` is
+used internally.
+
+For specific use cases `StyledPlayerControlView` and `PlayerControlView` can
+also be used as standalone components. They can be included in your layout file
+as normal. For example:
 
 ~~~
-<com.google.android.exoplayer2.ui.PlayerControlView
+<com.google.android.exoplayer2.ui.StyledPlayerControlView
     android:id="@+id/player_control_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>
 ~~~
 {: .language-xml}
 
-As with `PlayerView`, the [`PlayerControlView`][] Javadoc documents the
-available attributes and setter methods in more detail. Looking up a
-`PlayerControlView` and attaching the player to the view is similar to when
-using `PlayerView`:
+The [`StyledPlayerControlView`][] and [`PlayerControlView`][] Javadoc list the
+the available attributes and setter methods for these components. Looking them
+up and attaching the player is similar to the example above:
 
 ~~~
 @Override
@@ -169,23 +176,25 @@ overriding layout files, and by specifying custom layout files.
 
 ### Overriding drawables ###
 
-The drawables used by `PlayerControlView` (with its default layout file) can be
-overridden by drawables with the same names defined in your application. See the
+The drawables used by `StyledPlayerControlView` and `PlayerControlView`
+(with their default layout files) can be overridden by drawables with the same
+names defined in your application. See the [`StyledPlayerControlView`][] and
 [`PlayerControlView`][] Javadoc for a list of drawables that can be overridden.
-Since `PlayerView` uses a `PlayerControlView`, overriding these drawables works
-for `PlayerView` too.
+Note that overriding these drawables will also affect the appearance of
+`PlayerView` and `StyledPlayerView`, since they use these views internally.
 
 ### Overriding layout files ###
 
-When a `PlayerView` is instantiated it inflates its layout from the layout file
-`exo_player_view.xml`. `PlayerControlView` inflates its layout from
+All of the view components inflate their layouts from corresponding layout
+files, which are specified in their Javadoc. For example when a
+`PlayerControlView` is instantiated, it inflates its layout from
 `exo_player_control_view.xml`. To customize these layouts, an application can
 define layout files with the same names in its own `res/layout*` directories.
-These layout files override the ones provided by the ExoPlayer library.
+These layout files will override the ones provided by the ExoPlayer library.
 
 As an example, suppose we want our playback controls to consist of only a
 play/pause button positioned in the center of the view. We can achieve this by
-creating `exo_player_control_view.xml` file in the application’s `res/layout`
+creating an `exo_player_control_view.xml` file in the application’s `res/layout`
 directory, containing:
 
 ~~~
@@ -235,9 +244,10 @@ specified using the `controller_layout_id` attribute:
 ~~~
 {: .language-xml}
 
-[release notes]: {{ site.release_v2 }}/RELEASENOTES.md
 [`PlayerView`]: {{ site.exo_sdk }}/ui/PlayerView.html
 [`PlayerControlView`]: {{ site.exo_sdk }}/ui/PlayerControlView.html
+[`StyledPlayerView`]: {{ site.exo_sdk }}/ui/StyledPlayerView.html
+[`StyledPlayerControlView`]: {{ site.exo_sdk }}/ui/StyledPlayerControlView.html
 [`SDK_INT`]: {{ site.android_sdk }}/android/os/Build.VERSION.html#SDK_INT
-[`Util.getPhysicalDisplaySize`]: {{ site.exo_sdk }}/util/Util.html#getPhysicalDisplaySize-android.content.Context-
+[`Util.getCurrentDisplayModeSize`]: {{ site.exo_sdk }}/util/Util.html#getCurrentDisplayModeSize-android.content.Context-
 [`Display.getSize`]: {{ site.android_sdk }}/android/view/Display.html#getSize(android.graphics.Point)

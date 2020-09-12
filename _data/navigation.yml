@@ -27,10 +27,12 @@ en:
         url:    hello-world.html
       - title:  Listening to player events
         url:    listening-to-player-events.html
-      - title:  Media sources
-        url:    media-sources.html
       - title:  Playlists
         url:    playlists.html
+      - title:  Media items
+        url:    media-items.html
+      - title:  Media sources
+        url:    media-sources.html
       - title:  Track selection
         url:    track-selection.html
       - title:  UI components

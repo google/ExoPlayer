@@ -2,18 +2,22 @@
 title: Playlists
 ---
 
-Playlists are supported using `ConcatenatingMediaSource`, which enables
-sequential playback of multiple `MediaSource`s. The following example represents
-a playlist consisting of two videos.
+The playlist API is defined by the `Player` interface, which is implemented by
+all `ExoPlayer` implementations. It enables sequential playback of multiple
+media items. The following example shows how to start playback of a playlist
+containing two videos:
 
 ~~~
-MediaSource firstSource =
-    new ProgressiveMediaSource.Factory(...).createMediaSource(firstVideoUri);
-MediaSource secondSource =
-    new ProgressiveMediaSource.Factory(...).createMediaSource(secondVideoUri);
-// Plays the first video, then the second video.
-ConcatenatingMediaSource concatenatedSource =
-    new ConcatenatingMediaSource(firstSource, secondSource);
+// Build the media items.
+MediaItem firstItem = MediaItem.fromUri(firstVideoUri);
+MediaItem secondItem = MediaItem.fromUri(secondVideoUri);
+// Add the media items to be played.
+player.addMediaItem(firstItem);
+player.addMediaItem(secondItem);
+// Prepare the player.
+player.prepare();
+// Start the playback.
+player.play();
 ~~~
 {: .language-java}
 
@@ -21,67 +25,152 @@ Transitions between items in a playlist are seamless. There's no requirement
 that they're of the same format (e.g., it’s fine for a playlist to contain both
 H264 and VP9 videos). They may even be of different types (e.g., it’s fine for a
 playlist to contain both videos and audio only streams). It's allowed to use the
-same `MediaSource` multiple times within a playlist.
+same `MediaItem` multiple times within a playlist.
 
-## Modifying a playlist ##
+## Modifying the playlist ##
 
-It's possible to dynamically modify a playlist by adding, removing and moving
-`MediaSource`s within a `ConcatenatingMediaSource`. This can be done both before
-and during playback by calling the corresponding `ConcatenatingMediaSource`
-methods. The player automatically handles modifications during playback in the
-correct way. For example if the currently playing `MediaSource` is moved,
-playback is not interrupted and its new successor will be played upon
-completion. If the currently playing `MediaSource` is removed, the player will
-automatically move to playing the first remaining successor, or transition to
-the ended state if no such successor exists.
+It's possible to dynamically modify a playlist by adding, moving and removing
+media items. This can be done both before and during playback by calling the
+corresponding playlist API methods:
+
+~~~
+// Adds a media item at position 1 in the playlist.
+player.addMediaItem(/* index= */ 1, MediaItem.fromUri(thirdUri));
+// Moves the third media item from position 2 to the start of the playlist.
+player.moveMediaItem(/* currentIndex= */ 2, /* newIndex= */ 0);
+// Removes the first item from the playlist.
+player.removeMediaItem(/* index= */ 0);
+~~~
+{: .language-java}
+
+Replacing and clearing the entire playlist are also supported:
+
+~~~
+// Replaces the playlist with a new one.
+List<MediaItem> newItems = ImmutableList.of(
+    MediaItem.fromUri(fourthUri),
+    MediaItem.fromUri(fifthUri));
+player.setMediaItems(newItems, /* resetPosition= */ true);
+// Clears the playlist. If prepared, the player transitions to the ended state.
+player.clearMediaItems();
+~~~
+{: .language-java}
+
+The player automatically handles modifications during playback in the correct
+way. For example if the currently playing media item is moved, playback is not
+interrupted and its new successor will be played upon completion. If the
+currently playing `MediaItem` is removed, the player will automatically move to
+playing the first remaining successor, or transition to the ended state if no
+such successor exists.
+
+## Querying the playlist ##
+
+The playlist can be queried using `Player.getMediaItemCount` and
+`Player.getMediaItemAt`. The currently playing media item can be queried
+by calling `Player.getCurrentMediaItem`.
 
 ## Identifying playlist items ##
 
-To simplify identification of playlist items, each `MediaSource` can be set up
-with a custom tag in the factory class of the `MediaSource`. This could be the
-uri, the title, or any other custom object. It's possible to query the tag of
-the currently playing item with `player.getCurrentTag`. The current `Timeline`
-returned by `player.getCurrentTimeline` also contains all tags as part of the
-`Timeline.Window` objects.
+To identify playlist items, `MediaItem.mediaId` can be set when building the
+item:
 
 ~~~
-public void addItem() {
-  // Add mediaId (e.g. uri) as tag to the MediaSource.
-  MediaSource mediaSource =
-      new ProgressiveMediaSource.Factory(...)
-          .setTag(mediaId)
-          .createMediaSource(uri);
-  concatenatedSource.addMediaSource(mediaSource);
-}
+// Build a media item with a media ID.
+MediaItem mediaItem =
+    new MediaItem.Builder().setUri(uri).setMediaId(mediaId).build();
+~~~
+{: .language-java}
 
+If an app does not explicitly define a media ID for a media item, the string
+representation of the URI is used.
+
+## Associating app data with playlist items ##
+
+In addition to an ID, each media item can also be configured with a custom tag,
+which can be any app provided object. One use of custom tags is to attach
+metadata to each media item:
+
+~~~
+// Build a media item with a custom tag.
+MediaItem mediaItem =
+    new MediaItem.Builder().setUri(uri).setTag(metadata).build();
+~~~
+{: .language-java}
+
+
+## Detecting when playback transitions to another media item ##
+
+When playback transitions to another media item, or starts repeating the same
+media item, `EventListener.onMediaItemTransition(MediaItem,
+@MediaItemTransitionReason)` is called. This callback receives the new media
+item, along with a `@MediaItemTransitionReason` indicating why the transition
+occurred. A common use case for `onMediaItemTransition` is to update the
+application's UI for the new media item:
+
+~~~
 @Override
-public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-  // Load metadata for mediaId and update the UI.
-  CustomMetadata metadata = CustomMetadata.get(player.getCurrentTag());
-  titleView.setText(metadata.getTitle());
+public void onMediaItemTransition(
+    @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
+  updateUiForPlayingMediaItem(mediaItem);
 }
 ~~~
 {: .language-java}
 
-## Detecting when playback transitions to another item ##
+If the metadata required to update the UI is attached to each media item using
+custom tags, then an implementation might look like:
 
-There are three types of events that may be called when the current playback
-item changes:
+~~~
+@Override
+public void onMediaItemTransition(
+    @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
+  @Nullable CustomMetadata metadata = null;
+  if (mediaItem != null && mediaItem.playbackProperties != null) {
+    metadata = (CustomMetadata) mediaItem.playbackProperties.tag;
+  }
+  updateUiForPlayingMediaItem(metadata);
+}
+~~~
+{: .language-java}
 
-1. `EventListener.onPositionDiscontinuity` with `reason =
-   Player.DISCONTINUITY_REASON_PERIOD_TRANSITION`. This happens when playback
-   automatically transitions from one item to the next.
-1. `EventListener.onPositionDiscontinuity` with `reason =
-   Player.DISCONTINUITY_REASON_SEEK`. This happens when the current playback
-   item changes as part of a seek operation, for example when calling
-   `Player.next`.
-1. `EventListener.onTimelineChanged` with `reason =
-   Player.TIMELINE_CHANGE_REASON_DYNAMIC`. This happens when the playlist
-   changes, e.g. if items are added, moved, or removed.
+## Detecting when the playlist changes ##
 
-In all cases, when your application code receives the event, you can query the
-player to determine which item in the playlist is now being played. This can be
-done using methods such as `Player.getCurrentWindowIndex` and
-`Player.getCurrentTag`. If you only want to detect playlist item changes, then
-it's necessary to compare against the last known window index or tag, because
-the mentioned events may be triggered for other reasons.
+When a media item is added, removed or moved,
+`EventListener.onTimelineChanged(Timeline, @TimelineChangeReason)` is called
+immediately with `TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED`. This callback is
+called even when the player has not yet been prepared.
+
+~~~
+@Override
+public void onTimelineChanged(
+    Timeline timeline, @TimelineChangeReason int reason) {
+  if (reason == TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
+    // Update the UI according to the modified playlist (add, move or remove).
+    updateUiForPlaylist(timeline);
+  }
+}
+~~~
+{: .language-java}
+
+When information such as the duration of a media item in the playlist becomes
+available, the `Timeline` will be updated and `onTimelineChanged` will be called
+with `TIMELINE_CHANGE_REASON_SOURCE_UPDATE`. Other reasons that can cause a
+timeline update include:
+
+* A manifest becoming available after preparing an adaptive media item.
+* A manifest being updated periodically during playback of a live stream.
+
+## Setting a custom shuffle order ##
+
+By default the playlist supports shuffling by using the `DefaultShuffleOrder`.
+This can be customized by providing a custom shuffle order implementation:
+
+~~~
+// Set the custom shuffle order.
+simpleExoPlayer.setShuffleOrder(shuffleOrder);
+// Enable shuffle mode.
+simpleExoPlayer.setShuffleModeEnabled(/* shuffleModeEnabled= */ true);
+~~~
+{: .language-java}
+
+If the repeat mode of the player is set to `Player.REPEAT_MODE_ALL`, the custom
+shuffle order is played in an endless loop.
