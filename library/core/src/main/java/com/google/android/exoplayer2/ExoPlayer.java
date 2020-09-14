@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2;
 
 import android.content.Context;
+import android.media.AudioTrack;
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -622,14 +624,13 @@ public interface ExoPlayer extends Player {
    * the following:
    *
    * <ul>
-   *   <li>audio offload rendering is enabled in {@link
+   *   <li>Audio offload rendering is enabled in {@link
    *       DefaultRenderersFactory#setEnableAudioOffload} or the equivalent option passed to {@link
-   *       com.google.android.exoplayer2.audio.DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
+   *       DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
    *       DefaultAudioSink.AudioProcessorChain, boolean, boolean, boolean)}.
-   *   <li>an audio track is playing in a format which the device supports offloading (for example,
+   *   <li>An audio track is playing in a format that the device supports offloading (for example,
    *       MP3 or AAC).
-   *   <li>The {@link com.google.android.exoplayer2.audio.AudioSink} is playing with an offload
-   *       {@link android.media.AudioTrack}.
+   *   <li>The {@link AudioSink} is playing with an offload {@link AudioTrack}.
    * </ul>
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
