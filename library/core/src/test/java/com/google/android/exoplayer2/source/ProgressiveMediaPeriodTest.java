@@ -16,12 +16,14 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
@@ -30,7 +32,6 @@ import com.google.android.exoplayer2.upstream.AssetDataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import java.util.concurrent.TimeoutException;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,9 +61,12 @@ public final class ProgressiveMediaPeriodTest {
     ProgressiveMediaPeriod.Listener sourceInfoRefreshListener =
         (durationUs, isSeekable, isLive) -> sourceInfoRefreshCalled.set(true);
     MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
+    MediaItem.PlaybackProperties playbackProperties = checkNotNull(new MediaItem.Builder()
+        .setUri(Uri.parse("asset://android_asset/media/mp4/sample.mp4"))
+        .build().playbackProperties);
     ProgressiveMediaPeriod mediaPeriod =
         new ProgressiveMediaPeriod(
-            Uri.parse("asset://android_asset/media/mp4/sample.mp4"),
+            playbackProperties,
             new AssetDataSource(ApplicationProvider.getApplicationContext()),
             extractor,
             DrmSessionManager.DRM_UNSUPPORTED,
@@ -73,8 +77,6 @@ public final class ProgressiveMediaPeriodTest {
                 .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
             sourceInfoRefreshListener,
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
-            /* headers= */ Collections.emptyMap(),
-            /* customCacheKey= */null,
             ProgressiveMediaSource.DEFAULT_LOADING_CHECK_INTERVAL_BYTES);
 
     AtomicBoolean prepareCallbackCalled = new AtomicBoolean(false);
