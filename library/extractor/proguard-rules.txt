@@ -3,7 +3,7 @@
 # Constructors accessed via reflection in DefaultExtractorsFactory
 -dontnote com.google.android.exoplayer2.ext.flac.FlacExtractor
 -keepclassmembers class com.google.android.exoplayer2.ext.flac.FlacExtractor {
-  <init>();
+  <init>(int);
 }
 
 # Don't warn about checkerframework and Kotlin annotations

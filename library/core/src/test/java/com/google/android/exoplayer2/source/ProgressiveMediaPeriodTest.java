@@ -15,27 +15,27 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.AssetDataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit test for {@link ProgressiveMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public final class ProgressiveMediaPeriodTest {
 
   @Test
@@ -43,14 +43,18 @@ public final class ProgressiveMediaPeriodTest {
     AtomicBoolean sourceInfoRefreshCalled = new AtomicBoolean(false);
     ProgressiveMediaPeriod.Listener sourceInfoRefreshListener =
         (durationUs, isSeekable, isLive) -> sourceInfoRefreshCalled.set(true);
+    MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
     ProgressiveMediaPeriod mediaPeriod =
         new ProgressiveMediaPeriod(
-            Uri.parse("asset://android_asset/mp4/sample.mp4"),
+            Uri.parse("asset://android_asset/media/mp4/sample.mp4"),
             new AssetDataSource(ApplicationProvider.getApplicationContext()),
             () -> new Extractor[] {new Mp4Extractor()},
             DrmSessionManager.DUMMY,
+            new DrmSessionEventListener.EventDispatcher()
+                .withParameters(/* windowIndex= */ 0, mediaPeriodId),
             new DefaultLoadErrorHandlingPolicy(),
-            new MediaSourceEventListener.EventDispatcher(),
+            new MediaSourceEventListener.EventDispatcher()
+                .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
             sourceInfoRefreshListener,
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
             /* customCacheKey= */ null,
@@ -72,7 +76,7 @@ public final class ProgressiveMediaPeriodTest {
           }
         },
         /* positionUs= */ 0);
-    TestExoPlayer.runUntil(prepareCallbackCalled::get);
+    runMainLooperUntil(prepareCallbackCalled::get);
     mediaPeriod.release();
 
     assertThat(sourceInfoRefreshCalledBeforeOnPrepared.get()).isTrue();

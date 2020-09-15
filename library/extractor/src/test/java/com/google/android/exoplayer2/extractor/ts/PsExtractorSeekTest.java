@@ -46,7 +46,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class PsExtractorSeekTest {
 
-  private static final String PS_FILE_PATH = "ts/elephants_dream.mpg";
+  private static final String PS_FILE_PATH = "media/ts/elephants_dream.mpg";
   private static final int DURATION_US = 30436333;
   private static final int VIDEO_TRACK_ID = 224;
   private static final long DELTA_TIMESTAMP_THRESHOLD_US = 500_000L;
@@ -68,7 +68,7 @@ public final class PsExtractorSeekTest {
     expectedTrackOutput = expectedOutput.trackOutputs.get(VIDEO_TRACK_ID);
 
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
     totalInputLength = readInputLength();
   }

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -65,6 +66,8 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
   }
 
   private static final int PERIOD_COUNT_UNSET = -1;
+  private static final MediaItem EMPTY_MEDIA_ITEM =
+      new MediaItem.Builder().setMediaId("MergingMediaSource").build();
 
   private final boolean adjustPeriodTimeOffsets;
   private final MediaSource[] mediaSources;
@@ -121,10 +124,20 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     periodTimeOffsetsUs = new long[0][];
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return mediaSources.length > 0 ? mediaSources[0].getTag() : null;
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return mediaSources.length > 0 ? mediaSources[0].getMediaItem() : EMPTY_MEDIA_ITEM;
   }
 
   @Override

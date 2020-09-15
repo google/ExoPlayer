@@ -52,26 +52,30 @@ public final class TsExtractorTest {
     return ExtractorAsserts.configs();
   }
 
-  @Parameter(0)
-  public ExtractorAsserts.SimulationConfig simulationConfig;
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sampleWithH262AndMpegAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
-        TsExtractor::new, "ts/sample_h262_mpeg_audio.ts", simulationConfig);
+        TsExtractor::new, "media/ts/sample_h262_mpeg_audio.ts", simulationConfig);
+  }
+
+  @Test
+  public void sampleWithH263() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_h263.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithH264AndMpegAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
-        TsExtractor::new, "ts/sample_h264_mpeg_audio.ts", simulationConfig);
+        TsExtractor::new, "media/ts/sample_h264_mpeg_audio.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithH264NoAccessUnitDelimiters() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new TsExtractor(FLAG_DETECT_ACCESS_UNITS),
-        "ts/sample_h264_no_access_unit_delimiters.ts",
+        "media/ts/sample_h264_no_access_unit_delimiters.ts",
         simulationConfig);
   }
 
@@ -79,20 +83,20 @@ public final class TsExtractorTest {
   public void sampleWithH264AndDtsAudio() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new TsExtractor(DefaultTsPayloadReaderFactory.FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS),
-        "ts/sample_h264_dts_audio.ts",
+        "media/ts/sample_h264_dts_audio.ts",
         simulationConfig);
   }
 
   @Test
   public void sampleWithH265() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h265.ts", simulationConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_h265.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithScte35() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new,
-        "ts/sample_scte35.ts",
+        "media/ts/sample_scte35.ts",
         new ExtractorAsserts.AssertionConfig.Builder()
             .setDeduplicateConsecutiveFormats(true)
             .build(),
@@ -103,7 +107,7 @@ public final class TsExtractorTest {
   public void sampleWithAit() throws Exception {
     ExtractorAsserts.assertBehavior(
         TsExtractor::new,
-        "ts/sample_ait.ts",
+        "media/ts/sample_ait.ts",
         new ExtractorAsserts.AssertionConfig.Builder()
             .setDeduplicateConsecutiveFormats(true)
             .build(),
@@ -112,32 +116,34 @@ public final class TsExtractorTest {
 
   @Test
   public void sampleWithAc3() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac3.ts", simulationConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_ac3.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithAc4() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts", simulationConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_ac4.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithEac3() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts", simulationConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_eac3.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithEac3joc() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3joc.ts", simulationConfig);
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "media/ts/sample_eac3joc.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithLatm() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_latm.ts", simulationConfig);
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_latm.ts", simulationConfig);
   }
 
   @Test
   public void streamWithJunkData() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_with_junk", simulationConfig);
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "media/ts/sample_with_junk", simulationConfig);
   }
 
   @Test
@@ -149,7 +155,8 @@ public final class TsExtractorTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_h262_mpeg_audio.ts"))
+                    ApplicationProvider.getApplicationContext(),
+                    "media/ts/sample_h262_mpeg_audio.ts"))
             .setSimulateIOErrors(false)
             .setSimulateUnknownLength(false)
             .setSimulatePartialReads(false)
@@ -186,7 +193,7 @@ public final class TsExtractorTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_with_sdt.ts"))
+                    ApplicationProvider.getApplicationContext(), "media/ts/sample_with_sdt.ts"))
             .setSimulateIOErrors(false)
             .setSimulateUnknownLength(false)
             .setSimulatePartialReads(false)

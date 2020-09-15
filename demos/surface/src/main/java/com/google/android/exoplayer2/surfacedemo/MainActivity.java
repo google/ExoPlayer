@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.GridLayout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
@@ -183,13 +184,12 @@ public final class MainActivity extends Activity {
         ACTION_VIEW.equals(action)
             ? Assertions.checkNotNull(intent.getData())
             : Uri.parse(DEFAULT_MEDIA_URI);
-    String userAgent = Util.getUserAgent(this, getString(R.string.application_name));
     DrmSessionManager drmSessionManager;
     if (intent.hasExtra(DRM_SCHEME_EXTRA)) {
       String drmScheme = Assertions.checkNotNull(intent.getStringExtra(DRM_SCHEME_EXTRA));
       String drmLicenseUrl = Assertions.checkNotNull(intent.getStringExtra(DRM_LICENSE_URL_EXTRA));
       UUID drmSchemeUuid = Assertions.checkNotNull(Util.getDrmUuid(drmScheme));
-      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSourceFactory(userAgent);
+      HttpDataSource.Factory licenseDataSourceFactory = new DefaultHttpDataSourceFactory();
       HttpMediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(drmLicenseUrl, licenseDataSourceFactory);
       drmSessionManager =
@@ -200,21 +200,19 @@ public final class MainActivity extends Activity {
       drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
     }
 
-    DataSource.Factory dataSourceFactory =
-        new DefaultDataSourceFactory(
-            this, Util.getUserAgent(this, getString(R.string.application_name)));
+    DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this);
     MediaSource mediaSource;
     @C.ContentType int type = Util.inferContentType(uri, intent.getStringExtra(EXTENSION_EXTRA));
     if (type == C.TYPE_DASH) {
       mediaSource =
           new DashMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManager(drmSessionManager)
-              .createMediaSource(uri);
+              .createMediaSource(MediaItem.fromUri(uri));
     } else if (type == C.TYPE_OTHER) {
       mediaSource =
           new ProgressiveMediaSource.Factory(dataSourceFactory)
               .setDrmSessionManager(drmSessionManager)
-              .createMediaSource(uri);
+              .createMediaSource(MediaItem.fromUri(uri));
     } else {
       throw new IllegalStateException();
     }

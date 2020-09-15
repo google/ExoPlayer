@@ -11,29 +11,20 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: '../../constants.gradle'
-apply plugin: 'com.android.library'
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-        consumerProguardFiles 'proguard-rules.txt'
-    }
-
     sourceSets.main {
+        // The directory from which to pick the ffmpeg binaries.
         jniLibs.srcDir 'src/main/libs'
-        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
     }
+}
 
-    testOptions.unitTests.includeAndroidResources = true
+// Configure the native build only if ffmpeg is present to avoid gradle sync
+// failures if ffmpeg hasn't been built according to the README instructions.
+if (project.file('src/main/jni/ffmpeg').exists()) {
+    android.externalNativeBuild.cmake.path = 'src/main/jni/CMakeLists.txt'
+    android.externalNativeBuild.cmake.version = '3.7.1+'
 }
 
 dependencies {

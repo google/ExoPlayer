@@ -35,8 +35,8 @@
       android:largeHeap="true"
       android:allowBackup="false"
       android:requestLegacyExternalStorage="true"
-      android:name="com.google.android.exoplayer2.demo.DemoApplication"
-      tools:ignore="UnusedAttribute">
+      android:name="androidx.multidex.MultiDexApplication"
+      tools:targetApi="29">
 
     <activity android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"

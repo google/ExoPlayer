@@ -88,10 +88,8 @@ public interface VideoRendererEventListener {
    * @param totalProcessingOffsetUs The sum of all video frame processing offset samples for the
    *     video frames processed by the renderer in microseconds.
    * @param frameCount The number of samples included in the {@code totalProcessingOffsetUs}.
-   * @param format The {@link Format} that is currently output.
    */
-  default void onVideoFrameProcessingOffset(
-      long totalProcessingOffsetUs, int frameCount, Format format) {}
+  default void onVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
@@ -114,8 +112,8 @@ public interface VideoRendererEventListener {
       int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
 
   /**
-   * Called when a frame is rendered for the first time since setting the surface, and when a frame
-   * is rendered for the first time since the renderer was reset.
+   * Called when a frame is rendered for the first time since setting the surface, or since the
+   * renderer was reset, or since the stream being rendered was changed.
    *
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.
@@ -138,12 +136,12 @@ public interface VideoRendererEventListener {
     @Nullable private final VideoRendererEventListener listener;
 
     /**
-     * @param handler A handler for dispatching events, or null if creating a dummy instance.
-     * @param listener The listener to which events should be dispatched, or null if creating a
-     *     dummy instance.
+     * @param handler A handler for dispatching events, or null if events should not be dispatched.
+     * @param listener The listener to which events should be dispatched, or null if events should
+     *     not be dispatched.
      */
-    public EventDispatcher(@Nullable Handler handler,
-        @Nullable VideoRendererEventListener listener) {
+    public EventDispatcher(
+        @Nullable Handler handler, @Nullable VideoRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }
@@ -182,13 +180,12 @@ public interface VideoRendererEventListener {
     }
 
     /** Invokes {@link VideoRendererEventListener#onVideoFrameProcessingOffset}. */
-    public void reportVideoFrameProcessingOffset(
-        long totalProcessingOffsetUs, int frameCount, Format format) {
+    public void reportVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {
       if (handler != null) {
         handler.post(
             () ->
                 castNonNull(listener)
-                    .onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount, format));
+                    .onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount));
       }
     }
 

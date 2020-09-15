@@ -153,7 +153,6 @@ public abstract class SimpleDecoder<
       while (!queuedOutputBuffers.isEmpty()) {
         queuedOutputBuffers.removeFirst().release();
       }
-      exception = null;
     }
   }
 

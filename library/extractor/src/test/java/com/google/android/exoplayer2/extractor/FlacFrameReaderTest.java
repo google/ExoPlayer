@@ -44,10 +44,10 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     int frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
 
     FlacFrameReader.checkAndReadFrameHeader(
         scratch,
@@ -64,10 +64,10 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     int frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
 
     boolean result =
         FlacFrameReader.checkAndReadFrameHeader(
@@ -85,12 +85,12 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     int frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
     // Skip first frame.
     input.skip(5030);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
     SampleNumberHolder sampleNumberHolder = new SampleNumberHolder();
 
     FlacFrameReader.checkAndReadFrameHeader(
@@ -105,9 +105,9 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
-    input.read(scratch.data, 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
+    input.read(scratch.getData(), 0, FlacConstants.MAX_FRAME_HEADER_SIZE);
 
     // The first bytes of the frame are not equal to the frame start marker.
     boolean result =
@@ -122,7 +122,7 @@ public class FlacFrameReaderTest {
 
   @Test
   public void checkFrameHeaderFromPeek_validData_doesNotUpdatePositions() throws Exception {
-    String file = "flac/bear_one_metadata_block.flac";
+    String file = "media/flac/bear_one_metadata_block.flac";
     FlacStreamMetadataHolder streamMetadataHolder =
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input = buildExtractorInputReadingFromFirstFrame(file, streamMetadataHolder);
@@ -145,7 +145,7 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     int frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
 
     boolean result =
@@ -164,7 +164,7 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     int frameStartMarker = FlacMetadataReader.getFrameStartMarker(input);
     // Skip first frame.
     input.skip(5030);
@@ -182,7 +182,7 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
 
     // The first bytes of the frame are not equal to the frame start marker.
     boolean result =
@@ -197,7 +197,7 @@ public class FlacFrameReaderTest {
 
   @Test
   public void checkFrameHeaderFromPeek_invalidData_doesNotUpdatePositions() throws Exception {
-    String file = "flac/bear_one_metadata_block.flac";
+    String file = "media/flac/bear_one_metadata_block.flac";
     FlacStreamMetadataHolder streamMetadataHolder =
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input = buildExtractorInputReadingFromFirstFrame(file, streamMetadataHolder);
@@ -224,7 +224,7 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     long initialReadPosition = input.getPosition();
     // Advance peek position after block size bits.
     input.advancePeekPosition(FlacConstants.MAX_FRAME_HEADER_SIZE);
@@ -241,7 +241,7 @@ public class FlacFrameReaderTest {
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
     ExtractorInput input =
         buildExtractorInputReadingFromFirstFrame(
-            "flac/bear_one_metadata_block.flac", streamMetadataHolder);
+            "media/flac/bear_one_metadata_block.flac", streamMetadataHolder);
     // Skip first frame.
     input.skip(5030);
 
@@ -272,11 +272,11 @@ public class FlacFrameReaderTest {
   @Test
   public void readFrameBlockSizeSamplesFromKey_keyBetween6And7_returnsCorrectBlockSize()
       throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_one_metadata_block.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_one_metadata_block.flac");
     // Skip to block size bits of last frame.
     input.skipFully(164033);
     ParsableByteArray scratch = new ParsableByteArray(2);
-    input.readFully(scratch.data, 0, 2);
+    input.readFully(scratch.getData(), 0, 2);
 
     int result = FlacFrameReader.readFrameBlockSizeSamplesFromKey(scratch, /* blockSizeKey= */ 7);
 

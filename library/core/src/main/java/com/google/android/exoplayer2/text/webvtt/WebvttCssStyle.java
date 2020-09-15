@@ -87,6 +87,8 @@ public final class WebvttCssStyle {
   @Nullable private String fontFamily;
   @ColorInt private int fontColor;
   private boolean hasFontColor;
+  private int backgroundColor;
+  private boolean hasBackgroundColor;
   @OptionalBoolean private int linethrough;
   @OptionalBoolean private int underline;
   @OptionalBoolean private int bold;
@@ -103,6 +105,7 @@ public final class WebvttCssStyle {
     targetVoice = "";
     fontFamily = null;
     hasFontColor = false;
+    hasBackgroundColor = false;
     linethrough = UNSPECIFIED;
     underline = UNSPECIFIED;
     bold = UNSPECIFIED;
@@ -232,6 +235,23 @@ public final class WebvttCssStyle {
 
   public boolean hasFontColor() {
     return hasFontColor;
+  }
+
+  public int getBackgroundColor() {
+    if (!hasBackgroundColor) {
+      throw new IllegalStateException("Background color not defined.");
+    }
+    return backgroundColor;
+  }
+
+  public WebvttCssStyle setBackgroundColor(int backgroundColor) {
+    this.backgroundColor = backgroundColor;
+    hasBackgroundColor = true;
+    return this;
+  }
+
+  public boolean hasBackgroundColor() {
+    return hasBackgroundColor;
   }
 
   public WebvttCssStyle setFontSize(float fontSize) {

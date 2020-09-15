@@ -97,7 +97,7 @@ public final class FakeDataSourceTest {
   }
 
   @Test
-  public void testDummyData() throws IOException {
+  public void testFakeData() throws IOException {
     FakeDataSource dataSource =
         new FakeDataSource(
             new FakeDataSet()

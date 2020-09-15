@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SE
 import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_SUPPORTED;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,9 +34,12 @@ import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,13 +55,13 @@ public class DecoderAudioRendererTest {
       new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_RAW).build();
 
   @Mock private AudioSink mockAudioSink;
-  private DecoderAudioRenderer audioRenderer;
+  private DecoderAudioRenderer<FakeDecoder> audioRenderer;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
     audioRenderer =
-        new DecoderAudioRenderer(null, null, mockAudioSink) {
+        new DecoderAudioRenderer<FakeDecoder>(null, null, mockAudioSink) {
           @Override
           public String getName() {
             return "TestAudioRenderer";
@@ -70,14 +74,12 @@ public class DecoderAudioRendererTest {
           }
 
           @Override
-          protected SimpleDecoder<
-                  DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
-              createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
+          protected FakeDecoder createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) {
             return new FakeDecoder();
           }
 
           @Override
-          protected Format getOutputFormat() {
+          protected Format getOutputFormat(FakeDecoder decoder) {
             return FORMAT;
           }
         };
@@ -103,10 +105,16 @@ public class DecoderAudioRendererTest {
     audioRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
-        new FakeSampleStream(FORMAT, /* eventDispatcher= */ null, /* shouldOutputSample= */ false),
+        new FakeSampleStream(
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DUMMY,
+            new DrmSessionEventListener.EventDispatcher(),
+            FORMAT,
+            ImmutableList.of(END_OF_STREAM_ITEM)),
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs= */ 0);
     audioRenderer.setCurrentStreamFinal();
     when(mockAudioSink.isEnded()).thenReturn(true);

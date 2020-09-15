@@ -22,10 +22,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
-import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
@@ -44,7 +42,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DefaultHlsExtractorFactoryTest {
 
-  private Extractor fMp4Extractor;
   private Uri tsUri;
   private Format webVttFormat;
   private TimestampAdjuster timestampAdjuster;
@@ -52,30 +49,11 @@ public class DefaultHlsExtractorFactoryTest {
 
   @Before
   public void setUp() {
-    fMp4Extractor = new FragmentedMp4Extractor();
     tsUri = Uri.parse("http://path/filename.ts");
     webVttFormat = new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build();
     timestampAdjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
     ac3ResponseHeaders = new HashMap<>();
     ac3ResponseHeaders.put("Content-Type", Collections.singletonList(MimeTypes.AUDIO_AC3));
-  }
-
-  @Test
-  public void createExtractor_withPreviousExtractor_returnsSameExtractorType() throws Exception {
-    ExtractorInput extractorInput = new FakeExtractorInput.Builder().build();
-
-    HlsExtractorFactory.Result result =
-        new DefaultHlsExtractorFactory()
-            .createExtractor(
-                /* previousExtractor= */ fMp4Extractor,
-                tsUri,
-                webVttFormat,
-                /* muxedCaptionFormats= */ null,
-                timestampAdjuster,
-                ac3ResponseHeaders,
-                extractorInput);
-
-    assertThat(result.extractor.getClass()).isEqualTo(FragmentedMp4Extractor.class);
   }
 
   @Test
@@ -85,13 +63,12 @@ public class DefaultHlsExtractorFactoryTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "webvtt/typical"))
+                    ApplicationProvider.getApplicationContext(), "media/webvtt/typical"))
             .build();
 
-    HlsExtractorFactory.Result result =
+    BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -109,13 +86,13 @@ public class DefaultHlsExtractorFactoryTest {
     ExtractorInput ac3ExtractorInput =
         new FakeExtractorInput.Builder()
             .setData(
-                TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "ts/sample.ac3"))
+                TestUtil.getByteArray(
+                    ApplicationProvider.getApplicationContext(), "media/ts/sample.ac3"))
             .build();
 
-    HlsExtractorFactory.Result result =
+    BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -132,13 +109,12 @@ public class DefaultHlsExtractorFactoryTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_ac3.ts"))
+                    ApplicationProvider.getApplicationContext(), "media/ts/sample_ac3.ts"))
             .build();
 
-    HlsExtractorFactory.Result result =
+    BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -156,13 +132,12 @@ public class DefaultHlsExtractorFactoryTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "mp3/bear-id3.mp3"))
+                    ApplicationProvider.getApplicationContext(), "media/mp3/bear-id3.mp3"))
             .build();
 
-    HlsExtractorFactory.Result result =
+    BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
@@ -177,10 +152,9 @@ public class DefaultHlsExtractorFactoryTest {
   public void createExtractor_withNoMatchingExtractor_fallsBackOnTsExtractor() throws Exception {
     ExtractorInput emptyExtractorInput = new FakeExtractorInput.Builder().build();
 
-    HlsExtractorFactory.Result result =
+    BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                /* previousExtractor= */ null,
                 tsUri,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,

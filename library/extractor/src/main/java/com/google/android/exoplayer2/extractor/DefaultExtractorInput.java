@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
@@ -85,8 +87,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   public int skip(int length) throws IOException {
     int bytesSkipped = skipFromPeekBuffer(length);
     if (bytesSkipped == 0) {
-      bytesSkipped =
-          readFromUpstream(scratchSpace, 0, Math.min(length, scratchSpace.length), 0, true);
+      bytesSkipped = readFromUpstream(scratchSpace, 0, min(length, scratchSpace.length), 0, true);
     }
     commitBytesRead(bytesSkipped);
     return bytesSkipped;
@@ -96,7 +97,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
   public boolean skipFully(int length, boolean allowEndOfInput) throws IOException {
     int bytesSkipped = skipFromPeekBuffer(length);
     while (bytesSkipped < length && bytesSkipped != C.RESULT_END_OF_INPUT) {
-      int minLength = Math.min(length, bytesSkipped + scratchSpace.length);
+      int minLength = min(length, bytesSkipped + scratchSpace.length);
       bytesSkipped =
           readFromUpstream(scratchSpace, -bytesSkipped, minLength, bytesSkipped, allowEndOfInput);
     }
@@ -127,7 +128,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
       }
       peekBufferLength += bytesPeeked;
     } else {
-      bytesPeeked = Math.min(length, peekBufferRemainingBytes);
+      bytesPeeked = min(length, peekBufferRemainingBytes);
     }
     System.arraycopy(peekBuffer, peekBufferPosition, target, offset, bytesPeeked);
     peekBufferPosition += bytesPeeked;
@@ -217,7 +218,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
    * @return The number of bytes skipped.
    */
   private int skipFromPeekBuffer(int length) {
-    int bytesSkipped = Math.min(peekBufferLength, length);
+    int bytesSkipped = min(peekBufferLength, length);
     updatePeekBuffer(bytesSkipped);
     return bytesSkipped;
   }
@@ -234,7 +235,7 @@ public final class DefaultExtractorInput implements ExtractorInput {
     if (peekBufferLength == 0) {
       return 0;
     }
-    int peekBytes = Math.min(peekBufferLength, length);
+    int peekBytes = min(peekBufferLength, length);
     System.arraycopy(peekBuffer, 0, target, offset, peekBytes);
     updatePeekBuffer(peekBytes);
     return peekBytes;

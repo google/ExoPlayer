@@ -50,7 +50,7 @@ public final class VorbisUtilTest {
   public void readIdHeader() throws Exception {
     byte[] data =
         TestUtil.getByteArray(
-            ApplicationProvider.getApplicationContext(), "binary/vorbis/id_header");
+            ApplicationProvider.getApplicationContext(), "media/binary/vorbis/id_header");
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
     VorbisUtil.VorbisIdHeader vorbisIdHeader =
         VorbisUtil.readVorbisIdentificationHeader(headerData);
@@ -70,7 +70,7 @@ public final class VorbisUtilTest {
   public void readCommentHeader() throws IOException {
     byte[] data =
         TestUtil.getByteArray(
-            ApplicationProvider.getApplicationContext(), "binary/vorbis/comment_header");
+            ApplicationProvider.getApplicationContext(), "media/binary/vorbis/comment_header");
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
     VorbisUtil.CommentHeader commentHeader = VorbisUtil.readVorbisCommentHeader(headerData);
 
@@ -85,7 +85,7 @@ public final class VorbisUtilTest {
   public void readVorbisModes() throws IOException {
     byte[] data =
         TestUtil.getByteArray(
-            ApplicationProvider.getApplicationContext(), "binary/vorbis/setup_header");
+            ApplicationProvider.getApplicationContext(), "media/binary/vorbis/setup_header");
     ParsableByteArray headerData = new ParsableByteArray(data, data.length);
     VorbisUtil.Mode[] modes = VorbisUtil.readVorbisModes(headerData, 2);
 

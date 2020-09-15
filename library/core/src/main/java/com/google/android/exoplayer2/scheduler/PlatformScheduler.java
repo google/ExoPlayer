@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.scheduler;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobScheduler;
@@ -25,7 +27,6 @@ import android.content.Intent;
 import android.os.PersistableBundle;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
@@ -72,7 +73,8 @@ public final class PlatformScheduler implements Scheduler {
     context = context.getApplicationContext();
     this.jobId = jobId;
     jobServiceComponentName = new ComponentName(context, PlatformSchedulerService.class);
-    jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+    jobScheduler =
+        checkNotNull((JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE));
   }
 
   @Override
@@ -140,8 +142,8 @@ public final class PlatformScheduler implements Scheduler {
       Requirements requirements = new Requirements(extras.getInt(KEY_REQUIREMENTS));
       int notMetRequirements = requirements.getNotMetRequirements(this);
       if (notMetRequirements == 0) {
-        String serviceAction = Assertions.checkNotNull(extras.getString(KEY_SERVICE_ACTION));
-        String servicePackage = Assertions.checkNotNull(extras.getString(KEY_SERVICE_PACKAGE));
+        String serviceAction = checkNotNull(extras.getString(KEY_SERVICE_ACTION));
+        String servicePackage = checkNotNull(extras.getString(KEY_SERVICE_PACKAGE));
         Intent intent = new Intent(serviceAction).setPackage(servicePackage);
         Util.startForegroundService(this, intent);
       } else {

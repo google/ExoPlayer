@@ -294,20 +294,20 @@ public interface TrackSelection {
   }
 
   /**
-   * Attempts to blacklist the track at the specified index in the selection, making it ineligible
-   * for selection by calls to {@link #updateSelectedTrack(long, long, long, List,
+   * Attempts to exclude the track at the specified index in the selection, making it ineligible for
+   * selection by calls to {@link #updateSelectedTrack(long, long, long, List,
    * MediaChunkIterator[])} for the specified period of time.
    *
-   * <p>Blacklisting will fail if all other tracks are currently blacklisted. If blacklisting the
-   * currently selected track, note that it will remain selected until the next call to {@link
+   * <p>Exclusion will fail if all other tracks are currently excluded. If excluding the currently
+   * selected track, note that it will remain selected until the next call to {@link
    * #updateSelectedTrack(long, long, long, List, MediaChunkIterator[])}.
    *
    * <p>This method will only be called when the selection is enabled.
    *
    * @param index The index of the track in the selection.
-   * @param blacklistDurationMs The duration of time for which the track should be blacklisted, in
+   * @param exclusionDurationMs The duration of time for which the track should be excluded, in
    *     milliseconds.
-   * @return Whether blacklisting was successful.
+   * @return Whether exclusion was successful.
    */
-  boolean blacklist(int index, long blacklistDurationMs);
+  boolean blacklist(int index, long exclusionDurationMs);
 }

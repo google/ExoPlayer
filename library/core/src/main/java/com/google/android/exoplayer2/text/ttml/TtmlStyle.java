@@ -19,8 +19,6 @@ import android.graphics.Typeface;
 import android.text.Layout;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.Cue.VerticalType;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -88,7 +86,6 @@ import java.lang.annotation.RetentionPolicy;
   @RubySpan.Position private int rubyPosition;
   @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
-  @Cue.VerticalType private int verticalType;
 
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
@@ -99,7 +96,6 @@ import java.lang.annotation.RetentionPolicy;
     rubyType = UNSPECIFIED;
     rubyPosition = RubySpan.POSITION_UNKNOWN;
     textCombine = UNSPECIFIED;
-    verticalType = Cue.TYPE_UNSET;
   }
 
   /**
@@ -249,9 +245,6 @@ import java.lang.annotation.RetentionPolicy;
       if (chaining && rubyType == UNSPECIFIED && ancestor.rubyType != UNSPECIFIED) {
         rubyType = ancestor.rubyType;
       }
-      if (chaining && verticalType == Cue.TYPE_UNSET && ancestor.verticalType != Cue.TYPE_UNSET) {
-        setVerticalType(ancestor.verticalType);
-      }
     }
     return this;
   }
@@ -322,15 +315,5 @@ import java.lang.annotation.RetentionPolicy;
 
   public float getFontSize() {
     return fontSize;
-  }
-
-  public TtmlStyle setVerticalType(@VerticalType int verticalType) {
-    this.verticalType = verticalType;
-    return this;
-  }
-
-  @VerticalType
-  public int getVerticalType() {
-    return verticalType;
   }
 }

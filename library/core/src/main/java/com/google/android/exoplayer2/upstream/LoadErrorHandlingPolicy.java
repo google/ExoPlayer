@@ -23,18 +23,16 @@ import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import java.io.IOException;
 
 /**
- * Defines how errors encountered by {@link Loader Loaders} are handled.
+ * Defines how errors encountered by loaders are handled.
  *
- * <p>Loader clients may blacklist a resource when a load error occurs. Blacklisting works around
- * load errors by loading an alternative resource. Clients do not try blacklisting when a resource
- * does not have an alternative. When a resource does have valid alternatives, {@link
- * #getBlacklistDurationMsFor(int, long, IOException, int)} defines whether the resource should be
- * blacklisted. Blacklisting will succeed if any of the alternatives is not in the black list.
+ * <p>A loader that can choose between one of a number of resources can exclude a resource when a
+ * load error occurs. In this case, {@link #getBlacklistDurationMsFor(int, long, IOException, int)}
+ * defines whether the resource should be excluded. Exclusion will succeed unless all of the
+ * alternatives are already excluded.
  *
- * <p>When blacklisting does not take place, {@link #getRetryDelayMsFor(int, long, IOException,
- * int)} defines whether the load is retried. Errors whose load is not retried are propagated. Load
- * errors whose load is retried are propagated according to {@link
- * #getMinimumLoadableRetryCount(int)}.
+ * <p>When exclusion does not take place, {@link #getRetryDelayMsFor(int, long, IOException, int)}
+ * defines whether the load is retried. An error that's not retried will always be propagated. An
+ * error that is retried will be propagated according to {@link #getMinimumLoadableRetryCount(int)}.
  *
  * <p>Methods are invoked on the playback thread.
  */
@@ -74,11 +72,11 @@ public interface LoadErrorHandlingPolicy {
 
   /**
    * Returns the number of milliseconds for which a resource associated to a provided load error
-   * should be blacklisted, or {@link C#TIME_UNSET} if the resource should not be blacklisted.
+   * should be excluded, or {@link C#TIME_UNSET} if the resource should not be excluded.
    *
    * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
-   * @return The blacklist duration in milliseconds, or {@link C#TIME_UNSET} if the resource should
-   *     not be blacklisted.
+   * @return The exclusion duration in milliseconds, or {@link C#TIME_UNSET} if the resource should
+   *     not be excluded.
    */
   @SuppressWarnings("deprecation")
   default long getBlacklistDurationMsFor(LoadErrorInfo loadErrorInfo) {
@@ -100,9 +98,9 @@ public interface LoadErrorHandlingPolicy {
    * Returns the number of milliseconds to wait before attempting the load again, or {@link
    * C#TIME_UNSET} if the error is fatal and should not be retried.
    *
-   * <p>{@link Loader} clients may ignore the retry delay returned by this method in order to wait
-   * for a specific event before retrying. However, the load is retried if and only if this method
-   * does not return {@link C#TIME_UNSET}.
+   * <p>Loaders may ignore the retry delay returned by this method in order to wait for a specific
+   * event before retrying. However, the load is retried if and only if this method does not return
+   * {@link C#TIME_UNSET}.
    *
    * @param loadErrorInfo A {@link LoadErrorInfo} holding information about the load error.
    * @return The number of milliseconds to wait before attempting the load again, or {@link

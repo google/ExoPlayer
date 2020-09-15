@@ -16,7 +16,10 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -157,7 +160,7 @@ import java.util.TreeSet;
     SimpleCacheSpan ceilSpan = cachedSpans.ceiling(lookupSpan);
     if (ceilSpan != null) {
       long holeLength = ceilSpan.position - position;
-      length = length == C.LENGTH_UNSET ? holeLength : Math.min(holeLength, length);
+      length = length == C.LENGTH_UNSET ? holeLength : min(holeLength, length);
     }
     return SimpleCacheSpan.createHole(key, position, length);
   }
@@ -179,7 +182,7 @@ import java.util.TreeSet;
     SimpleCacheSpan span = getSpan(position, length);
     if (span.isHoleSpan()) {
       // We don't have a span covering the start of the queried region.
-      return -Math.min(span.isOpenEnded() ? Long.MAX_VALUE : span.length, length);
+      return -min(span.isOpenEnded() ? Long.MAX_VALUE : span.length, length);
     }
     long queryEndPosition = position + length;
     if (queryEndPosition < 0) {
@@ -195,14 +198,14 @@ import java.util.TreeSet;
         }
         // We expect currentEndPosition to always equal (next.position + next.length), but
         // perform a max check anyway to guard against the existence of overlapping spans.
-        currentEndPosition = Math.max(currentEndPosition, next.position + next.length);
+        currentEndPosition = max(currentEndPosition, next.position + next.length);
         if (currentEndPosition >= queryEndPosition) {
           // We've found spans covering the queried region.
           break;
         }
       }
     }
-    return Math.min(currentEndPosition - position, length);
+    return min(currentEndPosition - position, length);
   }
 
   /**
@@ -217,9 +220,9 @@ import java.util.TreeSet;
   public SimpleCacheSpan setLastTouchTimestamp(
       SimpleCacheSpan cacheSpan, long lastTouchTimestamp, boolean updateFile) {
     checkState(cachedSpans.remove(cacheSpan));
-    File file = cacheSpan.file;
+    File file = checkNotNull(cacheSpan.file);
     if (updateFile) {
-      File directory = file.getParentFile();
+      File directory = checkNotNull(file.getParentFile());
       long position = cacheSpan.position;
       File newFile = SimpleCacheSpan.getCacheFile(directory, id, position, lastTouchTimestamp);
       if (file.renameTo(newFile)) {
@@ -242,7 +245,9 @@ import java.util.TreeSet;
   /** Removes the given span from cache. */
   public boolean removeSpan(CacheSpan span) {
     if (cachedSpans.remove(span)) {
-      span.file.delete();
+      if (span.file != null) {
+        span.file.delete();
+      }
       return true;
     }
     return false;

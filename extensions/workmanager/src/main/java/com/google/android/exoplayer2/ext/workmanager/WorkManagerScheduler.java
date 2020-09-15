@@ -46,16 +46,27 @@ public final class WorkManagerScheduler implements Scheduler {
           | Requirements.DEVICE_CHARGING
           | Requirements.DEVICE_STORAGE_NOT_LOW;
 
+  private final WorkManager workManager;
   private final String workName;
 
+  /** @deprecated Call {@link #WorkManagerScheduler(Context, String)} instead. */
+  @Deprecated
+  @SuppressWarnings("deprecation")
+  public WorkManagerScheduler(String workName) {
+    this.workName = workName;
+    workManager = WorkManager.getInstance();
+  }
+
   /**
+   * @param context A context.
    * @param workName A name for work scheduled by this instance. If the same name was used by a
    *     previous instance, anything scheduled by the previous instance will be canceled by this
    *     instance if {@link #schedule(Requirements, String, String)} or {@link #cancel()} are
    *     called.
    */
-  public WorkManagerScheduler(String workName) {
+  public WorkManagerScheduler(Context context, String workName) {
     this.workName = workName;
+    workManager = WorkManager.getInstance(context.getApplicationContext());
   }
 
   @Override
@@ -63,13 +74,13 @@ public final class WorkManagerScheduler implements Scheduler {
     Constraints constraints = buildConstraints(requirements);
     Data inputData = buildInputData(requirements, servicePackage, serviceAction);
     OneTimeWorkRequest workRequest = buildWorkRequest(constraints, inputData);
-    WorkManager.getInstance().enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, workRequest);
+    workManager.enqueueUniqueWork(workName, ExistingWorkPolicy.REPLACE, workRequest);
     return true;
   }
 
   @Override
   public boolean cancel() {
-    WorkManager.getInstance().cancelUniqueWork(workName);
+    workManager.cancelUniqueWork(workName);
     return true;
   }
 

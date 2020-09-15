@@ -59,8 +59,7 @@ public class CastPlayerTest {
 
   private CastPlayer castPlayer;
 
-  @SuppressWarnings("deprecation")
-  private RemoteMediaClient.Listener remoteMediaClientListener;
+  private RemoteMediaClient.Callback remoteMediaClientCallback;
 
   @Mock private RemoteMediaClient mockRemoteMediaClient;
   @Mock private MediaStatus mockMediaStatus;
@@ -76,7 +75,7 @@ public class CastPlayerTest {
   private ArgumentCaptor<ResultCallback<RemoteMediaClient.MediaChannelResult>>
       setResultCallbackArgumentCaptor;
 
-  @Captor private ArgumentCaptor<RemoteMediaClient.Listener> listenerArgumentCaptor;
+  @Captor private ArgumentCaptor<RemoteMediaClient.Callback> callbackArgumentCaptor;
 
   @Captor private ArgumentCaptor<MediaQueueItem[]> queueItemsArgumentCaptor;
 
@@ -95,8 +94,8 @@ public class CastPlayerTest {
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_OFF);
     castPlayer = new CastPlayer(mockCastContext);
     castPlayer.addListener(mockListener);
-    verify(mockRemoteMediaClient).addListener(listenerArgumentCaptor.capture());
-    remoteMediaClientListener = listenerArgumentCaptor.getValue();
+    verify(mockRemoteMediaClient).registerCallback(callbackArgumentCaptor.capture());
+    remoteMediaClientCallback = callbackArgumentCaptor.getValue();
   }
 
   @SuppressWarnings("deprecation")
@@ -113,7 +112,7 @@ public class CastPlayerTest {
         .onPlayWhenReadyChanged(true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
 
     // There is a status update in the middle, which should be hidden by masking.
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verifyNoMoreInteractions(mockListener);
 
     // Upon result, the remoteMediaClient has updated its state according to the play() call.
@@ -169,7 +168,7 @@ public class CastPlayerTest {
   public void playWhenReady_changesOnStatusUpdates() {
     assertThat(castPlayer.getPlayWhenReady()).isFalse();
     when(mockRemoteMediaClient.isPaused()).thenReturn(false);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verify(mockListener).onPlayerStateChanged(true, Player.STATE_IDLE);
     verify(mockListener).onPlayWhenReadyChanged(true, Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE);
     assertThat(castPlayer.getPlayWhenReady()).isTrue();
@@ -187,7 +186,7 @@ public class CastPlayerTest {
 
     // There is a status update in the middle, which should be hidden by masking.
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_ALL);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verifyNoMoreInteractions(mockListener);
 
     // Upon result, the mediaStatus now exposes the new repeat mode.
@@ -209,7 +208,7 @@ public class CastPlayerTest {
 
     // There is a status update in the middle, which should be hidden by masking.
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_ALL);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verifyNoMoreInteractions(mockListener);
 
     // Upon result, the repeat mode is ALL. The state should reflect that.
@@ -224,7 +223,7 @@ public class CastPlayerTest {
   public void repeatMode_changesOnStatusUpdates() {
     assertThat(castPlayer.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_OFF);
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_SINGLE);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verify(mockListener).onRepeatModeChanged(Player.REPEAT_MODE_ONE);
     assertThat(castPlayer.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ONE);
   }
@@ -494,6 +493,6 @@ public class CastPlayerTest {
 
     castPlayer.addMediaItems(mediaItems);
     // Call listener to update the timeline of the player.
-    remoteMediaClientListener.onQueueStatusUpdated();
+    remoteMediaClientCallback.onQueueStatusUpdated();
   }
 }

@@ -66,6 +66,7 @@ import javax.crypto.spec.SecretKeySpec;
 
   @Override
   public final void addTransferListener(TransferListener transferListener) {
+    Assertions.checkNotNull(transferListener);
     upstream.addTransferListener(transferListener);
   }
 

@@ -34,22 +34,12 @@ public class TimedValueQueueTest {
   }
 
   @Test
-  public void addAndPollValues() {
-    queue.add(0, "a");
-    queue.add(1, "b");
-    queue.add(2, "c");
-    assertThat(queue.poll(0)).isEqualTo("a");
-    assertThat(queue.poll(1)).isEqualTo("b");
-    assertThat(queue.poll(2)).isEqualTo("c");
-  }
-
-  @Test
   public void bufferCapacityIncreasesAutomatically() {
     queue = new TimedValueQueue<>(1);
     for (int i = 0; i < 20; i++) {
       queue.add(i, "" + i);
       if ((i & 1) == 1) {
-        assertThat(queue.poll(0)).isEqualTo("" + (i / 2));
+        assertThat(queue.pollFirst()).isEqualTo("" + (i / 2));
       }
     }
     assertThat(queue.size()).isEqualTo(10);
@@ -61,7 +51,7 @@ public class TimedValueQueueTest {
     queue.add(2, "c");
     queue.add(0, "a");
     assertThat(queue.size()).isEqualTo(1);
-    assertThat(queue.poll(0)).isEqualTo("a");
+    assertThat(queue.pollFirst()).isEqualTo("a");
   }
 
   @Test
@@ -71,7 +61,37 @@ public class TimedValueQueueTest {
     queue.add(3, "c");
     queue.add(2, "a");
     assertThat(queue.size()).isEqualTo(1);
-    assertThat(queue.poll(2)).isEqualTo("a");
+    assertThat(queue.pollFirst()).isEqualTo("a");
+  }
+
+  @Test
+  public void pollFirstReturnsValues() {
+    queue.add(0, "a");
+    queue.add(1, "b");
+    queue.add(2, "c");
+    assertThat(queue.pollFirst()).isEqualTo("a");
+    assertThat(queue.size()).isEqualTo(2);
+    assertThat(queue.pollFirst()).isEqualTo("b");
+    assertThat(queue.size()).isEqualTo(1);
+    assertThat(queue.pollFirst()).isEqualTo("c");
+    assertThat(queue.size()).isEqualTo(0);
+    assertThat(queue.pollFirst()).isEqualTo(null);
+    assertThat(queue.size()).isEqualTo(0);
+  }
+
+  @Test
+  public void pollReturnsValues() {
+    queue.add(0, "a");
+    queue.add(1, "b");
+    queue.add(2, "c");
+    assertThat(queue.poll(0)).isEqualTo("a");
+    assertThat(queue.size()).isEqualTo(2);
+    assertThat(queue.poll(1)).isEqualTo("b");
+    assertThat(queue.size()).isEqualTo(1);
+    assertThat(queue.poll(2)).isEqualTo("c");
+    assertThat(queue.size()).isEqualTo(0);
+    assertThat(queue.pollFirst()).isEqualTo(null);
+    assertThat(queue.size()).isEqualTo(0);
   }
 
   @Test

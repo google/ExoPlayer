@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -37,6 +38,7 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -876,6 +878,10 @@ public class PlayerNotificationManager {
    *
    * <p>See {@link NotificationCompat.Builder#setPriority(int)}.
    *
+   * <p>To set the priority for API levels above 25, you can create your own {@link
+   * NotificationChannel} with a given importance level and pass the id of the channel to the {@link
+   * #PlayerNotificationManager(Context, String, int, MediaDescriptionAdapter) constructor}.
+   *
    * @param priority The priority which can be one of {@link NotificationCompat#PRIORITY_DEFAULT},
    *     {@link NotificationCompat#PRIORITY_MAX}, {@link NotificationCompat#PRIORITY_HIGH}, {@link
    *     NotificationCompat#PRIORITY_LOW} or {@link NotificationCompat#PRIORITY_MIN}. If not set
@@ -971,6 +977,8 @@ public class PlayerNotificationManager {
     }
   }
 
+  // We're calling a deprecated listener method that we still want to notify.
+  @SuppressWarnings("deprecation")
   private void startOrUpdateNotification(Player player, @Nullable Bitmap bitmap) {
     boolean ongoing = getOngoing(player);
     builder = createNotification(player, builder, ongoing, bitmap);
@@ -993,6 +1001,8 @@ public class PlayerNotificationManager {
     }
   }
 
+  // We're calling a deprecated listener method that we still want to notify.
+  @SuppressWarnings("deprecation")
   private void stopNotification(boolean dismissedByUser) {
     if (isNotificationStarted) {
       isNotificationStarted = false;
@@ -1332,7 +1342,7 @@ public class PlayerNotificationManager {
     }
 
     @Override
-    public void onPlaybackSpeedChanged(float playbackSpeed) {
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
       postStartOrUpdateNotification();
     }
 

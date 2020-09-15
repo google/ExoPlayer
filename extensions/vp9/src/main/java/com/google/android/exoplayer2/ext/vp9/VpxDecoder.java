@@ -87,15 +87,6 @@ import java.nio.ByteBuffer;
     return "libvpx" + VpxLibrary.getVersion();
   }
 
-  /**
-   * Sets the output mode for frames rendered by the decoder.
-   *
-   * @param outputMode The output mode.
-   */
-  public void setOutputMode(@C.VideoOutputMode int outputMode) {
-    this.outputMode = outputMode;
-  }
-
   @Override
   protected VideoDecoderInputBuffer createInputBuffer() {
     return new VideoDecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
@@ -133,11 +124,20 @@ import java.nio.ByteBuffer;
     ByteBuffer inputData = Util.castNonNull(inputBuffer.data);
     int inputSize = inputData.limit();
     CryptoInfo cryptoInfo = inputBuffer.cryptoInfo;
-    final long result = inputBuffer.isEncrypted()
-        ? vpxSecureDecode(vpxDecContext, inputData, inputSize, exoMediaCrypto,
-        cryptoInfo.mode, cryptoInfo.key, cryptoInfo.iv, cryptoInfo.numSubSamples,
-        cryptoInfo.numBytesOfClearData, cryptoInfo.numBytesOfEncryptedData)
-        : vpxDecode(vpxDecContext, inputData, inputSize);
+    final long result =
+        inputBuffer.isEncrypted()
+            ? vpxSecureDecode(
+                vpxDecContext,
+                inputData,
+                inputSize,
+                exoMediaCrypto,
+                cryptoInfo.mode,
+                Assertions.checkNotNull(cryptoInfo.key),
+                Assertions.checkNotNull(cryptoInfo.iv),
+                cryptoInfo.numSubSamples,
+                cryptoInfo.numBytesOfClearData,
+                cryptoInfo.numBytesOfEncryptedData)
+            : vpxDecode(vpxDecContext, inputData, inputSize);
     if (result != NO_ERROR) {
       if (result == DRM_ERROR) {
         String message = "Drm error: " + vpxGetErrorMessage(vpxDecContext);
@@ -183,6 +183,15 @@ import java.nio.ByteBuffer;
     vpxClose(vpxDecContext);
   }
 
+  /**
+   * Sets the output mode for frames rendered by the decoder.
+   *
+   * @param outputMode The output mode.
+   */
+  public void setOutputMode(@C.VideoOutputMode int outputMode) {
+    this.outputMode = outputMode;
+  }
+
   /** Renders the outputBuffer to the surface. Used with OUTPUT_MODE_SURFACE_YUV only. */
   public void renderToSurface(VideoDecoderOutputBuffer outputBuffer, Surface surface)
       throws VpxDecoderException {
@@ -207,8 +216,8 @@ import java.nio.ByteBuffer;
       byte[] key,
       byte[] iv,
       int numSubSamples,
-      int[] numBytesOfClearData,
-      int[] numBytesOfEncryptedData);
+      @Nullable int[] numBytesOfClearData,
+      @Nullable int[] numBytesOfEncryptedData);
 
   private native int vpxGetFrame(long context, VideoDecoderOutputBuffer outputBuffer);
 

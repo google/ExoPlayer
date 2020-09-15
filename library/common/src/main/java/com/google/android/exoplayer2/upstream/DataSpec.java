@@ -518,7 +518,8 @@ public final class DataSpec {
    * set to {@link #HTTP_METHOD_POST}. If {@code postBody} is null then {@link #httpMethod} is set
    * to {@link #HTTP_METHOD_GET}.
    *
-   * @deprecated Use {@link Builder}.
+   * @deprecated Use {@link Builder}. Note that the httpMethod must be set explicitly for the
+   *     Builder.
    * @param uri {@link #uri}.
    * @param postBody {@link #httpBody} The body of the HTTP request, which is also used to infer the
    *     {@link #httpMethod}.

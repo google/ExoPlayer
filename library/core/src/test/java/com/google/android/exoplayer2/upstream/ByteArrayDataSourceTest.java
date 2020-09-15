@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
@@ -125,7 +126,7 @@ public final class ByteArrayDataSourceTest {
       while (true) {
         // Calculate a valid length for the next read, constraining by the specified output buffer
         // length, write offset and maximum write length input parameters.
-        int requestedReadLength = Math.min(maxReadLength, outputBufferLength - writeOffset);
+        int requestedReadLength = min(maxReadLength, outputBufferLength - writeOffset);
         assertThat(requestedReadLength).isGreaterThan(0);
 
         int bytesRead = dataSource.read(outputBuffer, writeOffset, requestedReadLength);

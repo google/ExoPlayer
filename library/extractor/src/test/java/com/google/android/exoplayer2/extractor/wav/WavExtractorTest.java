@@ -36,21 +36,21 @@ public final class WavExtractorTest {
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(WavExtractor::new, "wav/sample.wav", simulationConfig);
+    ExtractorAsserts.assertBehavior(WavExtractor::new, "media/wav/sample.wav", simulationConfig);
   }
 
   @Test
   public void sample_withTrailingBytes_extractsSameData() throws Exception {
     ExtractorAsserts.assertBehavior(
         WavExtractor::new,
-        "wav/sample_with_trailing_bytes.wav",
-        new AssertionConfig.Builder().setDumpFilesPrefix("wav/sample.wav").build(),
+        "media/wav/sample_with_trailing_bytes.wav",
+        new AssertionConfig.Builder().setDumpFilesPrefix("extractordumps/wav/sample.wav").build(),
         simulationConfig);
   }
 
   @Test
   public void sample_imaAdpcm() throws Exception {
     ExtractorAsserts.assertBehavior(
-        WavExtractor::new, "wav/sample_ima_adpcm.wav", simulationConfig);
+        WavExtractor::new, "media/wav/sample_ima_adpcm.wav", simulationConfig);
   }
 }

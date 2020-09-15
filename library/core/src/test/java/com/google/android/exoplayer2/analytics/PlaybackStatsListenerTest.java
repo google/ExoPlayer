@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -75,8 +76,8 @@ public final class PlaybackStatsListenerTest {
 
     playbackStatsListener.onPositionDiscontinuity(
         EMPTY_TIMELINE_EVENT_TIME, Player.DISCONTINUITY_REASON_SEEK);
-    playbackStatsListener.onPlaybackSpeedChanged(
-        EMPTY_TIMELINE_EVENT_TIME, /* playbackSpeed= */ 2.0f);
+    playbackStatsListener.onPlaybackParametersChanged(
+        EMPTY_TIMELINE_EVENT_TIME, new PlaybackParameters(/* speed= */ 2.0f));
     playbackStatsListener.onPlayWhenReadyChanged(
         EMPTY_TIMELINE_EVENT_TIME,
         /* playWhenReady= */ true,

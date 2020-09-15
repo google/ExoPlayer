@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -320,7 +321,7 @@ public final class SilenceSkippingAudioProcessorTest {
       ByteBuffer inputBuffer = ByteBuffer.allocate(sizeBytes).order(ByteOrder.nativeOrder());
       ShortBuffer inputBufferAsShortBuffer = inputBuffer.asShortBuffer();
       int limit = buffer.limit();
-      buffer.limit(Math.min(buffer.position() + sizeBytes / 2, limit));
+      buffer.limit(min(buffer.position() + sizeBytes / 2, limit));
       inputBufferAsShortBuffer.put(buffer);
       buffer.limit(limit);
       inputBuffer.limit(inputBufferAsShortBuffer.position() * 2);

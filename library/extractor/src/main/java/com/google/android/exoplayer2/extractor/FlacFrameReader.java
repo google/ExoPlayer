@@ -107,10 +107,11 @@ public final class FlacFrameReader {
 
     ParsableByteArray scratch = new ParsableByteArray(FlacConstants.MAX_FRAME_HEADER_SIZE);
     System.arraycopy(
-        frameStartBytes, /* srcPos= */ 0, scratch.data, /* destPos= */ 0, /* length= */ 2);
+        frameStartBytes, /* srcPos= */ 0, scratch.getData(), /* destPos= */ 0, /* length= */ 2);
 
     int totalBytesPeeked =
-        ExtractorUtil.peekToLength(input, scratch.data, 2, FlacConstants.MAX_FRAME_HEADER_SIZE - 2);
+        ExtractorUtil.peekToLength(
+            input, scratch.getData(), 2, FlacConstants.MAX_FRAME_HEADER_SIZE - 2);
     scratch.setLimit(totalBytesPeeked);
 
     input.resetPeekPosition();
@@ -145,7 +146,7 @@ public final class FlacFrameReader {
     int maxUtf8SampleNumberSize = isBlockSizeVariable ? 7 : 6;
     ParsableByteArray scratch = new ParsableByteArray(maxUtf8SampleNumberSize);
     int totalBytesPeeked =
-        ExtractorUtil.peekToLength(input, scratch.data, 0, maxUtf8SampleNumberSize);
+        ExtractorUtil.peekToLength(input, scratch.getData(), 0, maxUtf8SampleNumberSize);
     scratch.setLimit(totalBytesPeeked);
     input.resetPeekPosition();
 
@@ -325,7 +326,7 @@ public final class FlacFrameReader {
     int crc = data.readUnsignedByte();
     int frameEndPosition = data.getPosition();
     int expectedCrc =
-        Util.crc8(data.data, frameStartPosition, frameEndPosition - 1, /* initialValue= */ 0);
+        Util.crc8(data.getData(), frameStartPosition, frameEndPosition - 1, /* initialValue= */ 0);
     return crc == expectedCrc;
   }
 

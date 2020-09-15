@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.util;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
@@ -26,10 +26,8 @@ import java.nio.charset.Charset;
  */
 public final class ParsableByteArray {
 
-  public byte[] data;
-
+  private byte[] data;
   private int position;
-
   // TODO(internal b/147657250): Enforce this limit on all read methods.
   private int limit;
 
@@ -67,12 +65,6 @@ public final class ParsableByteArray {
   public ParsableByteArray(byte[] data, int limit) {
     this.data = data;
     this.limit = limit;
-  }
-
-  /** Sets the position and limit to zero. */
-  public void reset() {
-    position = 0;
-    limit = 0;
   }
 
   /**
@@ -139,13 +131,6 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Returns the capacity of the array, which may be larger than the limit.
-   */
-  public int capacity() {
-    return data.length;
-  }
-
-  /**
    * Sets the reading offset in the array.
    *
    * @param position Byte offset in the array from which to read.
@@ -156,6 +141,23 @@ public final class ParsableByteArray {
     // It is fine for position to be at the end of the array.
     Assertions.checkArgument(position >= 0 && position <= limit);
     this.position = position;
+  }
+
+  /**
+   * Returns the underlying array.
+   *
+   * <p>Changes to this array are reflected in the results of the {@code read...()} methods.
+   *
+   * <p>This reference must be assumed to become invalid when {@link #reset} is called (because the
+   * array might get reallocated).
+   */
+  public byte[] getData() {
+    return data;
+  }
+
+  /** Returns the capacity of the array, which may be larger than the limit. */
+  public int capacity() {
+    return data.length;
   }
 
   /**
@@ -449,7 +451,7 @@ public final class ParsableByteArray {
    * @return The string encoded by the bytes.
    */
   public String readString(int length) {
-    return readString(length, Charset.forName(C.UTF8_NAME));
+    return readString(length, Charsets.UTF_8);
   }
 
   /**

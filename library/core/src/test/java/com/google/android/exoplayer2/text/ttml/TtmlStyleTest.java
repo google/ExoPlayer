@@ -28,7 +28,6 @@ import android.graphics.Color;
 import android.text.Layout;
 import androidx.annotation.ColorInt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +46,6 @@ public final class TtmlStyleTest {
   private static final int RUBY_POSITION = RubySpan.POSITION_UNDER;
   private static final Layout.Alignment TEXT_ALIGN = Layout.Alignment.ALIGN_CENTER;
   private static final boolean TEXT_COMBINE = true;
-  @Cue.VerticalType private static final int VERTICAL_TYPE = Cue.VERTICAL_TYPE_RL;
 
   private final TtmlStyle populatedStyle =
       new TtmlStyle()
@@ -64,8 +62,7 @@ public final class TtmlStyleTest {
           .setRubyType(RUBY_TYPE)
           .setRubyPosition(RUBY_POSITION)
           .setTextAlign(TEXT_ALIGN)
-          .setTextCombine(TEXT_COMBINE)
-          .setVerticalType(VERTICAL_TYPE);
+          .setTextCombine(TEXT_COMBINE);
 
   @Test
   public void inheritStyle() {
@@ -89,9 +86,6 @@ public final class TtmlStyleTest {
     assertWithMessage("backgroundColor should not be inherited")
         .that(style.hasBackgroundColor())
         .isFalse();
-    assertWithMessage("verticalType should not be inherited")
-        .that(style.getVerticalType())
-        .isEqualTo(Cue.TYPE_UNSET);
   }
 
   @Test
@@ -115,9 +109,6 @@ public final class TtmlStyleTest {
         .that(style.getBackgroundColor())
         .isEqualTo(BACKGROUND_COLOR);
     assertWithMessage("rubyType should be chained").that(style.getRubyType()).isEqualTo(RUBY_TYPE);
-    assertWithMessage("verticalType should be chained")
-        .that(style.getVerticalType())
-        .isEqualTo(VERTICAL_TYPE);
   }
 
   @Test

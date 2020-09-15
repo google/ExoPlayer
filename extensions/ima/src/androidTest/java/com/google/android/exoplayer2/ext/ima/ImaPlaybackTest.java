@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.content.Context;
 import android.net.Uri;
 import android.view.Surface;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
@@ -39,6 +38,7 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
@@ -49,7 +49,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -234,29 +234,26 @@ public final class ImaPlaybackTest {
     @Override
     protected MediaSource buildSource(
         HostActivity host,
-        String userAgent,
         DrmSessionManager drmSessionManager,
         FrameLayout overlayFrameLayout) {
       Context context = host.getApplicationContext();
-      DataSource.Factory dataSourceFactory =
-          new DefaultDataSourceFactory(
-              context, Util.getUserAgent(context, ImaPlaybackTest.class.getSimpleName()));
+      DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(context);
       MediaSource contentMediaSource =
-          DefaultMediaSourceFactory.newInstance(context)
-              .createMediaSource(MediaItem.fromUri(contentUri));
+          new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(contentUri));
       return new AdsMediaSource(
           contentMediaSource,
           dataSourceFactory,
           Assertions.checkNotNull(imaAdsLoader),
           new AdViewProvider() {
+
             @Override
             public ViewGroup getAdViewGroup() {
               return overlayFrameLayout;
             }
 
             @Override
-            public View[] getAdOverlayViews() {
-              return new View[0];
+            public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
+              return ImmutableList.of();
             }
           });
     }

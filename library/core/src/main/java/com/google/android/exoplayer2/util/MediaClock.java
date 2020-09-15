@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import com.google.android.exoplayer2.PlaybackParameters;
+
 /**
  * Tracks the progression of media time.
  */
@@ -26,13 +28,13 @@ public interface MediaClock {
   long getPositionUs();
 
   /**
-   * Attempts to set the playback speed. The media clock may override the speed if changing the
-   * speed is not supported.
+   * Attempts to set the playback parameters. The media clock may override the speed if changing the
+   * playback parameters is not supported.
    *
-   * @param playbackSpeed The playback speed to attempt to set.
+   * @param playbackParameters The playback parameters to attempt to set.
    */
-  void setPlaybackSpeed(float playbackSpeed);
+  void setPlaybackParameters(PlaybackParameters playbackParameters);
 
-  /** Returns the active playback speed. */
-  float getPlaybackSpeed();
+  /** Returns the active playback parameters. */
+  PlaybackParameters getPlaybackParameters();
 }

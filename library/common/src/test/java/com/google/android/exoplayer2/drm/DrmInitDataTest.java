@@ -25,9 +25,9 @@ import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,16 +35,16 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DrmInitDataTest {
 
-  private static final SchemeData DATA_1 = new SchemeData(WIDEVINE_UUID, VIDEO_MP4,
-      TestUtil.buildTestData(128, 1 /* data seed */));
-  private static final SchemeData DATA_2 = new SchemeData(PLAYREADY_UUID, VIDEO_MP4,
-      TestUtil.buildTestData(128, 2 /* data seed */));
-  private static final SchemeData DATA_1B = new SchemeData(WIDEVINE_UUID, VIDEO_MP4,
-      TestUtil.buildTestData(128, 1 /* data seed */));
-  private static final SchemeData DATA_2B = new SchemeData(PLAYREADY_UUID, VIDEO_MP4,
-      TestUtil.buildTestData(128, 2 /* data seed */));
-  private static final SchemeData DATA_UNIVERSAL = new SchemeData(C.UUID_NIL, VIDEO_MP4,
-      TestUtil.buildTestData(128, 3 /* data seed */));
+  private static final SchemeData DATA_1 =
+      new SchemeData(WIDEVINE_UUID, VIDEO_MP4, buildTestData(128, 1 /* data seed */));
+  private static final SchemeData DATA_2 =
+      new SchemeData(PLAYREADY_UUID, VIDEO_MP4, buildTestData(128, 2 /* data seed */));
+  private static final SchemeData DATA_1B =
+      new SchemeData(WIDEVINE_UUID, VIDEO_MP4, buildTestData(128, 1 /* data seed */));
+  private static final SchemeData DATA_2B =
+      new SchemeData(PLAYREADY_UUID, VIDEO_MP4, buildTestData(128, 2 /* data seed */));
+  private static final SchemeData DATA_UNIVERSAL =
+      new SchemeData(C.UUID_NIL, VIDEO_MP4, buildTestData(128, 3 /* data seed */));
 
   @Test
   public void parcelable() {
@@ -162,4 +162,11 @@ public class DrmInitDataTest {
     return schemeDatas;
   }
 
+  /** Generates an array of random bytes with the specified length. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] buildTestData(int length, int seed) {
+    byte[] source = new byte[length];
+    new Random(seed).nextBytes(source);
+    return source;
+  }
 }

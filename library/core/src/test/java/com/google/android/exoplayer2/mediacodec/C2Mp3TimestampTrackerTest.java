@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.mediacodec;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -34,7 +33,6 @@ public final class C2Mp3TimestampTrackerTest {
   private static final Format AUDIO_MP3 =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.AUDIO_MPEG)
-          .setPcmEncoding(C.ENCODING_PCM_16BIT)
           .setChannelCount(2)
           .setSampleRate(44_100)
           .build();

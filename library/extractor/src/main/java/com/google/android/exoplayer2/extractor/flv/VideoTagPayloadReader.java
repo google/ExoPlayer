@@ -86,7 +86,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
     // Parse avc sequence header in case this was not done before.
     if (packetType == AVC_PACKET_TYPE_SEQUENCE_HEADER && !hasOutputFormat) {
       ParsableByteArray videoSequence = new ParsableByteArray(new byte[data.bytesLeft()]);
-      data.readBytes(videoSequence.data, 0, data.bytesLeft());
+      data.readBytes(videoSequence.getData(), 0, data.bytesLeft());
       AvcConfig avcConfig = AvcConfig.parse(videoSequence);
       nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
       // Construct and output the format.
@@ -109,7 +109,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
       // TODO: Deduplicate with Mp4Extractor.
       // Zero the top three bytes of the array that we'll use to decode nal unit lengths, in case
       // they're only 1 or 2 bytes long.
-      byte[] nalLengthData = nalLength.data;
+      byte[] nalLengthData = nalLength.getData();
       nalLengthData[0] = 0;
       nalLengthData[1] = 0;
       nalLengthData[2] = 0;
@@ -121,7 +121,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
       int bytesToWrite;
       while (data.bytesLeft() > 0) {
         // Read the NAL length so that we know where we find the next one.
-        data.readBytes(nalLength.data, nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
+        data.readBytes(nalLength.getData(), nalUnitLengthFieldLengthDiff, nalUnitLengthFieldLength);
         nalLength.setPosition(0);
         bytesToWrite = nalLength.readUnsignedIntToInt();
 

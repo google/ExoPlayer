@@ -337,21 +337,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     int textTop;
     if (cueLine != Cue.DIMEN_UNSET) {
-      int anchorPosition;
       if (cueLineType == Cue.LINE_TYPE_FRACTION) {
-        anchorPosition = Math.round(parentHeight * cueLine) + parentTop;
+        int anchorPosition = Math.round(parentHeight * cueLine) + parentTop;
+        textTop =
+            cueLineAnchor == Cue.ANCHOR_TYPE_END
+                ? anchorPosition - textHeight
+                : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE
+                    ? (anchorPosition * 2 - textHeight) / 2
+                    : anchorPosition;
       } else {
         // cueLineType == Cue.LINE_TYPE_NUMBER
         int firstLineHeight = textLayout.getLineBottom(0) - textLayout.getLineTop(0);
         if (cueLine >= 0) {
-          anchorPosition = Math.round(cueLine * firstLineHeight) + parentTop;
+          textTop = Math.round(cueLine * firstLineHeight) + parentTop;
         } else {
-          anchorPosition = Math.round((cueLine + 1) * firstLineHeight) + parentBottom;
+          textTop = Math.round((cueLine + 1) * firstLineHeight) + parentBottom - textHeight;
         }
       }
-      textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
-          : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
-              : anchorPosition;
+
       if (textTop + textHeight > parentBottom) {
         textTop = parentBottom - textHeight;
       } else if (textTop < parentTop) {

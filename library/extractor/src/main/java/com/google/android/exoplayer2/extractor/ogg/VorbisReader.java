@@ -68,12 +68,12 @@ import java.util.ArrayList;
   @Override
   protected long preparePayload(ParsableByteArray packet) {
     // if this is not an audio packet...
-    if ((packet.data[0] & 0x01) == 1) {
+    if ((packet.getData()[0] & 0x01) == 1) {
       return -1;
     }
 
     // ... we need to decode the block size
-    int packetBlockSize = decodeBlockSize(packet.data[0], vorbisSetup);
+    int packetBlockSize = decodeBlockSize(packet.getData()[0], vorbisSetup);
     // a packet contains samples produced from overlapping the previous and current frame data
     // (https://www.xiph.org/vorbis/doc/Vorbis_I_spec.html#x1-350001.3.2)
     int samplesInPacket = seenFirstAudioPacket ? (packetBlockSize + previousPacketBlockSize) / 4
@@ -134,7 +134,7 @@ import java.util.ArrayList;
     // the third packet contains the setup header
     byte[] setupHeaderData = new byte[scratch.limit()];
     // raw data of vorbis setup header has to be passed to decoder as CSD buffer #2
-    System.arraycopy(scratch.data, 0, setupHeaderData, 0, scratch.limit());
+    System.arraycopy(scratch.getData(), 0, setupHeaderData, 0, scratch.limit());
     // partially decode setup header to get the modes
     Mode[] modes = VorbisUtil.readVorbisModes(scratch, vorbisIdHeader.channels);
     // we need the ilog of modes all the time when extracting, so we compute it once
@@ -164,10 +164,11 @@ import java.util.ArrayList;
     buffer.setLimit(buffer.limit() + 4);
     // The vorbis decoder expects the number of samples in the packet
     // to be appended to the audio data as an int32
-    buffer.data[buffer.limit() - 4] = (byte) (packetSampleCount & 0xFF);
-    buffer.data[buffer.limit() - 3] = (byte) ((packetSampleCount >>> 8) & 0xFF);
-    buffer.data[buffer.limit() - 2] = (byte) ((packetSampleCount >>> 16) & 0xFF);
-    buffer.data[buffer.limit() - 1] = (byte) ((packetSampleCount >>> 24) & 0xFF);
+    byte[] data = buffer.getData();
+    data[buffer.limit() - 4] = (byte) (packetSampleCount & 0xFF);
+    data[buffer.limit() - 3] = (byte) ((packetSampleCount >>> 8) & 0xFF);
+    data[buffer.limit() - 2] = (byte) ((packetSampleCount >>> 16) & 0xFF);
+    data[buffer.limit() - 1] = (byte) ((packetSampleCount >>> 24) & 0xFF);
   }
 
   private static int decodeBlockSize(byte firstByteOfAudioPacket, VorbisSetup vorbisSetup) {

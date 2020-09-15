@@ -26,6 +26,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.MediaCodec;
 import android.net.Uri;
+import android.os.Looper;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
@@ -42,18 +43,37 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.TimeoutException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Utility methods for tests.
  */
 public class TestUtil {
+
+  /**
+   * The default timeout applied when calling {@link #runMainLooperUntil(Supplier)}. This timeout
+   * should be sufficient for any condition using a Robolectric test.
+   */
+  public static final long DEFAULT_TIMEOUT_MS = 10_000;
+
+  /** Reflectively loaded Robolectric ShadowLooper#runOneTask. */
+  private static @MonotonicNonNull Object shadowLooper;
+
+  private static @MonotonicNonNull Method runOneTaskMethod;
 
   private TestUtil() {}
 
@@ -156,29 +176,39 @@ public class TestUtil {
   /**
    * Converts an array of integers in the range [0, 255] into an equivalent byte array.
    *
-   * @param intArray An array of integers, all of which must be in the range [0, 255].
+   * @param bytes An array of integers, all of which must be in the range [0, 255].
    * @return The equivalent byte array.
    */
-  public static byte[] createByteArray(int... intArray) {
-    byte[] byteArray = new byte[intArray.length];
+  public static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
     for (int i = 0; i < byteArray.length; i++) {
-      Assertions.checkState(0x00 <= intArray[i] && intArray[i] <= 0xFF);
-      byteArray[i] = (byte) intArray[i];
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
     }
     return byteArray;
   }
 
-  /** Writes one byte long dummy test data to the file and returns it. */
+  /**
+   * Converts an array of integers in the range [0, 255] into an equivalent byte list.
+   *
+   * @param bytes An array of integers, all of which must be in the range [0, 255].
+   * @return The equivalent byte list.
+   */
+  public static ImmutableList<Byte> createByteList(int... bytes) {
+    return ImmutableList.copyOf(Bytes.asList(createByteArray(bytes)));
+  }
+
+  /** Writes one byte long test data to the file and returns it. */
   public static File createTestFile(File directory, String name) throws IOException {
     return createTestFile(directory, name, /* length= */ 1);
   }
 
-  /** Writes dummy test data with the specified length to the file and returns it. */
+  /** Writes test data with the specified length to the file and returns it. */
   public static File createTestFile(File directory, String name, long length) throws IOException {
     return createTestFile(new File(directory, name), length);
   }
 
-  /** Writes dummy test data with the specified length to the file and returns it. */
+  /** Writes test data with the specified length to the file and returns it. */
   public static File createTestFile(File file, long length) throws IOException {
     FileOutputStream output = new FileOutputStream(file);
     for (long i = 0; i < length; i++) {
@@ -483,5 +513,65 @@ public class TestUtil {
             return Clock.DEFAULT.currentTimeMillis();
           }
         });
+  }
+
+  /**
+   * Runs tasks of the main Robolectric {@link Looper} until the {@code condition} returns {@code
+   * true}.
+   *
+   * <p>Must be called on the main test thread.
+   *
+   * @param condition The condition.
+   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS} is exceeded.
+   */
+  public static void runMainLooperUntil(Supplier<Boolean> condition) throws TimeoutException {
+    runMainLooperUntil(condition, DEFAULT_TIMEOUT_MS, Clock.DEFAULT);
+  }
+
+  /**
+   * Runs tasks of the main Robolectric {@link Looper} until the {@code condition} returns {@code
+   * true}.
+   *
+   * @param condition The condition.
+   * @param timeoutMs The timeout in milliseconds.
+   * @param clock The {@link Clock} to measure the timeout.
+   * @throws TimeoutException If the {@code timeoutMs timeout} is exceeded.
+   */
+  public static void runMainLooperUntil(Supplier<Boolean> condition, long timeoutMs, Clock clock)
+      throws TimeoutException {
+    if (Looper.myLooper() != Looper.getMainLooper()) {
+      throw new IllegalStateException();
+    }
+    maybeInitShadowLooperAndRunOneTaskMethod();
+    try {
+      long timeoutTimeMs = clock.currentTimeMillis() + timeoutMs;
+      while (!condition.get()) {
+        if (clock.currentTimeMillis() >= timeoutTimeMs) {
+          throw new TimeoutException();
+        }
+        runOneTaskMethod.invoke(shadowLooper);
+      }
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    } catch (InvocationTargetException e) {
+      throw new IllegalStateException(e.getCause());
+    }
+  }
+
+  @EnsuresNonNull({"shadowLooper", "runOneTaskMethod"})
+  private static void maybeInitShadowLooperAndRunOneTaskMethod() {
+    if (shadowLooper != null && runOneTaskMethod != null) {
+      return;
+    }
+    try {
+      Class<?> clazz = Class.forName("org.robolectric.Shadows");
+      Method shadowOfMethod =
+          Assertions.checkNotNull(clazz.getDeclaredMethod("shadowOf", Looper.class));
+      shadowLooper =
+          Assertions.checkNotNull(shadowOfMethod.invoke(new Object(), Looper.getMainLooper()));
+      runOneTaskMethod = shadowLooper.getClass().getDeclaredMethod("runOneTask");
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 }

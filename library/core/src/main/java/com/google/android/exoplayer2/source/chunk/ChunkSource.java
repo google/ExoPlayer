@@ -52,11 +52,22 @@ public interface ChunkSource {
    *
    * <p>Will only be called if no {@link MediaChunk} in the queue is currently loading.
    *
-   * @param playbackPositionUs The current playback position.
+   * @param playbackPositionUs The current playback position, in microseconds.
    * @param queue The queue of buffered {@link MediaChunk}s.
    * @return The preferred queue size.
    */
   int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue);
+
+  /**
+   * Returns whether an ongoing load of a chunk should be canceled.
+   *
+   * @param playbackPositionUs The current playback position, in microseconds.
+   * @param loadingChunk The currently loading {@link Chunk}.
+   * @param queue The queue of buffered {@link MediaChunk MediaChunks}.
+   * @return Whether the ongoing load of {@code loadingChunk} should be canceled.
+   */
+  boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue);
 
   /**
    * Returns the next chunk to load.
@@ -96,12 +107,15 @@ public interface ChunkSource {
    * @param chunk The chunk whose load encountered the error.
    * @param cancelable Whether the load can be canceled.
    * @param e The error.
-   * @param blacklistDurationMs The duration for which the associated track may be blacklisted, or
-   *     {@link C#TIME_UNSET} if the track may not be blacklisted.
+   * @param exclusionDurationMs The duration for which the associated track may be excluded, or
+   *     {@link C#TIME_UNSET} if the track may not be excluded.
    * @return Whether the load should be canceled so that a replacement chunk can be loaded instead.
    *     Must be {@code false} if {@code cancelable} is {@code false}. If {@code true}, {@link
    *     #getNextChunk(long, long, List, ChunkHolder)} will be called to obtain the replacement
    *     chunk.
    */
-  boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e, long blacklistDurationMs);
+  boolean onChunkLoadError(Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs);
+
+  /** Releases any held resources. */
+  void release();
 }

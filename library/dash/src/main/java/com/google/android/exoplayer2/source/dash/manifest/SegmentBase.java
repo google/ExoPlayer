@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
@@ -157,9 +159,11 @@ public abstract class SegmentBase {
         long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;
         long segmentNum = startNumber + timeUs / durationUs;
         // Ensure we stay within bounds.
-        return segmentNum < firstSegmentNum ? firstSegmentNum
-            : segmentCount == DashSegmentIndex.INDEX_UNBOUNDED ? segmentNum
-            : Math.min(segmentNum, firstSegmentNum + segmentCount - 1);
+        return segmentNum < firstSegmentNum
+            ? firstSegmentNum
+            : segmentCount == DashSegmentIndex.INDEX_UNBOUNDED
+                ? segmentNum
+                : min(segmentNum, firstSegmentNum + segmentCount - 1);
       } else {
         // The index cannot be unbounded. Identify the segment using binary search.
         long lowIndex = firstSegmentNum;

@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
@@ -81,7 +82,8 @@ public final class CacheDataSourceTest {
 
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
     upstreamDataSource = new FakeDataSource();
   }
 
@@ -362,7 +364,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream2),
             unboundedDataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -413,7 +414,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream2),
             unboundedDataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -439,7 +439,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -477,7 +476,6 @@ public final class CacheDataSourceTest {
             new CacheDataSource(cache, upstream),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             /* progressListener= */ null);
     cacheWriter.cache();
@@ -553,7 +551,7 @@ public final class CacheDataSourceTest {
     int requestLength = (int) dataSpec.length;
     int readLength = TEST_DATA.length - position;
     if (requestLength != C.LENGTH_UNSET) {
-      readLength = Math.min(readLength, requestLength);
+      readLength = min(readLength, requestLength);
     }
     assertThat(cacheDataSource.open(dataSpec))
         .isEqualTo(unknownLength ? requestLength : readLength);

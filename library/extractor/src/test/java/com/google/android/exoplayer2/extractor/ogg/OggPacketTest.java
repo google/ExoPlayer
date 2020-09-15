@@ -33,7 +33,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class OggPacketTest {
 
-  private static final String TEST_FILE = "ogg/bear.opus";
+  private static final String TEST_FILE = "media/ogg/bear.opus";
 
   private final Random random = new Random(/* seed= */ 0);
   private final OggPacket oggPacket = new OggPacket();
@@ -47,7 +47,8 @@ public final class OggPacketTest {
     FakeExtractorInput input =
         createInput(
             getByteArray(
-                ApplicationProvider.getApplicationContext(), "ogg/four_packets_with_empty_page"));
+                ApplicationProvider.getApplicationContext(),
+                "media/ogg/four_packets_with_empty_page"));
 
     assertReadPacket(input, firstPacket);
     assertThat((oggPacket.getPageHeader().type & 0x02) == 0x02).isTrue();
@@ -95,7 +96,7 @@ public final class OggPacketTest {
         createInput(
             getByteArray(
                 ApplicationProvider.getApplicationContext(),
-                "ogg/packet_with_zero_size_terminator"));
+                "media/ogg/packet_with_zero_size_terminator"));
 
     assertReadPacket(input, firstPacket);
     assertReadPacket(input, secondPacket);
@@ -109,7 +110,7 @@ public final class OggPacketTest {
         createInput(
             getByteArray(
                 ApplicationProvider.getApplicationContext(),
-                "ogg/continued_packet_over_two_pages"));
+                "media/ogg/continued_packet_over_two_pages"));
 
     assertReadPacket(input, firstPacket);
     assertThat((oggPacket.getPageHeader().type & 0x04) == 0x04).isTrue();
@@ -126,7 +127,7 @@ public final class OggPacketTest {
         createInput(
             getByteArray(
                 ApplicationProvider.getApplicationContext(),
-                "ogg/continued_packet_over_four_pages"));
+                "media/ogg/continued_packet_over_four_pages"));
 
     assertReadPacket(input, firstPacket);
     assertThat((oggPacket.getPageHeader().type & 0x04) == 0x04).isTrue();
@@ -142,7 +143,8 @@ public final class OggPacketTest {
     FakeExtractorInput input =
         createInput(
             getByteArray(
-                ApplicationProvider.getApplicationContext(), "ogg/continued_packet_at_start"));
+                ApplicationProvider.getApplicationContext(),
+                "media/ogg/continued_packet_at_start"));
 
     // Expect the first partial packet to be discarded.
     assertReadPacket(input, Arrays.copyOfRange(pageBody, 256, 256 + 8));
@@ -158,7 +160,7 @@ public final class OggPacketTest {
         createInput(
             getByteArray(
                 ApplicationProvider.getApplicationContext(),
-                "ogg/zero_sized_packets_at_end_of_stream"));
+                "media/ogg/zero_sized_packets_at_end_of_stream"));
 
     assertReadPacket(input, firstPacket);
     assertReadPacket(input, secondPacket);
@@ -190,7 +192,7 @@ public final class OggPacketTest {
       throws IOException {
     assertThat(readPacket(extractorInput)).isTrue();
     ParsableByteArray payload = oggPacket.getPayload();
-    assertThat(Arrays.copyOf(payload.data, payload.limit())).isEqualTo(expected);
+    assertThat(Arrays.copyOf(payload.getData(), payload.limit())).isEqualTo(expected);
   }
 
   private void assertReadEof(FakeExtractorInput extractorInput) throws IOException {

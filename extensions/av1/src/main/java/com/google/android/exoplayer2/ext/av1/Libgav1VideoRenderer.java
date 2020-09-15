@@ -126,7 +126,7 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
         || !Gav1Library.isAvailable()) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
-    if (format.drmInitData != null && format.exoMediaCryptoType == null) {
+    if (format.exoMediaCryptoType != null) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     }
     return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);

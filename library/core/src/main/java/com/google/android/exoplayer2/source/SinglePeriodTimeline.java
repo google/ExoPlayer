@@ -46,7 +46,6 @@ public final class SinglePeriodTimeline extends Timeline {
   private final boolean isSeekable;
   private final boolean isDynamic;
   private final boolean isLive;
-  @Nullable private final Object tag;
   @Nullable private final Object manifest;
   @Nullable private final MediaItem mediaItem;
 
@@ -208,8 +207,7 @@ public final class SinglePeriodTimeline extends Timeline {
         isDynamic,
         isLive,
         manifest,
-        MEDIA_ITEM.buildUpon().setTag(tag).build(),
-        tag);
+        MEDIA_ITEM.buildUpon().setTag(tag).build());
   }
 
   /**
@@ -248,36 +246,6 @@ public final class SinglePeriodTimeline extends Timeline {
       boolean isLive,
       @Nullable Object manifest,
       MediaItem mediaItem) {
-    this(
-        presentationStartTimeMs,
-        windowStartTimeMs,
-        elapsedRealtimeEpochOffsetMs,
-        periodDurationUs,
-        windowDurationUs,
-        windowPositionInPeriodUs,
-        windowDefaultStartPositionUs,
-        isSeekable,
-        isDynamic,
-        isLive,
-        manifest,
-        mediaItem,
-        /* tag= */ null);
-  }
-
-  private SinglePeriodTimeline(
-      long presentationStartTimeMs,
-      long windowStartTimeMs,
-      long elapsedRealtimeEpochOffsetMs,
-      long periodDurationUs,
-      long windowDurationUs,
-      long windowPositionInPeriodUs,
-      long windowDefaultStartPositionUs,
-      boolean isSeekable,
-      boolean isDynamic,
-      boolean isLive,
-      @Nullable Object manifest,
-      MediaItem mediaItem,
-      @Nullable Object tag) {
     this.presentationStartTimeMs = presentationStartTimeMs;
     this.windowStartTimeMs = windowStartTimeMs;
     this.elapsedRealtimeEpochOffsetMs = elapsedRealtimeEpochOffsetMs;
@@ -290,7 +258,6 @@ public final class SinglePeriodTimeline extends Timeline {
     this.isLive = isLive;
     this.manifest = manifest;
     this.mediaItem = checkNotNull(mediaItem);
-    this.tag = tag;
   }
 
   @Override
@@ -299,7 +266,6 @@ public final class SinglePeriodTimeline extends Timeline {
   }
 
   // Provide backwards compatibility.
-  @SuppressWarnings("deprecation")
   @Override
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     Assertions.checkIndex(windowIndex, 0, 1);
@@ -315,24 +281,6 @@ public final class SinglePeriodTimeline extends Timeline {
           windowDefaultStartPositionUs = C.TIME_UNSET;
         }
       }
-    }
-    if (tag != null) {
-      // Support deprecated constructors.
-      return window.set(
-          Window.SINGLE_WINDOW_UID,
-          tag,
-          manifest,
-          presentationStartTimeMs,
-          windowStartTimeMs,
-          elapsedRealtimeEpochOffsetMs,
-          isSeekable,
-          isDynamic,
-          isLive,
-          windowDefaultStartPositionUs,
-          windowDurationUs,
-          /* firstPeriodIndex= */ 0,
-          /* lastPeriodIndex= */ 0,
-          windowPositionInPeriodUs);
     }
     return window.set(
         Window.SINGLE_WINDOW_UID,

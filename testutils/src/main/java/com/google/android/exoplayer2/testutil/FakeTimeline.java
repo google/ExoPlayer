@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
@@ -37,8 +39,7 @@ public final class FakeTimeline extends Timeline {
     public static final long DEFAULT_WINDOW_DURATION_US = 10 * C.MICROS_PER_SECOND;
 
     /** Default offset of a window in its first period in microseconds. */
-    public static final long DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US =
-        10_000 * C.MICROS_PER_SECOND;
+    public static final long DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US = 123 * C.MICROS_PER_SECOND;
 
     public final int periodCount;
     public final Object id;
@@ -53,8 +54,7 @@ public final class FakeTimeline extends Timeline {
     public final AdPlaybackState adPlaybackState;
 
     /**
-     * Creates a window definition that corresponds to a dummy placeholder timeline using the given
-     * tag.
+     * Creates a window definition that corresponds to a placeholder timeline using the given tag.
      *
      * @param tag The tag to use in the timeline.
      */
@@ -168,10 +168,53 @@ public final class FakeTimeline extends Timeline {
         long defaultPositionUs,
         long windowOffsetInFirstPeriodUs,
         AdPlaybackState adPlaybackState) {
+      this(
+          periodCount,
+          id,
+          isSeekable,
+          isDynamic,
+          isLive,
+          isPlaceholder,
+          durationUs,
+          defaultPositionUs,
+          windowOffsetInFirstPeriodUs,
+          adPlaybackState,
+          FAKE_MEDIA_ITEM.buildUpon().setTag(id).build());
+    }
+
+    /**
+     * Creates a window definition with ad groups and a custom media item.
+     *
+     * @param periodCount The number of periods in the window. Each period get an equal slice of the
+     *     total window duration.
+     * @param id The UID of the window.
+     * @param isSeekable Whether the window is seekable.
+     * @param isDynamic Whether the window is dynamic.
+     * @param isLive Whether the window is live.
+     * @param isPlaceholder Whether the window is a placeholder.
+     * @param durationUs The duration of the window in microseconds.
+     * @param defaultPositionUs The default position of the window in microseconds.
+     * @param windowOffsetInFirstPeriodUs The offset of the window in the first period, in
+     *     microseconds.
+     * @param adPlaybackState The ad playback state.
+     * @param mediaItem The media item to include in the timeline.
+     */
+    public TimelineWindowDefinition(
+        int periodCount,
+        Object id,
+        boolean isSeekable,
+        boolean isDynamic,
+        boolean isLive,
+        boolean isPlaceholder,
+        long durationUs,
+        long defaultPositionUs,
+        long windowOffsetInFirstPeriodUs,
+        AdPlaybackState adPlaybackState,
+        MediaItem mediaItem) {
       Assertions.checkArgument(durationUs != C.TIME_UNSET || periodCount == 1);
       this.periodCount = periodCount;
       this.id = id;
-      this.mediaItem = FAKE_MEDIA_ITEM.buildUpon().setTag(id).build();
+      this.mediaItem = mediaItem;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
       this.isLive = isLive;
@@ -184,9 +227,10 @@ public final class FakeTimeline extends Timeline {
   }
 
   /** The fake media item used by the fake timeline. */
-  public static final MediaItem FAKE_MEDIA_ITEM = new MediaItem.Builder().setUri(Uri.EMPTY).build();
+  public static final MediaItem FAKE_MEDIA_ITEM =
+      new MediaItem.Builder().setMediaId("FakeTimeline").setUri(Uri.EMPTY).build();
 
-  private static final long AD_DURATION_US = 10 * C.MICROS_PER_SECOND;
+  private static final long AD_DURATION_US = 5 * C.MICROS_PER_SECOND;
 
   private final TimelineWindowDefinition[] windowDefinitions;
   private final Object[] manifests;
@@ -248,8 +292,7 @@ public final class FakeTimeline extends Timeline {
    */
   public FakeTimeline(Object[] manifests, TimelineWindowDefinition... windowDefinitions) {
     this.manifests = new Object[windowDefinitions.length];
-    System.arraycopy(
-        manifests, 0, this.manifests, 0, Math.min(this.manifests.length, manifests.length));
+    System.arraycopy(manifests, 0, this.manifests, 0, min(this.manifests.length, manifests.length));
     this.windowDefinitions = windowDefinitions;
     periodOffsets = new int[windowDefinitions.length + 1];
     periodOffsets[0] = 0;

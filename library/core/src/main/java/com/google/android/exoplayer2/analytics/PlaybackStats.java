@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -276,7 +279,7 @@ public final class PlaybackStats {
       if (firstReportedTimeMs == C.TIME_UNSET) {
         firstReportedTimeMs = stats.firstReportedTimeMs;
       } else if (stats.firstReportedTimeMs != C.TIME_UNSET) {
-        firstReportedTimeMs = Math.min(firstReportedTimeMs, stats.firstReportedTimeMs);
+        firstReportedTimeMs = min(firstReportedTimeMs, stats.firstReportedTimeMs);
       }
       foregroundPlaybackCount += stats.foregroundPlaybackCount;
       abandonedBeforeReadyCount += stats.abandonedBeforeReadyCount;
@@ -295,7 +298,7 @@ public final class PlaybackStats {
       if (maxRebufferTimeMs == C.TIME_UNSET) {
         maxRebufferTimeMs = stats.maxRebufferTimeMs;
       } else if (stats.maxRebufferTimeMs != C.TIME_UNSET) {
-        maxRebufferTimeMs = Math.max(maxRebufferTimeMs, stats.maxRebufferTimeMs);
+        maxRebufferTimeMs = max(maxRebufferTimeMs, stats.maxRebufferTimeMs);
       }
       adPlaybackCount += stats.adPlaybackCount;
       totalVideoFormatHeightTimeMs += stats.totalVideoFormatHeightTimeMs;

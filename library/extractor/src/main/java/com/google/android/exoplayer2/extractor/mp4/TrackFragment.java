@@ -89,9 +89,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public boolean sampleEncryptionDataNeedsFill;
   /**
-   * The absolute decode time of the start of the next fragment.
+   * The duration of all the samples defined in the fragments up to and including this one, plus the
+   * duration of the samples defined in the moov atom if {@link #nextFragmentDecodeTimeIncludesMoov}
+   * is {@code true}.
    */
   public long nextFragmentDecodeTime;
+  /**
+   * Whether {@link #nextFragmentDecodeTime} includes the duration of the samples referred to by the
+   * moov atom.
+   */
+  public boolean nextFragmentDecodeTimeIncludesMoov;
 
   public TrackFragment() {
     trunDataPosition = new long[0];
@@ -114,6 +121,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void reset() {
     trunCount = 0;
     nextFragmentDecodeTime = 0;
+    nextFragmentDecodeTimeIncludesMoov = false;
     definesEncryptionData = false;
     sampleEncryptionDataNeedsFill = false;
     trackEncryptionBox = null;
@@ -166,7 +174,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param input An {@link ExtractorInput} from which to read the encryption data.
    */
   public void fillEncryptionData(ExtractorInput input) throws IOException {
-    input.readFully(sampleEncryptionData.data, 0, sampleEncryptionData.limit());
+    input.readFully(sampleEncryptionData.getData(), 0, sampleEncryptionData.limit());
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;
   }
@@ -177,7 +185,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param source A source from which to read the encryption data.
    */
   public void fillEncryptionData(ParsableByteArray source) {
-    source.readBytes(sampleEncryptionData.data, 0, sampleEncryptionData.limit());
+    source.readBytes(sampleEncryptionData.getData(), 0, sampleEncryptionData.limit());
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;
   }

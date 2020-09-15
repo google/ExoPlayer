@@ -50,35 +50,46 @@ android {
         disable 'GoogleAppIndexingWarning','MissingTranslation','IconDensities'
     }
 
-    flavorDimensions "extensions"
+    flavorDimensions "decoderExtensions"
 
     productFlavors {
-        noExtensions {
-            dimension "extensions"
+        noDecoderExtensions {
+            dimension "decoderExtensions"
+            buildConfigField "boolean", "USE_DECODER_EXTENSIONS", "false"
         }
-        withExtensions {
-            dimension "extensions"
+        withDecoderExtensions {
+            dimension "decoderExtensions"
+            buildConfigField "boolean", "USE_DECODER_EXTENSIONS", "true"
         }
     }
 }
 
 dependencies {
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation ('com.google.guava:guava:' + guavaVersion) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
+    }
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-dash')
     implementation project(modulePrefix + 'library-hls')
     implementation project(modulePrefix + 'library-smoothstreaming')
     implementation project(modulePrefix + 'library-ui')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-av1')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-ffmpeg')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-flac')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-ima')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-opus')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-vp9')
-    withExtensionsImplementation project(path: modulePrefix + 'extension-rtmp')
+    implementation project(modulePrefix + 'extension-cronet')
+    implementation project(modulePrefix + 'extension-ima')
+    withDecoderExtensionsImplementation project(modulePrefix + 'extension-av1')
+    withDecoderExtensionsImplementation project(modulePrefix + 'extension-ffmpeg')
+    withDecoderExtensionsImplementation project(modulePrefix + 'extension-flac')
+    withDecoderExtensionsImplementation project(modulePrefix + 'extension-opus')
+    withDecoderExtensionsImplementation project(modulePrefix + 'extension-vp9')
+    withDecoderExtensionsImplementation project(modulePrefix + 'extension-rtmp')
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

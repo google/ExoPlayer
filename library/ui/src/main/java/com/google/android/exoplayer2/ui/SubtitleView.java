@@ -34,7 +34,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
@@ -225,12 +224,13 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
   }
 
   /**
-   * Sets the text size to one derived from {@link CaptioningManager#getFontScale()}, or to a
-   * default size before API level 19.
+   * Sets the text size based on {@link CaptioningManager#getFontScale()} if {@link
+   * CaptioningManager} is available and enabled.
+   *
+   * <p>Otherwise (and always before API level 19) uses a default font scale of 1.0.
    */
   public void setUserDefaultTextSize() {
-    float fontScale = Util.SDK_INT >= 19 && !isInEditMode() ? getUserCaptionFontScaleV19() : 1f;
-    setFractionalTextSize(DEFAULT_TEXT_SIZE_FRACTION * fontScale);
+    setFractionalTextSize(DEFAULT_TEXT_SIZE_FRACTION * getUserCaptionFontScale());
   }
 
   /**
@@ -291,14 +291,13 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
   }
 
   /**
-   * Sets the caption style to be equivalent to the one returned by
-   * {@link CaptioningManager#getUserStyle()}, or to a default style before API level 19.
+   * Styles the captions using {@link CaptioningManager#getUserStyle()} if {@link CaptioningManager}
+   * is available and enabled.
+   *
+   * <p>Otherwise (and always before API level 19) uses a default style.
    */
   public void setUserDefaultStyle() {
-    setStyle(
-        Util.SDK_INT >= 19 && isCaptionManagerEnabled() && !isInEditMode()
-            ? getUserCaptionStyleV19()
-            : CaptionStyleCompat.DEFAULT);
+    setStyle(getUserCaptionStyle());
   }
 
   /**
@@ -325,25 +324,28 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
     updateOutput();
   }
 
-  @RequiresApi(19)
-  private boolean isCaptionManagerEnabled() {
+  private float getUserCaptionFontScale() {
+    if (Util.SDK_INT < 19 || isInEditMode()) {
+      return 1f;
+    }
+    @Nullable
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
-    return captioningManager.isEnabled();
+    return captioningManager != null && captioningManager.isEnabled()
+        ? captioningManager.getFontScale()
+        : 1f;
   }
 
-  @RequiresApi(19)
-  private float getUserCaptionFontScaleV19() {
+  private CaptionStyleCompat getUserCaptionStyle() {
+    if (Util.SDK_INT < 19 || isInEditMode()) {
+      return CaptionStyleCompat.DEFAULT;
+    }
+    @Nullable
     CaptioningManager captioningManager =
         (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
-    return captioningManager.getFontScale();
-  }
-
-  @RequiresApi(19)
-  private CaptionStyleCompat getUserCaptionStyleV19() {
-    CaptioningManager captioningManager =
-        (CaptioningManager) getContext().getSystemService(Context.CAPTIONING_SERVICE);
-    return CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle());
+    return captioningManager != null && captioningManager.isEnabled()
+        ? CaptionStyleCompat.createFromCaptionStyle(captioningManager.getUserStyle())
+        : CaptionStyleCompat.DEFAULT;
   }
 
   private void updateOutput() {

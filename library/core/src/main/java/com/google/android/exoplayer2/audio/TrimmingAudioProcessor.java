@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -45,7 +47,7 @@ import java.nio.ByteBuffer;
    *
    * @param trimStartFrames The number of audio frames to trim from the start of audio.
    * @param trimEndFrames The number of audio frames to trim from the end of audio.
-   * @see AudioSink#configure(int, int, int, int, int[], int, int)
+   * @see AudioSink#configure(com.google.android.exoplayer2.Format, int, int[])
    */
   public void setTrimFrameCount(int trimStartFrames, int trimEndFrames) {
     this.trimStartFrames = trimStartFrames;
@@ -86,7 +88,7 @@ import java.nio.ByteBuffer;
     }
 
     // Trim any pending start bytes from the input buffer.
-    int trimBytes = Math.min(remaining, pendingTrimStartBytes);
+    int trimBytes = min(remaining, pendingTrimStartBytes);
     trimmedFrameCount += trimBytes / inputAudioFormat.bytesPerFrame;
     pendingTrimStartBytes -= trimBytes;
     inputBuffer.position(position + trimBytes);

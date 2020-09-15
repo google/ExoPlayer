@@ -32,15 +32,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class BatchBufferTest {
 
-  /** Bigger than {@link BatchBuffer#BATCH_SIZE_BYTES} */
-  private static final int BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES = 100 * 1000 * 1000;
-  /** Smaller than {@link BatchBuffer#BATCH_SIZE_BYTES} */
+  /** Bigger than {@code BatchBuffer.BATCH_SIZE_BYTES} */
+  private static final int BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES = 6 * 1000 * 1024;
+  /** Smaller than {@code BatchBuffer.BATCH_SIZE_BYTES} */
   private static final int BUFFER_SIZE_MUCH_SMALLER_THAN_BATCH_SIZE_BYTES = 100;
 
   private static final byte[] TEST_ACCESS_UNIT =
       TestUtil.buildTestData(BUFFER_SIZE_MUCH_SMALLER_THAN_BATCH_SIZE_BYTES);
-  private static final byte[] TEST_HUGE_ACCESS_UNIT =
-      TestUtil.buildTestData(BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES);
 
   private final BatchBuffer batchBuffer = new BatchBuffer();
 
@@ -163,15 +161,16 @@ public final class BatchBufferTest {
     batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_ACCESS_UNIT.length);
     batchBuffer.getNextAccessUnitBuffer().data.put(TEST_ACCESS_UNIT);
     batchBuffer.commitNextAccessUnit();
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_HUGE_ACCESS_UNIT.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(TEST_HUGE_ACCESS_UNIT);
+    byte[] hugeAccessUnit = TestUtil.buildTestData(BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES);
+    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(hugeAccessUnit.length);
+    batchBuffer.getNextAccessUnitBuffer().data.put(hugeAccessUnit);
     batchBuffer.commitNextAccessUnit();
 
     batchBuffer.batchWasConsumed();
     batchBuffer.flip();
 
     assertThat(batchBuffer.getAccessUnitCount()).isEqualTo(1);
-    assertThat(batchBuffer.data).isEqualTo(ByteBuffer.wrap(TEST_HUGE_ACCESS_UNIT));
+    assertThat(batchBuffer.data).isEqualTo(ByteBuffer.wrap(hugeAccessUnit));
   }
 
   @Test

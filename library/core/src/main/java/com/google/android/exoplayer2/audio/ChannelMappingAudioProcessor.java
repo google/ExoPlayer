@@ -35,7 +35,7 @@ import java.nio.ByteBuffer;
    *
    * @param outputChannels The mapping from input to output channel indices, or {@code null} to
    *     leave the input unchanged.
-   * @see AudioSink#configure(int, int, int, int, int[], int, int)
+   * @see AudioSink#configure(com.google.android.exoplayer2.Format, int, int[])
    */
   public void setChannelMap(@Nullable int[] outputChannels) {
     pendingOutputChannels = outputChannels;

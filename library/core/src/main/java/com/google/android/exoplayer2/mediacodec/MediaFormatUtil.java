@@ -83,7 +83,7 @@ public final class MediaFormatUtil {
    *
    * @param format The {@link MediaFormat} being configured.
    * @param key The key to set.
-   * @param value The {@link byte[]} that will be wrapped to obtain the value.
+   * @param value The byte array that will be wrapped to obtain the value.
    */
   public static void maybeSetByteBuffer(MediaFormat format, String key, @Nullable byte[] value) {
     if (value != null) {

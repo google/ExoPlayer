@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
@@ -78,13 +79,15 @@ public class WebvttExtractorTest {
         TestUtil.extractAllSamplesFromFile(
             extractor,
             ApplicationProvider.getApplicationContext(),
-            "webvtt/with_x-timestamp-map_header");
+            "media/webvtt/with_x-timestamp-map_header");
 
     // The output has a ~5s sampleTime and a large, negative subsampleOffset because the cue
     // timestamps are ~10 days ahead of the PTS (due to wrapping) so the offset is used to ensure
     // they're rendered at the right time.
-    output.assertOutput(
-        ApplicationProvider.getApplicationContext(), "webvtt/with_x-timestamp-map_header.dump");
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        output,
+        "extractordumps/webvtt/with_x-timestamp-map_header.dump");
   }
 
   private static boolean sniffData(byte[] data) throws IOException {

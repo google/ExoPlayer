@@ -56,7 +56,7 @@ public final class DefaultOggSeekerTest {
   @Test
   public void seeking() throws Exception {
     byte[] data =
-        getByteArray(ApplicationProvider.getApplicationContext(), "ogg/random_1000_pages");
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/random_1000_pages");
     int granuleCount = 49269395;
     int firstPayloadPageSize = 2023;
     int firstPayloadPageGranuleCount = 57058;
@@ -123,7 +123,8 @@ public final class DefaultOggSeekerTest {
   @Test
   public void readGranuleOfLastPage() throws IOException {
     // This test stream has three headers with granule numbers 20000, 40000 and 60000.
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/three_headers");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/three_headers");
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
     assertReadGranuleOfLastPage(input, 60000);
   }

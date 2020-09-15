@@ -80,7 +80,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
     /**
      * Sets a tag for the media source which will be published in the {@link Timeline} of the source
-     * as {@link Timeline.Window#tag}.
+     * as {@link com.google.android.exoplayer2.MediaItem.PlaybackProperties#tag
+     * Window#mediaItem.playbackProperties.tag}.
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.
@@ -229,6 +230,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   }
 
   /** @deprecated Use {@link Factory} instead. */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public SingleSampleMediaSource(
       Uri uri,
@@ -294,13 +296,18 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
   // MediaSource implementation.
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return castNonNull(mediaItem.playbackProperties).tag;
   }
 
-  // TODO(bachinger) Add @Override annotation once the method is defined by MediaSource.
+  @Override
   public MediaItem getMediaItem() {
     return mediaItem;
   }

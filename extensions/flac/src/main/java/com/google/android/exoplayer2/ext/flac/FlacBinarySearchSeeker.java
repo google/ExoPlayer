@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import static java.lang.Math.max;
+
 import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.FlacStreamMetadata;
@@ -74,7 +76,7 @@ import java.nio.ByteBuffer;
         /* floorBytePosition= */ firstFramePosition,
         /* ceilingBytePosition= */ inputLength,
         /* approxBytesPerFrame= */ streamMetadata.getApproxBytesPerFrame(),
-        /* minimumSearchRange= */ Math.max(
+        /* minimumSearchRange= */ max(
             FlacConstants.MIN_FRAME_HEADER_SIZE, streamMetadata.minFrameSize));
     this.decoderJni = Assertions.checkNotNull(decoderJni);
   }

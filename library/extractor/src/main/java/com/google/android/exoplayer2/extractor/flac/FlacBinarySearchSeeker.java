@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.flac;
 
+import static java.lang.Math.max;
+
 import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.FlacFrameReader;
@@ -55,7 +57,7 @@ import java.io.IOException;
         /* floorBytePosition= */ firstFramePosition,
         /* ceilingBytePosition= */ inputLength,
         /* approxBytesPerFrame= */ flacStreamMetadata.getApproxBytesPerFrame(),
-        /* minimumSearchRange= */ Math.max(
+        /* minimumSearchRange= */ max(
             FlacConstants.MIN_FRAME_HEADER_SIZE, flacStreamMetadata.minFrameSize));
   }
 
@@ -81,7 +83,7 @@ import java.io.IOException;
       long leftFramePosition = input.getPeekPosition();
 
       input.advancePeekPosition(
-          Math.max(FlacConstants.MIN_FRAME_HEADER_SIZE, flacStreamMetadata.minFrameSize));
+          max(FlacConstants.MIN_FRAME_HEADER_SIZE, flacStreamMetadata.minFrameSize));
 
       // Find right frame.
       long rightFrameFirstSampleNumber = findNextFrame(input);

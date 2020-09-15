@@ -142,9 +142,7 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  @Nullable
-  public Class<ExoMediaCrypto> getExoMediaCryptoType() {
-    // No ExoMediaCrypto type is supported.
-    return null;
+  public Class<UnsupportedMediaCrypto> getExoMediaCryptoType() {
+    return UnsupportedMediaCrypto.class;
   }
 }

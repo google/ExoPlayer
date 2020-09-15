@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.offline;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.robolectric.shadows.ShadowBaseLooper.shadowMainLooper;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -46,17 +47,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link DownloadHelper}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public class DownloadHelperTest {
 
   private static final Object TEST_MANIFEST = new Object();
@@ -67,10 +65,6 @@ public class DownloadHelperTest {
 
   private static final Format VIDEO_FORMAT_LOW = createVideoFormat(/* bitrate= */ 200_000);
   private static final Format VIDEO_FORMAT_HIGH = createVideoFormat(/* bitrate= */ 800_000);
-  private static Format audioFormatUs;
-  private static Format audioFormatZh;
-  private static Format textFormatUs;
-  private static Format textFormatZh;
 
   private static final TrackGroup TRACK_GROUP_VIDEO_BOTH =
       new TrackGroup(VIDEO_FORMAT_LOW, VIDEO_FORMAT_HIGH);
@@ -79,35 +73,31 @@ public class DownloadHelperTest {
   private static TrackGroup trackGroupAudioZh;
   private static TrackGroup trackGroupTextUs;
   private static TrackGroup trackGroupTextZh;
-
-  private static TrackGroupArray trackGroupArrayAll;
-  private static TrackGroupArray trackGroupArraySingle;
   private static TrackGroupArray[] trackGroupArrays;
-
   private static MediaItem testMediaItem;
 
   private DownloadHelper downloadHelper;
 
   @BeforeClass
   public static void staticSetUp() {
-    audioFormatUs = createAudioFormat(/* language= */ "US");
-    audioFormatZh = createAudioFormat(/* language= */ "ZH");
-    textFormatUs = createTextFormat(/* language= */ "US");
-    textFormatZh = createTextFormat(/* language= */ "ZH");
+    Format audioFormatUs = createAudioFormat(/* language= */ "US");
+    Format audioFormatZh = createAudioFormat(/* language= */ "ZH");
+    Format textFormatUs = createTextFormat(/* language= */ "US");
+    Format textFormatZh = createTextFormat(/* language= */ "ZH");
 
     trackGroupAudioUs = new TrackGroup(audioFormatUs);
     trackGroupAudioZh = new TrackGroup(audioFormatZh);
     trackGroupTextUs = new TrackGroup(textFormatUs);
     trackGroupTextZh = new TrackGroup(textFormatZh);
 
-    trackGroupArrayAll =
+    TrackGroupArray trackGroupArrayAll =
         new TrackGroupArray(
             TRACK_GROUP_VIDEO_BOTH,
             trackGroupAudioUs,
             trackGroupAudioZh,
             trackGroupTextUs,
             trackGroupTextZh);
-    trackGroupArraySingle =
+    TrackGroupArray trackGroupArraySingle =
         new TrackGroupArray(TRACK_GROUP_VIDEO_SINGLE, trackGroupAudioUs);
     trackGroupArrays =
         new TrackGroupArray[] {trackGroupArrayAll, trackGroupArraySingle};
@@ -129,7 +119,7 @@ public class DownloadHelperTest {
         new DownloadHelper(
             testMediaItem,
             new TestMediaSource(),
-            DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT,
+            DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT,
             DownloadHelper.getRendererCapabilities(renderersFactory));
   }
 
@@ -411,8 +401,8 @@ public class DownloadHelperTest {
 
     DownloadRequest downloadRequest = downloadHelper.getDownloadRequest(data);
 
-    assertThat(downloadRequest.type).isEqualTo(DownloadRequest.TYPE_PROGRESSIVE);
     assertThat(downloadRequest.uri).isEqualTo(testMediaItem.playbackProperties.uri);
+    assertThat(downloadRequest.mimeType).isEqualTo(testMediaItem.playbackProperties.mimeType);
     assertThat(downloadRequest.customCacheKey)
         .isEqualTo(testMediaItem.playbackProperties.customCacheKey);
     assertThat(downloadRequest.data).isEqualTo(data);
@@ -443,7 +433,7 @@ public class DownloadHelperTest {
             preparedLatch.countDown();
           }
         });
-    while (!preparedLatch.await(0, TimeUnit.MILLISECONDS)) {
+    while (!preparedLatch.await(0, MILLISECONDS)) {
       shadowMainLooper().idleFor(shadowMainLooper().getNextScheduledTaskTime());
     }
     if (prepareException.get() != null) {
@@ -503,14 +493,14 @@ public class DownloadHelperTest {
       int periodIndex = TEST_TIMELINE.getIndexOfPeriod(id.periodUid);
       return new FakeMediaPeriod(
           trackGroupArrays[periodIndex],
+          TEST_TIMELINE.getWindow(0, new Timeline.Window()).positionInFirstPeriodUs,
           new EventDispatcher()
               .withParameters(/* windowIndex= */ 0, id, /* mediaTimeOffsetMs= */ 0)) {
         @Override
         public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
           List<StreamKey> result = new ArrayList<>();
           for (TrackSelection trackSelection : trackSelections) {
-            int groupIndex =
-                trackGroupArrays[periodIndex].indexOf(trackSelection.getTrackGroup());
+            int groupIndex = trackGroupArrays[periodIndex].indexOf(trackSelection.getTrackGroup());
             for (int i = 0; i < trackSelection.length(); i++) {
               result.add(
                   new StreamKey(periodIndex, groupIndex, trackSelection.getIndexInTrackGroup(i)));

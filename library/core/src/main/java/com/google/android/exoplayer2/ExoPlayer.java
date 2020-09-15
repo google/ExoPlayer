@@ -20,6 +20,8 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
@@ -59,7 +61,7 @@ import java.util.List;
  * <ul>
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
  *       which the loaded media can be read. A MediaSource is injected via {@link
- *       #prepare(MediaSource)} at the start of playback. The library modules provide default
+ *       #setMediaSource(MediaSource)} at the start of playback. The library modules provide default
  *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
  *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
  *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
@@ -180,7 +182,7 @@ public interface ExoPlayer extends Player {
       this(
           renderers,
           new DefaultTrackSelector(context),
-          DefaultMediaSourceFactory.newInstance(context),
+          new DefaultMediaSourceFactory(context),
           new DefaultLoadControl(),
           DefaultBandwidthMeter.getSingletonInstance(context));
     }
@@ -209,10 +211,11 @@ public interface ExoPlayer extends Player {
       this.mediaSourceFactory = mediaSourceFactory;
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
-      looper = Util.getLooper();
+      looper = Util.getCurrentOrMainLooper();
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
       clock = Clock.DEFAULT;
+      throwWhenStuckBuffering = true;
     }
 
     /**
@@ -224,7 +227,7 @@ public interface ExoPlayer extends Player {
      *
      * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
      */
-    public Builder experimental_setReleaseTimeoutMs(long timeoutMs) {
+    public Builder experimentalSetReleaseTimeoutMs(long timeoutMs) {
       releaseTimeoutMs = timeoutMs;
       return this;
     }
@@ -237,7 +240,7 @@ public interface ExoPlayer extends Player {
      * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
      * @return This builder.
      */
-    public Builder experimental_setThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+    public Builder experimentalSetThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
       this.throwWhenStuckBuffering = throwWhenStuckBuffering;
       return this;
     }
@@ -407,10 +410,10 @@ public interface ExoPlayer extends Player {
               looper);
 
       if (releaseTimeoutMs > 0) {
-        player.experimental_setReleaseTimeoutMs(releaseTimeoutMs);
+        player.experimentalSetReleaseTimeoutMs(releaseTimeoutMs);
       }
-      if (throwWhenStuckBuffering) {
-        player.experimental_throwWhenStuckBuffering();
+      if (!throwWhenStuckBuffering) {
+        player.experimentalDisableThrowWhenStuckBuffering();
       }
 
       return player;
@@ -597,4 +600,41 @@ public interface ExoPlayer extends Player {
    * @see #setPauseAtEndOfMediaItems(boolean)
    */
   boolean getPauseAtEndOfMediaItems();
+
+  /**
+   * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will as
+   * rarely as possible when playing an audio stream using audio offload.
+   *
+   * <p>Only use this scheduling mode if the player is not displaying anything to the user. For
+   * example when the application is in the background, or the screen is off. The player state
+   * (including position) is rarely updated (roughly between every 10 seconds and 1 minute).
+   *
+   * <p>While offload scheduling is enabled, player events may be delivered severely delayed and
+   * apps should not interact with the player. When returning to the foreground, disable offload
+   * scheduling and wait for {@link
+   * Player.EventListener#onExperimentalOffloadSchedulingEnabledChanged(boolean)} to be called with
+   * {@code offloadSchedulingEnabled = false} before interacting with the player.
+   *
+   * <p>This mode should save significant power when the phone is playing offload audio with the
+   * screen off.
+   *
+   * <p>This mode only has an effect when playing an audio track in offload mode, which requires all
+   * the following:
+   *
+   * <ul>
+   *   <li>audio offload rendering is enabled in {@link
+   *       DefaultRenderersFactory#setEnableAudioOffload} or the equivalent option passed to {@link
+   *       com.google.android.exoplayer2.audio.DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
+   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean, boolean)}.
+   *   <li>an audio track is playing in a format which the device supports offloading (for example,
+   *       MP3 or AAC).
+   *   <li>The {@link com.google.android.exoplayer2.audio.AudioSink} is playing with an offload
+   *       {@link android.media.AudioTrack}.
+   * </ul>
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param offloadSchedulingEnabled Whether to enable offload scheduling.
+   */
+  void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled);
 }

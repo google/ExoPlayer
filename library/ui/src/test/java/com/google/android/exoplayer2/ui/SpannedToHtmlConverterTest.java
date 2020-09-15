@@ -58,27 +58,33 @@ public class SpannedToHtmlConverterTest {
         "String with colored".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html)
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
         .isEqualTo("String with <span style='color:rgba(64,32,16,0.200);'>colored</span> section");
   }
 
   @Test
   public void convert_supportsBackgroundColorSpan() {
     SpannableString spanned = new SpannableString("String with highlighted section");
+    int color = Color.argb(51, 64, 32, 16);
     spanned.setSpan(
-        new BackgroundColorSpan(Color.argb(51, 64, 32, 16)),
+        new BackgroundColorSpan(color),
         "String with ".length(),
         "String with highlighted".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html)
-        .isEqualTo(
-            "String with <span style='background-color:rgba(64,32,16,0.200);'>highlighted</span>"
-                + " section");
+    // Double check the color int is being used for the class name as we expect.
+    assertThat(color).isEqualTo(859840528);
+    assertThat(htmlAndCss.cssRuleSets)
+        .containsExactly(".bg_859840528,.bg_859840528 *", "background-color:rgba(64,32,16,0.200);");
+    assertThat(htmlAndCss.html)
+        .isEqualTo("String with <span class='bg_859840528'>highlighted</span>" + " section");
   }
 
   @Test
@@ -90,9 +96,11 @@ public class SpannedToHtmlConverterTest {
         "Vertical text with 123".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html)
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
         .isEqualTo(
             "Vertical text with <span style='text-combine-upright:all;'>123</span> "
                 + "horizontal numbers");
@@ -109,11 +117,14 @@ public class SpannedToHtmlConverterTest {
         "String with 10px".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
     // 10 Android px are converted to 5 CSS px because WebView treats 1 CSS px as 1 Android dp
     // and we're using screen density xhdpi i.e. density=2.
-    assertThat(html).isEqualTo("String with <span style='font-size:5.00px;'>10px</span> section");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
+        .isEqualTo("String with <span style='font-size:5.00px;'>10px</span> section");
   }
 
   // Set the screen density so we see that px are handled differently to dp.
@@ -127,9 +138,12 @@ public class SpannedToHtmlConverterTest {
         "String with 10dp".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with <span style='font-size:10.00px;'>10dp</span> section");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
+        .isEqualTo("String with <span style='font-size:10.00px;'>10dp</span> section");
   }
 
   @Test
@@ -141,9 +155,12 @@ public class SpannedToHtmlConverterTest {
         "String with 10%".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with <span style='font-size:10.00%;'>10%</span> section");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
+        .isEqualTo("String with <span style='font-size:10.00%;'>10%</span> section");
   }
 
   @Test
@@ -155,9 +172,11 @@ public class SpannedToHtmlConverterTest {
         "String with Times New Roman".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html)
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
         .isEqualTo(
             "String with <span style='font-family:\"Times New Roman\";'>Times New Roman</span>"
                 + " section");
@@ -172,9 +191,11 @@ public class SpannedToHtmlConverterTest {
         "String with unstyled".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with unstyled section");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with unstyled section");
   }
 
   @Test
@@ -186,9 +207,11 @@ public class SpannedToHtmlConverterTest {
         "String with crossed-out".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html)
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
         .isEqualTo(
             "String with <span style='text-decoration:line-through;'>crossed-out</span> section");
   }
@@ -213,9 +236,11 @@ public class SpannedToHtmlConverterTest {
         "String with bold, italic and bold-italic".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html)
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
         .isEqualTo(
             "String with <b>bold</b>, <i>italic</i> and <b><i>bold-italic</i></b> sections.");
   }
@@ -235,9 +260,11 @@ public class SpannedToHtmlConverterTest {
         "String with over-annotated and under-annotated".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html)
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
         .isEqualTo(
             "String with "
                 + "<ruby style='ruby-position:over;'>"
@@ -261,33 +288,39 @@ public class SpannedToHtmlConverterTest {
         "String with underlined".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with <u>underlined</u> section.");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with <u>underlined</u> section.");
   }
 
   @Test
   public void convert_escapesHtmlInUnspannedString() {
-    String html = SpannedToHtmlConverter.convert("String with <b>bold</b> tags", displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert("String with <b>bold</b> tags", displayDensity);
 
-    assertThat(html).isEqualTo("String with &lt;b&gt;bold&lt;/b&gt; tags");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with &lt;b&gt;bold&lt;/b&gt; tags");
   }
 
   @Test
   public void convert_handlesLinebreakInUnspannedString() {
-    String html =
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
         SpannedToHtmlConverter.convert(
             "String with\nnew line and\r\ncrlf style too", displayDensity);
 
-    assertThat(html).isEqualTo("String with<br>new line and<br>crlf style too");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with<br>new line and<br>crlf style too");
   }
 
   @Test
   public void convert_doesntConvertAmpersandLineFeedToBrTag() {
-    String html =
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
         SpannedToHtmlConverter.convert("String with&#10;new line ampersand code", displayDensity);
 
-    assertThat(html).isEqualTo("String with&amp;#10;new line ampersand code");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with&amp;#10;new line ampersand code");
   }
 
   @Test
@@ -299,27 +332,32 @@ public class SpannedToHtmlConverterTest {
         "String with <foo>unrecognised</foo>".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with <i>&lt;foo&gt;unrecognised&lt;/foo&gt;</i> tags");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
+        .isEqualTo("String with <i>&lt;foo&gt;unrecognised&lt;/foo&gt;</i> tags");
   }
 
   @Test
   public void convert_handlesLinebreakInSpannedString() {
-    String html =
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
         SpannedToHtmlConverter.convert(
             "String with\nnew line and\r\ncrlf style too", displayDensity);
 
-    assertThat(html).isEqualTo("String with<br>new line and<br>crlf style too");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with<br>new line and<br>crlf style too");
   }
 
   @Test
   public void convert_convertsNonAsciiCharactersToAmpersandCodes() {
-    String html =
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
         SpannedToHtmlConverter.convert(
             new SpannableString("Strìng with 優しいの non-ASCII characters"), displayDensity);
 
-    assertThat(html)
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
         .isEqualTo("Str&#236;ng with &#20778;&#12375;&#12356;&#12398; non-ASCII characters");
   }
 
@@ -337,9 +375,11 @@ public class SpannedToHtmlConverterTest {
         "String with unrecognised".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with unrecognised span");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with unrecognised span");
   }
 
   @Test
@@ -351,9 +391,12 @@ public class SpannedToHtmlConverterTest {
     spanned.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     spanned.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with <b><i><u>italic-bold-underlined</u></i></b> section");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
+        .isEqualTo("String with <b><i><u>italic-bold-underlined</u></i></b> section");
   }
 
   @Test
@@ -368,9 +411,11 @@ public class SpannedToHtmlConverterTest {
         "String with italic and bold".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("String with <i>italic and <b>bold</b></i> section");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("String with <i>italic and <b>bold</b></i> section");
   }
 
   @Test
@@ -387,8 +432,10 @@ public class SpannedToHtmlConverterTest {
         "String with italic and bold section".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-    String html = SpannedToHtmlConverter.convert(spanned, displayDensity);
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
 
-    assertThat(html).isEqualTo("<i>String with italic <b>and bold</i> section</b>");
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo("<i>String with italic <b>and bold</i> section</b>");
   }
 }

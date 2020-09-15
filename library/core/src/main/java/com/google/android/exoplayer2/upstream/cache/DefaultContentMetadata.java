@@ -16,9 +16,8 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,7 +79,7 @@ public final class DefaultContentMetadata implements ContentMetadata {
   public final String get(String name, @Nullable String defaultValue) {
     @Nullable byte[] bytes = metadata.get(name);
     if (bytes != null) {
-      return new String(bytes, Charset.forName(C.UTF8_NAME));
+      return new String(bytes, Charsets.UTF_8);
     } else {
       return defaultValue;
     }
@@ -162,7 +161,7 @@ public final class DefaultContentMetadata implements ContentMetadata {
     if (value instanceof Long) {
       return ByteBuffer.allocate(8).putLong((Long) value).array();
     } else if (value instanceof String) {
-      return ((String) value).getBytes(Charset.forName(C.UTF8_NAME));
+      return ((String) value).getBytes(Charsets.UTF_8);
     } else if (value instanceof byte[]) {
       return (byte[]) value;
     } else {

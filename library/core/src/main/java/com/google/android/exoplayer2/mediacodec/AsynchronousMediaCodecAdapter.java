@@ -17,9 +17,12 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.view.Surface;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -45,22 +48,32 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({STATE_CREATED, STATE_STARTED, STATE_SHUT_DOWN})
+  @IntDef({STATE_CREATED, STATE_CONFIGURED, STATE_STARTED, STATE_SHUT_DOWN})
   private @interface State {}
 
   private static final int STATE_CREATED = 0;
-  private static final int STATE_STARTED = 1;
-  private static final int STATE_SHUT_DOWN = 2;
+  private static final int STATE_CONFIGURED = 1;
+  private static final int STATE_STARTED = 2;
+  private static final int STATE_SHUT_DOWN = 3;
 
+  private final Object lock;
+
+  @GuardedBy("lock")
   private final MediaCodecAsyncCallback mediaCodecAsyncCallback;
+
   private final MediaCodec codec;
   private final HandlerThread handlerThread;
   private @MonotonicNonNull Handler handler;
+
+  @GuardedBy("lock")
   private long pendingFlushCount;
+
   private @State int state;
-  private Runnable codecStartRunnable;
   private final MediaCodecInputBufferEnqueuer bufferEnqueuer;
-  @Nullable private IllegalStateException internalException;
+
+  @GuardedBy("lock")
+  @Nullable
+  private IllegalStateException internalException;
 
   /**
    * Creates an instance that wraps the specified {@link MediaCodec}. Instances created with this
@@ -101,121 +114,151 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean enableAsynchronousQueueing,
       int trackType,
       HandlerThread handlerThread) {
-    mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
+    this.lock = new Object();
+    this.mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
     this.codec = codec;
     this.handlerThread = handlerThread;
-    state = STATE_CREATED;
-    codecStartRunnable = codec::start;
-    if (enableAsynchronousQueueing) {
-      bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, trackType);
-    } else {
-      bufferEnqueuer = new SynchronousMediaCodecBufferEnqueuer(this.codec);
-    }
+    this.bufferEnqueuer =
+        enableAsynchronousQueueing
+            ? new AsynchronousMediaCodecBufferEnqueuer(codec, trackType)
+            : new SynchronousMediaCodecBufferEnqueuer(this.codec);
+    this.state = STATE_CREATED;
   }
 
   @Override
-  public synchronized void start() {
+  public void configure(
+      @Nullable MediaFormat mediaFormat,
+      @Nullable Surface surface,
+      @Nullable MediaCrypto crypto,
+      int flags) {
     handlerThread.start();
     handler = new Handler(handlerThread.getLooper());
     codec.setCallback(this, handler);
+    codec.configure(mediaFormat, surface, crypto, flags);
+    state = STATE_CONFIGURED;
+  }
+
+  @Override
+  public void start() {
     bufferEnqueuer.start();
-    codecStartRunnable.run();
+    codec.start();
     state = STATE_STARTED;
   }
 
   @Override
   public void queueInputBuffer(
       int index, int offset, int size, long presentationTimeUs, int flags) {
-    // This method does not need to be synchronized because it does not interact with the
-    // mediaCodecAsyncCallback.
     bufferEnqueuer.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
   }
 
   @Override
   public void queueSecureInputBuffer(
       int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
-    // This method does not need to be synchronized because it does not interact with the
-    // mediaCodecAsyncCallback.
     bufferEnqueuer.queueSecureInputBuffer(index, offset, info, presentationTimeUs, flags);
   }
 
   @Override
-  public synchronized int dequeueInputBufferIndex() {
-    if (isFlushing()) {
-      return MediaCodec.INFO_TRY_AGAIN_LATER;
-    } else {
-      maybeThrowException();
-      return mediaCodecAsyncCallback.dequeueInputBufferIndex();
+  public int dequeueInputBufferIndex() {
+    synchronized (lock) {
+      if (isFlushing()) {
+        return MediaCodec.INFO_TRY_AGAIN_LATER;
+      } else {
+        maybeThrowException();
+        return mediaCodecAsyncCallback.dequeueInputBufferIndex();
+      }
     }
   }
 
   @Override
-  public synchronized int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
-    if (isFlushing()) {
-      return MediaCodec.INFO_TRY_AGAIN_LATER;
-    } else {
-      maybeThrowException();
-      return mediaCodecAsyncCallback.dequeueOutputBufferIndex(bufferInfo);
+  public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
+    synchronized (lock) {
+      if (isFlushing()) {
+        return MediaCodec.INFO_TRY_AGAIN_LATER;
+      } else {
+        maybeThrowException();
+        return mediaCodecAsyncCallback.dequeueOutputBufferIndex(bufferInfo);
+      }
     }
   }
 
   @Override
-  public synchronized MediaFormat getOutputFormat() {
-    return mediaCodecAsyncCallback.getOutputFormat();
-  }
-
-  @Override
-  public synchronized void flush() {
-    bufferEnqueuer.flush();
-    codec.flush();
-    ++pendingFlushCount;
-    Util.castNonNull(handler).post(this::onFlushCompleted);
-  }
-
-  @Override
-  public synchronized void shutdown() {
-    if (state == STATE_STARTED) {
-      bufferEnqueuer.shutdown();
-      handlerThread.quit();
-      mediaCodecAsyncCallback.flush();
+  public MediaFormat getOutputFormat() {
+    synchronized (lock) {
+      return mediaCodecAsyncCallback.getOutputFormat();
     }
-    state = STATE_SHUT_DOWN;
   }
 
   @Override
-  public synchronized void onInputBufferAvailable(MediaCodec codec, int index) {
-    mediaCodecAsyncCallback.onInputBufferAvailable(codec, index);
+  public void flush() {
+    synchronized (lock) {
+      bufferEnqueuer.flush();
+      codec.flush();
+      ++pendingFlushCount;
+      Util.castNonNull(handler).post(this::onFlushCompleted);
+    }
   }
 
   @Override
-  public synchronized void onOutputBufferAvailable(
-      MediaCodec codec, int index, MediaCodec.BufferInfo info) {
-    mediaCodecAsyncCallback.onOutputBufferAvailable(codec, index, info);
+  public void shutdown() {
+    synchronized (lock) {
+      if (state == STATE_STARTED) {
+        bufferEnqueuer.shutdown();
+      }
+      if (state == STATE_CONFIGURED || state == STATE_STARTED) {
+        handlerThread.quit();
+        mediaCodecAsyncCallback.flush();
+        // Leave the adapter in a flushing state so that
+        // it will not dequeue anything.
+        ++pendingFlushCount;
+      }
+      state = STATE_SHUT_DOWN;
+    }
   }
 
   @Override
-  public synchronized void onError(MediaCodec codec, MediaCodec.CodecException e) {
-    mediaCodecAsyncCallback.onError(codec, e);
+  public MediaCodec getCodec() {
+    return codec;
+  }
+
+  // Called from the handler thread.
+
+  @Override
+  public void onInputBufferAvailable(MediaCodec codec, int index) {
+    synchronized (lock) {
+      mediaCodecAsyncCallback.onInputBufferAvailable(codec, index);
+    }
   }
 
   @Override
-  public synchronized void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
-    mediaCodecAsyncCallback.onOutputFormatChanged(codec, format);
+  public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
+    synchronized (lock) {
+      mediaCodecAsyncCallback.onOutputBufferAvailable(codec, index, info);
+    }
   }
 
-  @VisibleForTesting
-  /* package */ void onMediaCodecError(IllegalStateException e) {
-    mediaCodecAsyncCallback.onMediaCodecError(e);
+  @Override
+  public void onError(MediaCodec codec, MediaCodec.CodecException e) {
+    synchronized (lock) {
+      mediaCodecAsyncCallback.onError(codec, e);
+    }
   }
 
-  @VisibleForTesting
-  /* package */ void setCodecStartRunnable(Runnable codecStartRunnable) {
-    this.codecStartRunnable = codecStartRunnable;
+  @Override
+  public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
+    synchronized (lock) {
+      mediaCodecAsyncCallback.onOutputFormatChanged(codec, format);
+    }
   }
 
-  private synchronized void onFlushCompleted() {
-    if (state != STATE_STARTED) {
-      // The adapter has been shutdown.
+  private void onFlushCompleted() {
+    synchronized (lock) {
+      onFlushCompletedSynchronized();
+    }
+  }
+
+  @GuardedBy("lock")
+  private void onFlushCompletedSynchronized() {
+    if (state == STATE_SHUT_DOWN) {
       return;
     }
 
@@ -231,7 +274,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     mediaCodecAsyncCallback.flush();
     try {
-      codecStartRunnable.run();
+      codec.start();
     } catch (IllegalStateException e) {
       internalException = e;
     } catch (Exception e) {
@@ -239,16 +282,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private synchronized boolean isFlushing() {
+  @GuardedBy("lock")
+  private boolean isFlushing() {
     return pendingFlushCount > 0;
   }
 
-  private synchronized void maybeThrowException() {
+  @GuardedBy("lock")
+  private void maybeThrowException() {
     maybeThrowInternalException();
     mediaCodecAsyncCallback.maybeThrowMediaCodecException();
   }
 
-  private synchronized void maybeThrowInternalException() {
+  @GuardedBy("lock")
+  private void maybeThrowInternalException() {
     if (internalException != null) {
       IllegalStateException e = internalException;
       internalException = null;

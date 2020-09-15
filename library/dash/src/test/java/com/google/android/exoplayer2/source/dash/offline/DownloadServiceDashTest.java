@@ -45,6 +45,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.ConditionVariable;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -56,11 +57,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link DownloadService}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public class DownloadServiceDashTest {
 
   private SimpleCache cache;
@@ -72,14 +71,15 @@ public class DownloadServiceDashTest {
   private DownloadService dashDownloadService;
   private ConditionVariable pauseDownloadCondition;
   private TestDownloadManagerListener downloadManagerListener;
-  private DummyMainThread dummyMainThread;
+  private DummyMainThread testThread;
 
   @Before
   public void setUp() throws IOException {
-    dummyMainThread = new DummyMainThread();
+    testThread = new DummyMainThread();
     context = ApplicationProvider.getApplicationContext();
     tempFolder = Util.createTempDirectory(context, "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
 
     Runnable pauseAction =
         () -> {
@@ -109,7 +109,7 @@ public class DownloadServiceDashTest {
     fakeStreamKey1 = new StreamKey(0, 0, 0);
     fakeStreamKey2 = new StreamKey(0, 1, 0);
 
-    dummyMainThread.runTestOnMainThread(
+    testThread.runTestOnMainThread(
         () -> {
           DefaultDownloadIndex downloadIndex =
               new DefaultDownloadIndex(TestUtil.getInMemoryDatabaseProvider());
@@ -117,7 +117,8 @@ public class DownloadServiceDashTest {
               new DefaultDownloaderFactory(
                   new CacheDataSource.Factory()
                       .setCache(cache)
-                      .setUpstreamDataSourceFactory(fakeDataSourceFactory));
+                      .setUpstreamDataSourceFactory(fakeDataSourceFactory),
+                  /* executor= */ Runnable::run);
           final DownloadManager dashDownloadManager =
               new DownloadManager(
                   ApplicationProvider.getApplicationContext(), downloadIndex, downloaderFactory);
@@ -148,9 +149,9 @@ public class DownloadServiceDashTest {
 
   @After
   public void tearDown() {
-    dummyMainThread.runOnMainThread(() -> dashDownloadService.onDestroy());
+    testThread.runOnMainThread(() -> dashDownloadService.onDestroy());
     Util.recursiveDelete(tempFolder);
-    dummyMainThread.release();
+    testThread.release();
   }
 
   @Ignore // b/78877092
@@ -192,7 +193,7 @@ public class DownloadServiceDashTest {
   }
 
   private void removeAll() {
-    dummyMainThread.runOnMainThread(
+    testThread.runOnMainThread(
         () -> {
           Intent startIntent =
               DownloadService.buildRemoveDownloadIntent(
@@ -205,14 +206,12 @@ public class DownloadServiceDashTest {
     ArrayList<StreamKey> keysList = new ArrayList<>();
     Collections.addAll(keysList, keys);
     DownloadRequest action =
-        new DownloadRequest(
-            TEST_ID,
-            DownloadRequest.TYPE_DASH,
-            TEST_MPD_URI,
-            keysList,
-            /* customCacheKey= */ null,
-            null);
-    dummyMainThread.runOnMainThread(
+        new DownloadRequest.Builder(TEST_ID, TEST_MPD_URI)
+            .setMimeType(MimeTypes.APPLICATION_MPD)
+            .setStreamKeys(keysList)
+            .build();
+
+    testThread.runOnMainThread(
         () -> {
           Intent startIntent =
               DownloadService.buildAddDownloadIntent(

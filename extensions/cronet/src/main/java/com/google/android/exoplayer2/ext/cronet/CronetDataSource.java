@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -30,8 +32,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
@@ -148,6 +150,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private volatile long currentConnectTimeoutMs;
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -166,6 +170,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -197,6 +203,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -231,6 +239,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -243,6 +253,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor)} and {@link
    *     #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public CronetDataSource(
       CronetEngine cronetEngine,
@@ -259,6 +270,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -276,6 +289,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
    *     RequestProperties)} and {@link #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public CronetDataSource(
       CronetEngine cronetEngine,
@@ -297,6 +311,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param cronetEngine A CronetEngine.
    * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
    *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
@@ -475,7 +491,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     if (contentTypePredicate != null) {
       List<String> contentTypeHeaders = responseInfo.getAllHeaders().get(CONTENT_TYPE);
       String contentType = isEmpty(contentTypeHeaders) ? null : contentTypeHeaders.get(0);
-      if (contentType != null && !contentTypePredicate.evaluate(contentType)) {
+      if (contentType != null && !contentTypePredicate.apply(contentType)) {
         throw new InvalidContentTypeException(contentType, dataSpec);
       }
     }
@@ -529,14 +545,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         readBuffer.flip();
         Assertions.checkState(readBuffer.hasRemaining());
         if (bytesToSkip > 0) {
-          int bytesSkipped = (int) Math.min(readBuffer.remaining(), bytesToSkip);
+          int bytesSkipped = (int) min(readBuffer.remaining(), bytesToSkip);
           readBuffer.position(readBuffer.position() + bytesSkipped);
           bytesToSkip -= bytesSkipped;
         }
       }
     }
 
-    int bytesRead = Math.min(readBuffer.remaining(), readLength);
+    int bytesRead = min(readBuffer.remaining(), readLength);
     readBuffer.get(buffer, offset, bytesRead);
 
     if (bytesRemaining != C.LENGTH_UNSET) {
@@ -844,7 +860,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
             // would increase it.
             Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader
                 + "]");
-            contentLength = Math.max(contentLength, contentLengthFromRange);
+            contentLength = max(contentLength, contentLengthFromRange);
           }
         } catch (NumberFormatException e) {
           Log.e(TAG, "Unexpected Content-Range [" + contentRangeHeader + "]");
@@ -887,7 +903,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   // Copy as much as possible from the src buffer into dst buffer.
   // Returns the number of bytes copied.
   private static int copyByteBuffer(ByteBuffer src, ByteBuffer dst) {
-    int remaining = Math.min(src.remaining(), dst.remaining());
+    int remaining = min(src.remaining(), dst.remaining());
     int limit = src.limit();
     src.limit(src.position() + remaining);
     dst.put(src);

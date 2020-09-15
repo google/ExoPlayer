@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.util;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.AacUtil;
 import java.util.ArrayList;
@@ -27,19 +28,6 @@ import java.util.regex.Pattern;
  * Defines common MIME types and helper methods.
  */
 public final class MimeTypes {
-
-  /** An mp4a Object Type Indication (OTI) and its optional audio OTI is defined by RFC 6381. */
-  public static final class Mp4aObjectType {
-    /** The Object Type Indication of the mp4a codec. */
-    public final int objectTypeIndication;
-    /** The Audio Object Type Indication of the mp4a codec, or 0 if it is absent. */
-    @AacUtil.AacAudioObjectType public final int audioObjectTypeIndication;
-
-    private Mp4aObjectType(int objectTypeIndication, int audioObjectTypeIndication) {
-      this.objectTypeIndication = objectTypeIndication;
-      this.audioObjectTypeIndication = audioObjectTypeIndication;
-    }
-  }
 
   public static final String BASE_TYPE_VIDEO = "video";
   public static final String BASE_TYPE_AUDIO = "audio";
@@ -64,6 +52,7 @@ public final class MimeTypes {
   public static final String VIDEO_DIVX = BASE_TYPE_VIDEO + "/divx";
   public static final String VIDEO_FLV = BASE_TYPE_VIDEO + "/x-flv";
   public static final String VIDEO_DOLBY_VISION = BASE_TYPE_VIDEO + "/dolby-vision";
+  public static final String VIDEO_OGG = BASE_TYPE_VIDEO + "/ogg";
   public static final String VIDEO_UNKNOWN = BASE_TYPE_VIDEO + "/x-unknown";
 
   public static final String AUDIO_MP4 = BASE_TYPE_AUDIO + "/mp4";
@@ -101,6 +90,7 @@ public final class MimeTypes {
 
   public static final String APPLICATION_MP4 = BASE_TYPE_APPLICATION + "/mp4";
   public static final String APPLICATION_WEBM = BASE_TYPE_APPLICATION + "/webm";
+  public static final String APPLICATION_MATROSKA = BASE_TYPE_APPLICATION + "/x-matroska";
   public static final String APPLICATION_MPD = BASE_TYPE_APPLICATION + "/dash+xml";
   public static final String APPLICATION_M3U8 = BASE_TYPE_APPLICATION + "/x-mpegURL";
   public static final String APPLICATION_SS = BASE_TYPE_APPLICATION + "/vnd.ms-sstr+xml";
@@ -134,7 +124,7 @@ public final class MimeTypes {
    * via this method. If this method is used, it must be called before creating any player(s).
    *
    * @param mimeType The custom MIME type to register.
-   * @param codecPrefix The RFC 6381-style codec string prefix associated with the MIME type.
+   * @param codecPrefix The RFC 6381 codec string prefix associated with the MIME type.
    * @param trackType The {@link C}{@code .TRACK_TYPE_*} constant associated with the MIME type.
    *     This value is ignored if the top-level type of {@code mimeType} is audio, video or text.
    */
@@ -180,35 +170,59 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns true if it is known that all samples in a stream of the given sample MIME type are
+   * Returns true if it is known that all samples in a stream of the given MIME type and codec are
    * guaranteed to be sync samples (i.e., {@link C#BUFFER_FLAG_KEY_FRAME} is guaranteed to be set on
    * every sample).
    *
-   * @param mimeType The sample MIME type.
-   * @return True if it is known that all samples in a stream of the given sample MIME type are
-   *     guaranteed to be sync samples. False otherwise, including if {@code null} is passed.
+   * @param mimeType The MIME type of the stream.
+   * @param codec The RFC 6381 codec string of the stream, or {@code null} if unknown.
+   * @return Whether it is known that all samples in the stream are guaranteed to be sync samples.
    */
-  public static boolean allSamplesAreSyncSamples(@Nullable String mimeType) {
+  public static boolean allSamplesAreSyncSamples(
+      @Nullable String mimeType, @Nullable String codec) {
     if (mimeType == null) {
       return false;
     }
-    // TODO: Consider adding additional audio MIME types here.
+    // TODO: Add additional audio MIME types. Also consider evaluating based on Format rather than
+    // just MIME type, since in some cases the property is true for a subset of the profiles
+    // belonging to a single MIME type. If we do this, we should move the method to a different
+    // class. See [Internal ref: http://go/exo-audio-format-random-access].
     switch (mimeType) {
-      case AUDIO_AAC:
       case AUDIO_MPEG:
       case AUDIO_MPEG_L1:
       case AUDIO_MPEG_L2:
+      case AUDIO_RAW:
+      case AUDIO_ALAW:
+      case AUDIO_MLAW:
+      case AUDIO_FLAC:
+      case AUDIO_AC3:
+      case AUDIO_E_AC3:
+      case AUDIO_E_AC3_JOC:
         return true;
+      case AUDIO_AAC:
+        if (codec == null) {
+          return false;
+        }
+        @Nullable Mp4aObjectType objectType = getObjectTypeFromMp4aRFC6381CodecString(codec);
+        if (objectType == null) {
+          return false;
+        }
+        @C.Encoding
+        int encoding = AacUtil.getEncodingForAudioObjectType(objectType.audioObjectTypeIndication);
+        // xHE-AAC is an exception in which it's not true that all samples will be sync samples.
+        // Also return false for ENCODING_INVALID, which indicates we weren't able to parse the
+        // encoding from the codec string.
+        return encoding != C.ENCODING_INVALID && encoding != C.ENCODING_AAC_XHE;
       default:
         return false;
     }
   }
 
   /**
-   * Derives a video sample mimeType from a codecs attribute.
+   * Returns the first video MIME type derived from an RFC 6381 codecs string.
    *
-   * @param codecs The codecs attribute.
-   * @return The derived video mimeType, or null if it could not be derived.
+   * @param codecs An RFC 6381 codecs string.
+   * @return The first derived video MIME type, or {@code null}.
    */
   @Nullable
   public static String getVideoMediaMimeType(@Nullable String codecs) {
@@ -226,10 +240,10 @@ public final class MimeTypes {
   }
 
   /**
-   * Derives a audio sample mimeType from a codecs attribute.
+   * Returns the first audio MIME type derived from an RFC 6381 codecs string.
    *
-   * @param codecs The codecs attribute.
-   * @return The derived audio mimeType, or null if it could not be derived.
+   * @param codecs An RFC 6381 codecs string.
+   * @return The first derived audio MIME type, or {@code null}.
    */
   @Nullable
   public static String getAudioMediaMimeType(@Nullable String codecs) {
@@ -247,10 +261,10 @@ public final class MimeTypes {
   }
 
   /**
-   * Derives a text sample mimeType from a codecs attribute.
+   * Returns the first text MIME type derived from an RFC 6381 codecs string.
    *
-   * @param codecs The codecs attribute.
-   * @return The derived text mimeType, or null if it could not be derived.
+   * @param codecs An RFC 6381 codecs string.
+   * @return The first derived text MIME type, or {@code null}.
    */
   @Nullable
   public static String getTextMediaMimeType(@Nullable String codecs) {
@@ -268,10 +282,11 @@ public final class MimeTypes {
   }
 
   /**
-   * Derives a mimeType from a codec identifier, as defined in RFC 6381.
+   * Returns the MIME type corresponding to an RFC 6381 codec string, or {@code null} if it could
+   * not be determined.
    *
-   * @param codec The codec identifier to derive.
-   * @return The mimeType, or null if it could not be derived.
+   * @param codec An RFC 6381 codec string.
+   * @return The corresponding MIME type, or {@code null} if it could not be determined.
    */
   @Nullable
   public static String getMediaMimeType(@Nullable String codec) {
@@ -335,11 +350,11 @@ public final class MimeTypes {
   }
 
   /**
-   * Derives a mimeType from MP4 object type identifier, as defined in RFC 6381 and
-   * https://mp4ra.org/#/object_types.
+   * Returns the MIME type corresponding to an MP4 object type identifier, as defined in RFC 6381
+   * and https://mp4ra.org/#/object_types.
    *
-   * @param objectType The objectType identifier to derive.
-   * @return The mimeType, or null if it could not be derived.
+   * @param objectType An MP4 object type identifier.
+   * @return The corresponding MIME type, or {@code null} if it could not be determined.
    */
   @Nullable
   public static String getMimeTypeFromMp4ObjectType(int objectType) {
@@ -391,12 +406,12 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
-   * {@link C#TRACK_TYPE_UNKNOWN} if the MIME type is not known or the mapping cannot be
-   * established.
+   * Returns the {@link C}{@code .TRACK_TYPE_*} constant corresponding to a specified MIME type, or
+   * {@link C#TRACK_TYPE_UNKNOWN} if it could not be determined.
    *
-   * @param mimeType The MIME type.
-   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified MIME type.
+   * @param mimeType A MIME type.
+   * @return The corresponding {@link C}{@code .TRACK_TYPE_*}, or {@link C#TRACK_TYPE_UNKNOWN} if it
+   *     could not be determined.
    */
   public static int getTrackType(@Nullable String mimeType) {
     if (TextUtils.isEmpty(mimeType)) {
@@ -419,25 +434,24 @@ public final class MimeTypes {
   }
 
   /**
-   * Returns the {@link C}{@code .ENCODING_*} constant that corresponds to specified MIME type, if
-   * it is an encoded (non-PCM) audio format, or {@link C#ENCODING_INVALID} otherwise.
+   * Returns the {@link C.Encoding} constant corresponding to the specified audio MIME type and RFC
+   * 6381 codec string, or {@link C#ENCODING_INVALID} if the corresponding {@link C.Encoding} cannot
+   * be determined.
    *
-   * @param mimeType The MIME type.
-   * @param codecs Codecs of the format as described in RFC 6381, or null if unknown or not
-   *     applicable.
-   * @return One of {@link C.Encoding} constants that corresponds to a specified MIME type, or
-   *     {@link C#ENCODING_INVALID}.
+   * @param mimeType A MIME type.
+   * @param codec An RFC 6381 codec string, or {@code null} if unknown or not applicable.
+   * @return The corresponding {@link C.Encoding}, or {@link C#ENCODING_INVALID}.
    */
   @C.Encoding
-  public static int getEncoding(String mimeType, @Nullable String codecs) {
+  public static int getEncoding(String mimeType, @Nullable String codec) {
     switch (mimeType) {
       case MimeTypes.AUDIO_MPEG:
         return C.ENCODING_MP3;
       case MimeTypes.AUDIO_AAC:
-        if (codecs == null) {
+        if (codec == null) {
           return C.ENCODING_INVALID;
         }
-        @Nullable Mp4aObjectType objectType = getObjectTypeFromMp4aRFC6381CodecString(codecs);
+        @Nullable Mp4aObjectType objectType = getObjectTypeFromMp4aRFC6381CodecString(codec);
         if (objectType == null) {
           return C.ENCODING_INVALID;
         }
@@ -464,57 +478,19 @@ public final class MimeTypes {
   /**
    * Equivalent to {@code getTrackType(getMediaMimeType(codec))}.
    *
-   * @param codec The codec.
-   * @return The {@link C}{@code .TRACK_TYPE_*} constant that corresponds to a specified codec.
+   * @param codec An RFC 6381 codec string.
+   * @return The corresponding {@link C}{@code .TRACK_TYPE_*}, or {@link C#TRACK_TYPE_UNKNOWN} if it
+   *     could not be determined.
    */
   public static int getTrackTypeOfCodec(String codec) {
     return getTrackType(getMediaMimeType(codec));
   }
 
   /**
-   * Retrieves the object type of an mp4 audio codec from its string as defined in RFC 6381.
-   *
-   * <p>Per https://mp4ra.org/#/object_types and https://tools.ietf.org/html/rfc6381#section-3.3, an
-   * mp4 codec string has the form:
-   *
-   * <pre>
-   *         ~~~~~~~~~~~~~~ Object Type Indication (OTI) byte in hex
-   *    mp4a.[a-zA-Z0-9]{2}(.[0-9]{1,2})?
-   *                         ~~~~~~~~~~ audio OTI, decimal. Only for certain OTI.
-   * </pre>
-   *
-   * For example: mp4a.40.2, has an OTI of 0x40 and an audio OTI of 2.
-   *
-   * @param codec The string as defined in RFC 6381 describing an mp4 audio codec.
-   * @return The {@link Mp4aObjectType} or {@code null} if the input is invalid.
-   */
-  @Nullable
-  public static Mp4aObjectType getObjectTypeFromMp4aRFC6381CodecString(String codec) {
-    Matcher matcher = MP4A_RFC_6381_CODEC_PATTERN.matcher(codec);
-    if (!matcher.matches()) {
-      return null;
-    }
-    String objectTypeIndicationHex = Assertions.checkNotNull(matcher.group(1));
-    @Nullable String audioObjectTypeIndicationDec = matcher.group(2);
-    int objectTypeIndication;
-    int audioObjectTypeIndication = 0;
-    try {
-      objectTypeIndication = Integer.parseInt(objectTypeIndicationHex, 16);
-      if (audioObjectTypeIndicationDec != null) {
-        audioObjectTypeIndication = Integer.parseInt(audioObjectTypeIndicationDec);
-      }
-    } catch (NumberFormatException e) {
-      return null;
-    }
-    return new Mp4aObjectType(objectTypeIndication, audioObjectTypeIndication);
-  }
-
-  /**
    * Normalizes the MIME type provided so that equivalent MIME types are uniquely represented.
    *
-   * @param mimeType The MIME type to normalize. The MIME type provided is returned if its
-   *     normalized form is unknown.
-   * @return The normalized MIME type.
+   * @param mimeType A MIME type to normalize.
+   * @return The normalized MIME type, or the argument MIME type if its normalized form is unknown.
    */
   public static String normalizeMimeType(String mimeType) {
     switch (mimeType) {
@@ -529,14 +505,17 @@ public final class MimeTypes {
     }
   }
 
-  /** Returns whether the given {@code mimeType} is a WebM MIME type. */
-  public static boolean isWebm(@Nullable String mimeType) {
+  /** Returns whether the given {@code mimeType} is a Matroska MIME type, including WebM. */
+  public static boolean isMatroska(@Nullable String mimeType) {
     if (mimeType == null) {
       return false;
     }
     return mimeType.startsWith(MimeTypes.VIDEO_WEBM)
         || mimeType.startsWith(MimeTypes.AUDIO_WEBM)
-        || mimeType.startsWith(MimeTypes.APPLICATION_WEBM);
+        || mimeType.startsWith(MimeTypes.APPLICATION_WEBM)
+        || mimeType.startsWith(MimeTypes.VIDEO_MATROSKA)
+        || mimeType.startsWith(MimeTypes.AUDIO_MATROSKA)
+        || mimeType.startsWith(MimeTypes.APPLICATION_MATROSKA);
   }
 
   /**
@@ -580,6 +559,59 @@ public final class MimeTypes {
 
   private MimeTypes() {
     // Prevent instantiation.
+  }
+
+  /**
+   * Returns the {@link Mp4aObjectType} of an RFC 6381 MP4 audio codec string.
+   *
+   * <p>Per https://mp4ra.org/#/object_types and https://tools.ietf.org/html/rfc6381#section-3.3, an
+   * MP4 codec string has the form:
+   *
+   * <pre>
+   *         ~~~~~~~~~~~~~~ Object Type Indication (OTI) byte in hex
+   *    mp4a.[a-zA-Z0-9]{2}(.[0-9]{1,2})?
+   *                         ~~~~~~~~~~ audio OTI, decimal. Only for certain OTI.
+   * </pre>
+   *
+   * For example, mp4a.40.2 has an OTI of 0x40 and an audio OTI of 2.
+   *
+   * @param codec An RFC 6381 MP4 audio codec string.
+   * @return The {@link Mp4aObjectType}, or {@code null} if the input was invalid.
+   */
+  @VisibleForTesting
+  @Nullable
+  /* package */ static Mp4aObjectType getObjectTypeFromMp4aRFC6381CodecString(String codec) {
+    Matcher matcher = MP4A_RFC_6381_CODEC_PATTERN.matcher(codec);
+    if (!matcher.matches()) {
+      return null;
+    }
+    String objectTypeIndicationHex = Assertions.checkNotNull(matcher.group(1));
+    @Nullable String audioObjectTypeIndicationDec = matcher.group(2);
+    int objectTypeIndication;
+    int audioObjectTypeIndication = 0;
+    try {
+      objectTypeIndication = Integer.parseInt(objectTypeIndicationHex, 16);
+      if (audioObjectTypeIndicationDec != null) {
+        audioObjectTypeIndication = Integer.parseInt(audioObjectTypeIndicationDec);
+      }
+    } catch (NumberFormatException e) {
+      return null;
+    }
+    return new Mp4aObjectType(objectTypeIndication, audioObjectTypeIndication);
+  }
+
+  /** An MP4A Object Type Indication (OTI) and its optional audio OTI is defined by RFC 6381. */
+  @VisibleForTesting
+  /* package */ static final class Mp4aObjectType {
+    /** The Object Type Indication of the MP4A codec. */
+    public final int objectTypeIndication;
+    /** The Audio Object Type Indication of the MP4A codec, or 0 if it is absent. */
+    @AacUtil.AacAudioObjectType public final int audioObjectTypeIndication;
+
+    public Mp4aObjectType(int objectTypeIndication, int audioObjectTypeIndication) {
+      this.objectTypeIndication = objectTypeIndication;
+      this.audioObjectTypeIndication = audioObjectTypeIndication;
+    }
   }
 
   private static final class CustomMimeType {

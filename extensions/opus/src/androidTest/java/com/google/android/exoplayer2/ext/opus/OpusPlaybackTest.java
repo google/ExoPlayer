@@ -25,6 +25,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -38,9 +39,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class OpusPlaybackTest {
 
-  private static final String BEAR_OPUS_URI = "asset:///mka/bear-opus.mka";
+  private static final String BEAR_OPUS_URI = "asset:///media/mka/bear-opus.mka";
   private static final String BEAR_OPUS_NEGATIVE_GAIN_URI =
-      "asset:///mka/bear-opus-negative-gain.mka";
+      "asset:///media/mka/bear-opus-negative-gain.mka";
 
   @Before
   public void setUp() {
@@ -91,10 +92,10 @@ public class OpusPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtOpusTest"),
-                  MatroskaExtractor.FACTORY)
-              .createMediaSource(uri);
-      player.prepare(mediaSource);
+                  new DefaultDataSourceFactory(context), MatroskaExtractor.FACTORY)
+              .createMediaSource(MediaItem.fromUri(uri));
+      player.setMediaSource(mediaSource);
+      player.prepare();
       player.play();
       Looper.loop();
     }

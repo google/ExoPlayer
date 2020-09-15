@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
@@ -118,7 +120,7 @@ import java.nio.ByteBuffer;
   public int read(ByteBuffer target) throws IOException {
     int byteCount = target.remaining();
     if (byteBufferData != null) {
-      byteCount = Math.min(byteCount, byteBufferData.remaining());
+      byteCount = min(byteCount, byteBufferData.remaining());
       int originalLimit = byteBufferData.limit();
       byteBufferData.limit(byteBufferData.position() + byteCount);
       target.put(byteBufferData);
@@ -126,7 +128,7 @@ import java.nio.ByteBuffer;
     } else if (extractorInput != null) {
       ExtractorInput extractorInput = this.extractorInput;
       byte[] tempBuffer = Util.castNonNull(this.tempBuffer);
-      byteCount = Math.min(byteCount, TEMP_BUFFER_SIZE);
+      byteCount = min(byteCount, TEMP_BUFFER_SIZE);
       int read = readFromExtractorInput(extractorInput, tempBuffer, /* offset= */ 0, byteCount);
       if (read < 4) {
         // Reading less than 4 bytes, most of the time, happens because of getting the bytes left in

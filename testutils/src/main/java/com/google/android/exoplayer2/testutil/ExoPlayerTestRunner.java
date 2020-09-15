@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static junit.framework.TestCase.assertFalse;
 
 import android.content.Context;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
@@ -44,7 +46,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /** Helper class to run an ExoPlayer test. */
@@ -356,6 +357,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private final CountDownLatch actionScheduleFinishedCountDownLatch;
   private final ArrayList<Timeline> timelines;
   private final ArrayList<Integer> timelineChangeReasons;
+  private final ArrayList<MediaItem> mediaItems;
+  private final ArrayList<Integer> mediaItemTransitionReasons;
   private final ArrayList<Integer> periodIndices;
   private final ArrayList<Integer> discontinuityReasons;
   private final ArrayList<Integer> playbackStates;
@@ -387,6 +390,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     this.analyticsListener = analyticsListener;
     timelines = new ArrayList<>();
     timelineChangeReasons = new ArrayList<>();
+    mediaItems = new ArrayList<>();
+    mediaItemTransitionReasons = new ArrayList<>();
     periodIndices = new ArrayList<>();
     discontinuityReasons = new ArrayList<>();
     playbackStates = new ArrayList<>();
@@ -471,7 +476,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    * @throws Exception If any exception occurred during playback, release, or due to a timeout.
    */
   public ExoPlayerTestRunner blockUntilEnded(long timeoutMs) throws Exception {
-    if (!endedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+    if (!endedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       exception = new TimeoutException("Test playback timed out waiting for playback to end.");
     }
     release();
@@ -493,7 +498,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    */
   public ExoPlayerTestRunner blockUntilActionScheduleFinished(long timeoutMs)
       throws TimeoutException, InterruptedException {
-    if (!actionScheduleFinishedCountDownLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+    if (!actionScheduleFinishedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       throw new TimeoutException("Test playback timed out waiting for action schedule to finish.");
     }
     return this;
@@ -526,11 +531,33 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   /**
+   * Asserts that the media items reported by {@link
+   * Player.EventListener#onMediaItemTransition(MediaItem, int)} are the same as the provided media
+   * items.
+   *
+   * @param mediaItems A list of expected {@link MediaItem media items}.
+   */
+  public void assertMediaItemsTransitionedSame(MediaItem... mediaItems) {
+    assertThat(this.mediaItems).containsExactlyElementsIn(mediaItems).inOrder();
+  }
+
+  /**
+   * Asserts that the media item transition reasons reported by {@link
+   * Player.EventListener#onMediaItemTransition(MediaItem, int)} are the same as the provided
+   * reasons.
+   *
+   * @param reasons A list of expected transition reasons.
+   */
+  public void assertMediaItemsTransitionReasonsEqual(Integer... reasons) {
+    assertThat(this.mediaItemTransitionReasons).containsExactlyElementsIn(reasons).inOrder();
+  }
+
+  /**
    * Asserts that the playback states reported by {@link
    * Player.EventListener#onPlaybackStateChanged(int)} are equal to the provided playback states.
    */
   public void assertPlaybackStatesEqual(Integer... states) {
-    assertThat(playbackStates).containsExactlyElementsIn(Arrays.asList(states)).inOrder();
+    assertThat(playbackStates).containsExactlyElementsIn(states).inOrder();
   }
 
   /**
@@ -615,6 +642,13 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
       // Ignore timeline changes that do not change the period index.
       periodIndices.add(currentIndex);
     }
+  }
+
+  @Override
+  public void onMediaItemTransition(
+      @Nullable MediaItem mediaItem, @Player.MediaItemTransitionReason int reason) {
+    mediaItems.add(mediaItem);
+    mediaItemTransitionReasons.add(reason);
   }
 
   @Override

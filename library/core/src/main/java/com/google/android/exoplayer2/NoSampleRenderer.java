@@ -68,13 +68,14 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
       long positionUs,
       boolean joining,
       boolean mayRenderStartOfStream,
+      long startPositionUs,
       long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining);
-    replaceStream(formats, stream, offsetUs);
+    replaceStream(formats, stream, startPositionUs, offsetUs);
     onPositionReset(positionUs, joining);
   }
 
@@ -86,7 +87,8 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
+  public final void replaceStream(
+      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
@@ -130,7 +132,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void stop() throws ExoPlaybackException {
+  public final void stop() {
     Assertions.checkState(state == STATE_STARTED);
     state = STATE_ENABLED;
     onStopped();
@@ -237,12 +239,10 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   /**
    * Called when the renderer is stopped.
-   * <p>
-   * The default implementation is a no-op.
    *
-   * @throws ExoPlaybackException If an error occurs.
+   * <p>The default implementation is a no-op.
    */
-  protected void onStopped() throws ExoPlaybackException {
+  protected void onStopped() {
     // Do nothing.
   }
 

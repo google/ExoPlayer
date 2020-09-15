@@ -27,7 +27,7 @@ import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link DashMediaSource}. */
+/** Unit test for {@link HlsMediaSource}. */
 @RunWith(AndroidJUnit4.class)
 public class HlsMediaSourceTest {
 
