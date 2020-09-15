@@ -7330,6 +7330,10 @@ public final class ExoPlayerTest {
   @Test
   public void
       infiniteLoading_withSmallAllocations_oomIsPreventedByLoadControl_andThrowsStuckBufferingIllegalStateException() {
+    DefaultLoadControl loadControl =
+        new DefaultLoadControl.Builder()
+            .setTargetBufferBytes(10 * C.DEFAULT_BUFFER_SEGMENT_SIZE)
+            .build();
     MediaSource continuouslyAllocatingMediaSource =
         new FakeMediaSource(
             new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT) {
@@ -7387,6 +7391,7 @@ public final class ExoPlayerTest {
         new ExoPlayerTestRunner.Builder(context)
             .setActionSchedule(actionSchedule)
             .setMediaSources(continuouslyAllocatingMediaSource)
+            .setLoadControl(loadControl)
             .build();
 
     ExoPlaybackException exception =
