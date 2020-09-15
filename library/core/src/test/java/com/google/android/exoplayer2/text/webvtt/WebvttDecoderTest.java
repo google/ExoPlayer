@@ -41,23 +41,25 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class WebvttDecoderTest {
 
-  private static final String TYPICAL_FILE = "webvtt/typical";
-  private static final String TYPICAL_WITH_BAD_TIMESTAMPS = "webvtt/typical_with_bad_timestamps";
-  private static final String TYPICAL_WITH_IDS_FILE = "webvtt/typical_with_identifiers";
-  private static final String TYPICAL_WITH_COMMENTS_FILE = "webvtt/typical_with_comments";
-  private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
+  private static final String TYPICAL_FILE = "media/webvtt/typical";
+  private static final String TYPICAL_WITH_BAD_TIMESTAMPS =
+      "media/webvtt/typical_with_bad_timestamps";
+  private static final String TYPICAL_WITH_IDS_FILE = "media/webvtt/typical_with_identifiers";
+  private static final String TYPICAL_WITH_COMMENTS_FILE = "media/webvtt/typical_with_comments";
+  private static final String WITH_POSITIONING_FILE = "media/webvtt/with_positioning";
   private static final String WITH_OVERLAPPING_TIMESTAMPS_FILE =
-      "webvtt/with_overlapping_timestamps";
-  private static final String WITH_VERTICAL_FILE = "webvtt/with_vertical";
-  private static final String WITH_RUBIES_FILE = "webvtt/with_rubies";
-  private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
-  private static final String WITH_TAGS_FILE = "webvtt/with_tags";
-  private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
-  private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
+      "media/webvtt/with_overlapping_timestamps";
+  private static final String WITH_VERTICAL_FILE = "media/webvtt/with_vertical";
+  private static final String WITH_RUBIES_FILE = "media/webvtt/with_rubies";
+  private static final String WITH_BAD_CUE_HEADER_FILE = "media/webvtt/with_bad_cue_header";
+  private static final String WITH_TAGS_FILE = "media/webvtt/with_tags";
+  private static final String WITH_CSS_STYLES = "media/webvtt/with_css_styles";
+  private static final String WITH_CSS_COMPLEX_SELECTORS =
+      "media/webvtt/with_css_complex_selectors";
   private static final String WITH_CSS_TEXT_COMBINE_UPRIGHT =
-      "webvtt/with_css_text_combine_upright";
-  private static final String WITH_BOM = "webvtt/with_bom";
-  private static final String EMPTY_FILE = "webvtt/empty";
+      "media/webvtt/with_css_text_combine_upright";
+  private static final String WITH_BOM = "media/webvtt/with_bom";
+  private static final String EMPTY_FILE = "media/webvtt/empty";
 
   @Rule public final Expect expect = Expect.create();
 
@@ -203,10 +205,6 @@ public class WebvttDecoderTest {
     // Unspecified values should use WebVTT defaults
     assertThat(firstCue.line).isEqualTo(-1f);
     assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    // WebVTT specifies START as the default, but it doesn't expect this to be used if
-    // lineType=NUMBER so we have to override it to END in this case, otherwise the Cue will be
-    // displayed off the bottom of the screen.
-    assertThat(firstCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
     assertThat(firstCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
 
     assertThat(subtitle.getEventTime(2)).isEqualTo(2_345_000L);
@@ -232,7 +230,7 @@ public class WebvttDecoderTest {
     assertThat(subtitle.getEventTime(7)).isEqualTo(7_000_000L);
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
     assertThat(fourthCue.text.toString()).isEqualTo("This is the fourth subtitle.");
-    assertThat(fourthCue.line).isEqualTo(-11f);
+    assertThat(fourthCue.line).isEqualTo(-10f);
     assertThat(fourthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
     assertThat(fourthCue.textAlignment).isEqualTo(Alignment.ALIGN_CENTER);
     // Derived from `align:middle`:
@@ -280,7 +278,6 @@ public class WebvttDecoderTest {
     assertThat(firstCue.text.toString()).isEqualTo("Displayed at the bottom for 3 seconds.");
     assertThat(firstCue.line).isEqualTo(-1f);
     assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    assertThat(firstCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
 
     List<Cue> firstAndSecondCue = subtitle.getCues(subtitle.getEventTime(1));
     assertThat(firstAndSecondCue).hasSize(2);
@@ -288,18 +285,15 @@ public class WebvttDecoderTest {
         .isEqualTo("Displayed at the bottom for 3 seconds.");
     assertThat(firstAndSecondCue.get(0).line).isEqualTo(-1f);
     assertThat(firstAndSecondCue.get(0).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    assertThat(firstAndSecondCue.get(0).lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
     assertThat(firstAndSecondCue.get(1).text.toString())
         .isEqualTo("Appears directly above for 1 second.");
     assertThat(firstAndSecondCue.get(1).line).isEqualTo(-2f);
     assertThat(firstAndSecondCue.get(1).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    assertThat(firstAndSecondCue.get(1).lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
 
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
     assertThat(thirdCue.text.toString()).isEqualTo("Displayed at the bottom for 2 seconds.");
     assertThat(thirdCue.line).isEqualTo(-1f);
     assertThat(thirdCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    assertThat(thirdCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
 
     List<Cue> thirdAndFourthCue = subtitle.getCues(subtitle.getEventTime(5));
     assertThat(thirdAndFourthCue).hasSize(2);
@@ -307,19 +301,16 @@ public class WebvttDecoderTest {
         .isEqualTo("Displayed at the bottom for 2 seconds.");
     assertThat(thirdAndFourthCue.get(0).line).isEqualTo(-1f);
     assertThat(thirdAndFourthCue.get(0).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    assertThat(thirdAndFourthCue.get(0).lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
     assertThat(thirdAndFourthCue.get(1).text.toString())
         .isEqualTo("Appears directly above the previous cue, then replaces it after 1 second.");
     assertThat(thirdAndFourthCue.get(1).line).isEqualTo(-2f);
     assertThat(thirdAndFourthCue.get(1).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    assertThat(thirdAndFourthCue.get(1).lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
 
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
     assertThat(fourthCue.text.toString())
         .isEqualTo("Appears directly above the previous cue, then replaces it after 1 second.");
     assertThat(fourthCue.line).isEqualTo(-1f);
     assertThat(fourthCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
-    assertThat(fourthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
   }
 
   @Test
@@ -418,6 +409,9 @@ public class WebvttDecoderTest {
     assertThat(firstCueText)
         .hasForegroundColorSpanBetween(0, firstCueText.length())
         .withColor(ColorParser.parseCssColor("papayawhip"));
+    assertThat(firstCueText)
+        .hasBackgroundColorSpanBetween(0, firstCueText.length())
+        .withColor(ColorParser.parseCssColor("green"));
 
     Spanned secondCueText = getUniqueSpanTextAt(subtitle, 2_345_000);
     assertThat(secondCueText.toString()).isEqualTo("This is the second subtitle.");
@@ -432,7 +426,7 @@ public class WebvttDecoderTest {
     Spanned fourthCueText = getUniqueSpanTextAt(subtitle, 25_000_000);
     assertThat(fourthCueText.toString()).isEqualTo("You are an idiot\nYou don't have the guts");
     assertThat(fourthCueText)
-        .hasForegroundColorSpanBetween(0, "You are an idiot".length())
+        .hasBackgroundColorSpanBetween(0, "You are an idiot".length())
         .withColor(ColorParser.parseCssColor("lime"));
     assertThat(fourthCueText)
         .hasBoldSpanBetween("You are an idiot\n".length(), fourthCueText.length());

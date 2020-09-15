@@ -19,7 +19,6 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
@@ -75,15 +74,15 @@ public final class DashUtil {
   }
 
   /**
-   * Loads {@link DrmInitData} for a given period in a DASH manifest.
+   * Loads a {@link Format} for acquiring keys for a given period in a DASH manifest.
    *
    * @param dataSource The {@link HttpDataSource} from which data should be loaded.
    * @param period The {@link Period}.
-   * @return The loaded {@link DrmInitData}, or null if none is defined.
+   * @return The loaded {@link Format}, or null if none is defined.
    * @throws IOException Thrown when there is an error while loading.
    */
   @Nullable
-  public static DrmInitData loadDrmInitData(DataSource dataSource, Period period)
+  public static Format loadFormatWithDrmInitData(DataSource dataSource, Period period)
       throws IOException {
     int primaryTrackType = C.TRACK_TYPE_VIDEO;
     Representation representation = getFirstRepresentation(period, primaryTrackType);
@@ -97,8 +96,8 @@ public final class DashUtil {
     Format manifestFormat = representation.format;
     Format sampleFormat = DashUtil.loadSampleFormat(dataSource, primaryTrackType, representation);
     return sampleFormat == null
-        ? manifestFormat.drmInitData
-        : sampleFormat.withManifestFormatInfo(manifestFormat).drmInitData;
+        ? manifestFormat
+        : sampleFormat.withManifestFormatInfo(manifestFormat);
   }
 
   /**
@@ -114,11 +113,16 @@ public final class DashUtil {
   @Nullable
   public static Format loadSampleFormat(
       DataSource dataSource, int trackType, Representation representation) throws IOException {
-    ChunkExtractor chunkExtractor =
-        loadInitializationData(dataSource, trackType, representation, false);
-    return chunkExtractor == null
-        ? null
-        : Assertions.checkStateNotNull(chunkExtractor.getSampleFormats())[0];
+    if (representation.getInitializationUri() == null) {
+      return null;
+    }
+    ChunkExtractor chunkExtractor = newChunkExtractor(trackType, representation.format);
+    try {
+      loadInitializationData(chunkExtractor, dataSource, representation, /* loadIndex= */ false);
+    } finally {
+      chunkExtractor.release();
+    }
+    return Assertions.checkStateNotNull(chunkExtractor.getSampleFormats())[0];
   }
 
   /**
@@ -136,39 +140,40 @@ public final class DashUtil {
   @Nullable
   public static ChunkIndex loadChunkIndex(
       DataSource dataSource, int trackType, Representation representation) throws IOException {
-    @Nullable
-    ChunkExtractor chunkExtractor =
-        loadInitializationData(dataSource, trackType, representation, true);
-    return chunkExtractor == null ? null : chunkExtractor.getChunkIndex();
+    if (representation.getInitializationUri() == null) {
+      return null;
+    }
+    ChunkExtractor chunkExtractor = newChunkExtractor(trackType, representation.format);
+    try {
+      loadInitializationData(chunkExtractor, dataSource, representation, /* loadIndex= */ true);
+    } finally {
+      chunkExtractor.release();
+    }
+    return chunkExtractor.getChunkIndex();
   }
 
   /**
    * Loads initialization data for the {@code representation} and optionally index data then returns
    * a {@link BundledChunkExtractor} which contains the output.
    *
+   * @param chunkExtractor The {@link ChunkExtractor} to use.
    * @param dataSource The source from which the data should be loaded.
-   * @param trackType The type of the representation. Typically one of the {@link
-   *     com.google.android.exoplayer2.C} {@code TRACK_TYPE_*} constants.
    * @param representation The representation which initialization chunk belongs to.
    * @param loadIndex Whether to load index data too.
-   * @return A {@link BundledChunkExtractor} for the {@code representation}, or null if no
-   *     initialization or (if requested) index data exists.
    * @throws IOException Thrown when there is an error while loading.
    */
-  @Nullable
-  private static ChunkExtractor loadInitializationData(
-      DataSource dataSource, int trackType, Representation representation, boolean loadIndex)
+  private static void loadInitializationData(
+      ChunkExtractor chunkExtractor,
+      DataSource dataSource,
+      Representation representation,
+      boolean loadIndex)
       throws IOException {
-    RangedUri initializationUri = representation.getInitializationUri();
-    if (initializationUri == null) {
-      return null;
-    }
-    ChunkExtractor chunkExtractor = newChunkExtractor(trackType, representation.format);
+    RangedUri initializationUri = Assertions.checkNotNull(representation.getInitializationUri());
     RangedUri requestUri;
     if (loadIndex) {
       RangedUri indexUri = representation.getIndexUri();
       if (indexUri == null) {
-        return null;
+        return;
       }
       // It's common for initialization and index data to be stored adjacently. Attempt to merge
       // the two requests together to request both at once.
@@ -181,7 +186,6 @@ public final class DashUtil {
       requestUri = initializationUri;
     }
     loadInitializationData(dataSource, representation, chunkExtractor, requestUri);
-    return chunkExtractor;
   }
 
   private static void loadInitializationData(

@@ -19,6 +19,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.DownloadRequest.UnsupportedRequestException;
 import com.google.android.exoplayer2.util.AtomicFile;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.DataInputStream;
 import java.io.File;
@@ -37,6 +38,10 @@ import java.util.List;
 /* package */ final class ActionFile {
 
   private static final int VERSION = 0;
+  private static final String DOWNLOAD_TYPE_PROGRESSIVE = "progressive";
+  private static final String DOWNLOAD_TYPE_DASH = "dash";
+  private static final String DOWNLOAD_TYPE_HLS = "hls";
+  private static final String DOWNLOAD_TYPE_SS = "ss";
 
   private final AtomicFile atomicFile;
 
@@ -92,7 +97,7 @@ import java.util.List;
   }
 
   private static DownloadRequest readDownloadRequest(DataInputStream input) throws IOException {
-    String type = input.readUTF();
+    String downloadType = input.readUTF();
     int version = input.readInt();
 
     Uri uri = Uri.parse(input.readUTF());
@@ -108,21 +113,21 @@ import java.util.List;
     }
 
     // Serialized version 0 progressive actions did not contain keys.
-    boolean isLegacyProgressive = version == 0 && DownloadRequest.TYPE_PROGRESSIVE.equals(type);
+    boolean isLegacyProgressive = version == 0 && DOWNLOAD_TYPE_PROGRESSIVE.equals(downloadType);
     List<StreamKey> keys = new ArrayList<>();
     if (!isLegacyProgressive) {
       int keyCount = input.readInt();
       for (int i = 0; i < keyCount; i++) {
-        keys.add(readKey(type, version, input));
+        keys.add(readKey(downloadType, version, input));
       }
     }
 
     // Serialized version 0 and 1 DASH/HLS/SS actions did not contain a custom cache key.
     boolean isLegacySegmented =
         version < 2
-            && (DownloadRequest.TYPE_DASH.equals(type)
-                || DownloadRequest.TYPE_HLS.equals(type)
-                || DownloadRequest.TYPE_SS.equals(type));
+            && (DOWNLOAD_TYPE_DASH.equals(downloadType)
+                || DOWNLOAD_TYPE_HLS.equals(downloadType)
+                || DOWNLOAD_TYPE_SS.equals(downloadType));
     @Nullable String customCacheKey = null;
     if (!isLegacySegmented) {
       customCacheKey = input.readBoolean() ? input.readUTF() : null;
@@ -135,7 +140,13 @@ import java.util.List;
       // Remove actions are not supported anymore.
       throw new UnsupportedRequestException();
     }
-    return new DownloadRequest(id, type, uri, keys, customCacheKey, data);
+
+    return new DownloadRequest.Builder(id, uri)
+        .setMimeType(inferMimeType(downloadType))
+        .setStreamKeys(keys)
+        .setCustomCacheKey(customCacheKey)
+        .setData(data)
+        .build();
   }
 
   private static StreamKey readKey(String type, int version, DataInputStream input)
@@ -145,8 +156,7 @@ import java.util.List;
     int trackIndex;
 
     // Serialized version 0 HLS/SS actions did not contain a period index.
-    if ((DownloadRequest.TYPE_HLS.equals(type) || DownloadRequest.TYPE_SS.equals(type))
-        && version == 0) {
+    if ((DOWNLOAD_TYPE_HLS.equals(type) || DOWNLOAD_TYPE_SS.equals(type)) && version == 0) {
       periodIndex = 0;
       groupIndex = input.readInt();
       trackIndex = input.readInt();
@@ -156,6 +166,20 @@ import java.util.List;
       trackIndex = input.readInt();
     }
     return new StreamKey(periodIndex, groupIndex, trackIndex);
+  }
+
+  private static String inferMimeType(String downloadType) {
+    switch (downloadType) {
+      case DOWNLOAD_TYPE_DASH:
+        return MimeTypes.APPLICATION_MPD;
+      case DOWNLOAD_TYPE_HLS:
+        return MimeTypes.APPLICATION_M3U8;
+      case DOWNLOAD_TYPE_SS:
+        return MimeTypes.APPLICATION_SS;
+      case DOWNLOAD_TYPE_PROGRESSIVE:
+      default:
+        return MimeTypes.VIDEO_UNKNOWN;
+    }
   }
 
   private static String generateDownloadId(Uri uri, @Nullable String customCacheKey) {

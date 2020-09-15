@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
  */
 public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
 
-  private static final String TAG = "FfmpegAudioRenderer";
+  private static final String TAG = "FfmpegVideoRenderer";
 
   /**
    * Creates a new instance.
@@ -76,7 +76,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
       return FORMAT_UNSUPPORTED_TYPE;
     } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType)) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
-    } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
+    } else if (format.exoMediaCryptoType != null) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     } else {
       return RendererCapabilities.create(

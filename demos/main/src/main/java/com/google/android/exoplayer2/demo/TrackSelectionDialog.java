@@ -286,7 +286,7 @@ public final class TrackSelectionDialog extends DialogFragment {
   private final class FragmentAdapter extends FragmentPagerAdapter {
 
     public FragmentAdapter(FragmentManager fragmentManager) {
-      super(fragmentManager);
+      super(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
     }
 
     @Override

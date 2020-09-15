@@ -223,13 +223,14 @@ public final class Ac4Util {
   public static void getAc4SampleHeader(int size, ParsableByteArray buffer) {
     // See ETSI TS 103 190-1 V1.3.1, Annex G.
     buffer.reset(SAMPLE_HEADER_SIZE);
-    buffer.data[0] = (byte) 0xAC;
-    buffer.data[1] = 0x40;
-    buffer.data[2] = (byte) 0xFF;
-    buffer.data[3] = (byte) 0xFF;
-    buffer.data[4] = (byte) ((size >> 16) & 0xFF);
-    buffer.data[5] = (byte) ((size >> 8) & 0xFF);
-    buffer.data[6] = (byte) (size & 0xFF);
+    byte[] data = buffer.getData();
+    data[0] = (byte) 0xAC;
+    data[1] = 0x40;
+    data[2] = (byte) 0xFF;
+    data[3] = (byte) 0xFF;
+    data[4] = (byte) ((size >> 16) & 0xFF);
+    data[5] = (byte) ((size >> 8) & 0xFF);
+    data[6] = (byte) (size & 0xFF);
   }
 
   private static int readVariableBits(ParsableBitArray data, int bitsPerRead) {

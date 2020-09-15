@@ -51,7 +51,8 @@ public final class Id3PeekerTest {
     Id3Peeker id3Peeker = new Id3Peeker();
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
-            .setData(getByteArray(ApplicationProvider.getApplicationContext(), "id3/apic.id3"))
+            .setData(
+                getByteArray(ApplicationProvider.getApplicationContext(), "media/id3/apic.id3"))
             .build();
 
     @Nullable Metadata metadata = id3Peeker.peekId3Data(input, /* id3FramePredicate= */ null);
@@ -72,7 +73,9 @@ public final class Id3PeekerTest {
     Id3Peeker id3Peeker = new Id3Peeker();
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
-            .setData(getByteArray(ApplicationProvider.getApplicationContext(), "id3/comm_apic.id3"))
+            .setData(
+                getByteArray(
+                    ApplicationProvider.getApplicationContext(), "media/id3/comm_apic.id3"))
             .build();
 
     @Nullable

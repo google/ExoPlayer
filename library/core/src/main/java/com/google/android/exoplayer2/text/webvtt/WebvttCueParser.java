@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import static com.google.android.exoplayer2.text.span.SpanUtil.addOrReplaceSpan;
+import static java.lang.Math.min;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
@@ -285,9 +286,12 @@ public final class WebvttCueParser {
         case CHAR_AMPERSAND:
           int semiColonEndIndex = markup.indexOf(CHAR_SEMI_COLON, pos + 1);
           int spaceEndIndex = markup.indexOf(CHAR_SPACE, pos + 1);
-          int entityEndIndex = semiColonEndIndex == -1 ? spaceEndIndex
-              : (spaceEndIndex == -1 ? semiColonEndIndex
-                  : Math.min(semiColonEndIndex, spaceEndIndex));
+          int entityEndIndex =
+              semiColonEndIndex == -1
+                  ? spaceEndIndex
+                  : (spaceEndIndex == -1
+                      ? semiColonEndIndex
+                      : min(semiColonEndIndex, spaceEndIndex));
           if (entityEndIndex != -1) {
             applyEntity(markup.substring(pos + 1, entityEndIndex), spannedText);
             if (entityEndIndex == spaceEndIndex) {
@@ -391,13 +395,7 @@ public final class WebvttCueParser {
       builder.line = WebvttParserUtil.parsePercentage(s);
       builder.lineType = Cue.LINE_TYPE_FRACTION;
     } else {
-      int lineNumber = Integer.parseInt(s);
-      if (lineNumber < 0) {
-        // WebVTT defines line -1 as last visible row when lineAnchor is ANCHOR_TYPE_START, where-as
-        // Cue defines it to be the first row that's not visible.
-        lineNumber--;
-      }
-      builder.line = lineNumber;
+      builder.line = Integer.parseInt(s);
       builder.lineType = Cue.LINE_TYPE_NUMBER;
     }
   }
@@ -686,6 +684,14 @@ public final class WebvttCueParser {
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
+    if (style.hasBackgroundColor()) {
+      addOrReplaceSpan(
+          spannedText,
+          new BackgroundColorSpan(style.getBackgroundColor()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
     if (style.getFontFamily() != null) {
       addOrReplaceSpan(
           spannedText,
@@ -807,7 +813,7 @@ public final class WebvttCueParser {
               .setLineAnchor(lineAnchor)
               .setPosition(position)
               .setPositionAnchor(positionAnchor)
-              .setSize(Math.min(size, deriveMaxSize(positionAnchor, position)))
+              .setSize(min(size, deriveMaxSize(positionAnchor, position)))
               .setVerticalType(verticalType);
 
       if (text != null) {

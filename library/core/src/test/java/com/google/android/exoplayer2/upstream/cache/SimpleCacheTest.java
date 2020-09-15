@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doAnswer;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
 import com.google.android.exoplayer2.util.Util;
@@ -38,7 +39,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 /** Unit tests for {@link SimpleCache}. */
 @RunWith(AndroidJUnit4.class)
@@ -50,18 +50,23 @@ public class SimpleCacheTest {
 
   private File testDir;
   private File cacheDir;
+  private DatabaseProvider databaseProvider;
 
   @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
+  public void createTestDir() throws Exception {
     testDir = Util.createTempFile(ApplicationProvider.getApplicationContext(), "SimpleCacheTest");
     assertThat(testDir.delete()).isTrue();
     assertThat(testDir.mkdirs()).isTrue();
     cacheDir = new File(testDir, "cache");
   }
 
+  @Before
+  public void createDatabaseProvider() {
+    databaseProvider = TestUtil.getInMemoryDatabaseProvider();
+  }
+
   @After
-  public void tearDown() {
+  public void deleteTestDir() {
     Util.recursiveDelete(testDir);
   }
 
@@ -96,7 +101,33 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void newInstance_withExistingCacheDirectory_loadsCachedData() throws Exception {
+  @SuppressWarnings("deprecation") // Testing deprecated behaviour
+  public void newInstance_withExistingCacheDirectory_withoutDatabase_loadsCachedData()
+      throws Exception {
+    SimpleCache simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
+
+    // Write some data and metadata to the cache.
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
+    addCache(simpleCache, KEY_1, 0, 15);
+    simpleCache.releaseHoleSpan(holeSpan);
+    ContentMetadataMutations mutations = new ContentMetadataMutations();
+    ContentMetadataMutations.setRedirectedUri(mutations, Uri.parse("https://redirect.google.com"));
+    simpleCache.applyContentMetadataMutations(KEY_1, mutations);
+    simpleCache.release();
+
+    // Create a new instance pointing to the same directory.
+    simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
+
+    // Read the cached data and metadata back.
+    CacheSpan fileSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
+    assertCachedDataReadCorrect(fileSpan);
+    assertThat(ContentMetadata.getRedirectedUri(simpleCache.getContentMetadata(KEY_1)))
+        .isEqualTo(Uri.parse("https://redirect.google.com"));
+  }
+
+  @Test
+  public void newInstance_withExistingCacheDirectory_withDatabase_loadsCachedData()
+      throws Exception {
     SimpleCache simpleCache = getSimpleCache();
 
     // Write some data and metadata to the cache.
@@ -127,8 +158,10 @@ public class SimpleCacheTest {
   }
 
   @Test
-  public void newInstance_withExistingCacheDirectory_resolvesInconsistentState() throws Exception {
-    SimpleCache simpleCache = getSimpleCache();
+  @SuppressWarnings("deprecation") // Testing deprecated behaviour
+  public void newInstance_withExistingCacheDirectory_withoutDatabase_resolvesInconsistentState()
+      throws Exception {
+    SimpleCache simpleCache = new SimpleCache(testDir, new NoOpCacheEvictor());
 
     CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
     addCache(simpleCache, KEY_1, 0, 15);
@@ -149,6 +182,30 @@ public class SimpleCacheTest {
   }
 
   @Test
+  public void newInstance_withExistingCacheDirectory_withDatabase_resolvesInconsistentState()
+      throws Exception {
+    SimpleCache simpleCache = new SimpleCache(testDir, new NoOpCacheEvictor(), databaseProvider);
+
+    CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
+    addCache(simpleCache, KEY_1, 0, 15);
+    simpleCache.releaseHoleSpan(holeSpan);
+    simpleCache.removeSpan(simpleCache.getCachedSpans(KEY_1).first());
+
+    // Don't release the cache. This means the index file won't have been written to disk after the
+    // span was removed. Move the cache directory instead, so we can reload it without failing the
+    // folder locking check.
+    File cacheDir2 = new File(testDir, "cache2");
+    cacheDir.renameTo(cacheDir2);
+
+    // Create a new instance pointing to the new directory.
+    simpleCache = new SimpleCache(cacheDir2, new NoOpCacheEvictor(), databaseProvider);
+
+    // The entry for KEY_1 should have been removed when the cache was reloaded.
+    assertThat(simpleCache.getCachedSpans(KEY_1)).isEmpty();
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // Encrypted index is deprecated
   public void newInstance_withEncryptedIndex() throws Exception {
     SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
     CacheSpan holeSpan = simpleCache.startReadWrite(KEY_1, 0, LENGTH_UNSET);
@@ -165,6 +222,7 @@ public class SimpleCacheTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Encrypted index is deprecated
   public void newInstance_withEncryptedIndexAndWrongKey_clearsCache() throws Exception {
     SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
 
@@ -183,6 +241,7 @@ public class SimpleCacheTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Encrypted index is deprecated
   public void newInstance_withEncryptedIndexAndNoKey_clearsCache() throws Exception {
     SimpleCache simpleCache = getEncryptedSimpleCache(ENCRYPTED_INDEX_KEY);
 
@@ -619,7 +678,7 @@ public class SimpleCacheTest {
 
   @Test
   public void usingReleasedCache_throwsException() {
-    SimpleCache simpleCache = new SimpleCache(cacheDir, new NoOpCacheEvictor());
+    SimpleCache simpleCache = getSimpleCache();
     simpleCache.release();
     assertThrows(
         IllegalStateException.class,
@@ -627,9 +686,11 @@ public class SimpleCacheTest {
   }
 
   private SimpleCache getSimpleCache() {
-    return new SimpleCache(cacheDir, new NoOpCacheEvictor());
+    return new SimpleCache(cacheDir, new NoOpCacheEvictor(), databaseProvider);
   }
 
+  @Deprecated
+  @SuppressWarnings("deprecation") // Testing deprecated behaviour.
   private SimpleCache getEncryptedSimpleCache(byte[] secretKey) {
     return new SimpleCache(cacheDir, new NoOpCacheEvictor(), secretKey);
   }

@@ -33,9 +33,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class AppInfoTableDecoderTest {
 
-  private static final String TYPICAL_FILE = "dvbsi/ait_typical.bin";
-  private static final String NO_URL_BASE_FILE = "dvbsi/ait_no_url_base.bin";
-  private static final String NO_URL_PATH_FILE = "dvbsi/ait_no_url_path.bin";
+  private static final String TYPICAL_FILE = "media/dvbsi/ait_typical.bin";
+  private static final String NO_URL_BASE_FILE = "media/dvbsi/ait_no_url_base.bin";
+  private static final String NO_URL_PATH_FILE = "media/dvbsi/ait_no_url_path.bin";
 
   @Test
   public void decode_typical() throws Exception {

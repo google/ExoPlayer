@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -55,7 +57,8 @@ public final class SilenceMediaSource extends BaseMediaSource {
     /**
      * Sets a tag for the media source which will be published in the {@link
      * com.google.android.exoplayer2.Timeline} of the source as {@link
-     * com.google.android.exoplayer2.Timeline.Window#tag}.
+     * com.google.android.exoplayer2.MediaItem.PlaybackProperties#tag
+     * Window#mediaItem.playbackProperties.tag}.
      *
      * @param tag A tag for the media source.
      * @return This factory, for convenience.
@@ -77,7 +80,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
   }
 
   /** The media id used by any media item of silence media sources. */
-  public static final String MEDIA_ID = "com.google.android.exoplayer2.source.SilenceMediaSource";
+  public static final String MEDIA_ID = "SilenceMediaSource";
 
   private static final int SAMPLE_RATE_HZ = 44100;
   @C.PcmEncoding private static final int PCM_ENCODING = C.ENCODING_PCM_16BIT;
@@ -145,16 +148,20 @@ public final class SilenceMediaSource extends BaseMediaSource {
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {}
 
-  /** Returns the {@link MediaItem} of this media source. */
-  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
-  public MediaItem getMediaItem() {
-    return mediaItem;
-  }
-
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Nullable
   @Override
   public Object getTag() {
     return Assertions.checkNotNull(mediaItem.playbackProperties).tag;
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return mediaItem;
   }
 
   @Override
@@ -298,7 +305,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
         return C.RESULT_BUFFER_READ;
       }
 
-      int bytesToWrite = (int) Math.min(SILENCE_SAMPLE.length, bytesRemaining);
+      int bytesToWrite = (int) min(SILENCE_SAMPLE.length, bytesRemaining);
       buffer.ensureSpaceForWrite(bytesToWrite);
       buffer.data.put(SILENCE_SAMPLE, /* offset= */ 0, bytesToWrite);
       buffer.timeUs = getAudioPositionUs(positionBytes);

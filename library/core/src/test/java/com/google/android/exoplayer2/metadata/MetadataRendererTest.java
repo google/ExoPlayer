@@ -22,6 +22,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.metadata.emsg.EventMessage;
 import com.google.android.exoplayer2.metadata.emsg.EventMessageEncoder;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamI
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,13 +147,14 @@ public class MetadataRendererTest {
     renderer.replaceStream(
         new Format[] {EMSG_FORMAT},
         new FakeSampleStream(
-            EMSG_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 0,
-            new FakeSampleStreamItem(input),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM),
+            new DrmSessionEventListener.EventDispatcher(),
+            EMSG_FORMAT,
+            ImmutableList.of(
+                FakeSampleStreamItem.sample(/* timeUs= */ 0, /* flags= */ 0, input),
+                FakeSampleStreamItem.END_OF_STREAM_ITEM)),
+        /* startPositionUs= */ 0L,
         /* offsetUs= */ 0L);
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the format
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the data

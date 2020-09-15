@@ -39,78 +39,80 @@ public class FlacExtractorTest {
   @Test
   public void sample() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
-        FlacExtractor::new, /* file= */ "flac/bear.flac", /* dumpFilesPrefix= */ "flac/bear_raw");
+        FlacExtractor::new,
+        /* file= */ "media/flac/bear.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_raw");
   }
 
   @Test
   public void sampleWithId3HeaderAndId3Enabled() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_with_id3.flac",
-        /* dumpFilesPrefix= */ "flac/bear_with_id3_enabled_raw");
+        /* file= */ "media/flac/bear_with_id3.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_with_id3_enabled_raw");
   }
 
   @Test
   public void sampleWithId3HeaderAndId3Disabled() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         () -> new FlacExtractor(FlacExtractor.FLAG_DISABLE_ID3_METADATA),
-        /* file= */ "flac/bear_with_id3.flac",
-        /* dumpFilesPrefix= */ "flac/bear_with_id3_disabled_raw");
+        /* file= */ "media/flac/bear_with_id3.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_with_id3_disabled_raw");
   }
 
   @Test
   public void sampleUnseekable() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_no_seek_table_no_num_samples.flac",
-        /* dumpFilesPrefix= */ "flac/bear_no_seek_table_no_num_samples_raw");
+        /* file= */ "media/flac/bear_no_seek_table_no_num_samples.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_no_seek_table_no_num_samples_raw");
   }
 
   @Test
   public void sampleWithVorbisComments() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_with_vorbis_comments.flac",
-        /* dumpFilesPrefix= */ "flac/bear_with_vorbis_comments_raw");
+        /* file= */ "media/flac/bear_with_vorbis_comments.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_with_vorbis_comments_raw");
   }
 
   @Test
   public void sampleWithPicture() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_with_picture.flac",
-        /* dumpFilesPrefix= */ "flac/bear_with_picture_raw");
+        /* file= */ "media/flac/bear_with_picture.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_with_picture_raw");
   }
 
   @Test
   public void oneMetadataBlock() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_one_metadata_block.flac",
-        /* dumpFilesPrefix= */ "flac/bear_one_metadata_block_raw");
+        /* file= */ "media/flac/bear_one_metadata_block.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_one_metadata_block_raw");
   }
 
   @Test
   public void noMinMaxFrameSize() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_no_min_max_frame_size.flac",
-        /* dumpFilesPrefix= */ "flac/bear_no_min_max_frame_size_raw");
+        /* file= */ "media/flac/bear_no_min_max_frame_size.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_no_min_max_frame_size_raw");
   }
 
   @Test
   public void noNumSamples() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_no_num_samples.flac",
-        /* dumpFilesPrefix= */ "flac/bear_no_num_samples_raw");
+        /* file= */ "media/flac/bear_no_num_samples.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_no_num_samples_raw");
   }
 
   @Test
   public void uncommonSampleRate() throws Exception {
     ExtractorAsserts.assertAllBehaviors(
         FlacExtractor::new,
-        /* file= */ "flac/bear_uncommon_sample_rate.flac",
-        /* dumpFilesPrefix= */ "flac/bear_uncommon_sample_rate_raw");
+        /* file= */ "media/flac/bear_uncommon_sample_rate.flac",
+        /* dumpFilesPrefix= */ "extractordumps/flac/bear_uncommon_sample_rate_raw");
   }
 }

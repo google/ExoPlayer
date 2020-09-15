@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
@@ -69,7 +70,7 @@ public final class CacheWriterTest {
       for (int i = 0; i < spansAndGaps.length; i++) {
         int spanOrGap = spansAndGaps[i];
         if (position < spanOrGap) {
-          long left = Math.min(spanOrGap - position, length);
+          long left = min(spanOrGap - position, length);
           return (i & 1) == 1 ? -left : left;
         }
         position -= spanOrGap;
@@ -96,7 +97,8 @@ public final class CacheWriterTest {
     mockCache.init();
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
   }
 
   @After
@@ -116,7 +118,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -139,7 +140,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -152,7 +152,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -176,7 +175,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -201,7 +199,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -214,7 +211,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -237,7 +233,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             dataSpec,
             /* allowShortContent= */ true,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -262,7 +257,6 @@ public final class CacheWriterTest {
                         new CacheDataSource(cache, dataSource),
                         dataSpec,
                         /* allowShortContent= */ false,
-                        /* isCanceled= */ null,
                         /* temporaryBuffer= */ null,
                         /* progressListener= */ null)
                     .cache());
@@ -288,7 +282,6 @@ public final class CacheWriterTest {
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
             /* allowShortContent= */ false,
-            /* isCanceled= */ null,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();

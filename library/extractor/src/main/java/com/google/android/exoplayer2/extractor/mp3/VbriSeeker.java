@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
@@ -68,7 +70,7 @@ import com.google.android.exoplayer2.util.Util;
       timesUs[index] = (index * durationUs) / entryCount;
       // Ensure positions do not fall within the frame containing the VBRI header. This constraint
       // will normally only apply to the first entry in the table.
-      positions[index] = Math.max(position, minPosition);
+      positions[index] = max(position, minPosition);
       int segmentSize;
       switch (entrySize) {
         case 1:

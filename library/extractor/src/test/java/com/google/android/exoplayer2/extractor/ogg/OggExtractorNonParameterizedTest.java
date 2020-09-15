@@ -36,38 +36,42 @@ public final class OggExtractorNonParameterizedTest {
 
   @Test
   public void sniffVorbis() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/vorbis_header");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/vorbis_header");
     assertSniff(data, /* expectedResult= */ true);
   }
 
   @Test
   public void sniffFlac() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/flac_header");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/flac_header");
     assertSniff(data, /* expectedResult= */ true);
   }
 
   @Test
   public void sniffFailsOpusFile() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/opus_header");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/opus_header");
     assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
   public void sniffFailsInvalidOggHeader() throws Exception {
     byte[] data =
-        getByteArray(ApplicationProvider.getApplicationContext(), "ogg/invalid_ogg_header");
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/invalid_ogg_header");
     assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
   public void sniffInvalidHeader() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/invalid_header");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/invalid_header");
     assertSniff(data, /* expectedResult= */ false);
   }
 
   @Test
   public void sniffFailsEOF() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/eof_header");
+    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/eof_header");
     assertSniff(data, /* expectedResult= */ false);
   }
 

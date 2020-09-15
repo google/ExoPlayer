@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.source.dash;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -28,7 +30,7 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -39,6 +41,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceDrmHelper;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
@@ -51,6 +54,7 @@ import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -63,11 +67,11 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SntpClient;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -88,9 +92,10 @@ public final class DashMediaSource extends BaseMediaSource {
   public static final class Factory implements MediaSourceFactory {
 
     private final DashChunkSource.Factory chunkSourceFactory;
+    private final MediaSourceDrmHelper mediaSourceDrmHelper;
     @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
-    private DrmSessionManager drmSessionManager;
+    @Nullable private DrmSessionManager drmSessionManager;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
@@ -123,7 +128,7 @@ public final class DashMediaSource extends BaseMediaSource {
         @Nullable DataSource.Factory manifestDataSourceFactory) {
       this.chunkSourceFactory = checkNotNull(chunkSourceFactory);
       this.manifestDataSourceFactory = manifestDataSourceFactory;
-      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
+      mediaSourceDrmHelper = new MediaSourceDrmHelper();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       livePresentationDelayMs = DEFAULT_LIVE_PRESENTATION_DELAY_MS;
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
@@ -152,19 +157,22 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
-    /**
-     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
-     * default value is {@link DrmSessionManager#DUMMY}.
-     *
-     * @param drmSessionManager The {@link DrmSessionManager}.
-     * @return This factory, for convenience.
-     */
     @Override
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      this.drmSessionManager =
-          drmSessionManager != null
-              ? drmSessionManager
-              : DrmSessionManager.getDummyDrmSessionManager();
+      this.drmSessionManager = drmSessionManager;
+      return this;
+    }
+
+    @Override
+    public Factory setDrmHttpDataSourceFactory(
+        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
+      mediaSourceDrmHelper.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      return this;
+    }
+
+    @Override
+    public Factory setDrmUserAgent(@Nullable String userAgent) {
+      mediaSourceDrmHelper.setDrmUserAgent(userAgent);
       return this;
     }
 
@@ -309,7 +317,7 @@ public final class DashMediaSource extends BaseMediaSource {
           /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          drmSessionManager,
+          drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem),
           loadErrorHandlingPolicy,
           livePresentationDelayMs,
           livePresentationDelayOverridesManifest);
@@ -332,7 +340,7 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     /**
-     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
      *     MediaSourceEventListener)} instead.
      */
     @SuppressWarnings("deprecation")
@@ -400,7 +408,7 @@ public final class DashMediaSource extends BaseMediaSource {
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          drmSessionManager,
+          drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem),
           loadErrorHandlingPolicy,
           livePresentationDelayMs,
           livePresentationDelayOverridesManifest);
@@ -655,13 +663,18 @@ public final class DashMediaSource extends BaseMediaSource {
 
   // MediaSource implementation.
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return playbackProperties.tag;
   }
 
-  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+  @Override
   public MediaItem getMediaItem() {
     return mediaItem;
   }
@@ -675,7 +688,7 @@ public final class DashMediaSource extends BaseMediaSource {
     } else {
       dataSource = manifestDataSourceFactory.createDataSource();
       loader = new Loader("Loader:DashMediaSource");
-      handler = Util.createHandler();
+      handler = Util.createHandlerForCurrentLooper();
       startLoadingManifest();
     }
   }
@@ -689,8 +702,9 @@ public final class DashMediaSource extends BaseMediaSource {
   public MediaPeriod createPeriod(
       MediaPeriodId periodId, Allocator allocator, long startPositionUs) {
     int periodIndex = (Integer) periodId.periodUid - firstPeriodId;
-    EventDispatcher periodEventDispatcher =
+    MediaSourceEventListener.EventDispatcher periodEventDispatcher =
         createEventDispatcher(periodId, manifest.getPeriod(periodIndex).startMs);
+    DrmSessionEventListener.EventDispatcher drmEventDispatcher = createDrmEventDispatcher(periodId);
     DashMediaPeriod mediaPeriod =
         new DashMediaPeriod(
             firstPeriodId + periodIndex,
@@ -699,6 +713,7 @@ public final class DashMediaSource extends BaseMediaSource {
             chunkSourceFactory,
             mediaTransferListener,
             drmSessionManager,
+            drmEventDispatcher,
             loadErrorHandlingPolicy,
             periodEventDispatcher,
             elapsedRealtimeOffsetMs,
@@ -1027,7 +1042,7 @@ public final class DashMediaSource extends BaseMediaSource {
       long liveStreamDurationUs = nowUnixTimeUs - C.msToUs(manifest.availabilityStartTimeMs);
       long liveStreamEndPositionInLastPeriodUs = liveStreamDurationUs
           - C.msToUs(manifest.getPeriod(lastPeriodIndex).startMs);
-      currentEndTimeUs = Math.min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
+      currentEndTimeUs = min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
       if (manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
         long timeShiftBufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
         long offsetInPeriodUs = currentEndTimeUs - timeShiftBufferDepthUs;
@@ -1036,7 +1051,7 @@ public final class DashMediaSource extends BaseMediaSource {
           offsetInPeriodUs += manifest.getPeriodDurationUs(--periodIndex);
         }
         if (periodIndex == 0) {
-          currentStartTimeUs = Math.max(currentStartTimeUs, offsetInPeriodUs);
+          currentStartTimeUs = max(currentStartTimeUs, offsetInPeriodUs);
         } else {
           // The time shift buffer starts after the earliest period.
           // TODO: Does this ever happen?
@@ -1062,8 +1077,8 @@ public final class DashMediaSource extends BaseMediaSource {
         // The default start position is too close to the start of the live window. Set it to the
         // minimum default start position provided the window is at least twice as big. Else set
         // it to the middle of the window.
-        windowDefaultStartPositionUs = Math.min(MIN_LIVE_DEFAULT_START_POSITION_US,
-            windowDurationUs / 2);
+        windowDefaultStartPositionUs =
+            min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
       }
     }
     long windowStartTimeMs = C.TIME_UNSET;
@@ -1108,8 +1123,7 @@ public final class DashMediaSource extends BaseMediaSource {
           minUpdatePeriodMs = 5000;
         }
         long nextLoadTimestampMs = manifestLoadStartTimestampMs + minUpdatePeriodMs;
-        long delayUntilNextLoadMs =
-            Math.max(0, nextLoadTimestampMs - SystemClock.elapsedRealtime());
+        long delayUntilNextLoadMs = max(0, nextLoadTimestampMs - SystemClock.elapsedRealtime());
         scheduleManifestRefresh(delayUntilNextLoadMs);
       }
     }
@@ -1140,7 +1154,7 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   private long getManifestLoadRetryDelayMillis() {
-    return Math.min((staleManifestReloadAttempt - 1) * 1000, 5000);
+    return min((staleManifestReloadAttempt - 1) * 1000, 5000);
   }
 
   private <T> void startLoading(ParsingLoadable<T> loadable,
@@ -1191,12 +1205,12 @@ public final class DashMediaSource extends BaseMediaSource {
         } else if (!seenEmptyIndex) {
           long firstSegmentNum = index.getFirstSegmentNum();
           long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstSegmentNum);
-          availableStartTimeUs = Math.max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
+          availableStartTimeUs = max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
           if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED) {
             long lastSegmentNum = firstSegmentNum + segmentCount - 1;
             long adaptationSetAvailableEndTimeUs = index.getTimeUs(lastSegmentNum)
                 + index.getDurationUs(lastSegmentNum, durationUs);
-            availableEndTimeUs = Math.min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
+            availableEndTimeUs = min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
           }
         }
       }
@@ -1446,8 +1460,7 @@ public final class DashMediaSource extends BaseMediaSource {
     @Override
     public Long parse(Uri uri, InputStream inputStream) throws IOException {
       String firstLine =
-          new BufferedReader(new InputStreamReader(inputStream, Charset.forName(C.UTF8_NAME)))
-              .readLine();
+          new BufferedReader(new InputStreamReader(inputStream, Charsets.UTF_8)).readLine();
       try {
         Matcher matcher = TIMESTAMP_WITH_TIMEZONE_PATTERN.matcher(firstLine);
         if (!matcher.matches()) {

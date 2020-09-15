@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 
@@ -88,11 +91,11 @@ import com.google.android.exoplayer2.util.Util;
       long sampleOffset = chunkOffsets[chunkIndex];
 
       while (chunkSamplesRemaining > 0) {
-        int bufferSampleCount = Math.min(maxSampleCount, chunkSamplesRemaining);
+        int bufferSampleCount = min(maxSampleCount, chunkSamplesRemaining);
 
         offsets[newSampleIndex] = sampleOffset;
         sizes[newSampleIndex] = fixedSampleSize * bufferSampleCount;
-        maximumSize = Math.max(maximumSize, sizes[newSampleIndex]);
+        maximumSize = max(maximumSize, sizes[newSampleIndex]);
         timestamps[newSampleIndex] = (timestampDeltaInTimeUnits * originalSampleIndex);
         flags[newSampleIndex] = C.BUFFER_FLAG_KEY_FRAME;
 

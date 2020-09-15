@@ -66,7 +66,7 @@ public final class Ac3Extractor implements Extractor {
     ParsableByteArray scratch = new ParsableByteArray(ID3_HEADER_LENGTH);
     int startPosition = 0;
     while (true) {
-      input.peekFully(scratch.data, /* offset= */ 0, ID3_HEADER_LENGTH);
+      input.peekFully(scratch.getData(), /* offset= */ 0, ID3_HEADER_LENGTH);
       scratch.setPosition(0);
       if (scratch.readUnsignedInt24() != ID3_TAG) {
         break;
@@ -82,7 +82,7 @@ public final class Ac3Extractor implements Extractor {
     int headerPosition = startPosition;
     int validFramesCount = 0;
     while (true) {
-      input.peekFully(scratch.data, 0, 6);
+      input.peekFully(scratch.getData(), 0, 6);
       scratch.setPosition(0);
       int syncBytes = scratch.readUnsignedShort();
       if (syncBytes != AC3_SYNC_WORD) {
@@ -96,7 +96,7 @@ public final class Ac3Extractor implements Extractor {
         if (++validFramesCount >= 4) {
           return true;
         }
-        int frameSize = Ac3Util.parseAc3SyncframeSize(scratch.data);
+        int frameSize = Ac3Util.parseAc3SyncframeSize(scratch.getData());
         if (frameSize == C.LENGTH_UNSET) {
           return false;
         }
@@ -125,7 +125,7 @@ public final class Ac3Extractor implements Extractor {
 
   @Override
   public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
-    int bytesRead = input.read(sampleData.data, 0, MAX_SYNC_FRAME_SIZE);
+    int bytesRead = input.read(sampleData.getData(), 0, MAX_SYNC_FRAME_SIZE);
     if (bytesRead == C.RESULT_END_OF_INPUT) {
       return RESULT_END_OF_INPUT;
     }

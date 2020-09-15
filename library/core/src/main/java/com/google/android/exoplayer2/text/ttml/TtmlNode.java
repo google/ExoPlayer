@@ -268,6 +268,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               .setLineAnchor(region.lineAnchor)
               .setSize(region.width)
               .setBitmapHeight(region.height)
+              .setVerticalType(region.verticalType)
               .build());
     }
 
@@ -281,6 +282,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       regionOutput.setPosition(region.position);
       regionOutput.setSize(region.width);
       regionOutput.setTextSize(region.textSize, region.textSizeType);
+      regionOutput.setVerticalType(region.verticalType);
       cues.add(regionOutput.build());
     }
 
@@ -379,10 +381,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       regionOutput.setText(text);
     }
     if (resolvedStyle != null) {
-      TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle, parent);
-      regionOutput
-          .setTextAlignment(resolvedStyle.getTextAlign())
-          .setVerticalType(resolvedStyle.getVerticalType());
+      TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle, parent, globalStyles);
+      regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
     }
   }
 

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -117,13 +119,13 @@ public final class Ac3Reader implements ElementaryStreamReader {
         case STATE_FINDING_SYNC:
           if (skipToNextSync(data)) {
             state = STATE_READING_HEADER;
-            headerScratchBytes.data[0] = 0x0B;
-            headerScratchBytes.data[1] = 0x77;
+            headerScratchBytes.getData()[0] = 0x0B;
+            headerScratchBytes.getData()[1] = 0x77;
             bytesRead = 2;
           }
           break;
         case STATE_READING_HEADER:
-          if (continueRead(data, headerScratchBytes.data, HEADER_SIZE)) {
+          if (continueRead(data, headerScratchBytes.getData(), HEADER_SIZE)) {
             parseHeader();
             headerScratchBytes.setPosition(0);
             output.sampleData(headerScratchBytes, HEADER_SIZE);
@@ -131,7 +133,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
           }
           break;
         case STATE_READING_SAMPLE:
-          int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
+          int bytesToRead = min(data.bytesLeft(), sampleSize - bytesRead);
           output.sampleData(data, bytesToRead);
           bytesRead += bytesToRead;
           if (bytesRead == sampleSize) {
@@ -161,7 +163,7 @@ public final class Ac3Reader implements ElementaryStreamReader {
    * @return Whether the target length was reached.
    */
   private boolean continueRead(ParsableByteArray source, byte[] target, int targetLength) {
-    int bytesToRead = Math.min(source.bytesLeft(), targetLength - bytesRead);
+    int bytesToRead = min(source.bytesLeft(), targetLength - bytesRead);
     source.readBytes(target, bytesRead, bytesToRead);
     bytesRead += bytesToRead;
     return bytesRead == targetLength;

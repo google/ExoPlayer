@@ -15,16 +15,20 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,12 +98,26 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private long bytesSkipped;
   private long bytesRead;
 
-  /** @param userAgent The User-Agent string that should be used. */
+  /** Creates an instance. */
+  public DefaultHttpDataSource() {
+    this(
+        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
+        DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DEFAULT_READ_TIMEOUT_MILLIS);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param userAgent The User-Agent string that should be used.
+   */
   public DefaultHttpDataSource(String userAgent) {
     this(userAgent, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
    *     interpreted as an infinite timeout.
@@ -116,6 +134,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
    *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
@@ -143,6 +163,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
@@ -150,6 +172,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @deprecated Use {@link #DefaultHttpDataSource(String)} and {@link
    *     #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource(String userAgent, @Nullable Predicate<String> contentTypePredicate) {
     this(
@@ -160,6 +183,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
@@ -188,6 +213,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   /**
+   * Creates an instance.
+   *
    * @param userAgent The User-Agent string that should be used.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
    *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
@@ -318,7 +345,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     // Check for a valid content type.
     String contentType = connection.getContentType();
-    if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
+    if (contentTypePredicate != null && !contentTypePredicate.apply(contentType)) {
       closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
@@ -633,7 +660,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
             // increase it.
             Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader
                 + "]");
-            contentLength = Math.max(contentLength, contentLengthFromRange);
+            contentLength = max(contentLength, contentLengthFromRange);
           }
         } catch (NumberFormatException e) {
           Log.e(TAG, "Unexpected Content-Range [" + contentRangeHeader + "]");
@@ -663,7 +690,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) Math.min(bytesToSkip - bytesSkipped, skipBuffer.length);
+      int readLength = (int) min(bytesToSkip - bytesSkipped, skipBuffer.length);
       int read = inputStream.read(skipBuffer, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
@@ -702,7 +729,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       if (bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
       }
-      readLength = (int) Math.min(readLength, bytesRemaining);
+      readLength = (int) min(readLength, bytesRemaining);
     }
 
     int read = inputStream.read(buffer, offset, readLength);

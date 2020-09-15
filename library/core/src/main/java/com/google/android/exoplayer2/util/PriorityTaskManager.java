@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static java.lang.Math.max;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.PriorityQueue;
@@ -59,7 +61,7 @@ public final class PriorityTaskManager {
   public void add(int priority) {
     synchronized (lock) {
       queue.add(priority);
-      highestPriority = Math.max(highestPriority, priority);
+      highestPriority = max(highestPriority, priority);
     }
   }
 

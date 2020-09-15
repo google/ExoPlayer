@@ -83,14 +83,13 @@ import java.util.ArrayDeque;
    * <p>Call this <b>after</b> {@link #dequeueOutputBufferIndex} returned {@link
    * MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
    *
-   * @throws {@link IllegalStateException} if you call this method before before {
-   * @link #dequeueOutputBufferIndex} returned {@link MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
+   * @throws IllegalStateException If called before {@link #dequeueOutputBufferIndex} has returned
+   *     {@link MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
    */
   public MediaFormat getOutputFormat() throws IllegalStateException {
     if (currentFormat == null) {
       throw new IllegalStateException();
     }
-
     return currentFormat;
   }
 
@@ -101,7 +100,6 @@ import java.util.ArrayDeque;
   public void maybeThrowMediaCodecException() throws IllegalStateException {
     IllegalStateException exception = mediaCodecException;
     mediaCodecException = null;
-
     if (exception != null) {
       throw exception;
     }

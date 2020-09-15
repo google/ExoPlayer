@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TsExtractorSeekTest {
 
-  private static final String TEST_FILE = "ts/bbb_2500ms.ts";
+  private static final String TEST_FILE = "media/ts/bbb_2500ms.ts";
   private static final int DURATION_US = 2_500_000;
   private static final int AUDIO_TRACK_ID = 257;
   private static final long MAXIMUM_TIMESTAMP_DELTA_US = 500_000L;
@@ -62,7 +62,7 @@ public final class TsExtractorSeekTest {
             .get(AUDIO_TRACK_ID);
 
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

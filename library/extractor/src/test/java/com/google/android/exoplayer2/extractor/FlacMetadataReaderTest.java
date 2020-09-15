@@ -45,7 +45,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void peekId3Metadata_updatesPeekPosition() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_id3.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_id3.flac");
 
     FlacMetadataReader.peekId3Metadata(input, /* parseData= */ false);
 
@@ -55,7 +55,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void peekId3Metadata_parseData_returnsNonEmptyMetadata() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_id3.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_id3.flac");
 
     Metadata metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ true);
 
@@ -65,7 +65,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void peekId3Metadata_doNotParseData_returnsNull() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_id3.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_id3.flac");
 
     Metadata metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ false);
 
@@ -74,7 +74,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void peekId3Metadata_noId3Metadata_returnsNull() throws Exception {
-    String fileWithoutId3Metadata = "flac/bear.flac";
+    String fileWithoutId3Metadata = "media/flac/bear.flac";
     ExtractorInput input = buildExtractorInput(fileWithoutId3Metadata);
 
     Metadata metadata = FlacMetadataReader.peekId3Metadata(input, /* parseData= */ true);
@@ -84,7 +84,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void checkAndPeekStreamMarker_updatesPeekPosition() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
 
     FlacMetadataReader.checkAndPeekStreamMarker(input);
 
@@ -94,7 +94,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void checkAndPeekStreamMarker_validData_isTrue() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
 
     boolean result = FlacMetadataReader.checkAndPeekStreamMarker(input);
 
@@ -103,7 +103,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void checkAndPeekStreamMarker_invalidData_isFalse() throws Exception {
-    ExtractorInput input = buildExtractorInput("mp3/bear-vbr-xing-header.mp3");
+    ExtractorInput input = buildExtractorInput("media/mp3/bear-vbr-xing-header.mp3");
 
     boolean result = FlacMetadataReader.checkAndPeekStreamMarker(input);
 
@@ -112,7 +112,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readId3Metadata_updatesReadPositionAndAlignsPeekPosition() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_id3.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_id3.flac");
     // Advance peek position after ID3 metadata.
     FlacMetadataReader.peekId3Metadata(input, /* parseData= */ false);
     input.advancePeekPosition(1);
@@ -125,7 +125,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readId3Metadata_parseData_returnsNonEmptyMetadata() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_id3.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_id3.flac");
 
     Metadata metadata = FlacMetadataReader.readId3Metadata(input, /* parseData= */ true);
 
@@ -135,7 +135,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readId3Metadata_doNotParseData_returnsNull() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_id3.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_id3.flac");
 
     Metadata metadata = FlacMetadataReader.readId3Metadata(input, /* parseData= */ false);
 
@@ -144,7 +144,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readId3Metadata_noId3Metadata_returnsNull() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
 
     Metadata metadata = FlacMetadataReader.readId3Metadata(input, /* parseData= */ true);
 
@@ -153,7 +153,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readStreamMarker_updatesReadPosition() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
 
     FlacMetadataReader.readStreamMarker(input);
 
@@ -163,14 +163,14 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readStreamMarker_invalidData_throwsException() throws Exception {
-    ExtractorInput input = buildExtractorInput("mp3/bear-vbr-xing-header.mp3");
+    ExtractorInput input = buildExtractorInput("media/mp3/bear-vbr-xing-header.mp3");
 
     assertThrows(ParserException.class, () -> FlacMetadataReader.readStreamMarker(input));
   }
 
   @Test
   public void readMetadataBlock_updatesReadPositionAndAlignsPeekPosition() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE);
     // Advance peek position after metadata block.
     input.advancePeekPosition(FlacConstants.STREAM_INFO_BLOCK_SIZE + 1);
@@ -184,7 +184,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readMetadataBlock_lastMetadataBlock_isTrue() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_one_metadata_block.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_one_metadata_block.flac");
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE);
 
     boolean result =
@@ -196,7 +196,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readMetadataBlock_notLastMetadataBlock_isFalse() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE);
 
     boolean result =
@@ -208,7 +208,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readMetadataBlock_streamInfoBlock_setsStreamMetadata() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE);
     FlacStreamMetadataHolder metadataHolder =
         new FlacStreamMetadataHolder(/* flacStreamMetadata= */ null);
@@ -221,7 +221,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readMetadataBlock_seekTableBlock_updatesStreamMetadata() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     // Skip to seek table block.
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
     FlacStreamMetadataHolder metadataHolder = new FlacStreamMetadataHolder(buildStreamMetadata());
@@ -238,7 +238,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readMetadataBlock_vorbisCommentBlock_updatesStreamMetadata() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_vorbis_comments.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_vorbis_comments.flac");
     // Skip to Vorbis comment block.
     input.skipFully(640);
     FlacStreamMetadataHolder metadataHolder = new FlacStreamMetadataHolder(buildStreamMetadata());
@@ -259,7 +259,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readMetadataBlock_pictureBlock_updatesStreamMetadata() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear_with_picture.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear_with_picture.flac");
     // Skip to picture block.
     input.skipFully(640);
     FlacStreamMetadataHolder metadataHolder = new FlacStreamMetadataHolder(buildStreamMetadata());
@@ -286,7 +286,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readMetadataBlock_blockToSkip_updatesReadPosition() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     // Skip to padding block.
     input.skipFully(640);
     FlacStreamMetadataHolder metadataHolder = new FlacStreamMetadataHolder(buildStreamMetadata());
@@ -300,7 +300,7 @@ public class FlacMetadataReaderTest {
   @Test
   public void readMetadataBlock_nonStreamInfoBlockWithNullStreamMetadata_throwsException()
       throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     // Skip to seek table block.
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
 
@@ -313,12 +313,12 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readSeekTableMetadataBlock_updatesPosition() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     // Skip to seek table block.
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
     int seekTableBlockSize = 598;
     ParsableByteArray scratch = new ParsableByteArray(seekTableBlockSize);
-    input.read(scratch.data, 0, seekTableBlockSize);
+    input.read(scratch.getData(), 0, seekTableBlockSize);
 
     FlacMetadataReader.readSeekTableMetadataBlock(scratch);
 
@@ -327,12 +327,12 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void readSeekTableMetadataBlock_returnsCorrectSeekPoints() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     // Skip to seek table block.
     input.skipFully(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
     int seekTableBlockSize = 598;
     ParsableByteArray scratch = new ParsableByteArray(seekTableBlockSize);
-    input.read(scratch.data, 0, seekTableBlockSize);
+    input.read(scratch.getData(), 0, seekTableBlockSize);
 
     FlacStreamMetadata.SeekTable seekTable = FlacMetadataReader.readSeekTableMetadataBlock(scratch);
 
@@ -345,7 +345,7 @@ public class FlacMetadataReaderTest {
   @Test
   public void readSeekTableMetadataBlock_ignoresPlaceholders() throws IOException {
     byte[] fileData =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "flac/bear.flac");
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "media/flac/bear.flac");
     ParsableByteArray scratch = new ParsableByteArray(fileData);
     // Skip to seek table block.
     scratch.skipBytes(FlacConstants.STREAM_MARKER_SIZE + FlacConstants.STREAM_INFO_BLOCK_SIZE);
@@ -359,7 +359,7 @@ public class FlacMetadataReaderTest {
   @Test
   public void getFrameStartMarker_doesNotUpdateReadPositionAndAlignsPeekPosition()
       throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     int firstFramePosition = 8880;
     input.skipFully(firstFramePosition);
     // Advance the peek position after the frame start marker.
@@ -373,7 +373,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void getFrameStartMarker_returnsCorrectFrameStartMarker() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
     // Skip to first frame.
     input.skipFully(8880);
 
@@ -384,7 +384,7 @@ public class FlacMetadataReaderTest {
 
   @Test
   public void getFrameStartMarker_invalidData_throwsException() throws Exception {
-    ExtractorInput input = buildExtractorInput("flac/bear.flac");
+    ExtractorInput input = buildExtractorInput("media/flac/bear.flac");
 
     // Input position is incorrect.
     assertThrows(ParserException.class, () -> FlacMetadataReader.getFrameStartMarker(input));

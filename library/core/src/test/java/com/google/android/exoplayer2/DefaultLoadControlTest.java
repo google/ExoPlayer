@@ -47,7 +47,7 @@ public class DefaultLoadControlTest {
 
   @Test
   public void shouldContinueLoading_untilMaxBufferExceeded() {
-    createDefaultLoadControl();
+    build();
 
     assertThat(
             loadControl.shouldContinueLoading(
@@ -68,7 +68,7 @@ public class DefaultLoadControlTest {
         /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
-    createDefaultLoadControl();
+    build();
 
     assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MAX_BUFFER_US, SPEED))
         .isFalse();
@@ -91,7 +91,7 @@ public class DefaultLoadControlTest {
         /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
-    createDefaultLoadControl();
+    build();
 
     assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MAX_BUFFER_US, SPEED))
         .isFalse();
@@ -111,7 +111,7 @@ public class DefaultLoadControlTest {
         /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
-    createDefaultLoadControl();
+    build();
     makeSureTargetBufferBytesReached();
 
     assertThat(
@@ -132,7 +132,7 @@ public class DefaultLoadControlTest {
   public void
       shouldContinueLoading_withTargetBufferBytesReachedAndNotPrioritizeTimeOverSize_returnsTrueAsSoonAsTargetBufferReached() {
     builder.setPrioritizeTimeOverSizeThresholds(false);
-    createDefaultLoadControl();
+    build();
 
     // Put loadControl in buffering state.
     assertThat(
@@ -162,7 +162,7 @@ public class DefaultLoadControlTest {
         /* maxBufferMs= */ (int) C.usToMs(MAX_BUFFER_US),
         /* bufferForPlaybackMs= */ 0,
         /* bufferForPlaybackAfterRebufferMs= */ 0);
-    createDefaultLoadControl();
+    build();
 
     // At normal playback speed, we stop buffering when the buffer reaches the minimum.
     assertThat(loadControl.shouldContinueLoading(/* playbackPositionUs= */ 0, MIN_BUFFER_US, SPEED))
@@ -176,7 +176,7 @@ public class DefaultLoadControlTest {
 
   @Test
   public void shouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
-    createDefaultLoadControl();
+    build();
 
     assertThat(
             loadControl.shouldContinueLoading(
@@ -186,7 +186,7 @@ public class DefaultLoadControlTest {
 
   @Test
   public void startsPlayback_whenMinBufferSizeReached() {
-    createDefaultLoadControl();
+    build();
 
     assertThat(loadControl.shouldStartPlayback(MIN_BUFFER_US, SPEED, /* rebuffering= */ false))
         .isTrue();
@@ -194,7 +194,7 @@ public class DefaultLoadControlTest {
 
   @Test
   public void shouldContinueLoading_withNoSelectedTracks_returnsTrue() {
-    loadControl = builder.createDefaultLoadControl();
+    loadControl = builder.build();
     loadControl.onTracksSelected(new Renderer[0], TrackGroupArray.EMPTY, new TrackSelectionArray());
 
     assertThat(
@@ -203,9 +203,9 @@ public class DefaultLoadControlTest {
         .isTrue();
   }
 
-  private void createDefaultLoadControl() {
+  private void build() {
     builder.setAllocator(allocator).setTargetBufferBytes(TARGET_BUFFER_BYTES);
-    loadControl = builder.createDefaultLoadControl();
+    loadControl = builder.build();
     loadControl.onTracksSelected(new Renderer[0], null, null);
   }
 

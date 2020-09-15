@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.okhttp;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -26,8 +27,8 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,6 +81,18 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   private long bytesRead;
 
   /**
+   * Creates an instance.
+   *
+   * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
+   *     by the source.
+   */
+  public OkHttpDataSource(Call.Factory callFactory) {
+    this(callFactory, ExoPlayerLibraryInfo.DEFAULT_USER_AGENT);
+  }
+
+  /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
@@ -89,6 +102,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
@@ -110,6 +125,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
@@ -119,6 +136,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
    * @deprecated Use {@link #OkHttpDataSource(Call.Factory, String)} and {@link
    *     #setContentTypePredicate(Predicate)}.
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   public OkHttpDataSource(
       Call.Factory callFactory,
@@ -133,6 +151,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
+   * Creates an instance.
+   *
    * @param callFactory A {@link Call.Factory} (typically an {@link okhttp3.OkHttpClient}) for use
    *     by the source.
    * @param userAgent An optional User-Agent string.
@@ -251,7 +271,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     // Check for a valid content type.
     MediaType mediaType = responseBody.contentType();
     String contentType = mediaType != null ? mediaType.toString() : "";
-    if (contentTypePredicate != null && !contentTypePredicate.evaluate(contentType)) {
+    if (contentTypePredicate != null && !contentTypePredicate.apply(contentType)) {
       closeConnectionQuietly();
       throw new InvalidContentTypeException(contentType, dataSpec);
     }
@@ -394,7 +414,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
 
     while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) Math.min(bytesToSkip - bytesSkipped, SKIP_BUFFER.length);
+      int readLength = (int) min(bytesToSkip - bytesSkipped, SKIP_BUFFER.length);
       int read = castNonNull(responseByteStream).read(SKIP_BUFFER, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
@@ -430,7 +450,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       if (bytesRemaining == 0) {
         return C.RESULT_END_OF_INPUT;
       }
-      readLength = (int) Math.min(readLength, bytesRemaining);
+      readLength = (int) min(readLength, bytesRemaining);
     }
 
     int read = castNonNull(responseByteStream).read(buffer, offset, readLength);

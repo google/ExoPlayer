@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.BinarySearchSeeker;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -76,10 +78,10 @@ import java.io.IOException;
     public TimestampSearchResult searchForTimestamp(ExtractorInput input, long targetTimestamp)
         throws IOException {
       long inputPosition = input.getPosition();
-      int bytesToSearch = (int) Math.min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
+      int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES, input.getLength() - inputPosition);
 
       packetBuffer.reset(bytesToSearch);
-      input.peekFully(packetBuffer.data, /* offset= */ 0, bytesToSearch);
+      input.peekFully(packetBuffer.getData(), /* offset= */ 0, bytesToSearch);
 
       return searchForPcrValueInBuffer(packetBuffer, targetTimestamp, inputPosition);
     }
@@ -94,7 +96,7 @@ import java.io.IOException;
 
       while (packetBuffer.bytesLeft() >= TsExtractor.TS_PACKET_SIZE) {
         int startOfPacket =
-            TsUtil.findSyncBytePosition(packetBuffer.data, packetBuffer.getPosition(), limit);
+            TsUtil.findSyncBytePosition(packetBuffer.getData(), packetBuffer.getPosition(), limit);
         int endOfPacket = startOfPacket + TsExtractor.TS_PACKET_SIZE;
         if (endOfPacket > limit) {
           break;

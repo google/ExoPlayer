@@ -39,9 +39,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class ConstantBitrateSeekerTest {
   private static final String CONSTANT_FRAME_SIZE_TEST_FILE =
-      "mp3/bear-cbr-constant-frame-size-no-seek-table.mp3";
+      "media/mp3/bear-cbr-constant-frame-size-no-seek-table.mp3";
   private static final String VARIABLE_FRAME_SIZE_TEST_FILE =
-      "mp3/bear-cbr-variable-frame-size-no-seek-table.mp3";
+      "media/mp3/bear-cbr-variable-frame-size-no-seek-table.mp3";
 
   private Mp3Extractor extractor;
   private FakeExtractorOutput extractorOutput;
@@ -52,7 +52,7 @@ public class ConstantBitrateSeekerTest {
     extractor = new Mp3Extractor();
     extractorOutput = new FakeExtractorOutput();
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

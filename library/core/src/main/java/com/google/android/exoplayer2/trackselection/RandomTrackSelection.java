@@ -102,21 +102,21 @@ public final class RandomTrackSelection extends BaseTrackSelection {
       long availableDurationUs,
       List<? extends MediaChunk> queue,
       MediaChunkIterator[] mediaChunkIterators) {
-    // Count the number of non-blacklisted formats.
+    // Count the number of allowed formats.
     long nowMs = SystemClock.elapsedRealtime();
-    int nonBlacklistedFormatCount = 0;
+    int allowedFormatCount = 0;
     for (int i = 0; i < length; i++) {
       if (!isBlacklisted(i, nowMs)) {
-        nonBlacklistedFormatCount++;
+        allowedFormatCount++;
       }
     }
 
-    selectedIndex = random.nextInt(nonBlacklistedFormatCount);
-    if (nonBlacklistedFormatCount != length) {
-      // Adjust the format index to account for blacklisted formats.
-      nonBlacklistedFormatCount = 0;
+    selectedIndex = random.nextInt(allowedFormatCount);
+    if (allowedFormatCount != length) {
+      // Adjust the format index to account for excluded formats.
+      allowedFormatCount = 0;
       for (int i = 0; i < length; i++) {
-        if (!isBlacklisted(i, nowMs) && selectedIndex == nonBlacklistedFormatCount++) {
+        if (!isBlacklisted(i, nowMs) && selectedIndex == allowedFormatCount++) {
           selectedIndex = i;
           return;
         }

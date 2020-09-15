@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static java.lang.Math.max;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.util.Assertions;
@@ -40,7 +42,7 @@ import java.util.Arrays;
    */
   public void reset() {
     pageHeader.reset();
-    packetArray.reset();
+    packetArray.reset(/* limit= */ 0);
     currentSegmentIndex = C.INDEX_UNSET;
     populated = false;
   }
@@ -61,7 +63,7 @@ import java.util.Arrays;
 
     if (populated) {
       populated = false;
-      packetArray.reset();
+      packetArray.reset(/* limit= */ 0);
     }
 
     while (!populated) {
@@ -86,9 +88,9 @@ import java.util.Arrays;
       int segmentIndex = currentSegmentIndex + segmentCount;
       if (size > 0) {
         if (packetArray.capacity() < packetArray.limit() + size) {
-          packetArray.data = Arrays.copyOf(packetArray.data, packetArray.limit() + size);
+          packetArray.reset(Arrays.copyOf(packetArray.getData(), packetArray.limit() + size));
         }
-        input.readFully(packetArray.data, packetArray.limit(), size);
+        input.readFully(packetArray.getData(), packetArray.limit(), size);
         packetArray.setLimit(packetArray.limit() + size);
         populated = pageHeader.laces[segmentIndex - 1] != 255;
       }
@@ -124,11 +126,12 @@ import java.util.Arrays;
    * Trims the packet data array.
    */
   public void trimPayload() {
-    if (packetArray.data.length == OggPageHeader.MAX_PAGE_PAYLOAD) {
+    if (packetArray.getData().length == OggPageHeader.MAX_PAGE_PAYLOAD) {
       return;
     }
-    packetArray.data = Arrays.copyOf(packetArray.data, Math.max(OggPageHeader.MAX_PAGE_PAYLOAD,
-        packetArray.limit()));
+    packetArray.reset(
+        Arrays.copyOf(
+            packetArray.getData(), max(OggPageHeader.MAX_PAGE_PAYLOAD, packetArray.limit())));
   }
 
   /**

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
+import static java.lang.Math.min;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -86,7 +87,7 @@ public class AdtsReaderTest {
       data.setPosition(i);
       feed();
       // Once the data position set to ID3_DATA_1.length, no more id3 samples are read
-      int id3SampleCount = Math.min(i, ID3_DATA_1.length);
+      int id3SampleCount = min(i, ID3_DATA_1.length);
       assertSampleCounts(id3SampleCount, i);
     }
   }

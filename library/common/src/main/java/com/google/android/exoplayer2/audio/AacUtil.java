@@ -309,6 +309,8 @@ public final class AacUtil {
         return C.ENCODING_AAC_XHE;
       case AUDIO_OBJECT_TYPE_AAC_ELD:
         return C.ENCODING_AAC_ELD;
+      case AUDIO_OBJECT_TYPE_AAC_ER_BSAC:
+        return C.ENCODING_AAC_ER_BSAC;
       default:
         return C.ENCODING_INVALID;
     }

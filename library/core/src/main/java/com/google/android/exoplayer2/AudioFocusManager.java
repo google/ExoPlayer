@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.Context;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -116,7 +118,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public AudioFocusManager(Context context, Handler eventHandler, PlayerControl playerControl) {
     this.audioManager =
-        (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        checkNotNull(
+            (AudioManager) context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE));
     this.playerControl = playerControl;
     this.focusListener = new AudioFocusListener(eventHandler);
     this.audioFocusState = AUDIO_FOCUS_STATE_NO_FOCUS;
@@ -212,7 +215,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private int requestAudioFocusDefault() {
     return audioManager.requestAudioFocus(
         focusListener,
-        Util.getStreamTypeForAudioUsage(Assertions.checkNotNull(audioAttributes).usage),
+        Util.getStreamTypeForAudioUsage(checkNotNull(audioAttributes).usage),
         focusGain);
   }
 
@@ -227,7 +230,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean willPauseWhenDucked = willPauseWhenDucked();
       audioFocusRequest =
           builder
-              .setAudioAttributes(Assertions.checkNotNull(audioAttributes).getAudioAttributesV21())
+              .setAudioAttributes(checkNotNull(audioAttributes).getAudioAttributesV21())
               .setWillPauseWhenDucked(willPauseWhenDucked)
               .setOnAudioFocusChangeListener(focusListener)
               .build();

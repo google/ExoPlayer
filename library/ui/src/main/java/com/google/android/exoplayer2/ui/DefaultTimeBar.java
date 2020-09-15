@@ -450,6 +450,7 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   @Override
   public void addListener(OnScrubListener listener) {
+    Assertions.checkNotNull(listener);
     listeners.add(listener);
   }
 

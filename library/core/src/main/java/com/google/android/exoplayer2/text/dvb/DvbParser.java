@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.dvb;
 
+import static java.lang.Math.min;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -163,10 +165,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           + displayDefinition.horizontalPositionMinimum;
       int baseVerticalAddress = pageRegion.verticalAddress
           + displayDefinition.verticalPositionMinimum;
-      int clipRight = Math.min(baseHorizontalAddress + regionComposition.width,
-          displayDefinition.horizontalPositionMaximum);
-      int clipBottom = Math.min(baseVerticalAddress + regionComposition.height,
-          displayDefinition.verticalPositionMaximum);
+      int clipRight =
+          min(
+              baseHorizontalAddress + regionComposition.width,
+              displayDefinition.horizontalPositionMaximum);
+      int clipBottom =
+          min(
+              baseVerticalAddress + regionComposition.height,
+              displayDefinition.verticalPositionMaximum);
       canvas.clipRect(baseHorizontalAddress, baseVerticalAddress, clipRight, clipBottom);
       ClutDefinition clutDefinition = subtitleService.cluts.get(regionComposition.clutId);
       if (clutDefinition == null) {

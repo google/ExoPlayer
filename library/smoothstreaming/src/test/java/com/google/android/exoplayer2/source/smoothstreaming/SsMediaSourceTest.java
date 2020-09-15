@@ -82,6 +82,7 @@ public class SsMediaSourceTest {
   }
 
   // Tests backwards compatibility
+  @SuppressWarnings("deprecation")
   @Test
   public void factoryCreateMediaSource_setsDeprecatedMediaSourceTag() {
     Object tag = new Object();

@@ -39,7 +39,7 @@ git clone https://github.com/google/cpu_features
 
 ```
 cd "${AV1_EXT_PATH}/jni" && \
-git clone https://chromium.googlesource.com/codecs/libgav1 libgav1
+git clone https://chromium.googlesource.com/codecs/libgav1
 ```
 
 * Fetch Abseil:
@@ -109,19 +109,22 @@ To try out playback using the extension in the [demo application][], see
 There are two possibilities for rendering the output `Libgav1VideoRenderer`
 gets from the libgav1 decoder:
 
-* GL rendering using GL shader for color space conversion
-  * If you are using `SimpleExoPlayer` with `PlayerView`, enable this option by
-    setting `surface_type` of `PlayerView` to be
-    `video_decoder_gl_surface_view`.
-  * Otherwise, enable this option by sending `Libgav1VideoRenderer` a message
-    of type `C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER` with an instance of
-    `VideoDecoderOutputBufferRenderer` as its object.
+*   GL rendering using GL shader for color space conversion
 
-* Native rendering using `ANativeWindow`
-  * If you are using `SimpleExoPlayer` with `PlayerView`, this option is enabled
-    by default.
-  * Otherwise, enable this option by sending `Libgav1VideoRenderer` a message of
-    type `C.MSG_SET_SURFACE` with an instance of `SurfaceView` as its object.
+    *   If you are using `SimpleExoPlayer` with `PlayerView`, enable this option
+        by setting `surface_type` of `PlayerView` to be
+        `video_decoder_gl_surface_view`.
+    *   Otherwise, enable this option by sending `Libgav1VideoRenderer` a
+        message of type `Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER`
+        with an instance of `VideoDecoderOutputBufferRenderer` as its object.
+
+*   Native rendering using `ANativeWindow`
+
+    *   If you are using `SimpleExoPlayer` with `PlayerView`, this option is
+        enabled by default.
+    *   Otherwise, enable this option by sending `Libgav1VideoRenderer` a
+        message of type `Renderer.MSG_SET_SURFACE` with an instance of
+        `SurfaceView` as its object.
 
 Note: Although the default option uses `ANativeWindow`, based on our testing the
 GL rendering mode has better performance, so should be preferred

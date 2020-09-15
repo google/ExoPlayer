@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.util;
 
-import com.google.android.exoplayer2.C;
+import static java.lang.Math.min;
+
+import com.google.common.base.Charsets;
 import java.nio.charset.Charset;
 
 /**
@@ -72,7 +74,7 @@ public final class ParsableBitArray {
    * @param parsableByteArray The {@link ParsableByteArray}.
    */
   public void reset(ParsableByteArray parsableByteArray) {
-    reset(parsableByteArray.data, parsableByteArray.limit());
+    reset(parsableByteArray.getData(), parsableByteArray.limit());
     setPosition(parsableByteArray.getPosition() * 8);
   }
 
@@ -288,7 +290,7 @@ public final class ParsableBitArray {
    * @return The string encoded by the bytes in UTF-8.
    */
   public String readBytesAsString(int length) {
-    return readBytesAsString(length, Charset.forName(C.UTF8_NAME));
+    return readBytesAsString(length, Charsets.UTF_8);
   }
 
   /**
@@ -319,7 +321,7 @@ public final class ParsableBitArray {
     if (numBits < 32) {
       value &= (1 << numBits) - 1;
     }
-    int firstByteReadSize = Math.min(8 - bitOffset, numBits);
+    int firstByteReadSize = min(8 - bitOffset, numBits);
     int firstByteRightPaddingSize = 8 - bitOffset - firstByteReadSize;
     int firstByteBitmask = (0xFF00 >> bitOffset) | ((1 << firstByteRightPaddingSize) - 1);
     data[byteOffset] = (byte) (data[byteOffset] & firstByteBitmask);

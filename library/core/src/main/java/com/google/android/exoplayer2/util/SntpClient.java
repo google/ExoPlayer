@@ -160,7 +160,7 @@ public final class SntpClient {
       final long receiveTime = readTimestamp(buffer, RECEIVE_TIME_OFFSET);
       final long transmitTime = readTimestamp(buffer, TRANSMIT_TIME_OFFSET);
 
-      // Do sanity check according to RFC.
+      // Check server reply validity according to RFC.
       checkValidServerReply(leap, mode, stratum, transmitTime);
 
       // receiveTime = originateTime + transit + skew

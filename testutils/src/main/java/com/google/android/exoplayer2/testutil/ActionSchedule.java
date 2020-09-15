@@ -20,6 +20,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
@@ -35,7 +36,7 @@ import com.google.android.exoplayer2.testutil.Action.Seek;
 import com.google.android.exoplayer2.testutil.Action.SendMessages;
 import com.google.android.exoplayer2.testutil.Action.SetAudioAttributes;
 import com.google.android.exoplayer2.testutil.Action.SetPlayWhenReady;
-import com.google.android.exoplayer2.testutil.Action.SetPlaybackSpeed;
+import com.google.android.exoplayer2.testutil.Action.SetPlaybackParameters;
 import com.google.android.exoplayer2.testutil.Action.SetRendererDisabled;
 import com.google.android.exoplayer2.testutil.Action.SetRepeatMode;
 import com.google.android.exoplayer2.testutil.Action.SetShuffleModeEnabled;
@@ -214,14 +215,14 @@ public final class ActionSchedule {
     }
 
     /**
-     * Schedules a playback speed setting action.
+     * Schedules a playback parameters setting action.
      *
-     * @param playbackSpeed The playback speed to set.
+     * @param playbackParameters The playback parameters to set.
      * @return The builder, for convenience.
-     * @see Player#setPlaybackSpeed(float)
+     * @see Player#setPlaybackParameters(PlaybackParameters)
      */
-    public Builder setPlaybackSpeed(float playbackSpeed) {
-      return apply(new SetPlaybackSpeed(tag, playbackSpeed));
+    public Builder setPlaybackParameters(PlaybackParameters playbackParameters) {
+      return apply(new SetPlaybackParameters(tag, playbackParameters));
     }
 
     /**

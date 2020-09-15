@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.net.Uri;
@@ -25,7 +26,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.drm.DrmSession;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -34,8 +35,8 @@ import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceDrmHelper;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
@@ -48,9 +49,11 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -91,12 +94,13 @@ public final class HlsMediaSource extends BaseMediaSource
   public static final class Factory implements MediaSourceFactory {
 
     private final HlsDataSourceFactory hlsDataSourceFactory;
+    private final MediaSourceDrmHelper mediaSourceDrmHelper;
 
     private HlsExtractorFactory extractorFactory;
     private HlsPlaylistParserFactory playlistParserFactory;
     private HlsPlaylistTracker.Factory playlistTrackerFactory;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-    private DrmSessionManager drmSessionManager;
+    @Nullable private DrmSessionManager drmSessionManager;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
     @MetadataType private int metadataType;
@@ -123,10 +127,10 @@ public final class HlsMediaSource extends BaseMediaSource
      */
     public Factory(HlsDataSourceFactory hlsDataSourceFactory) {
       this.hlsDataSourceFactory = checkNotNull(hlsDataSourceFactory);
+      mediaSourceDrmHelper = new MediaSourceDrmHelper();
       playlistParserFactory = new DefaultHlsPlaylistParserFactory();
       playlistTrackerFactory = DefaultHlsPlaylistTracker.FACTORY;
       extractorFactory = HlsExtractorFactory.DEFAULT;
-      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
       compositeSequenceableLoaderFactory = new DefaultCompositeSequenceableLoaderFactory();
       metadataType = METADATA_TYPE_ID3;
@@ -283,19 +287,22 @@ public final class HlsMediaSource extends BaseMediaSource
       return this;
     }
 
-    /**
-     * Sets the {@link DrmSessionManager} to use for acquiring {@link DrmSession DrmSessions}. The
-     * default value is {@link DrmSessionManager#DUMMY}.
-     *
-     * @param drmSessionManager The {@link DrmSessionManager}.
-     * @return This factory, for convenience.
-     */
     @Override
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      this.drmSessionManager =
-          drmSessionManager != null
-              ? drmSessionManager
-              : DrmSessionManager.getDummyDrmSessionManager();
+      this.drmSessionManager = drmSessionManager;
+      return this;
+    }
+
+    @Override
+    public Factory setDrmHttpDataSourceFactory(
+        @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
+      mediaSourceDrmHelper.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      return this;
+    }
+
+    @Override
+    public MediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
+      mediaSourceDrmHelper.setDrmUserAgent(userAgent);
       return this;
     }
 
@@ -312,7 +319,7 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     /**
-     * @deprecated Use {@link #createMediaSource(Uri)} and {@link #addEventListener(Handler,
+     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
      *     MediaSourceEventListener)} instead.
      */
     @SuppressWarnings("deprecation")
@@ -372,7 +379,7 @@ public final class HlsMediaSource extends BaseMediaSource
           hlsDataSourceFactory,
           extractorFactory,
           compositeSequenceableLoaderFactory,
-          drmSessionManager,
+          drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem),
           loadErrorHandlingPolicy,
           playlistTrackerFactory.createTracker(
               hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory),
@@ -425,13 +432,18 @@ public final class HlsMediaSource extends BaseMediaSource
     this.useSessionKeys = useSessionKeys;
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return playbackProperties.tag;
   }
 
-  // TODO(bachinger): add @Override annotation once the method is defined by MediaSource.
+  @Override
   public MediaItem getMediaItem() {
     return mediaItem;
   }
@@ -440,7 +452,8 @@ public final class HlsMediaSource extends BaseMediaSource
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
     drmSessionManager.prepare();
-    EventDispatcher eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+    MediaSourceEventListener.EventDispatcher eventDispatcher =
+        createEventDispatcher(/* mediaPeriodId= */ null);
     playlistTracker.start(playbackProperties.uri, eventDispatcher, /* listener= */ this);
   }
 
@@ -451,15 +464,17 @@ public final class HlsMediaSource extends BaseMediaSource
 
   @Override
   public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
-    EventDispatcher eventDispatcher = createEventDispatcher(id);
+    MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher = createEventDispatcher(id);
+    DrmSessionEventListener.EventDispatcher drmEventDispatcher = createDrmEventDispatcher(id);
     return new HlsMediaPeriod(
         extractorFactory,
         playlistTracker,
         dataSourceFactory,
         mediaTransferListener,
         drmSessionManager,
+        drmEventDispatcher,
         loadErrorHandlingPolicy,
-        eventDispatcher,
+        mediaSourceEventDispatcher,
         allocator,
         compositeSequenceableLoaderFactory,
         allowChunklessPreparation,
@@ -503,7 +518,7 @@ public final class HlsMediaSource extends BaseMediaSource
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
         if (!segments.isEmpty()) {
-          int defaultStartSegmentIndex = Math.max(0, segments.size() - 3);
+          int defaultStartSegmentIndex = max(0, segments.size() - 3);
           // We attempt to set the default start position to be at least twice the target duration
           // behind the live edge.
           long minStartPositionUs = playlist.durationUs - playlist.targetDurationUs * 2;

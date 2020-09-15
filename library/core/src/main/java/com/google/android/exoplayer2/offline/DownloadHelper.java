@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -77,7 +78,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * <p>A typical usage of DownloadHelper follows these steps:
  *
  * <ol>
- *   <li>Build the helper using one of the {@code forXXX} methods.
+ *   <li>Build the helper using one of the {@code forMediaItem} methods.
  *   <li>Prepare the helper using {@link #prepare(Callback)} and wait for the callback.
  *   <li>Optional: Inspect the selected tracks using {@link #getMappedTrackInfo(int)} and {@link
  *       #getTrackSelections(int, int)}, and make adjustments using {@link
@@ -156,7 +157,7 @@ public final class DownloadHelper {
   public static RendererCapabilities[] getRendererCapabilities(RenderersFactory renderersFactory) {
     Renderer[] renderers =
         renderersFactory.createRenderers(
-            Util.createHandler(),
+            Util.createHandlerForCurrentOrMainLooper(),
             new VideoRendererEventListener() {},
             new AudioRendererEventListener() {},
             (cues) -> {},
@@ -270,7 +271,7 @@ public final class DownloadHelper {
         dataSourceFactory,
         renderersFactory,
         /* drmSessionManager= */ null,
-        DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_VIEWPORT);
+        DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT);
   }
 
   /**
@@ -320,9 +321,7 @@ public final class DownloadHelper {
    * @throws IllegalStateException If the media item is of type DASH, HLS or SmoothStreaming.
    */
   public static DownloadHelper forMediaItem(Context context, MediaItem mediaItem) {
-    Assertions.checkArgument(
-        DownloadRequest.TYPE_PROGRESSIVE.equals(
-            getDownloadType(checkNotNull(mediaItem.playbackProperties))));
+    Assertions.checkArgument(isProgressive(checkNotNull(mediaItem.playbackProperties)));
     return forMediaItem(
         mediaItem,
         getDefaultTrackSelectorParameters(context),
@@ -412,9 +411,7 @@ public final class DownloadHelper {
       @Nullable RenderersFactory renderersFactory,
       @Nullable DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    boolean isProgressive =
-        DownloadRequest.TYPE_PROGRESSIVE.equals(
-            getDownloadType(checkNotNull(mediaItem.playbackProperties)));
+    boolean isProgressive = isProgressive(checkNotNull(mediaItem.playbackProperties));
     Assertions.checkArgument(isProgressive || dataSourceFactory != null);
     return new DownloadHelper(
         mediaItem,
@@ -429,7 +426,7 @@ public final class DownloadHelper {
   }
 
   /**
-   * Equivalent to {@link #createMediaSource(DownloadRequest, Factory, DrmSessionManager)
+   * Equivalent to {@link #createMediaSource(DownloadRequest, DataSource.Factory, DrmSessionManager)
    * createMediaSource(downloadRequest, dataSourceFactory, null)}.
    */
   public static MediaSource createMediaSource(
@@ -452,14 +449,7 @@ public final class DownloadHelper {
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
     return createMediaSourceInternal(
-        new MediaItem.Builder()
-            .setUri(downloadRequest.uri)
-            .setCustomCacheKey(downloadRequest.customCacheKey)
-            .setMimeType(getMimeType(downloadRequest.type))
-            .setStreamKeys(downloadRequest.streamKeys)
-            .build(),
-        dataSourceFactory,
-        drmSessionManager);
+        downloadRequest.toMediaItem(), dataSourceFactory, drmSessionManager);
   }
 
   private final MediaItem.PlaybackProperties playbackProperties;
@@ -500,8 +490,8 @@ public final class DownloadHelper {
         new DefaultTrackSelector(trackSelectorParameters, new DownloadTrackSelection.Factory());
     this.rendererCapabilities = rendererCapabilities;
     this.scratchSet = new SparseIntArray();
-    trackSelector.init(/* listener= */ () -> {}, new DummyBandwidthMeter());
-    callbackHandler = new Handler(Util.getLooper());
+    trackSelector.init(/* listener= */ () -> {}, new FakeBandwidthMeter());
+    callbackHandler = Util.createHandlerForCurrentOrMainLooper();
     window = new Timeline.Window();
   }
 
@@ -747,15 +737,17 @@ public final class DownloadHelper {
    * @return The built {@link DownloadRequest}.
    */
   public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
-    String downloadType = getDownloadType(playbackProperties);
+    DownloadRequest.Builder requestBuilder =
+        new DownloadRequest.Builder(id, playbackProperties.uri)
+            .setMimeType(playbackProperties.mimeType)
+            .setKeySetId(
+                playbackProperties.drmConfiguration != null
+                    ? playbackProperties.drmConfiguration.getKeySetId()
+                    : null)
+            .setCustomCacheKey(playbackProperties.customCacheKey)
+            .setData(data);
     if (mediaSource == null) {
-      return new DownloadRequest(
-          id,
-          downloadType,
-          playbackProperties.uri,
-          /* streamKeys= */ Collections.emptyList(),
-          playbackProperties.customCacheKey,
-          data);
+      return requestBuilder.build();
     }
     assertPreparedWithMedia();
     List<StreamKey> streamKeys = new ArrayList<>();
@@ -769,13 +761,7 @@ public final class DownloadHelper {
       }
       streamKeys.addAll(mediaPreparer.mediaPeriods[periodIndex].getStreamKeys(allSelections));
     }
-    return new DownloadRequest(
-        id,
-        downloadType,
-        playbackProperties.uri,
-        streamKeys,
-        playbackProperties.customCacheKey,
-        data);
+    return requestBuilder.setStreamKeys(streamKeys).build();
   }
 
   // Initialization of array of Lists.
@@ -904,40 +890,15 @@ public final class DownloadHelper {
       MediaItem mediaItem,
       DataSource.Factory dataSourceFactory,
       @Nullable DrmSessionManager drmSessionManager) {
-    return new DefaultMediaSourceFactory(dataSourceFactory, /* adSupportProvider= */ null)
+    return new DefaultMediaSourceFactory(dataSourceFactory, ExtractorsFactory.EMPTY)
         .setDrmSessionManager(drmSessionManager)
         .createMediaSource(mediaItem);
   }
 
-  private static String getDownloadType(MediaItem.PlaybackProperties playbackProperties) {
-    int contentType =
-        Util.inferContentTypeWithMimeType(playbackProperties.uri, playbackProperties.mimeType);
-    switch (contentType) {
-      case C.TYPE_DASH:
-        return DownloadRequest.TYPE_DASH;
-      case C.TYPE_HLS:
-        return DownloadRequest.TYPE_HLS;
-      case C.TYPE_SS:
-        return DownloadRequest.TYPE_SS;
-      default:
-        return DownloadRequest.TYPE_PROGRESSIVE;
-    }
-  }
-
-  @Nullable
-  private static String getMimeType(String downloadType) {
-    switch (downloadType) {
-      case DownloadRequest.TYPE_DASH:
-        return MimeTypes.APPLICATION_MPD;
-      case DownloadRequest.TYPE_HLS:
-        return MimeTypes.APPLICATION_M3U8;
-      case DownloadRequest.TYPE_SS:
-        return MimeTypes.APPLICATION_SS;
-      case DownloadRequest.TYPE_PROGRESSIVE:
-        return null;
-      default:
-        throw new IllegalArgumentException();
-    }
+  private static boolean isProgressive(MediaItem.PlaybackProperties playbackProperties) {
+    return Util.inferContentTypeForUriAndMimeType(
+            playbackProperties.uri, playbackProperties.mimeType)
+        == C.TYPE_OTHER;
   }
 
   private static final class MediaPreparer
@@ -970,7 +931,8 @@ public final class DownloadHelper {
       allocator = new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
       pendingMediaPeriods = new ArrayList<>();
       @SuppressWarnings("methodref.receiver.bound.invalid")
-      Handler downloadThreadHandler = Util.createHandler(this::handleDownloadHelperCallbackMessage);
+      Handler downloadThreadHandler =
+          Util.createHandlerForCurrentOrMainLooper(this::handleDownloadHelperCallbackMessage);
       this.downloadHelperHandler = downloadThreadHandler;
       mediaSourceThread = new HandlerThread("ExoPlayer:DownloadHelper");
       mediaSourceThread.start();
@@ -1151,7 +1113,7 @@ public final class DownloadHelper {
     }
   }
 
-  private static final class DummyBandwidthMeter implements BandwidthMeter {
+  private static final class FakeBandwidthMeter implements BandwidthMeter {
 
     @Override
     public long getBitrateEstimate() {

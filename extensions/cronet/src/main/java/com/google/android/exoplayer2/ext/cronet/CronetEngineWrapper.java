@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static java.lang.Math.min;
+
 import android.content.Context;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -230,7 +232,7 @@ public final class CronetEngineWrapper {
       }
       String[] versionStringsLeft = Util.split(versionLeft, "\\.");
       String[] versionStringsRight = Util.split(versionRight, "\\.");
-      int minLength = Math.min(versionStringsLeft.length, versionStringsRight.length);
+      int minLength = min(versionStringsLeft.length, versionStringsRight.length);
       for (int i = 0; i < minLength; i++) {
         if (!versionStringsLeft[i].equals(versionStringsRight[i])) {
           try {

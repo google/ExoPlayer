@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.pgs;
 
+import static java.lang.Math.min;
+
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
@@ -72,7 +74,7 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
         inflater = new Inflater();
       }
       if (Util.inflate(buffer, inflatedBuffer, inflater)) {
-        buffer.reset(inflatedBuffer.data, inflatedBuffer.limit());
+        buffer.reset(inflatedBuffer.getData(), inflatedBuffer.limit());
       } // else assume data is not compressed.
     }
   }
@@ -182,8 +184,8 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
       int position = bitmapData.getPosition();
       int limit = bitmapData.limit();
       if (position < limit && sectionLength > 0) {
-        int bytesToRead = Math.min(sectionLength, limit - position);
-        buffer.readBytes(bitmapData.data, position, bytesToRead);
+        int bytesToRead = min(sectionLength, limit - position);
+        buffer.readBytes(bitmapData.getData(), position, bytesToRead);
         bitmapData.setPosition(position + bytesToRead);
       }
     }

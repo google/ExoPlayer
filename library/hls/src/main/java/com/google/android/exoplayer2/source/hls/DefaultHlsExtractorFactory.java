@@ -88,8 +88,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
   }
 
   @Override
-  public Result createExtractor(
-      @Nullable Extractor previousExtractor,
+  public BundledHlsMediaChunkExtractor createExtractor(
       Uri uri,
       Format format,
       @Nullable List<Format> muxedCaptionFormats,
@@ -97,22 +96,6 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       Map<String, List<String>> responseHeaders,
       ExtractorInput extractorInput)
       throws IOException {
-
-    if (previousExtractor != null) {
-      // An extractor has already been successfully used. Return one of the same type.
-      if (isReusable(previousExtractor)) {
-        return buildResult(previousExtractor);
-      } else {
-        @Nullable
-        Result result =
-            buildResultForSameExtractorType(previousExtractor, format, timestampAdjuster);
-        if (result == null) {
-          throw new IllegalArgumentException(
-              "Unexpected previousExtractor type: " + previousExtractor.getClass().getSimpleName());
-        }
-      }
-    }
-
     @FileTypes.Type
     int formatInferredFileType = FileTypes.inferFileTypeFromMimeType(format.sampleMimeType);
     @FileTypes.Type
@@ -139,14 +122,15 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
           checkNotNull(
               createExtractorByFileType(fileType, format, muxedCaptionFormats, timestampAdjuster));
       if (sniffQuietly(extractor, extractorInput)) {
-        return buildResult(extractor);
+        return new BundledHlsMediaChunkExtractor(extractor, format, timestampAdjuster);
       }
       if (fileType == FileTypes.TS) {
         fallBackExtractor = extractor;
       }
     }
 
-    return buildResult(checkNotNull(fallBackExtractor));
+    return new BundledHlsMediaChunkExtractor(
+        checkNotNull(fallBackExtractor), format, timestampAdjuster);
   }
 
   private static void addFileTypeIfNotPresent(
@@ -257,34 +241,6 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     return false;
   }
 
-  @Nullable
-  private static Result buildResultForSameExtractorType(
-      Extractor previousExtractor, Format format, TimestampAdjuster timestampAdjuster) {
-    if (previousExtractor instanceof WebvttExtractor) {
-      return buildResult(new WebvttExtractor(format.language, timestampAdjuster));
-    } else if (previousExtractor instanceof AdtsExtractor) {
-      return buildResult(new AdtsExtractor());
-    } else if (previousExtractor instanceof Ac3Extractor) {
-      return buildResult(new Ac3Extractor());
-    } else if (previousExtractor instanceof Ac4Extractor) {
-      return buildResult(new Ac4Extractor());
-    } else if (previousExtractor instanceof Mp3Extractor) {
-      return buildResult(new Mp3Extractor());
-    } else {
-      return null;
-    }
-  }
-
-  private static Result buildResult(Extractor extractor) {
-    return new Result(
-        extractor,
-        extractor instanceof AdtsExtractor
-            || extractor instanceof Ac3Extractor
-            || extractor instanceof Ac4Extractor
-            || extractor instanceof Mp3Extractor,
-        isReusable(extractor));
-  }
-
   private static boolean sniffQuietly(Extractor extractor, ExtractorInput input)
       throws IOException {
     boolean result = false;
@@ -296,10 +252,5 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       input.resetPeekPosition();
     }
     return result;
-  }
-
-  private static boolean isReusable(Extractor previousExtractor) {
-    return previousExtractor instanceof TsExtractor
-        || previousExtractor instanceof FragmentedMp4Extractor;
   }
 }

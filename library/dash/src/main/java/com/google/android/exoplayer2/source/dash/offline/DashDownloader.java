@@ -36,10 +36,12 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.util.RunnableFutureTask;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * A downloader for DASH streams.
@@ -140,8 +142,8 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
 
   @Override
   protected List<Segment> getSegments(
-      DataSource dataSource, DashManifest manifest, boolean allowIncompleteList)
-      throws IOException {
+      DataSource dataSource, DashManifest manifest, boolean removing)
+      throws IOException, InterruptedException {
     ArrayList<Segment> segments = new ArrayList<>();
     for (int i = 0; i < manifest.getPeriodCount(); i++) {
       Period period = manifest.getPeriod(i);
@@ -150,36 +152,31 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
       List<AdaptationSet> adaptationSets = period.adaptationSets;
       for (int j = 0; j < adaptationSets.size(); j++) {
         addSegmentsForAdaptationSet(
-            dataSource,
-            adaptationSets.get(j),
-            periodStartUs,
-            periodDurationUs,
-            allowIncompleteList,
-            segments);
+            dataSource, adaptationSets.get(j), periodStartUs, periodDurationUs, removing, segments);
       }
     }
     return segments;
   }
 
-  private static void addSegmentsForAdaptationSet(
+  private void addSegmentsForAdaptationSet(
       DataSource dataSource,
       AdaptationSet adaptationSet,
       long periodStartUs,
       long periodDurationUs,
-      boolean allowIncompleteList,
+      boolean removing,
       ArrayList<Segment> out)
-      throws IOException {
+      throws IOException, InterruptedException {
     for (int i = 0; i < adaptationSet.representations.size(); i++) {
       Representation representation = adaptationSet.representations.get(i);
       DashSegmentIndex index;
       try {
-        index = getSegmentIndex(dataSource, adaptationSet.type, representation);
+        index = getSegmentIndex(dataSource, adaptationSet.type, representation, removing);
         if (index == null) {
           // Loading succeeded but there was no index.
           throw new DownloadException("Missing segment index");
         }
       } catch (IOException e) {
-        if (!allowIncompleteList) {
+        if (!removing) {
           throw e;
         }
         // Generating an incomplete segment list is allowed. Advance to the next representation.
@@ -215,16 +212,24 @@ public final class DashDownloader extends SegmentDownloader<DashManifest> {
     out.add(new Segment(startTimeUs, dataSpec));
   }
 
-  private static @Nullable DashSegmentIndex getSegmentIndex(
-      DataSource dataSource, int trackType, Representation representation) throws IOException {
+  @Nullable
+  private DashSegmentIndex getSegmentIndex(
+      DataSource dataSource, int trackType, Representation representation, boolean removing)
+      throws IOException, InterruptedException {
     DashSegmentIndex index = representation.getIndex();
     if (index != null) {
       return index;
     }
-    ChunkIndex seekMap = DashUtil.loadChunkIndex(dataSource, trackType, representation);
+    RunnableFutureTask<@NullableType ChunkIndex, IOException> runnable =
+        new RunnableFutureTask<@NullableType ChunkIndex, IOException>() {
+          @Override
+          protected @NullableType ChunkIndex doWork() throws IOException {
+            return DashUtil.loadChunkIndex(dataSource, trackType, representation);
+          }
+        };
+    @Nullable ChunkIndex seekMap = execute(runnable, removing);
     return seekMap == null
         ? null
         : new DashWrappingSegmentIndex(seekMap, representation.presentationTimeOffsetUs);
   }
-
 }

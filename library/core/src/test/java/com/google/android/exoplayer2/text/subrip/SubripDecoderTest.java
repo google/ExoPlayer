@@ -30,16 +30,19 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SubripDecoderTest {
 
-  private static final String EMPTY_FILE = "subrip/empty";
-  private static final String TYPICAL_FILE = "subrip/typical";
-  private static final String TYPICAL_WITH_BYTE_ORDER_MARK = "subrip/typical_with_byte_order_mark";
-  private static final String TYPICAL_EXTRA_BLANK_LINE = "subrip/typical_extra_blank_line";
-  private static final String TYPICAL_MISSING_TIMECODE = "subrip/typical_missing_timecode";
-  private static final String TYPICAL_MISSING_SEQUENCE = "subrip/typical_missing_sequence";
-  private static final String TYPICAL_NEGATIVE_TIMESTAMPS = "subrip/typical_negative_timestamps";
-  private static final String TYPICAL_UNEXPECTED_END = "subrip/typical_unexpected_end";
-  private static final String TYPICAL_WITH_TAGS = "subrip/typical_with_tags";
-  private static final String TYPICAL_NO_HOURS_AND_MILLIS = "subrip/typical_no_hours_and_millis";
+  private static final String EMPTY_FILE = "media/subrip/empty";
+  private static final String TYPICAL_FILE = "media/subrip/typical";
+  private static final String TYPICAL_WITH_BYTE_ORDER_MARK =
+      "media/subrip/typical_with_byte_order_mark";
+  private static final String TYPICAL_EXTRA_BLANK_LINE = "media/subrip/typical_extra_blank_line";
+  private static final String TYPICAL_MISSING_TIMECODE = "media/subrip/typical_missing_timecode";
+  private static final String TYPICAL_MISSING_SEQUENCE = "media/subrip/typical_missing_sequence";
+  private static final String TYPICAL_NEGATIVE_TIMESTAMPS =
+      "media/subrip/typical_negative_timestamps";
+  private static final String TYPICAL_UNEXPECTED_END = "media/subrip/typical_unexpected_end";
+  private static final String TYPICAL_WITH_TAGS = "media/subrip/typical_with_tags";
+  private static final String TYPICAL_NO_HOURS_AND_MILLIS =
+      "media/subrip/typical_no_hours_and_millis";
 
   @Test
   public void decodeEmpty() throws IOException {

@@ -28,9 +28,9 @@ import com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTim
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -42,14 +42,15 @@ import org.xmlpull.v1.XmlPullParserFactory;
 @RunWith(AndroidJUnit4.class)
 public class DashManifestParserTest {
 
-  private static final String SAMPLE_MPD = "mpd/sample_mpd";
-  private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE = "mpd/sample_mpd_unknown_mime_type";
-  private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "mpd/sample_mpd_segment_template";
-  private static final String SAMPLE_MPD_EVENT_STREAM = "mpd/sample_mpd_event_stream";
-  private static final String SAMPLE_MPD_LABELS = "mpd/sample_mpd_labels";
-  private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "mpd/sample_mpd_asset_identifier";
-  private static final String SAMPLE_MPD_TEXT = "mpd/sample_mpd_text";
-  private static final String SAMPLE_MPD_TRICK_PLAY = "mpd/sample_mpd_trick_play";
+  private static final String SAMPLE_MPD = "media/mpd/sample_mpd";
+  private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE =
+      "media/mpd/sample_mpd_unknown_mime_type";
+  private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "media/mpd/sample_mpd_segment_template";
+  private static final String SAMPLE_MPD_EVENT_STREAM = "media/mpd/sample_mpd_event_stream";
+  private static final String SAMPLE_MPD_LABELS = "media/mpd/sample_mpd_labels";
+  private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "media/mpd/sample_mpd_asset_identifier";
+  private static final String SAMPLE_MPD_TEXT = "media/mpd/sample_mpd_text";
+  private static final String SAMPLE_MPD_TRICK_PLAY = "media/mpd/sample_mpd_trick_play";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
@@ -116,11 +117,7 @@ public class DashManifestParserTest {
     assertThat(eventStream1.events.length).isEqualTo(1);
     EventMessage expectedEvent1 =
         new EventMessage(
-            "urn:uuid:XYZY",
-            "call",
-            10000,
-            0,
-            "+ 1 800 10101010".getBytes(Charset.forName(C.UTF8_NAME)));
+            "urn:uuid:XYZY", "call", 10000, 0, "+ 1 800 10101010".getBytes(Charsets.UTF_8));
     assertThat(eventStream1.events[0]).isEqualTo(expectedEvent1);
     assertThat(eventStream1.presentationTimesUs[0]).isEqualTo(0);
 

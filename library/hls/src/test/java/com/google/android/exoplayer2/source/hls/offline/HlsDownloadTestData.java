@@ -15,8 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls.offline;
 
-import com.google.android.exoplayer2.C;
-import java.nio.charset.Charset;
+import com.google.common.base.Charsets;
 
 /** Data for HLS downloading tests. */
 /* package */ interface HlsDownloadTestData {
@@ -49,7 +48,7 @@ import java.nio.charset.Charset;
               + "\n"
               + "#EXT-X-STREAM-INF:BANDWIDTH=41457,CODECS=\"mp4a.40.2\"\n"
               + MEDIA_PLAYLIST_0_URI)
-          .getBytes(Charset.forName(C.UTF8_NAME));
+          .getBytes(Charsets.UTF_8);
 
   byte[] MEDIA_PLAYLIST_DATA =
       ("#EXTM3U\n"
@@ -64,7 +63,7 @@ import java.nio.charset.Charset;
               + "#EXTINF:9.97667,\n"
               + "fileSequence2.ts\n"
               + "#EXT-X-ENDLIST")
-          .getBytes(Charset.forName(C.UTF8_NAME));
+          .getBytes(Charsets.UTF_8);
 
   String ENC_MEDIA_PLAYLIST_URI = "enc_index.m3u8";
 
@@ -83,5 +82,5 @@ import java.nio.charset.Charset;
               + "#EXTINF:9.97667,\n"
               + "fileSequence2.ts\n"
               + "#EXT-X-ENDLIST")
-          .getBytes(Charset.forName(C.UTF8_NAME));
+          .getBytes(Charsets.UTF_8);
 }

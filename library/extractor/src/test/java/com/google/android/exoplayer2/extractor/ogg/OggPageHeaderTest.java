@@ -88,7 +88,8 @@ public final class OggPageHeaderTest {
 
   @Test
   public void populatePageHeader_success() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/page_header");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/page_header");
 
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ true);
     OggPageHeader header = new OggPageHeader();
@@ -121,7 +122,8 @@ public final class OggPageHeaderTest {
 
   @Test
   public void populatePageHeader_withNotOgg_returnFalseWithoutException() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/page_header");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/page_header");
     // change from 'O' to 'o'
     data[0] = 'o';
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);
@@ -134,7 +136,8 @@ public final class OggPageHeaderTest {
 
   @Test
   public void populatePageHeader_withWrongRevision_returnFalseWithoutException() throws Exception {
-    byte[] data = getByteArray(ApplicationProvider.getApplicationContext(), "ogg/page_header");
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/page_header");
     // change revision from 0 to 1
     data[4] = 0x01;
     FakeExtractorInput input = createInput(data, /* simulateUnknownLength= */ false);

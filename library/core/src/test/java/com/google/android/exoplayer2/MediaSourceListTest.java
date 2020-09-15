@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,13 +44,18 @@ import org.junit.runner.RunWith;
 public class MediaSourceListTest {
 
   private static final int MEDIA_SOURCE_LIST_SIZE = 4;
+  private static final MediaItem MINIMAL_MEDIA_ITEM =
+      new MediaItem.Builder().setMediaId("").build();
 
   private MediaSourceList mediaSourceList;
 
   @Before
   public void setUp() {
     mediaSourceList =
-        new MediaSourceList(mock(MediaSourceList.MediaSourceListInfoRefreshListener.class));
+        new MediaSourceList(
+            mock(MediaSourceList.MediaSourceListInfoRefreshListener.class),
+            /* analyticsCollector= */ null,
+            Util.createHandlerForCurrentOrMainLooper());
   }
 
   @Test
@@ -76,7 +83,9 @@ public class MediaSourceListTest {
   @Test
   public void prepareAndReprepareAfterRelease_expectSourcePreparationAfterMediaSourceListPrepare() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     mediaSourceList.setMediaSources(
         createFakeHoldersWithSources(
             /* useLazyPreparation= */ false, mockMediaSource1, mockMediaSource2),
@@ -115,7 +124,9 @@ public class MediaSourceListTest {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 2);
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     List<MediaSourceList.MediaSourceHolder> mediaSources =
         createFakeHoldersWithSources(
             /* useLazyPreparation= */ false, mockMediaSource1, mockMediaSource2);
@@ -132,8 +143,10 @@ public class MediaSourceListTest {
     }
 
     // Set media items again. The second holder is re-used.
+    MediaSource mockMediaSource3 = mock(MediaSource.class);
+    when(mockMediaSource3.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     List<MediaSourceList.MediaSourceHolder> moreMediaSources =
-        createFakeHoldersWithSources(/* useLazyPreparation= */ false, mock(MediaSource.class));
+        createFakeHoldersWithSources(/* useLazyPreparation= */ false, mockMediaSource3);
     moreMediaSources.add(mediaSources.get(1));
     timeline = mediaSourceList.setMediaSources(moreMediaSources, shuffleOrder);
 
@@ -157,7 +170,9 @@ public class MediaSourceListTest {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 2);
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     List<MediaSourceList.MediaSourceHolder> mediaSources =
         createFakeHoldersWithSources(
             /* useLazyPreparation= */ false, mockMediaSource1, mockMediaSource2);
@@ -174,8 +189,10 @@ public class MediaSourceListTest {
             any(MediaSource.MediaSourceCaller.class), /* mediaTransferListener= */ isNull());
 
     // Set media items again. The second holder is re-used.
+    MediaSource mockMediaSource3 = mock(MediaSource.class);
+    when(mockMediaSource3.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     List<MediaSourceList.MediaSourceHolder> moreMediaSources =
-        createFakeHoldersWithSources(/* useLazyPreparation= */ false, mock(MediaSource.class));
+        createFakeHoldersWithSources(/* useLazyPreparation= */ false, mockMediaSource3);
     moreMediaSources.add(mediaSources.get(1));
     mediaSourceList.setMediaSources(moreMediaSources, shuffleOrder);
 
@@ -193,7 +210,9 @@ public class MediaSourceListTest {
   @Test
   public void addMediaSources_mediaSourceListUnprepared_notUsingLazyPreparation_expectUnprepared() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     List<MediaSourceList.MediaSourceHolder> mediaSources =
         createFakeHoldersWithSources(
             /* useLazyPreparation= */ false, mockMediaSource1, mockMediaSource2);
@@ -228,7 +247,9 @@ public class MediaSourceListTest {
   @Test
   public void addMediaSources_mediaSourceListPrepared_notUsingLazyPreparation_expectPrepared() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     mediaSourceList.prepare(/* mediaTransferListener= */ null);
     mediaSourceList.addMediaSources(
         /* index= */ 0,
@@ -287,9 +308,13 @@ public class MediaSourceListTest {
   @Test
   public void removeMediaSources_whenUnprepared_expectNoRelease() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource3 = mock(MediaSource.class);
+    when(mockMediaSource3.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource4 = mock(MediaSource.class);
+    when(mockMediaSource4.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 4);
 
@@ -319,9 +344,13 @@ public class MediaSourceListTest {
   @Test
   public void removeMediaSources_whenPrepared_expectRelease() {
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource3 = mock(MediaSource.class);
+    when(mockMediaSource3.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource4 = mock(MediaSource.class);
+    when(mockMediaSource4.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 4);
 
@@ -350,6 +379,7 @@ public class MediaSourceListTest {
   @Test
   public void release_mediaSourceListUnprepared_expectSourcesNotReleased() {
     MediaSource mockMediaSource = mock(MediaSource.class);
+    when(mockMediaSource.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSourceList.MediaSourceHolder mediaSourceHolder =
         new MediaSourceList.MediaSourceHolder(mockMediaSource, /* useLazyPreparation= */ false);
 
@@ -367,6 +397,7 @@ public class MediaSourceListTest {
   @Test
   public void release_mediaSourceListPrepared_expectSourcesReleasedNotRemoved() {
     MediaSource mockMediaSource = mock(MediaSource.class);
+    when(mockMediaSource.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSourceList.MediaSourceHolder mediaSourceHolder =
         new MediaSourceList.MediaSourceHolder(mockMediaSource, /* useLazyPreparation= */ false);
 
@@ -387,7 +418,9 @@ public class MediaSourceListTest {
     ShuffleOrder.DefaultShuffleOrder shuffleOrder =
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ 4);
     MediaSource mockMediaSource1 = mock(MediaSource.class);
+    when(mockMediaSource1.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     MediaSource mockMediaSource2 = mock(MediaSource.class);
+    when(mockMediaSource2.getMediaItem()).thenReturn(MINIMAL_MEDIA_ITEM);
     List<MediaSourceList.MediaSourceHolder> holders =
         createFakeHoldersWithSources(
             /* useLazyPreparation= */ false, mockMediaSource1, mockMediaSource2);

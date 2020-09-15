@@ -20,7 +20,9 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -163,7 +165,7 @@ public final class Format implements Parcelable {
 
     private int accessibilityChannel;
 
-    // Provided by source.
+    // Provided by the source.
 
     @Nullable private Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
@@ -228,7 +230,7 @@ public final class Format implements Parcelable {
       this.encoderPadding = format.encoderPadding;
       // Text specific.
       this.accessibilityChannel = format.accessibilityChannel;
-      // Provided by source.
+      // Provided by the source.
       this.exoMediaCryptoType = format.exoMediaCryptoType;
     }
 
@@ -590,37 +592,7 @@ public final class Format implements Parcelable {
     // Build.
 
     public Format build() {
-      return new Format(
-          id,
-          label,
-          language,
-          selectionFlags,
-          roleFlags,
-          averageBitrate,
-          peakBitrate,
-          codecs,
-          metadata,
-          containerMimeType,
-          sampleMimeType,
-          maxInputSize,
-          initializationData,
-          drmInitData,
-          subsampleOffsetUs,
-          width,
-          height,
-          frameRate,
-          rotationDegrees,
-          pixelWidthHeightRatio,
-          projectionData,
-          stereoMode,
-          colorInfo,
-          channelCount,
-          sampleRate,
-          pcmEncoding,
-          encoderDelay,
-          encoderPadding,
-          accessibilityChannel,
-          exoMediaCryptoType);
+      return new Format(/* builder= */ this);
     }
   }
 
@@ -785,9 +757,9 @@ public final class Format implements Parcelable {
   // Provided by source.
 
   /**
-   * The type of the {@link ExoMediaCrypto} provided by the media source, if the media source can
-   * acquire a DRM session for {@link #drmInitData}. Null if the media source cannot acquire a
-   * session for {@link #drmInitData}, or if not applicable.
+   * The type of {@link ExoMediaCrypto} that will be associated with the content this format
+   * describes, or {@code null} if the content is not encrypted. Cannot be null if {@link
+   * #drmInitData} is non-null.
    */
   @Nullable public final Class<? extends ExoMediaCrypto> exoMediaCryptoType;
 
@@ -1209,84 +1181,55 @@ public final class Format implements Parcelable {
     return new Builder().setId(id).setSampleMimeType(sampleMimeType).build();
   }
 
-  /* package */ Format(
-      @Nullable String id,
-      @Nullable String label,
-      @Nullable String language,
-      @C.SelectionFlags int selectionFlags,
-      @C.RoleFlags int roleFlags,
-      int averageBitrate,
-      int peakBitrate,
-      @Nullable String codecs,
-      @Nullable Metadata metadata,
-      // Container specific.
-      @Nullable String containerMimeType,
-      // Sample specific.
-      @Nullable String sampleMimeType,
-      int maxInputSize,
-      @Nullable List<byte[]> initializationData,
-      @Nullable DrmInitData drmInitData,
-      long subsampleOffsetUs,
-      // Video specific.
-      int width,
-      int height,
-      float frameRate,
-      int rotationDegrees,
-      float pixelWidthHeightRatio,
-      @Nullable byte[] projectionData,
-      @C.StereoMode int stereoMode,
-      @Nullable ColorInfo colorInfo,
-      // Audio specific.
-      int channelCount,
-      int sampleRate,
-      @C.PcmEncoding int pcmEncoding,
-      int encoderDelay,
-      int encoderPadding,
-      // Text specific.
-      int accessibilityChannel,
-      // Provided by source.
-      @Nullable Class<? extends ExoMediaCrypto> exoMediaCryptoType) {
-    this.id = id;
-    this.label = label;
-    this.language = Util.normalizeLanguageCode(language);
-    this.selectionFlags = selectionFlags;
-    this.roleFlags = roleFlags;
-    this.averageBitrate = averageBitrate;
-    this.peakBitrate = peakBitrate;
-    this.bitrate = peakBitrate != NO_VALUE ? peakBitrate : averageBitrate;
-    this.codecs = codecs;
-    this.metadata = metadata;
+  private Format(Builder builder) {
+    id = builder.id;
+    label = builder.label;
+    language = Util.normalizeLanguageCode(builder.language);
+    selectionFlags = builder.selectionFlags;
+    roleFlags = builder.roleFlags;
+    averageBitrate = builder.averageBitrate;
+    peakBitrate = builder.peakBitrate;
+    bitrate = peakBitrate != NO_VALUE ? peakBitrate : averageBitrate;
+    codecs = builder.codecs;
+    metadata = builder.metadata;
     // Container specific.
-    this.containerMimeType = containerMimeType;
+    containerMimeType = builder.containerMimeType;
     // Sample specific.
-    this.sampleMimeType = sampleMimeType;
-    this.maxInputSize = maxInputSize;
-    this.initializationData =
-        initializationData == null ? Collections.emptyList() : initializationData;
-    this.drmInitData = drmInitData;
-    this.subsampleOffsetUs = subsampleOffsetUs;
+    sampleMimeType = builder.sampleMimeType;
+    maxInputSize = builder.maxInputSize;
+    initializationData =
+        builder.initializationData == null ? Collections.emptyList() : builder.initializationData;
+    drmInitData = builder.drmInitData;
+    subsampleOffsetUs = builder.subsampleOffsetUs;
     // Video specific.
-    this.width = width;
-    this.height = height;
-    this.frameRate = frameRate;
-    this.rotationDegrees = rotationDegrees == NO_VALUE ? 0 : rotationDegrees;
-    this.pixelWidthHeightRatio = pixelWidthHeightRatio == NO_VALUE ? 1 : pixelWidthHeightRatio;
-    this.projectionData = projectionData;
-    this.stereoMode = stereoMode;
-    this.colorInfo = colorInfo;
+    width = builder.width;
+    height = builder.height;
+    frameRate = builder.frameRate;
+    rotationDegrees = builder.rotationDegrees == NO_VALUE ? 0 : builder.rotationDegrees;
+    pixelWidthHeightRatio =
+        builder.pixelWidthHeightRatio == NO_VALUE ? 1 : builder.pixelWidthHeightRatio;
+    projectionData = builder.projectionData;
+    stereoMode = builder.stereoMode;
+    colorInfo = builder.colorInfo;
     // Audio specific.
-    this.channelCount = channelCount;
-    this.sampleRate = sampleRate;
-    this.pcmEncoding = pcmEncoding;
-    this.encoderDelay = encoderDelay == NO_VALUE ? 0 : encoderDelay;
-    this.encoderPadding = encoderPadding == NO_VALUE ? 0 : encoderPadding;
+    channelCount = builder.channelCount;
+    sampleRate = builder.sampleRate;
+    pcmEncoding = builder.pcmEncoding;
+    encoderDelay = builder.encoderDelay == NO_VALUE ? 0 : builder.encoderDelay;
+    encoderPadding = builder.encoderPadding == NO_VALUE ? 0 : builder.encoderPadding;
     // Text specific.
-    this.accessibilityChannel = accessibilityChannel;
+    accessibilityChannel = builder.accessibilityChannel;
     // Provided by source.
-    this.exoMediaCryptoType = exoMediaCryptoType;
+    if (builder.exoMediaCryptoType == null && drmInitData != null) {
+      // Encrypted content must always have a non-null exoMediaCryptoType.
+      exoMediaCryptoType = UnsupportedMediaCrypto.class;
+    } else {
+      exoMediaCryptoType = builder.exoMediaCryptoType;
+    }
   }
 
-  @SuppressWarnings("ResourceType")
+  // Some fields are deprecated but they're still assigned below.
+  @SuppressWarnings({"ResourceType"})
   /* package */ Format(Parcel in) {
     id = in.readString();
     label = in.readString();
@@ -1306,7 +1249,7 @@ public final class Format implements Parcelable {
     int initializationDataSize = in.readInt();
     initializationData = new ArrayList<>(initializationDataSize);
     for (int i = 0; i < initializationDataSize; i++) {
-      initializationData.add(in.createByteArray());
+      initializationData.add(Assertions.checkNotNull(in.createByteArray()));
     }
     drmInitData = in.readParcelable(DrmInitData.class.getClassLoader());
     subsampleOffsetUs = in.readLong();
@@ -1329,7 +1272,8 @@ public final class Format implements Parcelable {
     // Text specific.
     accessibilityChannel = in.readInt();
     // Provided by source.
-    exoMediaCryptoType = null;
+    // Encrypted content must always have a non-null exoMediaCryptoType.
+    exoMediaCryptoType = drmInitData != null ? UnsupportedMediaCrypto.class : null;
   }
 
   /** Returns a {@link Format.Builder} initialized with the values of this instance. */
@@ -1556,7 +1500,7 @@ public final class Format implements Parcelable {
       result = 31 * result + encoderPadding;
       // Text specific.
       result = 31 * result + accessibilityChannel;
-      // Provided by source.
+      // Provided by the source.
       result = 31 * result + (exoMediaCryptoType == null ? 0 : exoMediaCryptoType.hashCode());
       hashCode = result;
     }

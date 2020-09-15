@@ -17,12 +17,14 @@ package com.google.android.exoplayer2;
 
 import android.content.Context;
 import android.media.MediaCodec;
+import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.IntDef;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.audio.AudioCapabilities;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink.DefaultAudioProcessorChain;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
@@ -92,6 +94,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private MediaCodecSelector mediaCodecSelector;
   private @MediaCodecRenderer.MediaCodecOperationMode int audioMediaCodecOperationMode;
   private @MediaCodecRenderer.MediaCodecOperationMode int videoMediaCodecOperationMode;
+  private boolean enableFloatOutput;
+  private boolean enableAudioTrackPlaybackParams;
   private boolean enableOffload;
 
   /** @param context A {@link Context}. */
@@ -155,7 +159,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimental_setAudioMediaCodecOperationMode(
+  public DefaultRenderersFactory experimentalSetAudioMediaCodecOperationMode(
       @MediaCodecRenderer.MediaCodecOperationMode int mode) {
     audioMediaCodecOperationMode = mode;
     return this;
@@ -170,7 +174,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimental_setVideoMediaCodecOperationMode(
+  public DefaultRenderersFactory experimentalSetVideoMediaCodecOperationMode(
       @MediaCodecRenderer.MediaCodecOperationMode int mode) {
     videoMediaCodecOperationMode = mode;
     return this;
@@ -185,10 +189,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimental_setMediaCodecOperationMode(
+  public DefaultRenderersFactory experimentalSetMediaCodecOperationMode(
       @MediaCodecRenderer.MediaCodecOperationMode int mode) {
-    experimental_setAudioMediaCodecOperationMode(mode);
-    experimental_setVideoMediaCodecOperationMode(mode);
+    experimentalSetAudioMediaCodecOperationMode(mode);
+    experimentalSetVideoMediaCodecOperationMode(mode);
     return this;
   }
 
@@ -219,16 +223,64 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * Sets whether audio should be played using the offload path. Audio offload disables audio
-   * processors (for example speed adjustment).
+   * Sets whether floating point audio should be output when possible.
+   *
+   * <p>Enabling floating point output disables audio processing, but may allow for higher quality
+   * audio output.
    *
    * <p>The default value is {@code false}.
    *
-   * @param enableOffload If audio offload should be used.
+   * @param enableFloatOutput Whether to enable use of floating point audio output, if available.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory setEnableAudioFloatOutput(boolean enableFloatOutput) {
+    this.enableFloatOutput = enableFloatOutput;
+    return this;
+  }
+
+  /**
+   * Sets whether audio should be played using the offload path.
+   *
+   * <p>Audio offload disables ExoPlayer audio processing, but significantly reduces the energy
+   * consumption of the playback when {@link
+   * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean) offload scheduling} is enabled.
+   *
+   * <p>Most Android devices can only support one offload {@link android.media.AudioTrack} at a time
+   * and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
+   * play in offload.
+   *
+   * <p>The default value is {@code false}.
+   *
+   * @param enableOffload Whether to enable use of audio offload for supported formats, if
+   *     available.
    * @return This factory, for convenience.
    */
   public DefaultRenderersFactory setEnableAudioOffload(boolean enableOffload) {
     this.enableOffload = enableOffload;
+    return this;
+  }
+
+  /**
+   * Sets whether to enable setting playback speed using {@link
+   * android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, which is supported from API level
+   * 23, rather than using application-level audio speed adjustment. This setting has no effect on
+   * builds before API level 23 (application-level speed adjustment will be used in all cases).
+   *
+   * <p>If enabled and supported, new playback speed settings will take effect more quickly because
+   * they are applied at the audio mixer, rather than at the point of writing data to the track.
+   *
+   * <p>When using this mode, the maximum supported playback speed is limited by the size of the
+   * audio track's buffer. If the requested speed is not supported the player's event listener will
+   * be notified twice on setting playback speed, once with the requested speed, then again with the
+   * old playback speed reflecting the fact that the requested speed was not supported.
+   *
+   * @param enableAudioTrackPlaybackParams Whether to enable setting playback speed using {@link
+   *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory setEnableAudioTrackPlaybackParams(
+      boolean enableAudioTrackPlaybackParams) {
+    this.enableAudioTrackPlaybackParams = enableAudioTrackPlaybackParams;
     return this;
   }
 
@@ -264,16 +316,20 @@ public class DefaultRenderersFactory implements RenderersFactory {
         videoRendererEventListener,
         allowedVideoJoiningTimeMs,
         renderersList);
-    buildAudioRenderers(
-        context,
-        extensionRendererMode,
-        mediaCodecSelector,
-        enableDecoderFallback,
-        buildAudioProcessors(),
-        eventHandler,
-        audioRendererEventListener,
-        enableOffload,
-        renderersList);
+    @Nullable
+    AudioSink audioSink =
+        buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams, enableOffload);
+    if (audioSink != null) {
+      buildAudioRenderers(
+          context,
+          extensionRendererMode,
+          mediaCodecSelector,
+          enableDecoderFallback,
+          audioSink,
+          eventHandler,
+          audioRendererEventListener,
+          renderersList);
+    }
     buildTextRenderers(context, textRendererOutput, eventHandler.getLooper(),
         extensionRendererMode, renderersList);
     buildMetadataRenderers(context, metadataRendererOutput, eventHandler.getLooper(),
@@ -316,7 +372,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventHandler,
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
-    videoRenderer.experimental_setMediaCodecOperationMode(videoMediaCodecOperationMode);
+    videoRenderer.experimentalSetMediaCodecOperationMode(videoMediaCodecOperationMode);
     out.add(videoRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
@@ -419,11 +475,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
    *     initialization fails. This may result in using a decoder that is slower/less efficient than
    *     the primary decoder.
-   * @param audioProcessors An array of {@link AudioProcessor}s that will process PCM audio buffers
-   *     before output. May be empty.
+   * @param audioSink A sink to which the renderers will output.
    * @param eventHandler A handler to use when invoking event listeners and outputs.
    * @param eventListener An event listener.
-   * @param enableOffload If the renderer should use audio offload for all supported formats.
    * @param out An array to which the built renderers should be appended.
    */
   protected void buildAudioRenderers(
@@ -431,10 +485,9 @@ public class DefaultRenderersFactory implements RenderersFactory {
       @ExtensionRendererMode int extensionRendererMode,
       MediaCodecSelector mediaCodecSelector,
       boolean enableDecoderFallback,
-      AudioProcessor[] audioProcessors,
+      AudioSink audioSink,
       Handler eventHandler,
       AudioRendererEventListener eventListener,
-      boolean enableOffload,
       ArrayList<Renderer> out) {
     MediaCodecAudioRenderer audioRenderer =
         new MediaCodecAudioRenderer(
@@ -443,12 +496,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
             enableDecoderFallback,
             eventHandler,
             eventListener,
-            new DefaultAudioSink(
-                AudioCapabilities.getCapabilities(context),
-                new DefaultAudioProcessorChain(audioProcessors),
-                /* enableFloatOutput= */ false,
-                enableOffload));
-    audioRenderer.experimental_setMediaCodecOperationMode(audioMediaCodecOperationMode);
+            audioSink);
+    audioRenderer.experimentalSetMediaCodecOperationMode(audioMediaCodecOperationMode);
     out.add(audioRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
@@ -467,10 +516,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
           clazz.getConstructor(
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
-              com.google.android.exoplayer2.audio.AudioProcessor[].class);
+              com.google.android.exoplayer2.audio.AudioSink.class);
       // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
-          (Renderer) constructor.newInstance(eventHandler, eventListener, audioProcessors);
+          (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibopusAudioRenderer.");
     } catch (ClassNotFoundException e) {
@@ -488,10 +537,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
           clazz.getConstructor(
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
-              com.google.android.exoplayer2.audio.AudioProcessor[].class);
+              com.google.android.exoplayer2.audio.AudioSink.class);
       // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
-          (Renderer) constructor.newInstance(eventHandler, eventListener, audioProcessors);
+          (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded LibflacAudioRenderer.");
     } catch (ClassNotFoundException e) {
@@ -510,10 +559,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
           clazz.getConstructor(
               android.os.Handler.class,
               com.google.android.exoplayer2.audio.AudioRendererEventListener.class,
-              com.google.android.exoplayer2.audio.AudioProcessor[].class);
+              com.google.android.exoplayer2.audio.AudioSink.class);
       // LINT.ThenChange(../../../../../../../proguard-rules.txt)
       Renderer renderer =
-          (Renderer) constructor.newInstance(eventHandler, eventListener, audioProcessors);
+          (Renderer) constructor.newInstance(eventHandler, eventListener, audioSink);
       out.add(extensionRendererIndex++, renderer);
       Log.i(TAG, "Loaded FfmpegAudioRenderer.");
     } catch (ClassNotFoundException e) {
@@ -586,10 +635,29 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * Builds an array of {@link AudioProcessor}s that will process PCM audio before output.
+   * Builds an {@link AudioSink} to which the audio renderers will output.
+   *
+   * @param context The {@link Context} associated with the player.
+   * @param enableFloatOutput Whether to enable use of floating point audio output, if available.
+   * @param enableAudioTrackPlaybackParams Whether to enable setting playback speed using {@link
+   *     android.media.AudioTrack#setPlaybackParams(PlaybackParams)}, if supported.
+   * @param enableOffload Whether to enable use of audio offload for supported formats, if
+   *     available.
+   * @return The {@link AudioSink} to which the audio renderers will output. May be {@code null} if
+   *     no audio renderers are required. If {@code null} is returned then {@link
+   *     #buildAudioRenderers} will not be called.
    */
-  protected AudioProcessor[] buildAudioProcessors() {
-    return new AudioProcessor[0];
+  @Nullable
+  protected AudioSink buildAudioSink(
+      Context context,
+      boolean enableFloatOutput,
+      boolean enableAudioTrackPlaybackParams,
+      boolean enableOffload) {
+    return new DefaultAudioSink(
+        AudioCapabilities.getCapabilities(context),
+        new DefaultAudioProcessorChain(),
+        enableFloatOutput,
+        enableAudioTrackPlaybackParams,
+        enableOffload);
   }
-
 }

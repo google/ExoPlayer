@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.util.Base64;
@@ -23,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.net.URLDecoder;
 
@@ -63,7 +65,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
       }
     } else {
       // TODO: Add support for other charsets.
-      data = Util.getUtf8Bytes(URLDecoder.decode(dataString, C.ASCII_NAME));
+      data = Util.getUtf8Bytes(URLDecoder.decode(dataString, Charsets.US_ASCII.name()));
     }
     endPosition =
         dataSpec.length != C.LENGTH_UNSET ? (int) dataSpec.length + readPosition : data.length;
@@ -84,7 +86,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
     if (remainingBytes == 0) {
       return C.RESULT_END_OF_INPUT;
     }
-    readLength = Math.min(readLength, remainingBytes);
+    readLength = min(readLength, remainingBytes);
     System.arraycopy(castNonNull(data), readPosition, buffer, offset, readLength);
     readPosition += readLength;
     bytesTransferred(readLength);

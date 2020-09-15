@@ -49,10 +49,10 @@ public final class VorbisReaderTest {
     buffer.setLimit(0);
     VorbisReader.appendNumberOfSamples(buffer, 0x01234567);
     assertThat(buffer.limit()).isEqualTo(4);
-    assertThat(buffer.data[0]).isEqualTo(0x67);
-    assertThat(buffer.data[1]).isEqualTo(0x45);
-    assertThat(buffer.data[2]).isEqualTo(0x23);
-    assertThat(buffer.data[3]).isEqualTo(0x01);
+    assertThat(buffer.getData()[0]).isEqualTo(0x67);
+    assertThat(buffer.getData()[1]).isEqualTo(0x45);
+    assertThat(buffer.getData()[2]).isEqualTo(0x23);
+    assertThat(buffer.getData()[3]).isEqualTo(0x01);
   }
 
   @Test
@@ -61,7 +61,7 @@ public final class VorbisReaderTest {
     // identification, comment and setup header.
     byte[] data =
         TestUtil.getByteArray(
-            ApplicationProvider.getApplicationContext(), "binary/ogg/vorbis_header_pages");
+            ApplicationProvider.getApplicationContext(), "media/binary/ogg/vorbis_header_pages");
     ExtractorInput input = new FakeExtractorInput.Builder().setData(data).setSimulateIOErrors(true)
         .setSimulateUnknownLength(true).setSimulatePartialReads(true).build();
 

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.os.SystemClock;
 import androidx.annotation.CheckResult;
@@ -245,6 +248,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
+  public boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue) {
+    if (fatalError != null) {
+      return false;
+    }
+    return trackSelection.shouldCancelChunkLoad(playbackPositionUs, loadingChunk, queue);
+  }
+
+  @Override
   public void getNextChunk(
       long playbackPositionUs,
       long loadPositionUs,
@@ -363,8 +375,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    int maxSegmentCount =
-        (int) Math.min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
+    int maxSegmentCount = (int) min(maxSegmentsPerLoad, lastAvailableSegmentNum - segmentNum + 1);
     if (periodDurationUs != C.TIME_UNSET) {
       while (maxSegmentCount > 1
           && representationHolder.getSegmentStartTimeUs(segmentNum + maxSegmentCount - 1)
@@ -415,7 +426,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   @Override
   public boolean onChunkLoadError(
-      Chunk chunk, boolean cancelable, Exception e, long blacklistDurationMs) {
+      Chunk chunk, boolean cancelable, Exception e, long exclusionDurationMs) {
     if (!cancelable) {
       return false;
     }
@@ -438,8 +449,18 @@ public class DefaultDashChunkSource implements DashChunkSource {
         }
       }
     }
-    return blacklistDurationMs != C.TIME_UNSET
-        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), blacklistDurationMs);
+    return exclusionDurationMs != C.TIME_UNSET
+        && trackSelection.blacklist(trackSelection.indexOf(chunk.trackFormat), exclusionDurationMs);
+  }
+
+  @Override
+  public void release() {
+    for (RepresentationHolder representationHolder : representationHolders) {
+      @Nullable ChunkExtractor chunkExtractor = representationHolder.chunkExtractor;
+      if (chunkExtractor != null) {
+        chunkExtractor.release();
+      }
+    }
   }
 
   // Internal methods.
@@ -749,8 +770,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         long periodStartUs = C.msToUs(manifest.getPeriod(periodIndex).startMs);
         long liveEdgeTimeInPeriodUs = liveEdgeTimeUs - periodStartUs;
         long bufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
-        return Math.max(
-            getFirstSegmentNum(), getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
+        return max(getFirstSegmentNum(), getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
       }
       return getFirstSegmentNum();
     }
@@ -789,7 +809,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
           // All other text types are raw formats that do not need an extractor.
           return null;
         }
-      } else if (MimeTypes.isWebm(containerMimeType)) {
+      } else if (MimeTypes.isMatroska(containerMimeType)) {
         extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
       } else {
         int flags = 0;

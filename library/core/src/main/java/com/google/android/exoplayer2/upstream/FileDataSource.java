@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -111,8 +112,7 @@ public final class FileDataSource extends BaseDataSource {
     } else {
       int bytesRead;
       try {
-        bytesRead =
-            castNonNull(file).read(buffer, offset, (int) Math.min(bytesRemaining, readLength));
+        bytesRead = castNonNull(file).read(buffer, offset, (int) min(bytesRemaining, readLength));
       } catch (IOException e) {
         throw new FileDataSourceException(e);
       }

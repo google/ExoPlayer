@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -24,21 +25,25 @@ import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
-import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableList;
+import java.util.concurrent.Phaser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -47,11 +52,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link DecoderVideoRenderer}. */
-@LooperMode(LooperMode.Mode.PAUSED)
 @RunWith(AndroidJUnit4.class)
 public final class DecoderVideoRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
@@ -75,11 +78,7 @@ public final class DecoderVideoRendererTest {
             eventListener,
             /* maxDroppedFramesToNotify= */ -1) {
 
-          private final Object pendingDecodeCallLock = new Object();
-
-          @GuardedBy("pendingDecodeCallLock")
-          private int pendingDecodeCalls;
-
+          private final Phaser inputBuffersInCodecPhaser = new Phaser();
           @C.VideoOutputMode private int outputMode;
 
           @Override
@@ -106,29 +105,17 @@ public final class DecoderVideoRendererTest {
 
           @Override
           protected void onQueueInputBuffer(VideoDecoderInputBuffer buffer) {
-            // SimpleDecoder.decode() is called on a background thread we have no control about from
-            // the test. Ensure the background calls are predictably serialized by waiting for them
-            // to finish:
-            //  1. Mark decode calls as "pending" here.
-            //  2. Send a message on the test thread to wait for all pending decode calls.
-            //  3. Decrement the pending counter in decode calls and wake up the waiting test.
-            //  4. The tests need to call ShadowLooper.idleMainThread() to wait for pending calls.
-            synchronized (pendingDecodeCallLock) {
-              pendingDecodeCalls++;
-            }
-            new Handler()
-                .post(
-                    () -> {
-                      synchronized (pendingDecodeCallLock) {
-                        while (pendingDecodeCalls > 0) {
-                          try {
-                            pendingDecodeCallLock.wait();
-                          } catch (InterruptedException e) {
-                            // Ignore.
-                          }
-                        }
-                      }
-                    });
+            // Decoding is done on a background thread we have no control about from the test.
+            // Ensure the background calls are predictably serialized by waiting for them to finish:
+            //  1. Register queued input buffers here.
+            //  2. Deregister the input buffer when it's cleared. If an input buffer is cleared it
+            //     will have been fully handled by the decoder.
+            //  3. Send a message on the test thread to wait for all currently pending input buffers
+            //     to be cleared.
+            //  4. The tests need to call ShadowLooper.idleMainThread() to execute the wait message
+            //     sent in step (3).
+            int currentPhase = inputBuffersInCodecPhaser.register();
+            new Handler().post(() -> inputBuffersInCodecPhaser.awaitAdvance(currentPhase));
             super.onQueueInputBuffer(buffer);
           }
 
@@ -144,7 +131,13 @@ public final class DecoderVideoRendererTest {
               @Override
               protected VideoDecoderInputBuffer createInputBuffer() {
                 return new VideoDecoderInputBuffer(
-                    DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+                    DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT) {
+                  @Override
+                  public void clear() {
+                    super.clear();
+                    inputBuffersInCodecPhaser.arriveAndDeregister();
+                  }
+                };
               }
 
               @Override
@@ -164,10 +157,6 @@ public final class DecoderVideoRendererTest {
                   VideoDecoderOutputBuffer outputBuffer,
                   boolean reset) {
                 outputBuffer.init(inputBuffer.timeUs, outputMode, /* supplementalData= */ null);
-                synchronized (pendingDecodeCallLock) {
-                  pendingDecodeCalls--;
-                  pendingDecodeCallLock.notify();
-                }
                 return null;
               }
 
@@ -181,16 +170,25 @@ public final class DecoderVideoRendererTest {
     renderer.setOutputSurface(new Surface(new SurfaceTexture(/* texName= */ 0)));
   }
 
+  @After
+  public void shutDown() throws Exception {
+    if (renderer.getState() == Renderer.STATE_STARTED) {
+      renderer.stop();
+    }
+    if (renderer.getState() == Renderer.STATE_ENABLED) {
+      renderer.disable();
+    }
+  }
+
   @Test
   public void enable_withMayRenderStartOfStream_rendersFirstFrameBeforeStart() throws Exception {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ H264_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME));
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0)));
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
@@ -199,6 +197,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0L,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -214,12 +213,11 @@ public final class DecoderVideoRendererTest {
       throws Exception {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ H264_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME));
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0)));
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
@@ -228,6 +226,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -242,12 +241,11 @@ public final class DecoderVideoRendererTest {
   public void enable_withoutMayRenderStartOfStream_rendersFirstFrameAfterStart() throws Exception {
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
-            /* format= */ H264_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME));
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(oneByteSample(/* timeUs= */ 0)));
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
@@ -256,6 +254,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     renderer.start();
     for (int i = 0; i < 10; i++) {
@@ -273,22 +272,20 @@ public final class DecoderVideoRendererTest {
   public void replaceStream_whenStarted_rendersFirstFrameOfNewStream() throws Exception {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
-            /* format= */ H264_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM);
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM));
     FakeSampleStream fakeSampleStream2 =
         new FakeSampleStream(
-            /* format= */ H264_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM);
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM));
     renderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {H264_FORMAT},
@@ -296,6 +293,7 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
     renderer.start();
 
@@ -303,7 +301,11 @@ public final class DecoderVideoRendererTest {
     for (int i = 0; i <= 10; i++) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
-        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
+        renderer.replaceStream(
+            new Format[] {H264_FORMAT},
+            fakeSampleStream2,
+            /* startPositionUs= */ 100,
+            /* offsetUs= */ 100);
         replacedStream = true;
       }
       // Ensure pending messages are delivered.
@@ -319,22 +321,20 @@ public final class DecoderVideoRendererTest {
   public void replaceStream_whenNotStarted_doesNotRenderFirstFrameOfNewStream() throws Exception {
     FakeSampleStream fakeSampleStream1 =
         new FakeSampleStream(
-            /* format= */ H264_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM);
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM));
     FakeSampleStream fakeSampleStream2 =
         new FakeSampleStream(
-            /* format= */ H264_FORMAT,
+            /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
-            /* eventDispatcher= */ null,
-            /* firstSampleTimeUs= */ 0,
-            /* timeUsIncrement= */ 50,
-            new FakeSampleStreamItem(new byte[] {0}, C.BUFFER_FLAG_KEY_FRAME),
-            FakeSampleStreamItem.END_OF_STREAM_ITEM);
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ H264_FORMAT,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0), FakeSampleStreamItem.END_OF_STREAM_ITEM));
     renderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {H264_FORMAT},
@@ -342,13 +342,18 @@ public final class DecoderVideoRendererTest {
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
         /* offsetUs */ 0);
 
     boolean replacedStream = false;
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && renderer.hasReadStreamToEnd()) {
-        renderer.replaceStream(new Format[] {H264_FORMAT}, fakeSampleStream2, /* offsetUs= */ 100);
+        renderer.replaceStream(
+            new Format[] {H264_FORMAT},
+            fakeSampleStream2,
+            /* startPositionUs= */ 100,
+            /* offsetUs= */ 100);
         replacedStream = true;
       }
       // Ensure pending messages are delivered.

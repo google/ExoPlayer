@@ -35,7 +35,7 @@ public final class FlacStreamMetadataTest {
   @Test
   public void constructFromByteArray_setsFieldsCorrectly() throws IOException {
     byte[] fileData =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "flac/bear.flac");
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), "media/flac/bear.flac");
 
     FlacStreamMetadata streamMetadata =
         new FlacStreamMetadata(

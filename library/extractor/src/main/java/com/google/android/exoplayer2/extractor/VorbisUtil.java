@@ -173,7 +173,7 @@ public final class VorbisUtil {
 
     boolean framingFlag = (headerData.readUnsignedByte() & 0x01) > 0;
     // raw data of Vorbis setup header has to be passed to decoder as CSD buffer #1
-    byte[] data = Arrays.copyOf(headerData.data, headerData.limit());
+    byte[] data = Arrays.copyOf(headerData.getData(), headerData.limit());
 
     return new VorbisIdHeader(
         version,
@@ -309,7 +309,7 @@ public final class VorbisUtil {
 
     int numberOfBooks = headerData.readUnsignedByte() + 1;
 
-    VorbisBitArray bitArray  = new VorbisBitArray(headerData.data);
+    VorbisBitArray bitArray = new VorbisBitArray(headerData.getData());
     bitArray.skipBits(headerData.getPosition() * 8);
 
     for (int i = 0; i < numberOfBooks; i++) {

@@ -15,11 +15,14 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import static java.lang.Math.max;
+
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
@@ -150,7 +153,7 @@ public final class PlaybackStatsListener
     // TODO: Add AnalyticsListener.onAttachedToPlayer and onDetachedFromPlayer to auto-release with
     // an actual EventTime. Should also simplify other cases where the listener needs to be released
     // separately from the player.
-    EventTime dummyEventTime =
+    sessionManager.finishAllSessions(
         new EventTime(
             SystemClock.elapsedRealtime(),
             Timeline.EMPTY,
@@ -161,8 +164,7 @@ public final class PlaybackStatsListener
             /* currentWindowIndex= */ 0,
             /* currentMediaPeriodId= */ null,
             /* currentPlaybackPositionMs= */ 0,
-            /* totalBufferedDurationMs= */ 0);
-    sessionManager.finishAllSessions(dummyEventTime);
+            /* totalBufferedDurationMs= */ 0));
   }
 
   // PlaybackSessionManager.Listener implementation.
@@ -285,8 +287,7 @@ public final class PlaybackStatsListener
 
   @Override
   public void onTimelineChanged(EventTime eventTime, @Player.TimelineChangeReason int reason) {
-    sessionManager.handleTimelineUpdate(eventTime);
-    maybeAddSession(eventTime);
+    sessionManager.updateSessionsWithTimelineChange(eventTime);
     for (String session : playbackStatsTrackers.keySet()) {
       if (sessionManager.belongsToSession(eventTime, session)) {
         playbackStatsTrackers.get(session).onPositionDiscontinuity(eventTime, /* isSeek= */ false);
@@ -296,8 +297,10 @@ public final class PlaybackStatsListener
 
   @Override
   public void onPositionDiscontinuity(EventTime eventTime, @Player.DiscontinuityReason int reason) {
-    sessionManager.handlePositionDiscontinuity(eventTime, reason);
-    maybeAddSession(eventTime);
+    boolean isCompletelyIdle = eventTime.timeline.isEmpty() && playbackState == Player.STATE_IDLE;
+    if (!isCompletelyIdle) {
+      sessionManager.updateSessionsWithDiscontinuity(eventTime, reason);
+    }
     if (reason == Player.DISCONTINUITY_REASON_SEEK) {
       onSeekStartedCalled = false;
     }
@@ -332,8 +335,9 @@ public final class PlaybackStatsListener
   }
 
   @Override
-  public void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {
-    this.playbackSpeed = playbackSpeed;
+  public void onPlaybackParametersChanged(
+      EventTime eventTime, PlaybackParameters playbackParameters) {
+    playbackSpeed = playbackParameters.speed;
     maybeAddSession(eventTime);
     for (PlaybackStatsTracker tracker : playbackStatsTrackers.values()) {
       tracker.onPlaybackSpeedChanged(eventTime, playbackSpeed);
@@ -792,7 +796,7 @@ public final class PlaybackStatsListener
         long buildTimeMs = SystemClock.elapsedRealtime();
         playbackStateDurationsMs =
             Arrays.copyOf(this.playbackStateDurationsMs, PlaybackStats.PLAYBACK_STATE_COUNT);
-        long lastStateDurationMs = Math.max(0, buildTimeMs - currentPlaybackStateStartTimeMs);
+        long lastStateDurationMs = max(0, buildTimeMs - currentPlaybackStateStartTimeMs);
         playbackStateDurationsMs[currentPlaybackState] += lastStateDurationMs;
         maybeUpdateMaxRebufferTimeMs(buildTimeMs);
         maybeRecordVideoFormatTime(buildTimeMs);

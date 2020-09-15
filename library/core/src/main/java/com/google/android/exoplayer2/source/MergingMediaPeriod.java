@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.FormatHolder;
@@ -442,7 +444,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
       int readResult = sampleStream.readData(formatHolder, buffer, formatRequired);
       if (readResult == C.RESULT_BUFFER_READ) {
-        buffer.timeUs = Math.max(0, buffer.timeUs + timeOffsetUs);
+        buffer.timeUs = max(0, buffer.timeUs + timeOffsetUs);
       }
       return readResult;
     }

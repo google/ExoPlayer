@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.content.Intent;
@@ -51,10 +53,9 @@ import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -79,8 +79,6 @@ public class SampleChooserActivity extends AppCompatActivity
   private DownloadTracker downloadTracker;
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
-  private MenuItem randomAbrMenuItem;
-  private MenuItem tunnelingMenuItem;
   private ExpandableListView sampleListView;
 
   @Override
@@ -115,9 +113,8 @@ public class SampleChooserActivity extends AppCompatActivity
       Arrays.sort(uris);
     }
 
-    DemoApplication application = (DemoApplication) getApplication();
-    useExtensionRenderers = application.useExtensionRenderers();
-    downloadTracker = application.getDownloadTracker();
+    useExtensionRenderers = DemoUtil.useExtensionRenderers();
+    downloadTracker = DemoUtil.getDownloadTracker(/* context= */ this);
     loadSample();
 
     // Start the download service if it should be running but it's not currently.
@@ -137,11 +134,6 @@ public class SampleChooserActivity extends AppCompatActivity
     inflater.inflate(R.menu.sample_chooser_menu, menu);
     preferExtensionDecodersMenuItem = menu.findItem(R.id.prefer_extension_decoders);
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
-    randomAbrMenuItem = menu.findItem(R.id.random_abr);
-    tunnelingMenuItem = menu.findItem(R.id.tunneling);
-    if (Util.SDK_INT < 21) {
-      tunnelingMenuItem.setEnabled(false);
-    }
     return true;
   }
 
@@ -235,12 +227,6 @@ public class SampleChooserActivity extends AppCompatActivity
     intent.putExtra(
         IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA,
         isNonNullAndChecked(preferExtensionDecodersMenuItem));
-    String abrAlgorithm =
-        isNonNullAndChecked(randomAbrMenuItem)
-            ? IntentUtil.ABR_ALGORITHM_RANDOM
-            : IntentUtil.ABR_ALGORITHM_DEFAULT;
-    intent.putExtra(IntentUtil.ABR_ALGORITHM_EXTRA, abrAlgorithm);
-    intent.putExtra(IntentUtil.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
     IntentUtil.addToIntent(playlistHolder.mediaItems, intent);
     startActivity(intent);
     return true;
@@ -253,8 +239,8 @@ public class SampleChooserActivity extends AppCompatActivity
           .show();
     } else {
       RenderersFactory renderersFactory =
-          ((DemoApplication) getApplication())
-              .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
+          DemoUtil.buildRenderersFactory(
+              /* context= */ this, isNonNullAndChecked(preferExtensionDecodersMenuItem));
       downloadTracker.toggleDownload(
           getSupportFragmentManager(), playlistHolder.mediaItems.get(0), renderersFactory);
     }
@@ -266,12 +252,6 @@ public class SampleChooserActivity extends AppCompatActivity
     }
     MediaItem.PlaybackProperties playbackProperties =
         checkNotNull(playlistHolder.mediaItems.get(0).playbackProperties);
-    if (playbackProperties.drmConfiguration != null) {
-      return R.string.download_drm_unsupported;
-    }
-    if (((IntentUtil.Tag) checkNotNull(playbackProperties.tag)).isLive) {
-      return R.string.download_live_unsupported;
-    }
     if (playbackProperties.adTagUri != null) {
       return R.string.download_ads_unsupported;
     }
@@ -295,9 +275,7 @@ public class SampleChooserActivity extends AppCompatActivity
     protected List<PlaylistGroup> doInBackground(String... uris) {
       List<PlaylistGroup> result = new ArrayList<>();
       Context context = getApplicationContext();
-      String userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
-      DataSource dataSource =
-          new DefaultDataSource(context, userAgent, /* allowCrossProtocolRedirects= */ false);
+      DataSource dataSource = DemoUtil.getDataSourceFactory(context).createDataSource();
       for (String uri : uris) {
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
@@ -363,8 +341,6 @@ public class SampleChooserActivity extends AppCompatActivity
       Uri uri = null;
       String extension = null;
       String title = null;
-      boolean isLive = false;
-      String sphericalStereoMode = null;
       ArrayList<PlaylistHolder> children = null;
       Uri subtitleUri = null;
       String subtitleMimeType = null;
@@ -384,13 +360,20 @@ public class SampleChooserActivity extends AppCompatActivity
           case "extension":
             extension = reader.nextString();
             break;
+          case "clip_start_position_ms":
+            mediaItem.setClipStartPositionMs(reader.nextLong());
+            break;
+          case "clip_end_position_ms":
+            mediaItem.setClipEndPositionMs(reader.nextLong());
+            break;
+          case "ad_tag_uri":
+            mediaItem.setAdTagUri(reader.nextString());
+            break;
           case "drm_scheme":
             mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
             break;
-          case "is_live":
-            isLive = reader.nextBoolean();
-            break;
-          case "drm_license_url":
+          case "drm_license_uri":
+          case "drm_license_url": // For backward compatibility only.
             mediaItem.setDrmLicenseUri(reader.nextString());
             break;
           case "drm_key_request_properties":
@@ -402,37 +385,17 @@ public class SampleChooserActivity extends AppCompatActivity
             reader.endObject();
             mediaItem.setDrmLicenseRequestHeaders(requestHeaders);
             break;
-          case "drm_session_for_clear_types":
-            HashSet<Integer> drmSessionForClearTypes = new HashSet<>();
-            reader.beginArray();
-            while (reader.hasNext()) {
-              drmSessionForClearTypes.add(toTrackType(reader.nextString()));
+          case "drm_session_for_clear_content":
+            if (reader.nextBoolean()) {
+              mediaItem.setDrmSessionForClearTypes(
+                  ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO));
             }
-            reader.endArray();
-            mediaItem.setDrmSessionForClearTypes(new ArrayList<>(drmSessionForClearTypes));
             break;
           case "drm_multi_session":
             mediaItem.setDrmMultiSession(reader.nextBoolean());
             break;
           case "drm_force_default_license_uri":
             mediaItem.setDrmForceDefaultLicenseUri(reader.nextBoolean());
-            break;
-          case "playlist":
-            Assertions.checkState(!insidePlaylist, "Invalid nesting of playlists");
-            children = new ArrayList<>();
-            reader.beginArray();
-            while (reader.hasNext()) {
-              children.add(readEntry(reader, /* insidePlaylist= */ true));
-            }
-            reader.endArray();
-            break;
-          case "ad_tag_uri":
-            mediaItem.setAdTagUri(reader.nextString());
-            break;
-          case "spherical_stereo_mode":
-            Assertions.checkState(
-                !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
-            sphericalStereoMode = reader.nextString();
             break;
           case "subtitle_uri":
             subtitleUri = Uri.parse(reader.nextString());
@@ -442,6 +405,15 @@ public class SampleChooserActivity extends AppCompatActivity
             break;
           case "subtitle_language":
             subtitleLanguage = reader.nextString();
+            break;
+          case "playlist":
+            checkState(!insidePlaylist, "Invalid nesting of playlists");
+            children = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+              children.add(readEntry(reader, /* insidePlaylist= */ true));
+            }
+            reader.endArray();
             break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
@@ -456,11 +428,13 @@ public class SampleChooserActivity extends AppCompatActivity
         }
         return new PlaylistHolder(title, mediaItems);
       } else {
+        @Nullable
+        String adaptiveMimeType =
+            Util.getAdaptiveMimeTypeForContentType(Util.inferContentType(uri, extension));
         mediaItem
             .setUri(uri)
             .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
-            .setMimeType(IntentUtil.inferAdaptiveStreamMimeType(uri, extension))
-            .setTag(new IntentUtil.Tag(isLive, sphericalStereoMode));
+            .setMimeType(adaptiveMimeType);
         if (subtitleUri != null) {
           MediaItem.Subtitle subtitle =
               new MediaItem.Subtitle(
@@ -483,17 +457,6 @@ public class SampleChooserActivity extends AppCompatActivity
       PlaylistGroup group = new PlaylistGroup(groupName);
       groups.add(group);
       return group;
-    }
-
-    private int toTrackType(String trackTypeString) {
-      switch (Util.toLowerInvariant(trackTypeString)) {
-        case "audio":
-          return C.TRACK_TYPE_AUDIO;
-        case "video":
-          return C.TRACK_TYPE_VIDEO;
-        default:
-          throw new IllegalArgumentException("Invalid track type: " + trackTypeString);
-      }
     }
   }
 
@@ -609,7 +572,7 @@ public class SampleChooserActivity extends AppCompatActivity
     public final List<MediaItem> mediaItems;
 
     private PlaylistHolder(String title, List<MediaItem> mediaItems) {
-      Assertions.checkArgument(!mediaItems.isEmpty());
+      checkArgument(!mediaItems.isEmpty());
       this.title = title;
       this.mediaItems = Collections.unmodifiableList(new ArrayList<>(mediaItems));
     }

@@ -40,7 +40,24 @@
     <flag name="all" value="2"/>
   </attr>
 
-  <!-- PlayerControlView attributes -->
+  <!-- PlayerView and StyledPlayerView attributes -->
+  <attr name="use_artwork" format="boolean"/>
+  <attr name="shutter_background_color" format="color"/>
+  <attr name="default_artwork" format="reference"/>
+  <attr name="use_controller" format="boolean"/>
+  <attr name="hide_on_touch" format="boolean"/>
+  <attr name="hide_during_ads" format="boolean"/>
+  <attr name="auto_show" format="boolean"/>
+  <attr name="show_buffering" format="enum">
+    <enum name="never" value="0"/>
+    <enum name="when_playing" value="1"/>
+    <enum name="always" value="2"/>
+  </attr>
+  <attr name="keep_content_on_player_reset" format="boolean"/>
+  <attr name="use_sensor_rotation" format="boolean"/>
+  <attr name="player_layout_id" format="reference"/>
+
+  <!-- PlayerControlView and StyledPlayerControlView attributes -->
   <attr name="show_timeout" format="integer"/>
   <attr name="rewind_increment" format="integer"/>
   <attr name="fastforward_increment" format="integer"/>
@@ -49,8 +66,11 @@
   <attr name="show_previous_button" format="boolean"/>
   <attr name="show_next_button" format="boolean"/>
   <attr name="show_shuffle_button" format="boolean"/>
+  <attr name="show_subtitle_button" format="boolean"/>
+  <attr name="show_vr_button" format="boolean"/>
   <attr name="time_bar_min_update_interval" format="integer"/>
   <attr name="controller_layout_id" format="reference"/>
+  <attr name="animation_enabled" format="boolean"/>
 
   <!-- DefaultTimeBar attributes -->
   <attr name="bar_height" format="dimension"/>
@@ -68,21 +88,17 @@
   <attr name="played_ad_marker_color" format="color"/>
 
   <declare-styleable name="PlayerView">
-    <attr name="use_artwork" format="boolean"/>
-    <attr name="shutter_background_color" format="color"/>
-    <attr name="default_artwork" format="reference"/>
-    <attr name="use_controller" format="boolean"/>
-    <attr name="hide_on_touch" format="boolean"/>
-    <attr name="hide_during_ads" format="boolean"/>
-    <attr name="auto_show" format="boolean"/>
-    <attr name="show_buffering" format="enum">
-      <enum name="never" value="0"/>
-      <enum name="when_playing" value="1"/>
-      <enum name="always" value="2"/>
-    </attr>
-    <attr name="keep_content_on_player_reset" format="boolean"/>
-    <attr name="use_sensor_rotation" format="boolean"/>
-    <attr name="player_layout_id" format="reference"/>
+    <attr name="use_artwork"/>
+    <attr name="shutter_background_color"/>
+    <attr name="default_artwork"/>
+    <attr name="use_controller"/>
+    <attr name="hide_on_touch"/>
+    <attr name="hide_during_ads"/>
+    <attr name="auto_show"/>
+    <attr name="show_buffering"/>
+    <attr name="keep_content_on_player_reset"/>
+    <attr name="use_sensor_rotation"/>
+    <attr name="player_layout_id"/>
     <attr name="surface_type"/>
     <!-- AspectRatioFrameLayout attributes -->
     <attr name="resize_mode"/>
@@ -94,6 +110,48 @@
     <attr name="show_shuffle_button"/>
     <attr name="time_bar_min_update_interval"/>
     <attr name="controller_layout_id"/>
+    <!-- DefaultTimeBar attributes -->
+    <attr name="bar_height"/>
+    <attr name="touch_target_height"/>
+    <attr name="ad_marker_width"/>
+    <attr name="scrubber_enabled_size"/>
+    <attr name="scrubber_disabled_size"/>
+    <attr name="scrubber_dragged_size"/>
+    <attr name="scrubber_drawable"/>
+    <attr name="played_color"/>
+    <attr name="scrubber_color"/>
+    <attr name="buffered_color" />
+    <attr name="unplayed_color"/>
+    <attr name="ad_marker_color"/>
+    <attr name="played_ad_marker_color"/>
+  </declare-styleable>
+
+  <declare-styleable name="StyledPlayerView">
+    <attr name="use_artwork"/>
+    <attr name="shutter_background_color"/>
+    <attr name="default_artwork"/>
+    <attr name="use_controller"/>
+    <attr name="hide_on_touch"/>
+    <attr name="hide_during_ads"/>
+    <attr name="auto_show"/>
+    <attr name="show_buffering"/>
+    <attr name="keep_content_on_player_reset"/>
+    <attr name="use_sensor_rotation"/>
+    <attr name="player_layout_id"/>
+    <attr name="surface_type"/>
+    <!-- AspectRatioFrameLayout attributes -->
+    <attr name="resize_mode"/>
+    <!-- PlayerControlView attributes -->
+    <attr name="show_timeout"/>
+    <attr name="rewind_increment"/>
+    <attr name="fastforward_increment"/>
+    <attr name="repeat_toggle_modes"/>
+    <attr name="show_shuffle_button"/>
+    <attr name="show_subtitle_button"/>
+    <attr name="show_vr_button"/>
+    <attr name="time_bar_min_update_interval"/>
+    <attr name="controller_layout_id"/>
+    <attr name="animation_enabled"/>
     <!-- DefaultTimeBar attributes -->
     <attr name="bar_height"/>
     <attr name="touch_target_height"/>
@@ -126,6 +184,37 @@
     <attr name="show_shuffle_button"/>
     <attr name="time_bar_min_update_interval"/>
     <attr name="controller_layout_id"/>
+    <!-- DefaultTimeBar attributes -->
+    <attr name="bar_height"/>
+    <attr name="touch_target_height"/>
+    <attr name="ad_marker_width"/>
+    <attr name="scrubber_enabled_size"/>
+    <attr name="scrubber_disabled_size"/>
+    <attr name="scrubber_dragged_size"/>
+    <attr name="scrubber_drawable"/>
+    <attr name="played_color"/>
+    <attr name="scrubber_color"/>
+    <attr name="buffered_color" />
+    <attr name="unplayed_color"/>
+    <attr name="ad_marker_color"/>
+    <attr name="played_ad_marker_color"/>
+  </declare-styleable>
+
+  <declare-styleable name="StyledPlayerControlView">
+    <attr name="show_timeout"/>
+    <attr name="rewind_increment"/>
+    <attr name="fastforward_increment"/>
+    <attr name="repeat_toggle_modes"/>
+    <attr name="show_rewind_button"/>
+    <attr name="show_fastforward_button"/>
+    <attr name="show_previous_button"/>
+    <attr name="show_next_button"/>
+    <attr name="show_shuffle_button"/>
+    <attr name="show_subtitle_button"/>
+    <attr name="show_vr_button"/>
+    <attr name="time_bar_min_update_interval"/>
+    <attr name="controller_layout_id"/>
+    <attr name="animation_enabled"/>
     <!-- DefaultTimeBar attributes -->
     <attr name="bar_height"/>
     <attr name="touch_target_height"/>

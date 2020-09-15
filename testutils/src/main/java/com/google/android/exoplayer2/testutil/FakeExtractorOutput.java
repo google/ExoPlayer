@@ -16,56 +16,16 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.content.Context;
 import android.util.SparseArray;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.util.Assertions;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A fake {@link ExtractorOutput}. */
 public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpable {
-
-  private static final String DUMP_UPDATE_INSTRUCTIONS =
-      "To update the dump file, change FakeExtractorOutput#DUMP_FILE_ACTION to WRITE_TO_LOCAL (for"
-          + " Robolectric tests) or WRITE_TO_DEVICE (for instrumentation tests) and re-run the"
-          + " test.";
-
-  /**
-   * Possible actions to take with the dumps generated from this {@code FakeExtractorOutput} in
-   * {@link #assertOutput(Context, String)}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef(
-      flag = true,
-      value = {COMPARE_WITH_EXISTING, WRITE_TO_LOCAL, WRITE_TO_DEVICE})
-  private @interface DumpFilesAction {}
-  /** Compare output with existing dump file. */
-  private static final int COMPARE_WITH_EXISTING = 0;
-  /**
-   * Write output to the project folder {@code testdata/src/test/assets}.
-   *
-   * <p>Enabling this option works when tests are run in Android Studio. It may not work when the
-   * tests are run in another environment.
-   */
-  private static final int WRITE_TO_LOCAL = 1;
-  /** Write output to folder {@code /storage/emulated/0/Android/data} of device. */
-  private static final int WRITE_TO_DEVICE = 1 << 1;
-
-  @DumpFilesAction private static final int DUMP_FILE_ACTION = COMPARE_WITH_EXISTING;
 
   public final SparseArray<FakeTrackOutput> trackOutputs;
   private final FakeTrackOutput.Factory trackOutputFactory;
@@ -121,44 +81,6 @@ public final class FakeExtractorOutput implements ExtractorOutput, Dumper.Dumpab
   public void clearTrackOutputs() {
     for (int i = 0; i < numberOfTracks; i++) {
       trackOutputs.valueAt(i).clear();
-    }
-  }
-
-  /**
-   * Asserts that dump of this {@link FakeExtractorOutput} is equal to expected dump which is read
-   * from {@code dumpFile}.
-   *
-   * <p>If assertion fails because of an intended change in the output or a new dump file needs to
-   * be created, set {@link #DUMP_FILE_ACTION} to {@link #WRITE_TO_LOCAL} for local tests and to
-   * {@link #WRITE_TO_DEVICE} for instrumentation tests, and run the test again. Instead of
-   * assertion, actual dump will be written to {@code dumpFile}. For instrumentation tests, this new
-   * dump file needs to be copied to the project {@code testdata/src/test/assets} folder manually.
-   */
-  public void assertOutput(Context context, String dumpFile) throws IOException {
-    String actual = new Dumper().add(this).toString();
-
-    if (DUMP_FILE_ACTION == COMPARE_WITH_EXISTING) {
-      String expected;
-      try {
-        expected = TestUtil.getString(context, dumpFile);
-      } catch (FileNotFoundException e) {
-        throw new IOException("Dump file not found. " + DUMP_UPDATE_INSTRUCTIONS, e);
-      }
-      assertWithMessage(
-              "Extractor output doesn't match dump file: %s\n%s",
-              dumpFile, DUMP_UPDATE_INSTRUCTIONS)
-          .that(actual)
-          .isEqualTo(expected);
-    } else {
-      File file =
-          DUMP_FILE_ACTION == WRITE_TO_LOCAL
-              ? new File(System.getProperty("user.dir"), "../../testdata/src/test/assets")
-              : context.getExternalFilesDir(null);
-      file = new File(file, dumpFile);
-      Assertions.checkStateNotNull(file.getParentFile()).mkdirs();
-      PrintWriter out = new PrintWriter(file);
-      out.print(actual);
-      out.close();
     }
   }
 

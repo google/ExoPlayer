@@ -60,7 +60,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:' + androidxAppCompatVersion
     implementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
 }
 
 apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

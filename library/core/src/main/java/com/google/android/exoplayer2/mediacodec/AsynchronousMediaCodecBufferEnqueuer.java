@@ -16,11 +16,14 @@
 
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -301,8 +304,8 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
         copy(cryptoInfo.numBytesOfClearData, frameworkCryptoInfo.numBytesOfClearData);
     frameworkCryptoInfo.numBytesOfEncryptedData =
         copy(cryptoInfo.numBytesOfEncryptedData, frameworkCryptoInfo.numBytesOfEncryptedData);
-    frameworkCryptoInfo.key = copy(cryptoInfo.key, frameworkCryptoInfo.key);
-    frameworkCryptoInfo.iv = copy(cryptoInfo.iv, frameworkCryptoInfo.iv);
+    frameworkCryptoInfo.key = checkNotNull(copy(cryptoInfo.key, frameworkCryptoInfo.key));
+    frameworkCryptoInfo.iv = checkNotNull(copy(cryptoInfo.iv, frameworkCryptoInfo.iv));
     frameworkCryptoInfo.mode = cryptoInfo.mode;
     if (Util.SDK_INT >= 24) {
       android.media.MediaCodec.CryptoInfo.Pattern pattern =
@@ -319,7 +322,8 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
    * @param dst The destination array, which will be reused if it's at least as long as {@code src}.
    * @return The copy, which may be {@code dst} if it was reused.
    */
-  private static int[] copy(int[] src, int[] dst) {
+  @Nullable
+  private static int[] copy(@Nullable int[] src, @Nullable int[] dst) {
     if (src == null) {
       return dst;
     }
@@ -339,7 +343,8 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
    * @param dst The destination array, which will be reused if it's at least as long as {@code src}.
    * @return The copy, which may be {@code dst} if it was reused.
    */
-  private static byte[] copy(byte[] src, byte[] dst) {
+  @Nullable
+  private static byte[] copy(@Nullable byte[] src, @Nullable byte[] dst) {
     if (src == null) {
       return dst;
     }

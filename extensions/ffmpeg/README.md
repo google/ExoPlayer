@@ -18,8 +18,8 @@ its modules locally. Instructions for doing this can be found in ExoPlayer's
 [top level README][]. The extension is not provided via JCenter (see [#2781][]
 for more information).
 
-In addition, it's necessary to build the extension's native components as
-follows:
+In addition, it's necessary to manually build the FFmpeg library, so that gradle
+can bundle the FFmpeg binaries in the APK:
 
 * Set the following shell variable:
 
@@ -71,14 +71,6 @@ ENABLED_DECODERS=(vorbis opus flac)
 cd "${FFMPEG_EXT_PATH}/jni" && \
 ./build_ffmpeg.sh \
   "${FFMPEG_EXT_PATH}" "${NDK_PATH}" "${HOST_PLATFORM}" "${ENABLED_DECODERS[@]}"
-```
-
-* Build the JNI native libraries, setting `APP_ABI` to include the architectures
-  built in the previous step. For example:
-
-```
-cd "${FFMPEG_EXT_PATH}/jni" && \
-${NDK_PATH}/ndk-build APP_ABI="armeabi-v7a arm64-v8a x86 x86_64" -j4
 ```
 
 ## Build instructions (Windows) ##

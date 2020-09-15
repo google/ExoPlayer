@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSink;
@@ -99,7 +103,7 @@ public final class CacheDataSink implements DataSink {
 
     @Override
     public DataSink createDataSink() {
-      return new CacheDataSink(Assertions.checkNotNull(cache), fragmentSize, bufferSize);
+      return new CacheDataSink(checkNotNull(cache), fragmentSize, bufferSize);
     }
   }
 
@@ -166,13 +170,14 @@ public final class CacheDataSink implements DataSink {
               + MIN_RECOMMENDED_FRAGMENT_SIZE
               + ". This may cause poor cache performance.");
     }
-    this.cache = Assertions.checkNotNull(cache);
+    this.cache = checkNotNull(cache);
     this.fragmentSize = fragmentSize == C.LENGTH_UNSET ? Long.MAX_VALUE : fragmentSize;
     this.bufferSize = bufferSize;
   }
 
   @Override
   public void open(DataSpec dataSpec) throws CacheDataSinkException {
+    checkNotNull(dataSpec.key);
     if (dataSpec.length == C.LENGTH_UNSET
         && dataSpec.isFlagSet(DataSpec.FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN)) {
       this.dataSpec = null;
@@ -183,7 +188,7 @@ public final class CacheDataSink implements DataSink {
         dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION) ? fragmentSize : Long.MAX_VALUE;
     dataSpecBytesWritten = 0;
     try {
-      openNextOutputStream();
+      openNextOutputStream(dataSpec);
     } catch (IOException e) {
       throw new CacheDataSinkException(e);
     }
@@ -191,6 +196,7 @@ public final class CacheDataSink implements DataSink {
 
   @Override
   public void write(byte[] buffer, int offset, int length) throws CacheDataSinkException {
+    @Nullable DataSpec dataSpec = this.dataSpec;
     if (dataSpec == null) {
       return;
     }
@@ -199,11 +205,11 @@ public final class CacheDataSink implements DataSink {
       while (bytesWritten < length) {
         if (outputStreamBytesWritten == dataSpecFragmentSize) {
           closeCurrentOutputStream();
-          openNextOutputStream();
+          openNextOutputStream(dataSpec);
         }
         int bytesToWrite =
-            (int) Math.min(length - bytesWritten, dataSpecFragmentSize - outputStreamBytesWritten);
-        outputStream.write(buffer, offset + bytesWritten, bytesToWrite);
+            (int) min(length - bytesWritten, dataSpecFragmentSize - outputStreamBytesWritten);
+        castNonNull(outputStream).write(buffer, offset + bytesWritten, bytesToWrite);
         bytesWritten += bytesToWrite;
         outputStreamBytesWritten += bytesToWrite;
         dataSpecBytesWritten += bytesToWrite;
@@ -225,12 +231,14 @@ public final class CacheDataSink implements DataSink {
     }
   }
 
-  private void openNextOutputStream() throws IOException {
+  private void openNextOutputStream(DataSpec dataSpec) throws IOException {
     long length =
         dataSpec.length == C.LENGTH_UNSET
             ? C.LENGTH_UNSET
-            : Math.min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
-    file = cache.startFile(dataSpec.key, dataSpec.position + dataSpecBytesWritten, length);
+            : min(dataSpec.length - dataSpecBytesWritten, dataSpecFragmentSize);
+    file =
+        cache.startFile(
+            castNonNull(dataSpec.key), dataSpec.position + dataSpecBytesWritten, length);
     FileOutputStream underlyingFileOutputStream = new FileOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
@@ -258,7 +266,7 @@ public final class CacheDataSink implements DataSink {
     } finally {
       Util.closeQuietly(outputStream);
       outputStream = null;
-      File fileToCommit = file;
+      File fileToCommit = castNonNull(file);
       file = null;
       if (success) {
         cache.commitFile(fileToCommit, outputStreamBytesWritten);

@@ -68,6 +68,7 @@ import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1258,15 +1259,20 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   @Override
-  public View[] getAdOverlayViews() {
-    ArrayList<View> overlayViews = new ArrayList<>();
+  public List<AdsLoader.OverlayInfo> getAdOverlayInfos() {
+    List<AdsLoader.OverlayInfo> overlayViews = new ArrayList<>();
     if (overlayFrameLayout != null) {
-      overlayViews.add(overlayFrameLayout);
+      overlayViews.add(
+          new AdsLoader.OverlayInfo(
+              overlayFrameLayout,
+              AdsLoader.OverlayInfo.PURPOSE_NOT_VISIBLE,
+              /* detailedReason= */ "Transparent overlay does not impact viewability"));
     }
     if (controller != null) {
-      overlayViews.add(controller);
+      overlayViews.add(
+          new AdsLoader.OverlayInfo(controller, AdsLoader.OverlayInfo.PURPOSE_CONTROLS));
     }
-    return overlayViews.toArray(new View[0]);
+    return ImmutableList.copyOf(overlayViews);
   }
 
   // Internal methods.
