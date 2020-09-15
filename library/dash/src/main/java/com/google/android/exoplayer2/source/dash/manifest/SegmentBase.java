@@ -121,6 +121,15 @@ public abstract class SegmentBase {
     @Nullable /* package */ final List<SegmentTimelineElement> segmentTimeline;
 
     /**
+     * Offset to the current realtime at which segments become available, in microseconds, or {@link
+     * C#TIME_UNSET} if all segments are available immediately.
+     *
+     * <p>Segments will be available once their end time &le; currentRealTime +
+     * availabilityTimeOffset.
+     */
+    /* package */ final long availabilityTimeOffsetUs;
+
+    /**
      * @param initialization A {@link RangedUri} corresponding to initialization data, if such data
      *     exists.
      * @param timescale The timescale in units per second.
@@ -133,6 +142,8 @@ public abstract class SegmentBase {
      * @param segmentTimeline A segment timeline corresponding to the segments. If null, then
      *     segments are assumed to be of fixed duration as specified by the {@code duration}
      *     parameter.
+     * @param availabilityTimeOffsetUs The offset to the current realtime at which segments become
+     *     available in microseconds, or {@link C#TIME_UNSET} if not applicable.
      */
     public MultiSegmentBase(
         @Nullable RangedUri initialization,
@@ -140,11 +151,13 @@ public abstract class SegmentBase {
         long presentationTimeOffset,
         long startNumber,
         long duration,
-        @Nullable List<SegmentTimelineElement> segmentTimeline) {
+        @Nullable List<SegmentTimelineElement> segmentTimeline,
+        long availabilityTimeOffsetUs) {
       super(initialization, timescale, presentationTimeOffset);
       this.startNumber = startNumber;
       this.duration = duration;
       this.segmentTimeline = segmentTimeline;
+      this.availabilityTimeOffsetUs = availabilityTimeOffsetUs;
     }
 
     /** @see DashSegmentIndex#getSegmentNum(long, long) */
@@ -255,6 +268,8 @@ public abstract class SegmentBase {
      * @param segmentTimeline A segment timeline corresponding to the segments. If null, then
      *     segments are assumed to be of fixed duration as specified by the {@code duration}
      *     parameter.
+     * @param availabilityTimeOffsetUs The offset to the current realtime at which segments become
+     *     available in microseconds, or {@link C#TIME_UNSET} if not applicable.
      * @param mediaSegments A list of {@link RangedUri}s indicating the locations of the segments.
      */
     public SegmentList(
@@ -264,9 +279,16 @@ public abstract class SegmentBase {
         long startNumber,
         long duration,
         @Nullable List<SegmentTimelineElement> segmentTimeline,
+        long availabilityTimeOffsetUs,
         @Nullable List<RangedUri> mediaSegments) {
-      super(initialization, timescale, presentationTimeOffset, startNumber, duration,
-          segmentTimeline);
+      super(
+          initialization,
+          timescale,
+          presentationTimeOffset,
+          startNumber,
+          duration,
+          segmentTimeline,
+          availabilityTimeOffsetUs);
       this.mediaSegments = mediaSegments;
     }
 
@@ -311,6 +333,8 @@ public abstract class SegmentBase {
      * @param segmentTimeline A segment timeline corresponding to the segments. If null, then
      *     segments are assumed to be of fixed duration as specified by the {@code duration}
      *     parameter.
+     * @param availabilityTimeOffsetUs The offset to the current realtime at which segments become
+     *     available in microseconds, or {@link C#TIME_UNSET} if not applicable.
      * @param initializationTemplate A template defining the location of initialization data, if
      *     such data exists. If non-null then the {@code initialization} parameter is ignored. If
      *     null then {@code initialization} will be used.
@@ -324,6 +348,7 @@ public abstract class SegmentBase {
         long endNumber,
         long duration,
         @Nullable List<SegmentTimelineElement> segmentTimeline,
+        long availabilityTimeOffsetUs,
         @Nullable UrlTemplate initializationTemplate,
         @Nullable UrlTemplate mediaTemplate) {
       super(
@@ -332,7 +357,8 @@ public abstract class SegmentBase {
           presentationTimeOffset,
           startNumber,
           duration,
-          segmentTimeline);
+          segmentTimeline,
+          availabilityTimeOffsetUs);
       this.initializationTemplate = initializationTemplate;
       this.mediaTemplate = mediaTemplate;
       this.endNumber = endNumber;

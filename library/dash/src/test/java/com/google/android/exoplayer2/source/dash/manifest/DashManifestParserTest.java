@@ -51,6 +51,12 @@ public class DashManifestParserTest {
   private static final String SAMPLE_MPD_ASSET_IDENTIFIER = "media/mpd/sample_mpd_asset_identifier";
   private static final String SAMPLE_MPD_TEXT = "media/mpd/sample_mpd_text";
   private static final String SAMPLE_MPD_TRICK_PLAY = "media/mpd/sample_mpd_trick_play";
+  private static final String SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_BASE_URL =
+      "media/mpd/sample_mpd_availabilityTimeOffset_baseUrl";
+  private static final String SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_TEMPLATE =
+      "media/mpd/sample_mpd_availabilityTimeOffset_segmentTemplate";
+  private static final String SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_LIST =
+      "media/mpd/sample_mpd_availabilityTimeOffset_segmentList";
 
   private static final String NEXT_TAG_NAME = "Next";
   private static final String NEXT_TAG = "<" + NEXT_TAG_NAME + "/>";
@@ -469,6 +475,91 @@ public class DashManifestParserTest {
     assertThat(assetIdentifier.id).isEqualTo("uniqueId");
   }
 
+  @Test
+  public void availabilityTimeOffset_staticManifest_setToTimeUnset() throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_TEXT));
+
+    assertThat(manifest.getPeriodCount()).isEqualTo(1);
+    List<AdaptationSet> adaptationSets = manifest.getPeriod(0).adaptationSets;
+    assertThat(adaptationSets).hasSize(3);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(0))).isEqualTo(C.TIME_UNSET);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(1))).isEqualTo(C.TIME_UNSET);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets.get(2))).isEqualTo(C.TIME_UNSET);
+  }
+
+  @Test
+  public void availabilityTimeOffset_dynamicManifest_valuesInBaseUrl_setsCorrectValues()
+      throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_BASE_URL));
+
+    assertThat(manifest.getPeriodCount()).isEqualTo(2);
+    List<AdaptationSet> adaptationSets0 = manifest.getPeriod(0).adaptationSets;
+    List<AdaptationSet> adaptationSets1 = manifest.getPeriod(1).adaptationSets;
+    assertThat(adaptationSets0).hasSize(4);
+    assertThat(adaptationSets1).hasSize(1);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(0))).isEqualTo(5_000_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(1))).isEqualTo(4_321_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(2))).isEqualTo(9_876_543);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(3))).isEqualTo(C.TIME_UNSET);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets1.get(0))).isEqualTo(0);
+  }
+
+  @Test
+  public void availabilityTimeOffset_dynamicManifest_valuesInSegmentTemplate_setsCorrectValues()
+      throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_TEMPLATE));
+
+    assertThat(manifest.getPeriodCount()).isEqualTo(2);
+    List<AdaptationSet> adaptationSets0 = manifest.getPeriod(0).adaptationSets;
+    List<AdaptationSet> adaptationSets1 = manifest.getPeriod(1).adaptationSets;
+    assertThat(adaptationSets0).hasSize(4);
+    assertThat(adaptationSets1).hasSize(1);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(0))).isEqualTo(2_000_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(1))).isEqualTo(3_210_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(2))).isEqualTo(1_230_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(3))).isEqualTo(100_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets1.get(0))).isEqualTo(9_999_000);
+  }
+
+  @Test
+  public void availabilityTimeOffset_dynamicManifest_valuesInSegmentList_setsCorrectValues()
+      throws IOException {
+    DashManifestParser parser = new DashManifestParser();
+    DashManifest manifest =
+        parser.parse(
+            Uri.parse("https://example.com/test.mpd"),
+            TestUtil.getInputStream(
+                ApplicationProvider.getApplicationContext(),
+                SAMPLE_MPD_AVAILABILITY_TIME_OFFSET_SEGMENT_LIST));
+
+    assertThat(manifest.getPeriodCount()).isEqualTo(2);
+    List<AdaptationSet> adaptationSets0 = manifest.getPeriod(0).adaptationSets;
+    List<AdaptationSet> adaptationSets1 = manifest.getPeriod(1).adaptationSets;
+    assertThat(adaptationSets0).hasSize(4);
+    assertThat(adaptationSets1).hasSize(1);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(0))).isEqualTo(2_000_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(1))).isEqualTo(3_210_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(2))).isEqualTo(1_230_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets0.get(3))).isEqualTo(100_000);
+    assertThat(getAvailabilityTimeOffsetUs(adaptationSets1.get(0))).isEqualTo(9_999_000);
+  }
+
   private static List<Descriptor> buildCea608AccessibilityDescriptors(String value) {
     return Collections.singletonList(new Descriptor("urn:scte:dash:cc:cea-608:2015", value, null));
   }
@@ -481,5 +572,14 @@ public class DashManifestParserTest {
     xpp.next();
     assertThat(xpp.getEventType()).isEqualTo(XmlPullParser.START_TAG);
     assertThat(xpp.getName()).isEqualTo(NEXT_TAG_NAME);
+  }
+
+  private static long getAvailabilityTimeOffsetUs(AdaptationSet adaptationSet) {
+    assertThat(adaptationSet.representations).isNotEmpty();
+    Representation representation = adaptationSet.representations.get(0);
+    assertThat(representation).isInstanceOf(Representation.MultiSegmentRepresentation.class);
+    SegmentBase.MultiSegmentBase segmentBase =
+        ((Representation.MultiSegmentRepresentation) representation).segmentBase;
+    return segmentBase.availabilityTimeOffsetUs;
   }
 }
