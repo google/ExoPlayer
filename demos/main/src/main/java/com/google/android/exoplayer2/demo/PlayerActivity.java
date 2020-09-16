@@ -543,7 +543,19 @@ public class PlayerActivity extends AppCompatActivity
       @Nullable
       DownloadRequest downloadRequest =
           downloadTracker.getDownloadRequest(checkNotNull(item.playbackProperties).uri);
-      mediaItems.add(downloadRequest != null ? downloadRequest.toMediaItem() : item);
+      if (downloadRequest != null) {
+        MediaItem.Builder builder = item.buildUpon();
+        builder
+            .setMediaId(downloadRequest.id)
+            .setUri(downloadRequest.uri)
+            .setCustomCacheKey(downloadRequest.customCacheKey)
+            .setMimeType(downloadRequest.mimeType)
+            .setStreamKeys(downloadRequest.streamKeys)
+            .setDrmKeySetId(downloadRequest.keySetId);
+        mediaItems.add(builder.build());
+      } else {
+        mediaItems.add(item);
+      }
     }
     return mediaItems;
   }
