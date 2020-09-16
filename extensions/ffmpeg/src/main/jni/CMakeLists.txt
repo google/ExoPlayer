@@ -7,7 +7,6 @@ project(libffmpeg_jni C CXX)
 
 set(ffmpeg_location "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg")
 set(ffmpeg_binaries "${ffmpeg_location}/android-libs/${ANDROID_ABI}")
-set(ffmpeg_output_dir "${CMAKE_CURRENT_SOURCE_DIR}/../libs/${ANDROID_ABI}")
 
 foreach(ffmpeg_lib avutil swresample avcodec)
     set(ffmpeg_lib_filename lib${ffmpeg_lib}.so)
@@ -20,7 +19,6 @@ foreach(ffmpeg_lib avutil swresample avcodec)
             ${ffmpeg_lib} PROPERTIES
             IMPORTED_LOCATION
             ${ffmpeg_lib_file_path})
-    file(COPY ${ffmpeg_lib_file_path} DESTINATION ${ffmpeg_output_dir})
 endforeach()
 
 include_directories(${ffmpeg_location})
