@@ -106,16 +106,16 @@ import java.util.List;
       duration = tkhdData.duration;
     }
     long movieTimescale = parseMvhd(mvhd.data);
-    long durationUs;
-    if (duration == C.TIME_UNSET) {
-      durationUs = C.TIME_UNSET;
-    } else {
-      durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, movieTimescale);
-    }
     Atom.ContainerAtom stbl = mdia.getContainerAtomOfType(Atom.TYPE_minf)
         .getContainerAtomOfType(Atom.TYPE_stbl);
 
     Pair<Long, String> mdhdData = parseMdhd(mdia.getLeafAtomOfType(Atom.TYPE_mdhd).data);
+    long durationUs;
+    if (duration == C.TIME_UNSET) {
+      durationUs = C.TIME_UNSET;
+    } else {
+      durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, mdhdData.first);
+    }
     StsdData stsdData = parseStsd(stbl.getLeafAtomOfType(Atom.TYPE_stsd).data, tkhdData.id,
         tkhdData.rotationDegrees, mdhdData.second, drmInitData, isQuickTime);
     long[] editListDurations = null;
