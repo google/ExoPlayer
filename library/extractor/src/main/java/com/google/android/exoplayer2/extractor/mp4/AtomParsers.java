@@ -258,12 +258,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       duration = tkhdData.duration;
     }
     long movieTimescale = parseMvhd(mvhd.data);
-    long durationUs;
-    if (duration == C.TIME_UNSET) {
-      durationUs = C.TIME_UNSET;
-    } else {
-      durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, movieTimescale);
-    }
     Atom.ContainerAtom stbl =
         checkNotNull(
             checkNotNull(mdia.getContainerAtomOfType(Atom.TYPE_minf))
@@ -271,6 +265,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     Pair<Long, String> mdhdData =
         parseMdhd(checkNotNull(mdia.getLeafAtomOfType(Atom.TYPE_mdhd)).data);
+    long durationUs;
+    if (duration == C.TIME_UNSET) {
+      durationUs = C.TIME_UNSET;
+    } else {
+      durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, mdhdData.first);
+    }
     StsdData stsdData =
         parseStsd(
             checkNotNull(stbl.getLeafAtomOfType(Atom.TYPE_stsd)).data,
