@@ -41,19 +41,15 @@ NDK_PATH="<path to Android NDK>"
 HOST_PLATFORM="linux-x86_64"
 ```
 
-* Fetch FFmpeg:
+* Fetch FFmpeg and checkout an appropriate branch. We cannot guarantee
+  compatibility with all versions of FFmpeg. We currently recommend version 4.2:
 
 ```
-cd "${FFMPEG_EXT_PATH}/jni" && \
-git clone git://source.ffmpeg.org/ffmpeg ffmpeg
-```
-
-* Checkout an appropriate branch of FFmpeg. We cannot guarantee compatibility
-  with all versions of FFmpeg. We currently recommend version 4.2:
-
-```
-cd "${FFMPEG_EXT_PATH}/jni/ffmpeg" && \
-git checkout release/4.2
+cd "<preferred location for ffmpeg>" && \
+git clone git://source.ffmpeg.org/ffmpeg && \
+cd ffmpeg && \
+git checkout release/4.2 && \
+FFMPEG_PATH="$(pwd)"
 ```
 
 * Configure the decoders to include. See the [Supported formats][] page for
@@ -61,6 +57,13 @@ git checkout release/4.2
 
 ```
 ENABLED_DECODERS=(vorbis opus flac)
+```
+
+* Add a link to the FFmpeg source code in the FFmpeg extension `jni` directory.
+
+```
+cd "${FFMPEG_EXT_PATH}/jni" && \
+ln -s "$FFMPEG_PATH" ffmpeg
 ```
 
 * Execute `build_ffmpeg.sh` to build FFmpeg for `armeabi-v7a`, `arm64-v8a`,
