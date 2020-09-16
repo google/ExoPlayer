@@ -244,6 +244,9 @@ public final class FlacStreamMetadata {
         .setMaxInputSize(maxInputSize)
         .setChannelCount(channels)
         .setSampleRate(sampleRate)
+        .setAverageBitrate(getDecodedBitrate())
+        .setPeakBitrate(getDecodedBitrate())
+        .setPcmEncoding(Util.getPcmEncoding(bitsPerSample))
         .setInitializationData(Collections.singletonList(streamMarkerAndInfoBlock))
         .setMetadata(metadataWithId3)
         .build();
