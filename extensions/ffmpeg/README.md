@@ -25,7 +25,8 @@ can bundle the FFmpeg binaries in the APK:
 
 ```
 cd "<path to exoplayer checkout>"
-FFMPEG_EXT_PATH="$(pwd)/extensions/ffmpeg/src/main"
+EXOPLAYER_ROOT="$(pwd)"
+FFMPEG_EXT_PATH="${EXOPLAYER_ROOT}/extensions/ffmpeg/src/main"
 ```
 
 * Download the [Android NDK][] and set its location in a shell variable.
