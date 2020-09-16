@@ -90,14 +90,12 @@
 
   <style name="ExoStyledControls.Button.Center.FfwdWithAmount">
     <item name="android:background">@drawable/exo_ripple_ffwd</item>
-    <item name="android:contentDescription">@string/exo_controls_fastforward_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
   </style>
   <style name="ExoStyledControls.Button.Center.RewWithAmount">
     <item name="android:background">@drawable/exo_ripple_rew</item>
-    <item name="android:contentDescription">@string/exo_controls_rewind_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>

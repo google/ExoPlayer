@@ -1159,13 +1159,14 @@ public class StyledPlayerControlView extends FrameLayout {
     if (controlDispatcher instanceof DefaultControlDispatcher) {
       rewindMs = ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs();
     }
-    long rewindSec = rewindMs / 1_000;
+    int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
       rewindButtonTextView.setText(String.valueOf(rewindSec));
     }
     if (rewindButton != null) {
       rewindButton.setContentDescription(
-          resources.getString(R.string.exo_controls_rewind_by_amount_description, rewindSec));
+          resources.getQuantityString(
+              R.plurals.exo_controls_rewind_by_amount_description, rewindSec, rewindSec));
     }
   }
 
@@ -1173,14 +1174,16 @@ public class StyledPlayerControlView extends FrameLayout {
     if (controlDispatcher instanceof DefaultControlDispatcher) {
       fastForwardMs = ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs();
     }
-    long fastForwardSec = fastForwardMs / 1_000;
+    int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
       fastForwardButtonTextView.setText(String.valueOf(fastForwardSec));
     }
     if (fastForwardButton != null) {
       fastForwardButton.setContentDescription(
-          resources.getString(
-              R.string.exo_controls_fastforward_by_amount_description, fastForwardSec));
+          resources.getQuantityString(
+              R.plurals.exo_controls_fastforward_by_amount_description,
+              fastForwardSec,
+              fastForwardSec));
     }
   }
 
