@@ -1,0 +1,33 @@
+<!--
+  ~ Copyright (C) 2020 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<tt xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata"
+  xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
+  xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
+  xmlns="http://www.w3.org/ns/ttml"
+  xmlns="http://www.w3.org/2006/10/ttaf1">
+  <body>
+    <div>
+      <p begin="10s" end="18s">Text with <span tts:textCombine="all">combined</span> section.</p>
+    </div>
+    <div>
+      <p begin="20s" end="28s">Text with <span tts:textCombine="none">un-combined</span> section.</p>
+    </div>
+    <div>
+      <p begin="30s" end="38s">"No textCombine"</p>
+    </div>
+  </body>
+</tt>

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
@@ -30,10 +32,18 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
   private final boolean allowCrossProtocolRedirects;
 
   /**
-   * Constructs a DefaultHttpDataSourceFactory. Sets {@link
-   * DefaultHttpDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout, {@link
-   * DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * Creates an instance. Sets {@link DefaultHttpDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the
+   * connection timeout, {@link DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read
+   * timeout and disables cross-protocol redirects.
+   */
+  public DefaultHttpDataSourceFactory() {
+    this(DEFAULT_USER_AGENT);
+  }
+
+  /**
+   * Creates an instance. Sets {@link DefaultHttpDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the
+   * connection timeout, {@link DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read
+   * timeout and disables cross-protocol redirects.
    *
    * @param userAgent The User-Agent string that should be used.
    */
@@ -42,10 +52,9 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a DefaultHttpDataSourceFactory. Sets {@link
-   * DefaultHttpDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout, {@link
-   * DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * Creates an instance. Sets {@link DefaultHttpDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the
+   * connection timeout, {@link DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read
+   * timeout and disables cross-protocol redirects.
    *
    * @param userAgent The User-Agent string that should be used.
    * @param listener An optional listener.

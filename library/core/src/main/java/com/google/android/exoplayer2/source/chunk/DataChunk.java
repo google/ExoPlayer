@@ -52,16 +52,16 @@ public abstract class DataChunk extends Chunk {
       Format trackFormat,
       int trackSelectionReason,
       @Nullable Object trackSelectionData,
-      byte[] data) {
+      @Nullable byte[] data) {
     super(dataSource, dataSpec, type, trackFormat, trackSelectionReason, trackSelectionData,
         C.TIME_UNSET, C.TIME_UNSET);
-    this.data = data;
+    this.data = data == null ? Util.EMPTY_BYTE_ARRAY : data;
   }
 
   /**
    * Returns the array in which the data is held.
-   * <p>
-   * This method should be used for recycling the holder only, and not for reading the data.
+   *
+   * <p>This method should be used for recycling the holder only, and not for reading the data.
    *
    * @return The array in which the data is held.
    */
@@ -77,7 +77,7 @@ public abstract class DataChunk extends Chunk {
   }
 
   @Override
-  public final void load() throws IOException, InterruptedException {
+  public final void load() throws IOException {
     try {
       dataSource.open(dataSpec);
       int limit = 0;
@@ -108,9 +108,7 @@ public abstract class DataChunk extends Chunk {
   protected abstract void consume(byte[] data, int limit) throws IOException;
 
   private void maybeExpandData(int limit) {
-    if (data == null) {
-      data = new byte[READ_GRANULARITY];
-    } else if (data.length < limit + READ_GRANULARITY) {
+    if (data.length < limit + READ_GRANULARITY) {
       // The new length is calculated as (data.length + READ_GRANULARITY) rather than
       // (limit + READ_GRANULARITY) in order to avoid small increments in the length.
       data = Arrays.copyOf(data, data.length + READ_GRANULARITY);

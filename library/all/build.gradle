@@ -11,17 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: '../../constants.gradle'
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-}
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
     api project(modulePrefix + 'library-core')

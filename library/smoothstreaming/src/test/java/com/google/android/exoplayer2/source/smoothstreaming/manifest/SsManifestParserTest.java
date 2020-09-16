@@ -27,12 +27,12 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SsManifestParserTest {
 
-  private static final String SAMPLE_ISMC_1 = "sample_ismc_1";
-  private static final String SAMPLE_ISMC_2 = "sample_ismc_2";
+  private static final String SAMPLE_ISMC_1 = "media/smooth-streaming/sample_ismc_1";
+  private static final String SAMPLE_ISMC_2 = "media/smooth-streaming/sample_ismc_2";
 
   /** Simple test to ensure the sample manifests parse without any exceptions being thrown. */
   @Test
-  public void testParseSmoothStreamingManifest() throws IOException {
+  public void parseSmoothStreamingManifest() throws IOException {
     SsManifestParser parser = new SsManifestParser();
     parser.parse(
         Uri.parse("https://example.com/test.ismc"),

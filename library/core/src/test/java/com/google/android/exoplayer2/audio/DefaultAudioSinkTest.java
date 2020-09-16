@@ -15,13 +15,18 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.audio.AudioSink.CURRENT_POSITION_NOT_SET;
+import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
+import static com.google.android.exoplayer2.audio.AudioSink.SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
 import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.annotation.Config.OLDEST_SDK;
 import static org.robolectric.annotation.Config.TARGET_SDK;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -30,18 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
-/**
- * Unit tests for {@link DefaultAudioSink}.
- *
- * <p>Note: the Robolectric-provided AudioTrack instantiated in the audio sink uses only the Java
- * part of AudioTrack with a {@code ShadowPlayerBase} underneath. This means it will not consume
- * data (i.e., the {@link android.media.AudioTrack#write} methods just return 0), so these tests are
- * currently limited to verifying behavior that doesn't rely on consuming data, and the position
- * will stay at its initial value. For example, we can't verify {@link
- * AudioSink#handleBuffer(ByteBuffer, long)} handling a complete buffer, or queueing audio then
- * draining to the end of the stream. This could be worked around by having a test-only mode where
- * {@link DefaultAudioSink} automatically treats audio as consumed.
- */
+/** Unit tests for {@link DefaultAudioSink}. */
 @RunWith(AndroidJUnit4.class)
 public final class DefaultAudioSinkTest {
 
@@ -51,6 +45,11 @@ public final class DefaultAudioSinkTest {
   private static final int SAMPLE_RATE_44_1 = 44100;
   private static final int TRIM_100_MS_FRAME_COUNT = 4410;
   private static final int TRIM_10_MS_FRAME_COUNT = 441;
+  private static final Format STEREO_44_1_FORMAT =
+      new Format.Builder()
+          .setChannelCount(CHANNEL_COUNT_STEREO)
+          .setSampleRate(SAMPLE_RATE_44_1)
+          .build();
 
   private DefaultAudioSink defaultAudioSink;
   private ArrayAudioBufferSink arrayAudioBufferSink;
@@ -64,7 +63,9 @@ public final class DefaultAudioSinkTest {
         new DefaultAudioSink(
             AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
             new DefaultAudioSink.DefaultAudioProcessorChain(teeAudioProcessor),
-            /* enableConvertHighResIntPcmToFloat= */ false);
+            /* enableFloatOutput= */ false,
+            /* enableAudioTrackPlaybackParams= */ false,
+            /* enableOffload= */ false);
   }
 
   @Test
@@ -77,51 +78,59 @@ public final class DefaultAudioSinkTest {
   @Test
   public void handlesBufferAfterReset() throws Exception {
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
 
     // After reset and re-configure we can successfully queue more input.
     defaultAudioSink.reset();
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
   }
 
   @Test
-  public void handlesBufferAfterReset_withPlaybackParameters() throws Exception {
-    PlaybackParameters playbackParameters = new PlaybackParameters(1.5f);
-    defaultAudioSink.setPlaybackParameters(playbackParameters);
+  public void handlesBufferAfterReset_withPlaybackSpeed() throws Exception {
+    defaultAudioSink.setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.5f));
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
 
     // After reset and re-configure we can successfully queue more input.
     defaultAudioSink.reset();
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
-    assertThat(defaultAudioSink.getPlaybackParameters()).isEqualTo(playbackParameters);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
+    assertThat(defaultAudioSink.getPlaybackParameters())
+        .isEqualTo(new PlaybackParameters(/* speed= */ 1.5f));
   }
 
   @Test
   public void handlesBufferAfterReset_withFormatChange() throws Exception {
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
 
     // After reset and re-configure we can successfully queue more input.
     defaultAudioSink.reset();
     configureDefaultAudioSink(CHANNEL_COUNT_MONO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
   }
 
   @Test
-  public void handlesBufferAfterReset_withFormatChangeAndPlaybackParameters() throws Exception {
-    PlaybackParameters playbackParameters = new PlaybackParameters(1.5f);
-    defaultAudioSink.setPlaybackParameters(playbackParameters);
+  public void handlesBufferAfterReset_withFormatChangeAndPlaybackSpeed() throws Exception {
+    defaultAudioSink.setPlaybackParameters(new PlaybackParameters(/* speed= */ 1.5f));
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
 
     // After reset and re-configure we can successfully queue more input.
     defaultAudioSink.reset();
     configureDefaultAudioSink(CHANNEL_COUNT_MONO);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
-    assertThat(defaultAudioSink.getPlaybackParameters()).isEqualTo(playbackParameters);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
+    assertThat(defaultAudioSink.getPlaybackParameters())
+        .isEqualTo(new PlaybackParameters(/* speed= */ 1.5f));
   }
 
   @Test
@@ -130,7 +139,8 @@ public final class DefaultAudioSinkTest {
         CHANNEL_COUNT_STEREO,
         /* trimStartFrames= */ TRIM_100_MS_FRAME_COUNT,
         /* trimEndFrames= */ 0);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
 
     assertThat(arrayAudioBufferSink.output)
         .hasLength(
@@ -145,7 +155,8 @@ public final class DefaultAudioSinkTest {
         CHANNEL_COUNT_STEREO,
         /* trimStartFrames= */ 0,
         /* trimEndFrames= */ TRIM_10_MS_FRAME_COUNT);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
 
     assertThat(arrayAudioBufferSink.output)
         .hasLength(
@@ -160,7 +171,8 @@ public final class DefaultAudioSinkTest {
         CHANNEL_COUNT_STEREO,
         /* trimStartFrames= */ TRIM_100_MS_FRAME_COUNT,
         /* trimEndFrames= */ TRIM_10_MS_FRAME_COUNT);
-    defaultAudioSink.handleBuffer(createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
 
     assertThat(arrayAudioBufferSink.output)
         .hasLength(
@@ -173,30 +185,126 @@ public final class DefaultAudioSinkTest {
   public void getCurrentPosition_returnsPositionFromFirstBuffer() throws Exception {
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(
-        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 5 * C.MICROS_PER_SECOND);
+        createDefaultSilenceBuffer(),
+        /* presentationTimeUs= */ 5 * C.MICROS_PER_SECOND,
+        /* encodedAccessUnitCount= */ 1);
     assertThat(defaultAudioSink.getCurrentPositionUs(/* sourceEnded= */ false))
         .isEqualTo(5 * C.MICROS_PER_SECOND);
 
     defaultAudioSink.reset();
     configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
     defaultAudioSink.handleBuffer(
-        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 8 * C.MICROS_PER_SECOND);
+        createDefaultSilenceBuffer(),
+        /* presentationTimeUs= */ 8 * C.MICROS_PER_SECOND,
+        /* encodedAccessUnitCount= */ 1);
     assertThat(defaultAudioSink.getCurrentPositionUs(/* sourceEnded= */ false))
         .isEqualTo(8 * C.MICROS_PER_SECOND);
   }
 
+  @Test
+  public void floatPcmNeedsTranscodingIfFloatOutputDisabled() {
+    defaultAudioSink =
+        new DefaultAudioSink(
+            AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
+            new AudioProcessor[0],
+            /* enableFloatOutput= */ false);
+    Format floatFormat =
+        STEREO_44_1_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setPcmEncoding(C.ENCODING_PCM_FLOAT)
+            .build();
+    assertThat(defaultAudioSink.getFormatSupport(floatFormat))
+        .isEqualTo(SINK_FORMAT_SUPPORTED_WITH_TRANSCODING);
+  }
+
   @Config(minSdk = OLDEST_SDK, maxSdk = 20)
   @Test
-  public void doesNotSupportFloatOutputBeforeApi21() {
-    assertThat(defaultAudioSink.supportsOutput(CHANNEL_COUNT_STEREO, C.ENCODING_PCM_FLOAT))
-        .isFalse();
+  public void floatPcmNeedsTranscodingIfFloatOutputEnabledBeforeApi21() {
+    defaultAudioSink =
+        new DefaultAudioSink(
+            AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
+            new AudioProcessor[0],
+            /* enableFloatOutput= */ true);
+    Format floatFormat =
+        STEREO_44_1_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setPcmEncoding(C.ENCODING_PCM_FLOAT)
+            .build();
+    assertThat(defaultAudioSink.getFormatSupport(floatFormat))
+        .isEqualTo(SINK_FORMAT_SUPPORTED_WITH_TRANSCODING);
   }
 
   @Config(minSdk = 21, maxSdk = TARGET_SDK)
   @Test
-  public void supportsFloatOutputFromApi21() {
-    assertThat(defaultAudioSink.supportsOutput(CHANNEL_COUNT_STEREO, C.ENCODING_PCM_FLOAT))
-        .isTrue();
+  public void floatOutputSupportedIfFloatOutputEnabledFromApi21() {
+    defaultAudioSink =
+        new DefaultAudioSink(
+            AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES,
+            new AudioProcessor[0],
+            /* enableFloatOutput= */ true);
+    Format floatFormat =
+        STEREO_44_1_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setPcmEncoding(C.ENCODING_PCM_FLOAT)
+            .build();
+    assertThat(defaultAudioSink.getFormatSupport(floatFormat))
+        .isEqualTo(SINK_FORMAT_SUPPORTED_DIRECTLY);
+  }
+
+  @Test
+  public void supportsFloatPcm() {
+    Format floatFormat =
+        STEREO_44_1_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setPcmEncoding(C.ENCODING_PCM_FLOAT)
+            .build();
+    assertThat(defaultAudioSink.supportsFormat(floatFormat)).isTrue();
+  }
+
+  @Test
+  public void audioSinkWithAacAudioCapabilitiesWithoutOffload_doesNotSupportAac() {
+    DefaultAudioSink defaultAudioSink =
+        new DefaultAudioSink(
+            new AudioCapabilities(new int[] {C.ENCODING_AAC_LC}, 2), new AudioProcessor[0]);
+    Format aacLcFormat =
+        STEREO_44_1_FORMAT
+            .buildUpon()
+            .setSampleMimeType(MimeTypes.AUDIO_AAC)
+            .setPcmEncoding(C.ENCODING_AAC_LC)
+            .build();
+    assertThat(defaultAudioSink.supportsFormat(aacLcFormat)).isFalse();
+  }
+
+  @Test
+  public void handlesBufferAfterExperimentalFlush() throws Exception {
+    // This is demonstrating that no Exceptions are thrown as a result of handling a buffer after an
+    // experimental flush.
+    configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(), /* presentationTimeUs= */ 0, /* encodedAccessUnitCount= */ 1);
+
+    // After the experimental flush we can successfully queue more input.
+    defaultAudioSink.experimentalFlushWithoutAudioTrackRelease();
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(),
+        /* presentationTimeUs= */ 5_000,
+        /* encodedAccessUnitCount= */ 1);
+  }
+
+  @Test
+  public void getCurrentPosition_returnsUnset_afterExperimentalFlush() throws Exception {
+    configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(),
+        /* presentationTimeUs= */ 5 * C.MICROS_PER_SECOND,
+        /* encodedAccessUnitCount= */ 1);
+    defaultAudioSink.experimentalFlushWithoutAudioTrackRelease();
+    assertThat(defaultAudioSink.getCurrentPositionUs(/* sourceEnded= */ false))
+        .isEqualTo(CURRENT_POSITION_NOT_SET);
   }
 
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {
@@ -205,14 +313,16 @@ public final class DefaultAudioSinkTest {
 
   private void configureDefaultAudioSink(int channelCount, int trimStartFrames, int trimEndFrames)
       throws AudioSink.ConfigurationException {
-    defaultAudioSink.configure(
-        C.ENCODING_PCM_16BIT,
-        channelCount,
-        SAMPLE_RATE_44_1,
-        /* specifiedBufferSize= */ 0,
-        /* outputChannels= */ null,
-        /* trimStartFrames= */ trimStartFrames,
-        /* trimEndFrames= */ trimEndFrames);
+    Format format =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.AUDIO_RAW)
+            .setPcmEncoding(C.ENCODING_PCM_16BIT)
+            .setChannelCount(channelCount)
+            .setSampleRate(SAMPLE_RATE_44_1)
+            .setEncoderDelay(trimStartFrames)
+            .setEncoderPadding(trimEndFrames)
+            .build();
+    defaultAudioSink.configure(format, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
   }
 
   /** Creates a one second silence buffer for 44.1 kHz stereo 16-bit audio. */

@@ -45,11 +45,7 @@ public final class FakeMediaChunkIterator extends BaseMediaChunkIterator {
   @Override
   public DataSpec getDataSpec() {
     checkInBounds();
-    return new DataSpec(
-        Uri.EMPTY,
-        /* absoluteStreamPosition= */ 0,
-        chunkLengths[(int) getCurrentIndex()],
-        /* key= */ null);
+    return new DataSpec(Uri.EMPTY, /* position= */ 0, chunkLengths[(int) getCurrentIndex()]);
   }
 
   @Override

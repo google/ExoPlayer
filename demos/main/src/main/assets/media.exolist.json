@@ -31,73 +31,73 @@
         "name": "SW secure crypto (L3)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO&provider=widevine_test"
       },
       {
         "name": "SW secure decode",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_DECODE&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_DECODE&provider=widevine_test"
       },
       {
         "name": "HW secure crypto",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_CRYPTO&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_CRYPTO&provider=widevine_test"
       },
       {
         "name": "HW secure decode",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_DECODE&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_DECODE&provider=widevine_test"
       },
       {
         "name": "HW secure all (L1)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_ALL&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_ALL&provider=widevine_test"
       },
       {
         "name": "30s license (fails at ~30s)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_CAN_RENEW_FALSE_LICENSE_30S_PLAYBACK_30S&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_CAN_RENEW_FALSE_LICENSE_30S_PLAYBACK_30S&provider=widevine_test"
       },
       {
         "name": "HDCP not required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_NONE&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_NONE&provider=widevine_test"
       },
       {
         "name": "HDCP 1.0 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V1&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V1&provider=widevine_test"
       },
       {
         "name": "HDCP 2.0 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V2&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V2&provider=widevine_test"
       },
       {
         "name": "HDCP 2.1 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V2_1&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V2_1&provider=widevine_test"
       },
       {
         "name": "HDCP 2.2 required",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V2_2&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_V2_2&provider=widevine_test"
       },
       {
         "name": "HDCP no digital output",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_NO_DIGITAL_OUTPUT&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO_HDCP_NO_DIGITAL_OUTPUT&provider=widevine_test"
       }
     ]
   },
@@ -116,37 +116,32 @@
         "name": "Secure (cenc)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
         "name": "Secure UHD (cenc)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure (cbc1)",
-        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure UHD (cbc1)",
-        "uri": "https://storage.googleapis.com/wvmedia/cbc1/h264/tears/tears_aes_cbc1_uhd.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
         "name": "Secure (cbcs)",
         "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
         "name": "Secure UHD (cbcs)",
         "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "Secure -> Clear -> Secure (cenc)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/widevine/tears_enc_clear_enc.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
+        "drm_session_for_clear_content": true
       }
     ]
   },
@@ -165,25 +160,25 @@
         "name": "Secure (full-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
         "name": "Secure UHD (full-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
         "name": "Secure (sub-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
         "name": "Secure UHD (sub-sample)",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       }
     ]
   },
@@ -202,13 +197,13 @@
         "name": "Secure",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
         "name": "Secure UHD",
         "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_uhd.mpd",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       }
     ]
   },
@@ -223,13 +218,13 @@
         "name": "Secure L3",
         "uri": "https://storage.googleapis.com/wvmedia/2019/cenc/av1/24/webm/llama_av1_480p_400.webm",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO&provider=widevine_test"
       },
       {
         "name": "Secure L1",
         "uri": "https://storage.googleapis.com/wvmedia/2019/cenc/av1/24/webm/llama_av1_480p_400.webm",
         "drm_scheme": "widevine",
-        "drm_license_url": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_ALL&provider=widevine_test"
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_ALL&provider=widevine_test"
       }
     ]
   },
@@ -330,6 +325,10 @@
       {
         "name": "Big Buck Bunny 480p video (MP4,AV1)",
         "uri": "https://storage.googleapis.com/downloads.webmproject.org/av1/exoplayer/bbb-av1-480p.mp4"
+      },
+      {
+        "name": "One hour frame counter (MP4)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4"
       }
     ]
   },
@@ -370,7 +369,7 @@
           {
             "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
             "drm_scheme": "widevine",
-            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           },
           {
             "uri": "https://html5demos.com/assets/dizzy.mp4"
@@ -378,12 +377,29 @@
           {
             "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
             "drm_scheme": "widevine",
-            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
           },
           {
             "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
             "drm_scheme": "widevine",
-            "drm_license_url": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+          }
+        ]
+      },
+      {
+        "name": "Manual ad insertion",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4",
+            "clip_end_position_ms": 10000
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
+            "clip_end_position_ms": 5000
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4",
+            "clip_start_position_ms": 10000
           }
         ]
       }
@@ -476,26 +492,11 @@
         "name": "VMAP full, empty, full midrolls",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv",
         "ad_tag_uri": "https://vastsynthesizer.appspot.com/empty-midroll-2"
-      }
-    ]
-  },
-  {
-    "name": "360",
-    "samples": [
-      {
-        "name": "Congo (360 top-bottom stereo)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/congo.mp4",
-        "spherical_stereo_mode": "top_bottom"
       },
       {
-        "name": "Sphericalv2 (180 top-bottom stereo)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/sphericalv2.mp4",
-        "spherical_stereo_mode": "top_bottom"
-      },
-      {
-        "name": "Iceland (360 top-bottom stereo ts)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/360/iceland0.ts",
-        "spherical_stereo_mode": "top_bottom"
+        "name": "VMAP midroll at 1765 s",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
+        "ad_tag_uri": "https://vastsynthesizer.appspot.com/midroll-large"
       }
     ]
   },
@@ -510,11 +511,47 @@
         "subtitle_language": "en"
       },
       {
+        "name": "WebVTT line positioning",
+        "uri": "https://html5demos.com/assets/dizzy.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/webvtt/numeric-lines.vtt",
+        "subtitle_mime_type": "text/vtt",
+        "subtitle_language": "en"
+      },
+      {
         "name": "SSA/ASS position & alignment",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
         "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ssa/test-subs-position.ass",
         "subtitle_mime_type": "text/x-ssa",
         "subtitle_language": "en"
+      },
+      {
+        "name": "MPEG-4 Timed Text (tx3g, mov_text)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"
+      }
+    ]
+  },
+  {
+    "name": "60fps",
+    "samples": [
+      {
+        "name": "Big Buck Bunny (DASH,H264,1080p,Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-1080/manifest.mpd"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,4K,Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-2160/manifest.mpd"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,1080p,Widevine)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-1080/manifest.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "Big Buck Bunny (DASH,H264,4K,Widevine)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-2160/manifest.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       }
     ]
   }

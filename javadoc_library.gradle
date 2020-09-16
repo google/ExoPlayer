@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: "${buildscript.sourceFile.parentFile}/constants.gradle"
 apply from: "${buildscript.sourceFile.parentFile}/javadoc_util.gradle"
 
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
-    if (!name.equals("release")) {
-        return; // Skip non-release builds.
+    if (name != "release") {
+        return // Skip non-release builds.
     }
     def allSourceDirs = variant.sourceSets.inject ([]) {
         acc, val -> acc << val.javaDirectories
@@ -26,7 +27,8 @@ android.libraryVariants.all { variant ->
         title = "ExoPlayer ${javadocTitle}"
         source = allSourceDirs
         options {
-            links "https://developer.android.com/reference"
+            links "https://developer.android.com/reference",
+                  "https://guava.dev/releases/$project.ext.guavaVersion/api/docs"
             encoding = "UTF-8"
         }
         exclude "**/BuildConfig.java"

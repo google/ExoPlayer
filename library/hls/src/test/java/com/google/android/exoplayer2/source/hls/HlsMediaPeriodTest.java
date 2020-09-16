@@ -22,10 +22,11 @@ import static org.mockito.Mockito.when;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
@@ -43,11 +44,9 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit test for {@link HlsMediaPeriod}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public final class HlsMediaPeriodTest {
 
   @Test
@@ -55,11 +54,11 @@ public final class HlsMediaPeriodTest {
     HlsMasterPlaylist testMasterPlaylist =
         createMasterPlaylist(
             /* variants= */ Arrays.asList(
-                createAudioOnlyVariant(/* bitrate= */ 10000),
-                createMuxedVideoAudioVariant(/* bitrate= */ 200000),
-                createAudioOnlyVariant(/* bitrate= */ 300000),
-                createMuxedVideoAudioVariant(/* bitrate= */ 400000),
-                createMuxedVideoAudioVariant(/* bitrate= */ 600000)),
+                createAudioOnlyVariant(/* peakBitrate= */ 10000),
+                createMuxedVideoAudioVariant(/* peakBitrate= */ 200000),
+                createAudioOnlyVariant(/* peakBitrate= */ 300000),
+                createMuxedVideoAudioVariant(/* peakBitrate= */ 400000),
+                createMuxedVideoAudioVariant(/* peakBitrate= */ 600000)),
             /* audios= */ Arrays.asList(
                 createAudioRendition(/* language= */ "spa"),
                 createAudioRendition(/* language= */ "ger"),
@@ -77,18 +76,18 @@ public final class HlsMediaPeriodTest {
           when(mockDataSourceFactory.createDataSource(anyInt())).thenReturn(mock(DataSource.class));
           HlsPlaylistTracker mockPlaylistTracker = mock(HlsPlaylistTracker.class);
           when(mockPlaylistTracker.getMasterPlaylist()).thenReturn((HlsMasterPlaylist) playlist);
+          MediaPeriodId mediaPeriodId = new MediaPeriodId(/* periodUid= */ new Object());
           return new HlsMediaPeriod(
               mock(HlsExtractorFactory.class),
               mockPlaylistTracker,
               mockDataSourceFactory,
               mock(TransferListener.class),
               mock(DrmSessionManager.class),
+              new DrmSessionEventListener.EventDispatcher()
+                  .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(LoadErrorHandlingPolicy.class),
-              new EventDispatcher()
-                  .withParameters(
-                      /* windowIndex= */ 0,
-                      /* mediaPeriodId= */ new MediaPeriodId(/* periodUid= */ new Object()),
-                      /* mediaTimeOffsetMs= */ 0),
+              new MediaSourceEventListener.EventDispatcher()
+                  .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
               mock(Allocator.class),
               mock(CompositeSequenceableLoaderFactory.class),
               /* allowChunklessPreparation =*/ true,
@@ -121,40 +120,22 @@ public final class HlsMediaPeriodTest {
         /* sessionKeyDrmInitData= */ Collections.emptyList());
   }
 
-  private static Variant createMuxedVideoAudioVariant(int bitrate) {
+  private static Variant createMuxedVideoAudioVariant(int peakBitrate) {
     return createVariant(
-        Format.createVideoContainerFormat(
-            /* id= */ null,
-            /* label= */ null,
-            /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-            /* sampleMimeType= */ null,
-            /* codecs= */ "avc1.100.41,mp4a.40.2",
-            /* metadata= */ null,
-            bitrate,
-            /* width= */ Format.NO_VALUE,
-            /* height= */ Format.NO_VALUE,
-            /* frameRate= */ Format.NO_VALUE,
-            /* initializationData= */ null,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0));
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+            .setCodecs("avc1.100.41,mp4a.40.2")
+            .setPeakBitrate(peakBitrate)
+            .build());
   }
 
-  private static Variant createAudioOnlyVariant(int bitrate) {
+  private static Variant createAudioOnlyVariant(int peakBitrate) {
     return createVariant(
-        Format.createVideoContainerFormat(
-            /* id= */ null,
-            /* label= */ null,
-            /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-            /* sampleMimeType= */ null,
-            /* codecs= */ "mp4a.40.2",
-            /* metadata= */ null,
-            bitrate,
-            /* width= */ Format.NO_VALUE,
-            /* height= */ Format.NO_VALUE,
-            /* frameRate= */ Format.NO_VALUE,
-            /* initializationData= */ null,
-            /* selectionFlags= */ 0,
-            /* roleFlags= */ 0));
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+            .setCodecs("mp4a.40.2")
+            .setPeakBitrate(peakBitrate)
+            .build());
   }
 
   private static Rendition createAudioRendition(String language) {
@@ -174,32 +155,19 @@ public final class HlsMediaPeriodTest {
   }
 
   private static Format createAudioFormat(String language) {
-    return Format.createAudioContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-        MimeTypes.getMediaMimeType("mp4a.40.2"),
-        /* codecs= */ "mp4a.40.2",
-        /* metadata= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* channelCount= */ Format.NO_VALUE,
-        /* sampleRate= */ Format.NO_VALUE,
-        /* initializationData= */ null,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+        .setSampleMimeType(MimeTypes.getMediaMimeType("mp4a.40.2"))
+        .setCodecs("mp4a.40.2")
+        .setLanguage(language)
+        .build();
   }
 
   private static Format createSubtitleFormat(String language) {
-    return Format.createTextContainerFormat(
-        /* id= */ null,
-        /* label= */ null,
-        /* containerMimeType= */ MimeTypes.APPLICATION_M3U8,
-        /* sampleMimeType= */ MimeTypes.TEXT_VTT,
-        /* codecs= */ null,
-        /* bitrate= */ Format.NO_VALUE,
-        /* selectionFlags= */ 0,
-        /* roleFlags= */ 0,
-        language);
+    return new Format.Builder()
+        .setContainerMimeType(MimeTypes.APPLICATION_M3U8)
+        .setSampleMimeType(MimeTypes.TEXT_VTT)
+        .setLanguage(language)
+        .build();
   }
 }

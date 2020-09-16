@@ -28,11 +28,9 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Unit tests for {@link LoopingMediaSource}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public class LoopingMediaSourceTest {
 
   private FakeTimeline multiWindowTimeline;
@@ -47,7 +45,7 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testSingleLoopTimeline() throws IOException {
+  public void singleLoopTimeline() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 1);
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
@@ -66,7 +64,7 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testMultiLoopTimeline() throws IOException {
+  public void multiLoopTimeline() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, 3);
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333, 111, 222, 333, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1, 1, 1, 1, 1, 1, 1);
@@ -87,7 +85,7 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testInfiniteLoopTimeline() throws IOException {
+  public void infiniteLoopTimeline() throws IOException {
     Timeline timeline = getLoopingTimeline(multiWindowTimeline, Integer.MAX_VALUE);
     TimelineAsserts.assertWindowTags(timeline, 111, 222, 333);
     TimelineAsserts.assertPeriodCounts(timeline, 1, 1, 1);
@@ -105,7 +103,7 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testEmptyTimelineLoop() throws IOException {
+  public void emptyTimelineLoop() throws IOException {
     Timeline timeline = getLoopingTimeline(Timeline.EMPTY, 1);
     TimelineAsserts.assertEmpty(timeline);
 
@@ -117,17 +115,17 @@ public class LoopingMediaSourceTest {
   }
 
   @Test
-  public void testSingleLoopPeriodCreation() throws Exception {
+  public void singleLoopPeriodCreation() throws Exception {
     testMediaPeriodCreation(multiWindowTimeline, /* loopCount= */ 1);
   }
 
   @Test
-  public void testMultiLoopPeriodCreation() throws Exception {
+  public void multiLoopPeriodCreation() throws Exception {
     testMediaPeriodCreation(multiWindowTimeline, /* loopCount= */ 3);
   }
 
   @Test
-  public void testInfiniteLoopPeriodCreation() throws Exception {
+  public void infiniteLoopPeriodCreation() throws Exception {
     testMediaPeriodCreation(multiWindowTimeline, /* loopCount= */ Integer.MAX_VALUE);
   }
 

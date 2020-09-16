@@ -15,14 +15,14 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static java.lang.Math.max;
+
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecList;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.util.SparseIntArray;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
@@ -68,26 +67,16 @@ public final class MediaCodecUtil {
 
   // Codecs to constant mappings.
   // AVC.
-  private static final SparseIntArray AVC_PROFILE_NUMBER_TO_CONST;
-  private static final SparseIntArray AVC_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AVC1 = "avc1";
   private static final String CODEC_ID_AVC2 = "avc2";
   // VP9
-  private static final SparseIntArray VP9_PROFILE_NUMBER_TO_CONST;
-  private static final SparseIntArray VP9_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_VP09 = "vp09";
   // HEVC.
-  private static final Map<String, Integer> HEVC_CODEC_STRING_TO_PROFILE_LEVEL;
   private static final String CODEC_ID_HEV1 = "hev1";
   private static final String CODEC_ID_HVC1 = "hvc1";
-  // Dolby Vision.
-  private static final Map<String, Integer> DOLBY_VISION_STRING_TO_PROFILE;
-  private static final Map<String, Integer> DOLBY_VISION_STRING_TO_LEVEL;
   // AV1.
-  private static final SparseIntArray AV1_LEVEL_NUMBER_TO_CONST;
   private static final String CODEC_ID_AV01 = "av01";
   // MP4A AAC.
-  private static final SparseIntArray MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE;
   private static final String CODEC_ID_MP4A = "mp4a";
 
   // Lazily initialized.
@@ -117,17 +106,14 @@ public final class MediaCodecUtil {
   }
 
   /**
-   * Returns information about a decoder suitable for audio passthrough.
+   * Returns information about a decoder that will only decrypt data, without decoding it.
    *
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
    * @throws DecoderQueryException If there was an error querying the available decoders.
    */
   @Nullable
-  public static MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
-    @Nullable
-    MediaCodecInfo decoderInfo =
-        getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
-    return decoderInfo == null ? null : MediaCodecInfo.newPassthroughInstance(decoderInfo.name);
+  public static MediaCodecInfo getDecryptOnlyDecoderInfo() throws DecoderQueryException {
+    return getDecoderInfo(MimeTypes.AUDIO_RAW, /* secure= */ false, /* tunneling= */ false);
   }
 
   /**
@@ -222,11 +208,11 @@ public final class MediaCodecUtil {
           getDecoderInfo(MimeTypes.VIDEO_H264, /* secure= */ false, /* tunneling= */ false);
       if (decoderInfo != null) {
         for (CodecProfileLevel profileLevel : decoderInfo.getProfileLevels()) {
-          result = Math.max(avcLevelToMaxFrameSize(profileLevel.level), result);
+          result = max(avcLevelToMaxFrameSize(profileLevel.level), result);
         }
         // We assume support for at least 480p (SDK_INT >= 21) or 360p (SDK_INT < 21), which are
         // the levels mandated by the Android CDD.
-        result = Math.max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
+        result = max(result, Util.SDK_INT >= 21 ? (720 * 480) : (480 * 360));
       }
       maxH264DecodableFrameSize = result;
     }
@@ -615,7 +601,7 @@ public final class MediaCodecUtil {
     return !isSoftwareOnly(codecInfo);
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isHardwareAcceleratedV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isHardwareAccelerated();
   }
@@ -641,7 +627,7 @@ public final class MediaCodecUtil {
         || (!codecName.startsWith("omx.") && !codecName.startsWith("c2."));
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isSoftwareOnlyV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isSoftwareOnly();
   }
@@ -660,7 +646,7 @@ public final class MediaCodecUtil {
         && !codecName.startsWith("c2.google.");
   }
 
-  @TargetApi(29)
+  @RequiresApi(29)
   private static boolean isVendorV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isVendor();
   }
@@ -693,13 +679,13 @@ public final class MediaCodecUtil {
       return null;
     }
     @Nullable String profileString = matcher.group(1);
-    @Nullable Integer profile = DOLBY_VISION_STRING_TO_PROFILE.get(profileString);
+    @Nullable Integer profile = dolbyVisionStringToProfile(profileString);
     if (profile == null) {
       Log.w(TAG, "Unknown Dolby Vision profile string: " + profileString);
       return null;
     }
     String levelString = parts[2];
-    @Nullable Integer level = DOLBY_VISION_STRING_TO_LEVEL.get(levelString);
+    @Nullable Integer level = dolbyVisionStringToLevel(levelString);
     if (level == null) {
       Log.w(TAG, "Unknown Dolby Vision level string: " + levelString);
       return null;
@@ -731,7 +717,7 @@ public final class MediaCodecUtil {
       return null;
     }
     @Nullable String levelString = parts[3];
-    @Nullable Integer level = HEVC_CODEC_STRING_TO_PROFILE_LEVEL.get(levelString);
+    @Nullable Integer level = hevcCodecStringToProfileLevel(levelString);
     if (level == null) {
       Log.w(TAG, "Unknown HEVC level string: " + levelString);
       return null;
@@ -767,12 +753,12 @@ public final class MediaCodecUtil {
       return null;
     }
 
-    int profile = AVC_PROFILE_NUMBER_TO_CONST.get(profileInteger, -1);
+    int profile = avcProfileNumberToConst(profileInteger);
     if (profile == -1) {
       Log.w(TAG, "Unknown AVC profile: " + profileInteger);
       return null;
     }
-    int level = AVC_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
+    int level = avcLevelNumberToConst(levelInteger);
     if (level == -1) {
       Log.w(TAG, "Unknown AVC level: " + levelInteger);
       return null;
@@ -796,12 +782,12 @@ public final class MediaCodecUtil {
       return null;
     }
 
-    int profile = VP9_PROFILE_NUMBER_TO_CONST.get(profileInteger, -1);
+    int profile = vp9ProfileNumberToConst(profileInteger);
     if (profile == -1) {
       Log.w(TAG, "Unknown VP9 profile: " + profileInteger);
       return null;
     }
-    int level = VP9_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
+    int level = vp9LevelNumberToConst(levelInteger);
     if (level == -1) {
       Log.w(TAG, "Unknown VP9 level: " + levelInteger);
       return null;
@@ -848,7 +834,7 @@ public final class MediaCodecUtil {
       profile = CodecProfileLevel.AV1ProfileMain10;
     }
 
-    int level = AV1_LEVEL_NUMBER_TO_CONST.get(levelInteger, -1);
+    int level = av1LevelNumberToConst(levelInteger);
     if (level == -1) {
       Log.w(TAG, "Unknown AV1 level: " + levelInteger);
       return null;
@@ -909,7 +895,7 @@ public final class MediaCodecUtil {
       if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
         // For MPEG-4 audio this is followed by an audio object type indication as a decimal number.
         int audioObjectTypeIndication = Integer.parseInt(parts[2]);
-        int profile = MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.get(audioObjectTypeIndication, -1);
+        int profile = mp4aAudioObjectTypeToProfile(audioObjectTypeIndication);
         if (profile != -1) {
           // Level is set to zero in AAC decoder CodecProfileLevels.
           return new Pair<>(profile, 0);
@@ -958,15 +944,13 @@ public final class MediaCodecUtil {
     boolean isFeatureRequired(String feature, String mimeType, CodecCapabilities capabilities);
   }
 
-  @TargetApi(21)
+  @RequiresApi(21)
   private static final class MediaCodecListCompatV21 implements MediaCodecListCompat {
 
     private final int codecKind;
 
     @Nullable private android.media.MediaCodecInfo[] mediaCodecInfos;
 
-    // the constructor does not initialize fields: mediaCodecInfos
-    @SuppressWarnings("nullness:initialization.fields.uninitialized")
     public MediaCodecListCompatV21(boolean includeSecure, boolean includeTunneling) {
       codecKind =
           includeSecure || includeTunneling
@@ -980,8 +964,6 @@ public final class MediaCodecUtil {
       return mediaCodecInfos.length;
     }
 
-    // incompatible types in return.
-    @SuppressWarnings("nullness:return.type.incompatible")
     @Override
     public android.media.MediaCodecInfo getCodecInfoAt(int index) {
       ensureMediaCodecInfosInitialized();
@@ -1083,150 +1065,325 @@ public final class MediaCodecUtil {
           && secure == other.secure
           && tunneling == other.tunneling;
     }
-
   }
 
-  static {
-    AVC_PROFILE_NUMBER_TO_CONST = new SparseIntArray();
-    AVC_PROFILE_NUMBER_TO_CONST.put(66, CodecProfileLevel.AVCProfileBaseline);
-    AVC_PROFILE_NUMBER_TO_CONST.put(77, CodecProfileLevel.AVCProfileMain);
-    AVC_PROFILE_NUMBER_TO_CONST.put(88, CodecProfileLevel.AVCProfileExtended);
-    AVC_PROFILE_NUMBER_TO_CONST.put(100, CodecProfileLevel.AVCProfileHigh);
-    AVC_PROFILE_NUMBER_TO_CONST.put(110, CodecProfileLevel.AVCProfileHigh10);
-    AVC_PROFILE_NUMBER_TO_CONST.put(122, CodecProfileLevel.AVCProfileHigh422);
-    AVC_PROFILE_NUMBER_TO_CONST.put(244, CodecProfileLevel.AVCProfileHigh444);
+  private static int avcProfileNumberToConst(int profileNumber) {
+    switch (profileNumber) {
+      case 66:
+        return CodecProfileLevel.AVCProfileBaseline;
+      case 77:
+        return CodecProfileLevel.AVCProfileMain;
+      case 88:
+        return CodecProfileLevel.AVCProfileExtended;
+      case 100:
+        return CodecProfileLevel.AVCProfileHigh;
+      case 110:
+        return CodecProfileLevel.AVCProfileHigh10;
+      case 122:
+        return CodecProfileLevel.AVCProfileHigh422;
+      case 244:
+        return CodecProfileLevel.AVCProfileHigh444;
+      default:
+        return -1;
+    }
+  }
 
-    AVC_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
-    AVC_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.AVCLevel1);
+  private static int avcLevelNumberToConst(int levelNumber) {
     // TODO: Find int for CodecProfileLevel.AVCLevel1b.
-    AVC_LEVEL_NUMBER_TO_CONST.put(11, CodecProfileLevel.AVCLevel11);
-    AVC_LEVEL_NUMBER_TO_CONST.put(12, CodecProfileLevel.AVCLevel12);
-    AVC_LEVEL_NUMBER_TO_CONST.put(13, CodecProfileLevel.AVCLevel13);
-    AVC_LEVEL_NUMBER_TO_CONST.put(20, CodecProfileLevel.AVCLevel2);
-    AVC_LEVEL_NUMBER_TO_CONST.put(21, CodecProfileLevel.AVCLevel21);
-    AVC_LEVEL_NUMBER_TO_CONST.put(22, CodecProfileLevel.AVCLevel22);
-    AVC_LEVEL_NUMBER_TO_CONST.put(30, CodecProfileLevel.AVCLevel3);
-    AVC_LEVEL_NUMBER_TO_CONST.put(31, CodecProfileLevel.AVCLevel31);
-    AVC_LEVEL_NUMBER_TO_CONST.put(32, CodecProfileLevel.AVCLevel32);
-    AVC_LEVEL_NUMBER_TO_CONST.put(40, CodecProfileLevel.AVCLevel4);
-    AVC_LEVEL_NUMBER_TO_CONST.put(41, CodecProfileLevel.AVCLevel41);
-    AVC_LEVEL_NUMBER_TO_CONST.put(42, CodecProfileLevel.AVCLevel42);
-    AVC_LEVEL_NUMBER_TO_CONST.put(50, CodecProfileLevel.AVCLevel5);
-    AVC_LEVEL_NUMBER_TO_CONST.put(51, CodecProfileLevel.AVCLevel51);
-    AVC_LEVEL_NUMBER_TO_CONST.put(52, CodecProfileLevel.AVCLevel52);
+    switch (levelNumber) {
+      case 10:
+        return CodecProfileLevel.AVCLevel1;
+      case 11:
+        return CodecProfileLevel.AVCLevel11;
+      case 12:
+        return CodecProfileLevel.AVCLevel12;
+      case 13:
+        return CodecProfileLevel.AVCLevel13;
+      case 20:
+        return CodecProfileLevel.AVCLevel2;
+      case 21:
+        return CodecProfileLevel.AVCLevel21;
+      case 22:
+        return CodecProfileLevel.AVCLevel22;
+      case 30:
+        return CodecProfileLevel.AVCLevel3;
+      case 31:
+        return CodecProfileLevel.AVCLevel31;
+      case 32:
+        return CodecProfileLevel.AVCLevel32;
+      case 40:
+        return CodecProfileLevel.AVCLevel4;
+      case 41:
+        return CodecProfileLevel.AVCLevel41;
+      case 42:
+        return CodecProfileLevel.AVCLevel42;
+      case 50:
+        return CodecProfileLevel.AVCLevel5;
+      case 51:
+        return CodecProfileLevel.AVCLevel51;
+      case 52:
+        return CodecProfileLevel.AVCLevel52;
+      default:
+        return -1;
+    }
+  }
 
-    VP9_PROFILE_NUMBER_TO_CONST = new SparseIntArray();
-    VP9_PROFILE_NUMBER_TO_CONST.put(0, CodecProfileLevel.VP9Profile0);
-    VP9_PROFILE_NUMBER_TO_CONST.put(1, CodecProfileLevel.VP9Profile1);
-    VP9_PROFILE_NUMBER_TO_CONST.put(2, CodecProfileLevel.VP9Profile2);
-    VP9_PROFILE_NUMBER_TO_CONST.put(3, CodecProfileLevel.VP9Profile3);
-    VP9_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
-    VP9_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.VP9Level1);
-    VP9_LEVEL_NUMBER_TO_CONST.put(11, CodecProfileLevel.VP9Level11);
-    VP9_LEVEL_NUMBER_TO_CONST.put(20, CodecProfileLevel.VP9Level2);
-    VP9_LEVEL_NUMBER_TO_CONST.put(21, CodecProfileLevel.VP9Level21);
-    VP9_LEVEL_NUMBER_TO_CONST.put(30, CodecProfileLevel.VP9Level3);
-    VP9_LEVEL_NUMBER_TO_CONST.put(31, CodecProfileLevel.VP9Level31);
-    VP9_LEVEL_NUMBER_TO_CONST.put(40, CodecProfileLevel.VP9Level4);
-    VP9_LEVEL_NUMBER_TO_CONST.put(41, CodecProfileLevel.VP9Level41);
-    VP9_LEVEL_NUMBER_TO_CONST.put(50, CodecProfileLevel.VP9Level5);
-    VP9_LEVEL_NUMBER_TO_CONST.put(51, CodecProfileLevel.VP9Level51);
-    VP9_LEVEL_NUMBER_TO_CONST.put(60, CodecProfileLevel.VP9Level6);
-    VP9_LEVEL_NUMBER_TO_CONST.put(61, CodecProfileLevel.VP9Level61);
-    VP9_LEVEL_NUMBER_TO_CONST.put(62, CodecProfileLevel.VP9Level62);
+  private static int vp9ProfileNumberToConst(int profileNumber) {
+    switch (profileNumber) {
+      case 0:
+        return CodecProfileLevel.VP9Profile0;
+      case 1:
+        return CodecProfileLevel.VP9Profile1;
+      case 2:
+        return CodecProfileLevel.VP9Profile2;
+      case 3:
+        return CodecProfileLevel.VP9Profile3;
+      default:
+        return -1;
+    }
+  }
 
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL = new HashMap<>();
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L30", CodecProfileLevel.HEVCMainTierLevel1);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L60", CodecProfileLevel.HEVCMainTierLevel2);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L63", CodecProfileLevel.HEVCMainTierLevel21);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L90", CodecProfileLevel.HEVCMainTierLevel3);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L93", CodecProfileLevel.HEVCMainTierLevel31);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L120", CodecProfileLevel.HEVCMainTierLevel4);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L123", CodecProfileLevel.HEVCMainTierLevel41);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L150", CodecProfileLevel.HEVCMainTierLevel5);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L153", CodecProfileLevel.HEVCMainTierLevel51);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L156", CodecProfileLevel.HEVCMainTierLevel52);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L180", CodecProfileLevel.HEVCMainTierLevel6);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L183", CodecProfileLevel.HEVCMainTierLevel61);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("L186", CodecProfileLevel.HEVCMainTierLevel62);
+  private static int vp9LevelNumberToConst(int levelNumber) {
+    switch (levelNumber) {
+      case 10:
+        return CodecProfileLevel.VP9Level1;
+      case 11:
+        return CodecProfileLevel.VP9Level11;
+      case 20:
+        return CodecProfileLevel.VP9Level2;
+      case 21:
+        return CodecProfileLevel.VP9Level21;
+      case 30:
+        return CodecProfileLevel.VP9Level3;
+      case 31:
+        return CodecProfileLevel.VP9Level31;
+      case 40:
+        return CodecProfileLevel.VP9Level4;
+      case 41:
+        return CodecProfileLevel.VP9Level41;
+      case 50:
+        return CodecProfileLevel.VP9Level5;
+      case 51:
+        return CodecProfileLevel.VP9Level51;
+      case 60:
+        return CodecProfileLevel.VP9Level6;
+      case 61:
+        return CodecProfileLevel.VP9Level61;
+      case 62:
+        return CodecProfileLevel.VP9Level62;
+      default:
+        return -1;
+    }
+  }
 
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H30", CodecProfileLevel.HEVCHighTierLevel1);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H60", CodecProfileLevel.HEVCHighTierLevel2);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H63", CodecProfileLevel.HEVCHighTierLevel21);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H90", CodecProfileLevel.HEVCHighTierLevel3);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H93", CodecProfileLevel.HEVCHighTierLevel31);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H120", CodecProfileLevel.HEVCHighTierLevel4);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H123", CodecProfileLevel.HEVCHighTierLevel41);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H150", CodecProfileLevel.HEVCHighTierLevel5);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H153", CodecProfileLevel.HEVCHighTierLevel51);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H156", CodecProfileLevel.HEVCHighTierLevel52);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H180", CodecProfileLevel.HEVCHighTierLevel6);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H183", CodecProfileLevel.HEVCHighTierLevel61);
-    HEVC_CODEC_STRING_TO_PROFILE_LEVEL.put("H186", CodecProfileLevel.HEVCHighTierLevel62);
+  @Nullable
+  private static Integer hevcCodecStringToProfileLevel(@Nullable String codecString) {
+    if (codecString == null) {
+      return null;
+    }
+    switch (codecString) {
+      case "L30":
+        return CodecProfileLevel.HEVCMainTierLevel1;
+      case "L60":
+        return CodecProfileLevel.HEVCMainTierLevel2;
+      case "L63":
+        return CodecProfileLevel.HEVCMainTierLevel21;
+      case "L90":
+        return CodecProfileLevel.HEVCMainTierLevel3;
+      case "L93":
+        return CodecProfileLevel.HEVCMainTierLevel31;
+      case "L120":
+        return CodecProfileLevel.HEVCMainTierLevel4;
+      case "L123":
+        return CodecProfileLevel.HEVCMainTierLevel41;
+      case "L150":
+        return CodecProfileLevel.HEVCMainTierLevel5;
+      case "L153":
+        return CodecProfileLevel.HEVCMainTierLevel51;
+      case "L156":
+        return CodecProfileLevel.HEVCMainTierLevel52;
+      case "L180":
+        return CodecProfileLevel.HEVCMainTierLevel6;
+      case "L183":
+        return CodecProfileLevel.HEVCMainTierLevel61;
+      case "L186":
+        return CodecProfileLevel.HEVCMainTierLevel62;
+      case "H30":
+        return CodecProfileLevel.HEVCHighTierLevel1;
+      case "H60":
+        return CodecProfileLevel.HEVCHighTierLevel2;
+      case "H63":
+        return CodecProfileLevel.HEVCHighTierLevel21;
+      case "H90":
+        return CodecProfileLevel.HEVCHighTierLevel3;
+      case "H93":
+        return CodecProfileLevel.HEVCHighTierLevel31;
+      case "H120":
+        return CodecProfileLevel.HEVCHighTierLevel4;
+      case "H123":
+        return CodecProfileLevel.HEVCHighTierLevel41;
+      case "H150":
+        return CodecProfileLevel.HEVCHighTierLevel5;
+      case "H153":
+        return CodecProfileLevel.HEVCHighTierLevel51;
+      case "H156":
+        return CodecProfileLevel.HEVCHighTierLevel52;
+      case "H180":
+        return CodecProfileLevel.HEVCHighTierLevel6;
+      case "H183":
+        return CodecProfileLevel.HEVCHighTierLevel61;
+      case "H186":
+        return CodecProfileLevel.HEVCHighTierLevel62;
+      default:
+        return null;
+    }
+  }
 
-    DOLBY_VISION_STRING_TO_PROFILE = new HashMap<>();
-    DOLBY_VISION_STRING_TO_PROFILE.put("00", CodecProfileLevel.DolbyVisionProfileDvavPer);
-    DOLBY_VISION_STRING_TO_PROFILE.put("01", CodecProfileLevel.DolbyVisionProfileDvavPen);
-    DOLBY_VISION_STRING_TO_PROFILE.put("02", CodecProfileLevel.DolbyVisionProfileDvheDer);
-    DOLBY_VISION_STRING_TO_PROFILE.put("03", CodecProfileLevel.DolbyVisionProfileDvheDen);
-    DOLBY_VISION_STRING_TO_PROFILE.put("04", CodecProfileLevel.DolbyVisionProfileDvheDtr);
-    DOLBY_VISION_STRING_TO_PROFILE.put("05", CodecProfileLevel.DolbyVisionProfileDvheStn);
-    DOLBY_VISION_STRING_TO_PROFILE.put("06", CodecProfileLevel.DolbyVisionProfileDvheDth);
-    DOLBY_VISION_STRING_TO_PROFILE.put("07", CodecProfileLevel.DolbyVisionProfileDvheDtb);
-    DOLBY_VISION_STRING_TO_PROFILE.put("08", CodecProfileLevel.DolbyVisionProfileDvheSt);
-    DOLBY_VISION_STRING_TO_PROFILE.put("09", CodecProfileLevel.DolbyVisionProfileDvavSe);
+  @Nullable
+  private static Integer dolbyVisionStringToProfile(@Nullable String profileString) {
+    if (profileString == null) {
+      return null;
+    }
+    switch (profileString) {
+      case "00":
+        return CodecProfileLevel.DolbyVisionProfileDvavPer;
+      case "01":
+        return CodecProfileLevel.DolbyVisionProfileDvavPen;
+      case "02":
+        return CodecProfileLevel.DolbyVisionProfileDvheDer;
+      case "03":
+        return CodecProfileLevel.DolbyVisionProfileDvheDen;
+      case "04":
+        return CodecProfileLevel.DolbyVisionProfileDvheDtr;
+      case "05":
+        return CodecProfileLevel.DolbyVisionProfileDvheStn;
+      case "06":
+        return CodecProfileLevel.DolbyVisionProfileDvheDth;
+      case "07":
+        return CodecProfileLevel.DolbyVisionProfileDvheDtb;
+      case "08":
+        return CodecProfileLevel.DolbyVisionProfileDvheSt;
+      case "09":
+        return CodecProfileLevel.DolbyVisionProfileDvavSe;
+      default:
+        return null;
+    }
+  }
 
-    DOLBY_VISION_STRING_TO_LEVEL = new HashMap<>();
-    DOLBY_VISION_STRING_TO_LEVEL.put("01", CodecProfileLevel.DolbyVisionLevelHd24);
-    DOLBY_VISION_STRING_TO_LEVEL.put("02", CodecProfileLevel.DolbyVisionLevelHd30);
-    DOLBY_VISION_STRING_TO_LEVEL.put("03", CodecProfileLevel.DolbyVisionLevelFhd24);
-    DOLBY_VISION_STRING_TO_LEVEL.put("04", CodecProfileLevel.DolbyVisionLevelFhd30);
-    DOLBY_VISION_STRING_TO_LEVEL.put("05", CodecProfileLevel.DolbyVisionLevelFhd60);
-    DOLBY_VISION_STRING_TO_LEVEL.put("06", CodecProfileLevel.DolbyVisionLevelUhd24);
-    DOLBY_VISION_STRING_TO_LEVEL.put("07", CodecProfileLevel.DolbyVisionLevelUhd30);
-    DOLBY_VISION_STRING_TO_LEVEL.put("08", CodecProfileLevel.DolbyVisionLevelUhd48);
-    DOLBY_VISION_STRING_TO_LEVEL.put("09", CodecProfileLevel.DolbyVisionLevelUhd60);
+  @Nullable
+  private static Integer dolbyVisionStringToLevel(@Nullable String levelString) {
+    if (levelString == null) {
+      return null;
+    }
+    switch (levelString) {
+      case "01":
+        return CodecProfileLevel.DolbyVisionLevelHd24;
+      case "02":
+        return CodecProfileLevel.DolbyVisionLevelHd30;
+      case "03":
+        return CodecProfileLevel.DolbyVisionLevelFhd24;
+      case "04":
+        return CodecProfileLevel.DolbyVisionLevelFhd30;
+      case "05":
+        return CodecProfileLevel.DolbyVisionLevelFhd60;
+      case "06":
+        return CodecProfileLevel.DolbyVisionLevelUhd24;
+      case "07":
+        return CodecProfileLevel.DolbyVisionLevelUhd30;
+      case "08":
+        return CodecProfileLevel.DolbyVisionLevelUhd48;
+      case "09":
+        return CodecProfileLevel.DolbyVisionLevelUhd60;
+      default:
+        return null;
+    }
+  }
 
+  private static int av1LevelNumberToConst(int levelNumber) {
     // See https://aomediacodec.github.io/av1-spec/av1-spec.pdf Annex A: Profiles and levels for
     // more information on mapping AV1 codec strings to levels.
-    AV1_LEVEL_NUMBER_TO_CONST = new SparseIntArray();
-    AV1_LEVEL_NUMBER_TO_CONST.put(0, CodecProfileLevel.AV1Level2);
-    AV1_LEVEL_NUMBER_TO_CONST.put(1, CodecProfileLevel.AV1Level21);
-    AV1_LEVEL_NUMBER_TO_CONST.put(2, CodecProfileLevel.AV1Level22);
-    AV1_LEVEL_NUMBER_TO_CONST.put(3, CodecProfileLevel.AV1Level23);
-    AV1_LEVEL_NUMBER_TO_CONST.put(4, CodecProfileLevel.AV1Level3);
-    AV1_LEVEL_NUMBER_TO_CONST.put(5, CodecProfileLevel.AV1Level31);
-    AV1_LEVEL_NUMBER_TO_CONST.put(6, CodecProfileLevel.AV1Level32);
-    AV1_LEVEL_NUMBER_TO_CONST.put(7, CodecProfileLevel.AV1Level33);
-    AV1_LEVEL_NUMBER_TO_CONST.put(8, CodecProfileLevel.AV1Level4);
-    AV1_LEVEL_NUMBER_TO_CONST.put(9, CodecProfileLevel.AV1Level41);
-    AV1_LEVEL_NUMBER_TO_CONST.put(10, CodecProfileLevel.AV1Level42);
-    AV1_LEVEL_NUMBER_TO_CONST.put(11, CodecProfileLevel.AV1Level43);
-    AV1_LEVEL_NUMBER_TO_CONST.put(12, CodecProfileLevel.AV1Level5);
-    AV1_LEVEL_NUMBER_TO_CONST.put(13, CodecProfileLevel.AV1Level51);
-    AV1_LEVEL_NUMBER_TO_CONST.put(14, CodecProfileLevel.AV1Level52);
-    AV1_LEVEL_NUMBER_TO_CONST.put(15, CodecProfileLevel.AV1Level53);
-    AV1_LEVEL_NUMBER_TO_CONST.put(16, CodecProfileLevel.AV1Level6);
-    AV1_LEVEL_NUMBER_TO_CONST.put(17, CodecProfileLevel.AV1Level61);
-    AV1_LEVEL_NUMBER_TO_CONST.put(18, CodecProfileLevel.AV1Level62);
-    AV1_LEVEL_NUMBER_TO_CONST.put(19, CodecProfileLevel.AV1Level63);
-    AV1_LEVEL_NUMBER_TO_CONST.put(20, CodecProfileLevel.AV1Level7);
-    AV1_LEVEL_NUMBER_TO_CONST.put(21, CodecProfileLevel.AV1Level71);
-    AV1_LEVEL_NUMBER_TO_CONST.put(22, CodecProfileLevel.AV1Level72);
-    AV1_LEVEL_NUMBER_TO_CONST.put(23, CodecProfileLevel.AV1Level73);
+    switch (levelNumber) {
+      case 0:
+        return CodecProfileLevel.AV1Level2;
+      case 1:
+        return CodecProfileLevel.AV1Level21;
+      case 2:
+        return CodecProfileLevel.AV1Level22;
+      case 3:
+        return CodecProfileLevel.AV1Level23;
+      case 4:
+        return CodecProfileLevel.AV1Level3;
+      case 5:
+        return CodecProfileLevel.AV1Level31;
+      case 6:
+        return CodecProfileLevel.AV1Level32;
+      case 7:
+        return CodecProfileLevel.AV1Level33;
+      case 8:
+        return CodecProfileLevel.AV1Level4;
+      case 9:
+        return CodecProfileLevel.AV1Level41;
+      case 10:
+        return CodecProfileLevel.AV1Level42;
+      case 11:
+        return CodecProfileLevel.AV1Level43;
+      case 12:
+        return CodecProfileLevel.AV1Level5;
+      case 13:
+        return CodecProfileLevel.AV1Level51;
+      case 14:
+        return CodecProfileLevel.AV1Level52;
+      case 15:
+        return CodecProfileLevel.AV1Level53;
+      case 16:
+        return CodecProfileLevel.AV1Level6;
+      case 17:
+        return CodecProfileLevel.AV1Level61;
+      case 18:
+        return CodecProfileLevel.AV1Level62;
+      case 19:
+        return CodecProfileLevel.AV1Level63;
+      case 20:
+        return CodecProfileLevel.AV1Level7;
+      case 21:
+        return CodecProfileLevel.AV1Level71;
+      case 22:
+        return CodecProfileLevel.AV1Level72;
+      case 23:
+        return CodecProfileLevel.AV1Level73;
+      default:
+        return -1;
+    }
+  }
 
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE = new SparseIntArray();
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(1, CodecProfileLevel.AACObjectMain);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(2, CodecProfileLevel.AACObjectLC);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(3, CodecProfileLevel.AACObjectSSR);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(4, CodecProfileLevel.AACObjectLTP);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(5, CodecProfileLevel.AACObjectHE);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(6, CodecProfileLevel.AACObjectScalable);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(17, CodecProfileLevel.AACObjectERLC);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(20, CodecProfileLevel.AACObjectERScalable);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(23, CodecProfileLevel.AACObjectLD);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(29, CodecProfileLevel.AACObjectHE_PS);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(39, CodecProfileLevel.AACObjectELD);
-    MP4A_AUDIO_OBJECT_TYPE_TO_PROFILE.put(42, CodecProfileLevel.AACObjectXHE);
+  private static int mp4aAudioObjectTypeToProfile(int profileNumber) {
+    switch (profileNumber) {
+      case 1:
+        return CodecProfileLevel.AACObjectMain;
+      case 2:
+        return CodecProfileLevel.AACObjectLC;
+      case 3:
+        return CodecProfileLevel.AACObjectSSR;
+      case 4:
+        return CodecProfileLevel.AACObjectLTP;
+      case 5:
+        return CodecProfileLevel.AACObjectHE;
+      case 6:
+        return CodecProfileLevel.AACObjectScalable;
+      case 17:
+        return CodecProfileLevel.AACObjectERLC;
+      case 20:
+        return CodecProfileLevel.AACObjectERScalable;
+      case 23:
+        return CodecProfileLevel.AACObjectLD;
+      case 29:
+        return CodecProfileLevel.AACObjectHE_PS;
+      case 39:
+        return CodecProfileLevel.AACObjectELD;
+      case 42:
+        return CodecProfileLevel.AACObjectXHE;
+      default:
+        return -1;
+    }
   }
 }

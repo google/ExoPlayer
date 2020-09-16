@@ -41,20 +41,23 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class Tx3gDecoderTest {
 
-  private static final String NO_SUBTITLE = "tx3g/no_subtitle";
-  private static final String SAMPLE_JUST_TEXT = "tx3g/sample_just_text";
-  private static final String SAMPLE_WITH_STYL = "tx3g/sample_with_styl";
-  private static final String SAMPLE_WITH_STYL_ALL_DEFAULTS = "tx3g/sample_with_styl_all_defaults";
-  private static final String SAMPLE_UTF16_BE_NO_STYL = "tx3g/sample_utf16_be_no_styl";
-  private static final String SAMPLE_UTF16_LE_NO_STYL = "tx3g/sample_utf16_le_no_styl";
-  private static final String SAMPLE_WITH_MULTIPLE_STYL = "tx3g/sample_with_multiple_styl";
-  private static final String SAMPLE_WITH_OTHER_EXTENSION = "tx3g/sample_with_other_extension";
-  private static final String SAMPLE_WITH_TBOX = "tx3g/sample_with_tbox";
-  private static final String INITIALIZATION = "tx3g/initialization";
-  private static final String INITIALIZATION_ALL_DEFAULTS = "tx3g/initialization_all_defaults";
+  private static final String NO_SUBTITLE = "media/tx3g/no_subtitle";
+  private static final String SAMPLE_JUST_TEXT = "media/tx3g/sample_just_text";
+  private static final String SAMPLE_WITH_STYL = "media/tx3g/sample_with_styl";
+  private static final String SAMPLE_WITH_STYL_ALL_DEFAULTS =
+      "media/tx3g/sample_with_styl_all_defaults";
+  private static final String SAMPLE_UTF16_BE_NO_STYL = "media/tx3g/sample_utf16_be_no_styl";
+  private static final String SAMPLE_UTF16_LE_NO_STYL = "media/tx3g/sample_utf16_le_no_styl";
+  private static final String SAMPLE_WITH_MULTIPLE_STYL = "media/tx3g/sample_with_multiple_styl";
+  private static final String SAMPLE_WITH_OTHER_EXTENSION =
+      "media/tx3g/sample_with_other_extension";
+  private static final String SAMPLE_WITH_TBOX = "media/tx3g/sample_with_tbox";
+  private static final String INITIALIZATION = "media/tx3g/initialization";
+  private static final String INITIALIZATION_ALL_DEFAULTS =
+      "media/tx3g/initialization_all_defaults";
 
   @Test
-  public void testDecodeNoSubtitle() throws IOException, SubtitleDecoderException {
+  public void decodeNoSubtitle() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_SUBTITLE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -62,7 +65,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testDecodeJustText() throws IOException, SubtitleDecoderException {
+  public void decodeJustText() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
@@ -74,7 +77,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testDecodeWithStyl() throws IOException, SubtitleDecoderException {
+  public void decodeWithStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
@@ -91,7 +94,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testDecodeWithStylAllDefaults() throws IOException, SubtitleDecoderException {
+  public void decodeWithStylAllDefaults() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(
@@ -104,7 +107,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testDecodeUtf16BeNoStyl() throws IOException, SubtitleDecoderException {
+  public void decodeUtf16BeNoStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_BE_NO_STYL);
@@ -116,7 +119,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testDecodeUtf16LeNoStyl() throws IOException, SubtitleDecoderException {
+  public void decodeUtf16LeNoStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_LE_NO_STYL);
@@ -128,7 +131,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testDecodeWithMultipleStyl() throws IOException, SubtitleDecoderException {
+  public void decodeWithMultipleStyl() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(
@@ -148,7 +151,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testDecodeWithOtherExtension() throws IOException, SubtitleDecoderException {
+  public void decodeWithOtherExtension() throws IOException, SubtitleDecoderException {
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.emptyList());
     byte[] bytes =
         TestUtil.getByteArray(
@@ -165,7 +168,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testInitializationDecodeWithStyl() throws IOException, SubtitleDecoderException {
+  public void initializationDecodeWithStyl() throws IOException, SubtitleDecoderException {
     byte[] initBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
@@ -188,7 +191,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testInitializationDecodeWithTbox() throws IOException, SubtitleDecoderException {
+  public void initializationDecodeWithTbox() throws IOException, SubtitleDecoderException {
     byte[] initBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
     Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
@@ -209,7 +212,7 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
-  public void testInitializationAllDefaultsDecodeWithStyl()
+  public void initializationAllDefaultsDecodeWithStyl()
       throws IOException, SubtitleDecoderException {
     byte[] initBytes =
         TestUtil.getByteArray(

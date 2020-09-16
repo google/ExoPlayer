@@ -69,7 +69,7 @@ public final class FakeDataSourceTest {
   @Test
   public void testReadPartialOpenEnded() throws IOException {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
-    assertThat(dataSource.open(new DataSpec(uri, 7, C.LENGTH_UNSET, null))).isEqualTo(8);
+    assertThat(dataSource.open(new DataSpec(uri, 7, C.LENGTH_UNSET))).isEqualTo(8);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(3);
     assertBuffer(TEST_DATA_PART_1, 7, 3);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(5);
@@ -81,7 +81,7 @@ public final class FakeDataSourceTest {
   @Test
   public void testReadPartialBounded() throws IOException {
     FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
-    assertThat(dataSource.open(new DataSpec(uri, 9, 3, null))).isEqualTo(3);
+    assertThat(dataSource.open(new DataSpec(uri, 9, 3))).isEqualTo(3);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(1);
     assertBuffer(TEST_DATA_PART_1, 9, 1);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(2);
@@ -89,7 +89,7 @@ public final class FakeDataSourceTest {
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(C.RESULT_END_OF_INPUT);
     dataSource.close();
 
-    assertThat(dataSource.open(new DataSpec(uri, 11, 4, null))).isEqualTo(4);
+    assertThat(dataSource.open(new DataSpec(uri, 11, 4))).isEqualTo(4);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(4);
     assertBuffer(TEST_DATA_PART_2, 1, 4);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(C.RESULT_END_OF_INPUT);
@@ -97,7 +97,7 @@ public final class FakeDataSourceTest {
   }
 
   @Test
-  public void testDummyData() throws IOException {
+  public void testFakeData() throws IOException {
     FakeDataSource dataSource =
         new FakeDataSource(
             new FakeDataSet()
@@ -143,7 +143,7 @@ public final class FakeDataSourceTest {
       assertThat(e).hasMessageThat().isEqualTo(errorMessage);
     }
     dataSource.close();
-    assertThat(dataSource.open(new DataSpec(uri, 15, 15, null))).isEqualTo(15);
+    assertThat(dataSource.open(new DataSpec(uri, 15, 15))).isEqualTo(15);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(15);
     assertBuffer(TEST_DATA);
     assertThat(dataSource.read(BUFFER, 0, BUFFER.length)).isEqualTo(C.RESULT_END_OF_INPUT);
@@ -220,7 +220,7 @@ public final class FakeDataSourceTest {
                 .appendReadData(TestUtil.buildTestData(10))
                 .endData());
     try {
-      dataSource.open(new DataSpec(uri, 5, 10, null));
+      dataSource.open(new DataSpec(uri, 5, 10));
       fail("IOException expected.");
     } catch (IOException e) {
       // Expected.

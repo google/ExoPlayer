@@ -15,16 +15,11 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import static com.google.common.truth.Truth.assertWithMessage;
-
-import android.content.Context;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.ForwardingAudioSink;
-import com.google.android.exoplayer2.util.Util;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,15 +27,6 @@ import java.util.List;
 
 /** A {@link ForwardingAudioSink} that captures configuration, discontinuity and buffer events. */
 public final class CapturingAudioSink extends ForwardingAudioSink implements Dumper.Dumpable {
-
-  /**
-   * If true, makes {@link #assertOutput(Context, String)} method write the output to a file, rather
-   * than validating that the output matches the dump file.
-   *
-   * <p>The output file is written to the test apk's external storage directory, which is typically:
-   * {@code /sdcard/Android/data/${package-under-test}.test/files/}.
-   */
-  private static final boolean WRITE_DUMP = false;
 
   private final List<Dumper.Dumpable> interceptedData;
   @Nullable private ByteBuffer currentBuffer;
@@ -51,25 +37,12 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
   }
 
   @Override
-  public void configure(
-      int inputEncoding,
-      int inputChannelCount,
-      int inputSampleRate,
-      int specifiedBufferSize,
-      @Nullable int[] outputChannels,
-      int trimStartFrames,
-      int trimEndFrames)
+  public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {
     interceptedData.add(
-        new DumpableConfiguration(inputEncoding, inputChannelCount, inputSampleRate));
-    super.configure(
-        inputEncoding,
-        inputChannelCount,
-        inputSampleRate,
-        specifiedBufferSize,
-        outputChannels,
-        trimStartFrames,
-        trimEndFrames);
+        new DumpableConfiguration(
+            inputFormat.pcmEncoding, inputFormat.channelCount, inputFormat.sampleRate));
+    super.configure(inputFormat, specifiedBufferSize, outputChannels);
   }
 
   @Override
@@ -80,7 +53,8 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
 
   @Override
   @SuppressWarnings("ReferenceEquality")
-  public boolean handleBuffer(ByteBuffer buffer, long presentationTimeUs)
+  public boolean handleBuffer(
+      ByteBuffer buffer, long presentationTimeUs, int encodedAccessUnitCount)
       throws InitializationException, WriteException {
     // handleBuffer is called repeatedly with the same buffer until it's been fully consumed by the
     // sink. We only want to dump each buffer once, and we need to do so before the sink being
@@ -89,7 +63,7 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
       interceptedData.add(new DumpableBuffer(buffer, presentationTimeUs));
       currentBuffer = buffer;
     }
-    boolean fullyConsumed = super.handleBuffer(buffer, presentationTimeUs);
+    boolean fullyConsumed = super.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount);
     if (fullyConsumed) {
       currentBuffer = null;
     }
@@ -108,30 +82,6 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
     super.reset();
   }
 
-  /**
-   * Asserts that dump of this sink is equal to expected dump which is read from {@code dumpFile}.
-   *
-   * <p>If assertion fails because of an intended change in the output or a new dump file needs to
-   * be created, set {@link #WRITE_DUMP} flag to true and run the test again. Instead of assertion,
-   * actual dump will be written to {@code dumpFile}. This new dump file needs to be copied to the
-   * project, {@code library/src/androidTest/assets} folder manually.
-   */
-  public void assertOutput(Context context, String dumpFile) throws IOException {
-    String actual = new Dumper().add(this).toString();
-
-    if (WRITE_DUMP) {
-      File directory = context.getExternalFilesDir(null);
-      File file = new File(directory, dumpFile);
-      file.getParentFile().mkdirs();
-      PrintWriter out = new PrintWriter(file);
-      out.print(actual);
-      out.close();
-    } else {
-      String expected = TestUtil.getString(context, dumpFile);
-      assertWithMessage(dumpFile).that(actual).isEqualTo(expected);
-    }
-  }
-
   @Override
   public void dump(Dumper dumper) {
     for (int i = 0; i < interceptedData.size(); i++) {
@@ -141,24 +91,24 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
 
   private static final class DumpableConfiguration implements Dumper.Dumpable {
 
-    private final int inputEncoding;
+    @C.PcmEncoding private final int inputPcmEncoding;
     private final int inputChannelCount;
     private final int inputSampleRate;
 
-    public DumpableConfiguration(int inputEncoding, int inputChannelCount, int inputSampleRate) {
-      this.inputEncoding = inputEncoding;
+    public DumpableConfiguration(
+        @C.PcmEncoding int inputPcmEncoding, int inputChannelCount, int inputSampleRate) {
+      this.inputPcmEncoding = inputPcmEncoding;
       this.inputChannelCount = inputChannelCount;
       this.inputSampleRate = inputSampleRate;
     }
 
     @Override
     public void dump(Dumper dumper) {
-      int bitDepth = (Util.getPcmFrameSize(inputEncoding, /* channelCount= */ 1) * 8);
       dumper
           .startBlock("config")
-          .add("encoding", inputEncoding + " (" + bitDepth + " bit)")
-          .add("channel count", inputChannelCount)
-          .add("sample rate", inputSampleRate)
+          .add("pcmEncoding", inputPcmEncoding)
+          .add("channelCount", inputChannelCount)
+          .add("sampleRate", inputSampleRate)
           .endBlock();
     }
   }

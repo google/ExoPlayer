@@ -15,9 +15,15 @@
  */
 package com.google.android.exoplayer2.demo;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -38,47 +44,50 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.demo.Sample.DrmInfo;
-import com.google.android.exoplayer2.demo.Sample.PlaylistSample;
-import com.google.android.exoplayer2.demo.Sample.UriSample;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSource;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** An activity for selecting from a list of media samples. */
 public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
   private static final String TAG = "SampleChooserActivity";
+  private static final String GROUP_POSITION_PREFERENCE_KEY = "sample_chooser_group_position";
+  private static final String CHILD_POSITION_PREFERENCE_KEY = "sample_chooser_child_position";
 
   private String[] uris;
   private boolean useExtensionRenderers;
   private DownloadTracker downloadTracker;
   private SampleAdapter sampleAdapter;
   private MenuItem preferExtensionDecodersMenuItem;
-  private MenuItem randomAbrMenuItem;
-  private MenuItem tunnelingMenuItem;
+  private ExpandableListView sampleListView;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.sample_chooser_activity);
     sampleAdapter = new SampleAdapter();
-    ExpandableListView sampleListView = findViewById(R.id.sample_list);
+    sampleListView = findViewById(R.id.sample_list);
+
     sampleListView.setAdapter(sampleAdapter);
     sampleListView.setOnChildClickListener(this);
 
@@ -104,9 +113,8 @@ public class SampleChooserActivity extends AppCompatActivity
       Arrays.sort(uris);
     }
 
-    DemoApplication application = (DemoApplication) getApplication();
-    useExtensionRenderers = application.useExtensionRenderers();
-    downloadTracker = application.getDownloadTracker();
+    useExtensionRenderers = DemoUtil.useExtensionRenderers();
+    downloadTracker = DemoUtil.getDownloadTracker(/* context= */ this);
     loadSample();
 
     // Start the download service if it should be running but it's not currently.
@@ -126,11 +134,6 @@ public class SampleChooserActivity extends AppCompatActivity
     inflater.inflate(R.menu.sample_chooser_menu, menu);
     preferExtensionDecodersMenuItem = menu.findItem(R.id.prefer_extension_decoders);
     preferExtensionDecodersMenuItem.setVisible(useExtensionRenderers);
-    randomAbrMenuItem = menu.findItem(R.id.random_abr);
-    tunnelingMenuItem = menu.findItem(R.id.tunneling);
-    if (Util.SDK_INT < 21) {
-      tunnelingMenuItem.setEnabled(false);
-    }
     return true;
   }
 
@@ -161,6 +164,7 @@ public class SampleChooserActivity extends AppCompatActivity
   @Override
   public void onRequestPermissionsResult(
       int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     if (grantResults.length == 0) {
       // Empty results are triggered if a permission is requested while another request was already
       // pending and can be safely ignored in this case.
@@ -176,7 +180,7 @@ public class SampleChooserActivity extends AppCompatActivity
   }
 
   private void loadSample() {
-    Assertions.checkNotNull(uris);
+    checkNotNull(uris);
 
     for (int i = 0; i < uris.length; i++) {
       Uri uri = Uri.parse(uris[i]);
@@ -189,67 +193,69 @@ public class SampleChooserActivity extends AppCompatActivity
     loaderTask.execute(uris);
   }
 
-  private void onSampleGroups(final List<SampleGroup> groups, boolean sawError) {
+  private void onPlaylistGroups(final List<PlaylistGroup> groups, boolean sawError) {
     if (sawError) {
       Toast.makeText(getApplicationContext(), R.string.sample_list_load_error, Toast.LENGTH_LONG)
           .show();
     }
-    sampleAdapter.setSampleGroups(groups);
+    sampleAdapter.setPlaylistGroups(groups);
+
+    SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+    int groupPosition = preferences.getInt(GROUP_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
+    int childPosition = preferences.getInt(CHILD_POSITION_PREFERENCE_KEY, /* defValue= */ -1);
+    // Clear the group and child position if either are unset or if either are out of bounds.
+    if (groupPosition != -1
+        && childPosition != -1
+        && groupPosition < groups.size()
+        && childPosition < groups.get(groupPosition).playlists.size()) {
+      sampleListView.expandGroup(groupPosition); // shouldExpandGroup does not work without this.
+      sampleListView.setSelectedChild(groupPosition, childPosition, /* shouldExpandGroup= */ true);
+    }
   }
 
   @Override
   public boolean onChildClick(
       ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
-    Sample sample = (Sample) view.getTag();
+    // Save the selected item first to be able to restore it if the tested code crashes.
+    SharedPreferences.Editor prefEditor = getPreferences(MODE_PRIVATE).edit();
+    prefEditor.putInt(GROUP_POSITION_PREFERENCE_KEY, groupPosition);
+    prefEditor.putInt(CHILD_POSITION_PREFERENCE_KEY, childPosition);
+    prefEditor.apply();
+
+    PlaylistHolder playlistHolder = (PlaylistHolder) view.getTag();
     Intent intent = new Intent(this, PlayerActivity.class);
     intent.putExtra(
-        PlayerActivity.PREFER_EXTENSION_DECODERS_EXTRA,
+        IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA,
         isNonNullAndChecked(preferExtensionDecodersMenuItem));
-    String abrAlgorithm =
-        isNonNullAndChecked(randomAbrMenuItem)
-            ? PlayerActivity.ABR_ALGORITHM_RANDOM
-            : PlayerActivity.ABR_ALGORITHM_DEFAULT;
-    intent.putExtra(PlayerActivity.ABR_ALGORITHM_EXTRA, abrAlgorithm);
-    intent.putExtra(PlayerActivity.TUNNELING_EXTRA, isNonNullAndChecked(tunnelingMenuItem));
-    sample.addToIntent(intent);
+    IntentUtil.addToIntent(playlistHolder.mediaItems, intent);
     startActivity(intent);
     return true;
   }
 
-  private void onSampleDownloadButtonClicked(Sample sample) {
-    int downloadUnsupportedStringId = getDownloadUnsupportedStringId(sample);
+  private void onSampleDownloadButtonClicked(PlaylistHolder playlistHolder) {
+    int downloadUnsupportedStringId = getDownloadUnsupportedStringId(playlistHolder);
     if (downloadUnsupportedStringId != 0) {
       Toast.makeText(getApplicationContext(), downloadUnsupportedStringId, Toast.LENGTH_LONG)
           .show();
     } else {
-      UriSample uriSample = (UriSample) sample;
       RenderersFactory renderersFactory =
-          ((DemoApplication) getApplication())
-              .buildRenderersFactory(isNonNullAndChecked(preferExtensionDecodersMenuItem));
+          DemoUtil.buildRenderersFactory(
+              /* context= */ this, isNonNullAndChecked(preferExtensionDecodersMenuItem));
       downloadTracker.toggleDownload(
-          getSupportFragmentManager(),
-          sample.name,
-          uriSample.uri,
-          uriSample.extension,
-          renderersFactory);
+          getSupportFragmentManager(), playlistHolder.mediaItems.get(0), renderersFactory);
     }
   }
 
-  private int getDownloadUnsupportedStringId(Sample sample) {
-    if (sample instanceof PlaylistSample) {
+  private int getDownloadUnsupportedStringId(PlaylistHolder playlistHolder) {
+    if (playlistHolder.mediaItems.size() > 1) {
       return R.string.download_playlist_unsupported;
     }
-    UriSample uriSample = (UriSample) sample;
-    if (uriSample.drmInfo != null) {
-      return R.string.download_drm_unsupported;
-    }
-    if (uriSample.isLive) {
-      return R.string.download_live_unsupported;
-    }
-    if (uriSample.adTagUri != null) {
+    MediaItem.PlaybackProperties playbackProperties =
+        checkNotNull(playlistHolder.mediaItems.get(0).playbackProperties);
+    if (playbackProperties.adTagUri != null) {
       return R.string.download_ads_unsupported;
     }
-    String scheme = uriSample.uri.getScheme();
+    String scheme = playbackProperties.uri.getScheme();
     if (!("http".equals(scheme) || "https".equals(scheme))) {
       return R.string.download_scheme_unsupported;
     }
@@ -261,22 +267,20 @@ public class SampleChooserActivity extends AppCompatActivity
     return menuItem != null && menuItem.isChecked();
   }
 
-  private final class SampleListLoader extends AsyncTask<String, Void, List<SampleGroup>> {
+  private final class SampleListLoader extends AsyncTask<String, Void, List<PlaylistGroup>> {
 
     private boolean sawError;
 
     @Override
-    protected List<SampleGroup> doInBackground(String... uris) {
-      List<SampleGroup> result = new ArrayList<>();
+    protected List<PlaylistGroup> doInBackground(String... uris) {
+      List<PlaylistGroup> result = new ArrayList<>();
       Context context = getApplicationContext();
-      String userAgent = Util.getUserAgent(context, "ExoPlayerDemo");
-      DataSource dataSource =
-          new DefaultDataSource(context, userAgent, /* allowCrossProtocolRedirects= */ false);
+      DataSource dataSource = DemoUtil.getDataSourceFactory(context).createDataSource();
       for (String uri : uris) {
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
         try {
-          readSampleGroups(new JsonReader(new InputStreamReader(inputStream, "UTF-8")), result);
+          readPlaylistGroups(new JsonReader(new InputStreamReader(inputStream, "UTF-8")), result);
         } catch (Exception e) {
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;
@@ -288,21 +292,23 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onPostExecute(List<SampleGroup> result) {
-      onSampleGroups(result, sawError);
+    protected void onPostExecute(List<PlaylistGroup> result) {
+      onPlaylistGroups(result, sawError);
     }
 
-    private void readSampleGroups(JsonReader reader, List<SampleGroup> groups) throws IOException {
+    private void readPlaylistGroups(JsonReader reader, List<PlaylistGroup> groups)
+        throws IOException {
       reader.beginArray();
       while (reader.hasNext()) {
-        readSampleGroup(reader, groups);
+        readPlaylistGroup(reader, groups);
       }
       reader.endArray();
     }
 
-    private void readSampleGroup(JsonReader reader, List<SampleGroup> groups) throws IOException {
+    private void readPlaylistGroup(JsonReader reader, List<PlaylistGroup> groups)
+        throws IOException {
       String groupName = "";
-      ArrayList<Sample> samples = new ArrayList<>();
+      ArrayList<PlaylistHolder> playlistHolders = new ArrayList<>();
 
       reader.beginObject();
       while (reader.hasNext()) {
@@ -314,7 +320,7 @@ public class SampleChooserActivity extends AppCompatActivity
           case "samples":
             reader.beginArray();
             while (reader.hasNext()) {
-              samples.add(readEntry(reader, false));
+              playlistHolders.add(readEntry(reader, false));
             }
             reader.endArray();
             break;
@@ -327,33 +333,26 @@ public class SampleChooserActivity extends AppCompatActivity
       }
       reader.endObject();
 
-      SampleGroup group = getGroup(groupName, groups);
-      group.samples.addAll(samples);
+      PlaylistGroup group = getGroup(groupName, groups);
+      group.playlists.addAll(playlistHolders);
     }
 
-    private Sample readEntry(JsonReader reader, boolean insidePlaylist) throws IOException {
-      String sampleName = null;
+    private PlaylistHolder readEntry(JsonReader reader, boolean insidePlaylist) throws IOException {
       Uri uri = null;
       String extension = null;
-      boolean isLive = false;
-      String drmScheme = null;
-      String drmLicenseUrl = null;
-      String[] drmKeyRequestProperties = null;
-      boolean drmMultiSession = false;
-      ArrayList<UriSample> playlistSamples = null;
-      String adTagUri = null;
-      String sphericalStereoMode = null;
-      List<Sample.SubtitleInfo> subtitleInfos = new ArrayList<>();
+      String title = null;
+      ArrayList<PlaylistHolder> children = null;
       Uri subtitleUri = null;
       String subtitleMimeType = null;
       String subtitleLanguage = null;
 
+      MediaItem.Builder mediaItem = new MediaItem.Builder();
       reader.beginObject();
       while (reader.hasNext()) {
         String name = reader.nextName();
         switch (name) {
           case "name":
-            sampleName = reader.nextString();
+            title = reader.nextString();
             break;
           case "uri":
             uri = Uri.parse(reader.nextString());
@@ -361,44 +360,42 @@ public class SampleChooserActivity extends AppCompatActivity
           case "extension":
             extension = reader.nextString();
             break;
-          case "drm_scheme":
-            drmScheme = reader.nextString();
+          case "clip_start_position_ms":
+            mediaItem.setClipStartPositionMs(reader.nextLong());
             break;
-          case "is_live":
-            isLive = reader.nextBoolean();
-            break;
-          case "drm_license_url":
-            drmLicenseUrl = reader.nextString();
-            break;
-          case "drm_key_request_properties":
-            ArrayList<String> drmKeyRequestPropertiesList = new ArrayList<>();
-            reader.beginObject();
-            while (reader.hasNext()) {
-              drmKeyRequestPropertiesList.add(reader.nextName());
-              drmKeyRequestPropertiesList.add(reader.nextString());
-            }
-            reader.endObject();
-            drmKeyRequestProperties = drmKeyRequestPropertiesList.toArray(new String[0]);
-            break;
-          case "drm_multi_session":
-            drmMultiSession = reader.nextBoolean();
-            break;
-          case "playlist":
-            Assertions.checkState(!insidePlaylist, "Invalid nesting of playlists");
-            playlistSamples = new ArrayList<>();
-            reader.beginArray();
-            while (reader.hasNext()) {
-              playlistSamples.add((UriSample) readEntry(reader, /* insidePlaylist= */ true));
-            }
-            reader.endArray();
+          case "clip_end_position_ms":
+            mediaItem.setClipEndPositionMs(reader.nextLong());
             break;
           case "ad_tag_uri":
-            adTagUri = reader.nextString();
+            mediaItem.setAdTagUri(reader.nextString());
             break;
-          case "spherical_stereo_mode":
-            Assertions.checkState(
-                !insidePlaylist, "Invalid attribute on nested item: spherical_stereo_mode");
-            sphericalStereoMode = reader.nextString();
+          case "drm_scheme":
+            mediaItem.setDrmUuid(Util.getDrmUuid(reader.nextString()));
+            break;
+          case "drm_license_uri":
+          case "drm_license_url": // For backward compatibility only.
+            mediaItem.setDrmLicenseUri(reader.nextString());
+            break;
+          case "drm_key_request_properties":
+            Map<String, String> requestHeaders = new HashMap<>();
+            reader.beginObject();
+            while (reader.hasNext()) {
+              requestHeaders.put(reader.nextName(), reader.nextString());
+            }
+            reader.endObject();
+            mediaItem.setDrmLicenseRequestHeaders(requestHeaders);
+            break;
+          case "drm_session_for_clear_content":
+            if (reader.nextBoolean()) {
+              mediaItem.setDrmSessionForClearTypes(
+                  ImmutableList.of(C.TRACK_TYPE_VIDEO, C.TRACK_TYPE_AUDIO));
+            }
+            break;
+          case "drm_multi_session":
+            mediaItem.setDrmMultiSession(reader.nextBoolean());
+            break;
+          case "drm_force_default_license_uri":
+            mediaItem.setDrmForceDefaultLicenseUri(reader.nextBoolean());
             break;
           case "subtitle_uri":
             subtitleUri = Uri.parse(reader.nextString());
@@ -409,72 +406,76 @@ public class SampleChooserActivity extends AppCompatActivity
           case "subtitle_language":
             subtitleLanguage = reader.nextString();
             break;
+          case "playlist":
+            checkState(!insidePlaylist, "Invalid nesting of playlists");
+            children = new ArrayList<>();
+            reader.beginArray();
+            while (reader.hasNext()) {
+              children.add(readEntry(reader, /* insidePlaylist= */ true));
+            }
+            reader.endArray();
+            break;
           default:
             throw new ParserException("Unsupported attribute name: " + name);
         }
       }
       reader.endObject();
-      DrmInfo drmInfo =
-          drmScheme == null
-              ? null
-              : new DrmInfo(
-                  Util.getDrmUuid(drmScheme),
-                  drmLicenseUrl,
-                  drmKeyRequestProperties,
-                  drmMultiSession);
-      Sample.SubtitleInfo subtitleInfo =
-          subtitleUri == null
-              ? null
-              : new Sample.SubtitleInfo(
+
+      if (children != null) {
+        List<MediaItem> mediaItems = new ArrayList<>();
+        for (int i = 0; i < children.size(); i++) {
+          mediaItems.addAll(children.get(i).mediaItems);
+        }
+        return new PlaylistHolder(title, mediaItems);
+      } else {
+        @Nullable
+        String adaptiveMimeType =
+            Util.getAdaptiveMimeTypeForContentType(Util.inferContentType(uri, extension));
+        mediaItem
+            .setUri(uri)
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
+            .setMimeType(adaptiveMimeType);
+        if (subtitleUri != null) {
+          MediaItem.Subtitle subtitle =
+              new MediaItem.Subtitle(
                   subtitleUri,
-                  Assertions.checkNotNull(
+                  checkNotNull(
                       subtitleMimeType, "subtitle_mime_type is required if subtitle_uri is set."),
                   subtitleLanguage);
-      if (playlistSamples != null) {
-        UriSample[] playlistSamplesArray = playlistSamples.toArray(new UriSample[0]);
-        return new PlaylistSample(sampleName, playlistSamplesArray);
-      } else {
-        return new UriSample(
-            sampleName,
-            uri,
-            extension,
-            isLive,
-            drmInfo,
-            adTagUri != null ? Uri.parse(adTagUri) : null,
-            sphericalStereoMode,
-            subtitleInfo);
+          mediaItem.setSubtitles(Collections.singletonList(subtitle));
+        }
+        return new PlaylistHolder(title, Collections.singletonList(mediaItem.build()));
       }
     }
 
-    private SampleGroup getGroup(String groupName, List<SampleGroup> groups) {
+    private PlaylistGroup getGroup(String groupName, List<PlaylistGroup> groups) {
       for (int i = 0; i < groups.size(); i++) {
         if (Util.areEqual(groupName, groups.get(i).title)) {
           return groups.get(i);
         }
       }
-      SampleGroup group = new SampleGroup(groupName);
+      PlaylistGroup group = new PlaylistGroup(groupName);
       groups.add(group);
       return group;
     }
-
   }
 
   private final class SampleAdapter extends BaseExpandableListAdapter implements OnClickListener {
 
-    private List<SampleGroup> sampleGroups;
+    private List<PlaylistGroup> playlistGroups;
 
     public SampleAdapter() {
-      sampleGroups = Collections.emptyList();
+      playlistGroups = Collections.emptyList();
     }
 
-    public void setSampleGroups(List<SampleGroup> sampleGroups) {
-      this.sampleGroups = sampleGroups;
+    public void setPlaylistGroups(List<PlaylistGroup> playlistGroups) {
+      this.playlistGroups = playlistGroups;
       notifyDataSetChanged();
     }
 
     @Override
-    public Sample getChild(int groupPosition, int childPosition) {
-      return getGroup(groupPosition).samples.get(childPosition);
+    public PlaylistHolder getChild(int groupPosition, int childPosition) {
+      return getGroup(groupPosition).playlists.get(childPosition);
     }
 
     @Override
@@ -483,8 +484,12 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     @Override
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
-        View convertView, ViewGroup parent) {
+    public View getChildView(
+        int groupPosition,
+        int childPosition,
+        boolean isLastChild,
+        View convertView,
+        ViewGroup parent) {
       View view = convertView;
       if (view == null) {
         view = getLayoutInflater().inflate(R.layout.sample_list_item, parent, false);
@@ -498,12 +503,12 @@ public class SampleChooserActivity extends AppCompatActivity
 
     @Override
     public int getChildrenCount(int groupPosition) {
-      return getGroup(groupPosition).samples.size();
+      return getGroup(groupPosition).playlists.size();
     }
 
     @Override
-    public SampleGroup getGroup(int groupPosition) {
-      return sampleGroups.get(groupPosition);
+    public PlaylistGroup getGroup(int groupPosition) {
+      return playlistGroups.get(groupPosition);
     }
 
     @Override
@@ -512,8 +517,8 @@ public class SampleChooserActivity extends AppCompatActivity
     }
 
     @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
-        ViewGroup parent) {
+    public View getGroupView(
+        int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
       View view = convertView;
       if (view == null) {
         view =
@@ -526,7 +531,7 @@ public class SampleChooserActivity extends AppCompatActivity
 
     @Override
     public int getGroupCount() {
-      return sampleGroups.size();
+      return playlistGroups.size();
     }
 
     @Override
@@ -541,18 +546,19 @@ public class SampleChooserActivity extends AppCompatActivity
 
     @Override
     public void onClick(View view) {
-      onSampleDownloadButtonClicked((Sample) view.getTag());
+      onSampleDownloadButtonClicked((PlaylistHolder) view.getTag());
     }
 
-    private void initializeChildView(View view, Sample sample) {
-      view.setTag(sample);
+    private void initializeChildView(View view, PlaylistHolder playlistHolder) {
+      view.setTag(playlistHolder);
       TextView sampleTitle = view.findViewById(R.id.sample_title);
-      sampleTitle.setText(sample.name);
+      sampleTitle.setText(playlistHolder.title);
 
-      boolean canDownload = getDownloadUnsupportedStringId(sample) == 0;
-      boolean isDownloaded = canDownload && downloadTracker.isDownloaded(((UriSample) sample).uri);
+      boolean canDownload = getDownloadUnsupportedStringId(playlistHolder) == 0;
+      boolean isDownloaded =
+          canDownload && downloadTracker.isDownloaded(playlistHolder.mediaItems.get(0));
       ImageButton downloadButton = view.findViewById(R.id.download_button);
-      downloadButton.setTag(sample);
+      downloadButton.setTag(playlistHolder);
       downloadButton.setColorFilter(
           canDownload ? (isDownloaded ? 0xFF42A5F5 : 0xFFBDBDBD) : 0xFF666666);
       downloadButton.setImageResource(
@@ -560,15 +566,26 @@ public class SampleChooserActivity extends AppCompatActivity
     }
   }
 
-  private static final class SampleGroup {
+  private static final class PlaylistHolder {
 
     public final String title;
-    public final List<Sample> samples;
+    public final List<MediaItem> mediaItems;
 
-    public SampleGroup(String title) {
+    private PlaylistHolder(String title, List<MediaItem> mediaItems) {
+      checkArgument(!mediaItems.isEmpty());
       this.title = title;
-      this.samples = new ArrayList<>();
+      this.mediaItems = Collections.unmodifiableList(new ArrayList<>(mediaItems));
     }
+  }
 
+  private static final class PlaylistGroup {
+
+    public final String title;
+    public final List<PlaylistHolder> playlists;
+
+    public PlaylistGroup(String title) {
+      this.title = title;
+      this.playlists = new ArrayList<>();
+    }
   }
 }

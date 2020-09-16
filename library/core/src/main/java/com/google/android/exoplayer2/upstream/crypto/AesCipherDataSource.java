@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.crypto;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
@@ -45,6 +46,7 @@ public final class AesCipherDataSource implements DataSource {
 
   @Override
   public void addTransferListener(TransferListener transferListener) {
+    checkNotNull(transferListener);
     upstream.addTransferListener(transferListener);
   }
 
@@ -52,8 +54,9 @@ public final class AesCipherDataSource implements DataSource {
   public long open(DataSpec dataSpec) throws IOException {
     long dataLength = upstream.open(dataSpec);
     long nonce = CryptoUtil.getFNV64Hash(dataSpec.key);
-    cipher = new AesFlushingCipher(Cipher.DECRYPT_MODE, secretKey, nonce,
-        dataSpec.absoluteStreamPosition);
+    cipher =
+        new AesFlushingCipher(
+            Cipher.DECRYPT_MODE, secretKey, nonce, dataSpec.uriPositionOffset + dataSpec.position);
     return dataLength;
   }
 

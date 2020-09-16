@@ -17,126 +17,115 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.junit.Assert.assertThrows;
 
-import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.HttpURLConnection;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import java.util.HashMap;
 import java.util.Map;
+import okhttp3.Headers;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okio.Buffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 /** Unit tests for {@link DefaultHttpDataSource}. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultHttpDataSourceTest {
 
+  /**
+   * This test will set HTTP default request parameters (1) in the DefaultHttpDataSource, (2) via
+   * DefaultHttpDataSource.setRequestProperty() and (3) in the DataSpec instance according to the
+   * table below. Values wrapped in '*' are the ones that should be set in the connection request.
+   *
+   * <pre>{@code
+   * +---------------+-----+-----+-----+-----+-----+-----+-----+
+   * |               |               Header Key                |
+   * +---------------+-----+-----+-----+-----+-----+-----+-----+
+   * |   Location    |  0  |  1  |  2  |  3  |  4  |  5  |  6  |
+   * +---------------+-----+-----+-----+-----+-----+-----+-----+
+   * | Constructor   | *Y* |  Y  |  Y  |     |  Y  |     |     |
+   * | Setter        |     | *Y* |  Y  |  Y  |     | *Y* |     |
+   * | DataSpec      |     |     | *Y* | *Y* | *Y* |     | *Y* |
+   * +---------------+-----+-----+-----+-----+-----+-----+-----+
+   * }</pre>
+   */
   @Test
-  public void open_withSpecifiedRequestParameters_usesCorrectParameters() throws IOException {
+  public void open_withSpecifiedRequestParameters_usesCorrectParameters() throws Exception {
+    MockWebServer mockWebServer = new MockWebServer();
+    mockWebServer.enqueue(new MockResponse());
 
-    /*
-     * This test will set HTTP default request parameters (1) in the DefaultHttpDataSource, (2) via
-     * DefaultHttpDataSource.setRequestProperty() and (3) in the DataSpec instance according to the
-     * table below. Values wrapped in '*' are the ones that should be set in the connection request.
-     *
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     * |                       |            Header Key           |
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     * |       Location        | 0 |  1  |  2  |  3  |  4  |  5  |
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     * | Default               |*Y*|  Y  |  Y  |     |     |     |
-     * | DefaultHttpDataSource |   | *Y* |  Y  |  Y  | *Y* |     |
-     * | DataSpec              |   |     | *Y* | *Y* |     | *Y* |
-     * +-----------------------+---+-----+-----+-----+-----+-----+
-     */
+    String propertyFromConstructor = "fromConstructor";
+    HttpDataSource.RequestProperties constructorProperties = new HttpDataSource.RequestProperties();
+    constructorProperties.set("0", propertyFromConstructor);
+    constructorProperties.set("1", propertyFromConstructor);
+    constructorProperties.set("2", propertyFromConstructor);
+    constructorProperties.set("4", propertyFromConstructor);
+    DefaultHttpDataSource dataSource =
+        new DefaultHttpDataSource(
+            /* userAgent= */ "testAgent",
+            /* connectTimeoutMillis= */ 1000,
+            /* readTimeoutMillis= */ 1000,
+            /* allowCrossProtocolRedirects= */ false,
+            constructorProperties);
 
-    String defaultParameter = "Default";
-    String dataSourceInstanceParameter = "DefaultHttpDataSource";
-    String dataSpecParameter = "Dataspec";
+    String propertyFromSetter = "fromSetter";
+    dataSource.setRequestProperty("1", propertyFromSetter);
+    dataSource.setRequestProperty("2", propertyFromSetter);
+    dataSource.setRequestProperty("3", propertyFromSetter);
+    dataSource.setRequestProperty("5", propertyFromSetter);
 
-    HttpDataSource.RequestProperties defaultParameters = new HttpDataSource.RequestProperties();
-    defaultParameters.set("0", defaultParameter);
-    defaultParameters.set("1", defaultParameter);
-    defaultParameters.set("2", defaultParameter);
-
-    DefaultHttpDataSource defaultHttpDataSource =
-        Mockito.spy(
-            new DefaultHttpDataSource(
-                /* userAgent= */ "testAgent",
-                /* connectTimeoutMillis= */ 1000,
-                /* readTimeoutMillis= */ 1000,
-                /* allowCrossProtocolRedirects= */ false,
-                defaultParameters));
-
-    Map<String, String> sentRequestProperties = new HashMap<>();
-    HttpURLConnection mockHttpUrlConnection = makeMockHttpUrlConnection(sentRequestProperties);
-    Mockito.doReturn(mockHttpUrlConnection)
-        .when(defaultHttpDataSource)
-        .openConnection(ArgumentMatchers.any());
-
-    defaultHttpDataSource.setRequestProperty("1", dataSourceInstanceParameter);
-    defaultHttpDataSource.setRequestProperty("2", dataSourceInstanceParameter);
-    defaultHttpDataSource.setRequestProperty("3", dataSourceInstanceParameter);
-    defaultHttpDataSource.setRequestProperty("4", dataSourceInstanceParameter);
-
+    String propertyFromDataSpec = "fromDataSpec";
     Map<String, String> dataSpecRequestProperties = new HashMap<>();
-    dataSpecRequestProperties.put("2", dataSpecParameter);
-    dataSpecRequestProperties.put("3", dataSpecParameter);
-    dataSpecRequestProperties.put("5", dataSpecParameter);
-
+    dataSpecRequestProperties.put("2", propertyFromDataSpec);
+    dataSpecRequestProperties.put("3", propertyFromDataSpec);
+    dataSpecRequestProperties.put("4", propertyFromDataSpec);
+    dataSpecRequestProperties.put("6", propertyFromDataSpec);
     DataSpec dataSpec =
-        new DataSpec(
-            /* uri= */ Uri.parse("http://www.google.com"),
-            /* httpMethod= */ 1,
-            /* httpBody= */ new byte[] {0, 0, 0, 0},
-            /* absoluteStreamPosition= */ 0,
-            /* position= */ 0,
-            /* length= */ 1,
-            /* key= */ "key",
-            /* flags= */ 0,
-            dataSpecRequestProperties);
+        new DataSpec.Builder()
+            .setUri(mockWebServer.url("/test-path").toString())
+            .setHttpRequestHeaders(dataSpecRequestProperties)
+            .build();
 
-    defaultHttpDataSource.open(dataSpec);
+    dataSource.open(dataSpec);
 
-    assertThat(sentRequestProperties.get("0")).isEqualTo(defaultParameter);
-    assertThat(sentRequestProperties.get("1")).isEqualTo(dataSourceInstanceParameter);
-    assertThat(sentRequestProperties.get("2")).isEqualTo(dataSpecParameter);
-    assertThat(sentRequestProperties.get("3")).isEqualTo(dataSpecParameter);
-    assertThat(sentRequestProperties.get("4")).isEqualTo(dataSourceInstanceParameter);
-    assertThat(sentRequestProperties.get("5")).isEqualTo(dataSpecParameter);
+    Headers headers = mockWebServer.takeRequest(10, SECONDS).getHeaders();
+    assertThat(headers.get("0")).isEqualTo(propertyFromConstructor);
+    assertThat(headers.get("1")).isEqualTo(propertyFromSetter);
+    assertThat(headers.get("2")).isEqualTo(propertyFromDataSpec);
+    assertThat(headers.get("3")).isEqualTo(propertyFromDataSpec);
+    assertThat(headers.get("4")).isEqualTo(propertyFromDataSpec);
+    assertThat(headers.get("5")).isEqualTo(propertyFromSetter);
+    assertThat(headers.get("6")).isEqualTo(propertyFromDataSpec);
   }
 
-  /**
-   * Creates a mock {@link HttpURLConnection} that stores all request parameters inside {@code
-   * requestProperties}.
-   */
-  private static HttpURLConnection makeMockHttpUrlConnection(Map<String, String> requestProperties)
-      throws IOException {
-    HttpURLConnection mockHttpUrlConnection = Mockito.mock(HttpURLConnection.class);
-    Mockito.when(mockHttpUrlConnection.usingProxy()).thenReturn(false);
+  @Test
+  public void open_invalidResponseCode() throws Exception {
+    DefaultHttpDataSource defaultHttpDataSource =
+        new DefaultHttpDataSource(
+            /* userAgent= */ "testAgent",
+            /* connectTimeoutMillis= */ 1000,
+            /* readTimeoutMillis= */ 1000,
+            /* allowCrossProtocolRedirects= */ false,
+            /* defaultRequestProperties= */ null);
 
-    Mockito.when(mockHttpUrlConnection.getInputStream())
-        .thenReturn(new ByteArrayInputStream(new byte[128]));
+    MockWebServer mockWebServer = new MockWebServer();
+    mockWebServer.enqueue(
+        new MockResponse()
+            .setResponseCode(404)
+            .setBody(new Buffer().write(TestUtil.createByteArray(1, 2, 3))));
 
-    Mockito.when(mockHttpUrlConnection.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+    DataSpec dataSpec =
+        new DataSpec.Builder().setUri(mockWebServer.url("/test-path").toString()).build();
 
-    Mockito.when(mockHttpUrlConnection.getResponseCode()).thenReturn(200);
-    Mockito.when(mockHttpUrlConnection.getResponseMessage()).thenReturn("OK");
+    HttpDataSource.InvalidResponseCodeException exception =
+        assertThrows(
+            HttpDataSource.InvalidResponseCodeException.class,
+            () -> defaultHttpDataSource.open(dataSpec));
 
-    Mockito.doAnswer(
-            (invocation) -> {
-              String key = invocation.getArgument(0);
-              String value = invocation.getArgument(1);
-              requestProperties.put(key, value);
-              return null;
-            })
-        .when(mockHttpUrlConnection)
-        .setRequestProperty(ArgumentMatchers.anyString(), ArgumentMatchers.anyString());
-
-    return mockHttpUrlConnection;
+    assertThat(exception.responseCode).isEqualTo(404);
+    assertThat(exception.responseBody).isEqualTo(TestUtil.createByteArray(1, 2, 3));
   }
 }

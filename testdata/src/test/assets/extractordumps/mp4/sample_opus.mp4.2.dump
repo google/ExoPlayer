@@ -1,0 +1,40 @@
+seekMap:
+  isSeekable = true
+  duration = 1460000
+  getPosition(0) = [[timeUs=0, position=179]]
+  getPosition(1) = [[timeUs=1, position=179]]
+  getPosition(730000) = [[timeUs=730000, position=398]]
+  getPosition(1460000) = [[timeUs=1460000, position=3701]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 511
+  sample count = 4
+  format 0:
+    id = 1
+    sampleMimeType = audio/opus
+    maxInputSize = 278
+    channelCount = 2
+    sampleRate = 48000
+    language = und
+    metadata = entries=[TSSE: description=null: value=Lavf58.29.100]
+    initializationData:
+      data = length 19, hash 86852AE2
+      data = length 8, hash 72CBCBF5
+      data = length 8, hash 79C07075
+  sample 0:
+    time = 963500
+    flags = 1
+    data = length 128, hash 70A740A1
+  sample 1:
+    time = 973500
+    flags = 1
+    data = length 130, hash 2D3733ED
+  sample 2:
+    time = 983500
+    flags = 1
+    data = length 124, hash 6CC37521
+  sample 3:
+    time = 993500
+    flags = 536870913
+    data = length 129, hash 722253A8
+tracksEnded = true

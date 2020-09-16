@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import static android.graphics.Color.BLACK;
-import static android.graphics.Color.WHITE;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD_ITALIC;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_ITALIC;
@@ -26,8 +25,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.graphics.Color;
+import android.text.Layout;
+import androidx.annotation.ColorInt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import org.junit.Before;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -35,58 +36,85 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TtmlStyleTest {
 
-  private static final String FONT_FAMILY = "serif";
   private static final String ID = "id";
-  public static final int FOREGROUND_COLOR = Color.WHITE;
-  public static final int BACKGROUND_COLOR = Color.BLACK;
-  private TtmlStyle style;
+  private static final String FONT_FAMILY = "serif";
+  @ColorInt private static final int FONT_COLOR = Color.WHITE;
+  private static final float FONT_SIZE = 12.5f;
+  @TtmlStyle.FontSizeUnit private static final int FONT_SIZE_UNIT = TtmlStyle.FONT_SIZE_UNIT_EM;
+  @ColorInt private static final int BACKGROUND_COLOR = Color.BLACK;
+  private static final int RUBY_TYPE = TtmlStyle.RUBY_TYPE_TEXT;
+  private static final int RUBY_POSITION = RubySpan.POSITION_UNDER;
+  private static final Layout.Alignment TEXT_ALIGN = Layout.Alignment.ALIGN_CENTER;
+  private static final boolean TEXT_COMBINE = true;
 
-  @Before
-  public void setUp() throws Exception {
-    style = new TtmlStyle();
-  }
+  private final TtmlStyle populatedStyle =
+      new TtmlStyle()
+          .setId(ID)
+          .setItalic(true)
+          .setBold(true)
+          .setBackgroundColor(BACKGROUND_COLOR)
+          .setFontColor(FONT_COLOR)
+          .setLinethrough(true)
+          .setUnderline(true)
+          .setFontFamily(FONT_FAMILY)
+          .setFontSize(FONT_SIZE)
+          .setFontSizeUnit(FONT_SIZE_UNIT)
+          .setRubyType(RUBY_TYPE)
+          .setRubyPosition(RUBY_POSITION)
+          .setTextAlign(TEXT_ALIGN)
+          .setTextCombine(TEXT_COMBINE);
 
   @Test
-  public void testInheritStyle() {
-    style.inherit(createAncestorStyle());
+  public void inheritStyle() {
+    TtmlStyle style = new TtmlStyle();
+    style.inherit(populatedStyle);
+
     assertWithMessage("id must not be inherited").that(style.getId()).isNull();
     assertThat(style.isUnderline()).isTrue();
     assertThat(style.isLinethrough()).isTrue();
     assertThat(style.getStyle()).isEqualTo(STYLE_BOLD_ITALIC);
     assertThat(style.getFontFamily()).isEqualTo(FONT_FAMILY);
-    assertThat(style.getFontColor()).isEqualTo(WHITE);
-    assertWithMessage("do not inherit backgroundColor").that(style.hasBackgroundColor()).isFalse();
+    assertThat(style.getFontColor()).isEqualTo(FONT_COLOR);
+    assertThat(style.getFontSize()).isEqualTo(FONT_SIZE);
+    assertThat(style.getFontSizeUnit()).isEqualTo(FONT_SIZE_UNIT);
+    assertThat(style.getRubyPosition()).isEqualTo(RUBY_POSITION);
+    assertThat(style.getTextAlign()).isEqualTo(TEXT_ALIGN);
+    assertThat(style.getTextCombine()).isEqualTo(TEXT_COMBINE);
+    assertWithMessage("rubyType should not be inherited")
+        .that(style.getRubyType())
+        .isEqualTo(UNSPECIFIED);
+    assertWithMessage("backgroundColor should not be inherited")
+        .that(style.hasBackgroundColor())
+        .isFalse();
   }
 
   @Test
-  public void testChainStyle() {
-    style.chain(createAncestorStyle());
+  public void chainStyle() {
+    TtmlStyle style = new TtmlStyle();
+
+    style.chain(populatedStyle);
+
     assertWithMessage("id must not be inherited").that(style.getId()).isNull();
     assertThat(style.isUnderline()).isTrue();
     assertThat(style.isLinethrough()).isTrue();
     assertThat(style.getStyle()).isEqualTo(STYLE_BOLD_ITALIC);
     assertThat(style.getFontFamily()).isEqualTo(FONT_FAMILY);
-    assertThat(style.getFontColor()).isEqualTo(FOREGROUND_COLOR);
-    // do inherit backgroundColor when chaining
-    assertWithMessage("do not inherit backgroundColor when chaining")
-        .that(style.getBackgroundColor()).isEqualTo(BACKGROUND_COLOR);
-  }
-
-  private static TtmlStyle createAncestorStyle() {
-    TtmlStyle ancestor = new TtmlStyle();
-    ancestor.setId(ID);
-    ancestor.setItalic(true);
-    ancestor.setBold(true);
-    ancestor.setBackgroundColor(BACKGROUND_COLOR);
-    ancestor.setFontColor(FOREGROUND_COLOR);
-    ancestor.setLinethrough(true);
-    ancestor.setUnderline(true);
-    ancestor.setFontFamily(FONT_FAMILY);
-    return ancestor;
+    assertThat(style.getFontColor()).isEqualTo(FONT_COLOR);
+    assertThat(style.getFontSize()).isEqualTo(FONT_SIZE);
+    assertThat(style.getFontSizeUnit()).isEqualTo(FONT_SIZE_UNIT);
+    assertThat(style.getRubyPosition()).isEqualTo(RUBY_POSITION);
+    assertThat(style.getTextAlign()).isEqualTo(TEXT_ALIGN);
+    assertThat(style.getTextCombine()).isEqualTo(TEXT_COMBINE);
+    assertWithMessage("backgroundColor should be chained")
+        .that(style.getBackgroundColor())
+        .isEqualTo(BACKGROUND_COLOR);
+    assertWithMessage("rubyType should be chained").that(style.getRubyType()).isEqualTo(RUBY_TYPE);
   }
 
   @Test
-  public void testStyle() {
+  public void style() {
+    TtmlStyle style = new TtmlStyle();
+
     assertThat(style.getStyle()).isEqualTo(UNSPECIFIED);
     style.setItalic(true);
     assertThat(style.getStyle()).isEqualTo(STYLE_ITALIC);
@@ -99,7 +127,9 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testLinethrough() {
+  public void linethrough() {
+    TtmlStyle style = new TtmlStyle();
+
     assertThat(style.isLinethrough()).isFalse();
     style.setLinethrough(true);
     assertThat(style.isLinethrough()).isTrue();
@@ -108,7 +138,9 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testUnderline() {
+  public void underline() {
+    TtmlStyle style = new TtmlStyle();
+
     assertThat(style.isUnderline()).isFalse();
     style.setUnderline(true);
     assertThat(style.isUnderline()).isTrue();
@@ -117,7 +149,9 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testFontFamily() {
+  public void fontFamily() {
+    TtmlStyle style = new TtmlStyle();
+
     assertThat(style.getFontFamily()).isNull();
     style.setFontFamily(FONT_FAMILY);
     assertThat(style.getFontFamily()).isEqualTo(FONT_FAMILY);
@@ -126,23 +160,47 @@ public final class TtmlStyleTest {
   }
 
   @Test
-  public void testColor() {
+  public void fontColor() {
+    TtmlStyle style = new TtmlStyle();
+
     assertThat(style.hasFontColor()).isFalse();
     style.setFontColor(Color.BLACK);
-    assertThat(style.getFontColor()).isEqualTo(BLACK);
     assertThat(style.hasFontColor()).isTrue();
+    assertThat(style.getFontColor()).isEqualTo(BLACK);
   }
 
   @Test
-  public void testBackgroundColor() {
+  public void fontSize() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getFontSize()).isEqualTo(0);
+    style.setFontSize(10.5f);
+    assertThat(style.getFontSize()).isEqualTo(10.5f);
+  }
+
+  @Test
+  public void fontSizeUnit() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getFontSizeUnit()).isEqualTo(UNSPECIFIED);
+    style.setFontSizeUnit(TtmlStyle.FONT_SIZE_UNIT_EM);
+    assertThat(style.getFontSizeUnit()).isEqualTo(TtmlStyle.FONT_SIZE_UNIT_EM);
+  }
+
+  @Test
+  public void backgroundColor() {
+    TtmlStyle style = new TtmlStyle();
+
     assertThat(style.hasBackgroundColor()).isFalse();
     style.setBackgroundColor(Color.BLACK);
-    assertThat(style.getBackgroundColor()).isEqualTo(BLACK);
     assertThat(style.hasBackgroundColor()).isTrue();
+    assertThat(style.getBackgroundColor()).isEqualTo(BLACK);
   }
 
   @Test
-  public void testId() {
+  public void id() {
+    TtmlStyle style = new TtmlStyle();
+
     assertThat(style.getId()).isNull();
     style.setId(ID);
     assertThat(style.getId()).isEqualTo(ID);
@@ -150,4 +208,41 @@ public final class TtmlStyleTest {
     assertThat(style.getId()).isNull();
   }
 
+  @Test
+  public void rubyType() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getRubyType()).isEqualTo(UNSPECIFIED);
+    style.setRubyType(TtmlStyle.RUBY_TYPE_BASE);
+    assertThat(style.getRubyType()).isEqualTo(TtmlStyle.RUBY_TYPE_BASE);
+  }
+
+  @Test
+  public void rubyPosition() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_UNKNOWN);
+    style.setRubyPosition(RubySpan.POSITION_OVER);
+    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_OVER);
+  }
+
+  @Test
+  public void textAlign() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getTextAlign()).isNull();
+    style.setTextAlign(Layout.Alignment.ALIGN_OPPOSITE);
+    assertThat(style.getTextAlign()).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+    style.setTextAlign(null);
+    assertThat(style.getTextAlign()).isNull();
+  }
+
+  @Test
+  public void textCombine() {
+    TtmlStyle style = new TtmlStyle();
+
+    assertThat(style.getTextCombine()).isFalse();
+    style.setTextCombine(true);
+    assertThat(style.getTextCombine()).isTrue();
+  }
 }

@@ -16,65 +16,92 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.fail;
 
+import android.os.Handler;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.Download;
-import com.google.android.exoplayer2.offline.Download.State;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import java.util.HashMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.LinkedBlockingQueue;
 
-/** A {@link DownloadManager.Listener} for testing. */
+/**
+ * Allows tests to block for, and assert properties of, calls from a {@link DownloadManager} to its
+ * {@link DownloadManager.Listener}.
+ */
 public final class TestDownloadManagerListener implements DownloadManager.Listener {
 
-  private static final int TIMEOUT_MS = 1000;
-  private static final int INITIALIZATION_TIMEOUT_MS = 10_000;
+  private static final int TIMEOUT_MS = 10_000;
   private static final int STATE_REMOVED = -1;
 
   private final DownloadManager downloadManager;
-  private final DummyMainThread dummyMainThread;
-  private final HashMap<String, ArrayBlockingQueue<Integer>> downloadStates;
-  private final CountDownLatch initializedCondition;
-  private final int timeoutMs;
+  private final HashMap<String, LinkedBlockingQueue<Integer>> downloadStates;
+  private final ConditionVariable initializedCondition;
+  private final ConditionVariable idleCondition;
 
-  private CountDownLatch downloadFinishedCondition;
   @Download.FailureReason private int failureReason;
 
-  public TestDownloadManagerListener(
-      DownloadManager downloadManager, DummyMainThread dummyMainThread) {
-    this(downloadManager, dummyMainThread, TIMEOUT_MS);
-  }
-
-  public TestDownloadManagerListener(
-      DownloadManager downloadManager, DummyMainThread dummyMainThread, int timeoutMs) {
+  public TestDownloadManagerListener(DownloadManager downloadManager) {
     this.downloadManager = downloadManager;
-    this.dummyMainThread = dummyMainThread;
-    this.timeoutMs = timeoutMs;
     downloadStates = new HashMap<>();
-    initializedCondition = new CountDownLatch(1);
+    initializedCondition = TestUtil.createRobolectricConditionVariable();
+    idleCondition = TestUtil.createRobolectricConditionVariable();
     downloadManager.addListener(this);
   }
 
-  public Integer pollStateChange(String taskId, long timeoutMs) throws InterruptedException {
-    return getStateQueue(taskId).poll(timeoutMs, TimeUnit.MILLISECONDS);
+  /** Blocks until the manager is initialized. */
+  public void blockUntilInitialized() throws InterruptedException {
+    assertThat(initializedCondition.block(TIMEOUT_MS)).isTrue();
   }
 
-  @Override
-  public void onInitialized(DownloadManager downloadManager) {
-    initializedCondition.countDown();
+  /** Blocks until the manager is idle. */
+  public void blockUntilIdle() throws InterruptedException {
+    idleCondition.close();
+    // If the manager is already idle the condition will be opened by the code immediately below.
+    // Else it will be opened by onIdle().
+    ConditionVariable checkedOnMainThread = TestUtil.createRobolectricConditionVariable();
+    new Handler(downloadManager.getApplicationLooper())
+        .post(
+            () -> {
+              if (downloadManager.isIdle()) {
+                idleCondition.open();
+              }
+              checkedOnMainThread.open();
+            });
+    assertThat(checkedOnMainThread.block(TIMEOUT_MS)).isTrue();
+    assertThat(idleCondition.block(TIMEOUT_MS)).isTrue();
   }
 
-  public void waitUntilInitialized() throws InterruptedException {
-    if (!downloadManager.isInitialized()) {
-      assertThat(initializedCondition.await(INITIALIZATION_TIMEOUT_MS, TimeUnit.MILLISECONDS))
-          .isTrue();
+  /** Blocks until the manager is idle and throws if any of the downloads failed. */
+  public void blockUntilIdleAndThrowAnyFailure() throws Exception {
+    blockUntilIdle();
+    if (failureReason != Download.FAILURE_REASON_NONE) {
+      throw new Exception("Failure reason: " + failureReason);
     }
   }
 
+  /** Asserts that the specified download transitions to the specified state. */
+  public void assertState(String id, @Download.State int state) {
+    assertStateInternal(id, state);
+  }
+
+  /** Asserts that the specified download is removed. */
+  public void assertRemoved(String id) {
+    assertStateInternal(id, STATE_REMOVED);
+  }
+
+  // DownloadManager.Listener implementation.
+
   @Override
-  public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+  public void onInitialized(DownloadManager downloadManager) {
+    initializedCondition.open();
+  }
+
+  @Override
+  public void onDownloadChanged(
+      DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
     if (download.state == Download.STATE_FAILED) {
       failureReason = download.failureReason;
     }
@@ -87,61 +114,19 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
-  public synchronized void onIdle(DownloadManager downloadManager) {
-    if (downloadFinishedCondition != null) {
-      downloadFinishedCondition.countDown();
-    }
+  public void onIdle(DownloadManager downloadManager) {
+    idleCondition.open();
   }
 
-  /**
-   * Blocks until all remove and download tasks are complete and throws an exception if there was an
-   * error.
-   */
-  public void blockUntilTasksCompleteAndThrowAnyDownloadError() throws Throwable {
-    blockUntilTasksComplete();
-    if (failureReason != Download.FAILURE_REASON_NONE) {
-      throw new Exception("Failure reason: " + failureReason);
-    }
-  }
+  // Internal logic.
 
-  /** Blocks until all remove and download tasks are complete. Task errors are ignored. */
-  public void blockUntilTasksComplete() throws InterruptedException {
-    synchronized (this) {
-      downloadFinishedCondition = new CountDownLatch(1);
-    }
-    dummyMainThread.runOnMainThread(
-        () -> {
-          if (downloadManager.isIdle()) {
-            downloadFinishedCondition.countDown();
-          }
-        });
-    assertThat(downloadFinishedCondition.await(timeoutMs, TimeUnit.MILLISECONDS)).isTrue();
-  }
-
-  private ArrayBlockingQueue<Integer> getStateQueue(String taskId) {
-    synchronized (downloadStates) {
-      if (!downloadStates.containsKey(taskId)) {
-        downloadStates.put(taskId, new ArrayBlockingQueue<>(10));
-      }
-      return downloadStates.get(taskId);
-    }
-  }
-
-  public void assertRemoved(String taskId, int timeoutMs) {
-    assertStateInternal(taskId, STATE_REMOVED, timeoutMs);
-  }
-
-  public void assertState(String taskId, @State int expectedState, int timeoutMs) {
-    assertStateInternal(taskId, expectedState, timeoutMs);
-  }
-
-  private void assertStateInternal(String taskId, int expectedState, int timeoutMs) {
+  private void assertStateInternal(String id, int expectedState) {
     while (true) {
-      Integer state = null;
+      @Nullable Integer state = null;
       try {
-        state = pollStateChange(taskId, timeoutMs);
+        state = getStateQueue(id).poll(TIMEOUT_MS, MILLISECONDS);
       } catch (InterruptedException e) {
-        fail(e.getMessage());
+        fail("Interrupted: " + e.getMessage());
       }
       if (state != null) {
         if (expectedState == state) {
@@ -150,6 +135,17 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
       } else {
         fail("Didn't receive expected state: " + expectedState);
       }
+    }
+  }
+
+  private LinkedBlockingQueue<Integer> getStateQueue(String id) {
+    synchronized (downloadStates) {
+      @Nullable LinkedBlockingQueue<Integer> stateQueue = downloadStates.get(id);
+      if (stateQueue == null) {
+        stateQueue = new LinkedBlockingQueue<>();
+        downloadStates.put(id, stateQueue);
+      }
+      return stateQueue;
     }
   }
 }

@@ -19,6 +19,7 @@ import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import java.util.ArrayList;
@@ -111,7 +112,7 @@ public class FakeClock implements Clock {
   }
 
   @Override
-  public HandlerWrapper createHandler(Looper looper, Callback callback) {
+  public HandlerWrapper createHandler(Looper looper, @Nullable Callback callback) {
     return new ClockHandler(looper, callback);
   }
 
@@ -140,7 +141,7 @@ public class FakeClock implements Clock {
 
     private final long postTime;
     private final HandlerWrapper handler;
-    private final Runnable runnable;
+    @Nullable private final Runnable runnable;
     private final int message;
 
     public HandlerMessageData(long postTime, HandlerWrapper handler, Runnable runnable) {
@@ -176,7 +177,7 @@ public class FakeClock implements Clock {
 
     private final android.os.Handler handler;
 
-    public ClockHandler(Looper looper, Callback callback) {
+    public ClockHandler(Looper looper, @Nullable Callback callback) {
       handler = new android.os.Handler(looper, callback);
     }
 
@@ -191,7 +192,7 @@ public class FakeClock implements Clock {
     }
 
     @Override
-    public Message obtainMessage(int what, Object obj) {
+    public Message obtainMessage(int what, @Nullable Object obj) {
       return handler.obtainMessage(what, obj);
     }
 
@@ -201,7 +202,7 @@ public class FakeClock implements Clock {
     }
 
     @Override
-    public Message obtainMessage(int what, int arg1, int arg2, Object obj) {
+    public Message obtainMessage(int what, int arg1, int arg2, @Nullable Object obj) {
       return handler.obtainMessage(what, arg1, arg2, obj);
     }
 
@@ -221,7 +222,7 @@ public class FakeClock implements Clock {
     }
 
     @Override
-    public void removeCallbacksAndMessages(Object token) {
+    public void removeCallbacksAndMessages(@Nullable Object token) {
       handler.removeCallbacksAndMessages(token);
     }
 

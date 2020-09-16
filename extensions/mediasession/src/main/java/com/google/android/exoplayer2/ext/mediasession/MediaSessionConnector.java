@@ -127,21 +127,11 @@ public final class MediaSessionConnector {
   /** The default playback actions. */
   @PlaybackActions public static final long DEFAULT_PLAYBACK_ACTIONS = ALL_PLAYBACK_ACTIONS;
 
-  /** The default fast forward increment, in milliseconds. */
-  public static final int DEFAULT_FAST_FORWARD_MS = 15000;
-  /** The default rewind increment, in milliseconds. */
-  public static final int DEFAULT_REWIND_MS = 5000;
-
   /**
-   * The name of the {@link PlaybackStateCompat} float extra with the value of {@link
-   * PlaybackParameters#speed}.
+   * The name of the {@link PlaybackStateCompat} float extra with the value of {@code
+   * Player.getPlaybackParameters().speed}.
    */
   public static final String EXTRAS_SPEED = "EXO_SPEED";
-  /**
-   * The name of the {@link PlaybackStateCompat} float extra with the value of {@link
-   * PlaybackParameters#pitch}.
-   */
-  public static final String EXTRAS_PITCH = "EXO_PITCH";
 
   private static final long BASE_PLAYBACK_ACTIONS =
       PlaybackStateCompat.ACTION_PLAY_PAUSE
@@ -440,8 +430,6 @@ public final class MediaSessionConnector {
   @Nullable private MediaButtonEventHandler mediaButtonEventHandler;
 
   private long enabledPlaybackActions;
-  private int rewindMs;
-  private int fastForwardMs;
 
   /**
    * Creates an instance.
@@ -450,7 +438,7 @@ public final class MediaSessionConnector {
    */
   public MediaSessionConnector(MediaSessionCompat mediaSession) {
     this.mediaSession = mediaSession;
-    looper = Util.getLooper();
+    looper = Util.getCurrentOrMainLooper();
     componentListener = new ComponentListener();
     commandReceivers = new ArrayList<>();
     customCommandReceivers = new ArrayList<>();
@@ -461,8 +449,6 @@ public final class MediaSessionConnector {
         new DefaultMediaMetadataProvider(
             mediaSession.getController(), /* metadataExtrasPrefix= */ null);
     enabledPlaybackActions = DEFAULT_PLAYBACK_ACTIONS;
-    rewindMs = DEFAULT_REWIND_MS;
-    fastForwardMs = DEFAULT_FAST_FORWARD_MS;
     mediaSession.setFlags(BASE_MEDIA_SESSION_FLAGS);
     mediaSession.setCallback(componentListener, new Handler(looper));
   }
@@ -504,13 +490,12 @@ public final class MediaSessionConnector {
   /**
    * Sets the {@link ControlDispatcher}.
    *
-   * @param controlDispatcher The {@link ControlDispatcher}, or null to use {@link
-   *     DefaultControlDispatcher}.
+   * @param controlDispatcher The {@link ControlDispatcher}.
    */
-  public void setControlDispatcher(@Nullable ControlDispatcher controlDispatcher) {
+  public void setControlDispatcher(ControlDispatcher controlDispatcher) {
     if (this.controlDispatcher != controlDispatcher) {
-      this.controlDispatcher =
-          controlDispatcher == null ? new DefaultControlDispatcher() : controlDispatcher;
+      this.controlDispatcher = controlDispatcher;
+      invalidateMediaSessionPlaybackState();
     }
   }
 
@@ -551,27 +536,27 @@ public final class MediaSessionConnector {
   }
 
   /**
-   * Sets the rewind increment in milliseconds.
-   *
-   * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
-   *     rewind button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)} instead.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setRewindIncrementMs(int rewindMs) {
-    if (this.rewindMs != rewindMs) {
-      this.rewindMs = rewindMs;
+    if (controlDispatcher instanceof DefaultControlDispatcher) {
+      ((DefaultControlDispatcher) controlDispatcher).setRewindIncrementMs(rewindMs);
       invalidateMediaSessionPlaybackState();
     }
   }
 
   /**
-   * Sets the fast forward increment in milliseconds.
-   *
-   * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
-   *     cause the fast forward button to be disabled.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
+   *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)} instead.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setFastForwardIncrementMs(int fastForwardMs) {
-    if (this.fastForwardMs != fastForwardMs) {
-      this.fastForwardMs = fastForwardMs;
+    if (controlDispatcher instanceof DefaultControlDispatcher) {
+      ((DefaultControlDispatcher) controlDispatcher).setFastForwardIncrementMs(fastForwardMs);
       invalidateMediaSessionPlaybackState();
     }
   }
@@ -689,8 +674,6 @@ public final class MediaSessionConnector {
    * @param customActionProviders The custom action providers, or null to remove all existing custom
    *     action providers.
    */
-  // incompatible types in assignment.
-  @SuppressWarnings("nullness:assignment.type.incompatible")
   public void setCustomActionProviders(@Nullable CustomActionProvider... customActionProviders) {
     this.customActionProviders =
         customActionProviders == null ? new CustomActionProvider[0] : customActionProviders;
@@ -764,7 +747,7 @@ public final class MediaSessionConnector {
     customActionMap = Collections.unmodifiableMap(currentActions);
 
     Bundle extras = new Bundle();
-    @Nullable ExoPlaybackException playbackError = player.getPlaybackError();
+    @Nullable ExoPlaybackException playbackError = player.getPlayerError();
     boolean reportError = playbackError != null || customError != null;
     int sessionPlaybackState =
         reportError
@@ -783,10 +766,9 @@ public final class MediaSessionConnector {
         queueNavigator != null
             ? queueNavigator.getActiveQueueItemId(player)
             : MediaSessionCompat.QueueItem.UNKNOWN_ID;
-    PlaybackParameters playbackParameters = player.getPlaybackParameters();
-    extras.putFloat(EXTRAS_SPEED, playbackParameters.speed);
-    extras.putFloat(EXTRAS_PITCH, playbackParameters.pitch);
-    float sessionPlaybackSpeed = player.isPlaying() ? playbackParameters.speed : 0f;
+    float playbackSpeed = player.getPlaybackParameters().speed;
+    extras.putFloat(EXTRAS_SPEED, playbackSpeed);
+    float sessionPlaybackSpeed = player.isPlaying() ? playbackSpeed : 0f;
     builder
         .setActions(buildPrepareActions() | buildPlaybackActions(player))
         .setActiveQueueItemId(activeQueueItemId)
@@ -877,8 +859,8 @@ public final class MediaSessionConnector {
     Timeline timeline = player.getCurrentTimeline();
     if (!timeline.isEmpty() && !player.isPlayingAd()) {
       enableSeeking = player.isCurrentWindowSeekable();
-      enableRewind = enableSeeking && rewindMs > 0;
-      enableFastForward = enableSeeking && fastForwardMs > 0;
+      enableRewind = enableSeeking && controlDispatcher.isRewindEnabled();
+      enableFastForward = enableSeeking && controlDispatcher.isFastForwardEnabled();
       enableSetRating = ratingCallback != null;
       enableSetCaptioningEnabled = captionCallback != null && captionCallback.hasCaptions(player);
     }
@@ -955,28 +937,6 @@ public final class MediaSessionConnector {
       expression = {"player", "mediaButtonEventHandler"})
   private boolean canDispatchMediaButtonEvent() {
     return player != null && mediaButtonEventHandler != null;
-  }
-
-  private void rewind(Player player) {
-    if (player.isCurrentWindowSeekable() && rewindMs > 0) {
-      seekToOffset(player, /* offsetMs= */ -rewindMs);
-    }
-  }
-
-  private void fastForward(Player player) {
-    if (player.isCurrentWindowSeekable() && fastForwardMs > 0) {
-      seekToOffset(player, /* offsetMs= */ fastForwardMs);
-    }
-  }
-
-  private void seekToOffset(Player player, long offsetMs) {
-    long positionMs = player.getCurrentPosition() + offsetMs;
-    long durationMs = player.getDuration();
-    if (durationMs != C.TIME_UNSET) {
-      positionMs = Math.min(positionMs, durationMs);
-    }
-    positionMs = Math.max(positionMs, 0);
-    seekTo(player, player.getCurrentWindowIndex(), positionMs);
   }
 
   private void seekTo(Player player, int windowIndex, long positionMs) {
@@ -1131,7 +1091,13 @@ public final class MediaSessionConnector {
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int playbackState) {
+      invalidateMediaSessionPlaybackState();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
       invalidateMediaSessionPlaybackState();
     }
 
@@ -1207,14 +1173,14 @@ public final class MediaSessionConnector {
     @Override
     public void onFastForward() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_FAST_FORWARD)) {
-        fastForward(player);
+        controlDispatcher.dispatchFastForward(player);
       }
     }
 
     @Override
     public void onRewind() {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_REWIND)) {
-        rewind(player);
+        controlDispatcher.dispatchRewind(player);
       }
     }
 

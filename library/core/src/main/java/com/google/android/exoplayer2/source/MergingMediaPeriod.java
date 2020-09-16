@@ -15,24 +15,30 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Merges multiple {@link MediaPeriod}s.
  */
 /* package */ final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
-  public final MediaPeriod[] periods;
-
+  private final MediaPeriod[] periods;
   private final IdentityHashMap<SampleStream, Integer> streamPeriodIndices;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final ArrayList<MediaPeriod> childrenPendingPreparation;
@@ -42,7 +48,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private MediaPeriod[] enabledPeriods;
   private SequenceableLoader compositeSequenceableLoader;
 
-  public MergingMediaPeriod(CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+  public MergingMediaPeriod(
+      CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
+      long[] periodTimeOffsetsUs,
       MediaPeriod... periods) {
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     this.periods = periods;
@@ -51,6 +59,22 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader();
     streamPeriodIndices = new IdentityHashMap<>();
     enabledPeriods = new MediaPeriod[0];
+    for (int i = 0; i < periods.length; i++) {
+      if (periodTimeOffsetsUs[i] != 0) {
+        this.periods[i] = new TimeOffsetMediaPeriod(periods[i], periodTimeOffsetsUs[i]);
+      }
+    }
+  }
+
+  /**
+   * Returns the child period passed to {@link
+   * #MergingMediaPeriod(CompositeSequenceableLoaderFactory, long[], MediaPeriod...)} at the
+   * specified index.
+   */
+  public MediaPeriod getChildPeriod(int index) {
+    return periods[index] instanceof TimeOffsetMediaPeriod
+        ? ((TimeOffsetMediaPeriod) periods[index]).mediaPeriod
+        : periods[index];
   }
 
   @Override
@@ -85,8 +109,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int[] streamChildIndices = new int[selections.length];
     int[] selectionChildIndices = new int[selections.length];
     for (int i = 0; i < selections.length; i++) {
-      streamChildIndices[i] = streams[i] == null ? C.INDEX_UNSET
-          : streamPeriodIndices.get(streams[i]);
+      Integer streamChildIndex = streams[i] == null ? null : streamPeriodIndices.get(streams[i]);
+      streamChildIndices[i] = streamChildIndex == null ? C.INDEX_UNSET : streamChildIndex;
       selectionChildIndices[i] = C.INDEX_UNSET;
       if (selections[i] != null) {
         TrackGroup trackGroup = selections[i].getTrackGroup();
@@ -136,8 +160,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     // Copy the new streams back into the streams array.
     System.arraycopy(newStreams, 0, streams, 0, newStreams.length);
     // Update the local state.
-    enabledPeriods = new MediaPeriod[enabledPeriodsList.size()];
-    enabledPeriodsList.toArray(enabledPeriods);
+    enabledPeriods = enabledPeriodsList.toArray(new MediaPeriod[0]);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(enabledPeriods);
     return positionUs;
@@ -181,23 +204,32 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long readDiscontinuity() {
-    long positionUs = periods[0].readDiscontinuity();
-    // Periods other than the first one are not allowed to report discontinuities.
-    for (int i = 1; i < periods.length; i++) {
-      if (periods[i].readDiscontinuity() != C.TIME_UNSET) {
-        throw new IllegalStateException("Child reported discontinuity.");
-      }
-    }
-    // It must be possible to seek enabled periods to the new position, if there is one.
-    if (positionUs != C.TIME_UNSET) {
-      for (MediaPeriod enabledPeriod : enabledPeriods) {
-        if (enabledPeriod != periods[0]
-            && enabledPeriod.seekToUs(positionUs) != positionUs) {
+    long discontinuityUs = C.TIME_UNSET;
+    for (MediaPeriod period : enabledPeriods) {
+      long otherDiscontinuityUs = period.readDiscontinuity();
+      if (otherDiscontinuityUs != C.TIME_UNSET) {
+        if (discontinuityUs == C.TIME_UNSET) {
+          discontinuityUs = otherDiscontinuityUs;
+          // First reported discontinuity. Seek all previous periods to the new position.
+          for (MediaPeriod previousPeriod : enabledPeriods) {
+            if (previousPeriod == period) {
+              break;
+            }
+            if (previousPeriod.seekToUs(discontinuityUs) != discontinuityUs) {
+              throw new IllegalStateException("Unexpected child seekToUs result.");
+            }
+          }
+        } else if (otherDiscontinuityUs != discontinuityUs) {
+          throw new IllegalStateException("Conflicting discontinuities.");
+        }
+      } else if (discontinuityUs != C.TIME_UNSET) {
+        // We already have a discontinuity, seek this period to the new position.
+        if (period.seekToUs(discontinuityUs) != discontinuityUs) {
           throw new IllegalStateException("Unexpected child seekToUs result.");
         }
       }
     }
-    return positionUs;
+    return discontinuityUs;
   }
 
   @Override
@@ -253,4 +285,173 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     Assertions.checkNotNull(callback).onContinueLoadingRequested(this);
   }
 
+  private static final class TimeOffsetMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
+
+    private final MediaPeriod mediaPeriod;
+    private final long timeOffsetUs;
+
+    private @MonotonicNonNull Callback callback;
+
+    public TimeOffsetMediaPeriod(MediaPeriod mediaPeriod, long timeOffsetUs) {
+      this.mediaPeriod = mediaPeriod;
+      this.timeOffsetUs = timeOffsetUs;
+    }
+
+    @Override
+    public void prepare(Callback callback, long positionUs) {
+      this.callback = callback;
+      mediaPeriod.prepare(/* callback= */ this, positionUs - timeOffsetUs);
+    }
+
+    @Override
+    public void maybeThrowPrepareError() throws IOException {
+      mediaPeriod.maybeThrowPrepareError();
+    }
+
+    @Override
+    public TrackGroupArray getTrackGroups() {
+      return mediaPeriod.getTrackGroups();
+    }
+
+    @Override
+    public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+      return mediaPeriod.getStreamKeys(trackSelections);
+    }
+
+    @Override
+    public long selectTracks(
+        @NullableType TrackSelection[] selections,
+        boolean[] mayRetainStreamFlags,
+        @NullableType SampleStream[] streams,
+        boolean[] streamResetFlags,
+        long positionUs) {
+      @NullableType SampleStream[] childStreams = new SampleStream[streams.length];
+      for (int i = 0; i < streams.length; i++) {
+        TimeOffsetSampleStream sampleStream = (TimeOffsetSampleStream) streams[i];
+        childStreams[i] = sampleStream != null ? sampleStream.getChildStream() : null;
+      }
+      long startPositionUs =
+          mediaPeriod.selectTracks(
+              selections,
+              mayRetainStreamFlags,
+              childStreams,
+              streamResetFlags,
+              positionUs - timeOffsetUs);
+      for (int i = 0; i < streams.length; i++) {
+        @Nullable SampleStream childStream = childStreams[i];
+        if (childStream == null) {
+          streams[i] = null;
+        } else if (streams[i] == null
+            || ((TimeOffsetSampleStream) streams[i]).getChildStream() != childStream) {
+          streams[i] = new TimeOffsetSampleStream(childStream, timeOffsetUs);
+        }
+      }
+      return startPositionUs + timeOffsetUs;
+    }
+
+    @Override
+    public void discardBuffer(long positionUs, boolean toKeyframe) {
+      mediaPeriod.discardBuffer(positionUs - timeOffsetUs, toKeyframe);
+    }
+
+    @Override
+    public long readDiscontinuity() {
+      long discontinuityPositionUs = mediaPeriod.readDiscontinuity();
+      return discontinuityPositionUs == C.TIME_UNSET
+          ? C.TIME_UNSET
+          : discontinuityPositionUs + timeOffsetUs;
+    }
+
+    @Override
+    public long seekToUs(long positionUs) {
+      return mediaPeriod.seekToUs(positionUs - timeOffsetUs) + timeOffsetUs;
+    }
+
+    @Override
+    public long getAdjustedSeekPositionUs(long positionUs, SeekParameters seekParameters) {
+      return mediaPeriod.getAdjustedSeekPositionUs(positionUs - timeOffsetUs, seekParameters)
+          + timeOffsetUs;
+    }
+
+    @Override
+    public long getBufferedPositionUs() {
+      long bufferedPositionUs = mediaPeriod.getBufferedPositionUs();
+      return bufferedPositionUs == C.TIME_END_OF_SOURCE
+          ? C.TIME_END_OF_SOURCE
+          : bufferedPositionUs + timeOffsetUs;
+    }
+
+    @Override
+    public long getNextLoadPositionUs() {
+      long nextLoadPositionUs = mediaPeriod.getNextLoadPositionUs();
+      return nextLoadPositionUs == C.TIME_END_OF_SOURCE
+          ? C.TIME_END_OF_SOURCE
+          : nextLoadPositionUs + timeOffsetUs;
+    }
+
+    @Override
+    public boolean continueLoading(long positionUs) {
+      return mediaPeriod.continueLoading(positionUs - timeOffsetUs);
+    }
+
+    @Override
+    public boolean isLoading() {
+      return mediaPeriod.isLoading();
+    }
+
+    @Override
+    public void reevaluateBuffer(long positionUs) {
+      mediaPeriod.reevaluateBuffer(positionUs - timeOffsetUs);
+    }
+
+    @Override
+    public void onPrepared(MediaPeriod mediaPeriod) {
+      Assertions.checkNotNull(callback).onPrepared(/* mediaPeriod= */ this);
+    }
+
+    @Override
+    public void onContinueLoadingRequested(MediaPeriod source) {
+      Assertions.checkNotNull(callback).onContinueLoadingRequested(/* source= */ this);
+    }
+  }
+
+  private static final class TimeOffsetSampleStream implements SampleStream {
+
+    private final SampleStream sampleStream;
+    private final long timeOffsetUs;
+
+    public TimeOffsetSampleStream(SampleStream sampleStream, long timeOffsetUs) {
+      this.sampleStream = sampleStream;
+      this.timeOffsetUs = timeOffsetUs;
+    }
+
+    public SampleStream getChildStream() {
+      return sampleStream;
+    }
+
+    @Override
+    public boolean isReady() {
+      return sampleStream.isReady();
+    }
+
+    @Override
+    public void maybeThrowError() throws IOException {
+      sampleStream.maybeThrowError();
+    }
+
+    @Override
+    public int readData(
+        FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
+      int readResult = sampleStream.readData(formatHolder, buffer, formatRequired);
+      if (readResult == C.RESULT_BUFFER_READ) {
+        buffer.timeUs = max(0, buffer.timeUs + timeOffsetUs);
+      }
+      return readResult;
+    }
+
+    @Override
+    public int skipData(long positionUs) {
+      return sampleStream.skipData(positionUs - timeOffsetUs);
+    }
+  }
 }

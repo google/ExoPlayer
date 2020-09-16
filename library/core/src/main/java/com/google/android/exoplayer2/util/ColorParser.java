@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.util;
 
+import android.graphics.Color;
 import android.text.TextUtils;
+import androidx.annotation.ColorInt;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -49,6 +51,7 @@ public final class ColorParser {
    * @param colorExpression The color expression.
    * @return The parsed ARGB color.
    */
+  @ColorInt
   public static int parseTtmlColor(String colorExpression) {
     return parseColorInternal(colorExpression, false);
   }
@@ -59,10 +62,12 @@ public final class ColorParser {
    * @param colorExpression The color expression.
    * @return The parsed ARGB color.
    */
+  @ColorInt
   public static int parseCssColor(String colorExpression) {
     return parseColorInternal(colorExpression, true);
   }
 
+  @ColorInt
   private static int parseColorInternal(String colorExpression, boolean alphaHasFloatFormat) {
     Assertions.checkArgument(!TextUtils.isEmpty(colorExpression));
     colorExpression = colorExpression.replace(" ", "");
@@ -83,22 +88,21 @@ public final class ColorParser {
       Matcher matcher = (alphaHasFloatFormat ? RGBA_PATTERN_FLOAT_ALPHA : RGBA_PATTERN_INT_ALPHA)
           .matcher(colorExpression);
       if (matcher.matches()) {
-        return argb(
-          alphaHasFloatFormat ? (int) (255 * Float.parseFloat(matcher.group(4)))
-              : Integer.parseInt(matcher.group(4), 10),
-          Integer.parseInt(matcher.group(1), 10),
-          Integer.parseInt(matcher.group(2), 10),
-          Integer.parseInt(matcher.group(3), 10)
-        );
+        return Color.argb(
+            alphaHasFloatFormat
+                ? (int) (255 * Float.parseFloat(Assertions.checkNotNull(matcher.group(4))))
+                : Integer.parseInt(Assertions.checkNotNull(matcher.group(4)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(2)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(3)), 10));
       }
     } else if (colorExpression.startsWith(RGB)) {
       Matcher matcher = RGB_PATTERN.matcher(colorExpression);
       if (matcher.matches()) {
-        return rgb(
-          Integer.parseInt(matcher.group(1), 10),
-          Integer.parseInt(matcher.group(2), 10),
-          Integer.parseInt(matcher.group(3), 10)
-        );
+        return Color.rgb(
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(2)), 10),
+            Integer.parseInt(Assertions.checkNotNull(matcher.group(3)), 10));
       }
     } else {
       // we use our own color map
@@ -108,14 +112,6 @@ public final class ColorParser {
       }
     }
     throw new IllegalArgumentException();
-  }
-
-  private static int argb(int alpha, int red, int green, int blue) {
-    return (alpha << 24) | (red << 16) | (green << 8) | blue;
-  }
-
-  private static int rgb(int red, int green, int blue) {
-    return argb(0xFF, red, green, blue);
   }
 
   static {

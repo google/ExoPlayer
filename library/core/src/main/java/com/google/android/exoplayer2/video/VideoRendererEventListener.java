@@ -72,6 +72,26 @@ public interface VideoRendererEventListener {
   default void onDroppedFrames(int count, long elapsedMs) {}
 
   /**
+   * Called to report the video processing offset of video frames processed by the video renderer.
+   *
+   * <p>Video processing offset represents how early a video frame is processed compared to the
+   * player's current position. For each video frame, the offset is calculated as <em>P<sub>vf</sub>
+   * - P<sub>pl</sub></em> where <em>P<sub>vf</sub></em> is the presentation timestamp of the video
+   * frame and <em>P<sub>pl</sub></em> is the current position of the player. Positive values
+   * indicate the frame was processed early enough whereas negative values indicate that the
+   * player's position had progressed beyond the frame's timestamp when the frame was processed (and
+   * the frame was probably dropped).
+   *
+   * <p>The renderer reports the sum of video processing offset samples (one sample per processed
+   * video frame: dropped, skipped or rendered) and the total number of samples.
+   *
+   * @param totalProcessingOffsetUs The sum of all video frame processing offset samples for the
+   *     video frames processed by the renderer in microseconds.
+   * @param frameCount The number of samples included in the {@code totalProcessingOffsetUs}.
+   */
+  default void onVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {}
+
+  /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
    * there's a change in the size, rotation or pixel aspect ratio of the video being rendered.
    *
@@ -92,8 +112,8 @@ public interface VideoRendererEventListener {
       int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
 
   /**
-   * Called when a frame is rendered for the first time since setting the surface, and when a frame
-   * is rendered for the first time since the renderer was reset.
+   * Called when a frame is rendered for the first time since setting the surface, or since the
+   * renderer was reset, or since the stream being rendered was changed.
    *
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.
@@ -116,12 +136,12 @@ public interface VideoRendererEventListener {
     @Nullable private final VideoRendererEventListener listener;
 
     /**
-     * @param handler A handler for dispatching events, or null if creating a dummy instance.
-     * @param listener The listener to which events should be dispatched, or null if creating a
-     *     dummy instance.
+     * @param handler A handler for dispatching events, or null if events should not be dispatched.
+     * @param listener The listener to which events should be dispatched, or null if events should
+     *     not be dispatched.
      */
-    public EventDispatcher(@Nullable Handler handler,
-        @Nullable VideoRendererEventListener listener) {
+    public EventDispatcher(
+        @Nullable Handler handler, @Nullable VideoRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }
@@ -156,6 +176,16 @@ public interface VideoRendererEventListener {
     public void droppedFrames(int droppedFrameCount, long elapsedMs) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onDroppedFrames(droppedFrameCount, elapsedMs));
+      }
+    }
+
+    /** Invokes {@link VideoRendererEventListener#onVideoFrameProcessingOffset}. */
+    public void reportVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {
+      if (handler != null) {
+        handler.post(
+            () ->
+                castNonNull(listener)
+                    .onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount));
       }
     }
 

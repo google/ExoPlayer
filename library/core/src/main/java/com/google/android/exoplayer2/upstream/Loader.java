@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.Math.min;
+
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
@@ -79,10 +81,8 @@ public final class Loader implements LoaderErrorThrower {
      * Performs the load, returning on completion or cancellation.
      *
      * @throws IOException If the input could not be loaded.
-     * @throws InterruptedException If the thread was interrupted.
      */
-    void load() throws IOException, InterruptedException;
-
+    void load() throws IOException;
   }
 
   /**
@@ -429,12 +429,6 @@ public final class Loader implements LoaderErrorThrower {
         if (!released) {
           obtainMessage(MSG_IO_EXCEPTION, e).sendToTarget();
         }
-      } catch (InterruptedException e) {
-        // The load was canceled.
-        Assertions.checkState(canceled);
-        if (!released) {
-          sendEmptyMessage(MSG_FINISH);
-        }
       } catch (Exception e) {
         // This should never happen, but handle it anyway.
         Log.e(TAG, "Unexpected exception loading stream", e);
@@ -524,7 +518,7 @@ public final class Loader implements LoaderErrorThrower {
     }
 
     private long getRetryDelayMillis() {
-      return Math.min((errorCount - 1) * 1000, 5000);
+      return min((errorCount - 1) * 1000, 5000);
     }
 
   }

@@ -34,8 +34,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  */
 public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
-  /** Listener for preparation errors. */
-  public interface PrepareErrorListener {
+  /** Listener for preparation events. */
+  public interface PrepareListener {
+
+    /** Called when preparing the media period completes. */
+    void onPrepareComplete(MediaPeriodId mediaPeriodId);
 
     /**
      * Called the first time an error occurs while refreshing source info or preparing the period.
@@ -53,7 +56,7 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   @Nullable private MediaPeriod mediaPeriod;
   @Nullable private Callback callback;
   private long preparePositionUs;
-  @Nullable private PrepareErrorListener listener;
+  @Nullable private PrepareListener listener;
   private boolean notifiedPrepareError;
   private long preparePositionOverrideUs;
 
@@ -75,13 +78,13 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   /**
-   * Sets a listener for preparation errors.
+   * Sets a listener for preparation events.
    *
-   * @param listener An listener to be notified of media period preparation errors. If a listener is
+   * @param listener An listener to be notified of media period preparation events. If a listener is
    *     set, {@link #maybeThrowPrepareError()} will not throw but will instead pass the first
    *     preparation error (if any) to the listener.
    */
-  public void setPrepareErrorListener(PrepareErrorListener listener) {
+  public void setPrepareListener(PrepareListener listener) {
     this.listener = listener;
   }
 
@@ -91,13 +94,18 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   /**
-   * Overrides the default prepare position at which to prepare the media period. This value is only
-   * used if called before {@link #createPeriod(MediaPeriodId)}.
+   * Overrides the default prepare position at which to prepare the media period. This method must
+   * be called before {@link #createPeriod(MediaPeriodId)}.
    *
    * @param preparePositionUs The default prepare position to use, in microseconds.
    */
   public void overridePreparePositionUs(long preparePositionUs) {
     preparePositionOverrideUs = preparePositionUs;
+  }
+
+  /** Returns the prepare position override set by {@link #overridePreparePositionUs(long)}. */
+  public long getPreparePositionOverrideUs() {
+    return preparePositionOverrideUs;
   }
 
   /**
@@ -226,6 +234,9 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   @Override
   public void onPrepared(MediaPeriod mediaPeriod) {
     castNonNull(callback).onPrepared(this);
+    if (listener != null) {
+      listener.onPrepareComplete(id);
+    }
   }
 
   private long getPreparePositionWithOverride(long preparePositionUs) {

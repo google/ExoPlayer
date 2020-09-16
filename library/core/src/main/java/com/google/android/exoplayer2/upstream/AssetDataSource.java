@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -102,8 +103,8 @@ public final class AssetDataSource extends BaseDataSource {
 
     int bytesRead;
     try {
-      int bytesToRead = bytesRemaining == C.LENGTH_UNSET ? readLength
-          : (int) Math.min(bytesRemaining, readLength);
+      int bytesToRead =
+          bytesRemaining == C.LENGTH_UNSET ? readLength : (int) min(bytesRemaining, readLength);
       bytesRead = castNonNull(inputStream).read(buffer, offset, bytesToRead);
     } catch (IOException e) {
       throw new AssetDataSourceException(e);

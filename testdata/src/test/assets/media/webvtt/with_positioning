@@ -1,0 +1,42 @@
+WEBVTT
+
+NOTE Position with percentage and position alignment
+
+00:00:00.000 --> 00:00:01.234 position:60%,end align:start size:35%
+This is the first subtitle.
+
+NOTE Wrong position provided. It should be provided as
+a percentage value
+
+00:02.345 --> 00:03.456 position:10 align:end
+This is the second subtitle.
+
+NOTE Line as percentage and line alignment
+
+00:04.000 --> 00:05.000 line:45%,end align:middle
+This is the third subtitle.
+
+NOTE Line as absolute negative number and without line alignment.
+
+00:06.000 --> 00:07.000 line:-10 align:middle
+This is the fourth subtitle.
+
+NOTE The position and positioning alignment should be inherited from align.
+
+00:08.000 --> 00:09.000 align:right
+This is the fifth subtitle.
+
+NOTE In newer drafts, align:middle has been replaced by align:center
+
+00:10.000 --> 00:11.000 align:center
+This is the sixth subtitle.
+
+NOTE In older drafts position alignment could be start,middle,end
+
+00:12.000 --> 00:13.000 position:20%,start
+This is the seventh subtitle.
+
+NOTE In the released spec position alignment can be line-left,center,line-right
+
+00:14.000 --> 00:15.000 position:70%,line-right
+This is the eighth subtitle.

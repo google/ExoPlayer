@@ -31,7 +31,6 @@ public final class DownloadNotificationHelper {
 
   private static final @StringRes int NULL_STRING_ID = 0;
 
-  private final Context context;
   private final NotificationCompat.Builder notificationBuilder;
 
   /**
@@ -39,14 +38,14 @@ public final class DownloadNotificationHelper {
    * @param channelId The id of the notification channel to use.
    */
   public DownloadNotificationHelper(Context context, String channelId) {
-    context = context.getApplicationContext();
-    this.context = context;
-    this.notificationBuilder = new NotificationCompat.Builder(context, channelId);
+    this.notificationBuilder =
+        new NotificationCompat.Builder(context.getApplicationContext(), channelId);
   }
 
   /**
    * Returns a progress notification for the given downloads.
    *
+   * @param context A context.
    * @param smallIcon A small icon for the notification.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
@@ -54,6 +53,7 @@ public final class DownloadNotificationHelper {
    * @return The notification.
    */
   public Notification buildProgressNotification(
+      Context context,
       @DrawableRes int smallIcon,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
@@ -95,6 +95,7 @@ public final class DownloadNotificationHelper {
       indeterminate = allDownloadPercentagesUnknown && haveDownloadedBytes;
     }
     return buildNotification(
+        context,
         smallIcon,
         contentIntent,
         message,
@@ -109,37 +110,47 @@ public final class DownloadNotificationHelper {
   /**
    * Returns a notification for a completed download.
    *
+   * @param context A context.
    * @param smallIcon A small icon for the notifications.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @return The notification.
    */
   public Notification buildDownloadCompletedNotification(
-      @DrawableRes int smallIcon, @Nullable PendingIntent contentIntent, @Nullable String message) {
+      Context context,
+      @DrawableRes int smallIcon,
+      @Nullable PendingIntent contentIntent,
+      @Nullable String message) {
     int titleStringId = R.string.exo_download_completed;
-    return buildEndStateNotification(smallIcon, contentIntent, message, titleStringId);
+    return buildEndStateNotification(context, smallIcon, contentIntent, message, titleStringId);
   }
 
   /**
    * Returns a notification for a failed download.
    *
+   * @param context A context.
    * @param smallIcon A small icon for the notifications.
    * @param contentIntent An optional content intent to send when the notification is clicked.
    * @param message An optional message to display on the notification.
    * @return The notification.
    */
   public Notification buildDownloadFailedNotification(
-      @DrawableRes int smallIcon, @Nullable PendingIntent contentIntent, @Nullable String message) {
+      Context context,
+      @DrawableRes int smallIcon,
+      @Nullable PendingIntent contentIntent,
+      @Nullable String message) {
     @StringRes int titleStringId = R.string.exo_download_failed;
-    return buildEndStateNotification(smallIcon, contentIntent, message, titleStringId);
+    return buildEndStateNotification(context, smallIcon, contentIntent, message, titleStringId);
   }
 
   private Notification buildEndStateNotification(
+      Context context,
       @DrawableRes int smallIcon,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,
       @StringRes int titleStringId) {
     return buildNotification(
+        context,
         smallIcon,
         contentIntent,
         message,
@@ -152,6 +163,7 @@ public final class DownloadNotificationHelper {
   }
 
   private Notification buildNotification(
+      Context context,
       @DrawableRes int smallIcon,
       @Nullable PendingIntent contentIntent,
       @Nullable String message,

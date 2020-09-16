@@ -20,14 +20,19 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -39,6 +44,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
+import java.util.List;
 
 /**
  * An extensible media player that plays {@link MediaSource}s. Instances can be obtained from {@link
@@ -55,7 +61,7 @@ import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
  * <ul>
  *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
  *       which the loaded media can be read. A MediaSource is injected via {@link
- *       #prepare(MediaSource)} at the start of playback. The library modules provide default
+ *       #setMediaSource(MediaSource)} at the start of playback. The library modules provide default
  *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
  *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
  *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
@@ -136,12 +142,18 @@ public interface ExoPlayer extends Player {
 
     private Clock clock;
     private TrackSelector trackSelector;
+    private MediaSourceFactory mediaSourceFactory;
     private LoadControl loadControl;
     private BandwidthMeter bandwidthMeter;
     private Looper looper;
-    private AnalyticsCollector analyticsCollector;
+    @Nullable private AnalyticsCollector analyticsCollector;
     private boolean useLazyPreparation;
+    private SeekParameters seekParameters;
+    private boolean pauseAtEndOfMediaItems;
     private boolean buildCalled;
+
+    private long releaseTimeoutMs;
+    private boolean throwWhenStuckBuffering;
 
     /**
      * Creates a builder with a list of {@link Renderer Renderers}.
@@ -150,6 +162,7 @@ public interface ExoPlayer extends Player {
      *
      * <ul>
      *   <li>{@link TrackSelector}: {@link DefaultTrackSelector}
+     *   <li>{@link MediaSourceFactory}: {@link DefaultMediaSourceFactory}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
      *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
      *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
@@ -157,6 +170,8 @@ public interface ExoPlayer extends Player {
      *       Looper}
      *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
+     *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
+     *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
      *
@@ -167,48 +182,67 @@ public interface ExoPlayer extends Player {
       this(
           renderers,
           new DefaultTrackSelector(context),
+          new DefaultMediaSourceFactory(context),
           new DefaultLoadControl(),
-          DefaultBandwidthMeter.getSingletonInstance(context),
-          Util.getLooper(),
-          new AnalyticsCollector(Clock.DEFAULT),
-          /* useLazyPreparation= */ true,
-          Clock.DEFAULT);
+          DefaultBandwidthMeter.getSingletonInstance(context));
     }
 
     /**
      * Creates a builder with the specified custom components.
      *
-     * <p>Note that this constructor is only useful if you try to ensure that ExoPlayer's default
-     * components can be removed by ProGuard or R8. For most components except renderers, there is
-     * only a marginal benefit of doing that.
+     * <p>Note that this constructor is only useful to try and ensure that ExoPlayer's default
+     * components can be removed by ProGuard or R8.
      *
      * @param renderers The {@link Renderer Renderers} to be used by the player.
      * @param trackSelector A {@link TrackSelector}.
+     * @param mediaSourceFactory A {@link MediaSourceFactory}.
      * @param loadControl A {@link LoadControl}.
      * @param bandwidthMeter A {@link BandwidthMeter}.
-     * @param looper A {@link Looper} that must be used for all calls to the player.
-     * @param analyticsCollector An {@link AnalyticsCollector}.
-     * @param useLazyPreparation Whether media sources should be initialized lazily.
-     * @param clock A {@link Clock}. Should always be {@link Clock#DEFAULT}.
      */
     public Builder(
         Renderer[] renderers,
         TrackSelector trackSelector,
+        MediaSourceFactory mediaSourceFactory,
         LoadControl loadControl,
-        BandwidthMeter bandwidthMeter,
-        Looper looper,
-        AnalyticsCollector analyticsCollector,
-        boolean useLazyPreparation,
-        Clock clock) {
+        BandwidthMeter bandwidthMeter) {
       Assertions.checkArgument(renderers.length > 0);
       this.renderers = renderers;
       this.trackSelector = trackSelector;
+      this.mediaSourceFactory = mediaSourceFactory;
       this.loadControl = loadControl;
       this.bandwidthMeter = bandwidthMeter;
-      this.looper = looper;
-      this.analyticsCollector = analyticsCollector;
-      this.useLazyPreparation = useLazyPreparation;
-      this.clock = clock;
+      looper = Util.getCurrentOrMainLooper();
+      useLazyPreparation = true;
+      seekParameters = SeekParameters.DEFAULT;
+      clock = Clock.DEFAULT;
+      throwWhenStuckBuffering = true;
+    }
+
+    /**
+     * Set a limit on the time a call to {@link ExoPlayer#release()} can spend. If a call to {@link
+     * ExoPlayer#release()} takes more than {@code timeoutMs} milliseconds to complete, the player
+     * will raise an error via {@link Player.EventListener#onPlayerError}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
+     * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+     */
+    public Builder experimentalSetReleaseTimeoutMs(long timeoutMs) {
+      releaseTimeoutMs = timeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets whether the player should throw when it detects it's stuck buffering.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
+     * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
+     * @return This builder.
+     */
+    public Builder experimentalSetThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+      this.throwWhenStuckBuffering = throwWhenStuckBuffering;
+      return this;
     }
 
     /**
@@ -221,6 +255,19 @@ public interface ExoPlayer extends Player {
     public Builder setTrackSelector(TrackSelector trackSelector) {
       Assertions.checkState(!buildCalled);
       this.trackSelector = trackSelector;
+      return this;
+    }
+
+    /**
+     * Sets the {@link MediaSourceFactory} that will be used by the player.
+     *
+     * @param mediaSourceFactory A {@link MediaSourceFactory}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setMediaSourceFactory(MediaSourceFactory mediaSourceFactory) {
+      Assertions.checkState(!buildCalled);
+      this.mediaSourceFactory = mediaSourceFactory;
       return this;
     }
 
@@ -295,6 +342,37 @@ public interface ExoPlayer extends Player {
     }
 
     /**
+     * Sets the parameters that control how seek operations are performed.
+     *
+     * @param seekParameters The {@link SeekParameters}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setSeekParameters(SeekParameters seekParameters) {
+      Assertions.checkState(!buildCalled);
+      this.seekParameters = seekParameters;
+      return this;
+    }
+
+    /**
+     * Sets whether to pause playback at the end of each media item.
+     *
+     * <p>This means the player will pause at the end of each window in the current {@link
+     * #getCurrentTimeline() timeline}. Listeners will be informed by a call to {@link
+     * Player.EventListener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
+     * Player#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} when this happens.
+     *
+     * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems) {
+      Assertions.checkState(!buildCalled);
+      this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
+      return this;
+    }
+
+    /**
      * Sets the {@link Clock} that will be used by the player. Should only be set for testing
      * purposes.
      *
@@ -312,44 +390,146 @@ public interface ExoPlayer extends Player {
     /**
      * Builds an {@link ExoPlayer} instance.
      *
-     * @throws IllegalStateException If {@link #build()} has already been called.
+     * @throws IllegalStateException If {@code build} has already been called.
      */
     public ExoPlayer build() {
       Assertions.checkState(!buildCalled);
       buildCalled = true;
-      return new ExoPlayerImpl(
-          renderers, trackSelector, loadControl, bandwidthMeter, clock, looper);
+      ExoPlayerImpl player =
+          new ExoPlayerImpl(
+              renderers,
+              trackSelector,
+              mediaSourceFactory,
+              loadControl,
+              bandwidthMeter,
+              analyticsCollector,
+              useLazyPreparation,
+              seekParameters,
+              pauseAtEndOfMediaItems,
+              clock,
+              looper);
+
+      if (releaseTimeoutMs > 0) {
+        player.experimentalSetReleaseTimeoutMs(releaseTimeoutMs);
+      }
+      if (!throwWhenStuckBuffering) {
+        player.experimentalDisableThrowWhenStuckBuffering();
+      }
+
+      return player;
     }
   }
 
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
 
-  /**
-   * Retries a failed or stopped playback. Does nothing if the player has been reset, or if playback
-   * has not failed or been stopped.
-   */
+  /** @deprecated Use {@link #prepare()} instead. */
+  @Deprecated
   void retry();
 
-  /**
-   * Prepares the player to play the provided {@link MediaSource}. Equivalent to {@code
-   * prepare(mediaSource, true, true)}.
-   */
+  /** @deprecated Use {@link #setMediaSource(MediaSource)} and {@link #prepare()} instead. */
+  @Deprecated
   void prepare(MediaSource mediaSource);
 
   /**
-   * Prepares the player to play the provided {@link MediaSource}, optionally resetting the playback
-   * position the default position in the first {@link Timeline.Window}.
+   * @deprecated Use {@link #setMediaSource(MediaSource, boolean)} and {@link #prepare()} instead.
+   */
+  @Deprecated
+  void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
+
+  /**
+   * Clears the playlist, adds the specified {@link MediaSource MediaSources} and resets the
+   * position to the default position.
    *
-   * @param mediaSource The {@link MediaSource} to play.
+   * @param mediaSources The new {@link MediaSource MediaSources}.
+   */
+  void setMediaSources(List<MediaSource> mediaSources);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
+   *
+   * @param mediaSources The new {@link MediaSource MediaSources}.
    * @param resetPosition Whether the playback position should be reset to the default position in
    *     the first {@link Timeline.Window}. If false, playback will start from the position defined
    *     by {@link #getCurrentWindowIndex()} and {@link #getCurrentPosition()}.
-   * @param resetState Whether the timeline, manifest, tracks and track selections should be reset.
-   *     Should be true unless the player is being prepared to play the same media as it was playing
-   *     previously (e.g. if playback failed and is being retried).
    */
-  void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState);
+  void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaSource MediaSources}.
+   *
+   * @param mediaSources The new {@link MediaSource MediaSources}.
+   * @param startWindowIndex The window index to start playback from. If {@link C#INDEX_UNSET} is
+   *     passed, the current position is not reset.
+   * @param startPositionMs The position in milliseconds to start playback from. If {@link
+   *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
+   *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
+   *     position is not reset at all.
+   */
+  void setMediaSources(List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs);
+
+  /**
+   * Clears the playlist, adds the specified {@link MediaSource} and resets the position to the
+   * default position.
+   *
+   * @param mediaSource The new {@link MediaSource}.
+   */
+  void setMediaSource(MediaSource mediaSource);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaSource}.
+   *
+   * @param mediaSource The new {@link MediaSource}.
+   * @param startPositionMs The position in milliseconds to start playback from.
+   */
+  void setMediaSource(MediaSource mediaSource, long startPositionMs);
+
+  /**
+   * Clears the playlist and adds the specified {@link MediaSource}.
+   *
+   * @param mediaSource The new {@link MediaSource}.
+   * @param resetPosition Whether the playback position should be reset to the default position. If
+   *     false, playback will start from the position defined by {@link #getCurrentWindowIndex()}
+   *     and {@link #getCurrentPosition()}.
+   */
+  void setMediaSource(MediaSource mediaSource, boolean resetPosition);
+
+  /**
+   * Adds a media source to the end of the playlist.
+   *
+   * @param mediaSource The {@link MediaSource} to add.
+   */
+  void addMediaSource(MediaSource mediaSource);
+
+  /**
+   * Adds a media source at the given index of the playlist.
+   *
+   * @param index The index at which to add the source.
+   * @param mediaSource The {@link MediaSource} to add.
+   */
+  void addMediaSource(int index, MediaSource mediaSource);
+
+  /**
+   * Adds a list of media sources to the end of the playlist.
+   *
+   * @param mediaSources The {@link MediaSource MediaSources} to add.
+   */
+  void addMediaSources(List<MediaSource> mediaSources);
+
+  /**
+   * Adds a list of media sources at the given index of the playlist.
+   *
+   * @param index The index at which to add the media sources.
+   * @param mediaSources The {@link MediaSource MediaSources} to add.
+   */
+  void addMediaSources(int index, List<MediaSource> mediaSources);
+
+  /**
+   * Sets the shuffle order.
+   *
+   * @param shuffleOrder The shuffle order.
+   */
+  void setShuffleOrder(ShuffleOrder shuffleOrder);
 
   /**
    * Creates a message that can be sent to a {@link PlayerMessage.Target}. By default, the message
@@ -401,4 +581,60 @@ public interface ExoPlayer extends Player {
    *     idle state.
    */
   void setForegroundMode(boolean foregroundMode);
+
+  /**
+   * Sets whether to pause playback at the end of each media item.
+   *
+   * <p>This means the player will pause at the end of each window in the current {@link
+   * #getCurrentTimeline() timeline}. Listeners will be informed by a call to {@link
+   * Player.EventListener#onPlayWhenReadyChanged(boolean, int)} with the reason {@link
+   * Player#PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM} when this happens.
+   *
+   * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
+   */
+  void setPauseAtEndOfMediaItems(boolean pauseAtEndOfMediaItems);
+
+  /**
+   * Returns whether the player pauses playback at the end of each media item.
+   *
+   * @see #setPauseAtEndOfMediaItems(boolean)
+   */
+  boolean getPauseAtEndOfMediaItems();
+
+  /**
+   * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will as
+   * rarely as possible when playing an audio stream using audio offload.
+   *
+   * <p>Only use this scheduling mode if the player is not displaying anything to the user. For
+   * example when the application is in the background, or the screen is off. The player state
+   * (including position) is rarely updated (roughly between every 10 seconds and 1 minute).
+   *
+   * <p>While offload scheduling is enabled, player events may be delivered severely delayed and
+   * apps should not interact with the player. When returning to the foreground, disable offload
+   * scheduling and wait for {@link
+   * Player.EventListener#onExperimentalOffloadSchedulingEnabledChanged(boolean)} to be called with
+   * {@code offloadSchedulingEnabled = false} before interacting with the player.
+   *
+   * <p>This mode should save significant power when the phone is playing offload audio with the
+   * screen off.
+   *
+   * <p>This mode only has an effect when playing an audio track in offload mode, which requires all
+   * the following:
+   *
+   * <ul>
+   *   <li>audio offload rendering is enabled in {@link
+   *       DefaultRenderersFactory#setEnableAudioOffload} or the equivalent option passed to {@link
+   *       com.google.android.exoplayer2.audio.DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
+   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean, boolean)}.
+   *   <li>an audio track is playing in a format which the device supports offloading (for example,
+   *       MP3 or AAC).
+   *   <li>The {@link com.google.android.exoplayer2.audio.AudioSink} is playing with an offload
+   *       {@link android.media.AudioTrack}.
+   * </ul>
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param offloadSchedulingEnabled Whether to enable offload scheduling.
+   */
+  void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled);
 }

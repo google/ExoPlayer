@@ -37,19 +37,19 @@ public class FrameRotationQueueTest {
   }
 
   @Test
-  public void testGetRotationMatrixReturnsNull_whenEmpty() throws Exception {
+  public void getRotationMatrixReturnsNull_whenEmpty() throws Exception {
     assertThat(frameRotationQueue.pollRotationMatrix(rotationMatrix, 0)).isFalse();
   }
 
   @Test
-  public void testGetRotationMatrixReturnsNotNull_whenNotEmpty() throws Exception {
+  public void getRotationMatrixReturnsNotNull_whenNotEmpty() throws Exception {
     frameRotationQueue.setRotation(0, new float[] {1, 2, 3});
     assertThat(frameRotationQueue.pollRotationMatrix(rotationMatrix, 0)).isTrue();
     assertThat(rotationMatrix).hasLength(16);
   }
 
   @Test
-  public void testConvertsAngleAxisToRotationMatrix() throws Exception {
+  public void convertsAngleAxisToRotationMatrix() throws Exception {
     doTestAngleAxisToRotationMatrix(/* angleRadian= */ 0, /* x= */ 1, /* y= */ 0, /* z= */ 0);
     frameRotationQueue.reset();
     doTestAngleAxisToRotationMatrix(/* angleRadian= */ 1, /* x= */ 1, /* y= */ 0, /* z= */ 0);
@@ -61,7 +61,7 @@ public class FrameRotationQueueTest {
   }
 
   @Test
-  public void testRecentering_justYaw() throws Exception {
+  public void recentering_justYaw() throws Exception {
     float[] actualMatrix =
         getRotationMatrixFromAngleAxis(
             /* angleRadian= */ (float) Math.PI, /* x= */ 0, /* y= */ 1, /* z= */ 0);
@@ -71,7 +71,7 @@ public class FrameRotationQueueTest {
   }
 
   @Test
-  public void testRecentering_yawAndPitch() throws Exception {
+  public void recentering_yawAndPitch() throws Exception {
     float[] matrix =
         getRotationMatrixFromAngleAxis(
             /* angleRadian= */ (float) Math.PI, /* x= */ 1, /* y= */ 1, /* z= */ 0);
@@ -80,7 +80,7 @@ public class FrameRotationQueueTest {
   }
 
   @Test
-  public void testRecentering_yawAndPitch2() throws Exception {
+  public void recentering_yawAndPitch2() throws Exception {
     float[] matrix =
         getRotationMatrixFromAngleAxis(
             /* angleRadian= */ (float) Math.PI / 2, /* x= */ 1, /* y= */ 1, /* z= */ 0);
@@ -90,7 +90,7 @@ public class FrameRotationQueueTest {
   }
 
   @Test
-  public void testRecentering_yawAndPitchAndRoll() throws Exception {
+  public void recentering_yawAndPitchAndRoll() throws Exception {
     float[] matrix =
         getRotationMatrixFromAngleAxis(
             /* angleRadian= */ (float) Math.PI * 2 / 3, /* x= */ 1, /* y= */ 1, /* z= */ 1);

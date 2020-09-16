@@ -66,16 +66,23 @@ public interface AudioRendererEventListener {
   default void onAudioInputFormatChanged(Format format) {}
 
   /**
-   * Called when an {@link AudioSink} underrun occurs.
+   * Called when the audio position has increased for the first time since the last pause or
+   * position reset.
    *
-   * @param bufferSize The size of the {@link AudioSink}'s buffer, in bytes.
-   * @param bufferSizeMs The size of the {@link AudioSink}'s buffer, in milliseconds, if it is
-   *     configured for PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output,
-   *     as the buffered media can have a variable bitrate so the duration may be unknown.
-   * @param elapsedSinceLastFeedMs The time since the {@link AudioSink} was last fed data.
+   * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+   *     which playout started.
    */
-  default void onAudioSinkUnderrun(
-      int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
+  default void onAudioPositionAdvancing(long playoutStartSystemTimeMs) {}
+
+  /**
+   * Called when an audio underrun occurs.
+   *
+   * @param bufferSize The size of the audio output buffer, in bytes.
+   * @param bufferSizeMs The size of the audio output buffer, in milliseconds, if it contains PCM
+   *     encoded audio. {@link C#TIME_UNSET} if the output buffer contains non-PCM encoded audio.
+   * @param elapsedSinceLastFeedMs The time since audio was last written to the output buffer.
+   */
+  default void onAudioUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
    * Called when the renderer is disabled.
@@ -85,38 +92,39 @@ public interface AudioRendererEventListener {
   default void onAudioDisabled(DecoderCounters counters) {}
 
   /**
-   * Dispatches events to a {@link AudioRendererEventListener}.
+   * Called when skipping silences is enabled or disabled in the audio stream.
+   *
+   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
    */
+  default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
+
+  /** Dispatches events to an {@link AudioRendererEventListener}. */
   final class EventDispatcher {
 
     @Nullable private final Handler handler;
     @Nullable private final AudioRendererEventListener listener;
 
     /**
-     * @param handler A handler for dispatching events, or null if creating a dummy instance.
-     * @param listener The listener to which events should be dispatched, or null if creating a
-     *     dummy instance.
+     * @param handler A handler for dispatching events, or null if events should not be dispatched.
+     * @param listener The listener to which events should be dispatched, or null if events should
+     *     not be dispatched.
      */
-    public EventDispatcher(@Nullable Handler handler,
-        @Nullable AudioRendererEventListener listener) {
+    public EventDispatcher(
+        @Nullable Handler handler, @Nullable AudioRendererEventListener listener) {
       this.handler = listener != null ? Assertions.checkNotNull(handler) : null;
       this.listener = listener;
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioEnabled(DecoderCounters)}.
-     */
-    public void enabled(final DecoderCounters decoderCounters) {
+    /** Invokes {@link AudioRendererEventListener#onAudioEnabled(DecoderCounters)}. */
+    public void enabled(DecoderCounters decoderCounters) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioEnabled(decoderCounters));
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioDecoderInitialized(String, long, long)}.
-     */
-    public void decoderInitialized(final String decoderName,
-        final long initializedTimestampMs, final long initializationDurationMs) {
+    /** Invokes {@link AudioRendererEventListener#onAudioDecoderInitialized(String, long, long)}. */
+    public void decoderInitialized(
+        String decoderName, long initializedTimestampMs, long initializationDurationMs) {
       if (handler != null) {
         handler.post(
             () ->
@@ -126,32 +134,33 @@ public interface AudioRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioInputFormatChanged(Format)}.
-     */
-    public void inputFormatChanged(final Format format) {
+    /** Invokes {@link AudioRendererEventListener#onAudioInputFormatChanged(Format)}. */
+    public void inputFormatChanged(Format format) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioInputFormatChanged(format));
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioSinkUnderrun(int, long, long)}.
-     */
-    public void audioTrackUnderrun(final int bufferSize, final long bufferSizeMs,
-        final long elapsedSinceLastFeedMs) {
+    /** Invokes {@link AudioRendererEventListener#onAudioPositionAdvancing(long)}. */
+    public void positionAdvancing(long playoutStartSystemTimeMs) {
+      if (handler != null) {
+        handler.post(
+            () -> castNonNull(listener).onAudioPositionAdvancing(playoutStartSystemTimeMs));
+      }
+    }
+
+    /** Invokes {@link AudioRendererEventListener#onAudioUnderrun(int, long, long)}. */
+    public void underrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
       if (handler != null) {
         handler.post(
             () ->
                 castNonNull(listener)
-                    .onAudioSinkUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs));
+                    .onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs));
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioDisabled(DecoderCounters)}.
-     */
-    public void disabled(final DecoderCounters counters) {
+    /** Invokes {@link AudioRendererEventListener#onAudioDisabled(DecoderCounters)}. */
+    public void disabled(DecoderCounters counters) {
       counters.ensureUpdated();
       if (handler != null) {
         handler.post(
@@ -162,12 +171,17 @@ public interface AudioRendererEventListener {
       }
     }
 
-    /**
-     * Invokes {@link AudioRendererEventListener#onAudioSessionId(int)}.
-     */
-    public void audioSessionId(final int audioSessionId) {
+    /** Invokes {@link AudioRendererEventListener#onAudioSessionId(int)}. */
+    public void audioSessionId(int audioSessionId) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioSessionId(audioSessionId));
+      }
+    }
+
+    /** Invokes {@link AudioRendererEventListener#onSkipSilenceEnabledChanged(boolean)}. */
+    public void skipSilenceEnabledChanged(boolean skipSilenceEnabled) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onSkipSilenceEnabledChanged(skipSilenceEnabled));
       }
     }
   }

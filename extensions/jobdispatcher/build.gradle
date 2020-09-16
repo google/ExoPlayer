@@ -13,28 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply from: '../../constants.gradle'
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    testOptions.unitTests.includeAndroidResources = true
-}
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 
 ext {

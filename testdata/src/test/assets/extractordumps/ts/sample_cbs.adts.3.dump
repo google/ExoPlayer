@@ -1,0 +1,30 @@
+seekMap:
+  isSeekable = true
+  duration = 3356772
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=0, position=0], [timeUs=23219, position=220]]
+  getPosition(1678386) = [[timeUs=1671789, position=15840], [timeUs=1695009, position=16060]]
+  getPosition(3356772) = [[timeUs=3333553, position=31585]]
+numberOfTracks = 2
+track 0:
+  total output bytes = 174
+  sample count = 1
+  format 0:
+    id = 0
+    sampleMimeType = audio/mp4a-latm
+    codecs = mp4a.40.2
+    channelCount = 1
+    sampleRate = 44100
+    initializationData:
+      data = length 2, hash 5F7
+  sample 0:
+    time = 3356772
+    flags = 1
+    data = length 174, hash 2B69C34E
+track 1:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    id = 1
+    sampleMimeType = application/id3
+tracksEnded = true

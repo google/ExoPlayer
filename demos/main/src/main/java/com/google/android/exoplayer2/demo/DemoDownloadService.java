@@ -15,10 +15,12 @@
  */
 package com.google.android.exoplayer2.demo;
 
-import static com.google.android.exoplayer2.demo.DemoApplication.DOWNLOAD_NOTIFICATION_CHANNEL_ID;
+import static com.google.android.exoplayer2.demo.DemoUtil.DOWNLOAD_NOTIFICATION_CHANNEL_ID;
 
 import android.app.Notification;
 import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.Download;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadService;
@@ -44,13 +46,13 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
+  @NonNull
   protected DownloadManager getDownloadManager() {
     // This will only happen once, because getDownloadManager is guaranteed to be called only once
     // in the life cycle of the process.
-    DemoApplication application = (DemoApplication) getApplication();
-    DownloadManager downloadManager = application.getDownloadManager();
+    DownloadManager downloadManager = DemoUtil.getDownloadManager(/* context= */ this);
     DownloadNotificationHelper downloadNotificationHelper =
-        application.getDownloadNotificationHelper();
+        DemoUtil.getDownloadNotificationHelper(/* context= */ this);
     downloadManager.addListener(
         new TerminalStateNotificationHelper(
             this, downloadNotificationHelper, FOREGROUND_NOTIFICATION_ID + 1));
@@ -63,11 +65,15 @@ public class DemoDownloadService extends DownloadService {
   }
 
   @Override
-  protected Notification getForegroundNotification(List<Download> downloads) {
-    return ((DemoApplication) getApplication())
-        .getDownloadNotificationHelper()
+  @NonNull
+  protected Notification getForegroundNotification(@NonNull List<Download> downloads) {
+    return DemoUtil.getDownloadNotificationHelper(/* context= */ this)
         .buildProgressNotification(
-            R.drawable.ic_download, /* contentIntent= */ null, /* message= */ null, downloads);
+            /* context= */ this,
+            R.drawable.ic_download,
+            /* contentIntent= */ null,
+            /* message= */ null,
+            downloads);
   }
 
   /**
@@ -91,17 +97,20 @@ public class DemoDownloadService extends DownloadService {
     }
 
     @Override
-    public void onDownloadChanged(DownloadManager manager, Download download) {
+    public void onDownloadChanged(
+        DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
       Notification notification;
       if (download.state == Download.STATE_COMPLETED) {
         notification =
             notificationHelper.buildDownloadCompletedNotification(
+                context,
                 R.drawable.ic_download_done,
                 /* contentIntent= */ null,
                 Util.fromUtf8Bytes(download.request.data));
       } else if (download.state == Download.STATE_FAILED) {
         notification =
             notificationHelper.buildDownloadFailedNotification(
+                context,
                 R.drawable.ic_download_done,
                 /* contentIntent= */ null,
                 Util.fromUtf8Bytes(download.request.data));

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static java.lang.Math.max;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
@@ -113,21 +115,16 @@ import java.io.IOException;
     }
     int sampleIndex = currentIndex++;
     byte[] serializedEvent = eventMessageEncoder.encode(eventStream.events[sampleIndex]);
-    if (serializedEvent != null) {
-      buffer.ensureSpaceForWrite(serializedEvent.length);
-      buffer.data.put(serializedEvent);
-      buffer.timeUs = eventTimesUs[sampleIndex];
-      buffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
-      return C.RESULT_BUFFER_READ;
-    } else {
-      return C.RESULT_NOTHING_READ;
-    }
+    buffer.ensureSpaceForWrite(serializedEvent.length);
+    buffer.data.put(serializedEvent);
+    buffer.timeUs = eventTimesUs[sampleIndex];
+    buffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
+    return C.RESULT_BUFFER_READ;
   }
 
   @Override
   public int skipData(long positionUs) {
-    int newIndex =
-        Math.max(currentIndex, Util.binarySearchCeil(eventTimesUs, positionUs, true, false));
+    int newIndex = max(currentIndex, Util.binarySearchCeil(eventTimesUs, positionUs, true, false));
     int skipped = newIndex - currentIndex;
     currentIndex = newIndex;
     return skipped;

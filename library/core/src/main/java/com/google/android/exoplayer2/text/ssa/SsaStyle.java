@@ -227,7 +227,7 @@ import java.util.regex.Pattern;
       PointF position = null;
       Matcher matcher = BRACES_PATTERN.matcher(text);
       while (matcher.find()) {
-        String braceContents = matcher.group(1);
+        String braceContents = Assertions.checkNotNull(matcher.group(1));
         try {
           PointF parsedPosition = parsePosition(braceContents);
           if (parsedPosition != null) {
@@ -237,7 +237,8 @@ import java.util.regex.Pattern;
           // Ignore invalid \pos() or \move() function.
         }
         try {
-          @SsaAlignment int parsedAlignment = parseAlignmentOverride(braceContents);
+          @SsaAlignment
+          int parsedAlignment = parseAlignmentOverride(braceContents);
           if (parsedAlignment != SSA_ALIGNMENT_UNKNOWN) {
             alignment = parsedAlignment;
           }
@@ -295,7 +296,9 @@ import java.util.regex.Pattern;
     @SsaAlignment
     private static int parseAlignmentOverride(String braceContents) {
       Matcher matcher = ALIGNMENT_OVERRIDE_PATTERN.matcher(braceContents);
-      return matcher.find() ? parseAlignment(matcher.group(1)) : SSA_ALIGNMENT_UNKNOWN;
+      return matcher.find()
+          ? parseAlignment(Assertions.checkNotNull(matcher.group(1)))
+          : SSA_ALIGNMENT_UNKNOWN;
     }
   }
 }

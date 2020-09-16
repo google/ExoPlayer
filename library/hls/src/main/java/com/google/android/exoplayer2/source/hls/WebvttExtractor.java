@@ -72,7 +72,7 @@ public final class WebvttExtractor implements Extractor {
   // Extractor implementation.
 
   @Override
-  public boolean sniff(ExtractorInput input) throws IOException, InterruptedException {
+  public boolean sniff(ExtractorInput input) throws IOException {
     // Check whether there is a header without BOM.
     input.peekFully(
         sampleData, /* offset= */ 0, /* length= */ HEADER_MIN_LENGTH, /* allowEndOfInput= */ false);
@@ -108,8 +108,7 @@ public final class WebvttExtractor implements Extractor {
   }
 
   @Override
-  public int read(ExtractorInput input, PositionHolder seekPosition)
-      throws IOException, InterruptedException {
+  public int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     // output == null suggests init() hasn't been called
     Assertions.checkNotNull(output);
     int currentFileSize = (int) input.getLength();
@@ -158,8 +157,12 @@ public final class WebvttExtractor implements Extractor {
         if (!mediaTimestampMatcher.find()) {
           throw new ParserException("X-TIMESTAMP-MAP doesn't contain media timestamp: " + line);
         }
-        vttTimestampUs = WebvttParserUtil.parseTimestampUs(localTimestampMatcher.group(1));
-        tsTimestampUs = TimestampAdjuster.ptsToUs(Long.parseLong(mediaTimestampMatcher.group(1)));
+        vttTimestampUs =
+            WebvttParserUtil.parseTimestampUs(
+                Assertions.checkNotNull(localTimestampMatcher.group(1)));
+        tsTimestampUs =
+            TimestampAdjuster.ptsToUs(
+                Long.parseLong(Assertions.checkNotNull(mediaTimestampMatcher.group(1))));
       }
     }
 
@@ -171,9 +174,11 @@ public final class WebvttExtractor implements Extractor {
       return;
     }
 
-    long firstCueTimeUs = WebvttParserUtil.parseTimestampUs(cueHeaderMatcher.group(1));
-    long sampleTimeUs = timestampAdjuster.adjustTsTimestamp(
-        TimestampAdjuster.usToPts(firstCueTimeUs + tsTimestampUs - vttTimestampUs));
+    long firstCueTimeUs =
+        WebvttParserUtil.parseTimestampUs(Assertions.checkNotNull(cueHeaderMatcher.group(1)));
+    long sampleTimeUs =
+        timestampAdjuster.adjustTsTimestamp(
+            TimestampAdjuster.usToWrappedPts(firstCueTimeUs + tsTimestampUs - vttTimestampUs));
     long subsampleOffsetUs = sampleTimeUs - firstCueTimeUs;
     // Output the track.
     TrackOutput trackOutput = buildTrackOutput(subsampleOffsetUs);
@@ -186,8 +191,12 @@ public final class WebvttExtractor implements Extractor {
   @RequiresNonNull("output")
   private TrackOutput buildTrackOutput(long subsampleOffsetUs) {
     TrackOutput trackOutput = output.track(0, C.TRACK_TYPE_TEXT);
-    trackOutput.format(Format.createTextSampleFormat(null, MimeTypes.TEXT_VTT, null,
-        Format.NO_VALUE, 0, language, null, subsampleOffsetUs));
+    trackOutput.format(
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.TEXT_VTT)
+            .setLanguage(language)
+            .setSubsampleOffsetUs(subsampleOffsetUs)
+            .build());
     output.endTracks();
     return trackOutput;
   }

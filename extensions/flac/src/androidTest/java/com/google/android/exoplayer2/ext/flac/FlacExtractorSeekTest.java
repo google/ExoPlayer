@@ -16,73 +16,43 @@
 package com.google.android.exoplayer2.ext.flac;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
-import android.content.Context;
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
-import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
-import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.List;
-import java.util.Random;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Seeking tests for {@link FlacExtractor} when the FLAC stream does not have a SEEKTABLE. */
+/** Seeking tests for {@link FlacExtractor}. */
 @RunWith(AndroidJUnit4.class)
 public final class FlacExtractorSeekTest {
 
-  private static final String NO_SEEKTABLE_FLAC = "bear_no_seek.flac";
+  private static final String TEST_FILE_SEEK_TABLE = "media/flac/bear.flac";
+  private static final String TEST_FILE_BINARY_SEARCH = "media/flac/bear_one_metadata_block.flac";
+  private static final String TEST_FILE_UNSEEKABLE =
+      "media/flac/bear_no_seek_table_no_num_samples.flac";
   private static final int DURATION_US = 2_741_000;
-  private static final Uri FILE_URI = Uri.parse("file:///android_asset/" + NO_SEEKTABLE_FLAC);
-  private static final Random RANDOM = new Random(1234L);
 
-  private FakeExtractorOutput expectedOutput;
-  private FakeTrackOutput expectedTrackOutput;
-
-  private DefaultDataSource dataSource;
-  private PositionHolder positionHolder;
-  private long totalInputLength;
-
-  @Before
-  public void setUp() throws Exception {
-    if (!FlacLibrary.isAvailable()) {
-      fail("Flac library not available.");
-    }
-    expectedOutput = new FakeExtractorOutput();
-    extractAllSamplesFromFileToExpectedOutput(
-        ApplicationProvider.getApplicationContext(), NO_SEEKTABLE_FLAC);
-    expectedTrackOutput = expectedOutput.trackOutputs.get(0);
-
-    dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
-            .createDataSource();
-    totalInputLength = readInputLength();
-    positionHolder = new PositionHolder();
-  }
+  private FlacExtractor extractor = new FlacExtractor();
+  private FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
+  private DefaultDataSource dataSource =
+      new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext()).createDataSource();
 
   @Test
-  public void testFlacExtractorReads_nonSeekTableFile_returnSeekableSeekMap()
-      throws IOException, InterruptedException {
-    FlacExtractor extractor = new FlacExtractor();
+  public void flacExtractorReads_seekTable_returnSeekableSeekMap() throws IOException {
+    Uri fileUri = TestUtil.buildAssetUri(TEST_FILE_SEEK_TABLE);
 
-    SeekMap seekMap = extractSeekMap(extractor, new FakeExtractorOutput());
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
 
     assertThat(seekMap).isNotNull();
     assertThat(seekMap.getDurationUs()).isEqualTo(DURATION_US);
@@ -90,205 +60,227 @@ public final class FlacExtractorSeekTest {
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekingToPositionInFile_extractsCorrectFrame()
-      throws IOException, InterruptedException {
-    FlacExtractor extractor = new FlacExtractor();
-
-    FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
-    SeekMap seekMap = extractSeekMap(extractor, extractorOutput);
+  public void seeking_seekTable_handlesSeekToZero() throws IOException {
+    String fileName = TEST_FILE_SEEK_TABLE;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
-    long targetSeekTimeUs = 987_000;
-    int extractedFrameIndex = seekToTimeUs(extractor, seekMap, targetSeekTimeUs, trackOutput);
+    long targetSeekTimeUs = 0;
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
 
-    assertThat(extractedFrameIndex).isNotEqualTo(-1);
-    assertFirstFrameAfterSeekContainTargetSeekTime(
-        trackOutput, targetSeekTimeUs, extractedFrameIndex);
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekPrecedesTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekToEoF_extractsLastFrame()
-      throws IOException, InterruptedException {
-    FlacExtractor extractor = new FlacExtractor();
-
-    FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
-    SeekMap seekMap = extractSeekMap(extractor, extractorOutput);
+  public void seeking_seekTable_handlesSeekToEoF() throws IOException {
+    String fileName = TEST_FILE_SEEK_TABLE;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
     long targetSeekTimeUs = seekMap.getDurationUs();
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
 
-    int extractedFrameIndex = seekToTimeUs(extractor, seekMap, targetSeekTimeUs, trackOutput);
-
-    assertThat(extractedFrameIndex).isNotEqualTo(-1);
-    assertFirstFrameAfterSeekContainTargetSeekTime(
-        trackOutput, targetSeekTimeUs, extractedFrameIndex);
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekPrecedesTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekingBackward_extractsCorrectFrame()
-      throws IOException, InterruptedException {
-    FlacExtractor extractor = new FlacExtractor();
+  public void seeking_seekTable_handlesSeekingBackward() throws IOException {
+    String fileName = TEST_FILE_SEEK_TABLE;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
+    FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
-    FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
-    SeekMap seekMap = extractSeekMap(extractor, extractorOutput);
+    long firstSeekTimeUs = 1_234_000;
+    TestUtil.seekToTimeUs(extractor, seekMap, firstSeekTimeUs, dataSource, trackOutput, fileUri);
+    long targetSeekTimeUs = 987_000;
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
+
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekPrecedesTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
+  }
+
+  @Test
+  public void seeking_seekTable_handlesSeekingForward() throws IOException {
+    String fileName = TEST_FILE_SEEK_TABLE;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
     long firstSeekTimeUs = 987_000;
-    seekToTimeUs(extractor, seekMap, firstSeekTimeUs, trackOutput);
+    TestUtil.seekToTimeUs(extractor, seekMap, firstSeekTimeUs, dataSource, trackOutput, fileUri);
+    long targetSeekTimeUs = 1_234_000;
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
+
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekPrecedesTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
+  }
+
+  @Test
+  public void flacExtractorReads_binarySearch_returnSeekableSeekMap() throws IOException {
+    Uri fileUri = TestUtil.buildAssetUri(TEST_FILE_BINARY_SEARCH);
+
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
+
+    assertThat(seekMap).isNotNull();
+    assertThat(seekMap.getDurationUs()).isEqualTo(DURATION_US);
+    assertThat(seekMap.isSeekable()).isTrue();
+  }
+
+  @Test
+  public void seeking_binarySearch_handlesSeekToZero() throws IOException {
+    String fileName = TEST_FILE_BINARY_SEARCH;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
+    FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
     long targetSeekTimeUs = 0;
-    int extractedFrameIndex = seekToTimeUs(extractor, seekMap, targetSeekTimeUs, trackOutput);
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
 
-    assertThat(extractedFrameIndex).isNotEqualTo(-1);
-    assertFirstFrameAfterSeekContainTargetSeekTime(
-        trackOutput, targetSeekTimeUs, extractedFrameIndex);
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekContainsTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
   @Test
-  public void testHandlePendingSeek_handlesSeekingForward_extractsCorrectFrame()
-      throws IOException, InterruptedException {
-    FlacExtractor extractor = new FlacExtractor();
+  public void seeking_binarySearch_handlesSeekToEoF() throws IOException {
+    String fileName = TEST_FILE_BINARY_SEARCH;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
+    FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
-    FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
-    SeekMap seekMap = extractSeekMap(extractor, extractorOutput);
+    long targetSeekTimeUs = seekMap.getDurationUs();
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
+
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekContainsTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
+  }
+
+  @Test
+  public void seeking_binarySearch_handlesSeekingBackward() throws IOException {
+    String fileName = TEST_FILE_BINARY_SEARCH;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
+    FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
+
+    long firstSeekTimeUs = 1_234_000;
+    TestUtil.seekToTimeUs(extractor, seekMap, firstSeekTimeUs, dataSource, trackOutput, fileUri);
+    long targetSeekTimeUs = 987_00;
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
+
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekContainsTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
+  }
+
+  @Test
+  public void seeking_binarySearch_handlesSeekingForward() throws IOException {
+    String fileName = TEST_FILE_BINARY_SEARCH;
+    Uri fileUri = TestUtil.buildAssetUri(fileName);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
     FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
 
     long firstSeekTimeUs = 987_000;
-    seekToTimeUs(extractor, seekMap, firstSeekTimeUs, trackOutput);
-
+    TestUtil.seekToTimeUs(extractor, seekMap, firstSeekTimeUs, dataSource, trackOutput, fileUri);
     long targetSeekTimeUs = 1_234_000;
-    int extractedFrameIndex = seekToTimeUs(extractor, seekMap, targetSeekTimeUs, trackOutput);
+    int extractedFrameIndex =
+        TestUtil.seekToTimeUs(
+            extractor, seekMap, targetSeekTimeUs, dataSource, trackOutput, fileUri);
 
-    assertThat(extractedFrameIndex).isNotEqualTo(-1);
-    assertFirstFrameAfterSeekContainTargetSeekTime(
-        trackOutput, targetSeekTimeUs, extractedFrameIndex);
+    assertThat(extractedFrameIndex).isNotEqualTo(C.INDEX_UNSET);
+    assertFirstFrameAfterSeekContainsTargetSeekTime(
+        fileName, trackOutput, targetSeekTimeUs, extractedFrameIndex);
   }
 
   @Test
-  public void testHandlePendingSeek_handlesRandomSeeks_extractsCorrectFrame()
-      throws IOException, InterruptedException {
-    FlacExtractor extractor = new FlacExtractor();
+  public void flacExtractorReads_unseekable_returnUnseekableSeekMap() throws IOException {
+    Uri fileUri = TestUtil.buildAssetUri(TEST_FILE_UNSEEKABLE);
 
-    FakeExtractorOutput extractorOutput = new FakeExtractorOutput();
-    SeekMap seekMap = extractSeekMap(extractor, extractorOutput);
-    FakeTrackOutput trackOutput = extractorOutput.trackOutputs.get(0);
+    SeekMap seekMap = TestUtil.extractSeekMap(extractor, extractorOutput, dataSource, fileUri);
 
-    long numSeek = 100;
-    for (long i = 0; i < numSeek; i++) {
-      long targetSeekTimeUs = RANDOM.nextInt(DURATION_US + 1);
-      int extractedFrameIndex = seekToTimeUs(extractor, seekMap, targetSeekTimeUs, trackOutput);
-
-      assertThat(extractedFrameIndex).isNotEqualTo(-1);
-      assertFirstFrameAfterSeekContainTargetSeekTime(
-          trackOutput, targetSeekTimeUs, extractedFrameIndex);
-    }
+    assertThat(seekMap).isNotNull();
+    assertThat(seekMap.getDurationUs()).isEqualTo(C.TIME_UNSET);
+    assertThat(seekMap.isSeekable()).isFalse();
   }
 
-  // Internal methods
+  private static void assertFirstFrameAfterSeekContainsTargetSeekTime(
+      String fileName,
+      FakeTrackOutput trackOutput,
+      long targetSeekTimeUs,
+      int firstFrameIndexAfterSeek)
+      throws IOException {
+    FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
+    int expectedFrameIndex = getFrameIndex(expectedTrackOutput, targetSeekTimeUs);
 
-  private long readInputLength() throws IOException {
-    DataSpec dataSpec = new DataSpec(FILE_URI, 0, C.LENGTH_UNSET, null);
-    long totalInputLength = dataSource.open(dataSpec);
-    Util.closeQuietly(dataSource);
-    return totalInputLength;
-  }
-
-  /**
-   * Seeks to the given seek time and keeps reading from input until we can extract at least one
-   * frame from the seek position, or until end-of-input is reached.
-   *
-   * @return The index of the first extracted frame written to the given {@code trackOutput} after
-   *     the seek is completed, or -1 if the seek is completed without any extracted frame.
-   */
-  private int seekToTimeUs(
-      FlacExtractor flacExtractor, SeekMap seekMap, long seekTimeUs, FakeTrackOutput trackOutput)
-      throws IOException, InterruptedException {
-    int numSampleBeforeSeek = trackOutput.getSampleCount();
-    SeekMap.SeekPoints seekPoints = seekMap.getSeekPoints(seekTimeUs);
-
-    long initialSeekLoadPosition = seekPoints.first.position;
-    flacExtractor.seek(initialSeekLoadPosition, seekTimeUs);
-
-    positionHolder.position = C.POSITION_UNSET;
-    ExtractorInput extractorInput = getExtractorInputFromPosition(initialSeekLoadPosition);
-    int extractorReadResult = Extractor.RESULT_CONTINUE;
-    while (true) {
-      try {
-        // Keep reading until we can read at least one frame after seek
-        while (extractorReadResult == Extractor.RESULT_CONTINUE
-            && trackOutput.getSampleCount() == numSampleBeforeSeek) {
-          extractorReadResult = flacExtractor.read(extractorInput, positionHolder);
-        }
-      } finally {
-        Util.closeQuietly(dataSource);
-      }
-
-      if (extractorReadResult == Extractor.RESULT_SEEK) {
-        extractorInput = getExtractorInputFromPosition(positionHolder.position);
-        extractorReadResult = Extractor.RESULT_CONTINUE;
-      } else if (extractorReadResult == Extractor.RESULT_END_OF_INPUT) {
-        return -1;
-      } else if (trackOutput.getSampleCount() > numSampleBeforeSeek) {
-        // First index after seek = num sample before seek.
-        return numSampleBeforeSeek;
-      }
-    }
-  }
-
-  @Nullable
-  private SeekMap extractSeekMap(FlacExtractor extractor, FakeExtractorOutput output)
-      throws IOException, InterruptedException {
-    try {
-      ExtractorInput input = getExtractorInputFromPosition(0);
-      extractor.init(output);
-      while (output.seekMap == null) {
-        extractor.read(input, positionHolder);
-      }
-    } finally {
-      Util.closeQuietly(dataSource);
-    }
-    return output.seekMap;
-  }
-
-  private void assertFirstFrameAfterSeekContainTargetSeekTime(
-      FakeTrackOutput trackOutput, long seekTimeUs, int firstFrameIndexAfterSeek) {
-    int expectedSampleIndex = findTargetFrameInExpectedOutput(seekTimeUs);
-    // Assert that after seeking, the first sample frame written to output contains the sample
-    // at seek time.
     trackOutput.assertSample(
         firstFrameIndexAfterSeek,
-        expectedTrackOutput.getSampleData(expectedSampleIndex),
-        expectedTrackOutput.getSampleTimeUs(expectedSampleIndex),
-        expectedTrackOutput.getSampleFlags(expectedSampleIndex),
-        expectedTrackOutput.getSampleCryptoData(expectedSampleIndex));
+        expectedTrackOutput.getSampleData(expectedFrameIndex),
+        expectedTrackOutput.getSampleTimeUs(expectedFrameIndex),
+        expectedTrackOutput.getSampleFlags(expectedFrameIndex),
+        expectedTrackOutput.getSampleCryptoData(expectedFrameIndex));
   }
 
-  private int findTargetFrameInExpectedOutput(long seekTimeUs) {
-    List<Long> sampleTimes = expectedTrackOutput.getSampleTimesUs();
-    for (int i = 0; i < sampleTimes.size() - 1; i++) {
-      long currentSampleTime = sampleTimes.get(i);
-      long nextSampleTime = sampleTimes.get(i + 1);
-      if (currentSampleTime <= seekTimeUs && nextSampleTime > seekTimeUs) {
-        return i;
+  private static void assertFirstFrameAfterSeekPrecedesTargetSeekTime(
+      String fileName,
+      FakeTrackOutput trackOutput,
+      long targetSeekTimeUs,
+      int firstFrameIndexAfterSeek)
+      throws IOException {
+    FakeTrackOutput expectedTrackOutput = getExpectedTrackOutput(fileName);
+    int maxFrameIndex = getFrameIndex(expectedTrackOutput, targetSeekTimeUs);
+
+    long firstFrameAfterSeekTimeUs = trackOutput.getSampleTimeUs(firstFrameIndexAfterSeek);
+    assertThat(firstFrameAfterSeekTimeUs).isAtMost(targetSeekTimeUs);
+
+    boolean frameFound = false;
+    for (int i = maxFrameIndex; i >= 0; i--) {
+      if (firstFrameAfterSeekTimeUs == expectedTrackOutput.getSampleTimeUs(i)) {
+        trackOutput.assertSample(
+            firstFrameIndexAfterSeek,
+            expectedTrackOutput.getSampleData(i),
+            expectedTrackOutput.getSampleTimeUs(i),
+            expectedTrackOutput.getSampleFlags(i),
+            expectedTrackOutput.getSampleCryptoData(i));
+        frameFound = true;
+        break;
       }
     }
-    return sampleTimes.size() - 1;
+
+    assertThat(frameFound).isTrue();
   }
 
-  private ExtractorInput getExtractorInputFromPosition(long position) throws IOException {
-    DataSpec dataSpec = new DataSpec(FILE_URI, position, totalInputLength, /* key= */ null);
-    dataSource.open(dataSpec);
-    return new DefaultExtractorInput(dataSource, position, totalInputLength);
+  private static FakeTrackOutput getExpectedTrackOutput(String fileName) throws IOException {
+    return TestUtil.extractAllSamplesFromFile(
+            new FlacExtractor(), ApplicationProvider.getApplicationContext(), fileName)
+        .trackOutputs
+        .get(0);
   }
 
-  private void extractAllSamplesFromFileToExpectedOutput(Context context, String fileName)
-      throws IOException, InterruptedException {
-    byte[] data = TestUtil.getByteArray(context, fileName);
-
-    FlacExtractor extractor = new FlacExtractor();
-    extractor.init(expectedOutput);
-    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
-
-    while (extractor.read(input, new PositionHolder()) != Extractor.RESULT_END_OF_INPUT) {}
+  private static int getFrameIndex(FakeTrackOutput expectedTrackOutput, long targetSeekTimeUs) {
+    List<Long> frameTimes = expectedTrackOutput.getSampleTimesUs();
+    return Util.binarySearchFloor(
+        frameTimes, targetSeekTimeUs, /* inclusive= */ true, /* stayInBounds= */ false);
   }
 }

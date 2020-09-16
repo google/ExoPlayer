@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static java.lang.Math.min;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -90,9 +91,19 @@ public final class ContentDataSource extends BaseDataSource {
           // returns 0 then the remaining length cannot be determined.
           FileChannel channel = inputStream.getChannel();
           long channelSize = channel.size();
-          bytesRemaining = channelSize == 0 ? C.LENGTH_UNSET : channelSize - channel.position();
+          if (channelSize == 0) {
+            bytesRemaining = C.LENGTH_UNSET;
+          } else {
+            bytesRemaining = channelSize - channel.position();
+            if (bytesRemaining < 0) {
+              throw new EOFException();
+            }
+          }
         } else {
           bytesRemaining = assetFileDescriptorLength - skipped;
+          if (bytesRemaining < 0) {
+            throw new EOFException();
+          }
         }
       }
     } catch (IOException e) {
@@ -115,8 +126,8 @@ public final class ContentDataSource extends BaseDataSource {
 
     int bytesRead;
     try {
-      int bytesToRead = bytesRemaining == C.LENGTH_UNSET ? readLength
-          : (int) Math.min(bytesRemaining, readLength);
+      int bytesToRead =
+          bytesRemaining == C.LENGTH_UNSET ? readLength : (int) min(bytesRemaining, readLength);
       bytesRead = castNonNull(inputStream).read(buffer, offset, bytesToRead);
     } catch (IOException e) {
       throw new ContentDataSourceException(e);

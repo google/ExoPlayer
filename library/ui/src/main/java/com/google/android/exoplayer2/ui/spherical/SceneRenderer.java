@@ -60,8 +60,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Methods called on any thread.
 
-  // the constructor does not initialize fields: lastProjectionData
-  @SuppressWarnings("nullness:initialization.fields.uninitialized")
   public SceneRenderer() {
     frameAvailable = new AtomicBoolean();
     resetRotationAtNextFrame = new AtomicBoolean(true);

@@ -17,6 +17,8 @@ package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
+import java.util.Collections;
+import java.util.List;
 
 /** Abstract base {@link Player} which implements common implementation independent methods. */
 public abstract class BasePlayer implements Player {
@@ -25,6 +27,64 @@ public abstract class BasePlayer implements Player {
 
   public BasePlayer() {
     window = new Timeline.Window();
+  }
+
+  @Override
+  public void setMediaItem(MediaItem mediaItem) {
+    setMediaItems(Collections.singletonList(mediaItem));
+  }
+
+  @Override
+  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
+    setMediaItems(Collections.singletonList(mediaItem), /* startWindowIndex= */ 0, startPositionMs);
+  }
+
+  @Override
+  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
+    setMediaItems(Collections.singletonList(mediaItem), resetPosition);
+  }
+
+  @Override
+  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
+    setMediaItems(
+        mediaItems, /* startWindowIndex= */ C.INDEX_UNSET, /* startPositionMs= */ C.TIME_UNSET);
+  }
+
+  @Override
+  public void setMediaItems(List<MediaItem> mediaItems) {
+    setMediaItems(mediaItems, /* resetPosition= */ true);
+  }
+
+  @Override
+  public void addMediaItem(int index, MediaItem mediaItem) {
+    addMediaItems(index, Collections.singletonList(mediaItem));
+  }
+
+  @Override
+  public void addMediaItem(MediaItem mediaItem) {
+    addMediaItems(Collections.singletonList(mediaItem));
+  }
+
+  @Override
+  public void moveMediaItem(int currentIndex, int newIndex) {
+    if (currentIndex != newIndex) {
+      moveMediaItems(/* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
+    }
+  }
+
+  @Override
+  public void removeMediaItem(int index) {
+    removeMediaItems(/* fromIndex= */ index, /* toIndex= */ index + 1);
+  }
+
+  @Override
+  public final void play() {
+    setPlayWhenReady(true);
+  }
+
+  @Override
+  public final void pause() {
+    setPlayWhenReady(false);
   }
 
   @Override
@@ -98,11 +158,41 @@ public abstract class BasePlayer implements Player {
             getCurrentWindowIndex(), getRepeatModeForNavigation(), getShuffleModeEnabled());
   }
 
+  /**
+   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
+   *     instead.
+   */
+  @Deprecated
   @Override
   @Nullable
   public final Object getCurrentTag() {
     Timeline timeline = getCurrentTimeline();
-    return timeline.isEmpty() ? null : timeline.getWindow(getCurrentWindowIndex(), window).tag;
+    if (timeline.isEmpty()) {
+      return null;
+    }
+    @Nullable
+    MediaItem.PlaybackProperties playbackProperties =
+        timeline.getWindow(getCurrentWindowIndex(), window).mediaItem.playbackProperties;
+    return playbackProperties != null ? playbackProperties.tag : null;
+  }
+
+  @Override
+  @Nullable
+  public final MediaItem getCurrentMediaItem() {
+    Timeline timeline = getCurrentTimeline();
+    return timeline.isEmpty()
+        ? null
+        : timeline.getWindow(getCurrentWindowIndex(), window).mediaItem;
+  }
+
+  @Override
+  public int getMediaItemCount() {
+    return getCurrentTimeline().getWindowCount();
+  }
+
+  @Override
+  public MediaItem getMediaItemAt(int index) {
+    return getCurrentTimeline().getWindow(index, window).mediaItem;
   }
 
   @Override
@@ -131,6 +221,19 @@ public abstract class BasePlayer implements Player {
   public final boolean isCurrentWindowLive() {
     Timeline timeline = getCurrentTimeline();
     return !timeline.isEmpty() && timeline.getWindow(getCurrentWindowIndex(), window).isLive;
+  }
+
+  @Override
+  public final long getCurrentLiveOffset() {
+    Timeline timeline = getCurrentTimeline();
+    if (timeline.isEmpty()) {
+      return C.TIME_UNSET;
+    }
+    long windowStartTimeMs = timeline.getWindow(getCurrentWindowIndex(), window).windowStartTimeMs;
+    if (windowStartTimeMs == C.TIME_UNSET) {
+      return C.TIME_UNSET;
+    }
+    return window.getCurrentUnixTimeMs() - window.windowStartTimeMs - getContentPosition();
   }
 
   @Override

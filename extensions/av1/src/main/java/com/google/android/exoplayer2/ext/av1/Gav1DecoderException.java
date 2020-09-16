@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.av1;
 
-import com.google.android.exoplayer2.video.VideoDecoderException;
+import com.google.android.exoplayer2.decoder.DecoderException;
 
 /** Thrown when a libgav1 decoder error occurs. */
-public final class Gav1DecoderException extends VideoDecoderException {
+public final class Gav1DecoderException extends DecoderException {
 
   /* package */ Gav1DecoderException(String message) {
     super(message);

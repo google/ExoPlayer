@@ -15,25 +15,29 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import android.annotation.TargetApi;
+import static java.lang.Math.max;
+
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 /**
@@ -41,6 +45,7 @@ import java.util.ArrayList;
  * video buffer timestamp assertions, and modifies the default value for {@link
  * #setAllowedVideoJoiningTimeMs(long)} to be {@code 0}.
  */
+// TODO: Move this class to `testutils` and add basic tests.
 /* package */ final class DebugRenderersFactory extends DefaultRenderersFactory {
 
   public DebugRenderersFactory(Context context) {
@@ -53,8 +58,6 @@ import java.util.ArrayList;
       Context context,
       @ExtensionRendererMode int extensionRendererMode,
       MediaCodecSelector mediaCodecSelector,
-      @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-      boolean playClearSamplesWithoutKeys,
       boolean enableDecoderFallback,
       Handler eventHandler,
       VideoRendererEventListener eventListener,
@@ -65,8 +68,6 @@ import java.util.ArrayList;
             context,
             mediaCodecSelector,
             allowedVideoJoiningTimeMs,
-            drmSessionManager,
-            playClearSamplesWithoutKeys,
             eventHandler,
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
@@ -78,22 +79,28 @@ import java.util.ArrayList;
    */
   private static class DebugMediaCodecVideoRenderer extends MediaCodecVideoRenderer {
 
+    private static final String TAG = "DebugMediaCodecVideoRenderer";
     private static final int ARRAY_SIZE = 1000;
 
-    private final long[] timestampsList = new long[ARRAY_SIZE];
+    private final long[] timestampsList;
+    private final ArrayDeque<Long> inputFormatChangeTimesUs;
+    private final boolean shouldMediaFormatChangeTimesBeChecked;
+
+    private boolean skipToPositionBeforeRenderingFirstFrame;
 
     private int startIndex;
     private int queueSize;
     private int bufferCount;
     private int minimumInsertIndex;
-    private boolean skipToPositionBeforeRenderingFirstFrame;
+    private boolean inputFormatChanged;
+    private boolean outputMediaFormatChanged;
+
+    @Nullable private MediaFormat currentMediaFormat;
 
     public DebugMediaCodecVideoRenderer(
         Context context,
         MediaCodecSelector mediaCodecSelector,
         long allowedJoiningTimeMs,
-        DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-        boolean playClearSamplesWithoutKeys,
         Handler eventHandler,
         VideoRendererEventListener eventListener,
         int maxDroppedFrameCountToNotify) {
@@ -101,17 +108,32 @@ import java.util.ArrayList;
           context,
           mediaCodecSelector,
           allowedJoiningTimeMs,
-          drmSessionManager,
-          playClearSamplesWithoutKeys,
           eventHandler,
           eventListener,
           maxDroppedFrameCountToNotify);
+      timestampsList = new long[ARRAY_SIZE];
+      inputFormatChangeTimesUs = new ArrayDeque<>();
+
+      /*
+      // Output MediaFormat changes are known to occur too early until API 30 (see [internal:
+      // b/149818050, b/149751672]).
+      shouldMediaFormatChangeTimesBeChecked = Util.SDK_INT > 30;
+      */
+
+      // [Internal ref: b/149751672] Seeking currently causes an unexpected MediaFormat change, so
+      // this check is disabled until that is deemed fixed.
+      shouldMediaFormatChangeTimesBeChecked = false;
+    }
+
+    @Override
+    public String getName() {
+      return TAG;
     }
 
     @Override
     protected void configureCodec(
         MediaCodecInfo codecInfo,
-        MediaCodec codec,
+        MediaCodecAdapter codecAdapter,
         Format format,
         MediaCrypto crypto,
         float operatingRate) {
@@ -121,23 +143,26 @@ import java.util.ArrayList;
       // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
-      super.configureCodec(codecInfo, codec, format, crypto, operatingRate);
+      super.configureCodec(codecInfo, codecAdapter, format, crypto, operatingRate);
     }
 
     @Override
-    protected void releaseCodec() {
-      super.releaseCodec();
+    protected void resetCodecStateForFlush() {
+      super.resetCodecStateForFlush();
       clearTimestamps();
-      skipToPositionBeforeRenderingFirstFrame = false;
+
+      if (inputFormatChangeTimesUs != null) {
+        inputFormatChangeTimesUs.clear();
+      }
+      inputFormatChanged = false;
+      outputMediaFormatChanged = false;
+      currentMediaFormat = null;
     }
 
     @Override
-    protected boolean flushOrReleaseCodec() {
-      try {
-        return super.flushOrReleaseCodec();
-      } finally {
-        clearTimestamps();
-      }
+    protected void resetCodecStateForRelease() {
+      super.resetCodecStateForRelease();
+      skipToPositionBeforeRenderingFirstFrame = false;
     }
 
     @Override
@@ -146,23 +171,40 @@ import java.util.ArrayList;
       // Ensure timestamps of buffers queued after this format change are never inserted into the
       // queue of expected output timestamps before those of buffers that have already been queued.
       minimumInsertIndex = startIndex + queueSize;
+      inputFormatChanged = true;
     }
 
     @Override
-    protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
+    protected void onQueueInputBuffer(DecoderInputBuffer buffer) throws ExoPlaybackException {
       super.onQueueInputBuffer(buffer);
       insertTimestamp(buffer.timeUs);
       maybeShiftTimestampsList();
+      if (inputFormatChanged) {
+        inputFormatChangeTimesUs.add(buffer.timeUs);
+        inputFormatChanged = false;
+      }
+    }
+
+    @Override
+    protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat) {
+      super.onOutputFormatChanged(format, mediaFormat);
+      if (mediaFormat != null && !mediaFormat.equals(currentMediaFormat)) {
+        outputMediaFormatChanged = true;
+        currentMediaFormat = mediaFormat;
+      } else {
+        inputFormatChangeTimesUs.remove();
+      }
     }
 
     @Override
     protected boolean processOutputBuffer(
         long positionUs,
         long elapsedRealtimeUs,
-        MediaCodec codec,
+        @Nullable MediaCodec codec,
         ByteBuffer buffer,
         int bufferIndex,
         int bufferFlags,
+        int sampleCount,
         long bufferPresentationTimeUs,
         boolean isDecodeOnlyBuffer,
         boolean isLastBuffer,
@@ -181,6 +223,7 @@ import java.util.ArrayList;
           buffer,
           bufferIndex,
           bufferFlags,
+          sampleCount,
           bufferPresentationTimeUs,
           isDecodeOnlyBuffer,
           isLastBuffer,
@@ -193,10 +236,10 @@ import java.util.ArrayList;
       super.renderOutputBuffer(codec, index, presentationTimeUs);
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     @Override
-    protected void renderOutputBufferV21(MediaCodec codec, int index, long presentationTimeUs,
-        long releaseTimeNs) {
+    protected void renderOutputBufferV21(
+        MediaCodec codec, int index, long presentationTimeUs, long releaseTimeNs) {
       skipToPositionBeforeRenderingFirstFrame = false;
       super.renderOutputBufferV21(codec, index, presentationTimeUs, releaseTimeNs);
     }
@@ -210,6 +253,22 @@ import java.util.ArrayList;
         throw new IllegalStateException("Expected to dequeue video buffer with presentation "
             + "timestamp: " + expectedTimestampUs + ". Instead got: " + presentationTimeUs
             + " (Processed buffers since last flush: " + bufferCount + ").");
+      }
+
+      if (outputMediaFormatChanged) {
+        long inputFormatChangeTimeUs =
+            inputFormatChangeTimesUs.isEmpty() ? C.TIME_UNSET : inputFormatChangeTimesUs.remove();
+        outputMediaFormatChanged = false;
+
+        if (shouldMediaFormatChangeTimesBeChecked
+            && presentationTimeUs != inputFormatChangeTimeUs) {
+          throw new IllegalStateException(
+              "Expected output MediaFormat change timestamp ("
+                  + presentationTimeUs
+                  + " us) to match input Format change timestamp ("
+                  + inputFormatChangeTimeUs
+                  + " us).");
+        }
       }
     }
 
@@ -244,7 +303,7 @@ import java.util.ArrayList;
     private long dequeueTimestamp() {
       queueSize--;
       startIndex++;
-      minimumInsertIndex = Math.max(minimumInsertIndex, startIndex);
+      minimumInsertIndex = max(minimumInsertIndex, startIndex);
       return timestampsList[startIndex - 1];
     }
 

@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import com.google.android.exoplayer2.util.HandlerWrapper;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * {@link FakeClock} extension which automatically advances time whenever an empty message is
@@ -25,7 +26,7 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
  */
 public final class AutoAdvancingFakeClock extends FakeClock {
 
-  private HandlerWrapper autoAdvancingHandler;
+  private @MonotonicNonNull HandlerWrapper autoAdvancingHandler;
 
   public AutoAdvancingFakeClock() {
     super(/* initialTimeMs= */ 0);
