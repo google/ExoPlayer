@@ -7,6 +7,9 @@
 *   Data sources:
     *   Add support for `android.resource` URI scheme in `RawResourceDataSource`
         ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
+*   Core library:
+    *   Suppress Guava-related ProGuard/R8 warnings
+        ([#7904](https://github.com/google/ExoPlayer/issues/7904)).
 
 ### 2.12.0 (2020-09-11) ###
 
