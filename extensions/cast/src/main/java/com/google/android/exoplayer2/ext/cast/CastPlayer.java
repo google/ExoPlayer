@@ -496,8 +496,8 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public void release() {
     SessionManager sessionManager = castContext.getSessionManager();
-    sessionManager.removeSessionManagerListener(statusListener, CastSession.class);
     sessionManager.endCurrentSession(false);
+    sessionManager.removeSessionManagerListener(statusListener, CastSession.class);
   }
 
   @Override
