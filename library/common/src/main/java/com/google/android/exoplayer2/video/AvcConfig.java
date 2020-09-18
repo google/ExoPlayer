@@ -91,7 +91,7 @@ public final class AvcConfig {
     int length = data.readUnsignedShort();
     int offset = data.getPosition();
     data.skipBytes(length);
-    return CodecSpecificDataUtil.buildNalUnit(data.data, offset, length);
+    return CodecSpecificDataUtil.buildNalUnit(data.getData(), offset, length);
   }
 
 }

@@ -17,16 +17,18 @@ package com.google.android.exoplayer2.playbacktests.gts;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.fail;
 
 import android.media.MediaDrm.MediaDrmStateException;
 import android.net.Uri;
 import android.util.Pair;
+import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.OfflineLicenseHelper;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
@@ -34,7 +36,6 @@ import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -77,7 +78,9 @@ public final class DashWidevineOfflineTest {
     if (Util.SDK_INT >= 18) {
       offlineLicenseHelper =
           OfflineLicenseHelper.newWidevineInstance(
-              widevineLicenseUrl, httpDataSourceFactory, new MediaSourceEventDispatcher());
+              widevineLicenseUrl,
+              httpDataSourceFactory,
+              new DrmSessionEventListener.EventDispatcher());
     }
   }
 
@@ -98,7 +101,7 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineLicenseV22() throws Exception {
-    if (Util.SDK_INT < 22) {
+    if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -111,52 +114,55 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineReleasedLicenseV22() throws Throwable {
-    if (Util.SDK_INT < 22 || Util.SDK_INT > 28) {
+    if (Util.SDK_INT < 22
+        || Util.SDK_INT > 28
+        || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
     releaseLicense(); // keySetId no longer valid.
 
-    Throwable error =
-        assertThrows(
-            "Playback should fail because the license has been released.",
-            Throwable.class,
-            () -> testRunner.run());
-
-    // Get the root cause
-    Throwable cause = error.getCause();
-    while (cause != null && cause != error) {
-      error = cause;
-      cause = error.getCause();
+    try {
+      testRunner.run();
+      fail("Playback should fail because the license has been released.");
+    } catch (RuntimeException expected) {
+      // Get the root cause
+      Throwable error = expected;
+      @Nullable Throwable cause = error.getCause();
+      while (cause != null && cause != error) {
+        error = cause;
+        cause = error.getCause();
+      }
+      assertThat(error).isInstanceOf(MediaDrmStateException.class);
     }
-    assertThat(error).isInstanceOf(MediaDrmStateException.class);
   }
 
   @Test
   public void widevineOfflineReleasedLicenseV29() throws Throwable {
-    if (Util.SDK_INT < 29) {
+    if (Util.SDK_INT < 29 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
     releaseLicense(); // keySetId no longer valid.
 
-    Throwable error =
-        assertThrows(
-            "Playback should fail because the license has been released.",
-            Throwable.class,
-            () -> testRunner.run());
-    // Get the root cause
-    Throwable cause = error.getCause();
-    while (cause != null && cause != error) {
-      error = cause;
-      cause = error.getCause();
+    try {
+      testRunner.run();
+      fail("Playback should fail because the license has been released.");
+    } catch (RuntimeException expected) {
+      // Get the root cause
+      Throwable error = expected;
+      @Nullable Throwable cause = error.getCause();
+      while (cause != null && cause != error) {
+        error = cause;
+        cause = error.getCause();
+      }
+      assertThat(error).isInstanceOf(IllegalArgumentException.class);
     }
-    assertThat(error).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   public void widevineOfflineExpiredLicenseV22() throws Exception {
-    if (Util.SDK_INT < 22) {
+    if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -186,7 +192,7 @@ public final class DashWidevineOfflineTest {
 
   @Test
   public void widevineOfflineLicenseExpiresOnPauseV22() throws Exception {
-    if (Util.SDK_INT < 22) {
+    if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
     }
     downloadLicense();
@@ -196,7 +202,7 @@ public final class DashWidevineOfflineTest {
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId);
     long licenseDuration = licenseDurationRemainingSec.first;
     assertWithMessage(
-            "License duration should be less than 30 sec. " + "Server settings might have changed.")
+            "License duration should be less than 30 sec. Server settings might have changed.")
         .that(licenseDuration < 30)
         .isTrue();
     ActionSchedule schedule = new ActionSchedule.Builder(TAG)
@@ -211,8 +217,8 @@ public final class DashWidevineOfflineTest {
     DataSource dataSource = httpDataSourceFactory.createDataSource();
     DashManifest dashManifest = DashUtil.loadManifest(dataSource,
         Uri.parse(DashTestData.WIDEVINE_H264_MANIFEST));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(dataSource, dashManifest.getPeriod(0));
-    offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(drmInitData);
+    Format format = DashUtil.loadFormatWithDrmInitData(dataSource, dashManifest.getPeriod(0));
+    offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(format);
     assertThat(offlineLicenseKeySetId).isNotNull();
     assertThat(offlineLicenseKeySetId.length).isGreaterThan(0);
     testRunner.setOfflineLicenseKeySetId(offlineLicenseKeySetId);

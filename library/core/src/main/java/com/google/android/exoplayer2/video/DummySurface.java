@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.util.EGLSurfaceTexture.SECURE_MODE_S
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
-import android.os.Handler.Callback;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
@@ -70,14 +69,14 @@ public final class DummySurface extends Surface {
   /**
    * Returns a newly created dummy surface. The surface must be released by calling {@link #release}
    * when it's no longer required.
-   * <p>
-   * Must only be called if {@link Util#SDK_INT} is 17 or higher.
+   *
+   * <p>Must only be called if {@link Util#SDK_INT} is 17 or higher.
    *
    * @param context Any {@link Context}.
-   * @param secure Whether a secure surface is required. Must only be requested if
-   *     {@link #isSecureSupported(Context)} returns {@code true}.
-   * @throws IllegalStateException If a secure surface is requested on a device for which
-   *     {@link #isSecureSupported(Context)} returns {@code false}.
+   * @param secure Whether a secure surface is required. Must only be requested if {@link
+   *     #isSecureSupported(Context)} returns {@code true}.
+   * @throws IllegalStateException If a secure surface is requested on a device for which {@link
+   *     #isSecureSupported(Context)} returns {@code false}.
    */
   public static DummySurface newInstanceV17(Context context, boolean secure) {
     Assertions.checkState(!secure || isSecureSupported(context));
@@ -123,7 +122,7 @@ public final class DummySurface extends Surface {
     }
   }
 
-  private static class DummySurfaceThread extends HandlerThread implements Callback {
+  private static class DummySurfaceThread extends HandlerThread implements Handler.Callback {
 
     private static final int MSG_INIT = 1;
     private static final int MSG_RELEASE = 2;

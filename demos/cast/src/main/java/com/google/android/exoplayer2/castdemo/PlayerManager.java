@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.cast.CastPlayer;
 import com.google.android.exoplayer2.ext.cast.SessionAvailabilityListener;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
@@ -61,7 +60,6 @@ import java.util.ArrayList;
   private static final DefaultHttpDataSourceFactory DATA_SOURCE_FACTORY =
       new DefaultHttpDataSourceFactory(USER_AGENT);
 
-  private final DefaultMediaSourceFactory defaultMediaSourceFactory;
   private final PlayerView localPlayerView;
   private final PlayerControlView castControlView;
   private final DefaultTrackSelector trackSelector;
@@ -97,7 +95,6 @@ import java.util.ArrayList;
 
     trackSelector = new DefaultTrackSelector(context);
     exoPlayer = new SimpleExoPlayer.Builder(context).setTrackSelector(trackSelector).build();
-    defaultMediaSourceFactory = DefaultMediaSourceFactory.newInstance(context, DATA_SOURCE_FACTORY);
     exoPlayer.addListener(this);
     localPlayerView.setPlayer(exoPlayer);
 

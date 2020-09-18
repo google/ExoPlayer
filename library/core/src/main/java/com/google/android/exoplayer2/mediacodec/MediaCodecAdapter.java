@@ -17,25 +17,37 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
+import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode;
 
 /**
  * Abstracts {@link MediaCodec} operations.
  *
  * <p>{@code MediaCodecAdapter} offers a common interface to interact with a {@link MediaCodec}
- * regardless of the {@link
- * com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode} the {@link
- * MediaCodec} is operating in.
- *
- * @see com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode
+ * regardless of the {@link MediaCodecOperationMode} the {@link MediaCodec} is operating in.
  */
-/* package */ interface MediaCodecAdapter {
+public interface MediaCodecAdapter {
 
   /**
-   * Starts this instance.
+   * Configures this adapter and the underlying {@link MediaCodec}. Needs to be called before {@link
+   * #start()}.
    *
-   * @see MediaCodec#start().
+   * @see MediaCodec#configure(MediaFormat, Surface, MediaCrypto, int)
+   */
+  void configure(
+      @Nullable MediaFormat mediaFormat,
+      @Nullable Surface surface,
+      @Nullable MediaCrypto crypto,
+      int flags);
+
+  /**
+   * Starts this instance. Needs to be called after {@link #configure}.
+   *
+   * @see MediaCodec#start()
    */
   void start();
 
@@ -82,31 +94,26 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
    * <p>The {@code index} must be an input buffer index that has been obtained from a previous call
    * to {@link #dequeueInputBufferIndex()}.
    *
-   * <p>Note: This method behaves as {@link MediaCodec#queueSecureInputBuffer} with the difference
-   * that {@code info} is of type {@link CryptoInfo} and not {@link
-   * android.media.MediaCodec.CryptoInfo}.
+   * <p>This method behaves like {@link MediaCodec#queueSecureInputBuffer}, with the difference that
+   * {@code info} is of type {@link CryptoInfo} and not {@link android.media.MediaCodec.CryptoInfo}.
    *
    * @see MediaCodec#queueSecureInputBuffer
    */
   void queueSecureInputBuffer(
       int index, int offset, CryptoInfo info, long presentationTimeUs, int flags);
 
-  /**
-   * Flushes the {@code MediaCodecAdapter}.
-   *
-   * <p>Note: {@link #flush()} should also call any {@link MediaCodec} methods needed to flush the
-   * {@link MediaCodec}, i.e., {@link MediaCodec#flush()} and <em>optionally</em> {@link
-   * MediaCodec#start()}, if the {@link MediaCodec} operates in asynchronous mode.
-   */
+  /** Flushes both the adapter and the underlying {@link MediaCodec}. */
   void flush();
 
   /**
-   * Shutdown the {@code MediaCodecAdapter}.
+   * Shuts down the adapter.
    *
-   * <p>Note: This method does not release the underlying {@link MediaCodec}. Make sure to call
-   * {@link #shutdown()} before stopping or releasing the underlying {@link MediaCodec} to ensure
-   * the adapter is fully shutdown before the {@link MediaCodec} stops executing. Otherwise, there
-   * is a risk the adapter might interact with a stopped or released {@link MediaCodec}.
+   * <p>This method does not stop or release the underlying {@link MediaCodec}. It should be called
+   * before stopping or releasing the {@link MediaCodec} to avoid the possibility of the adapter
+   * interacting with a stopped or released {@link MediaCodec}.
    */
   void shutdown();
+
+  /** Returns the {@link MediaCodec} instance of this adapter. */
+  MediaCodec getCodec();
 }

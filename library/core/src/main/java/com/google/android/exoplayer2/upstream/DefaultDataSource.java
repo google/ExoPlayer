@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -38,6 +40,9 @@ import java.util.Map;
  *   <li>rawresource: For fetching data from a raw resource in the application's apk (e.g.
  *       rawresource:///resourceId, where rawResourceId is the integer identifier of the raw
  *       resource).
+ *   <li>android.resource: For fetching data in the application's apk (e.g.
+ *       android.resource:///resourceId or android.resource://resourceType/resourceName). See {@link
+ *       RawResourceDataSource} for more information about the URI form.
  *   <li>content: For fetching data from a content URI (e.g. content://authority/path/123).
  *   <li>rtmp: For fetching data over RTMP. Only supported if the project using ExoPlayer has an
  *       explicit dependency on ExoPlayer's RTMP extension.
@@ -57,7 +62,9 @@ public final class DefaultDataSource implements DataSource {
   private static final String SCHEME_CONTENT = "content";
   private static final String SCHEME_RTMP = "rtmp";
   private static final String SCHEME_UDP = "udp";
+  private static final String SCHEME_DATA = DataSchemeDataSource.SCHEME_DATA;
   private static final String SCHEME_RAW = RawResourceDataSource.RAW_RESOURCE_SCHEME;
+  private static final String SCHEME_ANDROID_RESOURCE = ContentResolver.SCHEME_ANDROID_RESOURCE;
 
   private final Context context;
   private final List<TransferListener> transferListeners;
@@ -73,6 +80,20 @@ public final class DefaultDataSource implements DataSource {
   @Nullable private DataSource rawResourceDataSource;
 
   @Nullable private DataSource dataSource;
+
+  /**
+   * Constructs a new instance, optionally configured to follow cross-protocol redirects.
+   *
+   * @param context A context.
+   */
+  public DefaultDataSource(Context context, boolean allowCrossProtocolRedirects) {
+    this(
+        context,
+        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
+        DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
+        allowCrossProtocolRedirects);
+  }
 
   /**
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
@@ -135,6 +156,7 @@ public final class DefaultDataSource implements DataSource {
 
   @Override
   public void addTransferListener(TransferListener transferListener) {
+    Assertions.checkNotNull(transferListener);
     baseDataSource.addTransferListener(transferListener);
     transferListeners.add(transferListener);
     maybeAddListenerToDataSource(fileDataSource, transferListener);
@@ -166,9 +188,9 @@ public final class DefaultDataSource implements DataSource {
       dataSource = getRtmpDataSource();
     } else if (SCHEME_UDP.equals(scheme)) {
       dataSource = getUdpDataSource();
-    } else if (DataSchemeDataSource.SCHEME_DATA.equals(scheme)) {
+    } else if (SCHEME_DATA.equals(scheme)) {
       dataSource = getDataSchemeDataSource();
-    } else if (SCHEME_RAW.equals(scheme)) {
+    } else if (SCHEME_RAW.equals(scheme) || SCHEME_ANDROID_RESOURCE.equals(scheme)) {
       dataSource = getRawResourceDataSource();
     } else {
       dataSource = baseDataSource;

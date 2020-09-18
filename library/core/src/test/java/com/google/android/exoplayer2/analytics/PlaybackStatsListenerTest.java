@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -44,20 +45,27 @@ public final class PlaybackStatsListenerTest {
           /* windowIndex= */ 0,
           /* mediaPeriodId= */ null,
           /* eventPlaybackPositionMs= */ 0,
+          /* currentTimeline= */ Timeline.EMPTY,
+          /* currentWindowIndex= */ 0,
+          /* currentMediaPeriodId= */ null,
           /* currentPlaybackPositionMs= */ 0,
           /* totalBufferedDurationMs= */ 0);
   private static final Timeline TEST_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+  private static final MediaSource.MediaPeriodId TEST_MEDIA_PERIOD_ID =
+      new MediaSource.MediaPeriodId(
+          TEST_TIMELINE.getPeriod(/* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
+              .uid,
+          /* windowSequenceNumber= */ 42);
   private static final AnalyticsListener.EventTime TEST_EVENT_TIME =
       new AnalyticsListener.EventTime(
           /* realtimeMs= */ 500,
           TEST_TIMELINE,
           /* windowIndex= */ 0,
-          new MediaSource.MediaPeriodId(
-              TEST_TIMELINE.getPeriod(
-                      /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
-                  .uid,
-              /* windowSequenceNumber= */ 42),
+          TEST_MEDIA_PERIOD_ID,
           /* eventPlaybackPositionMs= */ 123,
+          TEST_TIMELINE,
+          /* currentWindowIndex= */ 0,
+          TEST_MEDIA_PERIOD_ID,
           /* currentPlaybackPositionMs= */ 123,
           /* totalBufferedDurationMs= */ 456);
 
@@ -68,8 +76,8 @@ public final class PlaybackStatsListenerTest {
 
     playbackStatsListener.onPositionDiscontinuity(
         EMPTY_TIMELINE_EVENT_TIME, Player.DISCONTINUITY_REASON_SEEK);
-    playbackStatsListener.onPlaybackSpeedChanged(
-        EMPTY_TIMELINE_EVENT_TIME, /* playbackSpeed= */ 2.0f);
+    playbackStatsListener.onPlaybackParametersChanged(
+        EMPTY_TIMELINE_EVENT_TIME, new PlaybackParameters(/* speed= */ 2.0f));
     playbackStatsListener.onPlayWhenReadyChanged(
         EMPTY_TIMELINE_EVENT_TIME,
         /* playWhenReady= */ true,
@@ -151,6 +159,9 @@ public final class PlaybackStatsListenerTest {
             /* windowIndex= */ 0,
             /* mediaPeriodId= */ null,
             /* eventPlaybackPositionMs= */ 0,
+            Timeline.EMPTY,
+            /* currentWindowIndex= */ 0,
+            /* currentMediaPeriodId= */ null,
             /* currentPlaybackPositionMs= */ 0,
             /* totalBufferedDurationMs= */ 0);
     AnalyticsListener.EventTime eventTimeWindow1 =
@@ -160,6 +171,9 @@ public final class PlaybackStatsListenerTest {
             /* windowIndex= */ 1,
             /* mediaPeriodId= */ null,
             /* eventPlaybackPositionMs= */ 0,
+            Timeline.EMPTY,
+            /* currentWindowIndex= */ 1,
+            /* currentMediaPeriodId= */ null,
             /* currentPlaybackPositionMs= */ 0,
             /* totalBufferedDurationMs= */ 0);
     PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);

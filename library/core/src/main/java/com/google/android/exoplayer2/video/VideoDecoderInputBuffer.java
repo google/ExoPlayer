@@ -16,15 +16,39 @@
 package com.google.android.exoplayer2.video;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 /** Input buffer to a video decoder. */
 public class VideoDecoderInputBuffer extends DecoderInputBuffer {
 
-  @Nullable public ColorInfo colorInfo;
+  @Nullable public Format format;
 
-  public VideoDecoderInputBuffer() {
-    super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+  /**
+   * Creates a new instance.
+   *
+   * @param bufferReplacementMode Determines the behavior of {@link #ensureSpaceForWrite(int)}. One
+   *     of {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
+   *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
+   */
+  public VideoDecoderInputBuffer(@BufferReplacementMode int bufferReplacementMode) {
+    super(bufferReplacementMode);
   }
 
+  /**
+   * Creates a new instance.
+   *
+   * @param bufferReplacementMode Determines the behavior of {@link #ensureSpaceForWrite(int)}. One
+   *     of {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
+   *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
+   * @param paddingSize If non-zero, {@link #ensureSpaceForWrite(int)} will ensure that the buffer
+   *     is this number of bytes larger than the requested length. This can be useful for decoders
+   *     that consume data in fixed size blocks, for efficiency. Setting the padding size to the
+   *     decoder's fixed read size is necessary to prevent such a decoder from trying to read beyond
+   *     the end of the buffer.
+   */
+  public VideoDecoderInputBuffer(
+      @BufferReplacementMode int bufferReplacementMode, int paddingSize) {
+    super(bufferReplacementMode, paddingSize);
+  }
 }

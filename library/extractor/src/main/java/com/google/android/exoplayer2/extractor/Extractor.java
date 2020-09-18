@@ -96,7 +96,7 @@ public interface Extractor {
    * @param seekPosition If {@link #RESULT_SEEK} is returned, this holder is updated to hold the
    *     position of the required data.
    * @return One of the {@code RESULT_} values defined in this interface.
-   * @throws IOException If an error occurred reading from the input.
+   * @throws IOException If an error occurred reading from or parsing the input.
    */
   @ReadResult
   int read(ExtractorInput input, PositionHolder seekPosition) throws IOException;

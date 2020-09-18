@@ -19,9 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
-import java.nio.charset.Charset;
+import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,7 +29,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readAllBytes() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     byte[] bytesRead = new byte[testData.length];
 
@@ -44,7 +42,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitInSameByte() {
-    byte[] testData = TestUtil.createByteArray(0, 0b00110000);
+    byte[] testData = createByteArray(0, 0b00110000);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.setPosition(10);
 
@@ -56,7 +54,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitInMultipleBytes() {
-    byte[] testData = TestUtil.createByteArray(1, 1 << 7);
+    byte[] testData = createByteArray(1, 1 << 7);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.setPosition(6);
 
@@ -68,7 +66,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBits0Bits() {
-    byte[] testData = TestUtil.createByteArray(0x3C);
+    byte[] testData = createByteArray(0x3C);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     int result = testArray.readBits(0);
@@ -78,7 +76,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.readBits(8);
 
@@ -90,7 +88,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsNonByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.readBits(3);
 
@@ -102,7 +100,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsNegativeValue() {
-    byte[] testData = TestUtil.createByteArray(0xF0, 0, 0, 0);
+    byte[] testData = createByteArray(0xF0, 0, 0, 0);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     int result = testArray.readBits(32);
@@ -112,7 +110,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsToLong0Bits() {
-    byte[] testData = TestUtil.createByteArray(0x3C);
+    byte[] testData = createByteArray(0x3C);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     long result = testArray.readBitsToLong(0);
@@ -122,7 +120,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsToLongByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.readBits(8);
 
@@ -134,7 +132,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsToLongNonByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.readBits(3);
 
@@ -146,7 +144,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsToLongNegativeValue() {
-    byte[] testData = TestUtil.createByteArray(0xF0, 0, 0, 0, 0, 0, 0, 0);
+    byte[] testData = createByteArray(0xF0, 0, 0, 0, 0, 0, 0, 0);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     long result = testArray.readBitsToLong(64);
@@ -156,7 +154,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBitsToByteArray() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60, 0x99);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01, 0xFF, 0x14, 0x60, 0x99);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     int numBytes = testData.length;
@@ -205,7 +203,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void skipBytes() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.skipBytes(2);
@@ -215,7 +213,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void skipBitsByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.skipBits(16);
@@ -225,7 +223,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void skipBitsNonByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.skipBits(5);
@@ -235,7 +233,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void setPositionByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.setPosition(16);
@@ -245,7 +243,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void setPositionNonByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.setPosition(5);
@@ -255,7 +253,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void byteAlignFromNonByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.setPosition(11);
 
@@ -268,7 +266,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void byteAlignFromByteAligned() {
-    byte[] testData = TestUtil.createByteArray(0x3C, 0xD2, 0x5F, 0x01);
+    byte[] testData = createByteArray(0x3C, 0xD2, 0x5F, 0x01);
     ParsableBitArray testArray = new ParsableBitArray(testData);
     testArray.setPosition(16);
 
@@ -281,7 +279,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBytesAsStringDefaultsToUtf8() {
-    byte[] testData = "a non-åscii strìng".getBytes(Charset.forName(C.UTF8_NAME));
+    byte[] testData = "a non-åscii strìng".getBytes(Charsets.UTF_8);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.skipBytes(2);
@@ -290,18 +288,18 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void readBytesAsStringExplicitCharset() {
-    byte[] testData = "a non-åscii strìng".getBytes(Charset.forName(C.UTF16_NAME));
+    byte[] testData = "a non-åscii strìng".getBytes(Charsets.UTF_16);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.skipBytes(6);
-    assertThat(testArray.readBytesAsString(testData.length - 6, Charset.forName(C.UTF16_NAME)))
+    assertThat(testArray.readBytesAsString(testData.length - 6, Charsets.UTF_16))
         .isEqualTo("non-åscii strìng");
   }
 
   @Test
   public void readBytesNotByteAligned() {
     String testString = "test string";
-    byte[] testData = testString.getBytes(Charset.forName(C.UTF8_NAME));
+    byte[] testData = testString.getBytes(Charsets.UTF_8);
     ParsableBitArray testArray = new ParsableBitArray(testData);
 
     testArray.skipBit();
@@ -364,8 +362,7 @@ public final class ParsableBitArrayTest {
 
   @Test
   public void noOverwriting() {
-    ParsableBitArray output =
-        new ParsableBitArray(TestUtil.createByteArray(0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
+    ParsableBitArray output = new ParsableBitArray(createByteArray(0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
     output.setPosition(1);
 
     output.putInt(0, 30);
@@ -374,4 +371,14 @@ public final class ParsableBitArrayTest {
     assertThat(output.readBits(32)).isEqualTo(0x80000001);
   }
 
+  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
+    for (int i = 0; i < byteArray.length; i++) {
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
+    }
+    return byteArray;
+  }
 }

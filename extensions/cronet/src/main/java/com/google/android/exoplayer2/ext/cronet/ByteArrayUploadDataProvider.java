@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static java.lang.Math.min;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.chromium.net.UploadDataProvider;
@@ -40,7 +42,7 @@ import org.chromium.net.UploadDataSink;
 
   @Override
   public void read(UploadDataSink uploadDataSink, ByteBuffer byteBuffer) throws IOException {
-    int readLength = Math.min(byteBuffer.remaining(), data.length - position);
+    int readLength = min(byteBuffer.remaining(), data.length - position);
     byteBuffer.put(data, position, readLength);
     position += readLength;
     uploadDataSink.onReadSucceeded(false);

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -65,7 +67,7 @@ public final class ByteArrayDataSource extends BaseDataSource {
       return C.RESULT_END_OF_INPUT;
     }
 
-    readLength = Math.min(readLength, bytesRemaining);
+    readLength = min(readLength, bytesRemaining);
     System.arraycopy(data, readPosition, buffer, offset, readLength);
     readPosition += readLength;
     bytesRemaining -= readLength;

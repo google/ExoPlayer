@@ -66,7 +66,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /* package */ final Format format;
   /* package */ final boolean treatLoadErrorsAsEndOfStream;
 
-  /* package */ boolean notifiedReadingStarted;
   /* package */ boolean loadingFinished;
   /* package */ byte @MonotonicNonNull [] sampleData;
   /* package */ int sampleSize;
@@ -91,12 +90,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleStreams = new ArrayList<>();
     loader = new Loader("Loader:SingleSampleMediaPeriod");
-    eventDispatcher.mediaPeriodCreated();
   }
 
   public void release() {
     loader.release();
-    eventDispatcher.mediaPeriodReleased();
   }
 
   @Override
@@ -180,10 +177,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public long readDiscontinuity() {
-    if (!notifiedReadingStarted) {
-      eventDispatcher.readingStarted();
-      notifiedReadingStarted = true;
-    }
     return C.TIME_UNSET;
   }
 

@@ -33,9 +33,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DashManifestTest {
 
-  private static final UtcTimingElement DUMMY_UTC_TIMING = new UtcTimingElement("", "");
-  private static final SingleSegmentBase DUMMY_SEGMENT_BASE = new SingleSegmentBase();
-  private static final Format DUMMY_FORMAT = new Format.Builder().build();
+  private static final UtcTimingElement UTC_TIMING = new UtcTimingElement("", "");
+  private static final SingleSegmentBase SEGMENT_BASE = new SingleSegmentBase();
+  private static final Format FORMAT = new Format.Builder().build();
 
   @Test
   public void copy() {
@@ -214,8 +214,7 @@ public class DashManifestTest {
   }
 
   private static Representation newRepresentation() {
-    return Representation.newInstance(
-        /* revisionId= */ 0, DUMMY_FORMAT, /* baseUrl= */ "", DUMMY_SEGMENT_BASE);
+    return Representation.newInstance(/* revisionId= */ 0, FORMAT, /* baseUrl= */ "", SEGMENT_BASE);
   }
 
   private static DashManifest newDashManifest(int duration, Period... periods) {
@@ -229,7 +228,7 @@ public class DashManifestTest {
         /* suggestedPresentationDelayMs= */ 4,
         /* publishTimeMs= */ 12345,
         /* programInformation= */ null,
-        DUMMY_UTC_TIMING,
+        UTC_TIMING,
         Uri.EMPTY,
         Arrays.asList(periods));
   }

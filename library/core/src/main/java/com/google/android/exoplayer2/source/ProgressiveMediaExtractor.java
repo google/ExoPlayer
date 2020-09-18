@@ -22,6 +22,8 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.upstream.DataReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /** Extracts the contents of a container file from a progressive media stream. */
 /* package */ interface ProgressiveMediaExtractor {
@@ -31,6 +33,7 @@ import java.io.IOException;
    *
    * @param dataReader The {@link DataReader} from which data should be read.
    * @param uri The {@link Uri} from which the media is obtained.
+   * @param responseHeaders The response headers of the media, or an empty map if there are none.
    * @param position The initial position of the {@code dataReader} in the stream.
    * @param length The length of the stream, or {@link C#LENGTH_UNSET} if length is unknown.
    * @param output The {@link ExtractorOutput} that will be used to initialize the selected
@@ -38,7 +41,13 @@ import java.io.IOException;
    * @throws UnrecognizedInputFormatException Thrown if the input format could not be detected.
    * @throws IOException Thrown if the input could not be read.
    */
-  void init(DataReader dataReader, Uri uri, long position, long length, ExtractorOutput output)
+  void init(
+      DataReader dataReader,
+      Uri uri,
+      Map<String, List<String>> responseHeaders,
+      long position,
+      long length,
+      ExtractorOutput output)
       throws IOException;
 
   /** Releases any held resources. */

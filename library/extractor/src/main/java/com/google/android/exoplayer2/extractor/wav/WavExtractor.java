@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.wav;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.util.Pair;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -222,7 +225,7 @@ public final class WavExtractor implements Extractor {
 
       int constantBitrate = header.frameRateHz * bytesPerFrame * 8;
       targetSampleSizeBytes =
-          Math.max(bytesPerFrame, header.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
+          max(bytesPerFrame, header.frameRateHz * bytesPerFrame / TARGET_SAMPLES_PER_SECOND);
       format =
           new Format.Builder()
               .setSampleMimeType(mimeType)
@@ -253,7 +256,7 @@ public final class WavExtractor implements Extractor {
     public boolean sampleData(ExtractorInput input, long bytesLeft) throws IOException {
       // Write sample data until we've reached the target sample size, or the end of the data.
       while (bytesLeft > 0 && pendingOutputBytes < targetSampleSizeBytes) {
-        int bytesToRead = (int) Math.min(targetSampleSizeBytes - pendingOutputBytes, bytesLeft);
+        int bytesToRead = (int) min(targetSampleSizeBytes - pendingOutputBytes, bytesLeft);
         int bytesAppended = trackOutput.sampleData(input, bytesToRead, true);
         if (bytesAppended == RESULT_END_OF_INPUT) {
           bytesLeft = 0;
@@ -337,7 +340,7 @@ public final class WavExtractor implements Extractor {
       this.extractorOutput = extractorOutput;
       this.trackOutput = trackOutput;
       this.header = header;
-      targetSampleSizeFrames = Math.max(1, header.frameRateHz / TARGET_SAMPLES_PER_SECOND);
+      targetSampleSizeFrames = max(1, header.frameRateHz / TARGET_SAMPLES_PER_SECOND);
 
       ParsableByteArray scratch = new ParsableByteArray(header.extraData);
       scratch.readLittleEndianUnsignedShort();
@@ -405,7 +408,7 @@ public final class WavExtractor implements Extractor {
       // Read input data until we've reached the target number of blocks, or the end of the data.
       boolean endOfSampleData = bytesLeft == 0;
       while (!endOfSampleData && pendingInputBytes < targetReadBytes) {
-        int bytesToRead = (int) Math.min(targetReadBytes - pendingInputBytes, bytesLeft);
+        int bytesToRead = (int) min(targetReadBytes - pendingInputBytes, bytesLeft);
         int bytesAppended = input.read(inputData, pendingInputBytes, bytesToRead);
         if (bytesAppended == RESULT_END_OF_INPUT) {
           endOfSampleData = true;
@@ -465,7 +468,7 @@ public final class WavExtractor implements Extractor {
     private void decode(byte[] input, int blockCount, ParsableByteArray output) {
       for (int blockIndex = 0; blockIndex < blockCount; blockIndex++) {
         for (int channelIndex = 0; channelIndex < header.numChannels; channelIndex++) {
-          decodeBlockForChannel(input, blockIndex, channelIndex, output.data);
+          decodeBlockForChannel(input, blockIndex, channelIndex, output.getData());
         }
       }
       int decodedDataSize = numOutputFramesToBytes(framesPerBlock * blockCount);
@@ -493,7 +496,7 @@ public final class WavExtractor implements Extractor {
       // treated as -2^15 rather than 2^15.
       int predictedSample =
           (short) (((input[headerStartIndex + 1] & 0xFF) << 8) | (input[headerStartIndex] & 0xFF));
-      int stepIndex = Math.min(input[headerStartIndex + 2] & 0xFF, 88);
+      int stepIndex = min(input[headerStartIndex + 2] & 0xFF, 88);
       int step = STEP_TABLE[stepIndex];
 
       // Output the initial 16 bit PCM sample from the header.

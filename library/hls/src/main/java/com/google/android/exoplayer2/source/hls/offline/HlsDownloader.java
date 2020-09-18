@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls.offline;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.SegmentDownloader;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
@@ -25,6 +26,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.ParsingLoadable.Parser;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.UriUtil;
 import java.io.IOException;
@@ -47,8 +49,13 @@ import java.util.concurrent.Executor;
  * // Create a downloader for the first variant in a master playlist.
  * HlsDownloader hlsDownloader =
  *     new HlsDownloader(
- *         playlistUri,
- *         Collections.singletonList(new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0));
+ *         new MediaItem.Builder()
+ *             .setUri(playlistUri)
+ *             .setStreamKeys(
+ *                 Collections.singletonList(
+ *                     new StreamKey(HlsMasterPlaylist.GROUP_INDEX_VARIANT, 0)))
+ *             .build(),
+ *         Collections.singletonList();
  * // Perform the download.
  * hlsDownloader.download(progressListener);
  * // Use the downloaded data for playback.
@@ -58,22 +65,44 @@ import java.util.concurrent.Executor;
  */
 public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
 
-  /**
-   * @param playlistUri The {@link Uri} of the playlist to be downloaded.
-   * @param streamKeys Keys defining which renditions in the playlist should be selected for
-   *     download. If empty, all renditions are downloaded.
-   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
-   *     download will be written.
-   */
+  /** @deprecated Use {@link #HlsDownloader(MediaItem, CacheDataSource.Factory)} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public HlsDownloader(
       Uri playlistUri, List<StreamKey> streamKeys, CacheDataSource.Factory cacheDataSourceFactory) {
     this(playlistUri, streamKeys, cacheDataSourceFactory, Runnable::run);
   }
 
   /**
-   * @param playlistUri The {@link Uri} of the playlist to be downloaded.
-   * @param streamKeys Keys defining which renditions in the playlist should be selected for
-   *     download. If empty, all renditions are downloaded.
+   * Creates a new instance.
+   *
+   * @param mediaItem The {@link MediaItem} to be downloaded.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   */
+  public HlsDownloader(MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory) {
+    this(mediaItem, cacheDataSourceFactory, Runnable::run);
+  }
+
+  /**
+   * @deprecated Use {@link #HlsDownloader(MediaItem, CacheDataSource.Factory, Executor)} instead.
+   */
+  @Deprecated
+  public HlsDownloader(
+      Uri playlistUri,
+      List<StreamKey> streamKeys,
+      CacheDataSource.Factory cacheDataSourceFactory,
+      Executor executor) {
+    this(
+        new MediaItem.Builder().setUri(playlistUri).setStreamKeys(streamKeys).build(),
+        cacheDataSourceFactory,
+        executor);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param mediaItem The {@link MediaItem} to be downloaded.
    * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
    *     download will be written.
    * @param executor An {@link Executor} used to make requests for the media being downloaded.
@@ -81,16 +110,32 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
    *     allowing parts of it to be executed in parallel.
    */
   public HlsDownloader(
-      Uri playlistUri,
-      List<StreamKey> streamKeys,
+      MediaItem mediaItem, CacheDataSource.Factory cacheDataSourceFactory, Executor executor) {
+    this(mediaItem, new HlsPlaylistParser(), cacheDataSourceFactory, executor);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param mediaItem The {@link MediaItem} to be downloaded.
+   * @param manifestParser A parser for HLS playlists.
+   * @param cacheDataSourceFactory A {@link CacheDataSource.Factory} for the cache into which the
+   *     download will be written.
+   * @param executor An {@link Executor} used to make requests for the media being downloaded.
+   *     Providing an {@link Executor} that uses multiple threads will speed up the download by
+   *     allowing parts of it to be executed in parallel.
+   */
+  public HlsDownloader(
+      MediaItem mediaItem,
+      Parser<HlsPlaylist> manifestParser,
       CacheDataSource.Factory cacheDataSourceFactory,
       Executor executor) {
-    super(playlistUri, new HlsPlaylistParser(), streamKeys, cacheDataSourceFactory, executor);
+    super(mediaItem, manifestParser, cacheDataSourceFactory, executor);
   }
 
   @Override
-  protected List<Segment> getSegments(
-      DataSource dataSource, HlsPlaylist playlist, boolean allowIncompleteList) throws IOException {
+  protected List<Segment> getSegments(DataSource dataSource, HlsPlaylist playlist, boolean removing)
+      throws IOException, InterruptedException {
     ArrayList<DataSpec> mediaPlaylistDataSpecs = new ArrayList<>();
     if (playlist instanceof HlsMasterPlaylist) {
       HlsMasterPlaylist masterPlaylist = (HlsMasterPlaylist) playlist;
@@ -106,9 +151,9 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
       segments.add(new Segment(/* startTimeUs= */ 0, mediaPlaylistDataSpec));
       HlsMediaPlaylist mediaPlaylist;
       try {
-        mediaPlaylist = (HlsMediaPlaylist) getManifest(dataSource, mediaPlaylistDataSpec);
+        mediaPlaylist = (HlsMediaPlaylist) getManifest(dataSource, mediaPlaylistDataSpec, removing);
       } catch (IOException e) {
-        if (!allowIncompleteList) {
+        if (!removing) {
           throw e;
         }
         // Generating an incomplete segment list is allowed. Advance to the next media playlist.

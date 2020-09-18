@@ -137,7 +137,7 @@ public final class FakeTrackSelection implements TrackSelection {
   }
 
   @Override
-  public boolean blacklist(int index, long blacklistDurationMs) {
+  public boolean blacklist(int index, long exclusionDurationMs) {
     assertThat(isEnabled).isTrue();
     return false;
   }

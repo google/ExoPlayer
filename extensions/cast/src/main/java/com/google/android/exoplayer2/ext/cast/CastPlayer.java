@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static java.lang.Math.min;
+
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BasePlayer;
@@ -30,6 +32,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -290,6 +293,7 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void addListener(EventListener listener) {
+    Assertions.checkNotNull(listener);
     listeners.addIfAbsent(new ListenerHolder(listener));
   }
 
@@ -333,7 +337,7 @@ public final class CastPlayer extends BasePlayer {
             && toIndex <= currentTimeline.getWindowCount()
             && newIndex >= 0
             && newIndex < currentTimeline.getWindowCount());
-    newIndex = Math.min(newIndex, currentTimeline.getWindowCount() - (toIndex - fromIndex));
+    newIndex = min(newIndex, currentTimeline.getWindowCount() - (toIndex - fromIndex));
     if (fromIndex == toIndex || fromIndex == newIndex) {
       // Do nothing.
       return;
@@ -426,6 +430,9 @@ public final class CastPlayer extends BasePlayer {
     return playWhenReady.value;
   }
 
+  // We still call EventListener#onSeekProcessed() for backwards compatibility with listeners that
+  // don't implement onPositionDiscontinuity().
+  @SuppressWarnings("deprecation")
   @Override
   public void seekTo(int windowIndex, long positionMs) {
     MediaStatus mediaStatus = getMediaStatus();
@@ -451,30 +458,14 @@ public final class CastPlayer extends BasePlayer {
     flushNotifications();
   }
 
-  /** @deprecated Use {@link #setPlaybackSpeed(float)} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   @Override
   public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
     // Unsupported by the RemoteMediaClient API. Do nothing.
   }
 
-  /** @deprecated Use {@link #getPlaybackSpeed()} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   @Override
   public PlaybackParameters getPlaybackParameters() {
     return PlaybackParameters.DEFAULT;
-  }
-
-  @Override
-  public void setPlaybackSpeed(float playbackSpeed) {
-    // Unsupported by the RemoteMediaClient API. Do nothing.
-  }
-
-  @Override
-  public float getPlaybackSpeed() {
-    return Player.DEFAULT_PLAYBACK_SPEED;
   }
 
   @Override
@@ -511,6 +502,12 @@ public final class CastPlayer extends BasePlayer {
       default:
         throw new IndexOutOfBoundsException();
     }
+  }
+
+  @Override
+  @Nullable
+  public TrackSelector getTrackSelector() {
+    return null;
   }
 
   @Override
@@ -800,7 +797,7 @@ public final class CastPlayer extends BasePlayer {
     }
     return remoteMediaClient.queueLoad(
         mediaQueueItems,
-        Math.min(startWindowIndex, mediaQueueItems.length - 1),
+        min(startWindowIndex, mediaQueueItems.length - 1),
         getCastRepeatMode(repeatMode),
         startPositionMs,
         /* customData= */ null);
@@ -874,7 +871,7 @@ public final class CastPlayer extends BasePlayer {
       return;
     }
     if (this.remoteMediaClient != null) {
-      this.remoteMediaClient.removeListener(statusListener);
+      this.remoteMediaClient.unregisterCallback(statusListener);
       this.remoteMediaClient.removeProgressListener(statusListener);
     }
     this.remoteMediaClient = remoteMediaClient;
@@ -882,7 +879,7 @@ public final class CastPlayer extends BasePlayer {
       if (sessionAvailabilityListener != null) {
         sessionAvailabilityListener.onCastSessionAvailable();
       }
-      remoteMediaClient.addListener(statusListener);
+      remoteMediaClient.registerCallback(statusListener);
       remoteMediaClient.addProgressListener(statusListener, PROGRESS_REPORT_PERIOD_MS);
       updateInternalStateAndNotifyIfChanged();
     } else {
@@ -996,10 +993,8 @@ public final class CastPlayer extends BasePlayer {
 
   // Internal classes.
 
-  private final class StatusListener
-      implements RemoteMediaClient.Listener,
-          SessionManagerListener<CastSession>,
-          RemoteMediaClient.ProgressListener {
+  private final class StatusListener extends RemoteMediaClient.Callback
+      implements SessionManagerListener<CastSession>, RemoteMediaClient.ProgressListener {
 
     // RemoteMediaClient.ProgressListener implementation.
 
@@ -1008,7 +1003,7 @@ public final class CastPlayer extends BasePlayer {
       lastReportedPositionMs = progressMs;
     }
 
-    // RemoteMediaClient.Listener implementation.
+    // RemoteMediaClient.Callback implementation.
 
     @Override
     public void onStatusUpdated() {
@@ -1085,6 +1080,9 @@ public final class CastPlayer extends BasePlayer {
 
   private final class SeekResultCallback implements ResultCallback<MediaChannelResult> {
 
+    // We still call EventListener#onSeekProcessed() for backwards compatibility with listeners that
+    // don't implement onPositionDiscontinuity().
+    @SuppressWarnings("deprecation")
     @Override
     public void onResult(MediaChannelResult result) {
       int statusCode = result.getStatus().getStatusCode();

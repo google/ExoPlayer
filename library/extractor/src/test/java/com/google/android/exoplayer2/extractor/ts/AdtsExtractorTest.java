@@ -32,25 +32,24 @@ public final class AdtsExtractorTest {
     return ExtractorAsserts.configs();
   }
 
-  @Parameter(0)
-  public ExtractorAsserts.SimulationConfig simulationConfig;
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample.adts", simulationConfig);
+    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "media/ts/sample.adts", simulationConfig);
   }
 
   @Test
   public void sample_with_id3() throws Exception {
     ExtractorAsserts.assertBehavior(
-        AdtsExtractor::new, "ts/sample_with_id3.adts", simulationConfig);
+        AdtsExtractor::new, "media/ts/sample_with_id3.adts", simulationConfig);
   }
 
   @Test
   public void sample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
-        "ts/sample_cbs.adts",
+        "media/ts/sample_cbs.adts",
         simulationConfig);
   }
 
@@ -59,7 +58,7 @@ public final class AdtsExtractorTest {
   public void sample_withSeekingAndTruncatedFile() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
-        "ts/sample_cbs_truncated.adts",
+        "media/ts/sample_cbs_truncated.adts",
         simulationConfig);
   }
 }

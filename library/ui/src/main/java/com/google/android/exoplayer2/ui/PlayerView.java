@@ -48,6 +48,8 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
@@ -66,6 +68,7 @@ import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1001,6 +1004,46 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   /**
+   * Sets whether the rewind button is shown.
+   *
+   * @param showRewindButton Whether the rewind button is shown.
+   */
+  public void setShowRewindButton(boolean showRewindButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowRewindButton(showRewindButton);
+  }
+
+  /**
+   * Sets whether the fast forward button is shown.
+   *
+   * @param showFastForwardButton Whether the fast forward button is shown.
+   */
+  public void setShowFastForwardButton(boolean showFastForwardButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowFastForwardButton(showFastForwardButton);
+  }
+
+  /**
+   * Sets whether the previous button is shown.
+   *
+   * @param showPreviousButton Whether the previous button is shown.
+   */
+  public void setShowPreviousButton(boolean showPreviousButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowPreviousButton(showPreviousButton);
+  }
+
+  /**
+   * Sets whether the next button is shown.
+   *
+   * @param showNextButton Whether the next button is shown.
+   */
+  public void setShowNextButton(boolean showNextButton) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowNextButton(showNextButton);
+  }
+
+  /**
    * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} with {@link
    *     DefaultControlDispatcher#DefaultControlDispatcher(long, long)}.
    */
@@ -1216,15 +1259,20 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   }
 
   @Override
-  public View[] getAdOverlayViews() {
-    ArrayList<View> overlayViews = new ArrayList<>();
+  public List<AdsLoader.OverlayInfo> getAdOverlayInfos() {
+    List<AdsLoader.OverlayInfo> overlayViews = new ArrayList<>();
     if (overlayFrameLayout != null) {
-      overlayViews.add(overlayFrameLayout);
+      overlayViews.add(
+          new AdsLoader.OverlayInfo(
+              overlayFrameLayout,
+              AdsLoader.OverlayInfo.PURPOSE_NOT_VISIBLE,
+              /* detailedReason= */ "Transparent overlay does not impact viewability"));
     }
     if (controller != null) {
-      overlayViews.add(controller);
+      overlayViews.add(
+          new AdsLoader.OverlayInfo(controller, AdsLoader.OverlayInfo.PURPOSE_CONTROLS));
     }
-    return overlayViews.toArray(new View[0]);
+    return ImmutableList.copyOf(overlayViews);
   }
 
   // Internal methods.
@@ -1514,6 +1562,13 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           SingleTapListener,
           PlayerControlView.VisibilityListener {
 
+    private final Period period;
+    private @Nullable Object lastPeriodUidWithTracks;
+
+    public ComponentListener() {
+      period = new Period();
+    }
+
     // TextOutput implementation
 
     @Override
@@ -1562,6 +1617,29 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
 
     @Override
     public void onTracksChanged(TrackGroupArray tracks, TrackSelectionArray selections) {
+      // Suppress the update if transitioning to an unprepared period within the same window. This
+      // is necessary to avoid closing the shutter when such a transition occurs. See:
+      // https://github.com/google/ExoPlayer/issues/5507.
+      Player player = Assertions.checkNotNull(PlayerView.this.player);
+      Timeline timeline = player.getCurrentTimeline();
+      if (timeline.isEmpty()) {
+        lastPeriodUidWithTracks = null;
+      } else if (!player.getCurrentTrackGroups().isEmpty()) {
+        lastPeriodUidWithTracks =
+            timeline.getPeriod(player.getCurrentPeriodIndex(), period, /* setIds= */ true).uid;
+      } else if (lastPeriodUidWithTracks != null) {
+        int lastPeriodIndexWithTracks = timeline.getIndexOfPeriod(lastPeriodUidWithTracks);
+        if (lastPeriodIndexWithTracks != C.INDEX_UNSET) {
+          int lastWindowIndexWithTracks =
+              timeline.getPeriod(lastPeriodIndexWithTracks, period).windowIndex;
+          if (player.getCurrentWindowIndex() == lastWindowIndexWithTracks) {
+            // We're in the same window. Suppress the update.
+            return;
+          }
+        }
+        lastPeriodUidWithTracks = null;
+      }
+
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
 

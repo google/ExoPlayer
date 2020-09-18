@@ -301,7 +301,7 @@ public class CachedContentIndexTest {
   public void cantRemoveLockedCachedContent() {
     CachedContentIndex index = newInstance();
     CachedContent cachedContent = index.getOrAdd("key1");
-    cachedContent.setLocked(true);
+    cachedContent.lockRange(0, 1);
 
     index.maybeRemove(cachedContent.key);
 

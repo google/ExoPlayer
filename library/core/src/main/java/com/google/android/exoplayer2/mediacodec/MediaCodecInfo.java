@@ -328,7 +328,7 @@ public final class MediaCodecInfo {
   public boolean isSeamlessAdaptationSupported(
       Format oldFormat, Format newFormat, boolean isNewFormatComplete) {
     if (isVideo) {
-      return oldFormat.sampleMimeType.equals(newFormat.sampleMimeType)
+      return Assertions.checkNotNull(oldFormat.sampleMimeType).equals(newFormat.sampleMimeType)
           && oldFormat.rotationDegrees == newFormat.rotationDegrees
           && (adaptive
               || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height))
@@ -336,14 +336,16 @@ public final class MediaCodecInfo {
               || Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo));
     } else {
       if (!MimeTypes.AUDIO_AAC.equals(mimeType)
-          || !oldFormat.sampleMimeType.equals(newFormat.sampleMimeType)
+          || !Assertions.checkNotNull(oldFormat.sampleMimeType).equals(newFormat.sampleMimeType)
           || oldFormat.channelCount != newFormat.channelCount
           || oldFormat.sampleRate != newFormat.sampleRate) {
         return false;
       }
       // Check the codec profile levels support adaptation.
+      @Nullable
       Pair<Integer, Integer> oldCodecProfileLevel =
           MediaCodecUtil.getCodecProfileAndLevel(oldFormat);
+      @Nullable
       Pair<Integer, Integer> newCodecProfileLevel =
           MediaCodecUtil.getCodecProfileAndLevel(newFormat);
       if (oldCodecProfileLevel == null || newCodecProfileLevel == null) {
@@ -402,6 +404,7 @@ public final class MediaCodecInfo {
    *     the {@link MediaCodec}'s width and height alignment requirements, or null if not a video
    *     codec.
    */
+  @Nullable
   @RequiresApi(21)
   public Point alignVideoSizeV21(int width, int height) {
     if (capabilities == null) {

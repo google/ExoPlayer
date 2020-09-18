@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Build;
 import java.util.HashSet;
 
 /**
@@ -29,11 +30,11 @@ public final class ExoPlayerLibraryInfo {
 
   /** The version of the library expressed as a string, for example "1.2.3". */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION_INT) or vice versa.
-  public static final String VERSION = "2.11.4";
+  public static final String VERSION = "2.12.0";
 
   /** The version of the library expressed as {@code "ExoPlayerLib/" + VERSION}. */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final String VERSION_SLASHY = "ExoPlayerLib/2.11.4";
+  public static final String VERSION_SLASHY = "ExoPlayerLib/2.12.0";
 
   /**
    * The version of the library expressed as an integer, for example 1002003.
@@ -43,7 +44,11 @@ public final class ExoPlayerLibraryInfo {
    * integer version 123045006 (123-045-006).
    */
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
-  public static final int VERSION_INT = 2011004;
+  public static final int VERSION_INT = 2012000;
+
+  /** The default user agent for requests made by the library. */
+  public static final String DEFAULT_USER_AGENT =
+      VERSION_SLASHY + " (Linux;Android " + Build.VERSION.RELEASE + ") " + VERSION_SLASHY;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}

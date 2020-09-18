@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.flv;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -101,21 +103,21 @@ public final class FlvExtractor implements Extractor {
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
     // Check if file starts with "FLV" tag
-    input.peekFully(scratch.data, 0, 3);
+    input.peekFully(scratch.getData(), 0, 3);
     scratch.setPosition(0);
     if (scratch.readUnsignedInt24() != FLV_TAG) {
       return false;
     }
 
     // Checking reserved flags are set to 0
-    input.peekFully(scratch.data, 0, 2);
+    input.peekFully(scratch.getData(), 0, 2);
     scratch.setPosition(0);
     if ((scratch.readUnsignedShort() & 0xFA) != 0) {
       return false;
     }
 
     // Read data offset
-    input.peekFully(scratch.data, 0, 4);
+    input.peekFully(scratch.getData(), 0, 4);
     scratch.setPosition(0);
     int dataOffset = scratch.readInt();
 
@@ -123,7 +125,7 @@ public final class FlvExtractor implements Extractor {
     input.advancePeekPosition(dataOffset);
 
     // Checking first "previous tag size" is set to 0
-    input.peekFully(scratch.data, 0, 4);
+    input.peekFully(scratch.getData(), 0, 4);
     scratch.setPosition(0);
 
     return scratch.readInt() == 0;
@@ -190,7 +192,7 @@ public final class FlvExtractor implements Extractor {
    */
   @RequiresNonNull("extractorOutput")
   private boolean readFlvHeader(ExtractorInput input) throws IOException {
-    if (!input.readFully(headerBuffer.data, 0, FLV_HEADER_SIZE, true)) {
+    if (!input.readFully(headerBuffer.getData(), 0, FLV_HEADER_SIZE, true)) {
       // We've reached the end of the stream.
       return false;
     }
@@ -236,7 +238,7 @@ public final class FlvExtractor implements Extractor {
    * @throws IOException If an error occurred reading or parsing data from the source.
    */
   private boolean readTagHeader(ExtractorInput input) throws IOException {
-    if (!input.readFully(tagHeaderBuffer.data, 0, FLV_TAG_HEADER_SIZE, true)) {
+    if (!input.readFully(tagHeaderBuffer.getData(), 0, FLV_TAG_HEADER_SIZE, true)) {
       // We've reached the end of the stream.
       return false;
     }
@@ -294,12 +296,12 @@ public final class FlvExtractor implements Extractor {
 
   private ParsableByteArray prepareTagData(ExtractorInput input) throws IOException {
     if (tagDataSize > tagData.capacity()) {
-      tagData.reset(new byte[Math.max(tagData.capacity() * 2, tagDataSize)], 0);
+      tagData.reset(new byte[max(tagData.capacity() * 2, tagDataSize)], 0);
     } else {
       tagData.setPosition(0);
     }
     tagData.setLimit(tagDataSize);
-    input.readFully(tagData.data, 0, tagDataSize);
+    input.readFully(tagData.getData(), 0, tagDataSize);
     return tagData;
   }
 

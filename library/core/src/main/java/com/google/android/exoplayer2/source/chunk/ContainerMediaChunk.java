@@ -21,11 +21,9 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
-import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.source.chunk.ChunkExtractorWrapper.TrackOutputProvider;
+import com.google.android.exoplayer2.source.chunk.ChunkExtractor.TrackOutputProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 
@@ -34,11 +32,9 @@ import java.io.IOException;
  */
 public class ContainerMediaChunk extends BaseMediaChunk {
 
-  private static final PositionHolder DUMMY_POSITION_HOLDER = new PositionHolder();
-
   private final int chunkCount;
   private final long sampleOffsetUs;
-  private final ChunkExtractorWrapper extractorWrapper;
+  private final ChunkExtractor chunkExtractor;
 
   private long nextLoadPosition;
   private volatile boolean loadCanceled;
@@ -61,7 +57,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
    *     instance. Normally equal to one, but may be larger if multiple chunks as defined by the
    *     underlying media are being merged into a single load.
    * @param sampleOffsetUs An offset to add to the sample timestamps parsed by the extractor.
-   * @param extractorWrapper A wrapped extractor to use for parsing the data.
+   * @param chunkExtractor A wrapped extractor to use for parsing the data.
    */
   public ContainerMediaChunk(
       DataSource dataSource,
@@ -76,7 +72,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       long chunkIndex,
       int chunkCount,
       long sampleOffsetUs,
-      ChunkExtractorWrapper extractorWrapper) {
+      ChunkExtractor chunkExtractor) {
     super(
         dataSource,
         dataSpec,
@@ -90,7 +86,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
         chunkIndex);
     this.chunkCount = chunkCount;
     this.sampleOffsetUs = sampleOffsetUs;
-    this.extractorWrapper = extractorWrapper;
+    this.chunkExtractor = chunkExtractor;
   }
 
   @Override
@@ -117,7 +113,7 @@ public class ContainerMediaChunk extends BaseMediaChunk {
       // Configure the output and set it as the target for the extractor wrapper.
       BaseMediaChunkOutput output = getOutput();
       output.setSampleOffsetUs(sampleOffsetUs);
-      extractorWrapper.init(
+      chunkExtractor.init(
           getTrackOutputProvider(output),
           clippedStartTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedStartTimeUs - sampleOffsetUs),
           clippedEndTimeUs == C.TIME_UNSET ? C.TIME_UNSET : (clippedEndTimeUs - sampleOffsetUs));
@@ -130,19 +126,14 @@ public class ContainerMediaChunk extends BaseMediaChunk {
               dataSource, loadDataSpec.position, dataSource.open(loadDataSpec));
       // Load and decode the sample data.
       try {
-        Extractor extractor = extractorWrapper.extractor;
-        int result = Extractor.RESULT_CONTINUE;
-        while (result == Extractor.RESULT_CONTINUE && !loadCanceled) {
-          result = extractor.read(input, DUMMY_POSITION_HOLDER);
-        }
-        Assertions.checkState(result != Extractor.RESULT_SEEK);
+        while (!loadCanceled && chunkExtractor.read(input)) {}
       } finally {
         nextLoadPosition = input.getPosition() - dataSpec.position;
       }
     } finally {
       Util.closeQuietly(dataSource);
     }
-    loadCompleted = true;
+    loadCompleted = !loadCanceled;
   }
 
   /**

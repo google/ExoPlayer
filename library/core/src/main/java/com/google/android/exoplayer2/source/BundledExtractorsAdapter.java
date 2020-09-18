@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorInput;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.upstream.DataReader;
@@ -29,6 +30,8 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * {@link ProgressiveMediaExtractor} built on top of {@link Extractor} instances, whose
@@ -36,7 +39,7 @@ import java.io.IOException;
  */
 /* package */ final class BundledExtractorsAdapter implements ProgressiveMediaExtractor {
 
-  private final Extractor[] extractors;
+  private final ExtractorsFactory extractorsFactory;
 
   @Nullable private Extractor extractor;
   @Nullable private ExtractorInput extractorInput;
@@ -44,20 +47,27 @@ import java.io.IOException;
   /**
    * Creates a holder that will select an extractor and initialize it using the specified output.
    *
-   * @param extractors One or more extractors to choose from.
+   * @param extractorsFactory The {@link ExtractorsFactory} providing the extractors to choose from.
    */
-  public BundledExtractorsAdapter(Extractor[] extractors) {
-    this.extractors = extractors;
+  public BundledExtractorsAdapter(ExtractorsFactory extractorsFactory) {
+    this.extractorsFactory = extractorsFactory;
   }
 
   @Override
   public void init(
-      DataReader dataReader, Uri uri, long position, long length, ExtractorOutput output)
+      DataReader dataReader,
+      Uri uri,
+      Map<String, List<String>> responseHeaders,
+      long position,
+      long length,
+      ExtractorOutput output)
       throws IOException {
-    extractorInput = new DefaultExtractorInput(dataReader, position, length);
+    ExtractorInput extractorInput = new DefaultExtractorInput(dataReader, position, length);
+    this.extractorInput = extractorInput;
     if (extractor != null) {
       return;
     }
+    Extractor[] extractors = extractorsFactory.createExtractors(uri, responseHeaders);
     if (extractors.length == 1) {
       this.extractor = extractors[0];
     } else {
@@ -70,6 +80,7 @@ import java.io.IOException;
         } catch (EOFException e) {
           // Do nothing.
         } finally {
+          Assertions.checkState(this.extractor != null || extractorInput.getPosition() == position);
           extractorInput.resetPeekPosition();
         }
       }

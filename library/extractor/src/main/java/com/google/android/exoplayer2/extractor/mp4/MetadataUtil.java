@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -460,7 +462,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       boolean isBoolean) {
     int value = parseUint8AttributeValue(data);
     if (isBoolean) {
-      value = Math.min(1, value);
+      value = min(1, value);
     }
     if (value >= 0) {
       return isTextInformationFrame

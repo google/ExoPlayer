@@ -18,10 +18,22 @@
   <string name="exo_controls_show">Show player controls</string>
   <!-- Description for a media player view to indicate that tapping on the view hides the playback controls [CHAR LIMIT=50] -->
   <string name="exo_controls_hide">Hide player controls</string>
+  <!-- Description for a media player seek bar, which indicates the playback progress. [CHAR_LIMIT=55] -->
+  <string name="exo_controls_seek_bar_description">Playback progress</string>
+  <!-- Description for a settings button. [CHAR_LIMIT=30] -->
+  <string name="exo_controls_settings_description">Settings</string>
+  <!-- Description for a settings button that hides a list of additional settings. [CHAR_LIMIT=55] -->
+  <string name="exo_controls_overflow_hide_description">Hide additional settings</string>
+  <!-- Description for a settings button that expands a list of additional settings. [CHAR_LIMIT=55] -->
+  <string name="exo_controls_overflow_show_description">Show additional settings</string>
+  <!-- Description for a media control button that enters fullscreen playback. [CHAR_LIMIT=40] -->
+  <string name="exo_controls_fullscreen_enter_description">Enter fullscreen</string>
+  <!-- Description for a media control button that exits fullscreen playback. [CHAR_LIMIT=40] -->
+  <string name="exo_controls_fullscreen_exit_description">Exit fullscreen</string>
   <!-- Description for a media control button that causes the previous track to be played. [CHAR LIMIT=30] -->
-  <string name="exo_controls_previous_description">Previous track</string>
+  <string name="exo_controls_previous_description">Previous</string>
   <!-- Description for a media control button that causes the next track to be played. [CHAR LIMIT=30] -->
-  <string name="exo_controls_next_description">Next track</string>
+  <string name="exo_controls_next_description">Next</string>
   <!-- Description for a media control button that causes playback to be paused. [CHAR LIMIT=30] -->
   <string name="exo_controls_pause_description">Pause</string>
   <!-- Description for a media control button that causes playback to be started. [CHAR LIMIT=30] -->
@@ -30,8 +42,18 @@
   <string name="exo_controls_stop_description">Stop</string>
   <!-- Description for a media control button that causes playback to be rewound. [CHAR LIMIT=30] -->
   <string name="exo_controls_rewind_description">Rewind</string>
+  <!-- Description for a media control button that causes playback to be rewound a specified number of seconds. [CHAR LIMIT=30] -->
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Rewind <xliff:g id="rewind_amount" example="1">%d</xliff:g> second</item>
+    <item quantity="other">Rewind <xliff:g id="rewind_amount" example="30">%d</xliff:g> seconds</item>
+  </plurals>
   <!-- Description for a media control button that causes playback to be fast-forwarded. [CHAR LIMIT=30] -->
   <string name="exo_controls_fastforward_description">Fast forward</string>
+  <!-- Description for a media control button that causes playback to be fast-forwarded a specified number of seconds. [CHAR_LIMIT=55] -->
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Fast forward <xliff:g id="fastforward_amount" example="1">%d</xliff:g> second</item>
+    <item quantity="other">Fast forward <xliff:g id="fastforward_amount" example="30">%d</xliff:g> seconds</item>
+  </plurals>
   <!-- Description for a button that controls the repeat mode of a media playback. In this mode media is not repeated. [CHAR LIMIT=30] -->
   <string name="exo_controls_repeat_off_description">Repeat none</string>
   <!-- Description for a button that controls the repeat mode of a media playback. In this mode the current piece of media is repeated. [CHAR LIMIT=30] -->
@@ -42,10 +64,21 @@
   <string name="exo_controls_shuffle_on_description">Shuffle on</string>
   <!-- Description for a button that controls the shuffle mode of media playback. In this mode shuffle is off. [CHAR LIMIT=40] -->
   <string name="exo_controls_shuffle_off_description">Shuffle off</string>
-  <!-- Description for a media control button that toggles whether a video playback is fullscreen. [CHAR LIMIT=30] -->
-  <string name="exo_controls_fullscreen_description">Fullscreen mode</string>
   <!-- Description for a media control button that toggles whether a video playback is in VR mode. [CHAR LIMIT=30] -->
   <string name="exo_controls_vr_description">VR mode</string>
+  <!-- Description for a closed captions (subtitles) button, when subtitles are enabled. If the user clicks the button, closed captions will be disabled. [CHAR_LIMIT=55] -->
+  <string name="exo_controls_cc_enabled_description">Disable subtitles</string>
+  <!-- Description for a closed captions (subtitles) button, when subtitles are disabled. If the user clicks the button, closed captions will be enabled. [CHAR_LIMIT=55] -->
+  <string name="exo_controls_cc_disabled_description">Enable subtitles</string>
+  <!-- The title of a playback speed selection option. It is shown with the current playback speed. If a user clicks it, the list of possible playback speeds will be shown. [CHAR_LIMIT=32] -->
+  <string name="exo_controls_playback_speed">Speed</string>
+  <!-- Shown to indicate that the current playback speed is normal (i.e., 1.0x). [CHAR_LIMIT=16] -->
+  <string name="exo_controls_playback_speed_normal">Normal</string>
+  <!-- Shown to indicate a custom playback speed. [CHAR_LIMIT=16] -->
+  <string translatable="false" name="exo_controls_custom_playback_speed"><xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x</string>
+  <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
+  <string translatable="false" name="exo_controls_time_placeholder">00:00:00</string>
+
   <!-- Description for a button that downloads a piece of media content onto the device. [CHAR LIMIT=20] -->
   <string name="exo_download_description">Download</string>
   <!-- Default name for a notification channel corresponding to media downloads. [CHAR LIMIT=40] -->
@@ -58,6 +91,7 @@
   <string name="exo_download_failed">Download failed</string>
   <!-- Shown in a notification or UI component to indicate downloads are being removed from the device. [CHAR LIMIT=40] -->
   <string name="exo_download_removing">Removing downloads</string>
+
   <!-- The title of a track selection view for video tracks. [CHAR LIMIT=20] -->
   <string name="exo_track_selection_title_video">Video</string>
   <!-- The title of a track selection view for audio tracks. [CHAR LIMIT=20] -->
@@ -92,6 +126,7 @@
   <string name="exo_track_role_closed_captions">CC</string>
   <!-- Describes the bitrate of a media track in Megabits (https://en.wikipedia.org/wiki/Megabit) per second. [CHAR LIMIT=20] -->
   <string name="exo_track_bitrate"><xliff:g id="bitrate" example="5.2">%1$.2f</xliff:g> Mbps</string>
+
   <!-- Defines a way of appending an item to a list of items. For example appending "banana" to "apple, pear" to get "apple, pear, banana". Note: the command separator will appear between all consecutive list items, so do not use an equivalent of 'and'. [CHAR LIMIT=40] -->
   <string name="exo_item_list"><xliff:g id="list" example="apple, pear">%1$s</xliff:g>, <xliff:g id="item" example="banana">%2$s</xliff:g></string>
 </resources>

@@ -35,7 +35,7 @@ public class TouchTrackerTest {
   private TouchTracker tracker;
   private float yaw;
   private float pitch;
-  private float[] dummyMatrix;
+  private float[] matrix;
 
   private static void swipe(TouchTracker tracker, float x0, float y0, float x1, float y1) {
     tracker.onTouch(null, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, x0, y0, 0));
@@ -54,8 +54,8 @@ public class TouchTrackerTest {
               yaw = scrollOffsetDegrees.x;
             },
             PX_PER_DEGREES);
-    dummyMatrix = new float[16];
-    tracker.onOrientationChange(dummyMatrix, 0);
+    matrix = new float[16];
+    tracker.onOrientationChange(matrix, 0);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class TouchTrackerTest {
 
   @Test
   public void withRoll90() {
-    tracker.onOrientationChange(dummyMatrix, (float) Math.toRadians(90));
+    tracker.onOrientationChange(matrix, (float) Math.toRadians(90));
 
     // Y-axis should now control yaw.
     swipe(tracker, 0, 0, 0, 2 * SWIPE_PX);
@@ -124,7 +124,7 @@ public class TouchTrackerTest {
 
   @Test
   public void withRoll180() {
-    tracker.onOrientationChange(dummyMatrix, (float) Math.toRadians(180));
+    tracker.onOrientationChange(matrix, (float) Math.toRadians(180));
 
     // X-axis should now control reverse yaw.
     swipe(tracker, 0, 0, -2 * SWIPE_PX, 0);
@@ -137,7 +137,7 @@ public class TouchTrackerTest {
 
   @Test
   public void withRoll270() {
-    tracker.onOrientationChange(dummyMatrix, (float) Math.toRadians(270));
+    tracker.onOrientationChange(matrix, (float) Math.toRadians(270));
 
     // Y-axis should now control reverse yaw.
     swipe(tracker, 0, 0, 0, -2 * SWIPE_PX);

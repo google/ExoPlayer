@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 
 import android.util.SparseBooleanArray;
 import com.google.android.exoplayer2.C;
@@ -238,7 +239,7 @@ public final class FakeExtractorInput implements ExtractorInput {
       partiallySatisfiedTargetPositions.put(targetPosition, true);
       return 1;
     }
-    return Math.min(requestedLength, data.length - position);
+    return min(requestedLength, data.length - position);
   }
 
   private boolean readFullyInternal(byte[] target, int offset, int length, boolean allowEndOfInput)

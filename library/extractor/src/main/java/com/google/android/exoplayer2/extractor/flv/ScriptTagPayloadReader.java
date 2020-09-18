@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.extractor.flv;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.DummyTrackOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.ArrayList;
@@ -72,11 +71,11 @@ import java.util.Map;
   }
 
   @Override
-  protected boolean parsePayload(ParsableByteArray data, long timeUs) throws ParserException {
+  protected boolean parsePayload(ParsableByteArray data, long timeUs) {
     int nameType = readAmfType(data);
     if (nameType != AMF_TYPE_STRING) {
-      // Should never happen.
-      throw new ParserException();
+      // Ignore segments with unexpected name type.
+      return false;
     }
     String name = readAmfString(data);
     if (!NAME_METADATA.equals(name)) {
@@ -143,7 +142,7 @@ import java.util.Map;
     int size = data.readUnsignedShort();
     int position = data.getPosition();
     data.skipBytes(size);
-    return new String(data.data, position, size);
+    return new String(data.getData(), position, size);
   }
 
   /**

@@ -459,12 +459,12 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             }
           }
           formatBuilder.setSampleMimeType(sampleMimeType);
-          if (uri == null) {
-            // TODO: Remove muxedAudioFormat and add a Rendition with a null uri to audios.
-            muxedAudioFormat = formatBuilder.build();
-          } else {
+          if (uri != null) {
             formatBuilder.setMetadata(metadata);
             audios.add(new Rendition(uri, formatBuilder.build(), groupId, name));
+          } else if (variant != null) {
+            // TODO: Remove muxedAudioFormat and add a Rendition with a null uri to audios.
+            muxedAudioFormat = formatBuilder.build();
           }
           break;
         case TYPE_SUBTITLES:

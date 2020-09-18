@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.junit.Assert.fail;
 
 import android.os.Handler;
@@ -25,7 +26,6 @@ import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Allows tests to block for, and assert properties of, calls from a {@link DownloadManager} to its
@@ -100,7 +100,8 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
   }
 
   @Override
-  public void onDownloadChanged(DownloadManager downloadManager, Download download) {
+  public void onDownloadChanged(
+      DownloadManager downloadManager, Download download, @Nullable Exception finalException) {
     if (download.state == Download.STATE_FAILED) {
       failureReason = download.failureReason;
     }
@@ -123,7 +124,7 @@ public final class TestDownloadManagerListener implements DownloadManager.Listen
     while (true) {
       @Nullable Integer state = null;
       try {
-        state = getStateQueue(id).poll(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        state = getStateQueue(id).poll(TIMEOUT_MS, MILLISECONDS);
       } catch (InterruptedException e) {
         fail("Interrupted: " + e.getMessage());
       }

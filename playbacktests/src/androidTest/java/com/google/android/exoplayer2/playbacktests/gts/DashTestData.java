@@ -45,8 +45,6 @@ import com.google.android.exoplayer2.util.Util;
 
   // Widevine encrypted content manifests using different common encryption schemes.
   public static final String WIDEVINE_SCHEME_CENC = BASE_URL_COMMON_ENCRYPTION + "tears-cenc.mpd";
-  public static final String WIDEVINE_SCHEME_CBC1 =
-      BASE_URL_COMMON_ENCRYPTION + "tears-aes-cbc1.mpd";
   public static final String WIDEVINE_SCHEME_CBCS =
       BASE_URL_COMMON_ENCRYPTION + "tears-aes-cbcs.mpd";
 

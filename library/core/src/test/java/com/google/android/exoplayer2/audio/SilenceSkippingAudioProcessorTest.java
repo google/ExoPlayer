@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.audio;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -37,7 +38,7 @@ public final class SilenceSkippingAudioProcessorTest {
           /* sampleRate= */ 1000, /* channelCount= */ 2, /* encoding= */ C.ENCODING_PCM_16BIT);
   private static final int TEST_SIGNAL_SILENCE_DURATION_MS = 1000;
   private static final int TEST_SIGNAL_NOISE_DURATION_MS = 1000;
-  private static final int TEST_SIGNAL_FRAME_COUNT = 100000;
+  private static final int TEST_SIGNAL_FRAME_COUNT = 100_000;
 
   private static final int INPUT_BUFFER_SIZE = 100;
 
@@ -203,6 +204,33 @@ public final class SilenceSkippingAudioProcessorTest {
   }
 
   @Test
+  public void customPaddingValue_hasCorrectOutputAndSkippedFrameCounts() throws Exception {
+    // Given a signal that alternates between silence and noise.
+    InputBufferProvider inputBufferProvider =
+        getInputBufferProviderForAlternatingSilenceAndNoise(
+            TEST_SIGNAL_SILENCE_DURATION_MS,
+            TEST_SIGNAL_NOISE_DURATION_MS,
+            TEST_SIGNAL_FRAME_COUNT);
+
+    // When processing the entire signal with a larger than normal padding silence.
+    SilenceSkippingAudioProcessor silenceSkippingAudioProcessor =
+        new SilenceSkippingAudioProcessor(
+            SilenceSkippingAudioProcessor.DEFAULT_MINIMUM_SILENCE_DURATION_US,
+            /* paddingSilenceUs= */ 21_000,
+            SilenceSkippingAudioProcessor.DEFAULT_SILENCE_THRESHOLD_LEVEL);
+    silenceSkippingAudioProcessor.setEnabled(true);
+    silenceSkippingAudioProcessor.configure(AUDIO_FORMAT);
+    silenceSkippingAudioProcessor.flush();
+    assertThat(silenceSkippingAudioProcessor.isActive()).isTrue();
+    long totalOutputFrames =
+        process(silenceSkippingAudioProcessor, inputBufferProvider, /* inputBufferSize= */ 120);
+
+    // The right number of frames are skipped/output.
+    assertThat(totalOutputFrames).isEqualTo(58379);
+    assertThat(silenceSkippingAudioProcessor.getSkippedFrames()).isEqualTo(41621);
+  }
+
+  @Test
   public void skipThenFlush_resetsSkippedFrameCount() throws Exception {
     // Given a signal that alternates between silence and noise.
     InputBufferProvider inputBufferProvider =
@@ -293,7 +321,7 @@ public final class SilenceSkippingAudioProcessorTest {
       ByteBuffer inputBuffer = ByteBuffer.allocate(sizeBytes).order(ByteOrder.nativeOrder());
       ShortBuffer inputBufferAsShortBuffer = inputBuffer.asShortBuffer();
       int limit = buffer.limit();
-      buffer.limit(Math.min(buffer.position() + sizeBytes / 2, limit));
+      buffer.limit(min(buffer.position() + sizeBytes / 2, limit));
       inputBufferAsShortBuffer.put(buffer);
       buffer.limit(limit);
       inputBuffer.limit(inputBufferAsShortBuffer.position() * 2);

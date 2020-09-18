@@ -20,8 +20,8 @@ import static com.google.android.exoplayer2.AudioFocusManager.PLAYER_COMMAND_PLA
 import static com.google.android.exoplayer2.AudioFocusManager.PLAYER_COMMAND_WAIT_FOR_CALLBACK;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.robolectric.Shadows.shadowOf;
 import static org.robolectric.annotation.Config.TARGET_SDK;
-import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.content.Context;
 import android.media.AudioFocusRequest;
@@ -37,11 +37,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
-import org.robolectric.annotation.LooperMode;
 import org.robolectric.shadows.ShadowAudioManager;
 
 /** Unit tests for {@link AudioFocusManager}. */
-@LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
 public class AudioFocusManagerTest {
   private static final int NO_COMMAND_RECEIVED = ~PLAYER_COMMAND_WAIT_FOR_CALLBACK;
@@ -231,8 +229,9 @@ public class AudioFocusManagerTest {
     audioFocusManager
         .getFocusListener()
         .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
-    assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
+    shadowOf(Looper.getMainLooper()).idle();
 
+    assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
     // Focus should be re-requested, rather than staying in a state of transient ducking. This
     // should restore the volume to 1.0. See https://github.com/google/ExoPlayer/issues/7182 for
     // context.
@@ -254,6 +253,8 @@ public class AudioFocusManagerTest {
     audioFocusManager
         .getFocusListener()
         .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
 
     // Configure the manager to no longer handle focus.
@@ -354,6 +355,8 @@ public class AudioFocusManagerTest {
     audioFocusManager
         .getFocusListener()
         .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
 
     audioFocusManager.release();
@@ -374,10 +377,14 @@ public class AudioFocusManagerTest {
     audioFocusManager
         .getFocusListener()
         .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+    shadowOf(Looper.getMainLooper()).idle();
 
     assertThat(testPlayerControl.lastVolumeMultiplier).isLessThan(1.0f);
     assertThat(testPlayerControl.lastPlayerCommand).isEqualTo(NO_COMMAND_RECEIVED);
+
     audioFocusManager.getFocusListener().onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastVolumeMultiplier).isEqualTo(1.0f);
   }
 
@@ -399,9 +406,14 @@ public class AudioFocusManagerTest {
     audioFocusManager
         .getFocusListener()
         .onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastPlayerCommand).isEqualTo(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
     assertThat(testPlayerControl.lastVolumeMultiplier).isEqualTo(1.0f);
+
     audioFocusManager.getFocusListener().onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastPlayerCommand).isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
   }
 
@@ -415,6 +427,8 @@ public class AudioFocusManagerTest {
         .isEqualTo(PLAYER_COMMAND_PLAY_WHEN_READY);
 
     audioFocusManager.getFocusListener().onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastVolumeMultiplier).isEqualTo(1.0f);
     assertThat(testPlayerControl.lastPlayerCommand).isEqualTo(PLAYER_COMMAND_WAIT_FOR_CALLBACK);
   }
@@ -433,6 +447,8 @@ public class AudioFocusManagerTest {
     ShadowAudioManager.AudioFocusRequest request =
         Shadows.shadowOf(audioManager).getLastAudioFocusRequest();
     request.listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastPlayerCommand).isEqualTo(PLAYER_COMMAND_DO_NOT_PLAY);
     assertThat(Shadows.shadowOf(audioManager).getLastAbandonedAudioFocusListener())
         .isEqualTo(request.listener);
@@ -450,6 +466,8 @@ public class AudioFocusManagerTest {
     assertThat(Shadows.shadowOf(audioManager).getLastAbandonedAudioFocusRequest()).isNull();
 
     audioFocusManager.getFocusListener().onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS);
+    shadowOf(Looper.getMainLooper()).idle();
+
     assertThat(testPlayerControl.lastPlayerCommand).isEqualTo(PLAYER_COMMAND_DO_NOT_PLAY);
     assertThat(Shadows.shadowOf(audioManager).getLastAbandonedAudioFocusRequest())
         .isEqualTo(Shadows.shadowOf(audioManager).getLastAudioFocusRequest().audioFocusRequest);

@@ -61,7 +61,7 @@ import java.util.Arrays;
 
   @Override
   protected long preparePayload(ParsableByteArray packet) {
-    if (!isAudioPacket(packet.data)) {
+    if (!isAudioPacket(packet.getData())) {
       return -1;
     }
     return getFlacFrameBlockSize(packet);
@@ -69,7 +69,7 @@ import java.util.Arrays;
 
   @Override
   protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
-    byte[] data = packet.data;
+    byte[] data = packet.getData();
     @Nullable FlacStreamMetadata streamMetadata = this.streamMetadata;
     if (streamMetadata == null) {
       streamMetadata = new FlacStreamMetadata(data, 17);
@@ -92,7 +92,7 @@ import java.util.Arrays;
   }
 
   private int getFlacFrameBlockSize(ParsableByteArray packet) {
-    int blockSizeKey = (packet.data[2] & 0xFF) >> 4;
+    int blockSizeKey = (packet.getData()[2] & 0xFF) >> 4;
     if (blockSizeKey == 6 || blockSizeKey == 7) {
       // Skip the sample number.
       packet.skipBytes(FRAME_HEADER_SAMPLE_NUMBER_OFFSET);

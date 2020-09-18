@@ -69,8 +69,8 @@ public final class HevcConfig {
           System.arraycopy(NalUnitUtil.NAL_START_CODE, 0, buffer, bufferPosition,
               NalUnitUtil.NAL_START_CODE.length);
           bufferPosition += NalUnitUtil.NAL_START_CODE.length;
-          System
-              .arraycopy(data.data, data.getPosition(), buffer, bufferPosition, nalUnitLength);
+          System.arraycopy(
+              data.getData(), data.getPosition(), buffer, bufferPosition, nalUnitLength);
           bufferPosition += nalUnitLength;
           data.skipBytes(nalUnitLength);
         }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOException;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Joiner;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -98,7 +100,12 @@ public final class ExtractorAsserts {
 
     /**
      * The prefix prepended to the dump files path. If not set, the path to the source data will be
-     * used.
+     * used to derive this assuming the following path structure:
+     *
+     * <ul>
+     *   <li>Media: {@code media/$mediapath}
+     *   <li>Dumps: {@code extractordumps/$mediapath}
+     * </ul>
      */
     @Nullable public final String dumpFilesPrefix;
 
@@ -155,9 +162,13 @@ public final class ExtractorAsserts {
    */
   public static void assertSniff(
       Extractor extractor, FakeExtractorInput input, boolean expectedResult) throws IOException {
+    long originalPosition = input.getPosition();
     while (true) {
       try {
         assertThat(extractor.sniff(input)).isEqualTo(expectedResult);
+        if (!expectedResult) {
+          assertThat(input.getPosition()).isEqualTo(originalPosition);
+        }
         return;
       } catch (SimulatedIOException e) {
         // Ignore.
@@ -234,7 +245,8 @@ public final class ExtractorAsserts {
    * by {@code simulationConfig}.
    *
    * <p>The output of the extractor is compared against prerecorded dump files whose names are
-   * derived from the {@code file} parameter.
+   * derived from the {@code file} parameter as specified in the docs for {@link
+   * AssertionConfig#dumpFilesPrefix}.
    *
    * @param factory An {@link ExtractorFactory} which creates instances of the {@link Extractor}
    *     class which is to be tested.
@@ -270,8 +282,24 @@ public final class ExtractorAsserts {
     // Assert output.
     Context context = ApplicationProvider.getApplicationContext();
     byte[] fileData = TestUtil.getByteArray(context, file);
-    String dumpFilesPrefix =
-        assertionConfig.dumpFilesPrefix != null ? assertionConfig.dumpFilesPrefix : file;
+    String dumpFilesPrefix;
+    if (assertionConfig.dumpFilesPrefix != null) {
+      dumpFilesPrefix = assertionConfig.dumpFilesPrefix;
+    } else {
+      String[] path = file.split("/");
+      checkState(
+          path.length > 0 && path[0].equals("media"),
+          "AssertionConfig.dumpFilesPrefix == null but file isn't in a media/ sub-directory.\n"
+              + "Expected : 'media/<path-to-file>'\n"
+              + "Found    : '"
+              + file
+              + "'\n"
+              + "You need to set AssertionConfig.dumpFilesPrefix explicitly if your media and dump"
+              + " file aren't located in the expected structure (see docs on"
+              + " AssertionConfig.dumpFilesPrefix)");
+      path[0] = "extractordumps";
+      dumpFilesPrefix = Joiner.on('/').join(path);
+    }
     assertOutput(
         factory.create(),
         dumpFilesPrefix,
@@ -322,9 +350,11 @@ public final class ExtractorAsserts {
     FakeExtractorOutput extractorOutput =
         consumeTestData(extractor, input, 0, true, deduplicateConsecutiveFormats);
     if (simulateUnknownLength) {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
     }
 
     // Seeking to (timeUs=0, position=0) should always work, and cause the same data to be output.
@@ -332,26 +362,34 @@ public final class ExtractorAsserts {
     input.reset();
     consumeTestData(extractor, input, /* timeUs= */ 0, extractorOutput, false);
     if (simulateUnknownLength) {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
     } else {
-      extractorOutput.assertOutput(context, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
+      DumpFileAsserts.assertOutput(
+          context, extractorOutput, dumpFilesPrefix + ".0" + DUMP_EXTENSION);
     }
 
-    // If the SeekMap is seekable, test seeking in the stream.
     SeekMap seekMap = Assertions.checkNotNull(extractorOutput.seekMap);
-    if (seekMap.isSeekable()) {
-      long durationUs = seekMap.getDurationUs();
-      for (int j = 0; j < 4; j++) {
-        extractorOutput.clearTrackOutputs();
-        long timeUs = durationUs == C.TIME_UNSET ? 0 : (durationUs * j) / 3;
-        long position = seekMap.getSeekPoints(timeUs).first.position;
-        input.reset();
-        input.setPosition((int) position);
-        consumeTestData(extractor, input, timeUs, extractorOutput, false);
-        extractorOutput.assertOutput(context, dumpFilesPrefix + '.' + j + DUMP_EXTENSION);
-        if (durationUs == C.TIME_UNSET) {
-          break;
-        }
+    long durationUs = seekMap.getDurationUs();
+    // Only seek to the timeUs=0 if the SeekMap is unseekable or the duration is unknown.
+    int numberSeekTests = seekMap.isSeekable() && durationUs != C.TIME_UNSET ? 4 : 1;
+    for (int j = 0; j < numberSeekTests; j++) {
+      long timeUs = durationUs * j / 3;
+      long position = seekMap.getSeekPoints(timeUs).first.position;
+      if (timeUs == 0 && position == 0) {
+        // Already tested.
+        continue;
+      }
+      input.reset();
+      input.setPosition((int) position);
+      extractorOutput.clearTrackOutputs();
+      consumeTestData(extractor, input, timeUs, extractorOutput, false);
+      if (simulateUnknownLength && timeUs == 0) {
+        DumpFileAsserts.assertOutput(
+            context, extractorOutput, dumpFilesPrefix + UNKNOWN_LENGTH_EXTENSION);
+      } else {
+        DumpFileAsserts.assertOutput(
+            context, extractorOutput, dumpFilesPrefix + '.' + j + DUMP_EXTENSION);
       }
     }
   }
@@ -390,7 +428,7 @@ public final class ExtractorAsserts {
         readResult = extractor.read(input, seekPositionHolder);
         if (readResult == Extractor.RESULT_SEEK) {
           long seekPosition = seekPositionHolder.position;
-          Assertions.checkState(0 <= seekPosition && seekPosition <= Integer.MAX_VALUE);
+          checkState(0 <= seekPosition && seekPosition <= Integer.MAX_VALUE);
           input.setPosition((int) seekPosition);
         }
       } catch (SimulatedIOException e) {

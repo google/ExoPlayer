@@ -85,16 +85,7 @@ import java.util.List;
     Collections.sort(cuesWithUnsetLine, (c1, c2) -> Long.compare(c1.startTimeUs, c2.startTimeUs));
     for (int i = 0; i < cuesWithUnsetLine.size(); i++) {
       Cue cue = cuesWithUnsetLine.get(i).cue;
-      currentCues.add(
-          cue.buildUpon()
-              .setLine((float) (-1 - i), Cue.LINE_TYPE_NUMBER)
-              // WebVTT doesn't use 'line alignment' (i.e. Cue#lineAnchor) when computing position
-              // with snap-to-lines=true (i.e. Cue#LINE_TYPE_NUMBER) but Cue does use lineAnchor
-              // when describing how numeric cues should be displayed. So we have to manually set
-              // lineAnchor=ANCHOR_TYPE_END to avoid the bottom line of cues being off the screen.
-              // https://www.w3.org/TR/webvtt1/#processing-cue-settings
-              .setLineAnchor(Cue.ANCHOR_TYPE_END)
-              .build());
+      currentCues.add(cue.buildUpon().setLine((float) (-1 - i), Cue.LINE_TYPE_NUMBER).build());
     }
     return currentCues;
   }

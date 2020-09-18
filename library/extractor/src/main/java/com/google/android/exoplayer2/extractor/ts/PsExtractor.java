@@ -182,7 +182,7 @@ public final class PsExtractor implements Extractor {
       return RESULT_END_OF_INPUT;
     }
     // First peek and check what type of start code is next.
-    if (!input.peekFully(psPacketBuffer.data, 0, 4, true)) {
+    if (!input.peekFully(psPacketBuffer.getData(), 0, 4, true)) {
       return RESULT_END_OF_INPUT;
     }
 
@@ -192,7 +192,7 @@ public final class PsExtractor implements Extractor {
       return RESULT_END_OF_INPUT;
     } else if (nextStartCode == PACK_START_CODE) {
       // Now peek the rest of the pack_header.
-      input.peekFully(psPacketBuffer.data, 0, 10);
+      input.peekFully(psPacketBuffer.getData(), 0, 10);
 
       // We only care about the pack_stuffing_length in here, skip the first 77 bits.
       psPacketBuffer.setPosition(9);
@@ -205,7 +205,7 @@ public final class PsExtractor implements Extractor {
       return RESULT_CONTINUE;
     } else if (nextStartCode == SYSTEM_HEADER_START_CODE) {
       // We just skip all this, but we need to get the length first.
-      input.peekFully(psPacketBuffer.data, 0, 2);
+      input.peekFully(psPacketBuffer.getData(), 0, 2);
 
       // Length is the next 2 bytes.
       psPacketBuffer.setPosition(0);
@@ -260,7 +260,7 @@ public final class PsExtractor implements Extractor {
     }
 
     // The next 2 bytes are the length. Once we have that we can consume the complete packet.
-    input.peekFully(psPacketBuffer.data, 0, 2);
+    input.peekFully(psPacketBuffer.getData(), 0, 2);
     psPacketBuffer.setPosition(0);
     int payloadLength = psPacketBuffer.readUnsignedShort();
     int pesLength = payloadLength + 6;
@@ -271,7 +271,7 @@ public final class PsExtractor implements Extractor {
     } else {
       psPacketBuffer.reset(pesLength);
       // Read the whole packet and the header for consumption.
-      input.readFully(psPacketBuffer.data, 0, pesLength);
+      input.readFully(psPacketBuffer.getData(), 0, pesLength);
       psPacketBuffer.setPosition(6);
       payloadReader.consume(psPacketBuffer);
       psPacketBuffer.setLimit(psPacketBuffer.capacity());

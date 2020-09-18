@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.database.ExoDatabaseProvider;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.dash.DashUtil;
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
@@ -68,7 +70,9 @@ public final class DashDownloadTest {
             .setAudioVideoFormats(
                 DashTestData.AAC_AUDIO_REPRESENTATION_ID, DashTestData.H264_CDD_FIXED);
     tempFolder = Util.createTempDirectory(testRule.getActivity(), "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(
+            tempFolder, new NoOpCacheEvictor(), new ExoDatabaseProvider(testRule.getActivity()));
     httpDataSourceFactory = new DefaultHttpDataSourceFactory("ExoPlayer", null);
     offlineDataSourceFactory = new CacheDataSource.Factory().setCache(cache);
   }
@@ -120,7 +124,9 @@ public final class DashDownloadTest {
         new CacheDataSource.Factory()
             .setCache(cache)
             .setUpstreamDataSourceFactory(httpDataSourceFactory);
-    return new DashDownloader(MANIFEST_URI, keys, cacheDataSourceFactory);
+    return new DashDownloader(
+        new MediaItem.Builder().setUri(MANIFEST_URI).setStreamKeys(keys).build(),
+        cacheDataSourceFactory);
   }
 
 }

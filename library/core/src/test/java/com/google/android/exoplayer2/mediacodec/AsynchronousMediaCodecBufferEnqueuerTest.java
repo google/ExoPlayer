@@ -21,8 +21,8 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doAnswer;
 
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.os.HandlerThread;
-import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
@@ -37,21 +37,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.robolectric.Shadows;
-import org.robolectric.shadows.ShadowLooper;
 
 /** Unit tests for {@link AsynchronousMediaCodecBufferEnqueuer}. */
 @RunWith(AndroidJUnit4.class)
 public class AsynchronousMediaCodecBufferEnqueuerTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
+  private MediaCodec codec;
   private AsynchronousMediaCodecBufferEnqueuer enqueuer;
   private TestHandlerThread handlerThread;
   @Mock private ConditionVariable mockConditionVariable;
 
   @Before
   public void setUp() throws IOException {
-    MediaCodec codec = MediaCodec.createByCodecName("h264");
+    codec = MediaCodec.createByCodecName("h264");
+    codec.configure(new MediaFormat(), /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
+    codec.start();
     handlerThread = new TestHandlerThread("TestHandlerThread");
     enqueuer =
         new AsynchronousMediaCodecBufferEnqueuer(codec, handlerThread, mockConditionVariable);
@@ -60,7 +61,8 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
   @After
   public void tearDown() {
     enqueuer.shutdown();
-
+    codec.stop();
+    codec.release();
     assertThat(TestHandlerThread.INSTANCES_STARTED.get()).isEqualTo(0);
   }
 
@@ -97,29 +99,6 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
   }
 
   @Test
-  public void queueInputBuffer_multipleTimes_limitsObjectsAllocation() {
-    enqueuer.start();
-    Looper looper = handlerThread.getLooper();
-    ShadowLooper shadowLooper = Shadows.shadowOf(looper);
-
-    for (int cycle = 0; cycle < 100; cycle++) {
-      // Enqueue 10 messages to looper.
-      for (int i = 0; i < 10; i++) {
-        enqueuer.queueInputBuffer(
-            /* index= */ i,
-            /* offset= */ 0,
-            /* size= */ 0,
-            /* presentationTimeUs= */ i,
-            /* flags= */ 0);
-      }
-      // Execute all messages.
-      shadowLooper.idle();
-    }
-
-    assertThat(AsynchronousMediaCodecBufferEnqueuer.getInstancePoolSize()).isEqualTo(10);
-  }
-
-  @Test
   public void queueSecureInputBuffer_withPendingCryptoException_throwsCryptoException() {
     enqueuer.setPendingRuntimeException(
         new MediaCodec.CryptoException(/* errorCode= */ 0, /* detailMessage= */ null));
@@ -152,30 +131,6 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
                 /* info= */ info,
                 /* presentationTimeUs= */ 0,
                 /* flags= */ 0));
-  }
-
-  @Test
-  public void queueSecureInputBuffer_multipleTimes_limitsObjectsAllocation() {
-    enqueuer.start();
-    Looper looper = handlerThread.getLooper();
-    CryptoInfo info = createCryptoInfo();
-    ShadowLooper shadowLooper = Shadows.shadowOf(looper);
-
-    for (int cycle = 0; cycle < 100; cycle++) {
-      // Enqueue 10 messages to looper.
-      for (int i = 0; i < 10; i++) {
-        enqueuer.queueSecureInputBuffer(
-            /* index= */ i,
-            /* offset= */ 0,
-            /* info= */ info,
-            /* presentationTimeUs= */ i,
-            /* flags= */ 0);
-      }
-      // Execute all messages.
-      shadowLooper.idle();
-    }
-
-    assertThat(AsynchronousMediaCodecBufferEnqueuer.getInstancePoolSize()).isEqualTo(10);
   }
 
   @Test

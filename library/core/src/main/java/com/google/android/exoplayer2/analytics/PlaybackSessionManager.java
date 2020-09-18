@@ -99,24 +99,34 @@ public interface PlaybackSessionManager {
   /**
    * Updates or creates sessions based on a player {@link EventTime}.
    *
+   * <p>Call {@link #updateSessionsWithTimelineChange(EventTime)} or {@link
+   * #updateSessionsWithDiscontinuity(EventTime, int)} if the event is a {@link Timeline} change or
+   * a position discontinuity respectively.
+   *
    * @param eventTime The {@link EventTime}.
    */
   void updateSessions(EventTime eventTime);
 
   /**
-   * Updates the session associations to a new timeline.
+   * Updates or creates sessions based on a {@link Timeline} change at {@link EventTime}.
    *
-   * @param eventTime The event time with the timeline change.
+   * <p>Should be called instead of {@link #updateSessions(EventTime)} if a {@link Timeline} change
+   * occurred.
+   *
+   * @param eventTime The {@link EventTime} with the timeline change.
    */
-  void handleTimelineUpdate(EventTime eventTime);
+  void updateSessionsWithTimelineChange(EventTime eventTime);
 
   /**
-   * Handles a position discontinuity.
+   * Updates or creates sessions based on a position discontinuity at {@link EventTime}.
    *
-   * @param eventTime The event time of the position discontinuity.
+   * <p>Should be called instead of {@link #updateSessions(EventTime)} if a position discontinuity
+   * occurred.
+   *
+   * @param eventTime The {@link EventTime} of the position discontinuity.
    * @param reason The {@link DiscontinuityReason}.
    */
-  void handlePositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason);
+  void updateSessionsWithDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason);
 
   /**
    * Finishes all existing sessions and calls their respective {@link

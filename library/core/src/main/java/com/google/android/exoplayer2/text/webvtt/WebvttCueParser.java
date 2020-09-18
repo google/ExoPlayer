@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.text.webvtt;
 
 import static com.google.android.exoplayer2.text.span.SpanUtil.addOrReplaceSpan;
+import static java.lang.Math.min;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.Color;
@@ -26,7 +27,6 @@ import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -50,8 +50,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -240,7 +242,6 @@ public final class WebvttCueParser {
       @Nullable String id, String markup, List<WebvttCssStyle> styles) {
     SpannableStringBuilder spannedText = new SpannableStringBuilder();
     ArrayDeque<StartTag> startTagStack = new ArrayDeque<>();
-    List<StyleMatch> scratchStyleMatches = new ArrayList<>();
     int pos = 0;
     List<Element> nestedElements = new ArrayList<>();
     while (pos < markup.length()) {
@@ -271,8 +272,7 @@ public final class WebvttCueParser {
                 break;
               }
               startTag = startTagStack.pop();
-              applySpansForTag(
-                  id, startTag, nestedElements, spannedText, styles, scratchStyleMatches);
+              applySpansForTag(id, startTag, nestedElements, spannedText, styles);
               if (!startTagStack.isEmpty()) {
                 nestedElements.add(new Element(startTag, spannedText.length()));
               } else {
@@ -286,9 +286,12 @@ public final class WebvttCueParser {
         case CHAR_AMPERSAND:
           int semiColonEndIndex = markup.indexOf(CHAR_SEMI_COLON, pos + 1);
           int spaceEndIndex = markup.indexOf(CHAR_SPACE, pos + 1);
-          int entityEndIndex = semiColonEndIndex == -1 ? spaceEndIndex
-              : (spaceEndIndex == -1 ? semiColonEndIndex
-                  : Math.min(semiColonEndIndex, spaceEndIndex));
+          int entityEndIndex =
+              semiColonEndIndex == -1
+                  ? spaceEndIndex
+                  : (spaceEndIndex == -1
+                      ? semiColonEndIndex
+                      : min(semiColonEndIndex, spaceEndIndex));
           if (entityEndIndex != -1) {
             applyEntity(markup.substring(pos + 1, entityEndIndex), spannedText);
             if (entityEndIndex == spaceEndIndex) {
@@ -308,16 +311,14 @@ public final class WebvttCueParser {
     }
     // apply unclosed tags
     while (!startTagStack.isEmpty()) {
-      applySpansForTag(
-          id, startTagStack.pop(), nestedElements, spannedText, styles, scratchStyleMatches);
+      applySpansForTag(id, startTagStack.pop(), nestedElements, spannedText, styles);
     }
     applySpansForTag(
         id,
         StartTag.buildWholeCueVirtualTag(),
         /* nestedElements= */ Collections.emptyList(),
         spannedText,
-        styles,
-        scratchStyleMatches);
+        styles);
     return SpannedString.valueOf(spannedText);
   }
 
@@ -394,13 +395,7 @@ public final class WebvttCueParser {
       builder.line = WebvttParserUtil.parsePercentage(s);
       builder.lineType = Cue.LINE_TYPE_FRACTION;
     } else {
-      int lineNumber = Integer.parseInt(s);
-      if (lineNumber < 0) {
-        // WebVTT defines line -1 as last visible row when lineAnchor is ANCHOR_TYPE_START, where-as
-        // Cue defines it to be the first row that's not visible.
-        lineNumber--;
-      }
-      builder.line = lineNumber;
+      builder.line = Integer.parseInt(s);
       builder.lineType = Cue.LINE_TYPE_NUMBER;
     }
   }
@@ -535,10 +530,10 @@ public final class WebvttCueParser {
       StartTag startTag,
       List<Element> nestedElements,
       SpannableStringBuilder text,
-      List<WebvttCssStyle> styles,
-      List<StyleMatch> scratchStyleMatches) {
+      List<WebvttCssStyle> styles) {
     int start = startTag.position;
     int end = text.length();
+
     switch(startTag.name) {
       case TAG_BOLD:
         text.setSpan(new StyleSpan(STYLE_BOLD), start, end,
@@ -549,7 +544,7 @@ public final class WebvttCueParser {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;
       case TAG_RUBY:
-        applyRubySpans(nestedElements, text, start);
+        applyRubySpans(text, cueId, startTag, nestedElements, styles);
         break;
       case TAG_UNDERLINE:
         text.setSpan(new UnderlineSpan(), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -564,33 +559,45 @@ public final class WebvttCueParser {
       default:
         return;
     }
-    scratchStyleMatches.clear();
-    getApplicableStyles(styles, cueId, startTag, scratchStyleMatches);
-    int styleMatchesCount = scratchStyleMatches.size();
-    for (int i = 0; i < styleMatchesCount; i++) {
-      applyStyleToText(text, scratchStyleMatches.get(i).style, start, end);
+
+    List<StyleMatch> applicableStyles = getApplicableStyles(styles, cueId, startTag);
+    for (int i = 0; i < applicableStyles.size(); i++) {
+      applyStyleToText(text, applicableStyles.get(i).style, start, end);
     }
   }
 
   private static void applyRubySpans(
-      List<Element> nestedElements, SpannableStringBuilder text, int startTagPosition) {
+      SpannableStringBuilder text,
+      @Nullable String cueId,
+      StartTag startTag,
+      List<Element> nestedElements,
+      List<WebvttCssStyle> styles) {
+    @RubySpan.Position int rubyTagPosition = getRubyPosition(styles, cueId, startTag);
     List<Element> sortedNestedElements = new ArrayList<>(nestedElements.size());
     sortedNestedElements.addAll(nestedElements);
     Collections.sort(sortedNestedElements, Element.BY_START_POSITION_ASC);
     int deletedCharCount = 0;
-    int lastRubyTextEnd = startTagPosition;
+    int lastRubyTextEnd = startTag.position;
     for (int i = 0; i < sortedNestedElements.size(); i++) {
       if (!TAG_RUBY_TEXT.equals(sortedNestedElements.get(i).startTag.name)) {
         continue;
       }
       Element rubyTextElement = sortedNestedElements.get(i);
+      // Use the <rt> element's ruby-position if set, otherwise the <ruby> element's and otherwise
+      // default to OVER.
+      @RubySpan.Position
+      int rubyPosition =
+          firstKnownRubyPosition(
+              getRubyPosition(styles, cueId, rubyTextElement.startTag),
+              rubyTagPosition,
+              RubySpan.POSITION_OVER);
       // Move the rubyText from spannedText into the RubySpan.
       int adjustedRubyTextStart = rubyTextElement.startTag.position - deletedCharCount;
       int adjustedRubyTextEnd = rubyTextElement.endPosition - deletedCharCount;
       CharSequence rubyText = text.subSequence(adjustedRubyTextStart, adjustedRubyTextEnd);
       text.delete(adjustedRubyTextStart, adjustedRubyTextEnd);
       text.setSpan(
-          new RubySpan(rubyText.toString(), RubySpan.POSITION_OVER),
+          new RubySpan(rubyText.toString(), rubyPosition),
           lastRubyTextEnd,
           adjustedRubyTextStart,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -598,6 +605,36 @@ public final class WebvttCueParser {
       // The ruby text has been deleted, so new-start == old-end.
       lastRubyTextEnd = adjustedRubyTextStart;
     }
+  }
+
+  @RubySpan.Position
+  private static int getRubyPosition(
+      List<WebvttCssStyle> styles, @Nullable String cueId, StartTag startTag) {
+    List<StyleMatch> styleMatches = getApplicableStyles(styles, cueId, startTag);
+    for (int i = 0; i < styleMatches.size(); i++) {
+      WebvttCssStyle style = styleMatches.get(i).style;
+      if (style.getRubyPosition() != RubySpan.POSITION_UNKNOWN) {
+        return style.getRubyPosition();
+      }
+    }
+    return RubySpan.POSITION_UNKNOWN;
+  }
+
+  @RubySpan.Position
+  private static int firstKnownRubyPosition(
+      @RubySpan.Position int position1,
+      @RubySpan.Position int position2,
+      @RubySpan.Position int position3) {
+    if (position1 != RubySpan.POSITION_UNKNOWN) {
+      return position1;
+    }
+    if (position2 != RubySpan.POSITION_UNKNOWN) {
+      return position2;
+    }
+    if (position3 != RubySpan.POSITION_UNKNOWN) {
+      return position3;
+    }
+    throw new IllegalArgumentException();
   }
 
   /**
@@ -608,7 +645,7 @@ public final class WebvttCueParser {
    * colors</a>.
    */
   private static void applyDefaultColors(
-      SpannableStringBuilder text, String[] classes, int start, int end) {
+      SpannableStringBuilder text, Set<String> classes, int start, int end) {
     for (String className : classes) {
       if (DEFAULT_TEXT_COLORS.containsKey(className)) {
         int color = DEFAULT_TEXT_COLORS.get(className);
@@ -663,15 +700,6 @@ public final class WebvttCueParser {
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-    Layout.Alignment textAlign = style.getTextAlign();
-    if (textAlign != null) {
-      addOrReplaceSpan(
-          spannedText,
-          new AlignmentSpan.Standard(textAlign),
-          start,
-          end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
     switch (style.getFontSizeUnit()) {
       case WebvttCssStyle.FONT_SIZE_UNIT_PIXEL:
         addOrReplaceSpan(
@@ -719,20 +747,18 @@ public final class WebvttCueParser {
     return Util.splitAtFirst(tagExpression, "[ \\.]")[0];
   }
 
-  private static void getApplicableStyles(
-      List<WebvttCssStyle> declaredStyles,
-      @Nullable String id,
-      StartTag tag,
-      List<StyleMatch> output) {
-    int styleCount = declaredStyles.size();
-    for (int i = 0; i < styleCount; i++) {
+  private static List<StyleMatch> getApplicableStyles(
+      List<WebvttCssStyle> declaredStyles, @Nullable String id, StartTag tag) {
+    List<StyleMatch> applicableStyles = new ArrayList<>();
+    for (int i = 0; i < declaredStyles.size(); i++) {
       WebvttCssStyle style = declaredStyles.get(i);
       int score = style.getSpecificityScore(id, tag.name, tag.classes, tag.voice);
       if (score > 0) {
-        output.add(new StyleMatch(score, style));
+        applicableStyles.add(new StyleMatch(score, style));
       }
     }
-    Collections.sort(output);
+    Collections.sort(applicableStyles);
+    return applicableStyles;
   }
 
   private static final class WebvttCueInfoBuilder {
@@ -787,7 +813,7 @@ public final class WebvttCueParser {
               .setLineAnchor(lineAnchor)
               .setPosition(position)
               .setPositionAnchor(positionAnchor)
-              .setSize(Math.min(size, deriveMaxSize(positionAnchor, position)))
+              .setSize(min(size, deriveMaxSize(positionAnchor, position)))
               .setVerticalType(verticalType);
 
       if (text != null) {
@@ -895,21 +921,19 @@ public final class WebvttCueParser {
 
     @Override
     public int compareTo(StyleMatch another) {
-      return this.score - another.score;
+      return Integer.compare(this.score, another.score);
     }
 
   }
 
   private static final class StartTag {
 
-    private static final String[] NO_CLASSES = new String[0];
-
     public final String name;
     public final int position;
     public final String voice;
-    public final String[] classes;
+    public final Set<String> classes;
 
-    private StartTag(String name, int position, String voice, String[] classes) {
+    private StartTag(String name, int position, String voice, Set<String> classes) {
       this.position = position;
       this.name = name;
       this.voice = voice;
@@ -929,17 +953,19 @@ public final class WebvttCueParser {
       }
       String[] nameAndClasses = Util.split(fullTagExpression, "\\.");
       String name = nameAndClasses[0];
-      String[] classes;
-      if (nameAndClasses.length > 1) {
-        classes = Util.nullSafeArrayCopyOfRange(nameAndClasses, 1, nameAndClasses.length);
-      } else {
-        classes = NO_CLASSES;
+      Set<String> classes = new HashSet<>();
+      for (int i = 1; i < nameAndClasses.length; i++) {
+        classes.add(nameAndClasses[i]);
       }
       return new StartTag(name, position, voice, classes);
     }
 
     public static StartTag buildWholeCueVirtualTag() {
-      return new StartTag("", 0, "", new String[0]);
+      return new StartTag(
+          /* name= */ "",
+          /* position= */ 0,
+          /* voice= */ "",
+          /* classes= */ Collections.emptySet());
     }
 
   }

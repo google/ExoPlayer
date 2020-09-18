@@ -103,14 +103,14 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   public int supportsFormat(Format format) {
     if (decoderFactory.supportsFormat(format)) {
       return RendererCapabilities.create(
-          format.drmInitData == null ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM);
+          format.exoMediaCryptoType == null ? FORMAT_HANDLED : FORMAT_UNSUPPORTED_DRM);
     } else {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     decoder = decoderFactory.createDecoder(formats[0]);
   }
 
@@ -129,10 +129,6 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
       if (result == C.RESULT_BUFFER_READ) {
         if (buffer.isEndOfStream()) {
           inputStreamEnded = true;
-        } else if (buffer.isDecodeOnly()) {
-          // Do nothing. Note this assumes that all metadata buffers can be decoded independently.
-          // If we ever need to support a metadata format where this is not the case, we'll need to
-          // pass the buffer to the decoder and discard the output.
         } else {
           buffer.subsampleOffsetUs = subsampleOffsetUs;
           buffer.flip();

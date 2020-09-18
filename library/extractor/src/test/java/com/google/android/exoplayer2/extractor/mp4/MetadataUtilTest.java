@@ -27,7 +27,7 @@ public final class MetadataUtilTest {
 
   @Test
   public void standardGenre_length_matchesNumberOfId3Genres() {
-    // Sanity check that we haven't forgotten a genre in the list.
+    // Check that we haven't forgotten a genre in the list.
     assertThat(MetadataUtil.STANDARD_GENRES).hasLength(192);
   }
 }

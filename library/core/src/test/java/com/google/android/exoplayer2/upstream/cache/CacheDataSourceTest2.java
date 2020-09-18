@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.upstream.cache;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.copyOf;
 import static java.util.Arrays.copyOfRange;
-import static org.robolectric.annotation.LooperMode.Mode.LEGACY;
 
 import android.content.Context;
 import android.net.Uri;
@@ -40,10 +39,8 @@ import java.io.IOException;
 import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Additional tests for {@link CacheDataSource}. */
-@LooperMode(LEGACY)
 @RunWith(AndroidJUnit4.class)
 public final class CacheDataSourceTest2 {
 
@@ -156,7 +153,11 @@ public final class CacheDataSourceTest2 {
   private static CacheDataSource buildCacheDataSource(Context context, DataSource upstreamSource,
       boolean useAesEncryption) throws CacheException {
     File cacheDir = context.getExternalCacheDir();
-    Cache cache = new SimpleCache(new File(cacheDir, EXO_CACHE_DIR), new NoOpCacheEvictor());
+    Cache cache =
+        new SimpleCache(
+            new File(cacheDir, EXO_CACHE_DIR),
+            new NoOpCacheEvictor(),
+            TestUtil.getInMemoryDatabaseProvider());
     emptyCache(cache);
 
     // Source and cipher
@@ -179,13 +180,13 @@ public final class CacheDataSourceTest2 {
         null); // eventListener
   }
 
-  private static void emptyCache(Cache cache) throws CacheException {
+  private static void emptyCache(Cache cache) {
     for (String key : cache.getKeys()) {
       for (CacheSpan span : cache.getCachedSpans(key)) {
         cache.removeSpan(span);
       }
     }
-    // Sanity check that the cache really is empty now.
+    // Check that the cache really is empty now.
     assertThat(cache.getKeys().isEmpty()).isTrue();
   }
 

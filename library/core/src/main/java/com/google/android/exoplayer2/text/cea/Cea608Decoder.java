@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.cea;
 
+import static java.lang.Math.min;
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Layout.Alignment;
@@ -37,6 +39,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -628,7 +631,7 @@ public final class Cea608Decoder extends CeaDecoder {
       @Nullable Cue cue = cueBuilders.get(i).build(/* forcedPositionAnchor= */ Cue.TYPE_UNSET);
       cueBuilderCues.add(cue);
       if (cue != null) {
-        positionAnchor = Math.min(positionAnchor, cue.positionAnchor);
+        positionAnchor = min(positionAnchor, cue.positionAnchor);
       }
     }
 
@@ -868,14 +871,18 @@ public final class Cea608Decoder extends CeaDecoder {
     }
 
     public void append(char text) {
-      captionStringBuilder.append(text);
+      // Don't accept more than 32 chars. We'll trim further, considering indent & tabOffset, in
+      // build().
+      if (captionStringBuilder.length() < SCREEN_CHARWIDTH) {
+        captionStringBuilder.append(text);
+      }
     }
 
     public void rollUp() {
       rolledUpCaptions.add(buildCurrentLine());
       captionStringBuilder.setLength(0);
       cueStyles.clear();
-      int numRows = Math.min(captionRowCount, row);
+      int numRows = min(captionRowCount, row);
       while (rolledUpCaptions.size() >= numRows) {
         rolledUpCaptions.remove(0);
       }
@@ -883,14 +890,17 @@ public final class Cea608Decoder extends CeaDecoder {
 
     @Nullable
     public Cue build(@Cue.AnchorType int forcedPositionAnchor) {
+      // The number of empty columns before the start of the text, in the range [0-31].
+      int startPadding = indent + tabOffset;
+      int maxTextLength = SCREEN_CHARWIDTH - startPadding;
       SpannableStringBuilder cueString = new SpannableStringBuilder();
       // Add any rolled up captions, separated by new lines.
       for (int i = 0; i < rolledUpCaptions.size(); i++) {
-        cueString.append(rolledUpCaptions.get(i));
+        cueString.append(Util.truncateAscii(rolledUpCaptions.get(i), maxTextLength));
         cueString.append('\n');
       }
       // Add the current line.
-      cueString.append(buildCurrentLine());
+      cueString.append(Util.truncateAscii(buildCurrentLine(), maxTextLength));
 
       if (cueString.length() == 0) {
         // The cue is empty.
@@ -898,8 +908,6 @@ public final class Cea608Decoder extends CeaDecoder {
       }
 
       int positionAnchor;
-      // The number of empty columns before the start of the text, in the range [0-31].
-      int startPadding = indent + tabOffset;
       // The number of empty columns after the end of the text, in the same range.
       int endPadding = SCREEN_CHARWIDTH - startPadding - cueString.length();
       int startEndPaddingDelta = startPadding - endPadding;
@@ -937,31 +945,29 @@ public final class Cea608Decoder extends CeaDecoder {
           break;
       }
 
-      int lineAnchor;
       int line;
-      // Note: Row indices are in the range [1-15].
-      if (captionMode == CC_MODE_ROLL_UP || row > (BASE_ROW / 2)) {
-        lineAnchor = Cue.ANCHOR_TYPE_END;
+      // Note: Row indices are in the range [1-15], Cue.line counts from 0 (top) and -1 (bottom).
+      if (row > (BASE_ROW / 2)) {
         line = row - BASE_ROW;
         // Two line adjustments. The first is because line indices from the bottom of the window
         // start from -1 rather than 0. The second is a blank row to act as the safe area.
         line -= 2;
       } else {
-        lineAnchor = Cue.ANCHOR_TYPE_START;
-        // Line indices from the top of the window start from 0, but we want a blank row to act as
-        // the safe area. As a result no adjustment is necessary.
-        line = row;
+        // The `row` of roll-up cues positions the bottom line (even for cues shown in the top
+        // half of the screen), so we need to consider the number of rows in this cue. In
+        // non-roll-up, we don't need any further adjustments because we leave the first line
+        // (cue.line=0) blank to act as the safe area, so positioning row=1 at Cue.line=1 is
+        // correct.
+        line = captionMode == CC_MODE_ROLL_UP ? row - (captionRowCount - 1) : row;
       }
 
-      return new Cue(
-          cueString,
-          Alignment.ALIGN_NORMAL,
-          line,
-          Cue.LINE_TYPE_NUMBER,
-          lineAnchor,
-          position,
-          positionAnchor,
-          Cue.DIMEN_UNSET);
+      return new Cue.Builder()
+          .setText(cueString)
+          .setTextAlignment(Alignment.ALIGN_NORMAL)
+          .setLine(line, Cue.LINE_TYPE_NUMBER)
+          .setPosition(position)
+          .setPositionAnchor(positionAnchor)
+          .build();
     }
 
     private SpannableString buildCurrentLine() {

@@ -15,12 +15,17 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.AbstractConcatenatedTimeline;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource.MediaSourceHolder;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
@@ -54,6 +59,9 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   private static final int MSG_UPDATE_TIMELINE = 4;
   private static final int MSG_ON_COMPLETION = 5;
 
+  private static final MediaItem EMPTY_MEDIA_ITEM =
+      new MediaItem.Builder().setUri(Uri.EMPTY).build();
+
   // Accessed on any thread.
   @GuardedBy("this")
   private final List<MediaSourceHolder> mediaSourcesPublic;
@@ -67,7 +75,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
 
   // Accessed on the playback thread only.
   private final List<MediaSourceHolder> mediaSourceHolders;
-  private final Map<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
+  private final IdentityHashMap<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
   private final Map<Object, MediaSourceHolder> mediaSourceByUid;
   private final Set<MediaSourceHolder> enabledMediaSourceHolders;
   private final boolean isAtomic;
@@ -438,9 +446,10 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   // CompositeMediaSource implementation.
 
   @Override
-  @Nullable
-  public Object getTag() {
-    return null;
+  public MediaItem getMediaItem() {
+    // This method is actually never called because getInitialTimeline is implemented and hence the
+    // MaskingMediaSource does not need to create a placeholder timeline for this media source.
+    return EMPTY_MEDIA_ITEM;
   }
 
   @Override
@@ -470,7 +479,7 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     @Nullable MediaSourceHolder holder = mediaSourceByUid.get(mediaSourceHolderUid);
     if (holder == null) {
       // Stale event. The media source has already been removed.
-      holder = new MediaSourceHolder(new DummyMediaSource(), useLazyPreparation);
+      holder = new MediaSourceHolder(new FakeMediaSource(), useLazyPreparation);
       holder.isRemoved = true;
       prepareChildSource(holder, holder.mediaSource);
     }
@@ -798,8 +807,8 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
   }
 
   private void moveMediaSourceInternal(int currentIndex, int newIndex) {
-    int startIndex = Math.min(currentIndex, newIndex);
-    int endIndex = Math.max(currentIndex, newIndex);
+    int startIndex = min(currentIndex, newIndex);
+    int endIndex = max(currentIndex, newIndex);
     int windowOffset = mediaSourceHolders.get(startIndex).firstWindowIndexInChild;
     mediaSourceHolders.add(newIndex, mediaSourceHolders.remove(currentIndex));
     for (int i = startIndex; i <= endIndex; i++) {
@@ -982,8 +991,8 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     }
   }
 
-  /** Dummy media source which does nothing and does not support creating periods. */
-  private static final class DummyMediaSource extends BaseMediaSource {
+  /** A media source which does nothing and does not support creating periods. */
+  private static final class FakeMediaSource extends BaseMediaSource {
 
     @Override
     protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
@@ -991,9 +1000,8 @@ public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSo
     }
 
     @Override
-    @Nullable
-    public Object getTag() {
-      return null;
+    public MediaItem getMediaItem() {
+      return EMPTY_MEDIA_ITEM;
     }
 
     @Override

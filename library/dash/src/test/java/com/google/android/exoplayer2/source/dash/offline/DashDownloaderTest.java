@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadException;
 import com.google.android.exoplayer2.offline.DownloadRequest;
@@ -44,6 +45,7 @@ import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +71,8 @@ public class DashDownloaderTest {
     MockitoAnnotations.initMocks(this);
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
     progressListener = new ProgressListener();
   }
 
@@ -84,17 +87,17 @@ public class DashDownloaderTest {
         new CacheDataSource.Factory()
             .setCache(Mockito.mock(Cache.class))
             .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
-    DownloaderFactory factory = new DefaultDownloaderFactory(cacheDataSourceFactory);
+    DownloaderFactory factory =
+        new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadRequest(
-                "id",
-                DownloadRequest.TYPE_DASH,
-                Uri.parse("https://www.test.com/download"),
-                Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
-                /* customCacheKey= */ null,
-                /* data= */ null));
+            new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download"))
+                .setMimeType(MimeTypes.APPLICATION_MPD)
+                .setStreamKeys(
+                    Collections.singletonList(
+                        new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)))
+                .build());
     assertThat(downloader).isInstanceOf(DashDownloader.class);
   }
 
@@ -337,7 +340,9 @@ public class DashDownloaderTest {
         new CacheDataSource.Factory()
             .setCache(cache)
             .setUpstreamDataSourceFactory(upstreamDataSourceFactory);
-    return new DashDownloader(TEST_MPD_URI, keysList(keys), cacheDataSourceFactory);
+    return new DashDownloader(
+        new MediaItem.Builder().setUri(TEST_MPD_URI).setStreamKeys(keysList(keys)).build(),
+        cacheDataSourceFactory);
   }
 
   private static ArrayList<StreamKey> keysList(StreamKey... keys) {

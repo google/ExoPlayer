@@ -25,6 +25,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioSink;
@@ -33,6 +34,7 @@ import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.testutil.CapturingAudioSink;
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +71,7 @@ public class FlacPlaybackTest {
 
     TestPlaybackRunnable testPlaybackRunnable =
         new TestPlaybackRunnable(
-            Uri.parse("asset:///" + fileName),
+            Uri.parse("asset:///media/" + fileName),
             ApplicationProvider.getApplicationContext(),
             audioSink);
     Thread thread = new Thread(testPlaybackRunnable);
@@ -79,8 +81,10 @@ public class FlacPlaybackTest {
       throw testPlaybackRunnable.playbackException;
     }
 
-    audioSink.assertOutput(
-        ApplicationProvider.getApplicationContext(), fileName + ".audiosink.dump");
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        audioSink,
+        "audiosinkdumps/" + fileName + ".audiosink.dump");
   }
 
   private static class TestPlaybackRunnable implements Player.EventListener, Runnable {
@@ -107,9 +111,8 @@ public class FlacPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtFlacTest"),
-                  MatroskaExtractor.FACTORY)
-              .createMediaSource(uri);
+                  new DefaultDataSourceFactory(context), MatroskaExtractor.FACTORY)
+              .createMediaSource(MediaItem.fromUri(uri));
       player.setMediaSource(mediaSource);
       player.prepare();
       player.play();

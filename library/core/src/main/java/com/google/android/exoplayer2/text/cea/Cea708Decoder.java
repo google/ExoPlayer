@@ -1329,18 +1329,19 @@ public final class Cea708Decoder extends CeaDecoder {
         boolean windowColorSet,
         int windowColor,
         int priority) {
-      this.cue =
-          new Cue(
-              text,
-              textAlignment,
-              line,
-              lineType,
-              lineAnchor,
-              position,
-              positionAnchor,
-              size,
-              windowColorSet,
-              windowColor);
+      Cue.Builder cueBuilder =
+          new Cue.Builder()
+              .setText(text)
+              .setTextAlignment(textAlignment)
+              .setLine(line, lineType)
+              .setLineAnchor(lineAnchor)
+              .setPosition(position)
+              .setPositionAnchor(positionAnchor)
+              .setSize(size);
+      if (windowColorSet) {
+        cueBuilder.setWindowColor(windowColor);
+      }
+      this.cue = cueBuilder.build();
       this.priority = priority;
     }
   }

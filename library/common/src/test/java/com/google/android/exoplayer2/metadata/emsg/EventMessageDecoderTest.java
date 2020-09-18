@@ -15,15 +15,15 @@
  */
 package com.google.android.exoplayer2.metadata.emsg;
 
-import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
-import static com.google.android.exoplayer2.testutil.TestUtil.createMetadataInputBuffer;
-import static com.google.android.exoplayer2.testutil.TestUtil.joinByteArrays;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.android.exoplayer2.util.Assertions;
+import com.google.common.primitives.Bytes;
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -34,7 +34,7 @@ public final class EventMessageDecoderTest {
   @Test
   public void decodeEventMessage() {
     byte[] rawEmsgBody =
-        joinByteArrays(
+        Bytes.concat(
             createByteArray(117, 114, 110, 58, 116, 101, 115, 116, 0), // scheme_id_uri = "urn:test"
             createByteArray(49, 50, 51, 0), // value = "123"
             createByteArray(0, 0, 11, 184), // event_duration_ms = 3000
@@ -79,5 +79,28 @@ public final class EventMessageDecoderTest {
     buffer.data = buffer.data.slice();
 
     assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
+  }
+
+  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
+    for (int i = 0; i < byteArray.length; i++) {
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
+    }
+    return byteArray;
+  }
+
+  /**
+   * Create a new {@link MetadataInputBuffer} and copy {@code data} into the backing {@link
+   * ByteBuffer}.
+   */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
+    MetadataInputBuffer buffer = new MetadataInputBuffer();
+    buffer.data = ByteBuffer.allocate(data.length).put(data);
+    buffer.data.flip();
+    return buffer;
   }
 }

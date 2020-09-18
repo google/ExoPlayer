@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.util;
 
+import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -219,11 +220,12 @@ public final class NalUnitUtil {
    * Returns whether the NAL unit with the specified header contains supplemental enhancement
    * information.
    *
-   * @param mimeType The sample MIME type.
+   * @param mimeType The sample MIME type, or {@code null} if unknown.
    * @param nalUnitHeaderFirstByte The first byte of nal_unit().
-   * @return Whether the NAL unit with the specified header is an SEI NAL unit.
+   * @return Whether the NAL unit with the specified header is an SEI NAL unit. False is returned if
+   *     the {@code MimeType} is {@code null}.
    */
-  public static boolean isNalUnitSei(String mimeType, byte nalUnitHeaderFirstByte) {
+  public static boolean isNalUnitSei(@Nullable String mimeType, byte nalUnitHeaderFirstByte) {
     return (MimeTypes.VIDEO_H264.equals(mimeType)
         && (nalUnitHeaderFirstByte & 0x1F) == H264_NAL_UNIT_TYPE_SEI)
         || (MimeTypes.VIDEO_H265.equals(mimeType)
@@ -431,18 +433,18 @@ public final class NalUnitUtil {
       return endOffset;
     }
 
-    if (prefixFlags != null) {
-      if (prefixFlags[0]) {
-        clearPrefixFlags(prefixFlags);
-        return startOffset - 3;
-      } else if (length > 1 && prefixFlags[1] && data[startOffset] == 1) {
-        clearPrefixFlags(prefixFlags);
-        return startOffset - 2;
-      } else if (length > 2 && prefixFlags[2] && data[startOffset] == 0
-          && data[startOffset + 1] == 1) {
-        clearPrefixFlags(prefixFlags);
-        return startOffset - 1;
-      }
+    if (prefixFlags[0]) {
+      clearPrefixFlags(prefixFlags);
+      return startOffset - 3;
+    } else if (length > 1 && prefixFlags[1] && data[startOffset] == 1) {
+      clearPrefixFlags(prefixFlags);
+      return startOffset - 2;
+    } else if (length > 2
+        && prefixFlags[2]
+        && data[startOffset] == 0
+        && data[startOffset + 1] == 1) {
+      clearPrefixFlags(prefixFlags);
+      return startOffset - 1;
     }
 
     int limit = endOffset - 1;
@@ -453,9 +455,7 @@ public final class NalUnitUtil {
         // There isn't a NAL prefix here, or at the next two positions. Do nothing and let the
         // loop advance the index by three.
       } else if (data[i - 2] == 0 && data[i - 1] == 0 && data[i] == 1) {
-        if (prefixFlags != null) {
-          clearPrefixFlags(prefixFlags);
-        }
+        clearPrefixFlags(prefixFlags);
         return i - 2;
       } else {
         // There isn't a NAL prefix here, but there might be at the next position. We should
@@ -464,18 +464,20 @@ public final class NalUnitUtil {
       }
     }
 
-    if (prefixFlags != null) {
-      // True if the last three bytes in the data seen so far are {0,0,1}.
-      prefixFlags[0] = length > 2
-          ? (data[endOffset - 3] == 0 && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
-          : length == 2 ? (prefixFlags[2] && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
-          : (prefixFlags[1] && data[endOffset - 1] == 1);
-      // True if the last two bytes in the data seen so far are {0,0}.
-      prefixFlags[1] = length > 1 ? data[endOffset - 2] == 0 && data[endOffset - 1] == 0
-          : prefixFlags[2] && data[endOffset - 1] == 0;
-      // True if the last byte in the data seen so far is {0}.
-      prefixFlags[2] = data[endOffset - 1] == 0;
-    }
+    // True if the last three bytes in the data seen so far are {0,0,1}.
+    prefixFlags[0] =
+        length > 2
+            ? (data[endOffset - 3] == 0 && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
+            : length == 2
+                ? (prefixFlags[2] && data[endOffset - 2] == 0 && data[endOffset - 1] == 1)
+                : (prefixFlags[1] && data[endOffset - 1] == 1);
+    // True if the last two bytes in the data seen so far are {0,0}.
+    prefixFlags[1] =
+        length > 1
+            ? data[endOffset - 2] == 0 && data[endOffset - 1] == 0
+            : prefixFlags[2] && data[endOffset - 1] == 0;
+    // True if the last byte in the data seen so far is {0}.
+    prefixFlags[2] = data[endOffset - 1] == 0;
 
     return endOffset;
   }

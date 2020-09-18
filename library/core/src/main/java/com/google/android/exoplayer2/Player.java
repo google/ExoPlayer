@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -310,9 +311,9 @@ public interface Player {
 
     /**
      * Sets the video decoder output buffer renderer. This is intended for use only with extension
-     * renderers that accept {@link C#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. For most use
-     * cases, an output surface or view should be passed via {@link #setVideoSurface(Surface)} or
-     * {@link #setVideoSurfaceView(SurfaceView)} instead.
+     * renderers that accept {@link Renderer#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. For most
+     * use cases, an output surface or view should be passed via {@link #setVideoSurface(Surface)}
+     * or {@link #setVideoSurfaceView(SurfaceView)} instead.
      *
      * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer, or {@code
      *     null} to clear the output buffer renderer.
@@ -373,8 +374,6 @@ public interface Player {
   }
 
   /** The device component of a {@link Player}. */
-  // Note: It's mostly from the androidx.media.VolumeProviderCompat and
-  //  androidx.media.MediaControllerCompat.PlaybackInfo.
   interface DeviceComponent {
 
     /** Adds a listener to receive device events. */
@@ -468,6 +467,19 @@ public interface Player {
     @Deprecated
     default void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {}
+
+    /**
+     * Called when playback transitions to a media item or starts repeating a media item according
+     * to the current {@link #getRepeatMode() repeat mode}.
+     *
+     * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
+     * consequence of a playlist change.
+     *
+     * @param mediaItem The {@link MediaItem}. May be null if the playlist becomes empty.
+     * @param reason The reason for the transition.
+     */
+    default void onMediaItemTransition(
+        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {}
 
     /**
      * Called when the available or selected tracks change.
@@ -569,20 +581,14 @@ public interface Player {
     default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
 
     /**
-     * @deprecated Use {@link #onPlaybackSpeedChanged(float)} and {@link
-     *     AudioListener#onSkipSilenceEnabledChanged(boolean)} instead.
+     * Called when the current playback parameters change. The playback parameters may change due to
+     * a call to {@link #setPlaybackParameters(PlaybackParameters)}, or the player itself may change
+     * them (for example, if audio playback switches to passthrough or offload mode, where speed
+     * adjustment is no longer possible).
+     *
+     * @param playbackParameters The playback parameters.
      */
-    @SuppressWarnings("deprecation")
-    @Deprecated
     default void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {}
-
-    /**
-     * Called when the current playback speed changes. The normal playback speed is 1. The speed may
-     * change due to a call to {@link #setPlaybackSpeed(float)}, or the player itself may change it
-     * (for example, if audio playback switches to passthrough mode, where speed adjustment is no
-     * longer possible).
-     */
-    default void onPlaybackSpeedChanged(float playbackSpeed) {}
 
     /**
      * @deprecated Seeks are processed without delay. Listen to {@link
@@ -590,6 +596,14 @@ public interface Player {
      */
     @Deprecated
     default void onSeekProcessed() {}
+
+    /**
+     * Called when the player has started or stopped offload scheduling after a call to {@link
+     * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean)}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
   }
 
   /**
@@ -765,8 +779,28 @@ public interface Player {
   /** Timeline changed as a result of a dynamic update introduced by the played media. */
   int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
 
-  /** The default playback speed. */
-  float DEFAULT_PLAYBACK_SPEED = 1.0f;
+  /** Reasons for media item transitions. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    MEDIA_ITEM_TRANSITION_REASON_REPEAT,
+    MEDIA_ITEM_TRANSITION_REASON_AUTO,
+    MEDIA_ITEM_TRANSITION_REASON_SEEK,
+    MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
+  })
+  @interface MediaItemTransitionReason {}
+  /** The media item has been repeated. */
+  int MEDIA_ITEM_TRANSITION_REASON_REPEAT = 0;
+  /** Playback has automatically transitioned to the next media item. */
+  int MEDIA_ITEM_TRANSITION_REASON_AUTO = 1;
+  /** A seek to another media item has occurred. */
+  int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2;
+  /**
+   * The current media item has changed because of a change in the playlist. This can either be if
+   * the media item previously being played has been removed, or when the playlist becomes non-empty
+   * after being empty.
+   */
+  int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 3;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
@@ -840,6 +874,8 @@ public interface Player {
    *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
    *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
    *     position is not reset at all.
+   * @throws IllegalSeekPositionException If the provided {@code windowIndex} is not within the
+   *     bounds of the list of media items.
    */
   void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs);
 
@@ -1063,6 +1099,8 @@ public interface Player {
    *
    * @param windowIndex The index of the window whose associated default position should be seeked
    *     to.
+   * @throws IllegalSeekPositionException If the player has a non-empty timeline and the provided
+   *     {@code windowIndex} is not within the bounds of the current timeline.
    */
   void seekToDefaultPosition(int windowIndex);
 
@@ -1112,38 +1150,23 @@ public interface Player {
   void next();
 
   /**
-   * @deprecated Use {@link #setPlaybackSpeed(float)} or {@link
-   *     AudioComponent#setSkipSilenceEnabled(boolean)} instead.
+   * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
+   * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
+   *
+   * <p>Playback parameters changes may cause the player to buffer. {@link
+   * EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever the
+   * currently active playback parameters change.
+   *
+   * @param playbackParameters The playback parameters, or {@code null} to use the defaults.
    */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters);
 
   /**
-   * @deprecated Use {@link #getPlaybackSpeed()} or {@link AudioComponent#getSkipSilenceEnabled()}
-   *     instead.
+   * Returns the currently active playback parameters.
+   *
+   * @see EventListener#onPlaybackParametersChanged(PlaybackParameters)
    */
-  @SuppressWarnings("deprecation")
-  @Deprecated
   PlaybackParameters getPlaybackParameters();
-
-  /**
-   * Attempts to set the playback speed.
-   *
-   * <p>Playback speed changes may cause the player to buffer. {@link
-   * EventListener#onPlaybackSpeedChanged(float)} will be called whenever the currently active
-   * playback speed change.
-   *
-   * @param playbackSpeed The playback speed.
-   */
-  void setPlaybackSpeed(float playbackSpeed);
-
-  /**
-   * Returns the currently active playback speed.
-   *
-   * @see EventListener#onPlaybackSpeedChanged(float)
-   */
-  float getPlaybackSpeed();
 
   /**
    * Stops playback without resetting the player. Use {@link #pause()} rather than this method if
@@ -1153,19 +1176,21 @@ public interface Player {
    * player instance can still be used, and {@link #release()} must still be called on the player if
    * it's no longer required.
    *
-   * <p>Calling this method does not reset the playback position.
+   * <p>Calling this method does not clear the playlist, reset the playback position or the playback
+   * error.
    */
   void stop();
 
   /**
-   * Stops playback and optionally resets the player. Use {@link #pause()} rather than this method
-   * if the intention is to pause playback.
+   * Stops playback and optionally clears the playlist and resets the position and playback error.
+   * Use {@link #pause()} rather than this method if the intention is to pause playback.
    *
    * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
    * player instance can still be used, and {@link #release()} must still be called on the player if
    * it's no longer required.
    *
-   * @param reset Whether the player should be reset.
+   * @param reset Whether the playlist should be cleared and whether the playback position and
+   *     playback error should be reset.
    */
   void stop(boolean reset);
 
@@ -1190,6 +1215,12 @@ public interface Player {
   int getRendererType(int index);
 
   /**
+   * Returns the track selector that this player uses, or null if track selection is not supported.
+   */
+  @Nullable
+  TrackSelector getTrackSelector();
+
+  /**
    * Returns the available track groups.
    */
   TrackGroupArray getCurrentTrackGroups();
@@ -1202,7 +1233,8 @@ public interface Player {
   /**
    * Returns the current manifest. The type depends on the type of media being played. May be null.
    */
-  @Nullable Object getCurrentManifest();
+  @Nullable
+  Object getCurrentManifest();
 
   /**
    * Returns the current {@link Timeline}. Never null, but may be empty.
@@ -1215,29 +1247,48 @@ public interface Player {
   int getCurrentPeriodIndex();
 
   /**
-   * Returns the index of the window currently being played.
+   * Returns the index of the current {@link Timeline.Window window} in the {@link
+   * #getCurrentTimeline() timeline}, or the prospective window index if the {@link
+   * #getCurrentTimeline() current timeline} is empty.
    */
   int getCurrentWindowIndex();
 
   /**
    * Returns the index of the next timeline window to be played, which may depend on the current
    * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
-   * currently being played is the last window.
+   * currently being played is the last window or if the {@link #getCurrentTimeline() current
+   * timeline} is empty.
    */
   int getNextWindowIndex();
 
   /**
    * Returns the index of the previous timeline window to be played, which may depend on the current
    * repeat mode and whether shuffle mode is enabled. Returns {@link C#INDEX_UNSET} if the window
-   * currently being played is the first window.
+   * currently being played is the first window or if the {@link #getCurrentTimeline() current
+   * timeline} is empty.
    */
   int getPreviousWindowIndex();
 
   /**
-   * Returns the tag of the currently playing window in the timeline. May be null if no tag is set
-   * or the timeline is not yet available.
+   * @deprecated Use {@link #getCurrentMediaItem()} and {@link MediaItem.PlaybackProperties#tag}
+   *     instead.
    */
-  @Nullable Object getCurrentTag();
+  @Deprecated
+  @Nullable
+  Object getCurrentTag();
+
+  /**
+   * Returns the media item of the current window in the timeline. May be null if the timeline is
+   * empty.
+   */
+  @Nullable
+  MediaItem getCurrentMediaItem();
+
+  /** Returns the number of {@link MediaItem media items} in the playlist. */
+  int getMediaItemCount();
+
+  /** Returns the {@link MediaItem} at the given index. */
+  MediaItem getMediaItemAt(int index);
 
   /**
    * Returns the duration of the current content window or ad in milliseconds, or {@link
@@ -1245,7 +1296,11 @@ public interface Player {
    */
   long getDuration();
 
-  /** Returns the playback position in the current content window or ad, in milliseconds. */
+  /**
+   * Returns the playback position in the current content window or ad, in milliseconds, or the
+   * prospective position in milliseconds if the {@link #getCurrentTimeline() current timeline} is
+   * empty.
+   */
   long getCurrentPosition();
 
   /**

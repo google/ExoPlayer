@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -50,14 +52,13 @@ public final class CronetDataSourceFactory extends BaseFactory {
   private final HttpDataSource.Factory fallbackFactory;
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, the provided
    * fallback {@link HttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -79,23 +80,36 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
    * DefaultHttpDataSourceFactory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
+   *
+   * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
+   * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
+   */
+  public CronetDataSourceFactory(CronetEngineWrapper cronetEngineWrapper, Executor executor) {
+    this(cronetEngineWrapper, executor, DEFAULT_USER_AGENT);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
+   * DefaultHttpDataSourceFactory} will be used instead.
+   *
+   * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    * @param userAgent A user agent used to create a fallback HttpDataSource if needed.
    */
   public CronetDataSourceFactory(
-      CronetEngineWrapper cronetEngineWrapper,
-      Executor executor,
-      String userAgent) {
+      CronetEngineWrapper cronetEngineWrapper, Executor executor, String userAgent) {
     this(
         cronetEngineWrapper,
         executor,
@@ -112,7 +126,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
    * DefaultHttpDataSourceFactory} will be used instead.
@@ -147,7 +161,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, the provided
    * fallback {@link HttpDataSource.Factory} will be used instead.
@@ -178,14 +192,13 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, the provided
    * fallback {@link HttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -209,14 +222,33 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
    * DefaultHttpDataSourceFactory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
-   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout and disables
-   * cross-protocol redirects.
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
+   *
+   * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
+   * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
+   * @param transferListener An optional listener.
+   */
+  public CronetDataSourceFactory(
+      CronetEngineWrapper cronetEngineWrapper,
+      Executor executor,
+      @Nullable TransferListener transferListener) {
+    this(cronetEngineWrapper, executor, transferListener, DEFAULT_USER_AGENT);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
+   * DefaultHttpDataSourceFactory} will be used instead.
+   *
+   * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
+   * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -244,7 +276,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
    * DefaultHttpDataSourceFactory} will be used instead.
@@ -277,7 +309,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * Constructs a CronetDataSourceFactory.
+   * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, the provided
    * fallback {@link HttpDataSource.Factory} will be used instead.

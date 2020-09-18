@@ -293,6 +293,20 @@ public final class PlayerMessage {
   }
 
   /**
+   * Marks the message as processed. Should only be called by a {@link Sender} and may be called
+   * multiple times.
+   *
+   * @param isDelivered Whether the message has been delivered to its target. The message is
+   *     considered as being delivered when this method has been called with {@code isDelivered} set
+   *     to true at least once.
+   */
+  public synchronized void markAsProcessed(boolean isDelivered) {
+    this.isDelivered |= isDelivered;
+    isProcessed = true;
+    notifyAll();
+  }
+
+  /**
    * Blocks until after the message has been delivered or the player is no longer able to deliver
    * the message or the specified waiting time elapses.
    *
@@ -309,27 +323,13 @@ public final class PlayerMessage {
    * @throws InterruptedException If the current thread is interrupted while waiting for the message
    *     to be delivered.
    */
-  public synchronized boolean experimental_blockUntilDelivered(long timeoutMs)
+  public synchronized boolean experimentalBlockUntilDelivered(long timeoutMs)
       throws InterruptedException, TimeoutException {
-    return experimental_blockUntilDelivered(timeoutMs, Clock.DEFAULT);
-  }
-
-  /**
-   * Marks the message as processed. Should only be called by a {@link Sender} and may be called
-   * multiple times.
-   *
-   * @param isDelivered Whether the message has been delivered to its target. The message is
-   *     considered as being delivered when this method has been called with {@code isDelivered} set
-   *     to true at least once.
-   */
-  public synchronized void markAsProcessed(boolean isDelivered) {
-    this.isDelivered |= isDelivered;
-    isProcessed = true;
-    notifyAll();
+    return experimentalBlockUntilDelivered(timeoutMs, Clock.DEFAULT);
   }
 
   @VisibleForTesting()
-  /* package */ synchronized boolean experimental_blockUntilDelivered(long timeoutMs, Clock clock)
+  /* package */ synchronized boolean experimentalBlockUntilDelivered(long timeoutMs, Clock clock)
       throws InterruptedException, TimeoutException {
     Assertions.checkState(isSent);
     Assertions.checkState(handler.getLooper().getThread() != Thread.currentThread());

@@ -44,6 +44,6 @@ public final class RawCcExtractorTest {
             .setAccessibilityChannel(1)
             .build();
     ExtractorAsserts.assertBehavior(
-        () -> new RawCcExtractor(format), "rawcc/sample.rawcc", simulationConfig);
+        () -> new RawCcExtractor(format), "media/rawcc/sample.rawcc", simulationConfig);
   }
 }

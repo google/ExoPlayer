@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -68,7 +70,7 @@ public final class VorbisBitArray {
    */
   public int readBits(int numBits) {
     int tempByteOffset = byteOffset;
-    int bitsRead = Math.min(numBits, 8 - bitOffset);
+    int bitsRead = min(numBits, 8 - bitOffset);
     int returnValue = ((data[tempByteOffset++] & 0xFF) >> bitOffset) & (0xFF >> (8 - bitsRead));
     while (bitsRead < numBits) {
       returnValue |= (data[tempByteOffset++] & 0xFF) << bitsRead;

@@ -62,7 +62,6 @@ public class TimelineTest {
     TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
   }
 
-  @SuppressWarnings("deprecation") // Tests the deprecated window.tag property.
   @Test
   public void windowEquals() {
     MediaItem mediaItem = new MediaItem.Builder().setUri("uri").setTag(new Object()).build();
@@ -71,10 +70,6 @@ public class TimelineTest {
 
     Timeline.Window otherWindow = new Timeline.Window();
     otherWindow.mediaItem = mediaItem;
-    assertThat(window).isNotEqualTo(otherWindow);
-
-    otherWindow = new Timeline.Window();
-    otherWindow.tag = mediaItem.playbackProperties.tag;
     assertThat(window).isNotEqualTo(otherWindow);
 
     otherWindow = new Timeline.Window();
@@ -130,30 +125,6 @@ public class TimelineTest {
         otherWindow.set(
             window.uid,
             window.mediaItem,
-            window.manifest,
-            window.presentationStartTimeMs,
-            window.windowStartTimeMs,
-            window.elapsedRealtimeEpochOffsetMs,
-            window.isSeekable,
-            window.isDynamic,
-            window.isLive,
-            window.defaultPositionUs,
-            window.durationUs,
-            window.firstPeriodIndex,
-            window.lastPeriodIndex,
-            window.positionInFirstPeriodUs);
-    assertThat(window).isEqualTo(otherWindow);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void windowSet_withTag() {
-    Timeline.Window window = populateWindow(/* mediaItem= */ null, new Object());
-    Timeline.Window otherWindow = new Timeline.Window();
-    otherWindow =
-        otherWindow.set(
-            window.uid,
-            window.tag,
             window.manifest,
             window.presentationStartTimeMs,
             window.windowStartTimeMs,

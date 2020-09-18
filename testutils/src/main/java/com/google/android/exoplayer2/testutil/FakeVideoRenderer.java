@@ -54,8 +54,9 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
-    super.onStreamChanged(formats, offsetUs);
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+      throws ExoPlaybackException {
+    super.onStreamChanged(formats, startPositionUs, offsetUs);
     streamOffsetUs = offsetUs;
     if (renderedFirstFrameAfterReset) {
       renderedFirstFrameAfterReset = false;
@@ -63,13 +64,11 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  protected void onStopped() throws ExoPlaybackException {
+  protected void onStopped() {
     super.onStopped();
     eventDispatcher.droppedFrames(/* droppedFrameCount= */ 0, /* elapsedMs= */ 0);
     eventDispatcher.reportVideoFrameProcessingOffset(
-        /* totalProcessingOffsetUs= */ 400000,
-        /* frameCount= */ 10,
-        Assertions.checkNotNull(format));
+        /* totalProcessingOffsetUs= */ 400000, /* frameCount= */ 10);
   }
 
   @Override

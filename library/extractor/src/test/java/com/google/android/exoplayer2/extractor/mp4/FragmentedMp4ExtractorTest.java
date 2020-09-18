@@ -37,20 +37,21 @@ public final class FragmentedMp4ExtractorTest {
     return ExtractorAsserts.configs();
   }
 
-  @Parameter(0)
-  public ExtractorAsserts.SimulationConfig simulationConfig;
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_fragmented.mp4", simulationConfig);
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_fragmented.mp4",
+        simulationConfig);
   }
 
   @Test
   public void sampleSeekable() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()),
-        "mp4/sample_fragmented_seekable.mp4",
+        "media/mp4/sample_fragmented_seekable.mp4",
         simulationConfig);
   }
 
@@ -62,32 +63,38 @@ public final class FragmentedMp4ExtractorTest {
             Collections.singletonList(
                 new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build()));
     ExtractorAsserts.assertBehavior(
-        extractorFactory, "mp4/sample_fragmented_sei.mp4", simulationConfig);
+        extractorFactory, "media/mp4/sample_fragmented_sei.mp4", simulationConfig);
   }
 
   @Test
   public void sampleWithAc3Track() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac3_fragmented.mp4", simulationConfig);
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_ac3_fragmented.mp4",
+        simulationConfig);
   }
 
   @Test
   public void sampleWithAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_fragmented.mp4", simulationConfig);
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_ac4_fragmented.mp4",
+        simulationConfig);
   }
 
   @Test
   public void sampleWithProtectedAc4Track() throws Exception {
     ExtractorAsserts.assertBehavior(
-        getExtractorFactory(ImmutableList.of()), "mp4/sample_ac4_protected.mp4", simulationConfig);
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_ac4_protected.mp4",
+        simulationConfig);
   }
 
   @Test
   public void sampleWithEac3Track() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()),
-        "mp4/sample_eac3_fragmented.mp4",
+        "media/mp4/sample_eac3_fragmented.mp4",
         simulationConfig);
   }
 
@@ -95,7 +102,23 @@ public final class FragmentedMp4ExtractorTest {
   public void sampleWithEac3jocTrack() throws Exception {
     ExtractorAsserts.assertBehavior(
         getExtractorFactory(ImmutableList.of()),
-        "mp4/sample_eac3joc_fragmented.mp4",
+        "media/mp4/sample_eac3joc_fragmented.mp4",
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleWithOpusTrack() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_opus_fragmented.mp4",
+        simulationConfig);
+  }
+
+  @Test
+  public void samplePartiallyFragmented() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        getExtractorFactory(ImmutableList.of()),
+        "media/mp4/sample_partially_fragmented.mp4",
         simulationConfig);
   }
 

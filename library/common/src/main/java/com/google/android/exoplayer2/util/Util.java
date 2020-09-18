@@ -16,6 +16,9 @@
 package com.google.android.exoplayer2.util;
 
 import static android.content.Context.UI_MODE_SERVICE;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
@@ -29,6 +32,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.media.AudioFormat;
 import android.net.ConnectivityManager;
@@ -48,11 +53,14 @@ import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.common.base.Ascii;
+import com.google.common.base.Charsets;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -62,8 +70,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -95,7 +102,10 @@ public final class Util {
    * Like {@link android.os.Build.VERSION#SDK_INT}, but in a place where it can be conveniently
    * overridden for local testing.
    */
-  public static final int SDK_INT = "R".equals(Build.VERSION.CODENAME) ? 30 : Build.VERSION.SDK_INT;
+  public static final int SDK_INT =
+      "S".equals(Build.VERSION.CODENAME)
+          ? 31
+          : "R".equals(Build.VERSION.CODENAME) ? 30 : Build.VERSION.SDK_INT;
 
   /**
    * Like {@link Build#DEVICE}, but in a place where it can be conveniently overridden for local
@@ -133,6 +143,11 @@ public final class Util {
       Pattern.compile("^(-)?P(([0-9]*)Y)?(([0-9]*)M)?(([0-9]*)D)?"
           + "(T(([0-9]*)H)?(([0-9]*)M)?(([0-9.]*)S)?)?$");
   private static final Pattern ESCAPED_CHARACTER_PATTERN = Pattern.compile("%([A-Fa-f0-9]{2})");
+
+  // https://docs.microsoft.com/en-us/azure/media-services/previous/media-services-deliver-content-overview#URLs.
+  private static final Pattern ISM_URL_PATTERN = Pattern.compile(".*\\.isml?(?:/(manifest(.*))?)?");
+  private static final String ISM_HLS_FORMAT_EXTENSION = "format=m3u8-aapl";
+  private static final String ISM_DASH_FORMAT_EXTENSION = "format=mpd-time-csf";
 
   // Replacement map of ISO language codes used for normalization.
   @Nullable private static HashMap<String, String> languageTagReplacementMap;
@@ -394,20 +409,62 @@ public final class Util {
   }
 
   /**
+   * Copies the contents of {@code list} into {@code array}.
+   *
+   * <p>{@code list.size()} must be the same as {@code array.length} to ensure the contents can be
+   * copied into {@code array} without leaving any nulls at the end.
+   *
+   * @param list The list to copy items from.
+   * @param array The array to copy items to.
+   */
+  @SuppressWarnings("nullness:toArray.nullable.elements.not.newarray")
+  public static <T> void nullSafeListToArray(List<T> list, T[] array) {
+    Assertions.checkState(list.size() == array.length);
+    list.toArray(array);
+  }
+
+  /**
+   * Creates a {@link Handler} on the current {@link Looper} thread.
+   *
+   * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
+   */
+  public static Handler createHandlerForCurrentLooper() {
+    return createHandlerForCurrentLooper(/* callback= */ null);
+  }
+
+  /**
+   * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
+   * Looper} thread.
+   *
+   * <p>The method accepts partially initialized objects as callback under the assumption that the
+   * Handler won't be used to send messages until the callback is fully initialized.
+   *
+   * @param callback A {@link Handler.Callback}. May be a partially initialized class, or null if no
+   *     callback is required.
+   * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
+   * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
+   */
+  public static Handler createHandlerForCurrentLooper(
+      @Nullable Handler.@UnknownInitialization Callback callback) {
+    return createHandler(Assertions.checkStateNotNull(Looper.myLooper()), callback);
+  }
+
+  /**
    * Creates a {@link Handler} on the current {@link Looper} thread.
    *
    * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
    * Looper} is used.
    */
-  public static Handler createHandler() {
-    return createHandler(/* callback= */ null);
+  public static Handler createHandlerForCurrentOrMainLooper() {
+    return createHandlerForCurrentOrMainLooper(/* callback= */ null);
   }
 
   /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the current {@link
-   * Looper} thread. The method accepts partially initialized objects as callback under the
-   * assumption that the Handler won't be used to send messages until the callback is fully
-   * initialized.
+   * Looper} thread.
+   *
+   * <p>The method accepts partially initialized objects as callback under the assumption that the
+   * Handler won't be used to send messages until the callback is fully initialized.
    *
    * <p>If the current thread doesn't have a {@link Looper}, the application's main thread {@link
    * Looper} is used.
@@ -416,15 +473,17 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
-  public static Handler createHandler(@Nullable Handler.@UnknownInitialization Callback callback) {
-    return createHandler(getLooper(), callback);
+  public static Handler createHandlerForCurrentOrMainLooper(
+      @Nullable Handler.@UnknownInitialization Callback callback) {
+    return createHandler(getCurrentOrMainLooper(), callback);
   }
 
   /**
    * Creates a {@link Handler} with the specified {@link Handler.Callback} on the specified {@link
-   * Looper} thread. The method accepts partially initialized objects as callback under the
-   * assumption that the Handler won't be used to send messages until the callback is fully
-   * initialized.
+   * Looper} thread.
+   *
+   * <p>The method accepts partially initialized objects as callback under the assumption that the
+   * Handler won't be used to send messages until the callback is fully initialized.
    *
    * @param looper A {@link Looper} to run the callback on.
    * @param callback A {@link Handler.Callback}. May be a partially initialized class, or null if no
@@ -438,11 +497,29 @@ public final class Util {
   }
 
   /**
+   * Posts the {@link Runnable} if the calling thread differs with the {@link Looper} of the {@link
+   * Handler}. Otherwise, runs the {@link Runnable} directly.
+   *
+   * @param handler The handler to which the {@link Runnable} will be posted.
+   * @param runnable The runnable to either post or run.
+   * @return {@code true} if the {@link Runnable} was successfully posted to the {@link Handler} or
+   *     run. {@code false} otherwise.
+   */
+  public static boolean postOrRun(Handler handler, Runnable runnable) {
+    if (handler.getLooper() == Looper.myLooper()) {
+      runnable.run();
+      return true;
+    } else {
+      return handler.post(runnable);
+    }
+  }
+
+  /**
    * Returns the {@link Looper} associated with the current thread, or the {@link Looper} of the
    * application's main thread if the current thread doesn't have a {@link Looper}.
    */
-  public static Looper getLooper() {
-    Looper myLooper = Looper.myLooper();
+  public static Looper getCurrentOrMainLooper() {
+    @Nullable Looper myLooper = Looper.myLooper();
     return myLooper != null ? myLooper : Looper.getMainLooper();
   }
 
@@ -554,7 +631,7 @@ public final class Util {
       mainLanguage = replacedLanguage;
     }
     if ("no".equals(mainLanguage) || "i".equals(mainLanguage) || "zh".equals(mainLanguage)) {
-      normalizedTag = maybeReplaceGrandfatheredLanguageTags(normalizedTag);
+      normalizedTag = maybeReplaceLegacyLanguageTags(normalizedTag);
     }
     return normalizedTag;
   }
@@ -566,7 +643,7 @@ public final class Util {
    * @return The string.
    */
   public static String fromUtf8Bytes(byte[] bytes) {
-    return new String(bytes, Charset.forName(C.UTF8_NAME));
+    return new String(bytes, Charsets.UTF_8);
   }
 
   /**
@@ -578,7 +655,7 @@ public final class Util {
    * @return The string.
    */
   public static String fromUtf8Bytes(byte[] bytes, int offset, int length) {
-    return new String(bytes, offset, length, Charset.forName(C.UTF8_NAME));
+    return new String(bytes, offset, length, Charsets.UTF_8);
   }
 
   /**
@@ -588,7 +665,7 @@ public final class Util {
    * @return The code points encoding using UTF-8.
    */
   public static byte[] getUtf8Bytes(String value) {
-    return value.getBytes(Charset.forName(C.UTF8_NAME));
+    return value.getBytes(Charsets.UTF_8);
   }
 
   /**
@@ -688,7 +765,7 @@ public final class Util {
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
   public static int constrainValue(int value, int min, int max) {
-    return Math.max(min, Math.min(value, max));
+    return max(min, min(value, max));
   }
 
   /**
@@ -700,7 +777,7 @@ public final class Util {
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
   public static long constrainValue(long value, long min, long max) {
-    return Math.max(min, Math.min(value, max));
+    return max(min, min(value, max));
   }
 
   /**
@@ -712,7 +789,7 @@ public final class Util {
    * @return The constrained value {@code Math.max(min, Math.min(value, max))}.
    */
   public static float constrainValue(float value, float min, float max) {
-    return Math.max(min, Math.min(value, max));
+    return max(min, min(value, max));
   }
 
   /**
@@ -768,6 +845,24 @@ public final class Util {
   }
 
   /**
+   * Returns the index of the first occurrence of {@code value} in {@code array}, or {@link
+   * C#INDEX_UNSET} if {@code value} is not contained in {@code array}.
+   *
+   * @param array The array to search.
+   * @param value The value to search for.
+   * @return The index of the first occurrence of value in {@code array}, or {@link C#INDEX_UNSET}
+   *     if {@code value} is not contained in {@code array}.
+   */
+  public static int linearSearch(long[] array, long value) {
+    for (int i = 0; i < array.length; i++) {
+      if (array[i] == value) {
+        return i;
+      }
+    }
+    return C.INDEX_UNSET;
+  }
+
+  /**
    * Returns the index of the largest element in {@code array} that is less than (or optionally
    * equal to) a specified {@code value}.
    *
@@ -796,7 +891,7 @@ public final class Util {
         index++;
       }
     }
-    return stayInBounds ? Math.max(0, index) : index;
+    return stayInBounds ? max(0, index) : index;
   }
 
   /**
@@ -828,7 +923,7 @@ public final class Util {
         index++;
       }
     }
-    return stayInBounds ? Math.max(0, index) : index;
+    return stayInBounds ? max(0, index) : index;
   }
 
   /**
@@ -864,7 +959,7 @@ public final class Util {
         index++;
       }
     }
-    return stayInBounds ? Math.max(0, index) : index;
+    return stayInBounds ? max(0, index) : index;
   }
 
   /**
@@ -938,7 +1033,7 @@ public final class Util {
         index--;
       }
     }
-    return stayInBounds ? Math.min(array.length - 1, index) : index;
+    return stayInBounds ? min(array.length - 1, index) : index;
   }
 
   /**
@@ -971,7 +1066,7 @@ public final class Util {
         index--;
       }
     }
-    return stayInBounds ? Math.min(array.length - 1, index) : index;
+    return stayInBounds ? min(array.length - 1, index) : index;
   }
 
   /**
@@ -1009,7 +1104,7 @@ public final class Util {
         index--;
       }
     }
-    return stayInBounds ? Math.min(list.size() - 1, index) : index;
+    return stayInBounds ? min(list.size() - 1, index) : index;
   }
 
   /**
@@ -1217,41 +1312,6 @@ public final class Util {
   }
 
   /**
-   * Converts a list of integers to a primitive array.
-   *
-   * @param list A list of integers.
-   * @return The list in array form, or null if the input list was null.
-   */
-  public static int @PolyNull [] toArray(@PolyNull List<Integer> list) {
-    if (list == null) {
-      return null;
-    }
-    int length = list.size();
-    int[] intArray = new int[length];
-    for (int i = 0; i < length; i++) {
-      intArray[i] = list.get(i);
-    }
-    return intArray;
-  }
-
-  /**
-   * Converts an array of primitive ints to a list of integers.
-   *
-   * @param ints The ints.
-   * @return The input array in list form.
-   */
-  public static List<Integer> toList(int... ints) {
-    if (ints == null) {
-      return new ArrayList<>();
-    }
-    List<Integer> integers = new ArrayList<>();
-    for (int anInt : ints) {
-      integers.add(anInt);
-    }
-    return integers;
-  }
-
-  /**
    * Returns the integer equal to the big-endian concatenation of the characters in {@code string}
    * as bytes. The string must be no more than four characters long.
    *
@@ -1289,6 +1349,24 @@ public final class Util {
    */
   public static long toLong(int mostSignificantBits, int leastSignificantBits) {
     return (toUnsignedLong(mostSignificantBits) << 32) | toUnsignedLong(leastSignificantBits);
+  }
+
+  /**
+   * Truncates a sequence of ASCII characters to a maximum length.
+   *
+   * <p>This preserves span styling in the {@link CharSequence}. If that's not important, use {@link
+   * Ascii#truncate(CharSequence, int, String)}.
+   *
+   * <p><b>Note:</b> This is not safe to use in general on Unicode text because it may separate
+   * characters from combining characters or split up surrogate pairs.
+   *
+   * @param sequence The character sequence to truncate.
+   * @param maxLength The max length to truncate to.
+   * @return {@code sequence} directly if {@code sequence.length() <= maxLength}, otherwise {@code
+   *     sequence.subsequence(0, maxLength}.
+   */
+  public static CharSequence truncateAscii(CharSequence sequence, int maxLength) {
+    return sequence.length() <= maxLength ? sequence : sequence.subSequence(0, maxLength);
   }
 
   /**
@@ -1400,13 +1478,29 @@ public final class Util {
   }
 
   /**
+   * Gets a PCM {@link Format} with the specified parameters.
+   *
+   * @param pcmEncoding The {@link C.PcmEncoding}.
+   * @param channels The number of channels, or {@link Format#NO_VALUE} if unknown.
+   * @param sampleRate The sample rate in Hz, or {@link Format#NO_VALUE} if unknown.
+   * @return The PCM format.
+   */
+  public static Format getPcmFormat(@C.PcmEncoding int pcmEncoding, int channels, int sampleRate) {
+    return new Format.Builder()
+        .setSampleMimeType(MimeTypes.AUDIO_RAW)
+        .setChannelCount(channels)
+        .setSampleRate(sampleRate)
+        .setPcmEncoding(pcmEncoding)
+        .build();
+  }
+
+  /**
    * Converts a sample bit depth to a corresponding PCM encoding constant.
    *
    * @param bitDepth The bit depth. Supported values are 8, 16, 24 and 32.
-   * @return The corresponding encoding. One of {@link C#ENCODING_PCM_8BIT},
-   *     {@link C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and
-   *     {@link C#ENCODING_PCM_32BIT}. If the bit depth is unsupported then
-   *     {@link C#ENCODING_INVALID} is returned.
+   * @return The corresponding encoding. One of {@link C#ENCODING_PCM_8BIT}, {@link
+   *     C#ENCODING_PCM_16BIT}, {@link C#ENCODING_PCM_24BIT} and {@link C#ENCODING_PCM_32BIT}. If
+   *     the bit depth is unsupported then {@link C#ENCODING_INVALID} is returned.
    */
   @C.PcmEncoding
   public static int getPcmEncoding(int bitDepth) {
@@ -1453,7 +1547,7 @@ public final class Util {
 
   /**
    * Returns the audio track channel configuration for the given channel count, or {@link
-   * AudioFormat#CHANNEL_INVALID} if output is not poossible.
+   * AudioFormat#CHANNEL_INVALID} if output is not possible.
    *
    * @param channelCount The number of channels in the input audio.
    * @return The channel configuration or {@link AudioFormat#CHANNEL_INVALID} if output is not
@@ -1623,13 +1717,13 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the type from a {@link Uri}.
+   * Makes a best guess to infer the {@link ContentType} from a {@link Uri}.
    *
    * @param uri The {@link Uri}.
    * @param overrideExtension If not null, used to infer the type.
    * @return The content type.
    */
-  @C.ContentType
+  @ContentType
   public static int inferContentType(Uri uri, @Nullable String overrideExtension) {
     return TextUtils.isEmpty(overrideExtension)
         ? inferContentType(uri)
@@ -1637,45 +1731,55 @@ public final class Util {
   }
 
   /**
-   * Makes a best guess to infer the type from a {@link Uri}.
+   * Makes a best guess to infer the {@link ContentType} from a {@link Uri}.
    *
    * @param uri The {@link Uri}.
    * @return The content type.
    */
-  @C.ContentType
+  @ContentType
   public static int inferContentType(Uri uri) {
-    String path = uri.getPath();
+    @Nullable String path = uri.getPath();
     return path == null ? C.TYPE_OTHER : inferContentType(path);
   }
 
   /**
-   * Makes a best guess to infer the type from a file name.
+   * Makes a best guess to infer the {@link ContentType} from a file name.
    *
    * @param fileName Name of the file. It can include the path of the file.
    * @return The content type.
    */
-  @C.ContentType
+  @ContentType
   public static int inferContentType(String fileName) {
     fileName = toLowerInvariant(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
       return C.TYPE_HLS;
-    } else if (fileName.matches(".*\\.ism(l)?(/manifest(\\(.+\\))?)?")) {
-      return C.TYPE_SS;
-    } else {
-      return C.TYPE_OTHER;
     }
+    Matcher ismMatcher = ISM_URL_PATTERN.matcher(fileName);
+    if (ismMatcher.matches()) {
+      @Nullable String extensions = ismMatcher.group(2);
+      if (extensions != null) {
+        if (extensions.contains(ISM_DASH_FORMAT_EXTENSION)) {
+          return C.TYPE_DASH;
+        } else if (extensions.contains(ISM_HLS_FORMAT_EXTENSION)) {
+          return C.TYPE_HLS;
+        }
+      }
+      return C.TYPE_SS;
+    }
+    return C.TYPE_OTHER;
   }
 
   /**
-   * Makes a best guess to infer the type from a {@link Uri} and MIME type.
+   * Makes a best guess to infer the {@link ContentType} from a {@link Uri} and optional MIME type.
    *
    * @param uri The {@link Uri}.
-   * @param mimeType If not null, used to infer the type.
+   * @param mimeType If MIME type, or {@code null}.
    * @return The content type.
    */
-  public static int inferContentTypeWithMimeType(Uri uri, @Nullable String mimeType) {
+  @ContentType
+  public static int inferContentTypeForUriAndMimeType(Uri uri, @Nullable String mimeType) {
     if (mimeType == null) {
       return Util.inferContentType(uri);
     }
@@ -1687,8 +1791,48 @@ public final class Util {
       case MimeTypes.APPLICATION_SS:
         return C.TYPE_SS;
       default:
-        return Util.inferContentType(uri);
+        return C.TYPE_OTHER;
     }
+  }
+
+  /**
+   * Returns the MIME type corresponding to the given adaptive {@link ContentType}, or {@code null}
+   * if the content type is {@link C#TYPE_OTHER}.
+   */
+  @Nullable
+  public static String getAdaptiveMimeTypeForContentType(int contentType) {
+    switch (contentType) {
+      case C.TYPE_DASH:
+        return MimeTypes.APPLICATION_MPD;
+      case C.TYPE_HLS:
+        return MimeTypes.APPLICATION_M3U8;
+      case C.TYPE_SS:
+        return MimeTypes.APPLICATION_SS;
+      case C.TYPE_OTHER:
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * If the provided URI is an ISM Presentation URI, returns the URI with "Manifest" appended to its
+   * path (i.e., the corresponding default manifest URI). Else returns the provided URI without
+   * modification. See [MS-SSTR] v20180912, section 2.2.1.
+   *
+   * @param uri The original URI.
+   * @return The fixed URI.
+   */
+  public static Uri fixSmoothStreamingIsmManifestUri(Uri uri) {
+    @Nullable String path = toLowerInvariant(uri.getPath());
+    if (path == null) {
+      return uri;
+    }
+    Matcher ismMatcher = ISM_URL_PATTERN.matcher(path);
+    if (ismMatcher.matches() && ismMatcher.group(1) == null) {
+      // Add missing "Manifest" suffix.
+      return Uri.withAppendedPath(uri, "Manifest");
+    }
+    return uri;
   }
 
   /**
@@ -1797,8 +1941,7 @@ public final class Util {
     Matcher matcher = ESCAPED_CHARACTER_PATTERN.matcher(fileName);
     int startOfNotEscaped = 0;
     while (percentCharacterCount > 0 && matcher.find()) {
-      char unescapedCharacter =
-          (char) Integer.parseInt(Assertions.checkNotNull(matcher.group(1)), 16);
+      char unescapedCharacter = (char) Integer.parseInt(checkNotNull(matcher.group(1)), 16);
       builder.append(fileName, startOfNotEscaped, matcher.start()).append(unescapedCharacter);
       startOfNotEscaped = matcher.end();
       percentCharacterCount--;
@@ -1905,6 +2048,8 @@ public final class Util {
    * @param context A context to access the connectivity manager.
    * @return The {@link C.NetworkType} of the current network connection.
    */
+  // Intentional null check to guard against user input.
+  @SuppressWarnings("known.nonnull")
   @C.NetworkType
   public static int getNetworkType(Context context) {
     if (context == null) {
@@ -1912,6 +2057,7 @@ public final class Util {
       return C.NETWORK_TYPE_UNKNOWN;
     }
     NetworkInfo networkInfo;
+    @Nullable
     ConnectivityManager connectivityManager =
         (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     if (connectivityManager == null) {
@@ -1951,6 +2097,7 @@ public final class Util {
    */
   public static String getCountryCode(@Nullable Context context) {
     if (context != null) {
+      @Nullable
       TelephonyManager telephonyManager =
           (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
       if (telephonyManager != null) {
@@ -1992,14 +2139,14 @@ public final class Util {
     if (input.bytesLeft() <= 0) {
       return false;
     }
-    byte[] outputData = output.data;
+    byte[] outputData = output.getData();
     if (outputData.length < input.bytesLeft()) {
       outputData = new byte[2 * input.bytesLeft()];
     }
     if (inflater == null) {
       inflater = new Inflater();
     }
-    inflater.setInput(input.data, input.getPosition(), input.bytesLeft());
+    inflater.setInput(input.getData(), input.getPosition(), input.bytesLeft());
     try {
       int outputSize = 0;
       while (true) {
@@ -2030,6 +2177,7 @@ public final class Util {
    */
   public static boolean isTv(Context context) {
     // See https://developer.android.com/training/tv/start/hardware.html#runtime-check.
+    @Nullable
     UiModeManager uiModeManager =
         (UiModeManager) context.getApplicationContext().getSystemService(UI_MODE_SERVICE);
     return uiModeManager != null
@@ -2049,7 +2197,8 @@ public final class Util {
    * @return The size of the current mode, in pixels.
    */
   public static Point getCurrentDisplayModeSize(Context context) {
-    WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    WindowManager windowManager =
+        checkNotNull((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
     return getCurrentDisplayModeSize(context, windowManager.getDefaultDisplay());
   }
 
@@ -2155,6 +2304,32 @@ public final class Util {
         : SystemClock.elapsedRealtime() + elapsedRealtimeEpochOffsetMs;
   }
 
+  /**
+   * Moves the elements starting at {@code fromIndex} to {@code newFromIndex}.
+   *
+   * @param items The list of which to move elements.
+   * @param fromIndex The index at which the items to move start.
+   * @param toIndex The index up to which elements should be moved (exclusive).
+   * @param newFromIndex The new from index.
+   */
+  public static <T extends Object> void moveItems(
+      List<T> items, int fromIndex, int toIndex, int newFromIndex) {
+    ArrayDeque<T> removedItems = new ArrayDeque<>();
+    int removedItemsLength = toIndex - fromIndex;
+    for (int i = removedItemsLength - 1; i >= 0; i--) {
+      removedItems.addFirst(items.remove(fromIndex + i));
+    }
+    items.addAll(min(newFromIndex, items.size()), removedItems);
+  }
+
+  /** Returns whether the table exists in the database. */
+  public static boolean tableExists(SQLiteDatabase database, String tableName) {
+    long count =
+        DatabaseUtils.queryNumEntries(
+            database, "sqlite_master", "tbl_name = ?", new String[] {tableName});
+    return count > 0;
+  }
+
   @Nullable
   private static String getSystemProperty(String name) {
     try {
@@ -2223,7 +2398,7 @@ public final class Util {
       case TelephonyManager.NETWORK_TYPE_LTE:
         return C.NETWORK_TYPE_4G;
       case TelephonyManager.NETWORK_TYPE_NR:
-        return C.NETWORK_TYPE_5G;
+        return SDK_INT >= 29 ? C.NETWORK_TYPE_5G : C.NETWORK_TYPE_UNKNOWN;
       case TelephonyManager.NETWORK_TYPE_IWLAN:
         return C.NETWORK_TYPE_WIFI;
       case TelephonyManager.NETWORK_TYPE_GSM:
@@ -2272,14 +2447,14 @@ public final class Util {
   private static boolean isTrafficRestricted(Uri uri) {
     return "http".equals(uri.getScheme())
         && !NetworkSecurityPolicy.getInstance()
-            .isCleartextTrafficPermitted(Assertions.checkNotNull(uri.getHost()));
+            .isCleartextTrafficPermitted(checkNotNull(uri.getHost()));
   }
 
-  private static String maybeReplaceGrandfatheredLanguageTags(String languageTag) {
-    for (int i = 0; i < isoGrandfatheredTagReplacements.length; i += 2) {
-      if (languageTag.startsWith(isoGrandfatheredTagReplacements[i])) {
-        return isoGrandfatheredTagReplacements[i + 1]
-            + languageTag.substring(/* beginIndex= */ isoGrandfatheredTagReplacements[i].length());
+  private static String maybeReplaceLegacyLanguageTags(String languageTag) {
+    for (int i = 0; i < isoLegacyTagReplacements.length; i += 2) {
+      if (languageTag.startsWith(isoLegacyTagReplacements[i])) {
+        return isoLegacyTagReplacements[i + 1]
+            + languageTag.substring(/* beginIndex= */ isoLegacyTagReplacements[i].length());
       }
     }
     return languageTag;
@@ -2339,9 +2514,9 @@ public final class Util {
         "hsn", "zh-hsn"
       };
 
-  // "Grandfathered tags", replaced by modern equivalents (including macrolanguage)
+  // Legacy ("grandfathered") tags, replaced by modern equivalents (including macrolanguage)
   // See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry.
-  private static final String[] isoGrandfatheredTagReplacements =
+  private static final String[] isoLegacyTagReplacements =
       new String[] {
         "i-lux", "lb",
         "i-hak", "zh-hak",

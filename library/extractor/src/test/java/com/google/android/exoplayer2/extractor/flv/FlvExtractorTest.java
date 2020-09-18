@@ -32,11 +32,10 @@ public final class FlvExtractorTest {
     return ExtractorAsserts.configs();
   }
 
-  @Parameter(0)
-  public ExtractorAsserts.SimulationConfig simulationConfig;
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(FlvExtractor::new, "flv/sample.flv", simulationConfig);
+    ExtractorAsserts.assertBehavior(FlvExtractor::new, "media/flv/sample.flv", simulationConfig);
   }
 }

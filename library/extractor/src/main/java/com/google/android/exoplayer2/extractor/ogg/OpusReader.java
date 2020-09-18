@@ -15,13 +15,10 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,13 +26,6 @@ import java.util.List;
  * {@link StreamReader} to extract Opus data out of Ogg byte stream.
  */
 /* package */ final class OpusReader extends StreamReader {
-
-  private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
-
-  /**
-   * Opus streams are always decoded at 48000 Hz.
-   */
-  private static final int SAMPLE_RATE = 48000;
 
   private static final int OPUS_CODE = 0x4f707573;
   private static final byte[] OPUS_SIGNATURE = {'O', 'p', 'u', 's', 'H', 'e', 'a', 'd'};
@@ -61,26 +51,20 @@ import java.util.List;
 
   @Override
   protected long preparePayload(ParsableByteArray packet) {
-    return convertTimeToGranule(getPacketDurationUs(packet.data));
+    return convertTimeToGranule(getPacketDurationUs(packet.getData()));
   }
 
   @Override
   protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
     if (!headerRead) {
-      byte[] metadata = Arrays.copyOf(packet.data, packet.limit());
-      int channelCount = metadata[9] & 0xFF;
-      int preskip = ((metadata[11] & 0xFF) << 8) | (metadata[10] & 0xFF);
-
-      List<byte[]> initializationData = new ArrayList<>(3);
-      initializationData.add(metadata);
-      putNativeOrderLong(initializationData, preskip);
-      putNativeOrderLong(initializationData, DEFAULT_SEEK_PRE_ROLL_SAMPLES);
-
+      byte[] headerBytes = Arrays.copyOf(packet.getData(), packet.limit());
+      int channelCount = OpusUtil.getChannelCount(headerBytes);
+      List<byte[]> initializationData = OpusUtil.buildInitializationData(headerBytes);
       setupData.format =
           new Format.Builder()
               .setSampleMimeType(MimeTypes.AUDIO_OPUS)
               .setChannelCount(channelCount)
-              .setSampleRate(SAMPLE_RATE)
+              .setSampleRate(OpusUtil.SAMPLE_RATE)
               .setInitializationData(initializationData)
               .build();
       headerRead = true;
@@ -90,12 +74,6 @@ import java.util.List;
       return headerPacket;
     }
     return true;
-  }
-
-  private void putNativeOrderLong(List<byte[]> initializationData, int samples) {
-    long ns = (samples * C.NANOS_PER_SECOND) / SAMPLE_RATE;
-    byte[] array = ByteBuffer.allocate(8).order(ByteOrder.nativeOrder()).putLong(ns).array();
-    initializationData.add(array);
   }
 
   /**

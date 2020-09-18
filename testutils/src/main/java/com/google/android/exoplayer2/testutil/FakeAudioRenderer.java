@@ -30,6 +30,7 @@ public class FakeAudioRenderer extends FakeRenderer {
   private final AudioRendererEventListener.EventDispatcher eventDispatcher;
   private final DecoderCounters decoderCounters;
   private boolean notifiedAudioSessionId;
+  private boolean notifiedPositionAdvancing;
 
   public FakeAudioRenderer(Handler handler, AudioRendererEventListener eventListener) {
     super(C.TRACK_TYPE_AUDIO);
@@ -43,6 +44,7 @@ public class FakeAudioRenderer extends FakeRenderer {
     super.onEnabled(joining, mayRenderStartOfStream);
     eventDispatcher.enabled(decoderCounters);
     notifiedAudioSessionId = false;
+    notifiedPositionAdvancing = false;
   }
 
   @Override
@@ -66,6 +68,10 @@ public class FakeAudioRenderer extends FakeRenderer {
     if (shouldProcess && !notifiedAudioSessionId) {
       eventDispatcher.audioSessionId(/* audioSessionId= */ 1);
       notifiedAudioSessionId = true;
+    }
+    if (shouldProcess && !notifiedPositionAdvancing) {
+      eventDispatcher.positionAdvancing(System.currentTimeMillis());
+      notifiedPositionAdvancing = true;
     }
     return shouldProcess;
   }

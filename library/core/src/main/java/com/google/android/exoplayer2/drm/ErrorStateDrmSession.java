@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.drm;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.Map;
 
 /** A {@link DrmSession} that's in a terminal error state. */
@@ -64,12 +63,12 @@ public final class ErrorStateDrmSession implements DrmSession {
   }
 
   @Override
-  public void acquire(@Nullable MediaSourceEventDispatcher eventDispatcher) {
+  public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     // Do nothing.
   }
 
   @Override
-  public void release(@Nullable MediaSourceEventDispatcher eventDispatcher) {
+  public void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     // Do nothing.
   }
 }
