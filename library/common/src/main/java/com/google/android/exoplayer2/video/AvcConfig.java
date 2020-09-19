@@ -34,6 +34,7 @@ public final class AvcConfig {
   public final int width;
   public final int height;
   public final float pixelWidthAspectRatio;
+  public final float frameRate;
 
   /**
    * Parses AVC configuration data.
@@ -63,6 +64,7 @@ public final class AvcConfig {
       int width = Format.NO_VALUE;
       int height = Format.NO_VALUE;
       float pixelWidthAspectRatio = 1;
+      float frameRate = -1;
       if (numSequenceParameterSets > 0) {
         byte[] sps = initializationData.get(0);
         SpsData spsData = NalUnitUtil.parseSpsNalUnit(initializationData.get(0),
@@ -70,21 +72,23 @@ public final class AvcConfig {
         width = spsData.width;
         height = spsData.height;
         pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
+        frameRate = spsData.frameRate;
       }
       return new AvcConfig(initializationData, nalUnitLengthFieldLength, width, height,
-          pixelWidthAspectRatio);
+          pixelWidthAspectRatio, frameRate);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new ParserException("Error parsing AVC config", e);
     }
   }
 
   private AvcConfig(List<byte[]> initializationData, int nalUnitLengthFieldLength,
-      int width, int height, float pixelWidthAspectRatio) {
+      int width, int height, float pixelWidthAspectRatio, float frameRate) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.width = width;
     this.height = height;
     this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+    this.frameRate = frameRate;
   }
 
   private static byte[] buildNalUnitForChild(ParsableByteArray data) {

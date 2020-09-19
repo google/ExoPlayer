@@ -152,6 +152,7 @@ public class MatroskaExtractor implements Extractor {
   private static final int ID_INFO = 0x1549A966;
   private static final int ID_TIMECODE_SCALE = 0x2AD7B1;
   private static final int ID_DURATION = 0x4489;
+  private static final int ID_FRAME_RATE = 0x2383E3;
   private static final int ID_CLUSTER = 0x1F43B675;
   private static final int ID_TIME_CODE = 0xE7;
   private static final int ID_SIMPLE_BLOCK = 0xA3;
@@ -589,6 +590,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_BLOCK_ADDITIONAL:
         return EbmlProcessor.ELEMENT_TYPE_BINARY;
       case ID_DURATION:
+      case ID_FRAME_RATE:
       case ID_SAMPLING_FREQUENCY:
       case ID_PRIMARY_R_CHROMATICITY_X:
       case ID_PRIMARY_R_CHROMATICITY_Y:
@@ -828,6 +830,7 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_DEFAULT_DURATION:
         currentTrack.defaultSampleDurationNs = (int) value;
+        currentTrack.frameRate = (float) 1E9 / value;
         break;
       case ID_MAX_BLOCK_ADDITION_ID:
         currentTrack.maxBlockAdditionId = (int) value;
@@ -1007,6 +1010,9 @@ public class MatroskaExtractor implements Extractor {
     switch (id) {
       case ID_DURATION:
         durationTimecode = (long) value;
+        break;
+      case ID_FRAME_RATE:
+        currentTrack.frameRate = (float) value;
         break;
       case ID_SAMPLING_FREQUENCY:
         currentTrack.sampleRate = (int) value;
@@ -1932,6 +1938,7 @@ public class MatroskaExtractor implements Extractor {
     public int displayWidth = Format.NO_VALUE;
     public int displayHeight = Format.NO_VALUE;
     public int displayUnit = DISPLAY_UNIT_PIXELS;
+    public float frameRate = -1;
     @C.Projection public int projectionType = Format.NO_VALUE;
     public float projectionPoseYaw = 0f;
     public float projectionPosePitch = 0f;
@@ -2009,6 +2016,7 @@ public class MatroskaExtractor implements Extractor {
           AvcConfig avcConfig = AvcConfig.parse(new ParsableByteArray(codecPrivate));
           initializationData = avcConfig.initializationData;
           nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
+          frameRate = avcConfig.frameRate;
           break;
         case CODEC_ID_H265:
           mimeType = MimeTypes.VIDEO_H265;
@@ -2195,6 +2203,7 @@ public class MatroskaExtractor implements Extractor {
             .setRotationDegrees(rotationDegrees)
             .setProjectionData(projectionData)
             .setStereoMode(stereoMode)
+            .setFrameRate(frameRate < 0 ? Format.NO_VALUE : frameRate)
             .setColorInfo(colorInfo);
       } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;

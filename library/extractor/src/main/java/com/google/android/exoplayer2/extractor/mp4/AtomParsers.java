@@ -968,6 +968,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     int height = parent.readUnsignedShort();
     boolean pixelWidthHeightRatioFromPasp = false;
     float pixelWidthHeightRatio = 1;
+    float frameRate = -1;
     parent.skipBytes(50);
 
     int childPosition = parent.getPosition();
@@ -1014,6 +1015,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         if (!pixelWidthHeightRatioFromPasp) {
           pixelWidthHeightRatio = avcConfig.pixelWidthAspectRatio;
         }
+        frameRate = avcConfig.frameRate;
       } else if (childAtomType == Atom.TYPE_hvcC) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H265;
@@ -1094,6 +1096,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .setStereoMode(stereoMode)
             .setInitializationData(initializationData)
             .setDrmInitData(drmInitData)
+            .setFrameRate(frameRate < 0 ? Format.NO_VALUE : frameRate)
             .build();
   }
 

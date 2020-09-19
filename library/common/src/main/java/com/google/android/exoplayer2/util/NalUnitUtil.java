@@ -38,6 +38,7 @@ public final class NalUnitUtil {
     public final int width;
     public final int height;
     public final float pixelWidthAspectRatio;
+    public final float frameRate;
     public final boolean separateColorPlaneFlag;
     public final boolean frameMbsOnlyFlag;
     public final int frameNumLength;
@@ -53,6 +54,7 @@ public final class NalUnitUtil {
         int width,
         int height,
         float pixelWidthAspectRatio,
+        float frameRate,
         boolean separateColorPlaneFlag,
         boolean frameMbsOnlyFlag,
         int frameNumLength,
@@ -66,6 +68,7 @@ public final class NalUnitUtil {
       this.width = width;
       this.height = height;
       this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+      this.frameRate = frameRate;
       this.separateColorPlaneFlag = separateColorPlaneFlag;
       this.frameMbsOnlyFlag = frameMbsOnlyFlag;
       this.frameNumLength = frameNumLength;
@@ -349,6 +352,7 @@ public final class NalUnitUtil {
     }
 
     float pixelWidthHeightRatio = 1;
+    float frameRate = -1;
     boolean vuiParametersPresentFlag = data.readBit();
     if (vuiParametersPresentFlag) {
       boolean aspectRatioInfoPresentFlag = data.readBit();
@@ -366,6 +370,68 @@ public final class NalUnitUtil {
           Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
         }
       }
+      // https://www.androidos.net.cn/android/9.0.0_r8/xref/external/mp4parser/isoparser/src/main/java/com/googlecode/mp4parser/h264/model/SeqParameterSet.java
+      boolean overscan_info_present_flag = data.readBit();
+      if (overscan_info_present_flag) {
+        int overscan_appropriate_flagu = data.readBits(1);
+      }
+      boolean video_signal_type_present_flag = data.readBit();
+      if (video_signal_type_present_flag) {
+        int video_format = data.readBits(3);
+        int video_full_range_flag = data.readBits(1);
+        boolean colour_description_present_flag = data.readBit();
+        if (colour_description_present_flag) {
+          int colour_primaries = data.readBits(8);
+          int transfer_characteristics = data.readBits(8);
+          int matrix_coefficients = data.readBits(8);
+        }
+      }
+      boolean chroma_loc_info_present_flag = data.readBit();
+      if (chroma_loc_info_present_flag) {
+        int chroma_sample_loc_type_top_field = data.readUnsignedExpGolombCodedInt();
+        int chroma_sample_loc_type_bottom_field = data.readUnsignedExpGolombCodedInt();
+      } else {
+        boolean timing_info_present_flag = data.readBit();
+        if (timing_info_present_flag) {
+          int num_units_in_tick = data.readBits(32);
+          int time_scale = data.readBits(32);
+          frameRate = (float) time_scale / (float) num_units_in_tick;
+          boolean fixed_frame_rate_flag = data.readBit();
+          if (fixed_frame_rate_flag) {
+            frameRate = frameRate / 2f;
+          } else if (frameRate > 40f) {
+            frameRate = frameRate / 2f;
+          }
+        }
+        boolean nal_hrd_parameters_present_flag = data.readBit();
+        if (nal_hrd_parameters_present_flag)
+          readHRDParameters(data); //nalHRDParams
+        boolean vcl_hrd_parameters_present_flag = data.readBit();
+        if (vcl_hrd_parameters_present_flag)
+          readHRDParameters(data); //vclHRDParams
+        if (nal_hrd_parameters_present_flag || vcl_hrd_parameters_present_flag) {
+          boolean low_delay_hrd_flag = data.readBit();
+        }
+        boolean pic_struct_present_flag = data.readBit();
+        boolean bitstream_restriction_flag = data.readBit();
+        if (bitstream_restriction_flag) {/*
+          vuip.bitstreamRestriction = new VUIParameters.BitstreamRestriction();
+          vuip.bitstreamRestriction.motion_vectors_over_pic_boundaries_flag = reader
+              .readBool("VUI: motion_vectors_over_pic_boundaries_flag");
+          vuip.bitstreamRestriction.max_bytes_per_pic_denom = reader
+              .readUE("VUI max_bytes_per_pic_denom");
+          vuip.bitstreamRestriction.max_bits_per_mb_denom = reader
+              .readUE("VUI max_bits_per_mb_denom");
+          vuip.bitstreamRestriction.log2_max_mv_length_horizontal = reader
+              .readUE("VUI log2_max_mv_length_horizontal");
+          vuip.bitstreamRestriction.log2_max_mv_length_vertical = reader
+              .readUE("VUI log2_max_mv_length_vertical");
+          vuip.bitstreamRestriction.num_reorder_frames = reader
+              .readUE("VUI num_reorder_frames");
+          vuip.bitstreamRestriction.max_dec_frame_buffering = reader
+              .readUE("VUI max_dec_frame_buffering");*/
+        }
+      }
     }
 
     return new SpsData(
@@ -376,12 +442,36 @@ public final class NalUnitUtil {
         frameWidth,
         frameHeight,
         pixelWidthHeightRatio,
+        frameRate,
         separateColorPlaneFlag,
         frameMbsOnlyFlag,
         frameNumLength,
         picOrderCntType,
         picOrderCntLsbLength,
         deltaPicOrderAlwaysZeroFlag);
+  }
+
+  private static void readHRDParameters(ParsableNalUnitBitArray data) {
+//    HRDParameters hrd = new HRDParameters();
+//    hrd.cpb_cnt_minus1 = reader.readUE("SPS: cpb_cnt_minus1");
+    int cpb_cnt_minus1 = data.readUnsignedExpGolombCodedInt();
+//    hrd.bit_rate_scale = (int) reader.readNBit(4, "HRD: bit_rate_scale");
+    int bit_rate_scale = data.readBits(4);
+//    hrd.cpb_size_scale = (int) reader.readNBit(4, "HRD: cpb_size_scale");
+    int cpb_size_scale = data.readBits(4);
+    int[] bit_rate_value_minus1 = new int[cpb_cnt_minus1 + 1];
+    int[] cpb_size_value_minus1 = new int[cpb_cnt_minus1 + 1];
+    boolean[] cbr_flag = new boolean[cpb_cnt_minus1 + 1];
+
+    for (int SchedSelIdx = 0; SchedSelIdx <= cpb_cnt_minus1; SchedSelIdx++) {
+      bit_rate_value_minus1[SchedSelIdx] = data.readUnsignedExpGolombCodedInt();
+      cpb_size_value_minus1[SchedSelIdx] = data.readUnsignedExpGolombCodedInt();
+      cbr_flag[SchedSelIdx] = data.readBit();
+    }
+    int initial_cpb_removal_delay_length_minus1 = (int) data.readBits(5);
+    int cpb_removal_delay_length_minus1 = data.readBits(5);
+    int dpb_output_delay_length_minus1 = data.readBits(5);
+    int time_offset_length = data.readBits(5);
   }
 
   /**
