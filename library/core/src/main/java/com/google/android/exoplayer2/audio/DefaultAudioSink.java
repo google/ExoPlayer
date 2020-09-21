@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -1690,6 +1691,16 @@ public final class DefaultAudioSink implements AudioSink {
     public void onDataRequest(AudioTrack track, int size) {
       Assertions.checkState(track == DefaultAudioSink.this.audioTrack);
       if (listener != null) {
+        listener.onOffloadBufferEmptying();
+      }
+    }
+
+    @Override
+    public void onTearDown(@NonNull AudioTrack track) {
+      if (listener != null && playing) {
+        // A new Audio Track needs to be created and it's buffer filled, which will be done on the
+        // next handleBuffer call.
+        // Request this call explicitly in case ExoPlayer is sleeping waiting for a data request.
         listener.onOffloadBufferEmptying();
       }
     }
