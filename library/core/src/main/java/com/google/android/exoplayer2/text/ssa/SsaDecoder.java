@@ -263,9 +263,9 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     SsaStyle.Overrides styleOverrides = SsaStyle.Overrides.parseFromDialogue(rawText);
     String text =
         SsaStyle.Overrides.stripStyleOverrides(rawText)
-            .replaceAll("\\\\N", "\n")
-            .replaceAll("\\\\n", "\n")
-            .replaceAll("\\\\h", "\u00A0");
+            .replace("\\N", "\n")
+            .replace("\\n", "\n")
+            .replace("\\h", "\u00A0");
     Cue cue = createCue(text, style, styleOverrides, screenWidth, screenHeight);
 
     int startTimeIndex = addCuePlacerholderByTime(startTimeUs, cueTimesUs, cues);
