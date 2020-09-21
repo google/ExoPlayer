@@ -49,6 +49,9 @@
         *   Deprecate `EventListener.onSeekProcessed` because seek changes now
             happen instantly and listening to `onPositionDiscontinuity` is
             sufficient.
+        *   Split off `skipSilence' from `PlaybackParameter` and move it
+            to `AudioComponent.setSkipSilenceEnabled` with callback
+            `AudioListener.onSkipSilenceEnabledChanged`.
     *   `ExoPlayer`:
         *   Add `setMediaSource(s)` and `addMediaSource(s)` to `ExoPlayer`, for
             adding `MediaSource` instances directly to the playlist.
