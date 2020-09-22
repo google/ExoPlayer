@@ -411,8 +411,9 @@ public abstract class Representation {
       // The index is itself unbounded. We need to use the current time to calculate the range of
       // available segments.
       long liveEdgeTimeInPeriodUs = nowUnixTimeUs - periodStartUnixTimeUs;
-      // getSegmentNum(liveEdgeTimeInPeriodUs) will not be completed yet.
-      long firstIncompleteSegmentNum = getSegmentNum(liveEdgeTimeInPeriodUs, periodDurationUs);
+      long availabilityEndTimeUs = liveEdgeTimeInPeriodUs + segmentBase.availabilityTimeOffsetUs;
+      // getSegmentNum(availabilityEndTimeUs) will not be completed yet.
+      long firstIncompleteSegmentNum = getSegmentNum(availabilityEndTimeUs, periodDurationUs);
       long firstAvailableSegmentNum = getFirstAvailableSegmentNum(periodDurationUs, nowUnixTimeUs);
       return (int) (firstIncompleteSegmentNum - firstAvailableSegmentNum);
     }
