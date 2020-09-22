@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -288,9 +287,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
         chunkIterators[i] = MediaChunkIterator.EMPTY;
       } else {
         long firstAvailableSegmentNum =
-            representationHolder.getFirstAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
+            representationHolder.getFirstAvailableSegmentNum(nowUnixTimeUs);
         long lastAvailableSegmentNum =
-            representationHolder.getLastAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
+            representationHolder.getLastAvailableSegmentNum(nowUnixTimeUs);
         long segmentNum =
             getSegmentNum(
                 representationHolder,
@@ -342,10 +341,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
-    long firstAvailableSegmentNum =
-        representationHolder.getFirstAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
-    long lastAvailableSegmentNum =
-        representationHolder.getLastAvailableSegmentNum(manifest, periodIndex, nowUnixTimeUs);
+    long firstAvailableSegmentNum = representationHolder.getFirstAvailableSegmentNum(nowUnixTimeUs);
+    long lastAvailableSegmentNum = representationHolder.getLastAvailableSegmentNum(nowUnixTimeUs);
 
     updateLiveEdgeTimeUs(representationHolder, lastAvailableSegmentNum);
 
@@ -739,6 +736,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return segmentIndex.getFirstSegmentNum() + segmentNumShift;
     }
 
+    public long getFirstAvailableSegmentNum(long nowUnixTimeUs) {
+      return segmentIndex.getFirstAvailableSegmentNum(periodDurationUs, nowUnixTimeUs)
+          + segmentNumShift;
+    }
+
     public int getSegmentCount() {
       return segmentIndex.getSegmentCount(periodDurationUs);
     }
@@ -760,35 +762,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return segmentIndex.getSegmentUrl(segmentNum - segmentNumShift);
     }
 
-    public long getFirstAvailableSegmentNum(
-        DashManifest manifest, int periodIndex, long nowUnixTimeUs) {
-      if (getSegmentCount() == DashSegmentIndex.INDEX_UNBOUNDED
-          && manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
-        // The index is itself unbounded. We need to use the current time to calculate the range of
-        // available segments.
-        long liveEdgeTimeUs = nowUnixTimeUs - C.msToUs(manifest.availabilityStartTimeMs);
-        long periodStartUs = C.msToUs(manifest.getPeriod(periodIndex).startMs);
-        long liveEdgeTimeInPeriodUs = liveEdgeTimeUs - periodStartUs;
-        long bufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
-        return max(getFirstSegmentNum(), getSegmentNum(liveEdgeTimeInPeriodUs - bufferDepthUs));
-      }
-      return getFirstSegmentNum();
-    }
-
-    public long getLastAvailableSegmentNum(
-        DashManifest manifest, int periodIndex, long nowUnixTimeUs) {
-      int availableSegmentCount = getSegmentCount();
-      if (availableSegmentCount == DashSegmentIndex.INDEX_UNBOUNDED) {
-        // The index is itself unbounded. We need to use the current time to calculate the range of
-        // available segments.
-        long liveEdgeTimeUs = nowUnixTimeUs - C.msToUs(manifest.availabilityStartTimeMs);
-        long periodStartUs = C.msToUs(manifest.getPeriod(periodIndex).startMs);
-        long liveEdgeTimeInPeriodUs = liveEdgeTimeUs - periodStartUs;
-        // getSegmentNum(liveEdgeTimeInPeriodUs) will not be completed yet, so subtract one to get
-        // the index of the last completed segment.
-        return getSegmentNum(liveEdgeTimeInPeriodUs) - 1;
-      }
-      return getFirstSegmentNum() + availableSegmentCount - 1;
+    public long getLastAvailableSegmentNum(long nowUnixTimeUs) {
+      return getFirstAvailableSegmentNum(nowUnixTimeUs)
+          + segmentIndex.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs)
+          - 1;
     }
 
     @Nullable

@@ -42,7 +42,17 @@ public final class DashWrappingSegmentIndex implements DashSegmentIndex {
   }
 
   @Override
+  public long getFirstAvailableSegmentNum(long periodDurationUs, long nowUnixTimeUs) {
+    return 0;
+  }
+
+  @Override
   public int getSegmentCount(long periodDurationUs) {
+    return chunkIndex.length;
+  }
+
+  @Override
+  public int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
     return chunkIndex.length;
   }
 
