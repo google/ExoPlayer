@@ -88,29 +88,33 @@ SimpleExoPlayer player =
 This will allow other `Extractor` implementations to be removed by code
 shrinking, which can result in a significant reduction in size.
 
-If you app is not playing progressive media at all, for example because it only
-plays DASH, HLS or SmoothStreaming content, you can remove all `Extractor`s not
-required for DASH, HLS or SmoothStreaming by using `ExtractorsFactory.EMPTY`:
+You should pass `ExtractorsFactory.EMPTY` to the `SimpleExoPlayer.Builder`
+constructor, if your app is doing one of the following:
+
+* Not playing progressive media at all, for example because it only
+  plays DASH, HLS or SmoothStreaming content
+* Providing a customized `DefaultMediaSourceFactory`
+* Using `MediaSource`s directly instead of `MediaItem`s
 
 ~~~
+// Only playing DASH, HLS or SmoothStreaming.
 SimpleExoPlayer player =
     new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
-~~~
-{: .language-java}
 
-Note that if you provide a customized `DefaultMediaSourceFactory`, the
-`ExtractorsFactory` passed to the constructor of `DefaultMediaSourceFactory`
-will overwrite the passed to `SimpleExoPlayer.Builder`. To ensure code shrinking
-works as intended, you should provide `ExtractorsFactory.EMPTY` to the
-`SimpleExoPlayer.Builder` and pass your customized `ExtractorsFactory` to the
-`DefaultMediaSourceFactory` constructor:
-
-~~~
+// Providing a customized `DefaultMediaSourceFactory`
 SimpleExoPlayer player =
     new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY)
         .setMediaSourceFactory(
             new DefaultMediaSourceFactory(context, customExtractorsFactory))
         .build();
+
+// Using a MediaSource directly.
+SimpleExoPlayer player =
+    new SimpleExoPlayer.Builder(context, ExtractorsFactory.EMPTY).build();
+ProgressiveMediaSource mediaSource =
+    new ProgressiveMediaSource.Factory(
+            dataSourceFactory, customExtractorsFactory)
+        .createMediaSource(MediaItem.fromUri(uri));
 ~~~
 {: .language-java}
 
