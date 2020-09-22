@@ -275,9 +275,6 @@ import java.util.List;
   public static final int TYPE_TTML = 0x54544d4c;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  public static final int TYPE_vmhd = 0x766d6864;
-
-  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_mp4v = 0x6d703476;
 
   @SuppressWarnings("ConstantCaseForConstants")
