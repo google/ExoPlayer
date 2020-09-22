@@ -2,6 +2,10 @@
 
 ### 2.12.1 ###
 
+*   Core library:
+    *   Fix bug where streams with highly uneven durations may get stuck in a
+        buffering state
+        ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
 *   Data sources:
     *   Add support for `android.resource` URI scheme in `RawResourceDataSource`
         ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
