@@ -77,6 +77,10 @@ To learn more about what's new in 2.12, read the corresponding
             playable `MediaSource` instances. A `DefaultMediaSourceFactory` is
             used by default. `Builder.setMediaSourceFactory` allows setting a
             custom factory.
+        *   Update [APK shrinking guide](https://exoplayer.dev/shrinking.html)
+            to explain how shrinking works with the new `MediaItem` and
+            `DefaultMediaSourceFactory` implementations
+            ([#7937](https://github.com/google/ExoPlayer/issues/7937)).
         *   Add additional options to `Builder` that were previously only
             accessible via setters.
         *   Add opt-in to verify correct thread usage with
