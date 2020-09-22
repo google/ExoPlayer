@@ -123,7 +123,7 @@
     <item name="android:text">@string/exo_controls_time_placeholder</item>
   </style>
 
-  <style name="ExoStyledControls.TimeText.Interpunct">
+  <style name="ExoStyledControls.TimeText.Separator">
     <item name="android:textColor">@color/exo_white_opacity_70</item>
     <item name="android:text">·</item>
   </style>

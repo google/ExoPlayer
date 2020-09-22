@@ -20,9 +20,19 @@
     android:orientation="horizontal"
     android:visibility="visible">
 
-    <ImageButton android:id="@+id/exo_prev" style="@style/ExoStyledControls.Button.Center.Previous" />
-    <Button android:id="@+id/exo_rew_with_amount" style="@style/ExoStyledControls.Button.Center.RewWithAmount" />
-    <ImageButton android:id="@+id/exo_play_pause" style="@style/ExoStyledControls.Button.Center.PlayPause" />
-    <Button android:id="@+id/exo_ffwd_with_amount" style="@style/ExoStyledControls.Button.Center.FfwdWithAmount" />
-    <ImageButton android:id="@+id/exo_next" style="@style/ExoStyledControls.Button.Center.Next" />
+    <ImageButton android:id="@+id/exo_prev"
+        style="@style/ExoStyledControls.Button.Center.Previous"/>
+
+    <Button android:id="@+id/exo_rew_with_amount"
+        style="@style/ExoStyledControls.Button.Center.RewWithAmount"/>
+
+    <ImageButton android:id="@+id/exo_play_pause"
+        style="@style/ExoStyledControls.Button.Center.PlayPause"/>
+
+    <Button android:id="@+id/exo_ffwd_with_amount"
+        style="@style/ExoStyledControls.Button.Center.FfwdWithAmount"/>
+
+    <ImageButton android:id="@+id/exo_next"
+        style="@style/ExoStyledControls.Button.Center.Next"/>
+
 </LinearLayout>
