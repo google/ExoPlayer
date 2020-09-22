@@ -7334,6 +7334,8 @@ public final class ExoPlayerTest {
         new DefaultLoadControl.Builder()
             .setTargetBufferBytes(10 * C.DEFAULT_BUFFER_SEGMENT_SIZE)
             .build();
+    // Return no end of stream signal to prevent playback from ending.
+    FakeMediaPeriod.TrackDataFactory trackDataWithoutEos = (format, periodId) -> ImmutableList.of();
     MediaSource continuouslyAllocatingMediaSource =
         new FakeMediaSource(
             new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT) {
@@ -7348,8 +7350,11 @@ public final class ExoPlayerTest {
               @Nullable TransferListener transferListener) {
             return new FakeMediaPeriod(
                 trackGroupArray,
-                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
-                mediaSourceEventDispatcher) {
+                trackDataWithoutEos,
+                mediaSourceEventDispatcher,
+                drmSessionManager,
+                drmEventDispatcher,
+                /* deferOnPrepared= */ false) {
 
               private final List<Allocation> allocations = new ArrayList<>();
 
@@ -7382,14 +7387,8 @@ public final class ExoPlayerTest {
             };
           }
         };
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            // Prevent player from ever assuming it finished playing.
-            .setRepeatMode(Player.REPEAT_MODE_ALL)
-            .build();
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder(context)
-            .setActionSchedule(actionSchedule)
             .setMediaSources(continuouslyAllocatingMediaSource)
             .setLoadControl(loadControl)
             .build();

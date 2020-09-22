@@ -897,10 +897,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         // tracks in the current period have uneven durations and are still being read by another
         // renderer. See: https://github.com/google/ExoPlayer/issues/1874.
         boolean isReadingAhead = playingPeriodHolder.sampleStreams[i] != renderer.getStream();
-        boolean isWaitingForNextStream =
-            !isReadingAhead
-                && playingPeriodHolder.getNext() != null
-                && renderer.hasReadStreamToEnd();
+        boolean isWaitingForNextStream = !isReadingAhead && renderer.hasReadStreamToEnd();
         boolean allowsPlayback =
             isReadingAhead || isWaitingForNextStream || renderer.isReady() || renderer.isEnded();
         renderersAllowPlayback = renderersAllowPlayback && allowsPlayback;

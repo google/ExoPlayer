@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released)
 
+*   Core library:
+    *   Fix bug where streams with highly uneven durations may get stuck in a
+        buffering state
+        ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:
