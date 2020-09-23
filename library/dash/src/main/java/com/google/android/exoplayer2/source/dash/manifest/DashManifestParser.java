@@ -1279,13 +1279,21 @@ public class DashManifestParser extends DefaultHandler
   protected int parseAudioChannelConfiguration(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     String schemeIdUri = parseString(xpp, "schemeIdUri", null);
-    int audioChannels =
-        "urn:mpeg:dash:23003:3:audio_channel_configuration:2011".equals(schemeIdUri)
-            ? parseInt(xpp, "value", Format.NO_VALUE)
-            : ("tag:dolby.com,2014:dash:audio_channel_configuration:2011".equals(schemeIdUri)
-                    || "urn:dolby:dash:audio_channel_configuration:2011".equals(schemeIdUri)
-                ? parseDolbyChannelConfiguration(xpp)
-                : Format.NO_VALUE);
+    int audioChannels = Format.NO_VALUE;
+    switch (schemeIdUri) {
+      case "urn:mpeg:dash:23003:3:audio_channel_configuration:2011":
+        audioChannels = parseInt(xpp, "value", Format.NO_VALUE);
+        break;
+      case "urn:mpeg:mpegB:cicp:ChannelConfiguration":
+        audioChannels = parseMpegChannelConfiguration(xpp);
+        break;
+      case "tag:dolby.com,2014:dash:audio_channel_configuration:2011":
+      case "urn:dolby:dash:audio_channel_configuration:2011":
+        audioChannels = parseDolbyChannelConfiguration(xpp);
+        break;
+      default:
+        break;
+    }
     do {
       xpp.next();
     } while (!XmlPullParserUtil.isEndTag(xpp, "AudioChannelConfiguration"));
@@ -1649,6 +1657,25 @@ public class DashManifestParser extends DefaultHandler
   protected static String parseString(XmlPullParser xpp, String name, String defaultValue) {
     String value = xpp.getAttributeValue(null, name);
     return value == null ? defaultValue : value;
+  }
+
+  /**
+   * Parses the number of channels from the value attribute of an AudioElementConfiguration with
+   * schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by
+   * https://dashif.org/identifiers/audio_source_metadata/ and clause 8.2, in ISO/IEC 23001-8.
+   *
+   * @param xpp The parser from which to read.
+   * @return The parsed number of channels, or {@link Format#NO_VALUE} if the channel count could
+   *     not be parsed.
+   */
+  protected static int parseMpegChannelConfiguration(XmlPullParser xpp) {
+    int channelIndex = parseInt(xpp, "value", Format.NO_VALUE);
+    int[] channelCountMapping = new int[]{Format.NO_VALUE, 1, 2, 3, 4, 5, 6, 8, 2, 3, /* 0--9 */
+        4,7, 8, 24, 8, 12, 10, 12, 14, 12, /* 10--19 */
+        14 /* 20 */};
+    return (channelIndex >=0 && channelIndex < channelCountMapping.length)
+        ? channelCountMapping[channelIndex]
+        : Format.NO_VALUE;
   }
 
   /**
