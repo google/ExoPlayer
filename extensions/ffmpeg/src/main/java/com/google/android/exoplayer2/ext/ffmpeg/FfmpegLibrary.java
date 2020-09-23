@@ -15,23 +15,39 @@
  */
 package com.google.android.exoplayer2.ext.ffmpeg;
 
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.LibraryLoader;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Configures and queries the underlying native library.
  */
 public final class FfmpegLibrary {
 
+  static {
+    ExoPlayerLibraryInfo.registerModule("goog.exo.ffmpeg");
+  }
+
+  private static final String TAG = "FfmpegLibrary";
+
   private static final LibraryLoader LOADER =
-      new LibraryLoader("avutil", "avresample", "avcodec", "ffmpeg");
+      new LibraryLoader("avutil", "swresample", "avcodec", "ffmpeg_jni");
+
+  private static @MonotonicNonNull String version;
+  private static int inputBufferPaddingSize = C.LENGTH_UNSET;
 
   private FfmpegLibrary() {}
 
   /**
    * Override the names of the FFmpeg native libraries. If an application wishes to call this
    * method, it must do so before calling any other method defined by this class, and before
-   * instantiating a {@link FfmpegAudioRenderer} instance.
+   * instantiating a {@link FfmpegAudioRenderer} or {@link FfmpegVideoRenderer} instance.
+   *
+   * @param libraries The names of the FFmpeg native libraries.
    */
   public static void setLibraries(String... libraries) {
     LOADER.setLibraries(libraries);
@@ -44,27 +60,57 @@ public final class FfmpegLibrary {
     return LOADER.isAvailable();
   }
 
-  /**
-   * Returns the version of the underlying library if available, or null otherwise.
-   */
+  /** Returns the version of the underlying library if available, or null otherwise. */
+  @Nullable
   public static String getVersion() {
-    return isAvailable() ? ffmpegGetVersion() : null;
+    if (!isAvailable()) {
+      return null;
+    }
+    if (version == null) {
+      version = ffmpegGetVersion();
+    }
+    return version;
+  }
+
+  /**
+   * Returns the required amount of padding for input buffers in bytes, or {@link C#LENGTH_UNSET} if
+   * the underlying library is not available.
+   */
+  public static int getInputBufferPaddingSize() {
+    if (!isAvailable()) {
+      return C.LENGTH_UNSET;
+    }
+    if (inputBufferPaddingSize == C.LENGTH_UNSET) {
+      inputBufferPaddingSize = ffmpegGetInputBufferPaddingSize();
+    }
+    return inputBufferPaddingSize;
   }
 
   /**
    * Returns whether the underlying library supports the specified MIME type.
+   *
+   * @param mimeType The MIME type to check.
    */
   public static boolean supportsFormat(String mimeType) {
     if (!isAvailable()) {
       return false;
     }
-    String codecName = getCodecName(mimeType);
-    return codecName != null && ffmpegHasDecoder(codecName);
+    @Nullable String codecName = getCodecName(mimeType);
+    if (codecName == null) {
+      return false;
+    }
+    if (!ffmpegHasDecoder(codecName)) {
+      Log.w(TAG, "No " + codecName + " decoder available. Check the FFmpeg build configuration.");
+      return false;
+    }
+    return true;
   }
 
   /**
-   * Returns the name of the FFmpeg decoder that could be used to decode {@code mimeType}.
+   * Returns the name of the FFmpeg decoder that could be used to decode the format, or {@code null}
+   * if it's unsupported.
    */
+  @Nullable
   /* package */ static String getCodecName(String mimeType) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
@@ -76,6 +122,7 @@ public final class FfmpegLibrary {
       case MimeTypes.AUDIO_AC3:
         return "ac3";
       case MimeTypes.AUDIO_E_AC3:
+      case MimeTypes.AUDIO_E_AC3_JOC:
         return "eac3";
       case MimeTypes.AUDIO_TRUEHD:
         return "truehd";
@@ -94,12 +141,22 @@ public final class FfmpegLibrary {
         return "flac";
       case MimeTypes.AUDIO_ALAC:
         return "alac";
+      case MimeTypes.AUDIO_MLAW:
+        return "pcm_mulaw";
+      case MimeTypes.AUDIO_ALAW:
+        return "pcm_alaw";
+      case MimeTypes.VIDEO_H264:
+        return "h264";
+      case MimeTypes.VIDEO_H265:
+        return "hevc";
       default:
         return null;
     }
   }
 
   private static native String ffmpegGetVersion();
-  private static native boolean ffmpegHasDecoder(String codecName);
 
+  private static native int ffmpegGetInputBufferPaddingSize();
+
+  private static native boolean ffmpegHasDecoder(String codecName);
 }

@@ -15,7 +15,12 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
+import android.net.Uri;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -24,29 +29,116 @@ import com.google.android.exoplayer2.util.Assertions;
  */
 public final class SinglePeriodTimeline extends Timeline {
 
-  private static final Object ID = new Object();
+  private static final Object UID = new Object();
+  private static final MediaItem MEDIA_ITEM =
+      new MediaItem.Builder()
+          .setMediaId("com.google.android.exoplayer2.source.SinglePeriodTimeline")
+          .setUri(Uri.EMPTY)
+          .build();
 
+  private final long presentationStartTimeMs;
+  private final long windowStartTimeMs;
+  private final long elapsedRealtimeEpochOffsetMs;
   private final long periodDurationUs;
   private final long windowDurationUs;
   private final long windowPositionInPeriodUs;
   private final long windowDefaultStartPositionUs;
   private final boolean isSeekable;
   private final boolean isDynamic;
+  private final boolean isLive;
+  @Nullable private final Object manifest;
+  @Nullable private final MediaItem mediaItem;
 
   /**
-   * Creates a timeline of one period of known duration, and a static window starting at zero and
-   * extending to that duration.
-   *
-   * @param durationUs The duration of the period, in microseconds.
-   * @param isSeekable Whether seeking is supported within the period.
+   * @deprecated Use {@link #SinglePeriodTimeline(long, boolean, boolean, boolean, Object,
+   *     MediaItem)} instead.
    */
-  public SinglePeriodTimeline(long durationUs, boolean isSeekable) {
-    this(durationUs, durationUs, 0, 0, isSeekable, false);
+  // Provide backwards compatibility.
+  @SuppressWarnings("deprecation")
+  @Deprecated
+  public SinglePeriodTimeline(
+      long durationUs,
+      boolean isSeekable,
+      boolean isDynamic,
+      boolean isLive,
+      @Nullable Object manifest,
+      @Nullable Object tag) {
+    this(
+        durationUs,
+        durationUs,
+        /* windowPositionInPeriodUs= */ 0,
+        /* windowDefaultStartPositionUs= */ 0,
+        isSeekable,
+        isDynamic,
+        isLive,
+        manifest,
+        tag);
   }
 
   /**
-   * Creates a timeline with one period of known duration, and a window of known duration starting
-   * at a specified position in the period.
+   * Creates a timeline containing a single period and a window that spans it.
+   *
+   * @param durationUs The duration of the period, in microseconds.
+   * @param isSeekable Whether seeking is supported within the period.
+   * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param isLive Whether the window is live.
+   * @param manifest The manifest. May be {@code null}.
+   * @param mediaItem A media item used for {@link Window#mediaItem}.
+   */
+  public SinglePeriodTimeline(
+      long durationUs,
+      boolean isSeekable,
+      boolean isDynamic,
+      boolean isLive,
+      @Nullable Object manifest,
+      MediaItem mediaItem) {
+    this(
+        durationUs,
+        durationUs,
+        /* windowPositionInPeriodUs= */ 0,
+        /* windowDefaultStartPositionUs= */ 0,
+        isSeekable,
+        isDynamic,
+        isLive,
+        manifest,
+        mediaItem);
+  }
+
+  /**
+   * @deprecated Use {@link #SinglePeriodTimeline(long, long, long, long, boolean, boolean, boolean,
+   *     Object, MediaItem)} instead.
+   */
+  // Provide backwards compatibility.
+  @SuppressWarnings("deprecation")
+  @Deprecated
+  public SinglePeriodTimeline(
+      long periodDurationUs,
+      long windowDurationUs,
+      long windowPositionInPeriodUs,
+      long windowDefaultStartPositionUs,
+      boolean isSeekable,
+      boolean isDynamic,
+      boolean isLive,
+      @Nullable Object manifest,
+      @Nullable Object tag) {
+    this(
+        /* presentationStartTimeMs= */ C.TIME_UNSET,
+        /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+        periodDurationUs,
+        windowDurationUs,
+        windowPositionInPeriodUs,
+        windowDefaultStartPositionUs,
+        isSeekable,
+        isDynamic,
+        isLive,
+        manifest,
+        tag);
+  }
+
+  /**
+   * Creates a timeline with one period, and a window of known duration starting at a specified
+   * position in the period.
    *
    * @param periodDurationUs The duration of the period in microseconds.
    * @param windowDurationUs The duration of the window in microseconds.
@@ -56,16 +148,116 @@ public final class SinglePeriodTimeline extends Timeline {
    *     which to begin playback, in microseconds.
    * @param isSeekable Whether seeking is supported within the window.
    * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param isLive Whether the window is live.
+   * @param manifest The manifest. May be (@code null}.
+   * @param mediaItem A media item used for {@link Timeline.Window#mediaItem}.
    */
-  public SinglePeriodTimeline(long periodDurationUs, long windowDurationUs,
-      long windowPositionInPeriodUs, long windowDefaultStartPositionUs, boolean isSeekable,
-      boolean isDynamic) {
+  public SinglePeriodTimeline(
+      long periodDurationUs,
+      long windowDurationUs,
+      long windowPositionInPeriodUs,
+      long windowDefaultStartPositionUs,
+      boolean isSeekable,
+      boolean isDynamic,
+      boolean isLive,
+      @Nullable Object manifest,
+      MediaItem mediaItem) {
+    this(
+        /* presentationStartTimeMs= */ C.TIME_UNSET,
+        /* windowStartTimeMs= */ C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+        periodDurationUs,
+        windowDurationUs,
+        windowPositionInPeriodUs,
+        windowDefaultStartPositionUs,
+        isSeekable,
+        isDynamic,
+        isLive,
+        manifest,
+        mediaItem);
+  }
+
+  /**
+   * @deprecated Use {@link #SinglePeriodTimeline(long, long, long, long, long, long, long, boolean,
+   *     boolean, boolean, Object, MediaItem)} instead.
+   */
+  @Deprecated
+  public SinglePeriodTimeline(
+      long presentationStartTimeMs,
+      long windowStartTimeMs,
+      long elapsedRealtimeEpochOffsetMs,
+      long periodDurationUs,
+      long windowDurationUs,
+      long windowPositionInPeriodUs,
+      long windowDefaultStartPositionUs,
+      boolean isSeekable,
+      boolean isDynamic,
+      boolean isLive,
+      @Nullable Object manifest,
+      @Nullable Object tag) {
+    this(
+        presentationStartTimeMs,
+        windowStartTimeMs,
+        elapsedRealtimeEpochOffsetMs,
+        periodDurationUs,
+        windowDurationUs,
+        windowPositionInPeriodUs,
+        windowDefaultStartPositionUs,
+        isSeekable,
+        isDynamic,
+        isLive,
+        manifest,
+        MEDIA_ITEM.buildUpon().setTag(tag).build());
+  }
+
+  /**
+   * Creates a timeline with one period, and a window of known duration starting at a specified
+   * position in the period.
+   *
+   * @param presentationStartTimeMs The start time of the presentation in milliseconds since the
+   *     epoch, or {@link C#TIME_UNSET} if unknown or not applicable.
+   * @param windowStartTimeMs The window's start time in milliseconds since the epoch, or {@link
+   *     C#TIME_UNSET} if unknown or not applicable.
+   * @param elapsedRealtimeEpochOffsetMs The offset between {@link
+   *     android.os.SystemClock#elapsedRealtime()} and the time since the Unix epoch according to
+   *     the clock of the media origin server, or {@link C#TIME_UNSET} if unknown or not applicable.
+   * @param periodDurationUs The duration of the period in microseconds.
+   * @param windowDurationUs The duration of the window in microseconds.
+   * @param windowPositionInPeriodUs The position of the start of the window in the period, in
+   *     microseconds.
+   * @param windowDefaultStartPositionUs The default position relative to the start of the window at
+   *     which to begin playback, in microseconds.
+   * @param isSeekable Whether seeking is supported within the window.
+   * @param isDynamic Whether the window may change when the timeline is updated.
+   * @param isLive Whether the window is live.
+   * @param manifest The manifest. May be {@code null}.
+   * @param mediaItem A media item used for {@link Timeline.Window#mediaItem}.
+   */
+  public SinglePeriodTimeline(
+      long presentationStartTimeMs,
+      long windowStartTimeMs,
+      long elapsedRealtimeEpochOffsetMs,
+      long periodDurationUs,
+      long windowDurationUs,
+      long windowPositionInPeriodUs,
+      long windowDefaultStartPositionUs,
+      boolean isSeekable,
+      boolean isDynamic,
+      boolean isLive,
+      @Nullable Object manifest,
+      MediaItem mediaItem) {
+    this.presentationStartTimeMs = presentationStartTimeMs;
+    this.windowStartTimeMs = windowStartTimeMs;
+    this.elapsedRealtimeEpochOffsetMs = elapsedRealtimeEpochOffsetMs;
     this.periodDurationUs = periodDurationUs;
     this.windowDurationUs = windowDurationUs;
     this.windowPositionInPeriodUs = windowPositionInPeriodUs;
     this.windowDefaultStartPositionUs = windowDefaultStartPositionUs;
     this.isSeekable = isSeekable;
     this.isDynamic = isDynamic;
+    this.isLive = isLive;
+    this.manifest = manifest;
+    this.mediaItem = checkNotNull(mediaItem);
   }
 
   @Override
@@ -73,21 +265,38 @@ public final class SinglePeriodTimeline extends Timeline {
     return 1;
   }
 
+  // Provide backwards compatibility.
   @Override
-  public Window getWindow(int windowIndex, Window window, boolean setIds,
-      long defaultPositionProjectionUs) {
+  public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     Assertions.checkIndex(windowIndex, 0, 1);
-    Object id = setIds ? ID : null;
     long windowDefaultStartPositionUs = this.windowDefaultStartPositionUs;
-    if (isDynamic) {
-      windowDefaultStartPositionUs += defaultPositionProjectionUs;
-      if (windowDefaultStartPositionUs > windowDurationUs) {
-        // The projection takes us beyond the end of the live window.
+    if (isDynamic && defaultPositionProjectionUs != 0) {
+      if (windowDurationUs == C.TIME_UNSET) {
+        // Don't allow projection into a window that has an unknown duration.
         windowDefaultStartPositionUs = C.TIME_UNSET;
+      } else {
+        windowDefaultStartPositionUs += defaultPositionProjectionUs;
+        if (windowDefaultStartPositionUs > windowDurationUs) {
+          // The projection takes us beyond the end of the window.
+          windowDefaultStartPositionUs = C.TIME_UNSET;
+        }
       }
     }
-    return window.set(id, C.TIME_UNSET, C.TIME_UNSET, isSeekable, isDynamic,
-        windowDefaultStartPositionUs, windowDurationUs, 0, 0, windowPositionInPeriodUs);
+    return window.set(
+        Window.SINGLE_WINDOW_UID,
+        mediaItem,
+        manifest,
+        presentationStartTimeMs,
+        windowStartTimeMs,
+        elapsedRealtimeEpochOffsetMs,
+        isSeekable,
+        isDynamic,
+        isLive,
+        windowDefaultStartPositionUs,
+        windowDurationUs,
+        /* firstPeriodIndex= */ 0,
+        /* lastPeriodIndex= */ 0,
+        windowPositionInPeriodUs);
   }
 
   @Override
@@ -98,13 +307,18 @@ public final class SinglePeriodTimeline extends Timeline {
   @Override
   public Period getPeriod(int periodIndex, Period period, boolean setIds) {
     Assertions.checkIndex(periodIndex, 0, 1);
-    Object id = setIds ? ID : null;
-    return period.set(id, id, 0, periodDurationUs, -windowPositionInPeriodUs, false);
+    @Nullable Object uid = setIds ? UID : null;
+    return period.set(/* id= */ null, uid, 0, periodDurationUs, -windowPositionInPeriodUs);
   }
 
   @Override
   public int getIndexOfPeriod(Object uid) {
-    return ID.equals(uid) ? 0 : C.INDEX_UNSET;
+    return UID.equals(uid) ? 0 : C.INDEX_UNSET;
   }
 
+  @Override
+  public Object getUidOfPeriod(int periodIndex) {
+    Assertions.checkIndex(periodIndex, 0, 1);
+    return UID;
+  }
 }

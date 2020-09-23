@@ -1,0 +1,25 @@
+WEBVTT
+
+STYLE
+::cue(.under) {
+  ruby-position: under;
+}
+
+STYLE
+::cue(.over) {
+  ruby-position: over;
+}
+
+00:00:01.000 --> 00:00:02.000
+Some <ruby.over>text with over-ruby<rt>over</rt></ruby>.
+
+00:00:03.000 --> 00:00:04.000
+Some <ruby.under>text with under-ruby<rt>under</rt></ruby> and <ruby>over-ruby (default)<rt>over</rt></ruby>.
+
+NOTE Many individual rubies in a single <ruby> tag
+
+00:00:05.000 --> 00:00:06.000
+<ruby.under>base1<rt.over>over1</rt>base2<rt>under2</rt>base3<rt.under>under3</rt></ruby>.
+
+00:00:07.000 --> 00:00:08.000
+Some <ruby>text with no ruby text</ruby>.

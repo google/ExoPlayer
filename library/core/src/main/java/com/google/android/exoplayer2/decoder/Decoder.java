@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import androidx.annotation.Nullable;
+
 /**
  * A media decoder.
  *
@@ -22,7 +24,7 @@ package com.google.android.exoplayer2.decoder;
  * @param <O> The type of buffer output from the decoder.
  * @param <E> The type of exception thrown from the decoder.
  */
-public interface Decoder<I, O, E extends Exception> {
+public interface Decoder<I, O, E extends DecoderException> {
 
   /**
    * Returns the name of the decoder.
@@ -37,6 +39,7 @@ public interface Decoder<I, O, E extends Exception> {
    * @return The input buffer, which will have been cleared, or null if a buffer isn't available.
    * @throws E If a decoder error has occurred.
    */
+  @Nullable
   I dequeueInputBuffer() throws E;
 
   /**
@@ -53,6 +56,7 @@ public interface Decoder<I, O, E extends Exception> {
    * @return The output buffer, or null if an output buffer isn't available.
    * @throws E If a decoder error has occurred.
    */
+  @Nullable
   O dequeueOutputBuffer() throws E;
 
   /**

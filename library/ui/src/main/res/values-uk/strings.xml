@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,12 +13,56 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-  <string name="exo_controls_previous_description">"Попередня композиція"</string>
-  <string name="exo_controls_next_description">"Наступна композиція"</string>
-  <string name="exo_controls_pause_description">"Пауза"</string>
-  <string name="exo_controls_play_description">"Відтворити"</string>
-  <string name="exo_controls_stop_description">"Зупинити"</string>
-  <string name="exo_controls_rewind_description">"Перемотати назад"</string>
-  <string name="exo_controls_fastforward_description">"Перемотати вперед"</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">Показувати елементи керування програвачем</string>
+  <string name="exo_controls_hide">Сховати елементи керування програвачем</string>
+  <string name="exo_controls_seek_bar_description">Прогрес відтворення</string>
+  <string name="exo_controls_settings_description">Налаштування</string>
+  <string name="exo_controls_overflow_hide_description">Сховати додаткові налаштування</string>
+  <string name="exo_controls_overflow_show_description">Показати додаткові налаштування</string>
+  <string name="exo_controls_fullscreen_enter_description">Перейти в повноекранний режим</string>
+  <string name="exo_controls_fullscreen_exit_description">Вийти з повноекранного режиму</string>
+  <string name="exo_controls_previous_description">Назад</string>
+  <string name="exo_controls_next_description">Далі</string>
+  <string name="exo_controls_pause_description">Призупинити</string>
+  <string name="exo_controls_play_description">Відтворити</string>
+  <string name="exo_controls_stop_description">Припинити</string>
+  <string name="exo_controls_rewind_description">Перемотати назад</string>
+  <string name="exo_controls_rewind_by_amount_description">Перемотати назад на %d с</string>
+  <string name="exo_controls_fastforward_description">Перемотати вперед</string>
+  <string name="exo_controls_fastforward_by_amount_description">Перемотати вперед на %d с</string>
+  <string name="exo_controls_repeat_off_description">Не повторювати</string>
+  <string name="exo_controls_repeat_one_description">Повторити 1</string>
+  <string name="exo_controls_repeat_all_description">Повторити всі</string>
+  <string name="exo_controls_shuffle_on_description">Перемішування ввімкнено</string>
+  <string name="exo_controls_shuffle_off_description">Перемішування вимкнено</string>
+  <string name="exo_controls_vr_description">Режим віртуальної реальності</string>
+  <string name="exo_controls_cc_enabled_description">Вимкнути субтитри</string>
+  <string name="exo_controls_cc_disabled_description">Увімкнути субтитри</string>
+  <string name="exo_controls_playback_speed">Швидкість</string>
+  <string name="exo_controls_playback_speed_normal">Звичайна</string>
+  <string name="exo_download_description">Завантажити</string>
+  <string name="exo_download_notification_channel_name">Завантаження</string>
+  <string name="exo_download_downloading">Завантажується</string>
+  <string name="exo_download_completed">Завантаження завершено</string>
+  <string name="exo_download_failed">Не вдалося завантажити</string>
+  <string name="exo_download_removing">Завантаження видаляються</string>
+  <string name="exo_track_selection_title_video">Відео</string>
+  <string name="exo_track_selection_title_audio">Аудіо</string>
+  <string name="exo_track_selection_title_text">Текст</string>
+  <string name="exo_track_selection_none">Нічого</string>
+  <string name="exo_track_selection_auto">Автоматично</string>
+  <string name="exo_track_unknown">Невідомо</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">Моно</string>
+  <string name="exo_track_stereo">Стерео</string>
+  <string name="exo_track_surround">Об’ємний звук</string>
+  <string name="exo_track_surround_5_point_1">Об’ємний звук у форматі 5.1</string>
+  <string name="exo_track_surround_7_point_1">Об’ємний звук у форматі 7.1</string>
+  <string name="exo_track_role_alternate">Альтернативна</string>
+  <string name="exo_track_role_supplementary">Додаткова</string>
+  <string name="exo_track_role_commentary">Коментарі</string>
+  <string name="exo_track_role_closed_captions">Субтитри</string>
+  <string name="exo_track_bitrate">%1$.2f Мбіт/с</string>
+  <string name="exo_item_list">%1$s, %2$s</string>
 </resources>

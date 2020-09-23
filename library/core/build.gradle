@@ -11,21 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
-
     defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    sourceSets {
-        androidTest {
-            java.srcDirs += "../../testutils/src/main/java/"
-        }
+        // The following argument makes the Android Test Orchestrator run its
+        // "pm clear" command after each test invocation. This command ensures
+        // that the app's state is completely cleared between tests.
+        testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     buildTypes {
@@ -33,13 +26,51 @@ android {
             testCoverageEnabled = true
         }
     }
+
+    sourceSets {
+        androidTest.assets.srcDir '../../testdata/src/test/assets/'
+        test.assets.srcDir '../../testdata/src/test/assets/'
+    }
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:' + supportLibraryVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
+    api project(modulePrefix + 'library-common')
+    api project(modulePrefix + 'library-extractor')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation ('com.google.guava:guava:' + guavaVersion) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
+    }
+    compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation ('com.google.guava:guava:' + guavaVersion) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
+    }
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
+    androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
+    androidTestImplementation(project(modulePrefix + 'testutils')) {
+        exclude module: modulePrefix.substring(1) + 'library-core'
+    }
+    testImplementation ('com.google.guava:guava:' + guavaVersion) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
+    }
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {

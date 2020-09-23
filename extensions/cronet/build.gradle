@@ -11,36 +11,33 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-    }
-
-    sourceSets.main {
-        jniLibs.srcDirs = ['jniLibs']
-    }
-}
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
-    compile project(':library-core')
-    compile files('libs/cronet_api.jar')
-    compile files('libs/cronet_impl_common_java.jar')
-    compile files('libs/cronet_impl_native_java.jar')
-    androidTestCompile project(':library')
-    androidTestCompile 'com.google.dexmaker:dexmaker:' + dexmakerVersion
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:' + dexmakerVersion
-    androidTestCompile 'org.mockito:mockito-core:' + mockitoVersion
-    androidTestCompile 'com.android.support.test:runner:' + testSupportLibraryVersion
+    api "com.google.android.gms:play-services-cronet:17.0.0"
+    implementation project(modulePrefix + 'library-core')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation ('com.google.guava:guava:' + guavaVersion) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
+    }
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    testImplementation project(modulePrefix + 'library')
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 
 ext {
     javadocTitle = 'Cronet extension'
 }
 apply from: '../../javadoc_library.gradle'
+
+ext {
+    releaseArtifact = 'extension-cronet'
+    releaseDescription = 'Cronet extension for ExoPlayer.'
+}
+apply from: '../../publish.gradle'

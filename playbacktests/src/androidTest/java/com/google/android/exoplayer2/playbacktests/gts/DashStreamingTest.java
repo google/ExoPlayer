@@ -15,30 +15,41 @@
  */
 package com.google.android.exoplayer2.playbacktests.gts;
 
-import android.test.ActivityInstrumentationTestCase2;
+import static com.google.android.exoplayer2.playbacktests.gts.GtsTestUtil.shouldSkipWidevineTest;
+import static com.google.common.truth.Truth.assertThat;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
-import com.google.android.exoplayer2.playbacktests.util.ActionSchedule;
-import com.google.android.exoplayer2.playbacktests.util.HostActivity;
+import com.google.android.exoplayer2.testutil.ActionSchedule;
+import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-/**
- * Tests DASH playbacks using {@link ExoPlayer}.
- */
-public final class DashStreamingTest extends ActivityInstrumentationTestCase2<HostActivity> {
+/** Tests DASH playbacks using {@link ExoPlayer}. */
+@RunWith(AndroidJUnit4.class)
+public final class DashStreamingTest {
 
   private static final String TAG = "DashStreamingTest";
 
   private static final ActionSchedule SEEKING_SCHEDULE = new ActionSchedule.Builder(TAG)
-      .delay(10000).seek(15000)
-      .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seek(34000)
+      .waitForPlaybackState(Player.STATE_READY)
+      .delay(10000).seekAndWait(15000)
+      .delay(10000).seek(30000).seek(31000).seek(32000).seek(33000).seekAndWait(34000)
       .delay(1000).pause().delay(1000).play()
-      .delay(1000).pause().seek(120000).delay(1000).play()
+      .delay(1000).pause().seekAndWait(120000).delay(1000).play()
       .build();
   private static final ActionSchedule RENDERER_DISABLING_SCHEDULE = new ActionSchedule.Builder(TAG)
+      .waitForPlaybackState(Player.STATE_READY)
       // Wait 10 seconds, disable the video renderer, wait another 10 seconds and enable it again.
       .delay(10000).disableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
       .delay(10000).enableRenderer(DashTestRunner.VIDEO_RENDERER_INDEX)
@@ -67,34 +78,31 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
       .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
       .disableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
       .enableRenderer(DashTestRunner.AUDIO_RENDERER_INDEX)
+      // Wait 10 seconds, detach the surface, wait another 10 seconds and attach it again.
+      .delay(10000).clearVideoSurface()
+      .delay(10000).setVideoSurface()
+      // Wait 10 seconds, then seek to near end.
       .delay(10000).seek(120000)
       .build();
-  
+
+  @Rule public ActivityTestRule<HostActivity> testRule = new ActivityTestRule<>(HostActivity.class);
+
   private DashTestRunner testRunner;
 
-  public DashStreamingTest() {
-    super(HostActivity.class);
+  @Before
+  public void setUp() {
+    testRunner = new DashTestRunner(TAG, testRule.getActivity());
   }
 
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    testRunner = new DashTestRunner(TAG, getActivity(), getInstrumentation());
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     testRunner = null;
-    super.tearDown();
   }
 
   // H264 CDD.
 
-  public void testH264Fixed() {
-    if (Util.SDK_INT < 16) {
-      // Pass.
-      return;
-    }
+  @Test
+  public void h264Fixed() throws Exception {
     testRunner
         .setStreamName("test_h264_fixed")
         .setManifestUrl(DashTestData.H264_MANIFEST)
@@ -104,8 +112,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testH264Adaptive() throws DecoderQueryException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+  @Test
+  public void h264Adaptive() throws Exception {
+    if (shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -119,8 +128,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testH264AdaptiveWithSeeking() throws DecoderQueryException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+  @Test
+  public void h264AdaptiveWithSeeking() throws Exception {
+    if (shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -136,8 +146,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testH264AdaptiveWithRendererDisabling() throws DecoderQueryException {
-    if (Util.SDK_INT < 16 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+  @Test
+  public void h264AdaptiveWithRendererDisabling() throws Exception {
+    if (shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
       // Pass.
       return;
     }
@@ -155,7 +166,8 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
 
   // H265 CDD.
 
-  public void testH265Fixed() {
+  @Test
+  public void h265FixedV23() throws Exception {
     if (Util.SDK_INT < 23) {
       // Pass.
       return;
@@ -169,8 +181,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testH265Adaptive() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+  @Test
+  public void h265AdaptiveV24() throws Exception {
+    if (Util.SDK_INT < 24) {
       // Pass.
       return;
     }
@@ -184,8 +197,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testH265AdaptiveWithSeeking() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+  @Test
+  public void h265AdaptiveWithSeekingV24() throws Exception {
+    if (Util.SDK_INT < 24) {
       // Pass.
       return;
     }
@@ -200,8 +214,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testH265AdaptiveWithRendererDisabling() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+  @Test
+  public void h265AdaptiveWithRendererDisablingV24() throws Exception {
+    if (Util.SDK_INT < 24) {
       // Pass.
       return;
     }
@@ -218,7 +233,8 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
 
   // VP9 (CDD).
 
-  public void testVp9Fixed360p() {
+  @Test
+  public void vp9Fixed360pV23() throws Exception {
     if (Util.SDK_INT < 23) {
       // Pass.
       return;
@@ -233,8 +249,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testVp9Adaptive() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+  @Test
+  public void vp9AdaptiveV24() throws Exception {
+    if (Util.SDK_INT < 24) {
       // Pass.
       return;
     }
@@ -248,8 +265,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testVp9AdaptiveWithSeeking() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+  @Test
+  public void vp9AdaptiveWithSeekingV24() throws Exception {
+    if (Util.SDK_INT < 24) {
       // Pass.
       return;
     }
@@ -264,8 +282,9 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testVp9AdaptiveWithRendererDisabling() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+  @Test
+  public void vp9AdaptiveWithRendererDisablingV24() throws Exception {
+    if (Util.SDK_INT < 24) {
       // Pass.
       return;
     }
@@ -283,7 +302,8 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   // H264: Other frame-rates for output buffer count assertions.
 
   // 23.976 fps.
-  public void test23FpsH264Fixed() {
+  @Test
+  public void test23FpsH264FixedV23() throws Exception {
     if (Util.SDK_INT < 23) {
       // Pass.
       return;
@@ -299,7 +319,8 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   }
 
   // 24 fps.
-  public void test24FpsH264Fixed() {
+  @Test
+  public void test24FpsH264FixedV23() throws Exception {
     if (Util.SDK_INT < 23) {
       // Pass.
       return;
@@ -315,7 +336,8 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   }
 
   // 29.97 fps.
-  public void test29FpsH264Fixed() {
+  @Test
+  public void test29FpsH264FixedV23() throws Exception {
     if (Util.SDK_INT < 23) {
       // Pass.
       return;
@@ -333,15 +355,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   // Widevine encrypted media tests.
   // H264 CDD.
 
-  public void testWidevineH264Fixed() throws DecoderQueryException {
-    if (Util.SDK_INT < 18) {
+  @Test
+  public void widevineH264FixedV18() throws Exception {
+    if (Util.SDK_INT < 18 || shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -349,15 +372,18 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineH264Adaptive() throws DecoderQueryException {
-    if (Util.SDK_INT < 18 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+  @Test
+  public void widevineH264AdaptiveV18() throws Exception {
+    if (Util.SDK_INT < 18
+        || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)
+        || shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h264_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -365,15 +391,18 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineH264AdaptiveWithSeeking() throws DecoderQueryException {
-    if (Util.SDK_INT < 18 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+  @Test
+  public void widevineH264AdaptiveWithSeekingV18() throws Exception {
+    if (Util.SDK_INT < 18
+        || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)
+        || shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h264_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(SEEKING_SCHEDULE)
@@ -382,15 +411,18 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineH264AdaptiveWithRendererDisabling() throws DecoderQueryException {
-    if (Util.SDK_INT < 18 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)) {
+  @Test
+  public void widevineH264AdaptiveWithRendererDisablingV18() throws Exception {
+    if (Util.SDK_INT < 18
+        || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H264)
+        || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h264_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H264_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
@@ -401,15 +433,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
 
   // H265 CDD.
 
-  public void testWidevineH265Fixed() throws DecoderQueryException {
-    if (Util.SDK_INT < 23) {
+  @Test
+  public void widevineH265FixedV23() throws Exception {
+    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h265_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -417,15 +450,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineH265Adaptive() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+  @Test
+  public void widevineH265AdaptiveV24() throws Exception {
+    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h265_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -433,15 +467,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineH265AdaptiveWithSeeking() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+  @Test
+  public void widevineH265AdaptiveWithSeekingV24() throws Exception {
+    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h265_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(SEEKING_SCHEDULE)
@@ -450,15 +485,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineH265AdaptiveWithRendererDisabling() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_H265)) {
+  @Test
+  public void widevineH265AdaptiveWithRendererDisablingV24() throws Exception {
+    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_h265_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_H265_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H265)
+        .setWidevineInfo(MimeTypes.VIDEO_H265, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
@@ -469,15 +505,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
 
   // VP9 (CDD).
 
-  public void testWidevineVp9Fixed360p() throws DecoderQueryException {
-    if (Util.SDK_INT < 23) {
+  @Test
+  public void widevineVp9Fixed360pV23() throws Exception {
+    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_vp9_fixed_360p")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
@@ -485,15 +522,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineVp9Adaptive() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+  @Test
+  public void widevineVp9AdaptiveV24() throws Exception {
+    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_vp9_adaptive")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(true)
         .setAudioVideoFormats(DashTestData.WIDEVINE_VP9_AAC_AUDIO_REPRESENTATION_ID,
@@ -501,15 +539,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineVp9AdaptiveWithSeeking() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+  @Test
+  public void widevineVp9AdaptiveWithSeekingV24() throws Exception {
+    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_seeking")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(SEEKING_SCHEDULE)
@@ -518,15 +557,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
-  public void testWidevineVp9AdaptiveWithRendererDisabling() throws DecoderQueryException {
-    if (Util.SDK_INT < 24 || shouldSkipAdaptiveTest(MimeTypes.VIDEO_VP9)) {
+  @Test
+  public void widevineVp9AdaptiveWithRendererDisablingV24() throws Exception {
+    if (Util.SDK_INT < 24 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_vp9_adaptive_with_renderer_disabling")
         .setManifestUrl(DashTestData.WIDEVINE_VP9_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_VP9)
+        .setWidevineInfo(MimeTypes.VIDEO_VP9, true)
         .setFullPlaybackNoSeeking(false)
         .setCanIncludeAdditionalVideoFormats(true)
         .setActionSchedule(RENDERER_DISABLING_SCHEDULE)
@@ -538,15 +578,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   // H264: Other frame-rates for output buffer count assertions.
 
   // 23.976 fps.
-  public void testWidevine23FpsH264Fixed() throws DecoderQueryException {
-    if (Util.SDK_INT < 23) {
+  @Test
+  public void widevine23FpsH264FixedV23() throws Exception {
+    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_23fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_23_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -555,15 +596,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   }
 
   // 24 fps.
-  public void testWidevine24FpsH264Fixed() throws DecoderQueryException {
-    if (Util.SDK_INT < 23) {
+  @Test
+  public void widevine24FpsH264FixedV23() throws Exception {
+    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_24fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_24_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -572,15 +614,16 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
   }
 
   // 29.97 fps.
-  public void testWidevine29FpsH264Fixed() throws DecoderQueryException {
-    if (Util.SDK_INT < 23) {
+  @Test
+  public void widevine29FpsH264FixedV23() throws Exception {
+    if (Util.SDK_INT < 23 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       // Pass.
       return;
     }
     testRunner
         .setStreamName("test_widevine_29fps_h264_fixed")
         .setManifestUrl(DashTestData.WIDEVINE_H264_29_MANIFEST)
-        .setWidevineMimeType(MimeTypes.VIDEO_H264)
+        .setWidevineInfo(MimeTypes.VIDEO_H264, true)
         .setFullPlaybackNoSeeking(true)
         .setCanIncludeAdditionalVideoFormats(false)
         .setAudioVideoFormats(DashTestData.WIDEVINE_AAC_AUDIO_REPRESENTATION_ID,
@@ -588,16 +631,49 @@ public final class DashStreamingTest extends ActivityInstrumentationTestCase2<Ho
         .run();
   }
 
+  // Decoder info.
+
+  @Test
+  public void decoderInfoH264() throws Exception {
+    MediaCodecInfo decoderInfo =
+        MediaCodecUtil.getDecoderInfo(
+            MimeTypes.VIDEO_H264, /* secure= */ false, /* tunneling= */ false);
+    assertThat(decoderInfo).isNotNull();
+    assertThat(Util.SDK_INT < 21 || decoderInfo.adaptive).isTrue();
+  }
+
+  @Test
+  public void decoderInfoH265V24() throws Exception {
+    if (Util.SDK_INT < 24) {
+      // Pass.
+      return;
+    }
+    assertThat(
+            MediaCodecUtil.getDecoderInfo(
+                    MimeTypes.VIDEO_H265, /* secure= */ false, /* tunneling= */ false)
+                .adaptive)
+        .isTrue();
+  }
+
+  @Test
+  public void decoderInfoVP9V24() throws Exception {
+    if (Util.SDK_INT < 24) {
+      // Pass.
+      return;
+    }
+    assertThat(
+            MediaCodecUtil.getDecoderInfo(
+                    MimeTypes.VIDEO_VP9, /* secure= */ false, /* tunneling= */ false)
+                .adaptive)
+        .isTrue();
+  }
+
   // Internal.
 
   private static boolean shouldSkipAdaptiveTest(String mimeType) throws DecoderQueryException {
-    MediaCodecInfo decoderInfo = MediaCodecUtil.getDecoderInfo(mimeType, false);
-    assertNotNull(decoderInfo);
-    if (decoderInfo.adaptive) {
-      return false;
-    }
-    assertTrue(Util.SDK_INT < 21);
-    return true;
+    MediaCodecInfo decoderInfo =
+        MediaCodecUtil.getDecoderInfo(mimeType, /* secure= */ false, /* tunneling= */ false);
+    return decoderInfo == null || !decoderInfo.adaptive;
   }
 
 }

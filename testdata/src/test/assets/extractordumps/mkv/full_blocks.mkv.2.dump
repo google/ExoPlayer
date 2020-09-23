@@ -1,0 +1,29 @@
+seekMap:
+  isSeekable = true
+  duration = 8901000
+  getPosition(0) = [[timeUs=0, position=5401]]
+  getPosition(1) = [[timeUs=0, position=5401], [timeUs=2345000, position=5401]]
+  getPosition(4450500) = [[timeUs=2345000, position=5401], [timeUs=4567000, position=5401]]
+  getPosition(8901000) = [[timeUs=4567000, position=5401]]
+numberOfTracks = 1
+track 1:
+  total output bytes = 213
+  sample count = 3
+  format 0:
+    id = 1
+    sampleMimeType = application/x-subrip
+    selectionFlags = 1
+    language = und
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 59, hash 1AD38625
+  sample 1:
+    time = 2345000
+    flags = 1
+    data = length 95, hash F331C282
+  sample 2:
+    time = 4567000
+    flags = 1
+    data = length 59, hash F8CD7C60
+tracksEnded = true

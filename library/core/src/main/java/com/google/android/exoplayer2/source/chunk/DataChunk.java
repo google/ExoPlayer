@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.chunk;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -32,7 +33,6 @@ public abstract class DataChunk extends Chunk {
   private static final int READ_GRANULARITY = 16 * 1024;
 
   private byte[] data;
-  private int limit;
 
   private volatile boolean loadCanceled;
 
@@ -45,27 +45,28 @@ public abstract class DataChunk extends Chunk {
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param data An optional recycled array that can be used as a holder for the data.
    */
-  public DataChunk(DataSource dataSource, DataSpec dataSpec, int type, Format trackFormat,
-      int trackSelectionReason, Object trackSelectionData, byte[] data) {
+  public DataChunk(
+      DataSource dataSource,
+      DataSpec dataSpec,
+      int type,
+      Format trackFormat,
+      int trackSelectionReason,
+      @Nullable Object trackSelectionData,
+      @Nullable byte[] data) {
     super(dataSource, dataSpec, type, trackFormat, trackSelectionReason, trackSelectionData,
         C.TIME_UNSET, C.TIME_UNSET);
-    this.data = data;
+    this.data = data == null ? Util.EMPTY_BYTE_ARRAY : data;
   }
 
   /**
    * Returns the array in which the data is held.
-   * <p>
-   * This method should be used for recycling the holder only, and not for reading the data.
+   *
+   * <p>This method should be used for recycling the holder only, and not for reading the data.
    *
    * @return The array in which the data is held.
    */
   public byte[] getDataHolder() {
     return data;
-  }
-
-  @Override
-  public long bytesLoaded() {
-    return limit;
   }
 
   // Loadable implementation
@@ -76,18 +77,13 @@ public abstract class DataChunk extends Chunk {
   }
 
   @Override
-  public final boolean isLoadCanceled() {
-    return loadCanceled;
-  }
-
-  @Override
-  public final void load() throws IOException, InterruptedException {
+  public final void load() throws IOException {
     try {
       dataSource.open(dataSpec);
-      limit = 0;
+      int limit = 0;
       int bytesRead = 0;
       while (bytesRead != C.RESULT_END_OF_INPUT && !loadCanceled) {
-        maybeExpandData();
+        maybeExpandData(limit);
         bytesRead = dataSource.read(data, limit, READ_GRANULARITY);
         if (bytesRead != -1) {
           limit += bytesRead;
@@ -111,14 +107,11 @@ public abstract class DataChunk extends Chunk {
    */
   protected abstract void consume(byte[] data, int limit) throws IOException;
 
-  private void maybeExpandData() {
-    if (data == null) {
-      data = new byte[READ_GRANULARITY];
-    } else if (data.length < limit + READ_GRANULARITY) {
+  private void maybeExpandData(int limit) {
+    if (data.length < limit + READ_GRANULARITY) {
       // The new length is calculated as (data.length + READ_GRANULARITY) rather than
       // (limit + READ_GRANULARITY) in order to avoid small increments in the length.
       data = Arrays.copyOf(data, data.length + READ_GRANULARITY);
     }
   }
-
 }

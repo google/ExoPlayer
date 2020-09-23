@@ -13,43 +13,23 @@
 // limitations under the License.
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
-        classpath 'com.novoda:bintray-release:0.4.0'
-    }
-    // Workaround for the following test coverage issue. Remove when fixed:
-    // https://code.google.com/p/android/issues/detail?id=226070
-    configurations.all {
-        resolutionStrategy {
-            force 'org.jacoco:org.jacoco.report:0.7.4.201502262128'
-            force 'org.jacoco:org.jacoco.core:0.7.4.201502262128'
-        }
+        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.novoda:bintray-release:0.9.1'
+        classpath 'com.google.android.gms:strict-version-matcher-plugin:1.2.1'
     }
 }
 allprojects {
     repositories {
+        google()
         jcenter()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
     }
     project.ext {
-        // Important: ExoPlayer specifies a minSdkVersion of 9 because various
-        // components provided by the library may be of use on older devices.
-        // However, please note that the core media playback functionality
-        // provided by the library requires API level 16 or greater.
-        minSdkVersion = 9
-        compileSdkVersion = 25
-        targetSdkVersion = 25
-        buildToolsVersion = '25'
-        testSupportLibraryVersion = '0.5'
-        supportLibraryVersion = '25.3.1'
-        dexmakerVersion = '1.2'
-        mockitoVersion = '1.9.5'
-        releaseRepoName = getBintrayRepo()
-        releaseUserOrg = 'google'
-        releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.4.4'
-        releaseWebsite = 'https://github.com/google/ExoPlayer'
+        exoplayerPublishEnabled = false
     }
     if (it.hasProperty('externalBuildDir')) {
         if (!new File(externalBuildDir).isAbsolute()) {
@@ -57,12 +37,7 @@ allprojects {
         }
         buildDir = "${externalBuildDir}/${project.name}"
     }
-}
-
-def getBintrayRepo() {
-    boolean publicRepo = hasProperty('publicRepo') &&
-        property('publicRepo').toBoolean()
-    return publicRepo ? 'exoplayer' : 'exoplayer-test'
+    group = 'com.google.android.exoplayer'
 }
 
 apply from: 'javadoc_combined.gradle'

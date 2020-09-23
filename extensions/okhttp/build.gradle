@@ -11,28 +11,28 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-
-    lintOptions {
-        // See: https://github.com/square/okio/issues/58
-        warning 'InvalidPackage'
-    }
-}
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
-    compile project(':library-core')
-    compile('com.squareup.okhttp3:okhttp:3.6.0') {
-        exclude group: 'org.json'
+    implementation project(modulePrefix + 'library-core')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation ('com.google.guava:guava:' + guavaVersion) {
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
     }
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
+    testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    // Do not update to 3.13.X or later until minSdkVersion is increased to 21:
+    // https://cashapp.github.io/2019-02-05/okhttp-3-13-requires-android-5
+    // Since OkHttp is distributed as a jar rather than an aar, Gradle won't
+    // stop us from making this mistake!
+    api 'com.squareup.okhttp3:okhttp:3.12.11'
 }
 
 ext {

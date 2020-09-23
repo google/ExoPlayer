@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,12 +13,56 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-  <string name="exo_controls_previous_description">"上一首曲目"</string>
-  <string name="exo_controls_next_description">"下一首曲目"</string>
-  <string name="exo_controls_pause_description">"暫停"</string>
-  <string name="exo_controls_play_description">"播放"</string>
-  <string name="exo_controls_stop_description">"停止"</string>
-  <string name="exo_controls_rewind_description">"倒帶"</string>
-  <string name="exo_controls_fastforward_description">"向前快轉"</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">顯示播放器控制項</string>
+  <string name="exo_controls_hide">隱藏播放器控制項</string>
+  <string name="exo_controls_seek_bar_description">播放進度</string>
+  <string name="exo_controls_settings_description">設定</string>
+  <string name="exo_controls_overflow_hide_description">隱藏其他設定</string>
+  <string name="exo_controls_overflow_show_description">顯示其他設定</string>
+  <string name="exo_controls_fullscreen_enter_description">進入全螢幕</string>
+  <string name="exo_controls_fullscreen_exit_description">關閉全螢幕</string>
+  <string name="exo_controls_previous_description">返回</string>
+  <string name="exo_controls_next_description">繼續</string>
+  <string name="exo_controls_pause_description">暫停</string>
+  <string name="exo_controls_play_description">播放</string>
+  <string name="exo_controls_stop_description">停止</string>
+  <string name="exo_controls_rewind_description">倒轉</string>
+  <string name="exo_controls_rewind_by_amount_description">倒帶 %d 秒</string>
+  <string name="exo_controls_fastforward_description">向前快轉</string>
+  <string name="exo_controls_fastforward_by_amount_description">快轉 %d 秒</string>
+  <string name="exo_controls_repeat_off_description">不重複播放</string>
+  <string name="exo_controls_repeat_one_description">重複播放單一項目</string>
+  <string name="exo_controls_repeat_all_description">全部重複播放</string>
+  <string name="exo_controls_shuffle_on_description">已開啟隨機播放功能</string>
+  <string name="exo_controls_shuffle_off_description">已關閉隨機播放功能</string>
+  <string name="exo_controls_vr_description">虛擬現實模式</string>
+  <string name="exo_controls_cc_enabled_description">停用字幕</string>
+  <string name="exo_controls_cc_disabled_description">啟用字幕</string>
+  <string name="exo_controls_playback_speed">速度</string>
+  <string name="exo_controls_playback_speed_normal">正常</string>
+  <string name="exo_download_description">下載</string>
+  <string name="exo_download_notification_channel_name">下載內容</string>
+  <string name="exo_download_downloading">正在下載</string>
+  <string name="exo_download_completed">下載完畢</string>
+  <string name="exo_download_failed">下載失敗</string>
+  <string name="exo_download_removing">正在移除下載內容</string>
+  <string name="exo_track_selection_title_video">影片</string>
+  <string name="exo_track_selection_title_audio">音訊</string>
+  <string name="exo_track_selection_title_text">文字</string>
+  <string name="exo_track_selection_none">無</string>
+  <string name="exo_track_selection_auto">自動</string>
+  <string name="exo_track_unknown">不明</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">單聲道</string>
+  <string name="exo_track_stereo">立體聲</string>
+  <string name="exo_track_surround">環迴立體聲</string>
+  <string name="exo_track_surround_5_point_1">5.1 環迴立體聲</string>
+  <string name="exo_track_surround_7_point_1">7.1 環迴立體聲</string>
+  <string name="exo_track_role_alternate">其他</string>
+  <string name="exo_track_role_supplementary">附加</string>
+  <string name="exo_track_role_commentary">評論</string>
+  <string name="exo_track_role_closed_captions">字幕</string>
+  <string name="exo_track_bitrate">%1$.2f Mbps</string>
+  <string name="exo_item_list">%1$s、%2$s</string>
 </resources>

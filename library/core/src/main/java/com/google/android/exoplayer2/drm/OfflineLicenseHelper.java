@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.drm;
 
 import android.media.MediaDrm;
@@ -21,119 +20,178 @@ import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.EventListener;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-/**
- * Helper class to download, renew and release offline licenses.
- */
-public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
+/** Helper class to download, renew and release offline licenses. */
+@RequiresApi(18)
+public final class OfflineLicenseHelper {
+
+  private static final Format FORMAT_WITH_EMPTY_DRM_INIT_DATA =
+      new Format.Builder().setDrmInitData(new DrmInitData()).build();
 
   private final ConditionVariable conditionVariable;
-  private final DefaultDrmSessionManager<T> drmSessionManager;
+  private final DefaultDrmSessionManager drmSessionManager;
   private final HandlerThread handlerThread;
+  private final DrmSessionEventListener.EventDispatcher eventDispatcher;
 
   /**
    * Instantiates a new instance which uses Widevine CDM. Call {@link #release()} when the instance
    * is no longer required.
    *
-   * @param licenseUrl The default license URL.
+   * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
+   *     their own license URL.
    * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param eventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute
+   *     DRM-related events.
    * @return A new instance which uses Widevine CDM.
-   * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
-   *     instantiated.
    */
-  public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      String licenseUrl, Factory httpDataSourceFactory) throws UnsupportedDrmException {
+  public static OfflineLicenseHelper newWidevineInstance(
+      String defaultLicenseUrl,
+      HttpDataSource.Factory httpDataSourceFactory,
+      DrmSessionEventListener.EventDispatcher eventDispatcher) {
     return newWidevineInstance(
-        new HttpMediaDrmCallback(licenseUrl, httpDataSourceFactory), null);
+        defaultLicenseUrl,
+        /* forceDefaultLicenseUrl= */ false,
+        httpDataSourceFactory,
+        eventDispatcher);
   }
 
   /**
    * Instantiates a new instance which uses Widevine CDM. Call {@link #release()} when the instance
    * is no longer required.
    *
-   * @param callback Performs key and provisioning requests.
-   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
+   * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
+   *     their own license URL.
+   * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
+   *     include their own license URL.
+   * @param httpDataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
+   * @param eventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute
+   *     DRM-related events.
    * @return A new instance which uses Widevine CDM.
-   * @throws UnsupportedDrmException If the Widevine DRM scheme is unsupported or cannot be
-   *     instantiated.
-   * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, EventListener)
    */
-  public static OfflineLicenseHelper<FrameworkMediaCrypto> newWidevineInstance(
-      MediaDrmCallback callback, HashMap<String, String> optionalKeyRequestParameters)
-      throws UnsupportedDrmException {
-    return new OfflineLicenseHelper<>(FrameworkMediaDrm.newInstance(C.WIDEVINE_UUID), callback,
-        optionalKeyRequestParameters);
+  public static OfflineLicenseHelper newWidevineInstance(
+      String defaultLicenseUrl,
+      boolean forceDefaultLicenseUrl,
+      HttpDataSource.Factory httpDataSourceFactory,
+      DrmSessionEventListener.EventDispatcher eventDispatcher) {
+    return newWidevineInstance(
+        defaultLicenseUrl,
+        forceDefaultLicenseUrl,
+        httpDataSourceFactory,
+        /* optionalKeyRequestParameters= */ null,
+        eventDispatcher);
+  }
+
+  /**
+   * Instantiates a new instance which uses Widevine CDM. Call {@link #release()} when the instance
+   * is no longer required.
+   *
+   * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
+   *     their own license URL.
+   * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
+   *     include their own license URL.
+   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
+   *     to {@link MediaDrm#getKeyRequest}. May be null.
+   * @param eventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute
+   *     DRM-related events.
+   * @return A new instance which uses Widevine CDM.
+   * @see DefaultDrmSessionManager.Builder
+   */
+  public static OfflineLicenseHelper newWidevineInstance(
+      String defaultLicenseUrl,
+      boolean forceDefaultLicenseUrl,
+      HttpDataSource.Factory httpDataSourceFactory,
+      @Nullable Map<String, String> optionalKeyRequestParameters,
+      DrmSessionEventListener.EventDispatcher eventDispatcher) {
+    return new OfflineLicenseHelper(
+        new DefaultDrmSessionManager.Builder()
+            .setKeyRequestParameters(optionalKeyRequestParameters)
+            .build(
+                new HttpMediaDrmCallback(
+                    defaultLicenseUrl, forceDefaultLicenseUrl, httpDataSourceFactory)),
+        eventDispatcher);
+  }
+
+  /**
+   * @deprecated Use {@link #OfflineLicenseHelper(DefaultDrmSessionManager,
+   *     DrmSessionEventListener.EventDispatcher)} instead.
+   */
+  @Deprecated
+  public OfflineLicenseHelper(
+      UUID uuid,
+      ExoMediaDrm.Provider mediaDrmProvider,
+      MediaDrmCallback callback,
+      @Nullable Map<String, String> optionalKeyRequestParameters,
+      DrmSessionEventListener.EventDispatcher eventDispatcher) {
+    this(
+            new DefaultDrmSessionManager.Builder()
+                .setUuidAndExoMediaDrmProvider(uuid, mediaDrmProvider)
+                .setKeyRequestParameters(optionalKeyRequestParameters)
+                .build(callback),
+        eventDispatcher);
   }
 
   /**
    * Constructs an instance. Call {@link #release()} when the instance is no longer required.
    *
-   * @param mediaDrm An underlying {@link ExoMediaDrm} for use by the manager.
-   * @param callback Performs key and provisioning requests.
-   * @param optionalKeyRequestParameters An optional map of parameters to pass as the last argument
-   *     to {@link MediaDrm#getKeyRequest(byte[], byte[], String, int, HashMap)}. May be null.
-   * @see DefaultDrmSessionManager#DefaultDrmSessionManager(java.util.UUID, ExoMediaDrm,
-   *     MediaDrmCallback, HashMap, Handler, EventListener)
+   * @param defaultDrmSessionManager The {@link DefaultDrmSessionManager} used to download licenses.
+   * @param eventDispatcher A {@link DrmSessionEventListener.EventDispatcher} used to distribute
+   *     DRM-related events.
    */
-  public OfflineLicenseHelper(ExoMediaDrm<T> mediaDrm, MediaDrmCallback callback,
-      HashMap<String, String> optionalKeyRequestParameters) {
-    handlerThread = new HandlerThread("OfflineLicenseHelper");
+  public OfflineLicenseHelper(
+      DefaultDrmSessionManager defaultDrmSessionManager,
+      DrmSessionEventListener.EventDispatcher eventDispatcher) {
+    this.drmSessionManager = defaultDrmSessionManager;
+    this.eventDispatcher = eventDispatcher;
+    handlerThread = new HandlerThread("ExoPlayer:OfflineLicenseHelper");
     handlerThread.start();
     conditionVariable = new ConditionVariable();
-    EventListener eventListener = new EventListener() {
-      @Override
-      public void onDrmKeysLoaded() {
-        conditionVariable.open();
-      }
+    DrmSessionEventListener eventListener =
+        new DrmSessionEventListener() {
+          @Override
+          public void onDrmKeysLoaded(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+            conditionVariable.open();
+          }
 
-      @Override
-      public void onDrmSessionManagerError(Exception e) {
-        conditionVariable.open();
-      }
+          @Override
+          public void onDrmSessionManagerError(
+              int windowIndex, @Nullable MediaPeriodId mediaPeriodId, Exception e) {
+            conditionVariable.open();
+          }
 
-      @Override
-      public void onDrmKeysRestored() {
-        conditionVariable.open();
-      }
+          @Override
+          public void onDrmKeysRestored(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+            conditionVariable.open();
+          }
 
-      @Override
-      public void onDrmKeysRemoved() {
-        conditionVariable.open();
-      }
-    };
-    drmSessionManager = new DefaultDrmSessionManager<>(C.WIDEVINE_UUID, mediaDrm, callback,
-        optionalKeyRequestParameters, new Handler(handlerThread.getLooper()), eventListener);
-  }
-
-  /** Releases the helper. Should be called when the helper is no longer required. */
-  public void release() {
-    handlerThread.quit();
+          @Override
+          public void onDrmKeysRemoved(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+            conditionVariable.open();
+          }
+        };
+    eventDispatcher.addEventListener(new Handler(handlerThread.getLooper()), eventListener);
   }
 
   /**
    * Downloads an offline license.
    *
-   * @param drmInitData The {@link DrmInitData} for the content whose license is to be downloaded.
+   * @param format The {@link Format} of the content whose license is to be downloaded. Must contain
+   *     a non-null {@link Format#drmInitData}.
    * @return The key set id for the downloaded license.
-   * @throws IOException If an error occurs reading data from the stream.
-   * @throws InterruptedException If the thread has been interrupted.
    * @throws DrmSessionException Thrown when a DRM session error occurs.
    */
-  public synchronized byte[] downloadLicense(DrmInitData drmInitData) throws IOException,
-      InterruptedException, DrmSessionException {
-    Assertions.checkArgument(drmInitData != null);
-    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, drmInitData);
+  public synchronized byte[] downloadLicense(Format format) throws DrmSessionException {
+    Assertions.checkArgument(format.drmInitData != null);
+    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, null, format);
   }
 
   /**
@@ -146,7 +204,10 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized byte[] renewLicense(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    return blockingKeyRequest(DefaultDrmSessionManager.MODE_DOWNLOAD, offlineLicenseKeySetId, null);
+    return blockingKeyRequest(
+        DefaultDrmSessionManager.MODE_DOWNLOAD,
+        offlineLicenseKeySetId,
+        FORMAT_WITH_EMPTY_DRM_INIT_DATA);
   }
 
   /**
@@ -158,7 +219,10 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized void releaseLicense(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    blockingKeyRequest(DefaultDrmSessionManager.MODE_RELEASE, offlineLicenseKeySetId, null);
+    blockingKeyRequest(
+        DefaultDrmSessionManager.MODE_RELEASE,
+        offlineLicenseKeySetId,
+        FORMAT_WITH_EMPTY_DRM_INIT_DATA);
   }
 
   /**
@@ -171,43 +235,58 @@ public final class OfflineLicenseHelper<T extends ExoMediaCrypto> {
   public synchronized Pair<Long, Long> getLicenseDurationRemainingSec(byte[] offlineLicenseKeySetId)
       throws DrmSessionException {
     Assertions.checkNotNull(offlineLicenseKeySetId);
-    DrmSession<T> drmSession = openBlockingKeyRequest(DefaultDrmSessionManager.MODE_QUERY,
-        offlineLicenseKeySetId, null);
+    drmSessionManager.prepare();
+    DrmSession drmSession =
+        openBlockingKeyRequest(
+            DefaultDrmSessionManager.MODE_QUERY,
+            offlineLicenseKeySetId,
+            FORMAT_WITH_EMPTY_DRM_INIT_DATA);
     DrmSessionException error = drmSession.getError();
     Pair<Long, Long> licenseDurationRemainingSec =
         WidevineUtil.getLicenseDurationRemainingSec(drmSession);
-    drmSessionManager.releaseSession(drmSession);
+    drmSession.release(eventDispatcher);
+    drmSessionManager.release();
     if (error != null) {
       if (error.getCause() instanceof KeysExpiredException) {
         return Pair.create(0L, 0L);
       }
       throw error;
     }
-    return licenseDurationRemainingSec;
+    return Assertions.checkNotNull(licenseDurationRemainingSec);
   }
 
-  private byte[] blockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
-      DrmInitData drmInitData) throws DrmSessionException {
-    DrmSession<T> drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId,
-        drmInitData);
+  /**
+   * Releases the helper. Should be called when the helper is no longer required.
+   */
+  public void release() {
+    handlerThread.quit();
+  }
+
+  private byte[] blockingKeyRequest(
+      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format)
+      throws DrmSessionException {
+    drmSessionManager.prepare();
+    DrmSession drmSession = openBlockingKeyRequest(licenseMode, offlineLicenseKeySetId, format);
     DrmSessionException error = drmSession.getError();
     byte[] keySetId = drmSession.getOfflineLicenseKeySetId();
-    drmSessionManager.releaseSession(drmSession);
+    drmSession.release(eventDispatcher);
+    drmSessionManager.release();
     if (error != null) {
       throw error;
     }
-    return keySetId;
+    return Assertions.checkNotNull(keySetId);
   }
 
-  private DrmSession<T> openBlockingKeyRequest(@Mode int licenseMode, byte[] offlineLicenseKeySetId,
-      DrmInitData drmInitData) {
+  private DrmSession openBlockingKeyRequest(
+      @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format) {
+    Assertions.checkNotNull(format.drmInitData);
     drmSessionManager.setMode(licenseMode, offlineLicenseKeySetId);
     conditionVariable.close();
-    DrmSession<T> drmSession = drmSessionManager.acquireSession(handlerThread.getLooper(),
-        drmInitData);
+    DrmSession drmSession =
+        drmSessionManager.acquireSession(handlerThread.getLooper(), eventDispatcher, format);
     // Block current thread until key loading is finished
     conditionVariable.block();
-    return drmSession;
+    return Assertions.checkNotNull(drmSession);
   }
 
 }

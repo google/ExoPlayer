@@ -15,65 +15,57 @@
  */
 package com.google.android.exoplayer2.drm;
 
-import android.annotation.TargetApi;
-import android.net.Uri;
 import android.text.TextUtils;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest;
 import com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest;
 import com.google.android.exoplayer2.upstream.DataSourceInputStream;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
+import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
+import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances.
- */
-@TargetApi(18)
+/** A {@link MediaDrmCallback} that makes requests using {@link HttpDataSource} instances. */
 public final class HttpMediaDrmCallback implements MediaDrmCallback {
 
-  private static final Map<String, String> PLAYREADY_KEY_REQUEST_PROPERTIES;
-  static {
-    PLAYREADY_KEY_REQUEST_PROPERTIES = new HashMap<>();
-    PLAYREADY_KEY_REQUEST_PROPERTIES.put("Content-Type", "text/xml");
-    PLAYREADY_KEY_REQUEST_PROPERTIES.put("SOAPAction",
-        "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense");
-  }
+  private static final int MAX_MANUAL_REDIRECTS = 5;
 
   private final HttpDataSource.Factory dataSourceFactory;
-  private final String defaultUrl;
+  private final String defaultLicenseUrl;
+  private final boolean forceDefaultLicenseUrl;
   private final Map<String, String> keyRequestProperties;
 
   /**
-   * @param defaultUrl The default license URL.
+   * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
+   *     their own license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
-  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory) {
-    this(defaultUrl, dataSourceFactory, null);
+  public HttpMediaDrmCallback(String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
+    this(defaultLicenseUrl, /* forceDefaultLicenseUrl= */ false, dataSourceFactory);
   }
 
   /**
-   * @deprecated Use {@link HttpMediaDrmCallback#HttpMediaDrmCallback(String, Factory)}. Request
-   *     properties can be set by calling {@link #setKeyRequestProperty(String, String)}.
-   * @param defaultUrl The default license URL.
+   * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
+   *     their own license URL, or for all key requests if {@code forceDefaultLicenseUrl} is
+   *     set to true.
+   * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
+   *     include their own license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
-   * @param keyRequestProperties Request properties to set when making key requests, or null.
    */
-  @Deprecated
-  public HttpMediaDrmCallback(String defaultUrl, HttpDataSource.Factory dataSourceFactory,
-      Map<String, String> keyRequestProperties) {
+  public HttpMediaDrmCallback(String defaultLicenseUrl, boolean forceDefaultLicenseUrl,
+      HttpDataSource.Factory dataSourceFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    this.defaultUrl = defaultUrl;
+    this.defaultLicenseUrl = defaultLicenseUrl;
+    this.forceDefaultLicenseUrl = forceDefaultLicenseUrl;
     this.keyRequestProperties = new HashMap<>();
-    if (keyRequestProperties != null) {
-      this.keyRequestProperties.putAll(keyRequestProperties);
-    }
   }
 
   /**
@@ -112,44 +104,100 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   }
 
   @Override
-  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request) throws IOException {
-    String url = request.getDefaultUrl() + "&signedRequest=" + new String(request.getData());
-    return executePost(dataSourceFactory, url, new byte[0], null);
+  public byte[] executeProvisionRequest(UUID uuid, ProvisionRequest request)
+      throws MediaDrmCallbackException {
+    String url =
+        request.getDefaultUrl() + "&signedRequest=" + Util.fromUtf8Bytes(request.getData());
+    return executePost(
+        dataSourceFactory,
+        url,
+        /* httpBody= */ null,
+        /* requestProperties= */ Collections.emptyMap());
   }
 
   @Override
-  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws Exception {
-    String url = request.getDefaultUrl();
-    if (TextUtils.isEmpty(url)) {
-      url = defaultUrl;
+  public byte[] executeKeyRequest(UUID uuid, KeyRequest request) throws MediaDrmCallbackException {
+    String url = request.getLicenseServerUrl();
+    if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
+      url = defaultLicenseUrl;
     }
     Map<String, String> requestProperties = new HashMap<>();
-    requestProperties.put("Content-Type", "application/octet-stream");
+    // Add standard request properties for supported schemes.
+    String contentType = C.PLAYREADY_UUID.equals(uuid) ? "text/xml"
+        : (C.CLEARKEY_UUID.equals(uuid) ? "application/json" : "application/octet-stream");
+    requestProperties.put("Content-Type", contentType);
     if (C.PLAYREADY_UUID.equals(uuid)) {
-      requestProperties.putAll(PLAYREADY_KEY_REQUEST_PROPERTIES);
+      requestProperties.put("SOAPAction",
+          "http://schemas.microsoft.com/DRM/2007/03/protocols/AcquireLicense");
     }
+    // Add additional request properties.
     synchronized (keyRequestProperties) {
       requestProperties.putAll(keyRequestProperties);
     }
     return executePost(dataSourceFactory, url, request.getData(), requestProperties);
   }
 
-  private static byte[] executePost(HttpDataSource.Factory dataSourceFactory, String url,
-      byte[] data, Map<String, String> requestProperties) throws IOException {
-    HttpDataSource dataSource = dataSourceFactory.createDataSource();
-    if (requestProperties != null) {
-      for (Map.Entry<String, String> requestProperty : requestProperties.entrySet()) {
-        dataSource.setRequestProperty(requestProperty.getKey(), requestProperty.getValue());
-      }
-    }
-    DataSpec dataSpec = new DataSpec(Uri.parse(url), data, 0, 0, C.LENGTH_UNSET, null,
-        DataSpec.FLAG_ALLOW_GZIP);
-    DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+  private static byte[] executePost(
+      HttpDataSource.Factory dataSourceFactory,
+      String url,
+      @Nullable byte[] httpBody,
+      Map<String, String> requestProperties)
+      throws MediaDrmCallbackException {
+    StatsDataSource dataSource = new StatsDataSource(dataSourceFactory.createDataSource());
+    int manualRedirectCount = 0;
+    DataSpec dataSpec =
+        new DataSpec.Builder()
+            .setUri(url)
+            .setHttpRequestHeaders(requestProperties)
+            .setHttpMethod(DataSpec.HTTP_METHOD_POST)
+            .setHttpBody(httpBody)
+            .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+            .build();
+    DataSpec originalDataSpec = dataSpec;
     try {
-      return Util.toByteArray(inputStream);
-    } finally {
-      Util.closeQuietly(inputStream);
+      while (true) {
+        DataSourceInputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
+        try {
+          return Util.toByteArray(inputStream);
+        } catch (InvalidResponseCodeException e) {
+          @Nullable String redirectUrl = getRedirectUrl(e, manualRedirectCount);
+          if (redirectUrl == null) {
+            throw e;
+          }
+          manualRedirectCount++;
+          dataSpec = dataSpec.buildUpon().setUri(redirectUrl).build();
+        } finally {
+          Util.closeQuietly(inputStream);
+        }
+      }
+    } catch (Exception e) {
+      throw new MediaDrmCallbackException(
+          originalDataSpec,
+          Assertions.checkNotNull(dataSource.getLastOpenedUri()),
+          dataSource.getResponseHeaders(),
+          dataSource.getBytesRead(),
+          /* cause= */ e);
     }
   }
 
+  @Nullable
+  private static String getRedirectUrl(
+      InvalidResponseCodeException exception, int manualRedirectCount) {
+    // For POST requests, the underlying network stack will not normally follow 307 or 308
+    // redirects automatically. Do so manually here.
+    boolean manuallyRedirect =
+        (exception.responseCode == 307 || exception.responseCode == 308)
+            && manualRedirectCount < MAX_MANUAL_REDIRECTS;
+    if (!manuallyRedirect) {
+      return null;
+    }
+    Map<String, List<String>> headerFields = exception.headerFields;
+    if (headerFields != null) {
+      @Nullable List<String> locationHeaders = headerFields.get("Location");
+      if (locationHeaders != null && !locationHeaders.isEmpty()) {
+        return locationHeaders.get(0);
+      }
+    }
+    return null;
+  }
 }

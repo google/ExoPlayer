@@ -11,24 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
-
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-}
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
-    compile project(':library-core')
-    compile project(':library-dash')
-    compile project(':library-hls')
-    compile project(':library-smoothstreaming')
-    compile project(':library-ui')
+    api project(modulePrefix + 'library-core')
+    api project(modulePrefix + 'library-dash')
+    api project(modulePrefix + 'library-hls')
+    api project(modulePrefix + 'library-smoothstreaming')
+    api project(modulePrefix + 'library-ui')
 }
 
 ext {

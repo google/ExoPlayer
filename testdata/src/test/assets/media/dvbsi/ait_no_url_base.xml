@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tsduck>
+  <AIT version="30" current="true" test_application_flag="false" application_type="0x0010">
+    <application control_code="0x01">
+      <application_identifier organization_id="0x00000120" application_id="0x0071"/>
+      <transport_protocol_descriptor transport_protocol_label="0x00">
+        <http>
+        </http>
+      </transport_protocol_descriptor>
+      <simple_application_location_descriptor initial_path="foo/bar"/>
+    </application>
+  </AIT>
+</tsduck>

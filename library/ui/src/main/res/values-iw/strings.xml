@@ -1,6 +1,5 @@
-<?xml version="1.0"?>
-<!--
-     Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2019 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,12 +13,56 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-  <string name="exo_controls_previous_description">"הרצועה הקודמת"</string>
-  <string name="exo_controls_next_description">"הרצועה הבאה"</string>
-  <string name="exo_controls_pause_description">"השהה"</string>
-  <string name="exo_controls_play_description">"הפעל"</string>
-  <string name="exo_controls_stop_description">"הפסק"</string>
-  <string name="exo_controls_rewind_description">"הרץ אחורה"</string>
-  <string name="exo_controls_fastforward_description">"הרץ קדימה"</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="exo_controls_show">הצגת פקדי הנגן</string>
+  <string name="exo_controls_hide">הסתרת פקדי הנגן</string>
+  <string name="exo_controls_seek_bar_description">התקדמות ההפעלה</string>
+  <string name="exo_controls_settings_description">הגדרות</string>
+  <string name="exo_controls_overflow_hide_description">הסתרת ההגדרות הנוספות</string>
+  <string name="exo_controls_overflow_show_description">הצגת הגדרות נוספות</string>
+  <string name="exo_controls_fullscreen_enter_description">כניסה למסך מלא</string>
+  <string name="exo_controls_fullscreen_exit_description">יציאה ממסך מלא</string>
+  <string name="exo_controls_previous_description">הקודם</string>
+  <string name="exo_controls_next_description">הבא</string>
+  <string name="exo_controls_pause_description">השהיה</string>
+  <string name="exo_controls_play_description">הפעלה</string>
+  <string name="exo_controls_stop_description">הפסקה</string>
+  <string name="exo_controls_rewind_description">הרצה אחורה</string>
+  <string name="exo_controls_rewind_by_amount_description">הרצה %d שניות אחורה</string>
+  <string name="exo_controls_fastforward_description">הרצה קדימה</string>
+  <string name="exo_controls_fastforward_by_amount_description">הרצה %d שניות קדימה</string>
+  <string name="exo_controls_repeat_off_description">אל תחזור על אף פריט</string>
+  <string name="exo_controls_repeat_one_description">חזור על פריט אחד</string>
+  <string name="exo_controls_repeat_all_description">חזור על הכול</string>
+  <string name="exo_controls_shuffle_on_description">ההשמעה האקראית מופעלת</string>
+  <string name="exo_controls_shuffle_off_description">ההשמעה האקראית מושבתת</string>
+  <string name="exo_controls_vr_description">מצב VR</string>
+  <string name="exo_controls_cc_enabled_description">השבתת כתוביות</string>
+  <string name="exo_controls_cc_disabled_description">הפעלת כתוביות</string>
+  <string name="exo_controls_playback_speed">מהירות</string>
+  <string name="exo_controls_playback_speed_normal">רגילה</string>
+  <string name="exo_download_description">הורדה</string>
+  <string name="exo_download_notification_channel_name">הורדות</string>
+  <string name="exo_download_downloading">ההורדה מתבצעת</string>
+  <string name="exo_download_completed">ההורדה הושלמה</string>
+  <string name="exo_download_failed">ההורדה לא הושלמה</string>
+  <string name="exo_download_removing">מסיר הורדות</string>
+  <string name="exo_track_selection_title_video">סרטון</string>
+  <string name="exo_track_selection_title_audio">אודיו</string>
+  <string name="exo_track_selection_title_text">טקסט</string>
+  <string name="exo_track_selection_none">ללא</string>
+  <string name="exo_track_selection_auto">אוטומטי</string>
+  <string name="exo_track_unknown">לא ידוע</string>
+  <string name="exo_track_resolution">%1$d × %2$d</string>
+  <string name="exo_track_mono">מונו</string>
+  <string name="exo_track_stereo">סטריאו</string>
+  <string name="exo_track_surround">סראונד</string>
+  <string name="exo_track_surround_5_point_1">סראונד 5.1</string>
+  <string name="exo_track_surround_7_point_1">סראונד 7.1</string>
+  <string name="exo_track_role_alternate">חלופי</string>
+  <string name="exo_track_role_supplementary">משלים</string>
+  <string name="exo_track_role_commentary">פרשנות</string>
+  <string name="exo_track_role_closed_captions">כתוביות</string>
+  <string name="exo_track_bitrate">%1$.2f מגה סיביות לשנייה</string>
+  <string name="exo_item_list">%1$s‏, %2$s</string>
 </resources>

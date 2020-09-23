@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import java.util.List;
 
 /**
  * Selector of {@link MediaCodec} instances.
@@ -24,41 +25,22 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 public interface MediaCodecSelector {
 
   /**
-   * Default implementation of {@link MediaCodecSelector}.
+   * Default implementation of {@link MediaCodecSelector}, which returns the preferred decoder for
+   * the given format.
    */
-  MediaCodecSelector DEFAULT = new MediaCodecSelector() {
-
-    @Override
-    public MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
-        throws DecoderQueryException {
-      return MediaCodecUtil.getDecoderInfo(mimeType, requiresSecureDecoder);
-    }
-
-    @Override
-    public MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException {
-      return MediaCodecUtil.getPassthroughDecoderInfo();
-    }
-
-  };
+  MediaCodecSelector DEFAULT = MediaCodecUtil::getDecoderInfos;
 
   /**
-   * Selects a decoder to instantiate for a given mime type.
+   * Returns a list of decoders that can decode media in the specified MIME type, in priority order.
    *
-   * @param mimeType The mime type for which a decoder is required.
+   * @param mimeType The MIME type for which a decoder is required.
    * @param requiresSecureDecoder Whether a secure decoder is required.
-   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
+   * @param requiresTunnelingDecoder Whether a tunneling decoder is required.
+   * @return An unmodifiable list of {@link MediaCodecInfo}s corresponding to decoders. May be
+   *     empty.
    * @throws DecoderQueryException Thrown if there was an error querying decoders.
    */
-  MediaCodecInfo getDecoderInfo(String mimeType, boolean requiresSecureDecoder)
+  List<MediaCodecInfo> getDecoderInfos(
+      String mimeType, boolean requiresSecureDecoder, boolean requiresTunnelingDecoder)
       throws DecoderQueryException;
-
-  /**
-   * Selects a decoder to instantiate for audio passthrough.
-   *
-   * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder
-   *     exists.
-   * @throws DecoderQueryException Thrown if there was an error querying decoders.
-   */
-  MediaCodecInfo getPassthroughDecoderInfo() throws DecoderQueryException;
-
 }

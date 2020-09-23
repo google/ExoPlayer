@@ -58,10 +58,12 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved) {
   return JNI_VERSION_1_6;
 }
 
-static const int kBytesPerSample = 2;  // opus fixed point uses 16 bit samples.
+static const int kBytesPerIntPcmSample = 2;
+static const int kBytesPerFloatSample = 4;
 static const int kMaxOpusOutputPacketSizeSamples = 960 * 6;
 static int channelCount;
 static int errorCode;
+static bool outputFloat = false;
 
 DECODER_FUNC(jlong, opusInit, jint sampleRate, jint channelCount,
      jint numStreams, jint numCoupled, jint gain, jbyteArray jStreamMap) {
@@ -99,21 +101,40 @@ DECODER_FUNC(jint, opusDecode, jlong jDecoder, jlong jTimeUs,
       reinterpret_cast<const uint8_t*>(
           env->GetDirectBufferAddress(jInputBuffer));
 
+  const int byteSizePerSample = outputFloat ?
+      kBytesPerFloatSample : kBytesPerIntPcmSample;
   const jint outputSize =
-      kMaxOpusOutputPacketSizeSamples * kBytesPerSample * channelCount;
+      kMaxOpusOutputPacketSizeSamples * byteSizePerSample * channelCount;
 
   env->CallObjectMethod(jOutputBuffer, outputBufferInit, jTimeUs, outputSize);
+  if (env->ExceptionCheck()) {
+    // Exception is thrown in Java when returning from the native call.
+    return -1;
+  }
   const jobject jOutputBufferData = env->CallObjectMethod(jOutputBuffer,
       outputBufferInit, jTimeUs, outputSize);
+  if (env->ExceptionCheck()) {
+    // Exception is thrown in Java when returning from the native call.
+    return -1;
+  }
 
-  int16_t* outputBufferData = reinterpret_cast<int16_t*>(
-      env->GetDirectBufferAddress(jOutputBufferData));
-  int sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
+  int sampleCount;
+  if (outputFloat) {
+    float* outputBufferData = reinterpret_cast<float*>(
+        env->GetDirectBufferAddress(jOutputBufferData));
+    sampleCount = opus_multistream_decode_float(decoder, inputBuffer, inputSize,
       outputBufferData, kMaxOpusOutputPacketSizeSamples, 0);
+  } else {
+    int16_t* outputBufferData = reinterpret_cast<int16_t*>(
+        env->GetDirectBufferAddress(jOutputBufferData));
+    sampleCount = opus_multistream_decode(decoder, inputBuffer, inputSize,
+      outputBufferData, kMaxOpusOutputPacketSizeSamples, 0);
+  }
+
   // record error code
   errorCode = (sampleCount < 0) ? sampleCount : 0;
   return (sampleCount < 0) ? sampleCount
-      : sampleCount * kBytesPerSample * channelCount;
+      : sampleCount * byteSizePerSample * channelCount;
 }
 
 DECODER_FUNC(jint, opusSecureDecode, jlong jDecoder, jlong jTimeUs,
@@ -144,6 +165,10 @@ DECODER_FUNC(jstring, opusGetErrorMessage, jlong jContext) {
 
 DECODER_FUNC(jint, opusGetErrorCode, jlong jContext) {
   return errorCode;
+}
+
+DECODER_FUNC(void, opusSetFloatOutput) {
+  outputFloat = true;
 }
 
 LIBRARY_FUNC(jstring, opusIsSecureDecodeSupported) {

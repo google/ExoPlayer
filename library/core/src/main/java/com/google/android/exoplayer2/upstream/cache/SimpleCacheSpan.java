@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -22,12 +23,12 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * This class stores span metadata in filename.
- */
-/*package*/ final class SimpleCacheSpan extends CacheSpan {
+/** A {@link CacheSpan} that encodes metadata into the names of the underlying cache files. */
+/* package */ final class SimpleCacheSpan extends CacheSpan {
 
-  private static final String SUFFIX = ".v3.exo";
+  /* package */ static final String COMMON_SUFFIX = ".exo";
+
+  private static final String SUFFIX = ".v3" + COMMON_SUFFIX;
   private static final Pattern CACHE_FILE_PATTERN_V1 = Pattern.compile(
       "^(.+)\\.(\\d+)\\.(\\d+)\\.v1\\.exo$", Pattern.DOTALL);
   private static final Pattern CACHE_FILE_PATTERN_V2 = Pattern.compile(
@@ -35,20 +36,40 @@ import java.util.regex.Pattern;
   private static final Pattern CACHE_FILE_PATTERN_V3 = Pattern.compile(
       "^(\\d+)\\.(\\d+)\\.(\\d+)\\.v3\\.exo$", Pattern.DOTALL);
 
-  public static File getCacheFile(File cacheDir, int id, long position,
-      long lastAccessTimestamp) {
-    return new File(cacheDir, id + "." + position + "." + lastAccessTimestamp + SUFFIX);
+  /**
+   * Returns a new {@link File} instance from {@code cacheDir}, {@code id}, {@code position}, {@code
+   * timestamp}.
+   *
+   * @param cacheDir The parent abstract pathname.
+   * @param id The cache file id.
+   * @param position The position of the stored data in the resource.
+   * @param timestamp The file timestamp.
+   * @return The cache file.
+   */
+  public static File getCacheFile(File cacheDir, int id, long position, long timestamp) {
+    return new File(cacheDir, id + "." + position + "." + timestamp + SUFFIX);
   }
 
+  /**
+   * Creates a lookup span.
+   *
+   * @param key The cache key of the resource.
+   * @param position The position of the span in the resource.
+   * @return The span.
+   */
   public static SimpleCacheSpan createLookup(String key, long position) {
     return new SimpleCacheSpan(key, position, C.LENGTH_UNSET, C.TIME_UNSET, null);
   }
 
-  public static SimpleCacheSpan createOpenHole(String key, long position) {
-    return new SimpleCacheSpan(key, position, C.LENGTH_UNSET, C.TIME_UNSET, null);
-  }
-
-  public static SimpleCacheSpan createClosedHole(String key, long position, long length) {
+  /**
+   * Creates a hole span.
+   *
+   * @param key The cache key of the resource.
+   * @param position The position of the span in the resource.
+   * @param length The length of the span, or {@link C#LENGTH_UNSET} if unbounded.
+   * @return The hole span.
+   */
+  public static SimpleCacheSpan createHole(String key, long position, long length) {
     return new SimpleCacheSpan(key, position, length, C.TIME_UNSET, null);
   }
 
@@ -56,17 +77,41 @@ import java.util.regex.Pattern;
    * Creates a cache span from an underlying cache file. Upgrades the file if necessary.
    *
    * @param file The cache file.
-   * @param index Cached content index.
+   * @param length The length of the cache file in bytes, or {@link C#LENGTH_UNSET} to query the
+   *     underlying file system. Querying the underlying file system can be expensive, so callers
+   *     that already know the length of the file should pass it explicitly.
+   * @param index The cached content index.
    * @return The span, or null if the file name is not correctly formatted, or if the id is not
-   *     present in the content index.
+   *     present in the content index, or if the length is 0.
    */
-  public static SimpleCacheSpan createCacheEntry(File file, CachedContentIndex index) {
+  @Nullable
+  public static SimpleCacheSpan createCacheEntry(File file, long length, CachedContentIndex index) {
+    return createCacheEntry(file, length, /* lastTouchTimestamp= */ C.TIME_UNSET, index);
+  }
+
+  /**
+   * Creates a cache span from an underlying cache file. Upgrades the file if necessary.
+   *
+   * @param file The cache file.
+   * @param length The length of the cache file in bytes, or {@link C#LENGTH_UNSET} to query the
+   *     underlying file system. Querying the underlying file system can be expensive, so callers
+   *     that already know the length of the file should pass it explicitly.
+   * @param lastTouchTimestamp The last touch timestamp, or {@link C#TIME_UNSET} to use the file
+   *     timestamp.
+   * @param index The cached content index.
+   * @return The span, or null if the file name is not correctly formatted, or if the id is not
+   *     present in the content index, or if the length is 0.
+   */
+  @Nullable
+  public static SimpleCacheSpan createCacheEntry(
+      File file, long length, long lastTouchTimestamp, CachedContentIndex index) {
     String name = file.getName();
     if (!name.endsWith(SUFFIX)) {
-      file = upgradeFile(file, index);
-      if (file == null) {
+      @Nullable File upgradedFile = upgradeFile(file, index);
+      if (upgradedFile == null) {
         return null;
       }
+      file = upgradedFile;
       name = file.getName();
     }
 
@@ -74,56 +119,89 @@ import java.util.regex.Pattern;
     if (!matcher.matches()) {
       return null;
     }
-    long length = file.length();
-    int id = Integer.parseInt(matcher.group(1));
-    String key = index.getKeyForId(id);
-    return key == null ? null : new SimpleCacheSpan(key, Long.parseLong(matcher.group(2)), length,
-        Long.parseLong(matcher.group(3)), file);
+
+    int id = Integer.parseInt(Assertions.checkNotNull(matcher.group(1)));
+    @Nullable String key = index.getKeyForId(id);
+    if (key == null) {
+      return null;
+    }
+
+    if (length == C.LENGTH_UNSET) {
+      length = file.length();
+    }
+    if (length == 0) {
+      return null;
+    }
+
+    long position = Long.parseLong(Assertions.checkNotNull(matcher.group(2)));
+    if (lastTouchTimestamp == C.TIME_UNSET) {
+      lastTouchTimestamp = Long.parseLong(Assertions.checkNotNull(matcher.group(3)));
+    }
+    return new SimpleCacheSpan(key, position, length, lastTouchTimestamp, file);
   }
 
+  /**
+   * Upgrades the cache file if it is created by an earlier version of {@link SimpleCache}.
+   *
+   * @param file The cache file.
+   * @param index The cached content index.
+   * @return Upgraded cache file or {@code null} if the file name is not correctly formatted or the
+   *     file can not be renamed.
+   */
+  @Nullable
   private static File upgradeFile(File file, CachedContentIndex index) {
-    String key;
+    @Nullable String key = null;
     String filename = file.getName();
     Matcher matcher = CACHE_FILE_PATTERN_V2.matcher(filename);
     if (matcher.matches()) {
-      key = Util.unescapeFileName(matcher.group(1));
-      if (key == null) {
-        return null;
-      }
+      key = Util.unescapeFileName(Assertions.checkNotNull(matcher.group(1)));
     } else {
       matcher = CACHE_FILE_PATTERN_V1.matcher(filename);
-      if (!matcher.matches()) {
-        return null;
+      if (matcher.matches()) {
+        key = Assertions.checkNotNull(matcher.group(1)); // Keys were not escaped in version 1.
       }
-      key = matcher.group(1); // Keys were not escaped in version 1.
     }
 
-    File newCacheFile = getCacheFile(file.getParentFile(), index.assignIdForKey(key),
-        Long.parseLong(matcher.group(2)), Long.parseLong(matcher.group(3)));
+    if (key == null) {
+      return null;
+    }
+
+    File newCacheFile =
+        getCacheFile(
+            Assertions.checkStateNotNull(file.getParentFile()),
+            index.assignIdForKey(key),
+            Long.parseLong(Assertions.checkNotNull(matcher.group(2))),
+            Long.parseLong(Assertions.checkNotNull(matcher.group(3))));
     if (!file.renameTo(newCacheFile)) {
       return null;
     }
     return newCacheFile;
   }
 
-  private SimpleCacheSpan(String key, long position, long length, long lastAccessTimestamp,
-      File file) {
-    super(key, position, length, lastAccessTimestamp, file);
+  /**
+   * @param key The cache key of the resource.
+   * @param position The position of the span in the resource.
+   * @param length The length of the span, or {@link C#LENGTH_UNSET} if this is an open-ended hole.
+   * @param lastTouchTimestamp The last touch timestamp, or {@link C#TIME_UNSET} if {@link
+   *     #isCached} is false.
+   * @param file The file corresponding to this span, or null if it's a hole.
+   */
+  private SimpleCacheSpan(
+      String key, long position, long length, long lastTouchTimestamp, @Nullable File file) {
+    super(key, position, length, lastTouchTimestamp, file);
   }
 
   /**
-   * Returns a copy of this CacheSpan whose last access time stamp is set to current time. This
-   * doesn't copy or change the underlying cache file.
+   * Returns a copy of this CacheSpan with a new file and last touch timestamp.
    *
-   * @param id The cache file id.
-   * @return A {@link SimpleCacheSpan} with updated last access time stamp.
+   * @param file The new file.
+   * @param lastTouchTimestamp The new last touch time.
+   * @return A copy with the new file and last touch timestamp.
    * @throws IllegalStateException If called on a non-cached span (i.e. {@link #isCached} is false).
    */
-  public SimpleCacheSpan copyWithUpdatedLastAccessTime(int id) {
+  public SimpleCacheSpan copyWithFileAndLastTouchTimestamp(File file, long lastTouchTimestamp) {
     Assertions.checkState(isCached);
-    long now = System.currentTimeMillis();
-    File newCacheFile = getCacheFile(file.getParentFile(), id, position, now);
-    return new SimpleCacheSpan(key, position, length, now, newCacheFile);
+    return new SimpleCacheSpan(key, position, length, lastTouchTimestamp, file);
   }
 
 }

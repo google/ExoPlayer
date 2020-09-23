@@ -15,14 +15,17 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static java.lang.Math.max;
+
 import android.os.SystemClock;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -47,10 +50,8 @@ public abstract class BaseTrackSelection implements TrackSelection {
    * The {@link Format}s of the selected tracks, in order of decreasing bandwidth.
    */
   private final Format[] formats;
-  /**
-   * Selected track blacklist timestamps, in order of decreasing bandwidth.
-   */
-  private final long[] blacklistUntilTimes;
+  /** Selected track exclusion timestamps, in order of decreasing bandwidth. */
+  private final long[] excludeUntilTimes;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -69,13 +70,24 @@ public abstract class BaseTrackSelection implements TrackSelection {
     for (int i = 0; i < tracks.length; i++) {
       formats[i] = group.getFormat(tracks[i]);
     }
-    Arrays.sort(formats, new DecreasingBandwidthComparator());
+    // Sort in order of decreasing bandwidth.
+    Arrays.sort(formats, (a, b) -> b.bitrate - a.bitrate);
     // Set the format indices in the same order.
     this.tracks = new int[length];
     for (int i = 0; i < length; i++) {
       this.tracks[i] = group.indexOf(formats[i]);
     }
-    blacklistUntilTimes = new long[length];
+    excludeUntilTimes = new long[length];
+  }
+
+  @Override
+  public void enable() {
+    // Do nothing.
+  }
+
+  @Override
+  public void disable() {
+    // Do nothing.
   }
 
   @Override
@@ -99,6 +111,7 @@ public abstract class BaseTrackSelection implements TrackSelection {
   }
 
   @Override
+  @SuppressWarnings("ReferenceEquality")
   public final int indexOf(Format format) {
     for (int i = 0; i < length; i++) {
       if (formats[i] == format) {
@@ -129,32 +142,40 @@ public abstract class BaseTrackSelection implements TrackSelection {
   }
 
   @Override
+  public void onPlaybackSpeed(float playbackSpeed) {
+    // Do nothing.
+  }
+
+  @Override
   public int evaluateQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
     return queue.size();
   }
 
   @Override
-  public final boolean blacklist(int index, long blacklistDurationMs) {
+  public final boolean blacklist(int index, long exclusionDurationMs) {
     long nowMs = SystemClock.elapsedRealtime();
-    boolean canBlacklist = isBlacklisted(index, nowMs);
-    for (int i = 0; i < length && !canBlacklist; i++) {
-      canBlacklist = i != index && !isBlacklisted(i, nowMs);
+    boolean canExclude = isBlacklisted(index, nowMs);
+    for (int i = 0; i < length && !canExclude; i++) {
+      canExclude = i != index && !isBlacklisted(i, nowMs);
     }
-    if (!canBlacklist) {
+    if (!canExclude) {
       return false;
     }
-    blacklistUntilTimes[index] = Math.max(blacklistUntilTimes[index], nowMs + blacklistDurationMs);
+    excludeUntilTimes[index] =
+        max(
+            excludeUntilTimes[index],
+            Util.addWithOverflowDefault(nowMs, exclusionDurationMs, Long.MAX_VALUE));
     return true;
   }
 
   /**
-   * Returns whether the track at the specified index in the selection is blacklisted.
+   * Returns whether the track at the specified index in the selection is excluded.
    *
    * @param index The index of the track in the selection.
    * @param nowMs The current time in the timebase of {@link SystemClock#elapsedRealtime()}.
    */
   protected final boolean isBlacklisted(int index, long nowMs) {
-    return blacklistUntilTimes[index] > nowMs;
+    return excludeUntilTimes[index] > nowMs;
   }
 
   // Object overrides.
@@ -167,8 +188,10 @@ public abstract class BaseTrackSelection implements TrackSelection {
     return hashCode;
   }
 
+  // Track groups are compared by identity not value, as distinct groups may have the same value.
   @Override
-  public boolean equals(Object obj) {
+  @SuppressWarnings({"ReferenceEquality", "EqualsGetClass"})
+  public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
     }
@@ -178,17 +201,4 @@ public abstract class BaseTrackSelection implements TrackSelection {
     BaseTrackSelection other = (BaseTrackSelection) obj;
     return group == other.group && Arrays.equals(tracks, other.tracks);
   }
-
-  /**
-   * Sorts {@link Format} objects in order of decreasing bandwidth.
-   */
-  private static final class DecreasingBandwidthComparator implements Comparator<Format> {
-
-    @Override
-    public int compare(Format a, Format b) {
-      return b.bitrate - a.bitrate;
-    }
-
-  }
-
 }

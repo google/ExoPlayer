@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="urn:mpeg:DASH:schema:MPD:2011"
+  xsi:schemaLocation="urn:mpeg:DASH:schema:MPD:2011 DASH-MPD.xsd"
+  profiles="urn:mpeg:dash:profile:isoff-main:2011"
+  type="dynamic"
+  availabilityStartTime="2016-10-14T17:00:17">
+  <BaseURL availabilityTimeOffset="9.999">http://video.com/baseUrl</BaseURL>
+  <Period start="PT0.000S">
+    <BaseURL availabilityTimeOffset="9.999">http://video.com/baseUrl</BaseURL>
+    <SegmentTemplate availabilityTimeOffset="2"/>
+    <AdaptationSet>
+      <Representation>
+        <BaseURL availabilityTimeOffset="9.999">http://video.com/baseUrl</BaseURL>
+        <SegmentTemplate/>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet>
+      <BaseURL availabilityTimeOffset="9.999">http://video.com/baseUrl</BaseURL>
+      <SegmentTemplate availabilityTimeOffset="3.21"/>
+      <Representation/>
+    </AdaptationSet>
+    <AdaptationSet>
+      <SegmentTemplate/>
+      <Representation>
+        <BaseURL availabilityTimeOffset="9.999">http://video.com/baseUrl</BaseURL>
+        <SegmentTemplate availabilityTimeOffset="1.23"/>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet>
+      <BaseURL availabilityTimeOffset="9.999">http://video.com/baseUrl</BaseURL>
+      <SegmentTemplate availabilityTimeOffset="123"/>
+      <Representation>
+        <BaseURL availabilityTimeOffset="9.999">http://video.com/baseUrl</BaseURL>
+        <SegmentTemplate availabilityTimeOffset="0.1"/>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+  <Period start="PT200.000S">
+    <AdaptationSet>
+      <Representation>
+        <SegmentTemplate/>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>

@@ -28,19 +28,46 @@ import com.google.android.exoplayer2.text.Cue;
   @Cue.LineType public final int lineType;
   @Cue.AnchorType public final int lineAnchor;
   public final float width;
+  public final float height;
+  @Cue.TextSizeType public final int textSizeType;
+  public final float textSize;
+  @Cue.VerticalType public final int verticalType;
 
   public TtmlRegion(String id) {
-    this(id, Cue.DIMEN_UNSET, Cue.DIMEN_UNSET, Cue.TYPE_UNSET, Cue.TYPE_UNSET, Cue.DIMEN_UNSET);
+    this(
+        id,
+        /* position= */ Cue.DIMEN_UNSET,
+        /* line= */ Cue.DIMEN_UNSET,
+        /* lineType= */ Cue.TYPE_UNSET,
+        /* lineAnchor= */ Cue.TYPE_UNSET,
+        /* width= */ Cue.DIMEN_UNSET,
+        /* height= */ Cue.DIMEN_UNSET,
+        /* textSizeType= */ Cue.TYPE_UNSET,
+        /* textSize= */ Cue.DIMEN_UNSET,
+        /* verticalType= */ Cue.TYPE_UNSET);
   }
 
-  public TtmlRegion(String id, float position, float line, @Cue.LineType int lineType,
-      @Cue.AnchorType int lineAnchor, float width) {
+  public TtmlRegion(
+      String id,
+      float position,
+      float line,
+      @Cue.LineType int lineType,
+      @Cue.AnchorType int lineAnchor,
+      float width,
+      float height,
+      int textSizeType,
+      float textSize,
+      @Cue.VerticalType int verticalType) {
     this.id = id;
     this.position = position;
     this.line = line;
     this.lineType = lineType;
     this.lineAnchor = lineAnchor;
     this.width = width;
+    this.height = height;
+    this.textSizeType = textSizeType;
+    this.textSize = textSize;
+    this.verticalType = verticalType;
   }
 
 }

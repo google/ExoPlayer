@@ -1,0 +1,20 @@
+seekMap:
+  isSeekable = true
+  duration = 2808000
+  getPosition(0) = [[timeUs=0, position=237]]
+  getPosition(1) = [[timeUs=1, position=237]]
+  getPosition(1404000) = [[timeUs=1404000, position=20120]]
+  getPosition(2808000) = [[timeUs=2808000, position=38396]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    sampleMimeType = audio/mpeg
+    maxInputSize = 4096
+    channelCount = 2
+    sampleRate = 48000
+    encoderDelay = 576
+    encoderPadding = 576
+    metadata = entries=[TSSE: description=null: value=Lavf58.29.100]
+tracksEnded = true

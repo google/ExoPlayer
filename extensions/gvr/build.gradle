@@ -11,21 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply plugin: 'com.android.library'
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-    buildToolsVersion project.ext.buildToolsVersion
-
-    defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion project.ext.targetSdkVersion
-    }
-}
+android.defaultConfig.minSdkVersion 19
 
 dependencies {
-    compile project(':library-core')
-    compile 'com.google.vr:sdk-audio:1.60.1'
+    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-ui')
+    implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    api 'com.google.vr:sdk-base:1.190.0'
+    compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
+    compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 
 ext {
