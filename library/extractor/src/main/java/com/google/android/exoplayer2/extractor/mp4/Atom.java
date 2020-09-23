@@ -356,6 +356,9 @@ import java.util.List;
   public static final int TYPE_camm = 0x63616d6d;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mett = 0x6d657474;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_alac = 0x616c6163;
 
   @SuppressWarnings("ConstantCaseForConstants")

@@ -891,6 +891,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_c608) {
         parseTextSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, out);
+      } else if (childAtomType == Atom.TYPE_mett) {
+        parseMetaDataSampleEntry(stsd, childAtomType, childStartPosition, trackId, out);
       } else if (childAtomType == Atom.TYPE_camm) {
         out.format =
             new Format.Builder()
@@ -1095,6 +1097,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .setInitializationData(initializationData)
             .setDrmInitData(drmInitData)
             .build();
+  }
+
+  private static void parseMetaDataSampleEntry(
+      ParsableByteArray parent, int atomType, int position, int trackId, StsdData out) {
+    parent.setPosition(position + Atom.HEADER_SIZE + StsdData.STSD_HEADER_SIZE);
+    if (atomType == Atom.TYPE_mett) {
+      parent.readNullTerminatedString(); // Skip optional content_encoding
+      @Nullable String mimeType = parent.readNullTerminatedString();
+      if (mimeType != null) {
+        out.format = new Format.Builder().setId(trackId).setSampleMimeType(mimeType).build();
+      }
+    }
   }
 
   /**
