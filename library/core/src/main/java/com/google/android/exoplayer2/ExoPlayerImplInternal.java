@@ -50,6 +50,7 @@ import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Supplier;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -1654,6 +1655,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
             window,
             period);
     MediaPeriodId newPeriodId = positionUpdate.periodId;
+    Object manifest = this.window.manifest;
+    if (manifest != null) {
+      handleServiceDescription(manifest);
+    }
     long newRequestedContentPositionUs = positionUpdate.requestedContentPositionUs;
     boolean forceBufferingState = positionUpdate.forceBufferingState;
     long newPositionUs = positionUpdate.periodPositionUs;
@@ -2180,6 +2185,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
       updateLoadControlTrackSelection(
           loadingMediaPeriodHolder.getTrackGroups(),
           loadingMediaPeriodHolder.getTrackSelectorResult());
+    }
+  }
+
+  // Copyright (C) Sven Wischnowsky, 2020 Deutsche Telekom AG
+  private void handleServiceDescription(Object manifest) {
+    Object manifestServiceDescription = parseObject(manifest, "serviceDescription");
+    if(manifestServiceDescription != null){
+      Object serviceDescriptionLatency = parseObject(manifestServiceDescription, "latency");
+      int targetLatency = serviceDescriptionObjectToInt(parseObject(serviceDescriptionLatency, "target"));
+      int maxLatency = serviceDescriptionObjectToInt(parseObject(serviceDescriptionLatency, "max"));
+      int minLatency = serviceDescriptionObjectToInt(parseObject(serviceDescriptionLatency, "min"));
+      loadControl.updateBufferDurationsMs(targetLatency * 1000 ,maxLatency * 1000,minLatency * 1000);
     }
   }
 
@@ -2711,4 +2728,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
       this.shuffleOrder = shuffleOrder;
     }
   }
+
+  // Copyright (C) Sven Wischnowsky, 2020 Deutsche Telekom AG
+  private Object parseObject(Object object, String name) {
+    if(object != null) {
+      for (Field field : object.getClass().getDeclaredFields()) {
+        field.setAccessible(true); // You might want to set modifier to public first.
+        Object value = null;
+        try {
+          value = field.get(object);
+        } catch (IllegalAccessException e) {
+          e.printStackTrace();
+        }
+        if (field.getName() == name && value != null) {
+          return value;
+        }
+      }
+    }
+    return null;
+  }
+
+  private int serviceDescriptionObjectToInt(Object object){
+    if(object != null){
+      return (int) object;
+    }
+    return -1;
+  }
 }
+
+

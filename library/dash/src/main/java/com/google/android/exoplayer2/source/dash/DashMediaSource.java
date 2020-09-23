@@ -455,8 +455,6 @@ public final class DashMediaSource extends BaseMediaSource {
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-  private final long livePresentationDelayMs;
-  private final boolean livePresentationDelayOverridesManifest;
   private final EventDispatcher manifestEventDispatcher;
   private final ParsingLoadable.Parser<? extends DashManifest> manifestParser;
   private final ManifestCallback manifestCallback;
@@ -468,6 +466,9 @@ public final class DashMediaSource extends BaseMediaSource {
   private final LoaderErrorThrower manifestLoadErrorThrower;
   private final MediaItem mediaItem;
   private final MediaItem.PlaybackProperties playbackProperties;
+
+  private long livePresentationDelayMs;
+  private boolean livePresentationDelayOverridesManifest;
 
   private DataSource dataSource;
   private Loader loader;
@@ -1016,6 +1017,13 @@ public final class DashMediaSource extends BaseMediaSource {
   }
 
   private void processManifest(boolean scheduleRefresh) {
+    if(this.manifest.serviceDescription != null) {
+      int maxLatence = this.manifest.serviceDescription.getLatency().getMax();
+      if (maxLatence > 0) {
+        this.livePresentationDelayMs = maxLatence;
+        this.livePresentationDelayOverridesManifest = true;
+      }
+    }
     // Update any periods.
     for (int i = 0; i < periodsById.size(); i++) {
       int id = periodsById.keyAt(i);

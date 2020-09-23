@@ -89,6 +89,7 @@ public class DashManifest implements FilterableManifest<DashManifest> {
   @Nullable public final ProgramInformation programInformation;
 
   private final List<Period> periods;
+  public final ServiceDescription serviceDescription;
 
   /**
    * @deprecated Use {@link #DashManifest(long, long, long, boolean, long, long, long, long,
@@ -106,7 +107,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
       long publishTimeMs,
       @Nullable UtcTimingElement utcTiming,
       @Nullable Uri location,
-      List<Period> periods) {
+      List<Period> periods,
+      ServiceDescription serviceDescription) {
     this(
         availabilityStartTimeMs,
         durationMs,
@@ -119,7 +121,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
         /* programInformation= */ null,
         utcTiming,
         location,
-        periods);
+        periods,
+        serviceDescription);
   }
 
   public DashManifest(
@@ -134,7 +137,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
       @Nullable ProgramInformation programInformation,
       @Nullable UtcTimingElement utcTiming,
       @Nullable Uri location,
-      List<Period> periods) {
+      List<Period> periods,
+      ServiceDescription serviceDescription) {
     this.availabilityStartTimeMs = availabilityStartTimeMs;
     this.durationMs = durationMs;
     this.minBufferTimeMs = minBufferTimeMs;
@@ -147,6 +151,7 @@ public class DashManifest implements FilterableManifest<DashManifest> {
     this.utcTiming = utcTiming;
     this.location = location;
     this.periods = periods == null ? Collections.emptyList() : periods;
+    this.serviceDescription = serviceDescription;
   }
 
   public final int getPeriodCount() {
@@ -204,7 +209,8 @@ public class DashManifest implements FilterableManifest<DashManifest> {
         programInformation,
         utcTiming,
         location,
-        copyPeriods);
+        copyPeriods,
+        serviceDescription);
   }
 
   private static ArrayList<AdaptationSet> copyAdaptationSets(

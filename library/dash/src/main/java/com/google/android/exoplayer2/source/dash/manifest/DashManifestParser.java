@@ -115,6 +115,7 @@ public class DashManifestParser extends DefaultHandler
     ProgramInformation programInformation = null;
     UtcTimingElement utcTiming = null;
     Uri location = null;
+    ServiceDescription serviceDescription = null;
     long baseUrlAvailabilityTimeOffsetUs = dynamic ? 0 : C.TIME_UNSET;
 
     List<Period> periods = new ArrayList<>();
@@ -130,6 +131,8 @@ public class DashManifestParser extends DefaultHandler
           baseUrl = parseBaseUrl(xpp, baseUrl);
           seenFirstBaseUrl = true;
         }
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ServiceDescription")) {
+        serviceDescription = parseServiceDescription(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "ProgramInformation")) {
         programInformation = parseProgramInformation(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "UTCTiming")) {
@@ -184,7 +187,8 @@ public class DashManifestParser extends DefaultHandler
         programInformation,
         utcTiming,
         location,
-        periods);
+        periods,
+        serviceDescription);
   }
 
   protected DashManifest buildMediaPresentationDescription(
@@ -199,7 +203,8 @@ public class DashManifestParser extends DefaultHandler
       @Nullable ProgramInformation programInformation,
       @Nullable UtcTimingElement utcTiming,
       @Nullable Uri location,
-      List<Period> periods) {
+      List<Period> periods,
+      ServiceDescription serviceDescription) {
     return new DashManifest(
         availabilityStartTime,
         durationMs,
@@ -212,7 +217,8 @@ public class DashManifestParser extends DefaultHandler
         programInformation,
         utcTiming,
         location,
-        periods);
+        periods,
+        serviceDescription);
   }
 
   protected UtcTimingElement parseUtcTiming(XmlPullParser xpp) {
@@ -298,6 +304,55 @@ public class DashManifestParser extends DefaultHandler
       List<EventStream> eventStreams,
       @Nullable Descriptor assetIdentifier) {
     return new Period(id, startMs, adaptationSets, eventStreams, assetIdentifier);
+  }
+
+  // ServiceDescription parsing
+  // Copyright (C) Sven Wischnowsky, 2020 Deutsche Telekom AG
+
+  protected ServiceDescription parseServiceDescription(XmlPullParser xpp) throws XmlPullParserException, IOException {
+    String id = xpp.getAttributeValue(null, "id");
+    String schemeIdUri = null;
+    Latency latency = null;
+    PlaybackRate playbackRate = null;
+
+    do {
+      xpp.next();
+
+      if (XmlPullParserUtil.isStartTag(xpp, "Scope")) {
+        schemeIdUri = parseScopeSchemeURI(xpp,schemeIdUri);
+      }else if(XmlPullParserUtil.isStartTag(xpp, "Latency")){
+        latency = parseLatency(xpp);
+      }else if(XmlPullParserUtil.isStartTag(xpp, "PlaybackRate")){
+        playbackRate = parsePlaybackRate(xpp);
+      }
+
+    } while (!XmlPullParserUtil.isEndTag(xpp, "ServiceDescription"));
+    ServiceDescription serviceDescription = new ServiceDescription(id,schemeIdUri, latency, playbackRate);
+    return serviceDescription;
+  }
+
+  protected String parseScopeSchemeURI(XmlPullParser xpp, String name){
+    String schemeIdUri = xpp.getAttributeValue(null, "schemeIdUri");
+    return schemeIdUri;
+  }
+
+  protected Latency parseLatency(XmlPullParser xpp){
+    int target = parseInt(xpp, "target", Format.NO_VALUE);
+    int max = parseInt(xpp, "max", Format.NO_VALUE);
+    int min = parseInt(xpp, "min", Format.NO_VALUE);
+    return new Latency(target, max, min);
+  }
+
+  protected PlaybackRate parsePlaybackRate(XmlPullParser xpp){
+    float max = parseRate(xpp, "max");
+    float min = parseRate(xpp, "min");
+    return new PlaybackRate(max, min);
+  }
+
+  protected float parseRate(XmlPullParser xpp, String name){
+    String rateString = xpp.getAttributeValue(null, name);
+    float f = Float.parseFloat(rateString);
+    return f;
   }
 
   // AdaptationSet parsing.

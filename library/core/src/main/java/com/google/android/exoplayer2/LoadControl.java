@@ -116,4 +116,15 @@ public interface LoadControl {
    * @return Whether playback should be allowed to start or resume.
    */
   boolean shouldStartPlayback(long bufferedDurationUs, float playbackSpeed, boolean rebuffering);
+
+  /**
+   * Used to dynamically update the buffer parameter to match the ServideDescription requirement during the playback.
+   *
+   * @param target The service Description target Latency.
+   * @param max service description max latency.
+   * @param min Service Description minimum latency
+   */
+  void updateBufferDurationsMs(int target, int max, int min);
 }
+
+

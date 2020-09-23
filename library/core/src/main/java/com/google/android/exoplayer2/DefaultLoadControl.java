@@ -247,10 +247,11 @@ public class DefaultLoadControl implements LoadControl {
 
   private final DefaultAllocator allocator;
 
-  private final long minBufferUs;
-  private final long maxBufferUs;
-  private final long bufferForPlaybackUs;
-  private final long bufferForPlaybackAfterRebufferUs;
+  private long minBufferUs;
+  private long maxBufferUs;
+  private long bufferForPlaybackUs;
+  private long bufferForPlaybackAfterRebufferUs;
+
   private final int targetBufferBytesOverwrite;
   private final boolean prioritizeTimeOverSizeThresholds;
   private final long backBufferDurationUs;
@@ -467,6 +468,22 @@ public class DefaultLoadControl implements LoadControl {
         throw new IllegalArgumentException();
     }
   }
+
+  // Copyright (C) Sven Wischnowsky, 2020 Deutsche Telekom AG
+  @Override
+  public void updateBufferDurationsMs(int target, int max, int min) {
+    if(target > -1) {
+      bufferForPlaybackUs = target;
+      bufferForPlaybackAfterRebufferUs = target;
+    }
+    if(min > -1){
+      minBufferUs = min;
+    }
+    if(max > -1) {
+      maxBufferUs = max;
+    }
+  }
+
 
   private static void assertGreaterOrEqual(int value1, int value2, String name1, String name2) {
     Assertions.checkArgument(value1 >= value2, name1 + " cannot be less than " + name2);
