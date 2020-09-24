@@ -234,6 +234,18 @@ public final class DefaultAudioSink implements AudioSink {
   /** To avoid underruns on some devices (e.g., Broadcom 7271), scale up the AC3 buffer duration. */
   private static final int AC3_BUFFER_MULTIPLICATION_FACTOR = 2;
 
+  /**
+   * Native error code equivalent of {@link AudioTrack#ERROR_DEAD_OBJECT} to workaround missing
+   * error code translation on some devices.
+   *
+   * <p>On some devices, AudioTrack native error codes are not always converted to their SDK
+   * equivalent.
+   *
+   * <p>For example: {@link AudioTrack#write(byte[], int, int)} can return -32 instead of {@link
+   * AudioTrack#ERROR_DEAD_OBJECT}.
+   */
+  private static final int ERROR_NATIVE_DEAD_OBJECT = -32;
+
   private static final String TAG = "AudioTrack";
 
   /**
@@ -966,7 +978,8 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private static boolean isAudioTrackDeadObject(int status) {
-    return Util.SDK_INT >= 24 && status == AudioTrack.ERROR_DEAD_OBJECT;
+    return (Util.SDK_INT >= 24 && status == AudioTrack.ERROR_DEAD_OBJECT)
+        || status == ERROR_NATIVE_DEAD_OBJECT;
   }
 
   private boolean drainToEndOfStream() throws WriteException {
