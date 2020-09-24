@@ -908,7 +908,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (isRecoverable) {
         maybeDisableOffload();
       }
-      throw new WriteException(bytesWritten);
+      throw new WriteException(bytesWritten, isRecoverable);
     }
 
     if (isOffloadedPlayback(audioTrack)) {
@@ -1883,9 +1883,14 @@ public final class DefaultAudioSink implements AudioSink {
       AudioTrack audioTrack;
       try {
         audioTrack = createAudioTrack(tunneling, audioAttributes, audioSessionId);
-      } catch (UnsupportedOperationException e) {
+      } catch (UnsupportedOperationException | IllegalArgumentException e) {
         throw new InitializationException(
-            AudioTrack.STATE_UNINITIALIZED, outputSampleRate, outputChannelConfig, bufferSize);
+            AudioTrack.STATE_UNINITIALIZED,
+            outputSampleRate,
+            outputChannelConfig,
+            bufferSize,
+            /* isRecoverable= */ outputModeIsOffload(),
+            e);
       }
 
       int state = audioTrack.getState();
@@ -1896,7 +1901,13 @@ public final class DefaultAudioSink implements AudioSink {
           // The track has already failed to initialize, so it wouldn't be that surprising if
           // release were to fail too. Swallow the exception.
         }
-        throw new InitializationException(state, outputSampleRate, outputChannelConfig, bufferSize);
+        throw new InitializationException(
+            state,
+            outputSampleRate,
+            outputChannelConfig,
+            bufferSize,
+            /* isRecoverable= */ outputModeIsOffload(),
+            /* audioTrackException= */ null);
       }
       return audioTrack;
     }

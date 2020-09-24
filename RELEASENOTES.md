@@ -17,6 +17,8 @@
         ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
 *   Text:
     *   Add support for `\h` SSA/ASS style override code (non-breaking space).
+*   Audio:
+    *   Retry playback after some types of `AudioTrack` error.
 
 ### 2.12.0 (2020-09-11) ###
 

@@ -136,34 +136,41 @@ public interface AudioSink {
 
   }
 
-  /**
-   * Thrown when a failure occurs initializing the sink.
-   */
+  /** Thrown when a failure occurs initializing the sink. */
   final class InitializationException extends Exception {
 
-    /**
-     * The underlying {@link AudioTrack}'s state, if applicable.
-     */
+    /** The underlying {@link AudioTrack}'s state. */
     public final int audioTrackState;
+    /** If the exception can be recovered by recreating the sink. */
+    public final boolean isRecoverable;
 
     /**
-     * @param audioTrackState The underlying {@link AudioTrack}'s state, if applicable.
      * @param sampleRate The requested sample rate in Hz.
      * @param channelConfig The requested channel configuration.
      * @param bufferSize The requested buffer size in bytes.
+     * @param audioTrackException Exception thrown during the creation of the {@link AudioTrack}.
      */
-    public InitializationException(int audioTrackState, int sampleRate, int channelConfig,
-        int bufferSize) {
-      super("AudioTrack init failed: " + audioTrackState + ", Config(" + sampleRate + ", "
-          + channelConfig + ", " + bufferSize + ")");
+    public InitializationException(
+        int audioTrackState,
+        int sampleRate,
+        int channelConfig,
+        int bufferSize,
+        boolean isRecoverable,
+        @Nullable Exception audioTrackException) {
+      super(
+          "AudioTrack init failed "
+              + audioTrackState
+              + " "
+              + ("Config(" + sampleRate + ", " + channelConfig + ", " + bufferSize + ")")
+              + (isRecoverable ? " (recoverable)" : ""),
+          audioTrackException);
       this.audioTrackState = audioTrackState;
+      this.isRecoverable = isRecoverable;
     }
 
   }
 
-  /**
-   * Thrown when a failure occurs writing to the sink.
-   */
+  /** Thrown when a failure occurs writing to the sink. */
   final class WriteException extends Exception {
 
     /**
@@ -173,12 +180,13 @@ public interface AudioSink {
      * Otherwise, the meaning of the error code depends on the sink implementation.
      */
     public final int errorCode;
+    /** If the exception can be recovered by recreating the sink. */
+    public final boolean isRecoverable;
 
-    /**
-     * @param errorCode The error value returned from the sink implementation.
-     */
-    public WriteException(int errorCode) {
+    /** @param errorCode The error value returned from the sink implementation. */
+    public WriteException(int errorCode, boolean isRecoverable) {
       super("AudioTrack write failed: " + errorCode);
+      this.isRecoverable = isRecoverable;
       this.errorCode = errorCode;
     }
 
