@@ -6,6 +6,10 @@
     *   Fix bug where streams with highly uneven durations may get stuck in a
         buffering state
         ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
+    *   Verify correct thread usage in `SimpleExoPlayer` by default. Opt-out is
+        still possible until the next major release using
+        `setThrowsWhenUsingWrongThread(false)`
+        ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:
