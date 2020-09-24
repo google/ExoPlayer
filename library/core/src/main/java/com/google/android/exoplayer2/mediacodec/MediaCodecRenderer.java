@@ -54,10 +54,8 @@ import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -68,44 +66,6 @@ import java.util.List;
  * An abstract renderer that uses {@link MediaCodec} to decode samples for rendering.
  */
 public abstract class MediaCodecRenderer extends BaseRenderer {
-
-  /**
-   * The modes to operate the {@link MediaCodec}.
-   *
-   * <p>Allowed values:
-   *
-   * <ul>
-   *   <li>{@link #OPERATION_MODE_SYNCHRONOUS}
-   *   <li>{@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD}
-   *   <li>{@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING}
-   * </ul>
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target({ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})
-  @IntDef({
-    OPERATION_MODE_SYNCHRONOUS,
-    OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD,
-    OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING,
-  })
-  public @interface MediaCodecOperationMode {}
-
-  // TODO: Refactor these constants once internal evaluation completed.
-  // Do not assign values 1, 3 and 5 to a new operation mode until the evaluation is completed,
-  // otherwise existing clients may operate one of the dropped modes.
-  // [Internal ref: b/132684114]
-  /** Operates the {@link MediaCodec} in synchronous mode. */
-  public static final int OPERATION_MODE_SYNCHRONOUS = 0;
-  /**
-   * Operates the {@link MediaCodec} in asynchronous mode and routes {@link MediaCodec.Callback}
-   * callbacks to a dedicated thread.
-   */
-  public static final int OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD = 2;
-  /**
-   * Same as {@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD}, and offloads queueing to another
-   * thread.
-   */
-  public static final int OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING = 4;
 
   /** Thrown when a failure occurs instantiating a decoder. */
   public static class DecoderInitializationException extends Exception {
@@ -408,7 +368,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean outputStreamEnded;
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
-  @MediaCodecOperationMode private int mediaCodecOperationMode;
+  private boolean enableAsynchronousBufferQueueing;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
   private long outputStreamStartPositionUs;
@@ -441,7 +401,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     operatingRate = 1f;
-    mediaCodecOperationMode = OPERATION_MODE_SYNCHRONOUS;
     pendingOutputStreamStartPositionsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
@@ -452,28 +411,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Set the mode of operation of the underlying {@link MediaCodec}.
+   * Enable asynchronous input buffer queueing.
+   *
+   * <p>Operates the underlying {@link MediaCodec} in asynchronous mode and submits input buffers
+   * from a separate thread to unblock the playback thread.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the renderer is used.
-   *
-   * @param mode The mode of the MediaCodec. The supported modes are:
-   *     <ul>
-   *       <li>{@link #OPERATION_MODE_SYNCHRONOUS}: The {@link MediaCodec} will operate in
-   *           synchronous mode.
-   *       <li>{@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD}: The {@link MediaCodec} will
-   *           operate in asynchronous mode and {@link MediaCodec.Callback} callbacks will be routed
-   *           to a dedicated thread. This mode requires API level &ge; 23; if the API level is &le;
-   *           22, the operation mode will be set to {@link #OPERATION_MODE_SYNCHRONOUS}.
-   *       <li>{@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING}: Same as
-   *           {@link #OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD} and, in addition, input buffers
-   *           will be submitted to the {@link MediaCodec} in a separate thread.
-   *     </ul>
-   *     By default, the operation mode is set to {@link
-   *     MediaCodecRenderer#OPERATION_MODE_SYNCHRONOUS}.
    */
-  public void experimentalSetMediaCodecOperationMode(@MediaCodecOperationMode int mode) {
-    mediaCodecOperationMode = mode;
+  public void experimentalEnableAsynchronousBufferQueueing(boolean enabled) {
+    enableAsynchronousBufferQueueing = enabled;
   }
 
   @Override
@@ -1108,12 +1055,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createCodec:" + codecName);
       codec = MediaCodec.createByCodecName(codecName);
-      if (mediaCodecOperationMode == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD
-          && Util.SDK_INT >= 23) {
-        codecAdapter = new AsynchronousMediaCodecAdapter(codec, getTrackType());
-      } else if (mediaCodecOperationMode
-              == OPERATION_MODE_ASYNCHRONOUS_DEDICATED_THREAD_ASYNCHRONOUS_QUEUEING
-          && Util.SDK_INT >= 23) {
+      if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
         codecAdapter =
             new AsynchronousMediaCodecAdapter(
                 codec, /* enableAsynchronousQueueing= */ true, getTrackType());

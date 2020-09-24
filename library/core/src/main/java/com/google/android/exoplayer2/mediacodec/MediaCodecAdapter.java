@@ -22,13 +22,12 @@ import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
-import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode;
 
 /**
  * Abstracts {@link MediaCodec} operations.
  *
  * <p>{@code MediaCodecAdapter} offers a common interface to interact with a {@link MediaCodec}
- * regardless of the {@link MediaCodecOperationMode} the {@link MediaCodec} is operating in.
+ * regardless of the mode the {@link MediaCodec} is operating in.
  */
 public interface MediaCodecAdapter {
 
