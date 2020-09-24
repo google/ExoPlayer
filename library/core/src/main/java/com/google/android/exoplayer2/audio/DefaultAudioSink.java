@@ -1707,17 +1707,19 @@ public final class DefaultAudioSink implements AudioSink {
 
     @Override
     public void onDataRequest(AudioTrack track, int size) {
-      Assertions.checkState(track == DefaultAudioSink.this.audioTrack);
-      if (listener != null) {
+      Assertions.checkState(track == audioTrack);
+      if (listener != null && playing) {
+        // Do not signal that the buffer is emptying if not playing as it is a transient state.
         listener.onOffloadBufferEmptying();
       }
     }
 
     @Override
     public void onTearDown(@NonNull AudioTrack track) {
+      Assertions.checkState(track == audioTrack);
       if (listener != null && playing) {
-        // A new Audio Track needs to be created and it's buffer filled, which will be done on the
-        // next handleBuffer call.
+        // The audio track was destroyed while in use. Thus a new AudioTrack needs to be created
+        // and its buffer filled, which will be done on the next handleBuffer call.
         // Request this call explicitly in case ExoPlayer is sleeping waiting for a data request.
         listener.onOffloadBufferEmptying();
       }
