@@ -862,5 +862,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         wakeupListener.onSleep(bufferEmptyingDeadlineMs);
       }
     }
+
+    @Override
+    public void onAudioSinkError(Exception audioSinkError) {
+      eventDispatcher.audioSinkError(audioSinkError);
+    }
   }
 }

@@ -724,5 +724,10 @@ public abstract class DecoderAudioRenderer<
     public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
       eventDispatcher.skipSilenceEnabledChanged(skipSilenceEnabled);
     }
+
+    @Override
+    public void onAudioSinkError(Exception audioSinkError) {
+      eventDispatcher.audioSinkError(audioSinkError);
+    }
   }
 }

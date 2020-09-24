@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -524,6 +525,16 @@ public interface AnalyticsListener {
    * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
    */
   default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  /**
+   * Called when {@link AudioSink} has encountered an error. These errors are just for informational
+   * purposes and the player may recover.
+   *
+   * @param eventTime The event time.
+   * @param audioSinkError Either a {@link AudioSink.InitializationException} or a {@link
+   *     AudioSink.WriteException} describing the error.
+   */
+  default void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
 
   /**
    * Called when the volume changes.

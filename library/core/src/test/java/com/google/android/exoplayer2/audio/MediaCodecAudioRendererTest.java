@@ -22,10 +22,14 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.media.MediaFormat;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -46,6 +50,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -71,6 +76,7 @@ public class MediaCodecAudioRendererTest {
   private MediaCodecSelector mediaCodecSelector;
 
   @Mock private AudioSink audioSink;
+  @Mock private AudioRendererEventListener audioRendererEventListener;
 
   @Before
   public void setUp() throws Exception {
@@ -94,13 +100,15 @@ public class MediaCodecAudioRendererTest {
                     /* forceDisableAdaptive= */ false,
                     /* forceSecure= */ false));
 
+    Handler eventHandler = new Handler(Looper.getMainLooper());
+
     mediaCodecAudioRenderer =
         new MediaCodecAudioRenderer(
             ApplicationProvider.getApplicationContext(),
             mediaCodecSelector,
             /* enableDecoderFallback= */ false,
-            /* eventHandler= */ null,
-            /* eventListener= */ null,
+            eventHandler,
+            audioRendererEventListener,
             audioSink);
   }
 
@@ -277,6 +285,36 @@ public class MediaCodecAudioRendererTest {
     // Doesn't throw an exception because it's cleared after being thrown in the previous call to
     // render.
     exceptionThrowingRenderer.render(/* positionUs= */ 750, SystemClock.elapsedRealtime() * 1000);
+  }
+
+  @Test
+  public void
+      render_callsAudioRendererEventListener_whenAudioSinkListenerOnAudioSessionIdIsCalled() {
+    final ArgumentCaptor<AudioSink.Listener> listenerCaptor =
+        ArgumentCaptor.forClass(AudioSink.Listener.class);
+    verify(audioSink, atLeastOnce()).setListener(listenerCaptor.capture());
+    AudioSink.Listener audioSinkListener = listenerCaptor.getValue();
+
+    int audioSessionId = 2;
+    audioSinkListener.onAudioSessionId(audioSessionId);
+
+    shadowOf(Looper.getMainLooper()).idle();
+    verify(audioRendererEventListener).onAudioSessionId(audioSessionId);
+  }
+
+  @Test
+  public void
+      render_callsAudioRendererEventListener_whenAudioSinkListenerOnAudioSinkErrorIsCalled() {
+    final ArgumentCaptor<AudioSink.Listener> listenerCaptor =
+        ArgumentCaptor.forClass(AudioSink.Listener.class);
+    verify(audioSink, atLeastOnce()).setListener(listenerCaptor.capture());
+    AudioSink.Listener audioSinkListener = listenerCaptor.getValue();
+
+    Exception error = new AudioSink.WriteException(/* errorCode= */ 1, /* isRecoverable= */ true);
+    audioSinkListener.onAudioSinkError(error);
+
+    shadowOf(Looper.getMainLooper()).idle();
+    verify(audioRendererEventListener).onAudioSinkError(error);
   }
 
   private static Format getAudioSinkFormat(Format inputFormat) {

@@ -17,11 +17,14 @@ package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
+import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.util.Assertions;
@@ -97,6 +100,28 @@ public interface AudioRendererEventListener {
    * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
    */
   default void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {}
+
+  /**
+   * Called when {@link AudioSink} has encountered an error.
+   *
+   * <p>If the sink writes to a platform {@link AudioTrack}, this will called for all {@link
+   * AudioTrack} errors.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error (for example by recreating the AudioTrack,
+   * possibly with different settings) and continue. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry
+   * ({@link Player.EventListener#onPlayerError} is the appropriate place to implement such
+   * behavior). This method is called to provide the application with an opportunity to log the
+   * error if it wishes to do so.
+   *
+   * <p>Fatal errors that cannot be recovered will be reported wrapped in a {@link
+   * ExoPlaybackException} by {@link Player.EventListener#onPlayerError(ExoPlaybackException)}.
+   *
+   * @param audioSinkError Either an {@link AudioSink.InitializationException} or a {@link
+   *     AudioSink.WriteException} describing the error.
+   */
+  default void onAudioSinkError(Exception audioSinkError) {}
 
   /** Dispatches events to an {@link AudioRendererEventListener}. */
   final class EventDispatcher {
@@ -182,6 +207,13 @@ public interface AudioRendererEventListener {
     public void skipSilenceEnabledChanged(boolean skipSilenceEnabled) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onSkipSilenceEnabledChanged(skipSilenceEnabled));
+      }
+    }
+
+    /** Invokes {@link AudioRendererEventListener#onAudioSinkError(Exception)}. */
+    public void audioSinkError(Exception audioSinkError) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onAudioSinkError(audioSinkError));
       }
     }
   }

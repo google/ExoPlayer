@@ -827,6 +827,9 @@ public final class DefaultAudioSink implements AudioSink {
           .buildAudioTrack(tunneling, audioAttributes, audioSessionId);
     } catch (InitializationException e) {
       maybeDisableOffload();
+      if (listener != null) {
+        listener.onAudioSinkError(e);
+      }
       throw e;
     }
   }
@@ -892,36 +895,43 @@ public final class DefaultAudioSink implements AudioSink {
       }
     }
     int bytesRemaining = buffer.remaining();
-    int bytesWritten = 0;
+    int bytesWrittenOrError = 0; // Error if negative
     if (Util.SDK_INT < 21) { // outputMode == OUTPUT_MODE_PCM.
       // Work out how many bytes we can write without the risk of blocking.
       int bytesToWrite = audioTrackPositionTracker.getAvailableBufferSize(writtenPcmBytes);
       if (bytesToWrite > 0) {
         bytesToWrite = min(bytesRemaining, bytesToWrite);
-        bytesWritten = audioTrack.write(preV21OutputBuffer, preV21OutputBufferOffset, bytesToWrite);
-        if (bytesWritten > 0) {
-          preV21OutputBufferOffset += bytesWritten;
-          buffer.position(buffer.position() + bytesWritten);
+        bytesWrittenOrError =
+            audioTrack.write(preV21OutputBuffer, preV21OutputBufferOffset, bytesToWrite);
+        if (bytesWrittenOrError > 0) { // No error
+          preV21OutputBufferOffset += bytesWrittenOrError;
+          buffer.position(buffer.position() + bytesWrittenOrError);
         }
       }
     } else if (tunneling) {
       Assertions.checkState(avSyncPresentationTimeUs != C.TIME_UNSET);
-      bytesWritten =
+      bytesWrittenOrError =
           writeNonBlockingWithAvSyncV21(
               audioTrack, buffer, bytesRemaining, avSyncPresentationTimeUs);
     } else {
-      bytesWritten = writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
+      bytesWrittenOrError = writeNonBlockingV21(audioTrack, buffer, bytesRemaining);
     }
 
     lastFeedElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
-    if (bytesWritten < 0) {
-      boolean isRecoverable = isAudioTrackDeadObject(bytesWritten);
+    if (bytesWrittenOrError < 0) {
+      int error = bytesWrittenOrError;
+      boolean isRecoverable = isAudioTrackDeadObject(error);
       if (isRecoverable) {
         maybeDisableOffload();
       }
-      throw new WriteException(bytesWritten, isRecoverable);
+      WriteException e = new WriteException(error, isRecoverable);
+      if (listener != null) {
+        listener.onAudioSinkError(e);
+      }
+      throw e;
     }
+    int bytesWritten = bytesWrittenOrError;
 
     if (isOffloadedPlayback(audioTrack)) {
       // After calling AudioTrack.setOffloadEndOfStream, the AudioTrack internally stops and
