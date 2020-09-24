@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +50,10 @@ public final class AdtsExtractorTest {
   public void sample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
-        "media/ts/sample_cbs.adts",
+        "media/ts/sample.adts",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("extractordumps/ts/sample_cbs.adts")
+            .build(),
         simulationConfig);
   }
 
