@@ -336,6 +336,7 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean tunneling;
   private long lastFeedElapsedRealtimeMs;
   private boolean offloadDisabledUntilNextConfiguration;
+  private boolean isWaitingForOffloadEndOfStreamHandled;
 
   /**
    * Creates a new default audio sink.
@@ -712,6 +713,7 @@ public final class DefaultAudioSink implements AudioSink {
           audioTrack.setOffloadEndOfStream();
           audioTrack.setOffloadDelayPadding(
               configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
+          isWaitingForOffloadEndOfStreamHandled = true;
         }
       }
       // Re-apply playback parameters.
@@ -932,13 +934,26 @@ public final class DefaultAudioSink implements AudioSink {
       throw new WriteException(bytesWritten);
     }
 
-    if (playing
-        && listener != null
-        && bytesWritten < bytesRemaining
-        && isOffloadedPlayback(audioTrack)) {
-      long pendingDurationMs =
-          audioTrackPositionTracker.getPendingBufferDurationMs(writtenEncodedFrames);
-      listener.onOffloadBufferFull(pendingDurationMs);
+    if (isOffloadedPlayback(audioTrack)) {
+      // After calling AudioTrack.setOffloadEndOfStream, the AudioTrack internally stops and
+      // restarts during which AudioTrack.write will return 0. This situation must be detected to
+      // prevent reporting the buffer as full even though it is not which could lead ExoPlayer to
+      // sleep forever waiting for a onDataRequest that will never come.
+      if (writtenEncodedFrames > 0) {
+        isWaitingForOffloadEndOfStreamHandled = false;
+      }
+
+      // Consider the offload buffer as full if the AudioTrack is playing and AudioTrack.write could
+      // not write all the data provided to it. This relies on the assumption that AudioTrack.write
+      // always writes as much as possible.
+      if (playing
+          && listener != null
+          && bytesWritten < bytesRemaining
+          && !isWaitingForOffloadEndOfStreamHandled) {
+        long pendingDurationMs =
+            audioTrackPositionTracker.getPendingBufferDurationMs(writtenEncodedFrames);
+        listener.onOffloadBufferFull(pendingDurationMs);
+      }
     }
 
     if (configuration.outputMode == OUTPUT_MODE_PCM) {
@@ -1221,6 +1236,7 @@ public final class DefaultAudioSink implements AudioSink {
     submittedEncodedFrames = 0;
     writtenPcmBytes = 0;
     writtenEncodedFrames = 0;
+    isWaitingForOffloadEndOfStreamHandled = false;
     framesPerEncodedSample = 0;
     mediaPositionParameters =
         new MediaPositionParameters(
