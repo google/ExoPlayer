@@ -1353,6 +1353,7 @@ import java.util.concurrent.TimeoutException;
     private final boolean isPlayingChanged;
     private final boolean playbackParametersChanged;
     private final boolean offloadSchedulingEnabledChanged;
+    private final boolean sleepingForOffloadChanged;
 
     public PlaybackInfoUpdate(
         PlaybackInfo playbackInfo,
@@ -1394,6 +1395,8 @@ import java.util.concurrent.TimeoutException;
           !previousPlaybackInfo.playbackParameters.equals(playbackInfo.playbackParameters);
       offloadSchedulingEnabledChanged =
           previousPlaybackInfo.offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled;
+      sleepingForOffloadChanged =
+          previousPlaybackInfo.sleepingForOffload != playbackInfo.sleepingForOffload;
     }
 
     @SuppressWarnings("deprecation")
@@ -1475,6 +1478,12 @@ import java.util.concurrent.TimeoutException;
             listener ->
                 listener.onExperimentalOffloadSchedulingEnabledChanged(
                     playbackInfo.offloadSchedulingEnabled));
+      }
+      if (sleepingForOffloadChanged) {
+        invokeAll(
+            listenerSnapshot,
+            listener ->
+                listener.onExperimentalSleepingForOffloadChanged(playbackInfo.sleepingForOffload));
       }
     }
 

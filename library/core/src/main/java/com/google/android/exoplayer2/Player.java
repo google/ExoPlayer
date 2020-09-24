@@ -604,6 +604,12 @@ public interface Player {
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
     default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
+    /**
+     * Called when the player has started or finished sleeping for offload.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    default void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {}
   }
 
   /**

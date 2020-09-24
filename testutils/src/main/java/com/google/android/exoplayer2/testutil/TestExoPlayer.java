@@ -467,6 +467,32 @@ public class TestExoPlayer {
   }
 
   /**
+   * Runs tasks of the main {@link Looper} until a {@link
+   * Player.EventListener#onExperimentalSleepingForOffloadChanged(boolean)} callback occurred.
+   *
+   * @param player The {@link Player}.
+   * @param expectedSleepForOffload The expected sleep of offload state.
+   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   *     exceeded.
+   */
+  public static void runUntilSleepingForOffload(Player player, boolean expectedSleepForOffload)
+      throws TimeoutException {
+    verifyMainTestThread(player);
+    AtomicBoolean receiverCallback = new AtomicBoolean(false);
+    Player.EventListener listener =
+        new Player.EventListener() {
+          @Override
+          public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
+            if (sleepingForOffload == expectedSleepForOffload) {
+              receiverCallback.set(true);
+            }
+          }
+        };
+    player.addListener(listener);
+    runMainLooperUntil(receiverCallback::get);
+  }
+
+  /**
    * Runs tasks of the main {@link Looper} until the {@link VideoListener#onRenderedFirstFrame}
    * callback has been called.
    *
@@ -504,7 +530,7 @@ public class TestExoPlayer {
     verifyMainTestThread(player);
     Handler testHandler = Util.createHandlerForCurrentOrMainLooper();
 
-    AtomicBoolean messageHandled = new AtomicBoolean();
+    AtomicBoolean messageHandled = new AtomicBoolean(false);
     player
         .createMessage(
             (messageType, payload) -> {

@@ -67,6 +67,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public final PlaybackParameters playbackParameters;
   /** Whether offload scheduling is enabled for the main player loop. */
   public final boolean offloadSchedulingEnabled;
+  /** Whether the main player loop is sleeping, while using offload scheduling. */
+  public final boolean sleepingForOffload;
 
   /**
    * Position up to which media is buffered in {@link #loadingMediaPeriodId) relative to the start
@@ -109,7 +111,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         /* bufferedPositionUs= */ 0,
         /* totalBufferedDurationUs= */ 0,
         /* positionUs= */ 0,
-        /* offloadSchedulingEnabled= */ false);
+        /* offloadSchedulingEnabled= */ false,
+        /* sleepingForOffload= */ false);
   }
 
   /**
@@ -131,6 +134,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * @param totalBufferedDurationUs See {@link #totalBufferedDurationUs}.
    * @param positionUs See {@link #positionUs}.
    * @param offloadSchedulingEnabled See {@link #offloadSchedulingEnabled}.
+   * @param sleepingForOffload See {@link #sleepingForOffload}.
    */
   public PlaybackInfo(
       Timeline timeline,
@@ -148,7 +152,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long bufferedPositionUs,
       long totalBufferedDurationUs,
       long positionUs,
-      boolean offloadSchedulingEnabled) {
+      boolean offloadSchedulingEnabled,
+      boolean sleepingForOffload) {
     this.timeline = timeline;
     this.periodId = periodId;
     this.requestedContentPositionUs = requestedContentPositionUs;
@@ -165,6 +170,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.totalBufferedDurationUs = totalBufferedDurationUs;
     this.positionUs = positionUs;
     this.offloadSchedulingEnabled = offloadSchedulingEnabled;
+    this.sleepingForOffload = sleepingForOffload;
   }
 
   /** Returns a placeholder period id for an empty timeline. */
@@ -209,7 +215,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -236,7 +243,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -263,7 +271,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -290,7 +299,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -317,7 +327,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -344,7 +355,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -375,7 +387,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -402,7 +415,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -430,6 +444,35 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         bufferedPositionUs,
         totalBufferedDurationUs,
         positionUs,
-        offloadSchedulingEnabled);
+        offloadSchedulingEnabled,
+        sleepingForOffload);
+  }
+
+  /**
+   * Copies playback info with new sleepingForOffload.
+   *
+   * @param sleepingForOffload New main player loop sleeping state. See {@link #sleepingForOffload}.
+   * @return Copied playback info with new main player loop sleeping state.
+   */
+  @CheckResult
+  public PlaybackInfo copyWithSleepingForOffload(boolean sleepingForOffload) {
+    return new PlaybackInfo(
+        timeline,
+        periodId,
+        requestedContentPositionUs,
+        playbackState,
+        playbackError,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        playWhenReady,
+        playbackSuppressionReason,
+        playbackParameters,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 }

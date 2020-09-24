@@ -960,13 +960,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
       playbackInfo = playbackInfo.copyWithOffloadSchedulingEnabled(offloadSchedulingEnabled);
     }
 
+    boolean sleepingForOffload = false;
     if ((shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY)
         || playbackInfo.playbackState == Player.STATE_BUFFERING) {
-      maybeScheduleWakeup(operationStartTimeMs, ACTIVE_INTERVAL_MS);
+      sleepingForOffload = !maybeScheduleWakeup(operationStartTimeMs, ACTIVE_INTERVAL_MS);
     } else if (enabledRendererCount != 0 && playbackInfo.playbackState != Player.STATE_ENDED) {
       scheduleNextWork(operationStartTimeMs, IDLE_INTERVAL_MS);
     } else {
       handler.removeMessages(MSG_DO_SOME_WORK);
+    }
+    if (playbackInfo.sleepingForOffload != sleepingForOffload) {
+      playbackInfo = playbackInfo.copyWithSleepingForOffload(sleepingForOffload);
     }
     requestForRendererSleep = false; // A sleep request is only valid for the current doSomeWork.
 
@@ -978,12 +982,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handler.sendEmptyMessageAtTime(MSG_DO_SOME_WORK, thisOperationStartTimeMs + intervalMs);
   }
 
-  private void maybeScheduleWakeup(long operationStartTimeMs, long intervalMs) {
+  private boolean maybeScheduleWakeup(long operationStartTimeMs, long intervalMs) {
     if (offloadSchedulingEnabled && requestForRendererSleep) {
-      return;
+      return false;
     }
 
     scheduleNextWork(operationStartTimeMs, intervalMs);
+    return true;
   }
 
   private void seekToInternal(SeekPosition seekPosition) throws ExoPlaybackException {
@@ -1308,7 +1313,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
             startPositionUs,
             /* totalBufferedDurationUs= */ 0,
             startPositionUs,
-            offloadSchedulingEnabled);
+            offloadSchedulingEnabled,
+            /* sleepingForOffload= */ false);
     if (releaseMediaSourceList) {
       mediaSourceList.release();
     }
