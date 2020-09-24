@@ -27,6 +27,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 
 /**
  * Static utility to retrieve the device time offset using SNTP.
@@ -36,6 +37,9 @@ import java.util.Arrays;
  * framework SntpClient</a>.
  */
 public final class SntpClient {
+
+  /** The default NTP host address used to retrieve {@link #getElapsedRealtimeOffsetMs()}. */
+  public static final String DEFAULT_NTP_HOST = "time.android.com";
 
   /** Callback for calls to {@link #initialize(Loader, InitializationCallback)}. */
   public interface InitializationCallback {
@@ -51,7 +55,6 @@ public final class SntpClient {
     void onInitializationFailed(IOException error);
   }
 
-  private static final String NTP_HOST = "pool.ntp.org";
   private static final int TIMEOUT_MS = 10_000;
 
   private static final int ORIGINATE_TIME_OFFSET = 24;
@@ -80,7 +83,36 @@ public final class SntpClient {
   @GuardedBy("valueLock")
   private static long elapsedRealtimeOffsetMs;
 
+  @GuardedBy("valueLock")
+  private static String ntpHost = DEFAULT_NTP_HOST;
+
   private SntpClient() {}
+
+  /** Returns the NTP host address used to retrieve {@link #getElapsedRealtimeOffsetMs()}. */
+  public static String getNtpHost() {
+    synchronized (valueLock) {
+      return ntpHost;
+    }
+  }
+
+  /**
+   * Sets the NTP host address used to retrieve {@link #getElapsedRealtimeOffsetMs()}.
+   *
+   * <p>The default is {@link #DEFAULT_NTP_HOST}.
+   *
+   * <p>If the new host address is different from the previous one, the NTP client will be {@link
+   * #isInitialized()} uninitialized} again.
+   *
+   * @param ntpHost The NTP host address.
+   */
+  public static void setNtpHost(String ntpHost) {
+    synchronized (valueLock) {
+      if (!SntpClient.ntpHost.equals(ntpHost)) {
+        SntpClient.ntpHost = ntpHost;
+        isInitialized = false;
+      }
+    }
+  }
 
   /**
    * Returns whether the device time offset has already been loaded.
@@ -129,7 +161,7 @@ public final class SntpClient {
   }
 
   private static long loadNtpTimeOffsetMs() throws IOException {
-    InetAddress address = InetAddress.getByName(NTP_HOST);
+    InetAddress address = InetAddress.getByName(getNtpHost());
     try (DatagramSocket socket = new DatagramSocket()) {
       socket.setSoTimeout(TIMEOUT_MS);
       byte[] buffer = new byte[NTP_PACKET_SIZE];
@@ -282,9 +314,14 @@ public final class SntpClient {
 
     @Override
     public void onLoadCompleted(Loadable loadable, long elapsedRealtimeMs, long loadDurationMs) {
-      Assertions.checkState(SntpClient.isInitialized());
       if (callback != null) {
-        callback.onInitialized();
+        if (!SntpClient.isInitialized()) {
+          // This may happen in the unlikely edge case of someone calling setNtpHost between the end
+          // of the load method and this callback.
+          callback.onInitializationFailed(new IOException(new ConcurrentModificationException()));
+        } else {
+          callback.onInitialized();
+        }
       }
     }
 
