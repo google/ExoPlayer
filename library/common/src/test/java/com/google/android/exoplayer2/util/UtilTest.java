@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Util.binarySearchCeil;
 import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
+import static com.google.android.exoplayer2.util.Util.getStringForTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
@@ -37,6 +38,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.Random;
 import java.util.zip.Deflater;
 import org.junit.Test;
@@ -1080,6 +1082,12 @@ public class UtilTest {
     SQLiteDatabase database = getInMemorySQLiteOpenHelper().getReadableDatabase();
 
     assertThat(Util.tableExists(database, "table")).isFalse();
+  }
+
+  @Test
+  public void getStringForTime_withNegativeTime_setsNegativePrefix() {
+    assertThat(getStringForTime(new StringBuilder(), new Formatter(), /* timeMs= */ -35000))
+        .isEqualTo("-00:35");
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
