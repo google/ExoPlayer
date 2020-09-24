@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.audio;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -234,28 +233,6 @@ public final class DefaultAudioSink implements AudioSink {
   private static final int BUFFER_MULTIPLICATION_FACTOR = 4;
   /** To avoid underruns on some devices (e.g., Broadcom 7271), scale up the AC3 buffer duration. */
   private static final int AC3_BUFFER_MULTIPLICATION_FACTOR = 2;
-
-  /**
-   * @see AudioTrack#ERROR_BAD_VALUE
-   */
-  private static final int ERROR_BAD_VALUE = AudioTrack.ERROR_BAD_VALUE;
-  /**
-   * @see AudioTrack#MODE_STATIC
-   */
-  private static final int MODE_STATIC = AudioTrack.MODE_STATIC;
-  /**
-   * @see AudioTrack#MODE_STREAM
-   */
-  private static final int MODE_STREAM = AudioTrack.MODE_STREAM;
-  /**
-   * @see AudioTrack#STATE_INITIALIZED
-   */
-  private static final int STATE_INITIALIZED = AudioTrack.STATE_INITIALIZED;
-  /**
-   * @see AudioTrack#WRITE_NON_BLOCKING
-   */
-  @SuppressLint("InlinedApi")
-  private static final int WRITE_NON_BLOCKING = AudioTrack.WRITE_NON_BLOCKING;
 
   private static final String TAG = "AudioTrack";
 
@@ -1542,7 +1519,7 @@ public final class DefaultAudioSink implements AudioSink {
         channelConfig,
         encoding,
         bufferSize,
-        MODE_STATIC,
+        AudioTrack.MODE_STATIC,
         audioSessionId);
   }
 
@@ -1636,7 +1613,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   @RequiresApi(21)
   private static int writeNonBlockingV21(AudioTrack audioTrack, ByteBuffer buffer, int size) {
-    return audioTrack.write(buffer, size, WRITE_NON_BLOCKING);
+    return audioTrack.write(buffer, size, AudioTrack.WRITE_NON_BLOCKING);
   }
 
   @RequiresApi(21)
@@ -1644,7 +1621,8 @@ public final class DefaultAudioSink implements AudioSink {
       AudioTrack audioTrack, ByteBuffer buffer, int size, long presentationTimeUs) {
     if (Util.SDK_INT >= 26) {
       // The underlying platform AudioTrack writes AV sync headers directly.
-      return audioTrack.write(buffer, size, WRITE_NON_BLOCKING, presentationTimeUs * 1000);
+      return audioTrack.write(
+          buffer, size, AudioTrack.WRITE_NON_BLOCKING, presentationTimeUs * 1000);
     }
     if (avSyncHeader == null) {
       avSyncHeader = ByteBuffer.allocate(16);
@@ -1659,7 +1637,8 @@ public final class DefaultAudioSink implements AudioSink {
     }
     int avSyncHeaderBytesRemaining = avSyncHeader.remaining();
     if (avSyncHeaderBytesRemaining > 0) {
-      int result = audioTrack.write(avSyncHeader, avSyncHeaderBytesRemaining, WRITE_NON_BLOCKING);
+      int result =
+          audioTrack.write(avSyncHeader, avSyncHeaderBytesRemaining, AudioTrack.WRITE_NON_BLOCKING);
       if (result < 0) {
         bytesUntilNextAvSync = 0;
         return result;
@@ -1910,7 +1889,7 @@ public final class DefaultAudioSink implements AudioSink {
       }
 
       int state = audioTrack.getState();
-      if (state != STATE_INITIALIZED) {
+      if (state != AudioTrack.STATE_INITIALIZED) {
         try {
           audioTrack.release();
         } catch (Exception e) {
@@ -1957,7 +1936,7 @@ public final class DefaultAudioSink implements AudioSink {
           getAudioTrackAttributesV21(audioAttributes, tunneling),
           getAudioFormat(outputSampleRate, outputChannelConfig, outputEncoding),
           bufferSize,
-          MODE_STREAM,
+          AudioTrack.MODE_STREAM,
           audioSessionId);
     }
 
@@ -1970,7 +1949,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputChannelConfig,
             outputEncoding,
             bufferSize,
-            MODE_STREAM);
+            AudioTrack.MODE_STREAM);
       } else {
         // Re-attach to the same audio session.
         return new AudioTrack(
@@ -1979,7 +1958,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputChannelConfig,
             outputEncoding,
             bufferSize,
-            MODE_STREAM,
+            AudioTrack.MODE_STREAM,
             audioSessionId);
       }
     }
@@ -2013,7 +1992,7 @@ public final class DefaultAudioSink implements AudioSink {
     private int getPcmDefaultBufferSize(float maxAudioTrackPlaybackSpeed) {
       int minBufferSize =
           AudioTrack.getMinBufferSize(outputSampleRate, outputChannelConfig, outputEncoding);
-      Assertions.checkState(minBufferSize != ERROR_BAD_VALUE);
+      Assertions.checkState(minBufferSize != AudioTrack.ERROR_BAD_VALUE);
       int multipliedBufferSize = minBufferSize * BUFFER_MULTIPLICATION_FACTOR;
       int minAppBufferSize = (int) durationUsToFrames(MIN_BUFFER_DURATION_US) * outputPcmFrameSize;
       int maxAppBufferSize =
