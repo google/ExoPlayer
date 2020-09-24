@@ -2413,5 +2413,15 @@ public class SimpleExoPlayer extends BasePlayer
         boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
       updateWakeAndWifiLock();
     }
+
+    @Override
+    public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
+      if (sleepingForOffload) {
+        // The wifi lock is not released to avoid interrupting downloads.
+        wakeLockManager.setStayAwake(false);
+      } else {
+        updateWakeAndWifiLock();
+      }
+    }
   }
 }
