@@ -302,7 +302,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         } else {
           chunkIterators[i] =
               new RepresentationSegmentIterator(
-                  representationHolder, segmentNum, lastAvailableSegmentNum);
+                  representationHolder, segmentNum, lastAvailableSegmentNum, nowUnixTimeUs);
         }
       }
     }
@@ -394,7 +394,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
             trackSelection.getSelectionData(),
             segmentNum,
             maxSegmentCount,
-            seekTimeUs);
+            seekTimeUs,
+            nowUnixTimeUs);
   }
 
   @Override
@@ -516,7 +517,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     } else {
       requestUri = indexUri;
     }
-    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri);
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, /* flags= */ 0);
     return new InitializationChunk(
         dataSource,
         dataSpec,
@@ -535,14 +536,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
       Object trackSelectionData,
       long firstSegmentNum,
       int maxSegmentCount,
-      long seekTimeUs) {
+      long seekTimeUs,
+      long nowUnixTimeUs) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
     String baseUrl = representation.baseUrl;
     if (representationHolder.chunkExtractor == null) {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum);
-      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri);
+      int flags =
+          representationHolder.isSegmentAvailableAtFullNetworkSpeed(firstSegmentNum, nowUnixTimeUs)
+              ? 0
+              : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
       return new SingleSampleMediaChunk(dataSource, dataSpec, trackFormat, trackSelectionReason,
           trackSelectionData, startTimeUs, endTimeUs, firstSegmentNum, trackType, trackFormat);
     } else {
@@ -557,13 +563,18 @@ public class DefaultDashChunkSource implements DashChunkSource {
         segmentUri = mergedSegmentUri;
         segmentCount++;
       }
-      long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum + segmentCount - 1);
+      long segmentNum = firstSegmentNum + segmentCount - 1;
+      long endTimeUs = representationHolder.getSegmentEndTimeUs(segmentNum);
       long periodDurationUs = representationHolder.periodDurationUs;
       long clippedEndTimeUs =
           periodDurationUs != C.TIME_UNSET && periodDurationUs <= endTimeUs
               ? periodDurationUs
               : C.TIME_UNSET;
-      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri);
+      int flags =
+          representationHolder.isSegmentAvailableAtFullNetworkSpeed(segmentNum, nowUnixTimeUs)
+              ? 0
+              : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
+      DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
@@ -588,6 +599,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   protected static final class RepresentationSegmentIterator extends BaseMediaChunkIterator {
 
     private final RepresentationHolder representationHolder;
+    private final long currentUnixTimeUs;
 
     /**
      * Creates iterator.
@@ -595,20 +607,29 @@ public class DefaultDashChunkSource implements DashChunkSource {
      * @param representation The {@link RepresentationHolder} to wrap.
      * @param firstAvailableSegmentNum The number of the first available segment.
      * @param lastAvailableSegmentNum The number of the last available segment.
+     * @param currentUnixTimeUs The current time in microseconds since the epoch used for
+     *     calculating if segments are available at full network speed.
      */
     public RepresentationSegmentIterator(
         RepresentationHolder representation,
         long firstAvailableSegmentNum,
-        long lastAvailableSegmentNum) {
+        long lastAvailableSegmentNum,
+        long currentUnixTimeUs) {
       super(/* fromIndex= */ firstAvailableSegmentNum, /* toIndex= */ lastAvailableSegmentNum);
       this.representationHolder = representation;
+      this.currentUnixTimeUs = currentUnixTimeUs;
     }
 
     @Override
     public DataSpec getDataSpec() {
       checkInBounds();
-      RangedUri segmentUri = representationHolder.getSegmentUrl(getCurrentIndex());
-      return DashUtil.buildDataSpec(representationHolder.representation, segmentUri);
+      long currentIndex = getCurrentIndex();
+      RangedUri segmentUri = representationHolder.getSegmentUrl(currentIndex);
+      int flags =
+          representationHolder.isSegmentAvailableAtFullNetworkSpeed(currentIndex, currentUnixTimeUs)
+              ? 0
+              : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
+      return DashUtil.buildDataSpec(representationHolder.representation, segmentUri, flags);
     }
 
     @Override
@@ -766,6 +787,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return getFirstAvailableSegmentNum(nowUnixTimeUs)
           + segmentIndex.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs)
           - 1;
+    }
+
+    public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowUnixTimeUs) {
+      return getSegmentEndTimeUs(segmentNum) <= nowUnixTimeUs;
     }
 
     @Nullable
