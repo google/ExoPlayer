@@ -69,59 +69,33 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long pendingFlushCount;
 
   private @State int state;
-  private final MediaCodecInputBufferEnqueuer bufferEnqueuer;
+  private final AsynchronousMediaCodecBufferEnqueuer bufferEnqueuer;
 
   @GuardedBy("lock")
   @Nullable
   private IllegalStateException internalException;
 
   /**
-   * Creates an instance that wraps the specified {@link MediaCodec}. Instances created with this
-   * constructor will queue input buffers to the {@link MediaCodec} synchronously.
+   * Creates an instance that wraps the specified {@link MediaCodec}.
    *
    * @param codec The {@link MediaCodec} to wrap.
    * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
    *     labelling the internal thread accordingly.
    */
   /* package */ AsynchronousMediaCodecAdapter(MediaCodec codec, int trackType) {
-    this(
-        codec,
-        /* enableAsynchronousQueueing= */ false,
-        trackType,
-        new HandlerThread(createThreadLabel(trackType)));
-  }
-
-  /**
-   * Creates an instance that wraps the specified {@link MediaCodec}.
-   *
-   * @param codec The {@link MediaCodec} to wrap.
-   * @param enableAsynchronousQueueing Whether input buffers will be queued asynchronously.
-   * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
-   *     labelling the internal thread accordingly.
-   */
-  /* package */ AsynchronousMediaCodecAdapter(
-      MediaCodec codec, boolean enableAsynchronousQueueing, int trackType) {
-    this(
-        codec,
-        enableAsynchronousQueueing,
-        trackType,
-        new HandlerThread(createThreadLabel(trackType)));
+    this(codec, trackType, new HandlerThread(createThreadLabel(trackType)));
   }
 
   @VisibleForTesting
   /* package */ AsynchronousMediaCodecAdapter(
       MediaCodec codec,
-      boolean enableAsynchronousQueueing,
       int trackType,
       HandlerThread handlerThread) {
     this.lock = new Object();
     this.mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
     this.codec = codec;
     this.handlerThread = handlerThread;
-    this.bufferEnqueuer =
-        enableAsynchronousQueueing
-            ? new AsynchronousMediaCodecBufferEnqueuer(codec, trackType)
-            : new SynchronousMediaCodecBufferEnqueuer(this.codec);
+    this.bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, trackType);
     this.state = STATE_CREATED;
   }
 

@@ -48,7 +48,6 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter =
         new AsynchronousMediaCodecAdapter(
             codec,
-            /* enableAsynchronousQueueing= */ false,
             /* trackType= */ C.TRACK_TYPE_VIDEO,
             handlerThread);
     bufferInfo = new MediaCodec.BufferInfo();

@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.mediacodec;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doAnswer;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -28,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Before;
@@ -64,6 +66,33 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     codec.stop();
     codec.release();
     assertThat(TestHandlerThread.INSTANCES_STARTED.get()).isEqualTo(0);
+  }
+
+  @Test
+  public void queueInputBuffer_queuesInputBufferOnMediaCodec() {
+    enqueuer.start();
+    int inputBufferIndex = codec.dequeueInputBuffer(0);
+    assertThat(inputBufferIndex).isAtLeast(0);
+    byte[] inputData = new byte[] {0, 1, 2, 3};
+    codec.getInputBuffer(inputBufferIndex).put(inputData);
+
+    enqueuer.queueInputBuffer(
+        inputBufferIndex,
+        /* offset= */ 0,
+        /* size= */ 4,
+        /* presentationTimeUs= */ 0,
+        /* flags= */ 0);
+    shadowOf(handlerThread.getLooper()).idle();
+
+    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+    assertThat(codec.dequeueOutputBuffer(bufferInfo, 0))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(codec.dequeueOutputBuffer(bufferInfo, 0)).isEqualTo(inputBufferIndex);
+    ByteBuffer outputBuffer = codec.getOutputBuffer(inputBufferIndex);
+    assertThat(outputBuffer.limit()).isEqualTo(4);
+    byte[] outputData = new byte[4];
+    outputBuffer.get(outputData);
+    assertThat(outputData).isEqualTo(inputData);
   }
 
   @Test
@@ -111,7 +140,7 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
             enqueuer.queueSecureInputBuffer(
                 /* index= */ 0,
                 /* offset= */ 0,
-                /* info= */ info,
+                info,
                 /* presentationTimeUs= */ 0,
                 /* flags= */ 0));
   }

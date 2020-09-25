@@ -1056,13 +1056,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       TraceUtil.beginSection("createCodec:" + codecName);
       codec = MediaCodec.createByCodecName(codecName);
       if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
-        codecAdapter =
-            new AsynchronousMediaCodecAdapter(
-                codec, /* enableAsynchronousQueueing= */ true, getTrackType());
+        codecAdapter = new AsynchronousMediaCodecAdapter(codec, getTrackType());
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec);
       }
-
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");
       configureCodec(codecInfo, codecAdapter, inputFormat, crypto, codecOperatingRate);

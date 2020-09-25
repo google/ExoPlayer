@@ -37,13 +37,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link MediaCodecInputBufferEnqueuer} that defers queueing operations on a background thread.
+ * Performs {@link MediaCodec} input buffer queueing on a background thread.
  *
  * <p>The implementation of this class assumes that its public methods will be called from the same
  * thread.
  */
 @RequiresApi(23)
-class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnqueuer {
+class AsynchronousMediaCodecBufferEnqueuer {
 
   private static final int MSG_QUEUE_INPUT_BUFFER = 0;
   private static final int MSG_QUEUE_SECURE_INPUT_BUFFER = 1;
@@ -85,7 +85,11 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     needsSynchronizationWorkaround = needsSynchronizationWorkaround();
   }
 
-  @Override
+  /**
+   * Starts this instance.
+   *
+   * <p>Call this method after creating an instance and before queueing input buffers.
+   */
   public void start() {
     if (!started) {
       handlerThread.start();
@@ -100,7 +104,11 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     }
   }
 
-  @Override
+  /**
+   * Submits an input buffer for decoding.
+   *
+   * @see android.media.MediaCodec#queueInputBuffer
+   */
   public void queueInputBuffer(
       int index, int offset, int size, long presentationTimeUs, int flags) {
     maybeThrowException();
@@ -111,7 +119,15 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     message.sendToTarget();
   }
 
-  @Override
+  /**
+   * Submits an input buffer that potentially contains encrypted data for decoding.
+   *
+   * <p>Note: This method behaves as {@link MediaCodec#queueSecureInputBuffer} with the difference
+   * that {@code info} is of type {@link CryptoInfo} and not {@link
+   * android.media.MediaCodec.CryptoInfo}.
+   *
+   * @see android.media.MediaCodec#queueSecureInputBuffer
+   */
   public void queueSecureInputBuffer(
       int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
     maybeThrowException();
@@ -123,7 +139,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     message.sendToTarget();
   }
 
-  @Override
+  /** Flushes the instance. */
   public void flush() {
     if (started) {
       try {
@@ -137,7 +153,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     }
   }
 
-  @Override
+  /** Shut down the instance. Make sure to call this method to release its internal resources. */
   public void shutdown() {
     if (started) {
       flush();
@@ -146,36 +162,8 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     started = false;
   }
 
-  private void doHandleMessage(Message msg) {
-    MessageParams params = null;
-    switch (msg.what) {
-      case MSG_QUEUE_INPUT_BUFFER:
-        params = (MessageParams) msg.obj;
-        doQueueInputBuffer(
-            params.index, params.offset, params.size, params.presentationTimeUs, params.flags);
-        break;
-      case MSG_QUEUE_SECURE_INPUT_BUFFER:
-        params = (MessageParams) msg.obj;
-        doQueueSecureInputBuffer(
-            params.index,
-            params.offset,
-            params.cryptoInfo,
-            params.presentationTimeUs,
-            params.flags);
-        break;
-      case MSG_FLUSH:
-        conditionVariable.open();
-        break;
-      default:
-        setPendingRuntimeException(new IllegalStateException(String.valueOf(msg.what)));
-    }
-    if (params != null) {
-      recycleMessageParams(params);
-    }
-  }
-
   private void maybeThrowException() {
-    RuntimeException exception = pendingRuntimeException.getAndSet(null);
+    @Nullable RuntimeException exception = pendingRuntimeException.getAndSet(null);
     if (exception != null) {
       throw exception;
     }
@@ -202,6 +190,34 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     pendingRuntimeException.set(exception);
   }
 
+  private void doHandleMessage(Message msg) {
+    @Nullable MessageParams params = null;
+    switch (msg.what) {
+      case MSG_QUEUE_INPUT_BUFFER:
+        params = (MessageParams) msg.obj;
+        doQueueInputBuffer(
+            params.index, params.offset, params.size, params.presentationTimeUs, params.flags);
+        break;
+      case MSG_QUEUE_SECURE_INPUT_BUFFER:
+        params = (MessageParams) msg.obj;
+        doQueueSecureInputBuffer(
+            params.index,
+            params.offset,
+            params.cryptoInfo,
+            params.presentationTimeUs,
+            params.flags);
+        break;
+      case MSG_FLUSH:
+        conditionVariable.open();
+        break;
+      default:
+        setPendingRuntimeException(new IllegalStateException(String.valueOf(msg.what)));
+    }
+    if (params != null) {
+      recycleMessageParams(params);
+    }
+  }
+
   private void doQueueInputBuffer(
       int index, int offset, int size, long presentationTimeUs, int flag) {
     try {
@@ -223,13 +239,6 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
       }
     } catch (RuntimeException e) {
       setPendingRuntimeException(e);
-    }
-  }
-
-  @VisibleForTesting
-  /* package */ static int getInstancePoolSize() {
-    synchronized (MESSAGE_PARAMS_INSTANCE_POOL) {
-      return MESSAGE_PARAMS_INSTANCE_POOL.size();
     }
   }
 
