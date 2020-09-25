@@ -24,6 +24,10 @@
         ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
     *   Use TLEN ID3 tag to compute the duration in Mp3Extractor
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
+*   UI
+    *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
+        `TrackSelectionDialogBuilder`
+        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
 
 ### 2.12.0 (2020-09-11) ###
 
