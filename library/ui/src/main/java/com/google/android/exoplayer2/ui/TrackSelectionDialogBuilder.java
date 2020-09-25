@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
@@ -32,6 +33,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedT
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import java.lang.reflect.Constructor;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /** Builder for a dialog with a {@link TrackSelectionView}. */
@@ -62,6 +64,7 @@ public final class TrackSelectionDialogBuilder {
   @Nullable private TrackNameProvider trackNameProvider;
   private boolean isDisabled;
   private List<SelectionOverride> overrides;
+  @Nullable private Comparator<Format> trackFormatComparator;
 
   /**
    * Creates a builder for a track selection dialog.
@@ -209,6 +212,16 @@ public final class TrackSelectionDialogBuilder {
   }
 
   /**
+   * Sets a {@link Comparator} used to determine the display order of the tracks within each track
+   * group.
+   *
+   * @param trackFormatComparator The comparator, or {@code null} to use the original order.
+   */
+  public void setTrackFormatComparator(@Nullable Comparator<Format> trackFormatComparator) {
+    this.trackFormatComparator = trackFormatComparator;
+  }
+
+  /**
    * Sets the {@link TrackNameProvider} used to generate the user visible name of each track and
    * updates the view with track names queried from the specified provider.
    *
@@ -287,7 +300,13 @@ public final class TrackSelectionDialogBuilder {
     if (trackNameProvider != null) {
       selectionView.setTrackNameProvider(trackNameProvider);
     }
-    selectionView.init(mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ null);
+    selectionView.init(
+        mappedTrackInfo,
+        rendererIndex,
+        isDisabled,
+        overrides,
+        trackFormatComparator,
+        /* listener= */ null);
     return (dialog, which) ->
         callback.onTracksSelected(selectionView.getIsDisabled(), selectionView.getOverrides());
   }
