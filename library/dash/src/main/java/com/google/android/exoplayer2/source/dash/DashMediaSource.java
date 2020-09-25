@@ -1032,20 +1032,21 @@ public final class DashMediaSource extends BaseMediaSource {
     // Update the window.
     boolean windowChangingImplicitly = false;
     int lastPeriodIndex = manifest.getPeriodCount() - 1;
-    PeriodSeekInfo firstPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(manifest.getPeriod(0),
-        manifest.getPeriodDurationUs(0));
-    PeriodSeekInfo lastPeriodSeekInfo = PeriodSeekInfo.createPeriodSeekInfo(
-        manifest.getPeriod(lastPeriodIndex), manifest.getPeriodDurationUs(lastPeriodIndex));
+    Period lastPeriod = manifest.getPeriod(lastPeriodIndex);
+    long lastPeriodDurationUs = manifest.getPeriodDurationUs(lastPeriodIndex);
+    long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
+    PeriodSeekInfo firstPeriodSeekInfo =
+        PeriodSeekInfo.createPeriodSeekInfo(
+            manifest.getPeriod(0), manifest.getPeriodDurationUs(0), nowUnixTimeUs);
+    PeriodSeekInfo lastPeriodSeekInfo =
+        PeriodSeekInfo.createPeriodSeekInfo(lastPeriod, lastPeriodDurationUs, nowUnixTimeUs);
     // Get the period-relative start/end times.
     long currentStartTimeUs = firstPeriodSeekInfo.availableStartTimeUs;
     long currentEndTimeUs = lastPeriodSeekInfo.availableEndTimeUs;
     if (manifest.dynamic && !lastPeriodSeekInfo.isIndexExplicit) {
       // The manifest describes an incomplete live stream. Update the start/end times to reflect the
       // live stream duration and the manifest's time shift buffer depth.
-      long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
-      long liveStreamDurationUs = nowUnixTimeUs - C.msToUs(manifest.availabilityStartTimeMs);
-      long liveStreamEndPositionInLastPeriodUs = liveStreamDurationUs
-          - C.msToUs(manifest.getPeriod(lastPeriodIndex).startMs);
+      long liveStreamEndPositionInLastPeriodUs = currentEndTimeUs - C.msToUs(lastPeriod.startMs);
       currentEndTimeUs = min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
       if (manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
         long timeShiftBufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
@@ -1098,7 +1099,7 @@ public final class DashMediaSource extends BaseMediaSource {
             windowStartTimeMs,
             elapsedRealtimeOffsetMs,
             firstPeriodId,
-            currentStartTimeUs,
+            /* offsetInFirstPeriodUs= */ currentStartTimeUs,
             windowDurationUs,
             windowDefaultStartPositionUs,
             manifest,
@@ -1207,7 +1208,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private static final class PeriodSeekInfo {
 
     public static PeriodSeekInfo createPeriodSeekInfo(
-        com.google.android.exoplayer2.source.dash.manifest.Period period, long durationUs) {
+        Period period, long periodDurationUs, long nowUnixTimeUs) {
       int adaptationSetCount = period.adaptationSets.size();
       long availableStartTimeUs = 0;
       long availableEndTimeUs = Long.MAX_VALUE;
@@ -1225,32 +1226,37 @@ public final class DashMediaSource extends BaseMediaSource {
 
       for (int i = 0; i < adaptationSetCount; i++) {
         AdaptationSet adaptationSet = period.adaptationSets.get(i);
+        List<Representation> representations = adaptationSet.representations;
         // Exclude text adaptation sets from duration calculations, if we have at least one audio
         // or video adaptation set. See: https://github.com/google/ExoPlayer/issues/4029
-        if (haveAudioVideoAdaptationSets && adaptationSet.type == C.TRACK_TYPE_TEXT) {
+        if ((haveAudioVideoAdaptationSets && adaptationSet.type == C.TRACK_TYPE_TEXT)
+            || representations.isEmpty()) {
           continue;
         }
 
-        DashSegmentIndex index = adaptationSet.representations.get(0).getIndex();
+        @Nullable DashSegmentIndex index = representations.get(0).getIndex();
         if (index == null) {
-          return new PeriodSeekInfo(true, 0, durationUs);
+          return new PeriodSeekInfo(
+              /* isIndexExplicit= */ true,
+              /* availableStartTimeUs= */ 0,
+              /* availableEndTimeUs= */ periodDurationUs);
         }
         isIndexExplicit |= index.isExplicit();
-        int segmentCount = index.getSegmentCount(durationUs);
-        if (segmentCount == 0) {
+        int availableSegmentCount = index.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
+        if (availableSegmentCount == 0) {
           seenEmptyIndex = true;
           availableStartTimeUs = 0;
           availableEndTimeUs = 0;
         } else if (!seenEmptyIndex) {
-          long firstSegmentNum = index.getFirstSegmentNum();
-          long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstSegmentNum);
+          long firstAvailableSegmentNum =
+              index.getFirstAvailableSegmentNum(periodDurationUs, nowUnixTimeUs);
+          long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstAvailableSegmentNum);
           availableStartTimeUs = max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
-          if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED) {
-            long lastSegmentNum = firstSegmentNum + segmentCount - 1;
-            long adaptationSetAvailableEndTimeUs = index.getTimeUs(lastSegmentNum)
-                + index.getDurationUs(lastSegmentNum, durationUs);
-            availableEndTimeUs = min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
-          }
+          long lastAvailableSegmentNum = firstAvailableSegmentNum + availableSegmentCount - 1;
+          long adaptationSetAvailableEndTimeUs =
+              index.getTimeUs(lastAvailableSegmentNum)
+                  + index.getDurationUs(lastAvailableSegmentNum, periodDurationUs);
+          availableEndTimeUs = min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
         }
       }
       return new PeriodSeekInfo(isIndexExplicit, availableStartTimeUs, availableEndTimeUs);
