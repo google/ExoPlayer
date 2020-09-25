@@ -50,6 +50,8 @@ import com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerEmsgCal
 import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
+import com.google.android.exoplayer2.source.dash.manifest.Period;
+import com.google.android.exoplayer2.source.dash.manifest.Representation;
 import com.google.android.exoplayer2.source.dash.manifest.UtcTimingElement;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -68,10 +70,12 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.SntpClient;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
+import com.google.common.math.LongMath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -441,7 +445,7 @@ public final class DashMediaSource extends BaseMediaSource {
    * MediaSourceCaller#onSourceInfoRefreshed(MediaSource, Timeline)} when the source's {@link
    * Timeline} is changing dynamically (for example, for incomplete live streams).
    */
-  private static final int NOTIFY_MANIFEST_INTERVAL_MS = 5000;
+  private static final long DEFAULT_NOTIFY_MANIFEST_INTERVAL_MS = 5000;
   /**
    * The minimum default start position for live streams, relative to the start of the live window.
    */
@@ -1106,7 +1110,10 @@ public final class DashMediaSource extends BaseMediaSource {
       handler.removeCallbacks(simulateManifestRefreshRunnable);
       // If the window is changing implicitly, post a simulated manifest refresh to update it.
       if (windowChangingImplicitly) {
-        handler.postDelayed(simulateManifestRefreshRunnable, NOTIFY_MANIFEST_INTERVAL_MS);
+        handler.postDelayed(
+            simulateManifestRefreshRunnable,
+            getIntervalUntilNextManifestRefreshMs(
+                manifest, Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs)));
       }
       if (manifestLoadPending) {
         startLoadingManifest();
@@ -1163,6 +1170,38 @@ public final class DashMediaSource extends BaseMediaSource {
     manifestEventDispatcher.loadStarted(
         new LoadEventInfo(loadable.loadTaskId, loadable.dataSpec, elapsedRealtimeMs),
         loadable.type);
+  }
+
+  private static long getIntervalUntilNextManifestRefreshMs(
+      DashManifest manifest, long nowUnixTimeMs) {
+    int periodIndex = manifest.getPeriodCount() - 1;
+    Period period = manifest.getPeriod(periodIndex);
+    long periodStartUs = C.msToUs(period.startMs);
+    long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
+    long nowUnixTimeUs = C.msToUs(nowUnixTimeMs);
+    long availabilityStartTimeUs = C.msToUs(manifest.availabilityStartTimeMs);
+    long intervalUs = C.msToUs(DEFAULT_NOTIFY_MANIFEST_INTERVAL_MS);
+    for (int i = 0; i < period.adaptationSets.size(); i++) {
+      List<Representation> representations = period.adaptationSets.get(i).representations;
+      if (representations.isEmpty()) {
+        continue;
+      }
+      @Nullable DashSegmentIndex index = representations.get(0).getIndex();
+      if (index != null) {
+        long nextSegmentShiftUnixTimeUs =
+            availabilityStartTimeUs
+                + periodStartUs
+                + index.getNextSegmentAvailableTimeUs(periodDurationUs, nowUnixTimeUs);
+        long requiredIntervalUs = nextSegmentShiftUnixTimeUs - nowUnixTimeUs;
+        // Avoid multiple refreshes within a very small amount of time.
+        if (requiredIntervalUs < intervalUs - 100_000
+            || (requiredIntervalUs > intervalUs && requiredIntervalUs < intervalUs + 100_000)) {
+          intervalUs = requiredIntervalUs;
+        }
+      }
+    }
+    // Round up to compensate for a potential loss in the us to ms conversion.
+    return LongMath.divide(intervalUs, 1000, RoundingMode.CEILING);
   }
 
   private static final class PeriodSeekInfo {

@@ -102,6 +102,18 @@ public interface DashSegmentIndex {
   int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs);
 
   /**
+   * Returns the time, in microseconds, at which a new segment becomes available, or {@link
+   * C#TIME_UNSET} if not applicable.
+   *
+   * @param periodDurationUs The duration of the enclosing period in microseconds, or {@link
+   *     C#TIME_UNSET} if the period's duration is not yet known.
+   * @param nowUnixTimeUs The current time in milliseconds since the Unix epoch.
+   * @return The time, in microseconds, at which a new segment becomes available, or {@link
+   *     C#TIME_UNSET} if not applicable.
+   */
+  long getNextSegmentAvailableTimeUs(long periodDurationUs, long nowUnixTimeUs);
+
+  /**
    * Returns true if segments are defined explicitly by the index.
    *
    * <p>If true is returned, each segment is defined explicitly by the index data, and all of the

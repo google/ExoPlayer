@@ -19,16 +19,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link Representation}. */
+/** Unit test for {@link SegmentBase}. */
 @RunWith(AndroidJUnit4.class)
-public final class RepresentationTest {
+public final class SegmentBaseTest {
 
   @Test
-  public void getFirstAvailableSegmentNum_multiSegmentRepresentationWithUnboundedTemplate() {
+  public void getFirstAvailableSegmentNum_unboundedSegmentTemplate() {
     long periodStartUnixTimeUs = 123_000_000_000_000L;
     SegmentBase.SegmentTemplate segmentTemplate =
         new SegmentBase.SegmentTemplate(
@@ -41,50 +40,43 @@ public final class RepresentationTest {
             /* segmentTimeline= */ null,
             /* availabilityTimeOffsetUs= */ 500_000,
             /* initializationTemplate= */ null,
-            /* mediaTemplate= */ null);
-    Representation.MultiSegmentRepresentation representation =
-        new Representation.MultiSegmentRepresentation(
-            /* revisionId= */ 0,
-            new Format.Builder().build(),
-            /* baseUrl= */ "https://baseUrl/",
-            segmentTemplate,
-            /* inbandEventStreams= */ null,
-            /* periodStartUnixTimeMs= */ C.usToMs(periodStartUnixTimeUs),
-            /* timeShiftBufferDepthMs= */ 6_000);
+            /* mediaTemplate= */ null,
+            /* timeShiftBufferDepthUs= */ 6_000_000,
+            /* periodStartUnixTimeUs= */ periodStartUnixTimeUs);
 
     assertThat(
-            representation.getFirstAvailableSegmentNum(
+            segmentTemplate.getFirstAvailableSegmentNum(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs - 10_000_000))
         .isEqualTo(42);
     assertThat(
-            representation.getFirstAvailableSegmentNum(
+            segmentTemplate.getFirstAvailableSegmentNum(
                 /* periodDurationUs= */ C.TIME_UNSET, /* nowUnixTimeUs= */ periodStartUnixTimeUs))
         .isEqualTo(42);
     assertThat(
-            representation.getFirstAvailableSegmentNum(
+            segmentTemplate.getFirstAvailableSegmentNum(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 7_999_999))
         .isEqualTo(42);
     assertThat(
-            representation.getFirstAvailableSegmentNum(
+            segmentTemplate.getFirstAvailableSegmentNum(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 8_000_000))
         .isEqualTo(43);
     assertThat(
-            representation.getFirstAvailableSegmentNum(
+            segmentTemplate.getFirstAvailableSegmentNum(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 9_999_999))
         .isEqualTo(43);
     assertThat(
-            representation.getFirstAvailableSegmentNum(
+            segmentTemplate.getFirstAvailableSegmentNum(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 10_000_000))
         .isEqualTo(44);
   }
 
   @Test
-  public void getAvailableSegmentCount_multiSegmentRepresentationWithUnboundedTemplate() {
+  public void getAvailableSegmentCount_unboundedSegmentTemplate() {
     long periodStartUnixTimeUs = 123_000_000_000_000L;
     SegmentBase.SegmentTemplate segmentTemplate =
         new SegmentBase.SegmentTemplate(
@@ -97,55 +89,97 @@ public final class RepresentationTest {
             /* segmentTimeline= */ null,
             /* availabilityTimeOffsetUs= */ 500_000,
             /* initializationTemplate= */ null,
-            /* mediaTemplate= */ null);
-    Representation.MultiSegmentRepresentation representation =
-        new Representation.MultiSegmentRepresentation(
-            /* revisionId= */ 0,
-            new Format.Builder().build(),
-            /* baseUrl= */ "https://baseUrl/",
-            segmentTemplate,
-            /* inbandEventStreams= */ null,
-            /* periodStartUnixTimeMs= */ C.usToMs(periodStartUnixTimeUs),
-            /* timeShiftBufferDepthMs= */ 6_000);
+            /* mediaTemplate= */ null,
+            /* timeShiftBufferDepthUs= */ 6_000_000,
+            /* periodStartUnixTimeUs= */ periodStartUnixTimeUs);
 
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs - 10_000_000))
         .isEqualTo(0);
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET, /* nowUnixTimeUs= */ periodStartUnixTimeUs))
         .isEqualTo(0);
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 1_499_999))
         .isEqualTo(0);
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 1_500_000))
         .isEqualTo(1);
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 7_499_999))
         .isEqualTo(3);
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 7_500_000))
         .isEqualTo(4);
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 7_999_999))
         .isEqualTo(4);
     assertThat(
-            representation.getAvailableSegmentCount(
+            segmentTemplate.getAvailableSegmentCount(
                 /* periodDurationUs= */ C.TIME_UNSET,
                 /* nowUnixTimeUs= */ periodStartUnixTimeUs + 8_000_000))
         .isEqualTo(3);
+  }
+
+  @Test
+  public void getNextSegmentShiftTimeUse_unboundedSegmentTemplate() {
+    long periodStartUnixTimeUs = 123_000_000_000_000L;
+    SegmentBase.SegmentTemplate segmentTemplate =
+        new SegmentBase.SegmentTemplate(
+            /* initialization= */ null,
+            /* timescale= */ 1000,
+            /* presentationTimeOffset= */ 0,
+            /* startNumber= */ 42,
+            /* endNumber= */ C.INDEX_UNSET,
+            /* duration= */ 2000,
+            /* segmentTimeline= */ null,
+            /* availabilityTimeOffsetUs= */ 500_000,
+            /* initializationTemplate= */ null,
+            /* mediaTemplate= */ null,
+            /* timeShiftBufferDepthUs= */ 6_000_000,
+            /* periodStartUnixTimeUs= */ periodStartUnixTimeUs);
+
+    assertThat(
+            segmentTemplate.getNextSegmentAvailableTimeUs(
+                /* periodDurationUs= */ C.TIME_UNSET,
+                /* nowUnixTimeUs= */ periodStartUnixTimeUs - 10_000_000))
+        .isEqualTo(1_500_000);
+    assertThat(
+            segmentTemplate.getNextSegmentAvailableTimeUs(
+                /* periodDurationUs= */ C.TIME_UNSET, /* nowUnixTimeUs= */ periodStartUnixTimeUs))
+        .isEqualTo(1_500_000);
+    assertThat(
+            segmentTemplate.getNextSegmentAvailableTimeUs(
+                /* periodDurationUs= */ C.TIME_UNSET,
+                /* nowUnixTimeUs= */ periodStartUnixTimeUs + 1_499_999))
+        .isEqualTo(1_500_000);
+    assertThat(
+            segmentTemplate.getNextSegmentAvailableTimeUs(
+                /* periodDurationUs= */ C.TIME_UNSET,
+                /* nowUnixTimeUs= */ periodStartUnixTimeUs + 1_500_000))
+        .isEqualTo(3_500_000);
+    assertThat(
+            segmentTemplate.getNextSegmentAvailableTimeUs(
+                /* periodDurationUs= */ C.TIME_UNSET,
+                /* nowUnixTimeUs= */ periodStartUnixTimeUs + 17_499_999))
+        .isEqualTo(17_500_000);
+    assertThat(
+            segmentTemplate.getNextSegmentAvailableTimeUs(
+                /* periodDurationUs= */ C.TIME_UNSET,
+                /* nowUnixTimeUs= */ periodStartUnixTimeUs + 17_500_000))
+        .isEqualTo(19_500_000);
   }
 }

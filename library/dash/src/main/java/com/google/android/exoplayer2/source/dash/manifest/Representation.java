@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
-import static java.lang.Math.max;
-
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -73,14 +71,7 @@ public abstract class Representation {
    */
   public static Representation newInstance(
       long revisionId, Format format, String baseUrl, SegmentBase segmentBase) {
-    return newInstance(
-        revisionId,
-        format,
-        baseUrl,
-        segmentBase,
-        /* inbandEventStreams= */ null,
-        /* periodStartUnixTimeMs= */ C.TIME_UNSET,
-        /* timeShiftBufferDepthMs= */ C.TIME_UNSET);
+    return newInstance(revisionId, format, baseUrl, segmentBase, /* inbandEventStreams= */ null);
   }
 
   /**
@@ -91,9 +82,6 @@ public abstract class Representation {
    * @param baseUrl The base URL.
    * @param segmentBase A segment base element for the representation.
    * @param inbandEventStreams The in-band event streams in the representation. May be null.
-   * @param periodStartUnixTimeMs The start time of the enclosing {@link Period} in milliseconds
-   *     since the Unix epoch, or {@link C#TIME_UNSET} is not applicable.
-   * @param timeShiftBufferDepthMs The {@link DashManifest#timeShiftBufferDepthMs}.
    * @return The constructed instance.
    */
   public static Representation newInstance(
@@ -101,17 +89,13 @@ public abstract class Representation {
       Format format,
       String baseUrl,
       SegmentBase segmentBase,
-      @Nullable List<Descriptor> inbandEventStreams,
-      long periodStartUnixTimeMs,
-      long timeShiftBufferDepthMs) {
+      @Nullable List<Descriptor> inbandEventStreams) {
     return newInstance(
         revisionId,
         format,
         baseUrl,
         segmentBase,
         inbandEventStreams,
-        periodStartUnixTimeMs,
-        timeShiftBufferDepthMs,
         /* cacheKey= */ null);
   }
 
@@ -123,9 +107,6 @@ public abstract class Representation {
    * @param baseUrl The base URL of the representation.
    * @param segmentBase A segment base element for the representation.
    * @param inbandEventStreams The in-band event streams in the representation. May be null.
-   * @param periodStartUnixTimeMs The start time of the enclosing {@link Period} in milliseconds
-   *     since the Unix epoch, or {@link C#TIME_UNSET} is not applicable.
-   * @param timeShiftBufferDepthMs The {@link DashManifest#timeShiftBufferDepthMs}.
    * @param cacheKey An optional key to be returned from {@link #getCacheKey()}, or null. This
    *     parameter is ignored if {@code segmentBase} consists of multiple segments.
    * @return The constructed instance.
@@ -136,8 +117,6 @@ public abstract class Representation {
       String baseUrl,
       SegmentBase segmentBase,
       @Nullable List<Descriptor> inbandEventStreams,
-      long periodStartUnixTimeMs,
-      long timeShiftBufferDepthMs,
       @Nullable String cacheKey) {
     if (segmentBase instanceof SingleSegmentBase) {
       return new SingleSegmentRepresentation(
@@ -150,13 +129,7 @@ public abstract class Representation {
           C.LENGTH_UNSET);
     } else if (segmentBase instanceof MultiSegmentBase) {
       return new MultiSegmentRepresentation(
-          revisionId,
-          format,
-          baseUrl,
-          (MultiSegmentBase) segmentBase,
-          inbandEventStreams,
-          periodStartUnixTimeMs,
-          timeShiftBufferDepthMs);
+          revisionId, format, baseUrl, (MultiSegmentBase) segmentBase, inbandEventStreams);
     } else {
       throw new IllegalArgumentException("segmentBase must be of type SingleSegmentBase or "
           + "MultiSegmentBase");
@@ -309,8 +282,6 @@ public abstract class Representation {
       implements DashSegmentIndex {
 
     @VisibleForTesting /* package */ final MultiSegmentBase segmentBase;
-    private final long periodStartUnixTimeUs;
-    private final long timeShiftBufferDepthUs;
 
     /**
      * Creates the multi-segment Representation.
@@ -320,22 +291,15 @@ public abstract class Representation {
      * @param baseUrl The base URL of the representation.
      * @param segmentBase The segment base underlying the representation.
      * @param inbandEventStreams The in-band event streams in the representation. May be null.
-     * @param periodStartUnixTimeMs The start time of the enclosing {@link Period} in milliseconds
-     *     since the Unix epoch, or {@link C#TIME_UNSET} is not applicable.
-     * @param timeShiftBufferDepthMs The {@link DashManifest#timeShiftBufferDepthMs}.
      */
     public MultiSegmentRepresentation(
         long revisionId,
         Format format,
         String baseUrl,
         MultiSegmentBase segmentBase,
-        @Nullable List<Descriptor> inbandEventStreams,
-        long periodStartUnixTimeMs,
-        long timeShiftBufferDepthMs) {
+        @Nullable List<Descriptor> inbandEventStreams) {
       super(revisionId, format, baseUrl, segmentBase, inbandEventStreams);
       this.segmentBase = segmentBase;
-      this.periodStartUnixTimeUs = C.msToUs(periodStartUnixTimeMs);
-      this.timeShiftBufferDepthUs = C.msToUs(timeShiftBufferDepthMs);
     }
 
     @Override
@@ -384,17 +348,7 @@ public abstract class Representation {
 
     @Override
     public long getFirstAvailableSegmentNum(long periodDurationUs, long nowUnixTimeUs) {
-      long segmentCount = segmentBase.getSegmentCount(periodDurationUs);
-      if (segmentCount != INDEX_UNBOUNDED || timeShiftBufferDepthUs == C.TIME_UNSET) {
-        return segmentBase.getFirstSegmentNum();
-      }
-      // The index is itself unbounded. We need to use the current time to calculate the range of
-      // available segments.
-      long liveEdgeTimeInPeriodUs = nowUnixTimeUs - periodStartUnixTimeUs;
-      long timeShiftBufferStartInPeriodUs = liveEdgeTimeInPeriodUs - timeShiftBufferDepthUs;
-      long timeShiftBufferStartSegmentNum =
-          getSegmentNum(timeShiftBufferStartInPeriodUs, periodDurationUs);
-      return max(getFirstSegmentNum(), timeShiftBufferStartSegmentNum);
+      return segmentBase.getFirstAvailableSegmentNum(periodDurationUs, nowUnixTimeUs);
     }
 
     @Override
@@ -404,18 +358,12 @@ public abstract class Representation {
 
     @Override
     public int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
-      int segmentCount = segmentBase.getSegmentCount(periodDurationUs);
-      if (segmentCount != INDEX_UNBOUNDED) {
-        return segmentCount;
-      }
-      // The index is itself unbounded. We need to use the current time to calculate the range of
-      // available segments.
-      long liveEdgeTimeInPeriodUs = nowUnixTimeUs - periodStartUnixTimeUs;
-      long availabilityEndTimeUs = liveEdgeTimeInPeriodUs + segmentBase.availabilityTimeOffsetUs;
-      // getSegmentNum(availabilityEndTimeUs) will not be completed yet.
-      long firstIncompleteSegmentNum = getSegmentNum(availabilityEndTimeUs, periodDurationUs);
-      long firstAvailableSegmentNum = getFirstAvailableSegmentNum(periodDurationUs, nowUnixTimeUs);
-      return (int) (firstIncompleteSegmentNum - firstAvailableSegmentNum);
+      return segmentBase.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
+    }
+
+    @Override
+    public long getNextSegmentAvailableTimeUs(long periodDurationUs, long nowUnixTimeUs) {
+      return segmentBase.getNextSegmentAvailableTimeUs(periodDurationUs, nowUnixTimeUs);
     }
 
     @Override
