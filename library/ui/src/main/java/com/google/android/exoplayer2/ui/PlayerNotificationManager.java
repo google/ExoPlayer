@@ -989,7 +989,6 @@ public class PlayerNotificationManager {
     Notification notification = builder.build();
     notificationManager.notify(notificationId, notification);
     if (!isNotificationStarted) {
-      isNotificationStarted = true;
       context.registerReceiver(notificationBroadcastReceiver, intentFilter);
       if (notificationListener != null) {
         notificationListener.onNotificationStarted(notificationId, notification);
@@ -997,8 +996,12 @@ public class PlayerNotificationManager {
     }
     @Nullable NotificationListener listener = notificationListener;
     if (listener != null) {
-      listener.onNotificationPosted(notificationId, notification, ongoing);
+      // Always pass true for ongoing with the first notification to tell a service to go into
+      // foreground even when paused.
+      listener.onNotificationPosted(
+          notificationId, notification, ongoing || !isNotificationStarted);
     }
+    isNotificationStarted = true;
   }
 
   // We're calling a deprecated listener method that we still want to notify.
