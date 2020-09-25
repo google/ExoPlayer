@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate;
 import com.google.android.exoplayer2.metadata.id3.MlltFrame;
+import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -432,7 +433,7 @@ public final class Mp3Extractor implements Extractor {
 
     @Nullable Seeker resultSeeker = null;
     if ((flags & FLAG_ENABLE_INDEX_SEEKING) != 0) {
-      long durationUs = C.TIME_UNSET;
+      long durationUs;
       long dataEndPosition = C.POSITION_UNSET;
       if (metadataSeeker != null) {
         durationUs = metadataSeeker.getDurationUs();
@@ -440,6 +441,8 @@ public final class Mp3Extractor implements Extractor {
       } else if (seekFrameSeeker != null) {
         durationUs = seekFrameSeeker.getDurationUs();
         dataEndPosition = seekFrameSeeker.getDataEndPosition();
+      } else {
+        durationUs = getId3TlenUs(metadata);
       }
       resultSeeker =
           new IndexSeeker(
@@ -554,10 +557,24 @@ public final class Mp3Extractor implements Extractor {
       for (int i = 0; i < length; i++) {
         Metadata.Entry entry = metadata.get(i);
         if (entry instanceof MlltFrame) {
-          return MlltSeeker.create(firstFramePosition, (MlltFrame) entry);
+          return MlltSeeker.create(firstFramePosition, (MlltFrame) entry, getId3TlenUs(metadata));
         }
       }
     }
     return null;
+  }
+
+  private static long getId3TlenUs(@Nullable Metadata metadata) {
+    if (metadata != null) {
+      int length = metadata.length();
+      for (int i = 0; i < length; i++) {
+        Metadata.Entry entry = metadata.get(i);
+        if (entry instanceof TextInformationFrame
+            && ((TextInformationFrame) entry).id.equals("TLEN")) {
+          return C.msToUs(Long.parseLong(((TextInformationFrame) entry).value));
+        }
+      }
+    }
+    return C.TIME_UNSET;
   }
 }
