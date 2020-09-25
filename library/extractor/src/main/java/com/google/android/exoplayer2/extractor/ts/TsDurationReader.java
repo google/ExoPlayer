@@ -38,7 +38,8 @@ import java.io.IOException;
  */
 /* package */ final class TsDurationReader {
 
-  private static final int TIMESTAMP_SEARCH_BYTES = 600 * TsExtractor.TS_PACKET_SIZE;
+  private static final int TIMESTAMP_SEARCH_BYTES_START = 1200 * TsExtractor.TS_PACKET_SIZE;
+  private static final int TIMESTAMP_SEARCH_BYTES_END = 600 * TsExtractor.TS_PACKET_SIZE;
 
   private final TimestampAdjuster pcrTimestampAdjuster;
   private final ParsableByteArray packetBuffer;
@@ -125,7 +126,7 @@ import java.io.IOException;
 
   private int readFirstPcrValue(ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid)
       throws IOException {
-    int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES, input.getLength());
+    int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES_START, input.getLength());
     int searchStartPosition = 0;
     if (input.getPosition() != searchStartPosition) {
       seekPositionHolder.position = searchStartPosition;
@@ -161,7 +162,7 @@ import java.io.IOException;
   private int readLastPcrValue(ExtractorInput input, PositionHolder seekPositionHolder, int pcrPid)
       throws IOException {
     long inputLength = input.getLength();
-    int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES, inputLength);
+    int bytesToSearch = (int) min(TIMESTAMP_SEARCH_BYTES_END, inputLength);
     long searchStartPosition = inputLength - bytesToSearch;
     if (input.getPosition() != searchStartPosition) {
       seekPositionHolder.position = searchStartPosition;
