@@ -98,7 +98,7 @@ public class DumpFileAsserts {
     } else {
       File file =
           DUMP_FILE_ACTION == WRITE_TO_LOCAL
-              ? new File(StandardSystemProperty.USER_DIR.value(), "../../testdata/src/test")
+              ? new File(StandardSystemProperty.USER_DIR.value(), "../../testdata/src/test/assets")
               : context.getExternalFilesDir(null);
       file = new File(file, dumpFile);
       Assertions.checkStateNotNull(file.getParentFile()).mkdirs();

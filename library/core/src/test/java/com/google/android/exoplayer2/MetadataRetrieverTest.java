@@ -31,11 +31,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.annotation.LooperMode;
 
 /** Tests for {@link MetadataRetriever}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public class MetadataRetrieverTest {
 
   @Test
@@ -100,7 +98,9 @@ public class MetadataRetrieverTest {
       ListenableFuture<TrackGroupArray> trackGroupsFuture)
       throws InterruptedException, ExecutionException {
     while (!trackGroupsFuture.isDone()) {
-      // Simulate advancing SystemClock so that delayed messages sent to handlers are received.
+      // TODO: update once [Internal: b/168084145] is implemented.
+      // Advance SystemClock so that messages that are sent with a delay to the MetadataRetriever
+      // looper are received.
       SystemClock.setCurrentTimeMillis(SystemClock.uptimeMillis() + 100);
       Thread.sleep(/* millis= */ 100);
     }
