@@ -116,6 +116,9 @@ import java.util.List;
   public static final int TYPE_mp4a = 0x6d703461;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE__mp2 = 0x2e6d7032;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE__mp3 = 0x2e6d7033;
 
   @SuppressWarnings("ConstantCaseForConstants")

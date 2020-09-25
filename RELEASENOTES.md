@@ -19,6 +19,9 @@
     *   Add support for `\h` SSA/ASS style override code (non-breaking space).
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
+*   Extractors:
+    *   Add support for .mp2 boxes in the `AtomParsers`
+        ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
 
 ### 2.12.0 (2020-09-11) ###
 
