@@ -323,6 +323,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable private DrmSession sourceDrmSession;
   @Nullable private MediaCrypto mediaCrypto;
   private boolean mediaCryptoRequiresSecureDecoder;
+  private long renderTimeLimitMs;
   private float operatingRate;
   @Nullable private MediaCodec codec;
   @Nullable private MediaCodecAdapter codecAdapter;
@@ -401,6 +402,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     operatingRate = 1f;
+    renderTimeLimitMs = C.TIME_UNSET;
     pendingOutputStreamStartPositionsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
@@ -408,6 +410,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputStreamOffsetUs = C.TIME_UNSET;
     bypassBatchBuffer = new BatchBuffer();
     resetCodecStateForRelease();
+  }
+
+  /**
+   * Set a limit on the time a single {@link #render(long, long)} call can spend draining and
+   * filling the decoder.
+   *
+   * <p>This method should be called right after creating an instance of this class.
+   *
+   * @param renderTimeLimitMs The render time limit in milliseconds, or {@link C#TIME_UNSET} for no
+   *     limit.
+   */
+  public void setRenderTimeLimitMs(long renderTimeLimitMs) {
+    this.renderTimeLimitMs = renderTimeLimitMs;
   }
 
   /**
@@ -784,9 +799,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         while (bypassRender(positionUs, elapsedRealtimeUs)) {}
         TraceUtil.endSection();
       } else if (codec != null) {
+        long renderStartTimeMs = SystemClock.elapsedRealtime();
         TraceUtil.beginSection("drainAndFeed");
-        while (drainOutputBuffer(positionUs, elapsedRealtimeUs)) {}
-        while (feedInputBuffer()) {}
+        while (drainOutputBuffer(positionUs, elapsedRealtimeUs)
+            && shouldContinueRendering(renderStartTimeMs)) {}
+        while (feedInputBuffer() && shouldContinueRendering(renderStartTimeMs)) {}
         TraceUtil.endSection();
       } else {
         decoderCounters.skippedInputBufferCount += skipSource(positionUs);
@@ -1108,6 +1125,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     decoderCounters.decoderInitCount++;
     long elapsed = codecInitializedTimestamp - codecInitializingTimestamp;
     onCodecInitialized(codecName, codecInitializedTimestamp, elapsed);
+  }
+
+  private boolean shouldContinueRendering(long renderStartTimeMs) {
+    return renderTimeLimitMs == C.TIME_UNSET
+        || SystemClock.elapsedRealtime() - renderStartTimeMs < renderTimeLimitMs;
   }
 
   private void getCodecBuffers(MediaCodec codec) {
