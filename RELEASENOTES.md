@@ -22,6 +22,8 @@
 *   Extractors:
     *   Add support for .mp2 boxes in the `AtomParsers`
         ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
+    *   Use TLEN ID3 tag to compute the duration in Mp3Extractor
+        ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
 
 ### 2.12.0 (2020-09-11) ###
 
