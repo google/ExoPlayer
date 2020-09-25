@@ -878,6 +878,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_lpcm
           || childAtomType == Atom.TYPE_sowt
           || childAtomType == Atom.TYPE_twos
+          || childAtomType == Atom.TYPE__mp2
           || childAtomType == Atom.TYPE__mp3
           || childAtomType == Atom.TYPE_alac
           || childAtomType == Atom.TYPE_alaw
@@ -1243,7 +1244,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else if (atomType == Atom.TYPE_twos) {
       mimeType = MimeTypes.AUDIO_RAW;
       pcmEncoding = C.ENCODING_PCM_16BIT_BIG_ENDIAN;
-    } else if (atomType == Atom.TYPE__mp3) {
+    } else if (atomType == Atom.TYPE__mp2 || atomType == Atom.TYPE__mp3) {
       mimeType = MimeTypes.AUDIO_MPEG;
     } else if (atomType == Atom.TYPE_alac) {
       mimeType = MimeTypes.AUDIO_ALAC;
