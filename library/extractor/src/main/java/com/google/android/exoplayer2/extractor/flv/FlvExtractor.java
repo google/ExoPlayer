@@ -322,6 +322,10 @@ public final class FlvExtractor implements Extractor {
       return new SeekMap.Unseekable(durationUs);
     }
     int keyFrameSize = times.size();
+    if ((long) (times.get(times.size() - 1) * C.MICROS_PER_SECOND) == durationUs) {
+      // the last keyframe has no sample data followed (AVC_PACKET_TYPE_END_OF_SEQUENCE)
+      keyFrameSize = keyFrameSize - 1;
+    }
     int[] sizes = new int[keyFrameSize];
     long[] offsets = new long[keyFrameSize];
     long[] durationsUs = new long[keyFrameSize];
