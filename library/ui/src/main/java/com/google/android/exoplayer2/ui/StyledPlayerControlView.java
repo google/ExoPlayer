@@ -2005,11 +2005,13 @@ public class StyledPlayerControlView extends FrameLayout {
           break;
         }
       }
-      checkNotNull(subtitleButton)
-          .setImageDrawable(subtitleIsOn ? subtitleOnButtonDrawable : subtitleOffButtonDrawable);
-      checkNotNull(subtitleButton)
-          .setContentDescription(
-              subtitleIsOn ? subtitleOnContentDescription : subtitleOffContentDescription);
+
+      if (subtitleButton != null) {
+        subtitleButton.setImageDrawable(
+            subtitleIsOn ? subtitleOnButtonDrawable : subtitleOffButtonDrawable);
+        subtitleButton.setContentDescription(
+            subtitleIsOn ? subtitleOnContentDescription : subtitleOffContentDescription);
+      }
       this.rendererIndices = rendererIndices;
       this.tracks = trackInfos;
       this.mappedTrackInfo = mappedTrackInfo;
