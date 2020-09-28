@@ -48,6 +48,7 @@ import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
+import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
@@ -309,6 +310,31 @@ public final class ImaAdsLoaderTest {
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0));
+  }
+
+  @Test
+  public void playback_withMidrollFetchError_updatesContentProgress() {
+    AdEvent mockMidrollFetchErrorAdEvent = mock(AdEvent.class);
+    when(mockMidrollFetchErrorAdEvent.getType()).thenReturn(AdEventType.AD_BREAK_FETCH_ERROR);
+    when(mockMidrollFetchErrorAdEvent.getAdData())
+        .thenReturn(ImmutableMap.of("adBreakTime", "5.5"));
+    setupPlayback(CONTENT_TIMELINE, ImmutableList.of(5.5f));
+
+    // Simulate loading an empty midroll ad and advancing the player position.
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
+    adEventListener.onAdEvent(mockMidrollFetchErrorAdEvent);
+    long playerPositionUs = CONTENT_DURATION_US - C.MICROS_PER_SECOND;
+    long playerPositionInPeriodUs =
+        playerPositionUs + TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
+    long periodDurationUs =
+        CONTENT_TIMELINE.getPeriod(/* periodIndex= */ 0, new Period()).durationUs;
+    fakeExoPlayer.setPlayingContentPosition(C.usToMs(playerPositionUs));
+
+    // Verify the content progress is updated to reflect the new player position.
+    assertThat(contentProgressProvider.getContentProgress())
+        .isEqualTo(
+            new VideoProgressUpdate(
+                C.usToMs(playerPositionInPeriodUs), C.usToMs(periodDurationUs)));
   }
 
   @Test
