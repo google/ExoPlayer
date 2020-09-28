@@ -289,7 +289,10 @@ import java.lang.reflect.Method;
     if (elapsedSincePreviousModeUs < MODE_SWITCH_SMOOTHING_DURATION_US) {
       // Use a ramp to smooth between the old mode and the new one to avoid introducing a sudden
       // jump if the two modes disagree.
-      long previousModeProjectedPositionUs = previousModePositionUs + elapsedSincePreviousModeUs;
+      long previousModeProjectedPositionUs =
+          previousModePositionUs
+              + Util.getMediaDurationForPlayoutDuration(
+                  elapsedSincePreviousModeUs, audioTrackPlaybackSpeed);
       // A ramp consisting of 1000 points distributed over MODE_SWITCH_SMOOTHING_DURATION_US.
       long rampPoint = (elapsedSincePreviousModeUs * 1000) / MODE_SWITCH_SMOOTHING_DURATION_US;
       positionUs *= rampPoint;
