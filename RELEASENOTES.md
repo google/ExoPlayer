@@ -22,6 +22,9 @@
         ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
+    *   Fix the default audio sink position not advancing correctly when using
+        `AudioTrack`-based speed adjustment
+        ([#7982](https://github.com/google/ExoPlayer/issues/7982)).
 *   Extractors:
     *   Add support for .mp2 boxes in the `AtomParsers`
         ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
