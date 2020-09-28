@@ -1077,7 +1077,7 @@ public final class ImaAdsLoader
             adGroupTimeSeconds == -1.0
                 ? adPlaybackState.adGroupCount - 1
                 : getAdGroupIndexForCuePointTimeSeconds(adGroupTimeSeconds);
-        handleAdGroupFetchError(adGroupIndex);
+        markAdGroupInErrorStateAndClearPendingContentPosition(adGroupIndex);
         break;
       case CONTENT_PAUSE_REQUESTED:
         // After CONTENT_PAUSE_REQUESTED, IMA will playAd/pauseAd/stopAd to show one or more ads
@@ -1364,35 +1364,20 @@ public final class ImaAdsLoader
     }
   }
 
-  private void handleAdGroupFetchError(int adGroupIndex) {
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
-    if (adGroup.count == C.LENGTH_UNSET) {
-      adPlaybackState = adPlaybackState.withAdCount(adGroupIndex, max(1, adGroup.states.length));
-      adGroup = adPlaybackState.adGroups[adGroupIndex];
-    }
-    for (int i = 0; i < adGroup.count; i++) {
-      if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
-        if (DEBUG) {
-          Log.d(TAG, "Removing ad " + i + " in ad group " + adGroupIndex);
-        }
-        adPlaybackState = adPlaybackState.withAdLoadError(adGroupIndex, i);
-      }
-    }
-    updateAdPlaybackState();
-  }
-
   private void handleAdGroupLoadError(Exception error) {
-    if (player == null) {
-      return;
-    }
-
-    // TODO: Once IMA signals which ad group failed to load, remove this call.
     int adGroupIndex = getLoadingAdGroupIndex();
     if (adGroupIndex == C.INDEX_UNSET) {
       Log.w(TAG, "Unable to determine ad group index for ad group load error", error);
       return;
     }
+    markAdGroupInErrorStateAndClearPendingContentPosition(adGroupIndex);
+    if (pendingAdLoadError == null) {
+      pendingAdLoadError = AdLoadException.createForAdGroup(error, adGroupIndex);
+    }
+  }
 
+  private void markAdGroupInErrorStateAndClearPendingContentPosition(int adGroupIndex) {
+    // Update the ad playback state so all ads in the ad group are in the error state.
     AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
     if (adGroup.count == C.LENGTH_UNSET) {
       adPlaybackState = adPlaybackState.withAdCount(adGroupIndex, max(1, adGroup.states.length));
@@ -1407,9 +1392,7 @@ public final class ImaAdsLoader
       }
     }
     updateAdPlaybackState();
-    if (pendingAdLoadError == null) {
-      pendingAdLoadError = AdLoadException.createForAdGroup(error, adGroupIndex);
-    }
+    // Clear any pending content position that triggered attempting to load the ad group.
     pendingContentPositionMs = C.TIME_UNSET;
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
   }
@@ -1522,8 +1505,10 @@ public final class ImaAdsLoader
    * no such ad group.
    */
   private int getLoadingAdGroupIndex() {
-    long playerPositionUs =
-        C.msToUs(getContentPeriodPositionMs(checkNotNull(player), timeline, period));
+    if (player == null) {
+      return C.INDEX_UNSET;
+    }
+    long playerPositionUs = C.msToUs(getContentPeriodPositionMs(player, timeline, period));
     int adGroupIndex =
         adPlaybackState.getAdGroupIndexForPositionUs(playerPositionUs, C.msToUs(contentDurationMs));
     if (adGroupIndex == C.INDEX_UNSET) {

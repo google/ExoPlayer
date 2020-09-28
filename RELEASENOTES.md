@@ -28,6 +28,9 @@
     *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
         `TrackSelectionDialogBuilder`
         ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+*   IMA extension:
+    *   Fix position reporting after fetch errors
+        ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
 
 ### 2.12.0 (2020-09-11) ###
 
