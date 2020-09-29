@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.AbstractConcatenatedTimeline;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ShuffleOrder.UnshuffledShuffleOrder;
@@ -65,10 +66,20 @@ public final class LoopingMediaSource extends CompositeMediaSource<Void> {
     mediaPeriodToChildMediaPeriodId = new HashMap<>();
   }
 
+  /**
+   * @deprecated Use {@link #getMediaItem()} and {@link MediaItem.PlaybackProperties#tag} instead.
+   */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   @Override
   @Nullable
   public Object getTag() {
     return maskingMediaSource.getTag();
+  }
+
+  @Override
+  public MediaItem getMediaItem() {
+    return maskingMediaSource.getMediaItem();
   }
 
   @Override

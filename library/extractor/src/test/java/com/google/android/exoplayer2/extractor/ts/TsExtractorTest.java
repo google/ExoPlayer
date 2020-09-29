@@ -15,12 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.FLAG_DETECT_ACCESS_UNITS;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -36,74 +36,114 @@ import com.google.android.exoplayer2.testutil.FakeTrackOutput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
-import org.junit.Ignore;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit test for {@link TsExtractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class TsExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sampleWithH262AndMpegAudio() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h262_mpeg_audio.ts");
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "media/ts/sample_h262_mpeg_audio.ts", simulationConfig);
+  }
+
+  @Test
+  public void sampleWithH263() throws Exception {
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_h263.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithH264AndMpegAudio() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h264_mpeg_audio.ts");
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "media/ts/sample_h264_mpeg_audio.ts", simulationConfig);
+  }
+
+  @Test
+  public void sampleWithH264NoAccessUnitDelimiters() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new TsExtractor(FLAG_DETECT_ACCESS_UNITS),
+        "media/ts/sample_h264_no_access_unit_delimiters.ts",
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleWithH264AndDtsAudio() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new TsExtractor(DefaultTsPayloadReaderFactory.FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS),
+        "media/ts/sample_h264_dts_audio.ts",
+        simulationConfig);
   }
 
   @Test
   public void sampleWithH265() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_h265.ts");
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_h265.ts", simulationConfig);
   }
 
   @Test
-  @Ignore
-  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
-  // formats and seeking.
   public void sampleWithScte35() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_scte35.ts");
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new,
+        "media/ts/sample_scte35.ts",
+        new ExtractorAsserts.AssertionConfig.Builder()
+            .setDeduplicateConsecutiveFormats(true)
+            .build(),
+        simulationConfig);
   }
 
   @Test
-  @Ignore
-  // TODO(internal: b/153539929) Re-enable when ExtractorAsserts is less strict around repeated
-  // formats and seeking.
   public void sampleWithAit() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ait.ts");
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new,
+        "media/ts/sample_ait.ts",
+        new ExtractorAsserts.AssertionConfig.Builder()
+            .setDeduplicateConsecutiveFormats(true)
+            .build(),
+        simulationConfig);
   }
 
   @Test
   public void sampleWithAc3() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac3.ts");
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_ac3.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithAc4() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_ac4.ts");
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_ac4.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithEac3() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3.ts");
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_eac3.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithEac3joc() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_eac3joc.ts");
+    ExtractorAsserts.assertBehavior(
+        TsExtractor::new, "media/ts/sample_eac3joc.ts", simulationConfig);
   }
 
   @Test
   public void sampleWithLatm() throws Exception {
-    ExtractorAsserts.assertBehavior(TsExtractor::new, "ts/sample_latm.ts");
+    ExtractorAsserts.assertBehavior(TsExtractor::new, "media/ts/sample_latm.ts", simulationConfig);
   }
 
   @Test
   public void streamWithJunkData() throws Exception {
     ExtractorAsserts.assertBehavior(
-        TsExtractor::new, "ts/sample_with_junk", ApplicationProvider.getApplicationContext());
+        TsExtractor::new, "media/ts/sample_with_junk", simulationConfig);
   }
 
   @Test
@@ -115,7 +155,8 @@ public final class TsExtractorTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_h262_mpeg_audio.ts"))
+                    ApplicationProvider.getApplicationContext(),
+                    "media/ts/sample_h262_mpeg_audio.ts"))
             .setSimulateIOErrors(false)
             .setSimulateUnknownLength(false)
             .setSimulatePartialReads(false)
@@ -152,7 +193,7 @@ public final class TsExtractorTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_with_sdt.ts"))
+                    ApplicationProvider.getApplicationContext(), "media/ts/sample_with_sdt.ts"))
             .setSimulateIOErrors(false)
             .setSimulateUnknownLength(false)
             .setSimulatePartialReads(false)

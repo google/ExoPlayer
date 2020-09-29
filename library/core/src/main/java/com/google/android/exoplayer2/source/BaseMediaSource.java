@@ -37,6 +37,7 @@ public abstract class BaseMediaSource implements MediaSource {
   private final ArrayList<MediaSourceCaller> mediaSourceCallers;
   private final HashSet<MediaSourceCaller> enabledMediaSourceCallers;
   private final MediaSourceEventListener.EventDispatcher eventDispatcher;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
 
   @Nullable private Looper looper;
   @Nullable private Timeline timeline;
@@ -45,6 +46,7 @@ public abstract class BaseMediaSource implements MediaSource {
     mediaSourceCallers = new ArrayList<>(/* initialCapacity= */ 1);
     enabledMediaSourceCallers = new HashSet<>(/* initialCapacity= */ 1);
     eventDispatcher = new MediaSourceEventListener.EventDispatcher();
+    drmEventDispatcher = new DrmSessionEventListener.EventDispatcher();
   }
 
   /**
@@ -126,6 +128,33 @@ public abstract class BaseMediaSource implements MediaSource {
     return eventDispatcher.withParameters(windowIndex, mediaPeriodId, mediaTimeOffsetMs);
   }
 
+  /**
+   * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
+   * registered listeners with the specified media period id.
+   *
+   * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
+   *     the events do not belong to a specific media period.
+   * @return An event dispatcher with pre-configured media period id.
+   */
+  protected final DrmSessionEventListener.EventDispatcher createDrmEventDispatcher(
+      @Nullable MediaPeriodId mediaPeriodId) {
+    return drmEventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId);
+  }
+
+  /**
+   * Returns a {@link DrmSessionEventListener.EventDispatcher} which dispatches all events to the
+   * registered listeners with the specified window index and media period id.
+   *
+   * @param windowIndex The timeline window index to be reported with the events.
+   * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
+   *     the events do not belong to a specific media period.
+   * @return An event dispatcher with pre-configured media period id and time offset.
+   */
+  protected final DrmSessionEventListener.EventDispatcher createDrmEventDispatcher(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    return drmEventDispatcher.withParameters(windowIndex, mediaPeriodId);
+  }
+
   /** Returns whether the source is enabled. */
   protected final boolean isEnabled() {
     return !enabledMediaSourceCallers.isEmpty();
@@ -133,6 +162,8 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
+    Assertions.checkNotNull(handler);
+    Assertions.checkNotNull(eventListener);
     eventDispatcher.addEventListener(handler, eventListener);
   }
 
@@ -143,12 +174,14 @@ public abstract class BaseMediaSource implements MediaSource {
 
   @Override
   public final void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
-    eventDispatcher.addEventListener(handler, eventListener, DrmSessionEventListener.class);
+    Assertions.checkNotNull(handler);
+    Assertions.checkNotNull(eventListener);
+    drmEventDispatcher.addEventListener(handler, eventListener);
   }
 
   @Override
   public final void removeDrmEventListener(DrmSessionEventListener eventListener) {
-    eventDispatcher.removeEventListener(eventListener, DrmSessionEventListener.class);
+    drmEventDispatcher.removeEventListener(eventListener);
   }
 
   @Override

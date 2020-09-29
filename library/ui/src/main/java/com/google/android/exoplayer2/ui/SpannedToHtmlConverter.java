@@ -16,24 +16,32 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import android.util.SparseArray;
-import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -43,7 +51,6 @@ import java.util.regex.Pattern;
  * <p>Supports all of the spans used by ExoPlayer's subtitle decoders, including custom ones found
  * in {@link com.google.android.exoplayer2.text.span}.
  */
-// TODO: Add support for more span types - only a small selection are currently implemented.
 /* package */ final class SpannedToHtmlConverter {
 
   // Matches /n and /r/n in ampersand-encoding (returned from Html.escapeHtml).
@@ -66,17 +73,34 @@ import java.util.regex.Pattern;
    *   <li>WebView/Chromium (the intended destination of this HTML) gracefully handles overlapping
    *       tags and usually renders the same result as spanned text in a TextView.
    * </ul>
+   *
+   * @param text The (possibly span-styled) text to convert to HTML.
+   * @param displayDensity The screen density of the device. WebView treats 1 CSS px as one Android
+   *     dp, so to convert size values from Android px to CSS px we need to know the screen density.
    */
-  public static String convert(@Nullable CharSequence text) {
+  public static HtmlAndCss convert(@Nullable CharSequence text, float displayDensity) {
     if (text == null) {
-      return "";
+      return new HtmlAndCss("", /* cssRuleSets= */ ImmutableMap.of());
     }
     if (!(text instanceof Spanned)) {
-      return escapeHtml(text);
+      return new HtmlAndCss(escapeHtml(text), /* cssRuleSets= */ ImmutableMap.of());
     }
     Spanned spanned = (Spanned) text;
-    SparseArray<Transition> spanTransitions = findSpanTransitions(spanned);
 
+    // Use CSS inheritance to ensure BackgroundColorSpans affect all inner elements
+    Set<Integer> backgroundColors = new HashSet<>();
+    for (BackgroundColorSpan backgroundColorSpan :
+        spanned.getSpans(0, spanned.length(), BackgroundColorSpan.class)) {
+      backgroundColors.add(backgroundColorSpan.getBackgroundColor());
+    }
+    HashMap<String, String> cssRuleSets = new HashMap<>();
+    for (int backgroundColor : backgroundColors) {
+      cssRuleSets.put(
+          HtmlUtils.cssAllClassDescendantsSelector("bg_" + backgroundColor),
+          Util.formatInvariant("background-color:%s;", HtmlUtils.toCssRgba(backgroundColor)));
+    }
+
+    SparseArray<Transition> spanTransitions = findSpanTransitions(spanned, displayDensity);
     StringBuilder html = new StringBuilder(spanned.length());
     int previousTransition = 0;
     for (int i = 0; i < spanTransitions.size(); i++) {
@@ -97,14 +121,15 @@ import java.util.regex.Pattern;
 
     html.append(escapeHtml(spanned.subSequence(previousTransition, spanned.length())));
 
-    return html.toString();
+    return new HtmlAndCss(html.toString(), cssRuleSets);
   }
 
-  private static SparseArray<Transition> findSpanTransitions(Spanned spanned) {
+  private static SparseArray<Transition> findSpanTransitions(
+      Spanned spanned, float displayDensity) {
     SparseArray<Transition> spanTransitions = new SparseArray<>();
 
     for (Object span : spanned.getSpans(0, spanned.length(), Object.class)) {
-      @Nullable String openingTag = getOpeningTag(span);
+      @Nullable String openingTag = getOpeningTag(span, displayDensity);
       @Nullable String closingTag = getClosingTag(span);
       int spanStart = spanned.getSpanStart(span);
       int spanEnd = spanned.getSpanEnd(span);
@@ -120,13 +145,33 @@ import java.util.regex.Pattern;
   }
 
   @Nullable
-  private static String getOpeningTag(Object span) {
-    if (span instanceof ForegroundColorSpan) {
+  private static String getOpeningTag(Object span, float displayDensity) {
+    if (span instanceof StrikethroughSpan) {
+      return "<span style='text-decoration:line-through;'>";
+    } else if (span instanceof ForegroundColorSpan) {
       ForegroundColorSpan colorSpan = (ForegroundColorSpan) span;
       return Util.formatInvariant(
-          "<span style='color:%s;'>", toCssColor(colorSpan.getForegroundColor()));
+          "<span style='color:%s;'>", HtmlUtils.toCssRgba(colorSpan.getForegroundColor()));
+    } else if (span instanceof BackgroundColorSpan) {
+      BackgroundColorSpan colorSpan = (BackgroundColorSpan) span;
+      return Util.formatInvariant("<span class='bg_%s'>", colorSpan.getBackgroundColor());
     } else if (span instanceof HorizontalTextInVerticalContextSpan) {
       return "<span style='text-combine-upright:all;'>";
+    } else if (span instanceof AbsoluteSizeSpan) {
+      AbsoluteSizeSpan absoluteSizeSpan = (AbsoluteSizeSpan) span;
+      float sizeCssPx =
+          absoluteSizeSpan.getDip()
+              ? absoluteSizeSpan.getSize()
+              : absoluteSizeSpan.getSize() / displayDensity;
+      return Util.formatInvariant("<span style='font-size:%.2fpx;'>", sizeCssPx);
+    } else if (span instanceof RelativeSizeSpan) {
+      return Util.formatInvariant(
+          "<span style='font-size:%.2f%%;'>", ((RelativeSizeSpan) span).getSizeChange() * 100);
+    } else if (span instanceof TypefaceSpan) {
+      @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
+      return fontFamily != null
+          ? Util.formatInvariant("<span style='font-family:\"%s\";'>", fontFamily)
+          : null;
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
         case Typeface.BOLD:
@@ -159,10 +204,16 @@ import java.util.regex.Pattern;
 
   @Nullable
   private static String getClosingTag(Object span) {
-    if (span instanceof ForegroundColorSpan) {
+    if (span instanceof StrikethroughSpan
+        || span instanceof ForegroundColorSpan
+        || span instanceof BackgroundColorSpan
+        || span instanceof HorizontalTextInVerticalContextSpan
+        || span instanceof AbsoluteSizeSpan
+        || span instanceof RelativeSizeSpan) {
       return "</span>";
-    } else if (span instanceof HorizontalTextInVerticalContextSpan) {
-      return "</span>";
+    } else if (span instanceof TypefaceSpan) {
+      @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
+      return fontFamily != null ? "</span>" : null;
     } else if (span instanceof StyleSpan) {
       switch (((StyleSpan) span).getStyle()) {
         case Typeface.BOLD:
@@ -181,12 +232,6 @@ import java.util.regex.Pattern;
     return null;
   }
 
-  private static String toCssColor(@ColorInt int color) {
-    return Util.formatInvariant(
-        "rgba(%d,%d,%d,%.3f)",
-        Color.red(color), Color.green(color), Color.blue(color), Color.alpha(color) / 255.0);
-  }
-
   private static Transition getOrCreate(SparseArray<Transition> transitions, int key) {
     @Nullable Transition transition = transitions.get(key);
     if (transition == null) {
@@ -199,6 +244,26 @@ import java.util.regex.Pattern;
   private static String escapeHtml(CharSequence text) {
     String escaped = Html.escapeHtml(text);
     return NEWLINE_PATTERN.matcher(escaped).replaceAll("<br>");
+  }
+
+  /** Container class for an HTML string and associated CSS rulesets. */
+  public static class HtmlAndCss {
+
+    /** A raw HTML string. */
+    public final String html;
+
+    /**
+     * CSS rulesets used to style {@link #html}.
+     *
+     * <p>Each key is a CSS selector, and each value is a CSS declaration (i.e. a semi-colon
+     * separated list of colon-separated key-value pairs, e.g "prop1:val1;prop2:val2;").
+     */
+    public final Map<String, String> cssRuleSets;
+
+    private HtmlAndCss(String html, Map<String, String> cssRuleSets) {
+      this.html = html;
+      this.cssRuleSets = cssRuleSets;
+    }
   }
 
   private static final class SpanInfo {

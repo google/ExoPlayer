@@ -15,27 +15,38 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit test for {@link Ac3Extractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class Ac3ExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void ac3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.ac3");
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "media/ts/sample.ac3", simulationConfig);
   }
 
   @Test
   public void eAc3Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample.eac3");
+    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "media/ts/sample.eac3", simulationConfig);
   }
 
   @Test
   public void eAc3jocSample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac3Extractor::new, "ts/sample_eac3joc.ec3");
+    ExtractorAsserts.assertBehavior(
+        Ac3Extractor::new, "media/ts/sample_eac3joc.ec3", simulationConfig);
   }
 }

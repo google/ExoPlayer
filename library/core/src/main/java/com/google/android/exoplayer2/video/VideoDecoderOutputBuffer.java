@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.video;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.OutputBuffer;
 import java.nio.ByteBuffer;
 
@@ -33,7 +34,7 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
   //     ../../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
   // )
 
-  /** Decoder private data. */
+  /** Decoder private data. Used from native code. */
   public int decoderPrivate;
 
   /** Output mode. */
@@ -43,7 +44,8 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
 
   public int width;
   public int height;
-  @Nullable public ColorInfo colorInfo;
+  /** The format of the input from which this output buffer was decoded. */
+  @Nullable public Format format;
 
   /** YUV planes for YUV mode. */
   @Nullable public ByteBuffer[] yuvPlanes;

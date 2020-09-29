@@ -36,7 +36,7 @@ public class DefaultMediaItemConverterTest {
   public void serialize_deserialize_minimal() {
     MediaItem.Builder builder = new MediaItem.Builder();
     MediaItem item =
-        builder.setSourceUri("http://example.com").setMimeType(MimeTypes.APPLICATION_MPD).build();
+        builder.setUri("http://example.com").setMimeType(MimeTypes.APPLICATION_MPD).build();
 
     DefaultMediaItemConverter converter = new DefaultMediaItemConverter();
     MediaQueueItem queueItem = converter.toMediaQueueItem(item);
@@ -50,7 +50,7 @@ public class DefaultMediaItemConverterTest {
     MediaItem.Builder builder = new MediaItem.Builder();
     MediaItem item =
         builder
-            .setSourceUri(Uri.parse("http://example.com"))
+            .setUri(Uri.parse("http://example.com"))
             .setMediaMetadata(new MediaMetadata.Builder().build())
             .setMimeType(MimeTypes.APPLICATION_MPD)
             .setDrmUuid(C.WIDEVINE_UUID)

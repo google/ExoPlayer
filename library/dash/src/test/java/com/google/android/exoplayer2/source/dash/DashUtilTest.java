@@ -40,29 +40,29 @@ public final class DashUtilTest {
   @Test
   public void loadDrmInitDataFromManifest() throws Exception {
     Period period = newPeriod(newAdaptationSet(newRepresentation(newDrmInitData())));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isEqualTo(newDrmInitData());
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format.drmInitData).isEqualTo(newDrmInitData());
   }
 
   @Test
   public void loadDrmInitDataMissing() throws Exception {
     Period period = newPeriod(newAdaptationSet(newRepresentation(null /* no init data */)));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isNull();
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format.drmInitData).isNull();
   }
 
   @Test
   public void loadDrmInitDataNoRepresentations() throws Exception {
     Period period = newPeriod(newAdaptationSet(/* no representation */ ));
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isNull();
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format).isNull();
   }
 
   @Test
   public void loadDrmInitDataNoAdaptationSets() throws Exception {
     Period period = newPeriod(/* no adaptation set */ );
-    DrmInitData drmInitData = DashUtil.loadDrmInitData(DummyDataSource.INSTANCE, period);
-    assertThat(drmInitData).isNull();
+    Format format = DashUtil.loadFormatWithDrmInitData(DummyDataSource.INSTANCE, period);
+    assertThat(format).isNull();
   }
 
   private static Period newPeriod(AdaptationSet... adaptationSets) {

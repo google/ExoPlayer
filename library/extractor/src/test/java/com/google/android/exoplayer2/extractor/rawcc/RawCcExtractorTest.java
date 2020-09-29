@@ -15,16 +15,25 @@
  */
 package com.google.android.exoplayer2.extractor.rawcc;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
 
 /** Tests for {@link RawCcExtractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class RawCcExtractorTest {
+
+  @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @ParameterizedRobolectricTestRunner.Parameter(0)
+  public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void rawCcSample() throws Exception {
@@ -34,6 +43,7 @@ public final class RawCcExtractorTest {
             .setCodecs("cea608")
             .setAccessibilityChannel(1)
             .build();
-    ExtractorAsserts.assertBehavior(() -> new RawCcExtractor(format), "rawcc/sample.rawcc");
+    ExtractorAsserts.assertBehavior(
+        () -> new RawCcExtractor(format), "media/rawcc/sample.rawcc", simulationConfig);
   }
 }

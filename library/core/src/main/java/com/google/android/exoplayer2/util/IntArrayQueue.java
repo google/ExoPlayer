@@ -26,7 +26,7 @@ import java.util.NoSuchElementException;
 public final class IntArrayQueue {
 
   /** Default capacity needs to be a power of 2. */
-  private static int DEFAULT_INITIAL_CAPACITY = 16;
+  private static final int DEFAULT_INITIAL_CAPACITY = 16;
 
   private int headIndex;
   private int tailIndex;

@@ -33,16 +33,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link AmrExtractor}. */
+/** Unit tests for {@link AmrExtractor} seeking behaviour. */
 @RunWith(AndroidJUnit4.class)
 public final class AmrExtractorSeekTest {
 
   private static final Random random = new Random(1234L);
 
-  private static final String NARROW_BAND_AMR_FILE = "amr/sample_nb.amr";
+  private static final String NARROW_BAND_AMR_FILE = "media/amr/sample_nb.amr";
   private static final int NARROW_BAND_FILE_DURATION_US = 4_360_000;
 
-  private static final String WIDE_BAND_AMR_FILE = "amr/sample_wb.amr";
+  private static final String WIDE_BAND_AMR_FILE = "media/amr/sample_wb.amr";
   private static final int WIDE_BAND_FILE_DURATION_US = 3_380_000;
 
   private FakeTrackOutput expectedTrackOutput;
@@ -51,7 +51,7 @@ public final class AmrExtractorSeekTest {
   @Before
   public void setUp() {
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

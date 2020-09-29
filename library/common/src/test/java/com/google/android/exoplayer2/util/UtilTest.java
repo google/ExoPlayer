@@ -19,16 +19,26 @@ import static com.google.android.exoplayer2.util.Util.binarySearchCeil;
 import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
+import static com.google.android.exoplayer2.util.Util.getStringForTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.StrikethroughSpan;
+import android.text.style.UnderlineSpan;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.Random;
 import java.util.zip.Deflater;
 import org.junit.Test;
@@ -82,15 +92,77 @@ public class UtilTest {
   }
 
   @Test
-  public void inferContentType_returnsInferredResult() {
+  public void inferContentType_handlesHlsIsmUris() {
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl,quality=hd)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl)"))
+        .isEqualTo(C.TYPE_HLS);
+  }
+
+  @Test
+  public void inferContentType_handlesHlsIsmV3Uris() {
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl-v3)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(format=m3u8-aapl-v3,quality=hd)"))
+        .isEqualTo(C.TYPE_HLS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/manifest(quality=hd,format=m3u8-aapl-v3)"))
+        .isEqualTo(C.TYPE_HLS);
+  }
+
+  @Test
+  public void inferContentType_handlesDashIsmUris() {
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(format=mpd-time-csf)"))
+        .isEqualTo(C.TYPE_DASH);
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(format=mpd-time-csf,quality=hd)"))
+        .isEqualTo(C.TYPE_DASH);
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest(quality=hd,format=mpd-time-csf)"))
+        .isEqualTo(C.TYPE_DASH);
+  }
+
+  @Test
+  public void inferContentType_handlesSmoothStreamingIsmUris() {
     assertThat(Util.inferContentType("http://a.b/c.ism")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType("http://a.b/c.ism/")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType("http://a.b/c.isml/")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.ism/Manifest")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml/manifest")).isEqualTo(C.TYPE_SS);
     assertThat(Util.inferContentType("http://a.b/c.isml/manifest(filter=x)")).isEqualTo(C.TYPE_SS);
+    assertThat(Util.inferContentType("http://a.b/c.isml/manifest_hd")).isEqualTo(C.TYPE_SS);
+  }
 
+  @Test
+  public void inferContentType_handlesOtherIsmUris() {
+    assertThat(Util.inferContentType("http://a.b/c.ism/video.mp4")).isEqualTo(C.TYPE_OTHER);
     assertThat(Util.inferContentType("http://a.b/c.ism/prefix-manifest")).isEqualTo(C.TYPE_OTHER);
-    assertThat(Util.inferContentType("http://a.b/c.ism/manifest-suffix")).isEqualTo(C.TYPE_OTHER);
+  }
+
+  @Test
+  public void fixSmoothStreamingIsmManifestUri_addsManifestSuffix() {
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.isml")))
+        .isEqualTo(Uri.parse("http://a.b/c.isml/Manifest"));
+
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.isml/")))
+        .isEqualTo(Uri.parse("http://a.b/c.isml/Manifest"));
+  }
+
+  @Test
+  public void fixSmoothStreamingIsmManifestUri_doesNotAlterManifestUri() {
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/Manifest")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.isml/Manifest")))
+        .isEqualTo(Uri.parse("http://a.b/c.isml/Manifest"));
+    assertThat(
+            Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/Manifest(filter=x)")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest(filter=x)"));
+    assertThat(Util.fixSmoothStreamingIsmManifestUri(Uri.parse("http://a.b/c.ism/Manifest_hd")))
+        .isEqualTo(Uri.parse("http://a.b/c.ism/Manifest_hd"));
   }
 
   @Test
@@ -712,8 +784,47 @@ public class UtilTest {
   }
 
   @Test
+  public void truncateAscii_shortInput_returnsInput() {
+    String input = "a short string";
+
+    assertThat(Util.truncateAscii(input, 100)).isSameInstanceAs(input);
+  }
+
+  @Test
+  public void truncateAscii_longInput_truncated() {
+    String input = "a much longer string";
+
+    assertThat(Util.truncateAscii(input, 5).toString()).isEqualTo("a muc");
+  }
+
+  @Test
+  public void truncateAscii_preservesStylingSpans() {
+    SpannableString input = new SpannableString("a short string");
+    input.setSpan(new UnderlineSpan(), 0, 10, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    input.setSpan(new StrikethroughSpan(), 4, 10, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+
+    CharSequence result = Util.truncateAscii(input, 7);
+
+    assertThat(result).isInstanceOf(SpannableString.class);
+    assertThat(result.toString()).isEqualTo("a short");
+    // TODO(internal b/161804035): Use SpannedSubject when it's available in a dependency we can use
+    // from here.
+    Spanned spannedResult = (Spanned) result;
+    Object[] spans = spannedResult.getSpans(0, result.length(), Object.class);
+    assertThat(spans).hasLength(2);
+    assertThat(spans[0]).isInstanceOf(UnderlineSpan.class);
+    assertThat(spannedResult.getSpanStart(spans[0])).isEqualTo(0);
+    assertThat(spannedResult.getSpanEnd(spans[0])).isEqualTo(7);
+    assertThat(spannedResult.getSpanFlags(spans[0])).isEqualTo(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    assertThat(spans[1]).isInstanceOf(StrikethroughSpan.class);
+    assertThat(spannedResult.getSpanStart(spans[1])).isEqualTo(4);
+    assertThat(spannedResult.getSpanEnd(spans[1])).isEqualTo(7);
+    assertThat(spannedResult.getSpanFlags(spans[1])).isEqualTo(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
   public void toHexString_returnsHexString() {
-    byte[] bytes = TestUtil.createByteArray(0x12, 0xFC, 0x06);
+    byte[] bytes = createByteArray(0x12, 0xFC, 0x06);
 
     assertThat(Util.toHexString(bytes)).isEqualTo("12fc06");
   }
@@ -760,7 +871,7 @@ public class UtilTest {
 
     Random random = new Random(0);
     for (int i = 0; i < 1000; i++) {
-      String string = TestUtil.buildTestString(1000, random);
+      String string = buildTestString(1000, random);
       assertEscapeUnescapeFileName(string);
     }
   }
@@ -790,8 +901,32 @@ public class UtilTest {
   }
 
   @Test
+  public void getBigEndianInt_fromBigEndian() {
+    byte[] bytes = {0x1F, 0x2E, 0x3D, 0x4C};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 0)).isEqualTo(0x1F2E3D4C);
+  }
+
+  @Test
+  public void getBigEndianInt_fromLittleEndian() {
+    byte[] bytes = {(byte) 0xC2, (byte) 0xD3, (byte) 0xE4, (byte) 0xF5};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 0)).isEqualTo(0xC2D3E4F5);
+  }
+
+  @Test
+  public void getBigEndianInt_unaligned() {
+    byte[] bytes = {9, 8, 7, 6, 5};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+
+    assertThat(Util.getBigEndianInt(byteBuffer, 1)).isEqualTo(0x08070605);
+  }
+
+  @Test
   public void inflate_withDeflatedData_success() {
-    byte[] testData = TestUtil.buildTestData(/*arbitrary test data size*/ 256 * 1024);
+    byte[] testData = buildTestData(/*arbitrary test data size*/ 256 * 1024);
     byte[] compressedData = new byte[testData.length * 2];
     Deflater compresser = new Deflater(9);
     compresser.setInput(testData);
@@ -803,7 +938,7 @@ public class UtilTest {
     ParsableByteArray output = new ParsableByteArray();
     assertThat(Util.inflate(input, output, /* inflater= */ null)).isTrue();
     assertThat(output.limit()).isEqualTo(testData.length);
-    assertThat(Arrays.copyOf(output.data, output.limit())).isEqualTo(testData);
+    assertThat(Arrays.copyOf(output.getData(), output.limit())).isEqualTo(testData);
   }
 
   // TODO: Revert to @Config(sdk = Config.ALL_SDKS) once b/143232359 is resolved
@@ -877,7 +1012,7 @@ public class UtilTest {
     assertThat(Util.normalizeLanguageCode("ji")).isEqualTo(Util.normalizeLanguageCode("yi"));
     assertThat(Util.normalizeLanguageCode("ji")).isEqualTo(Util.normalizeLanguageCode("yid"));
 
-    // Grandfathered tags
+    // Legacy tags
     assertThat(Util.normalizeLanguageCode("i-lux")).isEqualTo(Util.normalizeLanguageCode("lb"));
     assertThat(Util.normalizeLanguageCode("i-lux")).isEqualTo(Util.normalizeLanguageCode("ltz"));
     assertThat(Util.normalizeLanguageCode("i-hak")).isEqualTo(Util.normalizeLanguageCode("hak"));
@@ -935,18 +1070,24 @@ public class UtilTest {
   }
 
   @Test
-  public void toList() {
-    assertThat(Util.toList(0, 3, 4)).containsExactly(0, 3, 4).inOrder();
+  public void tableExists_withExistingTable() {
+    SQLiteDatabase database = getInMemorySQLiteOpenHelper().getWritableDatabase();
+    database.execSQL("CREATE TABLE TestTable (ID INTEGER NOT NULL)");
+
+    assertThat(Util.tableExists(database, "TestTable")).isTrue();
   }
 
   @Test
-  public void toList_nullPassed_returnsEmptyList() {
-    assertThat(Util.toList(null)).isEmpty();
+  public void tableExists_withNonExistingTable() {
+    SQLiteDatabase database = getInMemorySQLiteOpenHelper().getReadableDatabase();
+
+    assertThat(Util.tableExists(database, "table")).isFalse();
   }
 
   @Test
-  public void toList_emptyArrayPassed_returnsEmptyList() {
-    assertThat(Util.toList(new int[0])).isEmpty();
+  public void getStringForTime_withNegativeTime_setsNegativePrefix() {
+    assertThat(getStringForTime(new StringBuilder(), new Formatter(), /* timeMs= */ -35000))
+        .isEqualTo("-00:35");
   }
 
   private static void assertEscapeUnescapeFileName(String fileName, String escapedFileName) {
@@ -965,5 +1106,52 @@ public class UtilTest {
       longArray.add(value);
     }
     return longArray;
+  }
+
+  /** Returns a {@link SQLiteOpenHelper} that provides an in-memory database. */
+  private static SQLiteOpenHelper getInMemorySQLiteOpenHelper() {
+    return new SQLiteOpenHelper(
+        /* context= */ null, /* name= */ null, /* factory= */ null, /* version= */ 1) {
+      @Override
+      public void onCreate(SQLiteDatabase db) {}
+
+      @Override
+      public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
+    };
+  }
+
+  /** Generates an array of random bytes with the specified length. */
+  private static byte[] buildTestData(int length, int seed) {
+    byte[] source = new byte[length];
+    new Random(seed).nextBytes(source);
+    return source;
+  }
+
+  /** Equivalent to {@code buildTestData(length, length)}. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] buildTestData(int length) {
+    return buildTestData(length, length);
+  }
+
+  /** Generates a random string with the specified maximum length. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static String buildTestString(int maximumLength, Random random) {
+    int length = random.nextInt(maximumLength);
+    StringBuilder builder = new StringBuilder(length);
+    for (int i = 0; i < length; i++) {
+      builder.append((char) random.nextInt());
+    }
+    return builder.toString();
+  }
+
+  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
+    for (int i = 0; i < byteArray.length; i++) {
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
+    }
+    return byteArray;
   }
 }

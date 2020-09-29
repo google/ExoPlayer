@@ -15,17 +15,27 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit test for {@link Ac4Extractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class Ac4ExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void ac4Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Ac4Extractor::new, "ts/sample.ac4");
+    ExtractorAsserts.assertBehavior(Ac4Extractor::new, "media/ts/sample.ac4", simulationConfig);
   }
 }

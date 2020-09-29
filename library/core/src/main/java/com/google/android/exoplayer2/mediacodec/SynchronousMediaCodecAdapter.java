@@ -17,7 +17,10 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.view.Surface;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 
 /**
@@ -29,6 +32,15 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 
   public SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
     this.codec = mediaCodec;
+  }
+
+  @Override
+  public void configure(
+      @Nullable MediaFormat mediaFormat,
+      @Nullable Surface surface,
+      @Nullable MediaCrypto crypto,
+      int flags) {
+    codec.configure(mediaFormat, surface, crypto, flags);
   }
 
   @Override
@@ -71,4 +83,9 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 
   @Override
   public void shutdown() {}
+
+  @Override
+  public MediaCodec getCodec() {
+    return codec;
+  }
 }

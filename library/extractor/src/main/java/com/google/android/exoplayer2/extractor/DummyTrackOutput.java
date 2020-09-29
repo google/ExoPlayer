@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -23,9 +25,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
 
-/**
- * A dummy {@link TrackOutput} implementation.
- */
+/** A fake {@link TrackOutput} implementation. */
 public final class DummyTrackOutput implements TrackOutput {
 
   // Even though read data is discarded, data source implementations could be making use of the
@@ -43,8 +43,10 @@ public final class DummyTrackOutput implements TrackOutput {
   }
 
   @Override
-  public int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException {
-    int bytesToSkipByReading = Math.min(readBuffer.length, length);
+  public int sampleData(
+      DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
+      throws IOException {
+    int bytesToSkipByReading = min(readBuffer.length, length);
     int bytesSkipped = input.read(readBuffer, /* offset= */ 0, bytesToSkipByReading);
     if (bytesSkipped == C.RESULT_END_OF_INPUT) {
       if (allowEndOfInput) {
@@ -56,7 +58,7 @@ public final class DummyTrackOutput implements TrackOutput {
   }
 
   @Override
-  public void sampleData(ParsableByteArray data, int length) {
+  public void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart) {
     data.skipBytes(length);
   }
 

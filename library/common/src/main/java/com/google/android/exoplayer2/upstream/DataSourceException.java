@@ -15,12 +15,31 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import androidx.annotation.Nullable;
 import java.io.IOException;
 
 /**
  * Used to specify reason of a DataSource error.
  */
 public final class DataSourceException extends IOException {
+
+  /**
+   * Returns whether the given {@link IOException} was caused by a {@link DataSourceException} whose
+   * {@link #reason} is {@link #POSITION_OUT_OF_RANGE} in its cause stack.
+   */
+  public static boolean isCausedByPositionOutOfRange(IOException e) {
+    @Nullable Throwable cause = e;
+    while (cause != null) {
+      if (cause instanceof DataSourceException) {
+        int reason = ((DataSourceException) cause).reason;
+        if (reason == DataSourceException.POSITION_OUT_OF_RANGE) {
+          return true;
+        }
+      }
+      cause = cause.getCause();
+    }
+    return false;
+  }
 
   public static final int POSITION_OUT_OF_RANGE = 0;
 

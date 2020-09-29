@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_DATA_ALIGNMENT_INDICATOR;
 import static com.google.android.exoplayer2.metadata.id3.Id3Decoder.ID3_HEADER_LENGTH;
+import static java.lang.Math.min;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -88,8 +89,12 @@ public final class Id3Reader implements ElementaryStreamReader {
     int bytesAvailable = data.bytesLeft();
     if (sampleBytesRead < ID3_HEADER_LENGTH) {
       // We're still reading the ID3 header.
-      int headerBytesAvailable = Math.min(bytesAvailable, ID3_HEADER_LENGTH - sampleBytesRead);
-      System.arraycopy(data.data, data.getPosition(), id3Header.data, sampleBytesRead,
+      int headerBytesAvailable = min(bytesAvailable, ID3_HEADER_LENGTH - sampleBytesRead);
+      System.arraycopy(
+          data.getData(),
+          data.getPosition(),
+          id3Header.getData(),
+          sampleBytesRead,
           headerBytesAvailable);
       if (sampleBytesRead + headerBytesAvailable == ID3_HEADER_LENGTH) {
         // We've finished reading the ID3 header. Extract the sample size.
@@ -105,7 +110,7 @@ public final class Id3Reader implements ElementaryStreamReader {
       }
     }
     // Write data to the output.
-    int bytesToWrite = Math.min(bytesAvailable, sampleSize - sampleBytesRead);
+    int bytesToWrite = min(bytesAvailable, sampleSize - sampleBytesRead);
     output.sampleData(data, bytesToWrite);
     sampleBytesRead += bytesToWrite;
   }

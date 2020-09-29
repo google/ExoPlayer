@@ -15,23 +15,34 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Tests for {@link Mp4Extractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class Mp4ExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void mp4Sample() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample.mp4");
+    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "media/mp4/sample.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithSlowMotionMetadata() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_android_slow_motion.mp4");
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_android_slow_motion.mp4", simulationConfig);
   }
 
   /**
@@ -40,26 +51,37 @@ public final class Mp4ExtractorTest {
    */
   @Test
   public void mp4SampleWithMdatTooLong() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_mdat_too_long.mp4");
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_mdat_too_long.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithAc3Track() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac3.mp4");
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_ac3.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithAc4Track() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_ac4.mp4");
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_ac4.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithEac3Track() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3.mp4");
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_eac3.mp4", simulationConfig);
   }
 
   @Test
   public void mp4SampleWithEac3jocTrack() throws Exception {
-    ExtractorAsserts.assertBehavior(Mp4Extractor::new, "mp4/sample_eac3joc.mp4");
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_eac3joc.mp4", simulationConfig);
+  }
+
+  @Test
+  public void mp4SampleWithOpusTrack() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new, "media/mp4/sample_opus.mp4", simulationConfig);
   }
 }

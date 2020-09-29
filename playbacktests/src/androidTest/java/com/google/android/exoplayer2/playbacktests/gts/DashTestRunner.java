@@ -19,13 +19,13 @@ import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
 
 import android.media.MediaDrm;
 import android.media.UnsupportedSchemeException;
-import android.net.Uri;
 import android.view.Surface;
 import android.widget.FrameLayout;
 import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -56,6 +56,7 @@ import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -257,33 +258,33 @@ import java.util.List;
     }
 
     @Override
-    protected DrmSessionManager buildDrmSessionManager(final String userAgent) {
+    protected DrmSessionManager buildDrmSessionManager() {
       if (widevineLicenseUrl == null) {
         return DrmSessionManager.getDummyDrmSessionManager();
       }
-      try {
-        MediaDrmCallback drmCallback = new HttpMediaDrmCallback(widevineLicenseUrl,
-            new DefaultHttpDataSourceFactory(userAgent));
-        FrameworkMediaDrm frameworkMediaDrm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
-        DefaultDrmSessionManager drmSessionManager =
-            new DefaultDrmSessionManager(
-                C.WIDEVINE_UUID,
-                frameworkMediaDrm,
-                drmCallback,
-                /* keyRequestParameters= */ null,
-                /* multiSession= */ false,
-                DefaultDrmSessionManager.INITIAL_DRM_REQUEST_RETRY_COUNT);
-        if (!useL1Widevine) {
-          frameworkMediaDrm.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
-        }
-        if (offlineLicenseKeySetId != null) {
-          drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK,
-              offlineLicenseKeySetId);
-        }
-        return drmSessionManager;
-      } catch (UnsupportedDrmException e) {
-        throw new IllegalStateException(e);
+      MediaDrmCallback drmCallback =
+          new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSourceFactory());
+      DefaultDrmSessionManager drmSessionManager =
+          new DefaultDrmSessionManager.Builder()
+              .setUuidAndExoMediaDrmProvider(
+                  C.WIDEVINE_UUID,
+                  uuid -> {
+                    try {
+                      FrameworkMediaDrm drm = FrameworkMediaDrm.newInstance(WIDEVINE_UUID);
+                      if (!useL1Widevine) {
+                        drm.setPropertyString(SECURITY_LEVEL_PROPERTY, WIDEVINE_SECURITY_LEVEL_3);
+                      }
+                      return drm;
+                    } catch (UnsupportedDrmException e) {
+                      throw new IllegalStateException(e);
+                    }
+                  })
+              .build(drmCallback);
+
+      if (offlineLicenseKeySetId != null) {
+        drmSessionManager.setMode(DefaultDrmSessionManager.MODE_PLAYBACK, offlineLicenseKeySetId);
       }
+      return drmSessionManager;
     }
 
     @Override
@@ -300,18 +301,16 @@ import java.util.List;
     @Override
     protected MediaSource buildSource(
         HostActivity host,
-        String userAgent,
         DrmSessionManager drmSessionManager,
         FrameLayout overlayFrameLayout) {
       DataSource.Factory dataSourceFactory =
           this.dataSourceFactory != null
               ? this.dataSourceFactory
-              : new DefaultDataSourceFactory(host, userAgent);
-      Uri manifestUri = Uri.parse(manifestUrl);
+              : new DefaultDataSourceFactory(host);
       return new DashMediaSource.Factory(dataSourceFactory)
           .setDrmSessionManager(drmSessionManager)
           .setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(MIN_LOADABLE_RETRY_COUNT))
-          .createMediaSource(manifestUri);
+          .createMediaSource(MediaItem.fromUri(manifestUrl));
     }
 
     @Override
@@ -444,7 +443,7 @@ import java.util.List;
         }
       }
 
-      int[] trackIndicesArray = Util.toArray(trackIndices);
+      int[] trackIndicesArray = Ints.toArray(trackIndices);
       Arrays.sort(trackIndicesArray);
       return trackIndicesArray;
     }

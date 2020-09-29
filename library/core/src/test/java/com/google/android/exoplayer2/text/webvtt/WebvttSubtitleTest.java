@@ -21,6 +21,7 @@ import static java.lang.Long.MAX_VALUE;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.Cue;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +34,6 @@ public class WebvttSubtitleTest {
 
   private static final String FIRST_SUBTITLE_STRING = "This is the first subtitle.";
   private static final String SECOND_SUBTITLE_STRING = "This is the second subtitle.";
-  private static final String FIRST_AND_SECOND_SUBTITLE_STRING =
-      FIRST_SUBTITLE_STRING + "\n" + SECOND_SUBTITLE_STRING;
 
   private static final WebvttSubtitle emptySubtitle = new WebvttSubtitle(Collections.emptyList());
 
@@ -84,161 +83,225 @@ public class WebvttSubtitleTest {
 
   @Test
   public void simpleSubtitleEventTimes() {
-    testSubtitleEventTimesHelper(simpleSubtitle);
+    assertThat(simpleSubtitle.getEventTime(0)).isEqualTo(1_000_000);
+    assertThat(simpleSubtitle.getEventTime(1)).isEqualTo(2_000_000);
+    assertThat(simpleSubtitle.getEventTime(2)).isEqualTo(3_000_000);
+    assertThat(simpleSubtitle.getEventTime(3)).isEqualTo(4_000_000);
   }
 
   @Test
   public void simpleSubtitleEventIndices() {
-    testSubtitleEventIndicesHelper(simpleSubtitle);
+    // Test first event
+    assertThat(simpleSubtitle.getNextEventTimeIndex(0)).isEqualTo(0);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(500_000)).isEqualTo(0);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(999_999)).isEqualTo(0);
+
+    // Test second event
+    assertThat(simpleSubtitle.getNextEventTimeIndex(1_000_000)).isEqualTo(1);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(1_500_000)).isEqualTo(1);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(1_999_999)).isEqualTo(1);
+
+    // Test third event
+    assertThat(simpleSubtitle.getNextEventTimeIndex(2_000_000)).isEqualTo(2);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(2_500_000)).isEqualTo(2);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(2_999_999)).isEqualTo(2);
+
+    // Test fourth event
+    assertThat(simpleSubtitle.getNextEventTimeIndex(3_000_000)).isEqualTo(3);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(3_500_000)).isEqualTo(3);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(3_999_999)).isEqualTo(3);
+
+    // Test null event (i.e. look for events after the last event)
+    assertThat(simpleSubtitle.getNextEventTimeIndex(4_000_000)).isEqualTo(INDEX_UNSET);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(4_500_000)).isEqualTo(INDEX_UNSET);
+    assertThat(simpleSubtitle.getNextEventTimeIndex(MAX_VALUE)).isEqualTo(INDEX_UNSET);
   }
 
   @Test
   public void simpleSubtitleText() {
     // Test before first subtitle
-    assertSingleCueEmpty(simpleSubtitle.getCues(0));
-    assertSingleCueEmpty(simpleSubtitle.getCues(500_000));
-    assertSingleCueEmpty(simpleSubtitle.getCues(999_999));
+    assertThat(simpleSubtitle.getCues(0)).isEmpty();
+    assertThat(simpleSubtitle.getCues(500_000)).isEmpty();
+    assertThat(simpleSubtitle.getCues(999_999)).isEmpty();
 
     // Test first subtitle
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getCues(1_000_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getCues(1_500_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, simpleSubtitle.getCues(1_999_999));
+    assertThat(getCueTexts(simpleSubtitle.getCues(1_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(simpleSubtitle.getCues(1_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(simpleSubtitle.getCues(1_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
 
     // Test after first subtitle, before second subtitle
-    assertSingleCueEmpty(simpleSubtitle.getCues(2_000_000));
-    assertSingleCueEmpty(simpleSubtitle.getCues(2_500_000));
-    assertSingleCueEmpty(simpleSubtitle.getCues(2_999_999));
+    assertThat(simpleSubtitle.getCues(2_000_000)).isEmpty();
+    assertThat(simpleSubtitle.getCues(2_500_000)).isEmpty();
+    assertThat(simpleSubtitle.getCues(2_999_999)).isEmpty();
 
     // Test second subtitle
-    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getCues(3_000_000));
-    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getCues(3_500_000));
-    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, simpleSubtitle.getCues(3_999_999));
+    assertThat(getCueTexts(simpleSubtitle.getCues(3_000_000)))
+        .containsExactly(SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(simpleSubtitle.getCues(3_500_000)))
+        .containsExactly(SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(simpleSubtitle.getCues(3_999_999)))
+        .containsExactly(SECOND_SUBTITLE_STRING);
 
     // Test after second subtitle
-    assertSingleCueEmpty(simpleSubtitle.getCues(4_000_000));
-    assertSingleCueEmpty(simpleSubtitle.getCues(4_500_000));
-    assertSingleCueEmpty(simpleSubtitle.getCues(Long.MAX_VALUE));
+    assertThat(simpleSubtitle.getCues(4_000_000)).isEmpty();
+    assertThat(simpleSubtitle.getCues(4_500_000)).isEmpty();
+    assertThat(simpleSubtitle.getCues(Long.MAX_VALUE)).isEmpty();
   }
 
   @Test
   public void overlappingSubtitleEventTimes() {
-    testSubtitleEventTimesHelper(overlappingSubtitle);
+    assertThat(overlappingSubtitle.getEventTime(0)).isEqualTo(1_000_000);
+    assertThat(overlappingSubtitle.getEventTime(1)).isEqualTo(2_000_000);
+    assertThat(overlappingSubtitle.getEventTime(2)).isEqualTo(3_000_000);
+    assertThat(overlappingSubtitle.getEventTime(3)).isEqualTo(4_000_000);
   }
 
   @Test
   public void overlappingSubtitleEventIndices() {
-    testSubtitleEventIndicesHelper(overlappingSubtitle);
+    // Test first event
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(0)).isEqualTo(0);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(500_000)).isEqualTo(0);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(999_999)).isEqualTo(0);
+
+    // Test second event
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(1_000_000)).isEqualTo(1);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(1_500_000)).isEqualTo(1);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(1_999_999)).isEqualTo(1);
+
+    // Test third event
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(2_000_000)).isEqualTo(2);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(2_500_000)).isEqualTo(2);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(2_999_999)).isEqualTo(2);
+
+    // Test fourth event
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(3_000_000)).isEqualTo(3);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(3_500_000)).isEqualTo(3);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(3_999_999)).isEqualTo(3);
+
+    // Test null event (i.e. look for events after the last event)
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(4_000_000)).isEqualTo(INDEX_UNSET);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(4_500_000)).isEqualTo(INDEX_UNSET);
+    assertThat(overlappingSubtitle.getNextEventTimeIndex(MAX_VALUE)).isEqualTo(INDEX_UNSET);
   }
 
   @Test
   public void overlappingSubtitleText() {
     // Test before first subtitle
-    assertSingleCueEmpty(overlappingSubtitle.getCues(0));
-    assertSingleCueEmpty(overlappingSubtitle.getCues(500_000));
-    assertSingleCueEmpty(overlappingSubtitle.getCues(999_999));
+    assertThat(overlappingSubtitle.getCues(0)).isEmpty();
+    assertThat(overlappingSubtitle.getCues(500_000)).isEmpty();
+    assertThat(overlappingSubtitle.getCues(999_999)).isEmpty();
 
     // Test first subtitle
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getCues(1_000_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getCues(1_500_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, overlappingSubtitle.getCues(1_999_999));
+    assertThat(getCueTexts(overlappingSubtitle.getCues(1_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(1_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(1_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
 
     // Test after first and second subtitle
-    assertSingleCueTextEquals(
-        FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(2_000_000));
-    assertSingleCueTextEquals(
-        FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(2_500_000));
-    assertSingleCueTextEquals(
-        FIRST_AND_SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(2_999_999));
+    assertThat(getCueTexts(overlappingSubtitle.getCues(2_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(2_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(2_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
 
     // Test second subtitle
-    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(3_000_000));
-    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(3_500_000));
-    assertSingleCueTextEquals(SECOND_SUBTITLE_STRING, overlappingSubtitle.getCues(3_999_999));
+    assertThat(getCueTexts(overlappingSubtitle.getCues(3_000_000)))
+        .containsExactly(SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(3_500_000)))
+        .containsExactly(SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(overlappingSubtitle.getCues(3_999_999)))
+        .containsExactly(SECOND_SUBTITLE_STRING);
 
     // Test after second subtitle
-    assertSingleCueEmpty(overlappingSubtitle.getCues(4_000_000));
-    assertSingleCueEmpty(overlappingSubtitle.getCues(4_500_000));
-    assertSingleCueEmpty(overlappingSubtitle.getCues(Long.MAX_VALUE));
+    assertThat(overlappingSubtitle.getCues(4_000_000)).isEmpty();
+    assertThat(overlappingSubtitle.getCues(4_500_000)).isEmpty();
+    assertThat(overlappingSubtitle.getCues(Long.MAX_VALUE)).isEmpty();
   }
 
   @Test
   public void nestedSubtitleEventTimes() {
-    testSubtitleEventTimesHelper(nestedSubtitle);
+    assertThat(nestedSubtitle.getEventTime(0)).isEqualTo(1_000_000);
+    assertThat(nestedSubtitle.getEventTime(1)).isEqualTo(2_000_000);
+    assertThat(nestedSubtitle.getEventTime(2)).isEqualTo(3_000_000);
+    assertThat(nestedSubtitle.getEventTime(3)).isEqualTo(4_000_000);
   }
 
   @Test
   public void nestedSubtitleEventIndices() {
-    testSubtitleEventIndicesHelper(nestedSubtitle);
+    // Test first event
+    assertThat(nestedSubtitle.getNextEventTimeIndex(0)).isEqualTo(0);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(500_000)).isEqualTo(0);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(999_999)).isEqualTo(0);
+
+    // Test second event
+    assertThat(nestedSubtitle.getNextEventTimeIndex(1_000_000)).isEqualTo(1);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(1_500_000)).isEqualTo(1);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(1_999_999)).isEqualTo(1);
+
+    // Test third event
+    assertThat(nestedSubtitle.getNextEventTimeIndex(2_000_000)).isEqualTo(2);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(2_500_000)).isEqualTo(2);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(2_999_999)).isEqualTo(2);
+
+    // Test fourth event
+    assertThat(nestedSubtitle.getNextEventTimeIndex(3_000_000)).isEqualTo(3);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(3_500_000)).isEqualTo(3);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(3_999_999)).isEqualTo(3);
+
+    // Test null event (i.e. look for events after the last event)
+    assertThat(nestedSubtitle.getNextEventTimeIndex(4_000_000)).isEqualTo(INDEX_UNSET);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(4_500_000)).isEqualTo(INDEX_UNSET);
+    assertThat(nestedSubtitle.getNextEventTimeIndex(MAX_VALUE)).isEqualTo(INDEX_UNSET);
   }
 
   @Test
   public void nestedSubtitleText() {
     // Test before first subtitle
-    assertSingleCueEmpty(nestedSubtitle.getCues(0));
-    assertSingleCueEmpty(nestedSubtitle.getCues(500_000));
-    assertSingleCueEmpty(nestedSubtitle.getCues(999_999));
+    assertThat(nestedSubtitle.getCues(0)).isEmpty();
+    assertThat(nestedSubtitle.getCues(500_000)).isEmpty();
+    assertThat(nestedSubtitle.getCues(999_999)).isEmpty();
 
     // Test first subtitle
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(1_000_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(1_500_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(1_999_999));
+    assertThat(getCueTexts(nestedSubtitle.getCues(1_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(1_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(1_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
 
     // Test after first and second subtitle
-    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2_000_000));
-    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2_500_000));
-    assertSingleCueTextEquals(FIRST_AND_SECOND_SUBTITLE_STRING, nestedSubtitle.getCues(2_999_999));
+    assertThat(getCueTexts(nestedSubtitle.getCues(2_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(2_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(2_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING, SECOND_SUBTITLE_STRING);
 
     // Test first subtitle
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(3_000_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(3_500_000));
-    assertSingleCueTextEquals(FIRST_SUBTITLE_STRING, nestedSubtitle.getCues(3_999_999));
+    assertThat(getCueTexts(nestedSubtitle.getCues(3_000_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(3_500_000)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
+    assertThat(getCueTexts(nestedSubtitle.getCues(3_999_999)))
+        .containsExactly(FIRST_SUBTITLE_STRING);
 
     // Test after second subtitle
-    assertSingleCueEmpty(nestedSubtitle.getCues(4_000_000));
-    assertSingleCueEmpty(nestedSubtitle.getCues(4_500_000));
-    assertSingleCueEmpty(nestedSubtitle.getCues(Long.MAX_VALUE));
+    assertThat(nestedSubtitle.getCues(4_000_000)).isEmpty();
+    assertThat(nestedSubtitle.getCues(4_500_000)).isEmpty();
+    assertThat(nestedSubtitle.getCues(Long.MAX_VALUE)).isEmpty();
   }
 
-  private void testSubtitleEventTimesHelper(WebvttSubtitle subtitle) {
-    assertThat(subtitle.getEventTime(0)).isEqualTo(1_000_000);
-    assertThat(subtitle.getEventTime(1)).isEqualTo(2_000_000);
-    assertThat(subtitle.getEventTime(2)).isEqualTo(3_000_000);
-    assertThat(subtitle.getEventTime(3)).isEqualTo(4_000_000);
-  }
-
-  private void testSubtitleEventIndicesHelper(WebvttSubtitle subtitle) {
-    // Test first event
-    assertThat(subtitle.getNextEventTimeIndex(0)).isEqualTo(0);
-    assertThat(subtitle.getNextEventTimeIndex(500_000)).isEqualTo(0);
-    assertThat(subtitle.getNextEventTimeIndex(999_999)).isEqualTo(0);
-
-    // Test second event
-    assertThat(subtitle.getNextEventTimeIndex(1_000_000)).isEqualTo(1);
-    assertThat(subtitle.getNextEventTimeIndex(1_500_000)).isEqualTo(1);
-    assertThat(subtitle.getNextEventTimeIndex(1_999_999)).isEqualTo(1);
-
-    // Test third event
-    assertThat(subtitle.getNextEventTimeIndex(2_000_000)).isEqualTo(2);
-    assertThat(subtitle.getNextEventTimeIndex(2_500_000)).isEqualTo(2);
-    assertThat(subtitle.getNextEventTimeIndex(2_999_999)).isEqualTo(2);
-
-    // Test fourth event
-    assertThat(subtitle.getNextEventTimeIndex(3_000_000)).isEqualTo(3);
-    assertThat(subtitle.getNextEventTimeIndex(3_500_000)).isEqualTo(3);
-    assertThat(subtitle.getNextEventTimeIndex(3_999_999)).isEqualTo(3);
-
-    // Test null event (i.e. look for events after the last event)
-    assertThat(subtitle.getNextEventTimeIndex(4_000_000)).isEqualTo(INDEX_UNSET);
-    assertThat(subtitle.getNextEventTimeIndex(4_500_000)).isEqualTo(INDEX_UNSET);
-    assertThat(subtitle.getNextEventTimeIndex(MAX_VALUE)).isEqualTo(INDEX_UNSET);
-  }
-
-  private void assertSingleCueEmpty(List<Cue> cues) {
-    assertThat(cues).isEmpty();
-  }
-
-  private void assertSingleCueTextEquals(String expected, List<Cue> cues) {
-    assertThat(cues).hasSize(1);
-    assertThat(cues.get(0).text.toString()).isEqualTo(expected);
+  private static List<String> getCueTexts(List<Cue> cues) {
+    List<String> cueTexts = new ArrayList<>();
+    for (int i = 0; i < cues.size(); i++) {
+      cueTexts.add(cues.get(i).text.toString());
+    }
+    return cueTexts;
   }
 }

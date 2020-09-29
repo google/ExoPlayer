@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import static com.google.android.exoplayer2.testutil.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -40,19 +39,19 @@ public final class NalUnitUtilTest {
     byte[] data = buildTestData();
 
     // Should find NAL unit.
-    int result = NalUnitUtil.findNalUnit(data, 0, data.length, null);
+    int result = NalUnitUtil.findNalUnit(data, 0, data.length, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Should find NAL unit whose prefix ends one byte before the limit.
-    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 4, null);
+    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 4, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Shouldn't find NAL unit whose prefix ends at the limit (since the limit is exclusive).
-    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 3, null);
+    result = NalUnitUtil.findNalUnit(data, 0, TEST_NAL_POSITION + 3, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION + 3);
     // Should find NAL unit whose prefix starts at the offset.
-    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION, data.length, null);
+    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION, data.length, new boolean[3]);
     assertThat(result).isEqualTo(TEST_NAL_POSITION);
     // Shouldn't find NAL unit whose prefix starts one byte past the offset.
-    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION + 1, data.length, null);
+    result = NalUnitUtil.findNalUnit(data, TEST_NAL_POSITION + 1, data.length, new boolean[3]);
     assertThat(result).isEqualTo(data.length);
   }
 
@@ -210,4 +209,14 @@ public final class NalUnitUtilTest {
     assertThat(Arrays.copyOf(buffer.array(), buffer.position())).isEqualTo(expectedOutputBitstream);
   }
 
+  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] createByteArray(int... bytes) {
+    byte[] byteArray = new byte[bytes.length];
+    for (int i = 0; i < byteArray.length; i++) {
+      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
+      byteArray[i] = (byte) bytes[i];
+    }
+    return byteArray;
+  }
 }

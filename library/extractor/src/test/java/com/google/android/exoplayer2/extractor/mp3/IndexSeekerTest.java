@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class IndexSeekerTest {
 
-  private static final String TEST_FILE_NO_SEEK_TABLE = "mp3/bear-vbr-no-seek-table.mp3";
+  private static final String TEST_FILE_NO_SEEK_TABLE = "media/mp3/bear-vbr-no-seek-table.mp3";
   private static final int TEST_FILE_NO_SEEK_TABLE_DURATION = 2_808_000;
 
   private Mp3Extractor extractor;
@@ -52,7 +52,7 @@ public class IndexSeekerTest {
     extractor = new Mp3Extractor(FLAG_ENABLE_INDEX_SEEKING);
     extractorOutput = new FakeExtractorOutput();
     dataSource =
-        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext(), "UserAgent")
+        new DefaultDataSourceFactory(ApplicationProvider.getApplicationContext())
             .createDataSource();
   }
 

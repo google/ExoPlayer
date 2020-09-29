@@ -37,20 +37,23 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.Downloader;
-import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
 import com.google.android.exoplayer2.offline.DownloaderFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.testutil.CacheAsserts.RequestSet;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
-import com.google.android.exoplayer2.testutil.FakeDataSource.Factory;
+import com.google.android.exoplayer2.testutil.FakeDataSource;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DummyDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.util.ArrayList;
@@ -75,7 +78,8 @@ public class HlsDownloaderTest {
   public void setUp() throws Exception {
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
-    cache = new SimpleCache(tempFolder, new NoOpCacheEvictor());
+    cache =
+        new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
     progressListener = new ProgressListener();
     fakeDataSet =
         new FakeDataSet()
@@ -97,19 +101,21 @@ public class HlsDownloaderTest {
 
   @Test
   public void createWithDefaultDownloaderFactory() {
-    DownloaderConstructorHelper constructorHelper =
-        new DownloaderConstructorHelper(Mockito.mock(Cache.class), DummyDataSource.FACTORY);
-    DownloaderFactory factory = new DefaultDownloaderFactory(constructorHelper);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(Mockito.mock(Cache.class))
+            .setUpstreamDataSourceFactory(DummyDataSource.FACTORY);
+    DownloaderFactory factory =
+        new DefaultDownloaderFactory(cacheDataSourceFactory, /* executor= */ Runnable::run);
 
     Downloader downloader =
         factory.createDownloader(
-            new DownloadRequest(
-                "id",
-                DownloadRequest.TYPE_HLS,
-                Uri.parse("https://www.test.com/download"),
-                Collections.singletonList(new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)),
-                /* customCacheKey= */ null,
-                /* data= */ null));
+            new DownloadRequest.Builder(/* id= */ "id", Uri.parse("https://www.test.com/download"))
+                .setMimeType(MimeTypes.APPLICATION_M3U8)
+                .setStreamKeys(
+                    Collections.singletonList(
+                        new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0)))
+                .build());
     assertThat(downloader).isInstanceOf(HlsDownloader.class);
   }
 
@@ -213,9 +219,13 @@ public class HlsDownloaderTest {
   }
 
   private HlsDownloader getHlsDownloader(String mediaPlaylistUri, List<StreamKey> keys) {
-    Factory factory = new Factory().setFakeDataSet(fakeDataSet);
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(cache)
+            .setUpstreamDataSourceFactory(new FakeDataSource.Factory().setFakeDataSet(fakeDataSet));
     return new HlsDownloader(
-        Uri.parse(mediaPlaylistUri), keys, new DownloaderConstructorHelper(cache, factory));
+        new MediaItem.Builder().setUri(mediaPlaylistUri).setStreamKeys(keys).build(),
+        cacheDataSourceFactory);
   }
 
   private static ArrayList<StreamKey> getKeys(int... variantIndices) {

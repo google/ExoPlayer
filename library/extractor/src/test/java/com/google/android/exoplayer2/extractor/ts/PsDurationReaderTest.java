@@ -52,7 +52,8 @@ public final class PsDurationReaderTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_h262_mpeg_audio.ps"))
+                    ApplicationProvider.getApplicationContext(),
+                    "media/ts/sample_h262_mpeg_audio.ps"))
             .build();
 
     int result = Extractor.RESULT_CONTINUE;
@@ -72,7 +73,8 @@ public final class PsDurationReaderTest {
         new FakeExtractorInput.Builder()
             .setData(
                 TestUtil.getByteArray(
-                    ApplicationProvider.getApplicationContext(), "ts/sample_h262_mpeg_audio.ps"))
+                    ApplicationProvider.getApplicationContext(),
+                    "media/ts/sample_h262_mpeg_audio.ps"))
             .build();
 
     input.setPosition(1234);

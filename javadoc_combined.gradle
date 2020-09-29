@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+apply from: "${buildscript.sourceFile.parentFile}/constants.gradle"
 apply from: "${buildscript.sourceFile.parentFile}/javadoc_util.gradle"
 
 class CombinedJavadocPlugin implements Plugin<Project> {
@@ -29,7 +30,8 @@ class CombinedJavadocPlugin implements Plugin<Project> {
           classpath = project.files([])
           destinationDir = project.file("$project.buildDir/docs/javadoc")
           options {
-            links "https://developer.android.com/reference"
+            links "https://developer.android.com/reference",
+                  "https://guava.dev/releases/$project.ext.guavaVersion/api/docs"
             encoding = "UTF-8"
           }
           exclude "**/BuildConfig.java"

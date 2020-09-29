@@ -15,12 +15,10 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
-import android.text.Layout.Alignment;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -80,7 +78,12 @@ import java.util.Map;
   }
 
   public static void applyStylesToSpan(
-      Spannable builder, int start, int end, TtmlStyle style, @Nullable TtmlNode parent) {
+      Spannable builder,
+      int start,
+      int end,
+      TtmlStyle style,
+      @Nullable TtmlNode parent,
+      Map<String, TtmlStyle> globalStyles) {
 
     if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
       builder.setSpan(new StyleSpan(style.getStyle()), start, end,
@@ -119,12 +122,12 @@ import java.util.Map;
     switch (style.getRubyType()) {
       case TtmlStyle.RUBY_TYPE_BASE:
         // look for the sibling RUBY_TEXT and add it as span between start & end.
-        @Nullable TtmlNode containerNode = findRubyContainerNode(parent);
+        @Nullable TtmlNode containerNode = findRubyContainerNode(parent, globalStyles);
         if (containerNode == null) {
           // No matching container node
           break;
         }
-        @Nullable TtmlNode textNode = findRubyTextNode(containerNode);
+        @Nullable TtmlNode textNode = findRubyTextNode(containerNode, globalStyles);
         if (textNode == null) {
           // no matching text node
           break;
@@ -161,16 +164,6 @@ import java.util.Map;
       default:
         // Do nothing
         break;
-    }
-
-    @Nullable Alignment textAlign = style.getTextAlign();
-    if (textAlign != null) {
-      SpanUtil.addOrReplaceSpan(
-          builder,
-          new AlignmentSpan.Standard(textAlign),
-          start,
-          end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     if (style.getTextCombine()) {
       SpanUtil.addOrReplaceSpan(
@@ -212,12 +205,15 @@ import java.util.Map;
   }
 
   @Nullable
-  private static TtmlNode findRubyTextNode(TtmlNode rubyContainerNode) {
+  private static TtmlNode findRubyTextNode(
+      TtmlNode rubyContainerNode, Map<String, TtmlStyle> globalStyles) {
     Deque<TtmlNode> childNodesStack = new ArrayDeque<>();
     childNodesStack.push(rubyContainerNode);
     while (!childNodesStack.isEmpty()) {
       TtmlNode childNode = childNodesStack.pop();
-      if (childNode.style != null && childNode.style.getRubyType() == TtmlStyle.RUBY_TYPE_TEXT) {
+      @Nullable
+      TtmlStyle style = resolveStyle(childNode.style, childNode.getStyleIds(), globalStyles);
+      if (style != null && style.getRubyType() == TtmlStyle.RUBY_TYPE_TEXT) {
         return childNode;
       }
       for (int i = childNode.getChildCount() - 1; i >= 0; i--) {
@@ -229,9 +225,10 @@ import java.util.Map;
   }
 
   @Nullable
-  private static TtmlNode findRubyContainerNode(@Nullable TtmlNode node) {
+  private static TtmlNode findRubyContainerNode(
+      @Nullable TtmlNode node, Map<String, TtmlStyle> globalStyles) {
     while (node != null) {
-      @Nullable TtmlStyle style = node.style;
+      @Nullable TtmlStyle style = resolveStyle(node.style, node.getStyleIds(), globalStyles);
       if (style != null && style.getRubyType() == TtmlStyle.RUBY_TYPE_CONTAINER) {
         return node;
       }

@@ -15,9 +15,12 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.max;
+
 import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import android.os.SystemClock;
+import androidx.annotation.CallSuper;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.BaseRenderer;
@@ -26,9 +29,11 @@ import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispatcher;
+import com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
@@ -69,7 +74,10 @@ import java.lang.annotation.RetentionPolicy;
  *       underlying audio track.
  * </ul>
  */
-public abstract class DecoderAudioRenderer extends BaseRenderer implements MediaClock {
+public abstract class DecoderAudioRenderer<
+        T extends
+            Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>>
+    extends BaseRenderer implements MediaClock {
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -105,9 +113,9 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   private int encoderDelay;
   private int encoderPadding;
 
-  @Nullable
-  private Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
-      decoder;
+  private boolean experimentalKeepAudioTrackOnSeek;
+
+  @Nullable private T decoder;
 
   @Nullable private DecoderInputBuffer inputBuffer;
   @Nullable private SimpleOutputBuffer outputBuffer;
@@ -123,7 +131,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private boolean waitingForKeys;
 
   public DecoderAudioRenderer() {
     this(/* eventHandler= */ null, /* eventListener= */ null);
@@ -181,6 +188,19 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     audioTrackNeedsConfigure = true;
   }
 
+  /**
+   * Sets whether to enable the experimental feature that keeps and flushes the {@link
+   * android.media.AudioTrack} when a seek occurs, as opposed to releasing and reinitialising. Off
+   * by default.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param enableKeepAudioTrackOnSeek Whether to keep the {@link android.media.AudioTrack} on seek.
+   */
+  public void experimentalSetEnableKeepAudioTrackOnSeek(boolean enableKeepAudioTrackOnSeek) {
+    this.experimentalKeepAudioTrackOnSeek = enableKeepAudioTrackOnSeek;
+  }
+
   @Override
   @Nullable
   public MediaClock getMediaClock() {
@@ -212,12 +232,23 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   protected abstract int supportsFormatInternal(Format format);
 
   /**
-   * Returns whether the sink supports the audio format.
+   * Returns whether the renderer's {@link AudioSink} supports a given {@link Format}.
    *
-   * @see AudioSink#supportsOutput(int, int)
+   * @see AudioSink#supportsFormat(Format)
    */
-  protected final boolean supportsOutput(int channelCount, @C.Encoding int encoding) {
-    return audioSink.supportsOutput(channelCount, encoding);
+  protected final boolean sinkSupportsFormat(Format format) {
+    return audioSink.supportsFormat(format);
+  }
+
+  /**
+   * Returns the level of support that the renderer's {@link AudioSink} provides for a given {@link
+   * Format}.
+   *
+   * @see AudioSink#getFormatSupport(Format) (Format)
+   */
+  @SinkFormatSupport
+  protected final int getSinkFormatSupport(Format format) {
+    return audioSink.getFormatSupport(format);
   }
 
   @Override
@@ -226,7 +257,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       try {
         audioSink.playToEndOfStream();
       } catch (AudioSink.WriteException e) {
-        throw createRendererException(e, inputFormat);
+        throw createRendererException(e, inputFormat, e.isRecoverable);
       }
       return;
     }
@@ -243,7 +274,11 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
         // End of stream read having not read a format.
         Assertions.checkState(flagsOnlyBuffer.isEndOfStream());
         inputStreamEnded = true;
-        processEndOfStream();
+        try {
+          processEndOfStream();
+        } catch (AudioSink.WriteException e) {
+          throw createRendererException(e, /* format= */ null);
+        }
         return;
       } else {
         // We still don't have a format and can't make progress without one.
@@ -261,11 +296,12 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
         while (drainOutputBuffer()) {}
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
-      } catch (DecoderException
-          | AudioSink.ConfigurationException
-          | AudioSink.InitializationException
-          | AudioSink.WriteException e) {
+      } catch (DecoderException | AudioSink.ConfigurationException e) {
         throw createRendererException(e, inputFormat);
+      } catch (AudioSink.InitializationException e) {
+        throw createRendererException(e, inputFormat, e.isRecoverable);
+      } catch (AudioSink.WriteException e) {
+        throw createRendererException(e, inputFormat, e.isRecoverable);
       }
       decoderCounters.ensureUpdated();
     }
@@ -284,19 +320,10 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   }
 
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
-  protected void onAudioTrackPositionDiscontinuity() {
-    // Do nothing.
-  }
-
-  /** See {@link AudioSink.Listener#onUnderrun(int, long, long)}. */
-  protected void onAudioTrackUnderrun(
-      int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-    // Do nothing.
-  }
-
-  /** See {@link AudioSink.Listener#onSkipSilenceEnabledChanged(boolean)}. */
-  protected void onAudioTrackSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
-    // Do nothing.
+  @CallSuper
+  protected void onPositionDiscontinuity() {
+    // We are out of sync so allow currentPositionUs to jump backwards.
+    allowPositionDiscontinuity = true;
   }
 
   /**
@@ -308,22 +335,23 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
    * @return The decoder.
    * @throws DecoderException If an error occurred creating a suitable decoder.
    */
-  protected abstract Decoder<
-          DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>
-      createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto) throws DecoderException;
+  protected abstract T createDecoder(Format format, @Nullable ExoMediaCrypto mediaCrypto)
+      throws DecoderException;
 
   /**
    * Returns the format of audio buffers output by the decoder. Will not be called until the first
    * output buffer has been dequeued, so the decoder may use input data to determine the format.
+   *
+   * @param decoder The decoder.
    */
-  protected abstract Format getOutputFormat();
+  protected abstract Format getOutputFormat(T decoder);
 
   /**
    * Returns whether the existing decoder can be kept for a new format.
    *
    * @param oldFormat The previous format.
    * @param newFormat The new format.
-   * @return True if the existing decoder can be kept.
+   * @return Whether the existing decoder can be kept.
    */
   protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
     return false;
@@ -353,15 +381,23 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       } else {
         outputBuffer.release();
         outputBuffer = null;
-        processEndOfStream();
+        try {
+          processEndOfStream();
+        } catch (AudioSink.WriteException e) {
+          throw createRendererException(e, getOutputFormat(decoder), e.isRecoverable);
+        }
       }
       return false;
     }
 
     if (audioTrackNeedsConfigure) {
-      Format outputFormat = getOutputFormat();
-      audioSink.configure(outputFormat.pcmEncoding, outputFormat.channelCount,
-          outputFormat.sampleRate, 0, null, encoderDelay, encoderPadding);
+      Format outputFormat =
+          getOutputFormat(decoder)
+              .buildUpon()
+              .setEncoderDelay(encoderDelay)
+              .setEncoderPadding(encoderPadding)
+              .build();
+      audioSink.configure(outputFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
       audioTrackNeedsConfigure = false;
     }
 
@@ -398,66 +434,38 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       return false;
     }
 
-    @SampleStream.ReadDataResult int result;
     FormatHolder formatHolder = getFormatHolder();
-    if (waitingForKeys) {
-      // We've already read an encrypted sample into buffer, and are waiting for keys.
-      result = C.RESULT_BUFFER_READ;
-    } else {
-      result = readSource(formatHolder, inputBuffer, false);
+    switch (readSource(formatHolder, inputBuffer, /* formatRequired= */ false)) {
+      case C.RESULT_NOTHING_READ:
+        return false;
+      case C.RESULT_FORMAT_READ:
+        onInputFormatChanged(formatHolder);
+        return true;
+      case C.RESULT_BUFFER_READ:
+        if (inputBuffer.isEndOfStream()) {
+          inputStreamEnded = true;
+          decoder.queueInputBuffer(inputBuffer);
+          inputBuffer = null;
+          return false;
+        }
+        inputBuffer.flip();
+        onQueueInputBuffer(inputBuffer);
+        decoder.queueInputBuffer(inputBuffer);
+        decoderReceivedBuffers = true;
+        decoderCounters.inputBufferCount++;
+        inputBuffer = null;
+        return true;
+      default:
+        throw new IllegalStateException();
     }
-
-    if (result == C.RESULT_NOTHING_READ) {
-      return false;
-    }
-    if (result == C.RESULT_FORMAT_READ) {
-      onInputFormatChanged(formatHolder);
-      return true;
-    }
-    if (inputBuffer.isEndOfStream()) {
-      inputStreamEnded = true;
-      decoder.queueInputBuffer(inputBuffer);
-      inputBuffer = null;
-      return false;
-    }
-    boolean bufferEncrypted = inputBuffer.isEncrypted();
-    waitingForKeys = shouldWaitForKeys(bufferEncrypted);
-    if (waitingForKeys) {
-      return false;
-    }
-    inputBuffer.flip();
-    onQueueInputBuffer(inputBuffer);
-    decoder.queueInputBuffer(inputBuffer);
-    decoderReceivedBuffers = true;
-    decoderCounters.inputBufferCount++;
-    inputBuffer = null;
-    return true;
   }
 
-  private boolean shouldWaitForKeys(boolean bufferEncrypted) throws ExoPlaybackException {
-    if (decoderDrmSession == null
-        || (!bufferEncrypted && decoderDrmSession.playClearSamplesWithoutKeys())) {
-      return false;
-    }
-    @DrmSession.State int drmSessionState = decoderDrmSession.getState();
-    if (drmSessionState == DrmSession.STATE_ERROR) {
-      throw createRendererException(decoderDrmSession.getError(), inputFormat);
-    }
-    return drmSessionState != DrmSession.STATE_OPENED_WITH_KEYS;
-  }
-
-  private void processEndOfStream() throws ExoPlaybackException {
+  private void processEndOfStream() throws AudioSink.WriteException {
     outputStreamEnded = true;
-    try {
-      audioSink.playToEndOfStream();
-    } catch (AudioSink.WriteException e) {
-      // TODO(internal: b/145658993) Use outputFormat for the call from drainOutputBuffer.
-      throw createRendererException(e, inputFormat);
-    }
+    audioSink.playToEndOfStream();
   }
 
   private void flushDecoder() throws ExoPlaybackException {
-    waitingForKeys = false;
     if (decoderReinitializationState != REINITIALIZATION_STATE_NONE) {
       releaseDecoder();
       maybeInitDecoder();
@@ -480,7 +488,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   @Override
   public boolean isReady() {
     return audioSink.hasPendingData()
-        || (inputFormat != null && !waitingForKeys && (isSourceReady() || outputBuffer != null));
+        || (inputFormat != null && (isSourceReady() || outputBuffer != null));
   }
 
   @Override
@@ -492,13 +500,13 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   }
 
   @Override
-  public void setPlaybackSpeed(float playbackSpeed) {
-    audioSink.setPlaybackSpeed(playbackSpeed);
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
+    audioSink.setPlaybackParameters(playbackParameters);
   }
 
   @Override
-  public float getPlaybackSpeed() {
-    return audioSink.getPlaybackSpeed();
+  public PlaybackParameters getPlaybackParameters() {
+    return audioSink.getPlaybackParameters();
   }
 
   @Override
@@ -516,7 +524,12 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    audioSink.flush();
+    if (experimentalKeepAudioTrackOnSeek) {
+      audioSink.experimentalFlushWithoutAudioTrackRelease();
+    } else {
+      audioSink.flush();
+    }
+
     currentPositionUs = positionUs;
     allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
@@ -542,7 +555,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
   protected void onDisabled() {
     inputFormat = null;
     audioTrackNeedsConfigure = true;
-    waitingForKeys = false;
     try {
       setSourceDrmSession(null);
       releaseDecoder();
@@ -643,7 +655,9 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
     Format oldFormat = inputFormat;
     inputFormat = newFormat;
 
-    if (!canKeepCodec(oldFormat, inputFormat)) {
+    if (decoder == null) {
+      maybeInitDecoder();
+    } else if (sourceDrmSession != decoderDrmSession || !canKeepCodec(oldFormat, inputFormat)) {
       if (decoderReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -657,7 +671,6 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
 
     encoderDelay = inputFormat.encoderDelay;
     encoderPadding = inputFormat.encoderPadding;
-
     eventDispatcher.inputFormatChanged(inputFormat);
   }
 
@@ -679,7 +692,7 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
       currentPositionUs =
           allowPositionDiscontinuity
               ? newCurrentPositionUs
-              : Math.max(currentPositionUs, newCurrentPositionUs);
+              : max(currentPositionUs, newCurrentPositionUs);
       allowPositionDiscontinuity = false;
     }
   }
@@ -694,21 +707,27 @@ public abstract class DecoderAudioRenderer extends BaseRenderer implements Media
 
     @Override
     public void onPositionDiscontinuity() {
-      onAudioTrackPositionDiscontinuity();
-      // We are out of sync so allow currentPositionUs to jump backwards.
-      DecoderAudioRenderer.this.allowPositionDiscontinuity = true;
+      DecoderAudioRenderer.this.onPositionDiscontinuity();
+    }
+
+    @Override
+    public void onPositionAdvancing(long playoutStartSystemTimeMs) {
+      eventDispatcher.positionAdvancing(playoutStartSystemTimeMs);
     }
 
     @Override
     public void onUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-      eventDispatcher.audioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
-      onAudioTrackUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+      eventDispatcher.underrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
 
     @Override
     public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
       eventDispatcher.skipSilenceEnabledChanged(skipSilenceEnabled);
-      onAudioTrackSkipSilenceEnabledChanged(skipSilenceEnabled);
+    }
+
+    @Override
+    public void onAudioSinkError(Exception audioSinkError) {
+      eventDispatcher.audioSinkError(audioSinkError);
     }
   }
 }

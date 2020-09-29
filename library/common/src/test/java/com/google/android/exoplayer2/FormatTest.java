@@ -24,13 +24,14 @@ import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.drm.UnsupportedMediaCrypto;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -53,9 +54,10 @@ public final class FormatTest {
     parcel.setDataPosition(0);
 
     Format formatFromParcel = Format.CREATOR.createFromParcel(parcel);
-    Format expectedFormat = formatToParcel.buildUpon().setExoMediaCryptoType(null).build();
+    Format expectedFormat =
+        formatToParcel.buildUpon().setExoMediaCryptoType(UnsupportedMediaCrypto.class).build();
 
-    assertThat(formatFromParcel.exoMediaCryptoType).isNull();
+    assertThat(formatFromParcel.exoMediaCryptoType).isEqualTo(UnsupportedMediaCrypto.class);
     assertThat(formatFromParcel).isEqualTo(expectedFormat);
 
     parcel.recycle();
@@ -69,11 +71,9 @@ public final class FormatTest {
     initializationData.add(initData2);
 
     DrmInitData.SchemeData drmData1 =
-        new DrmInitData.SchemeData(
-            WIDEVINE_UUID, VIDEO_MP4, TestUtil.buildTestData(128, 1 /* data seed */));
+        new DrmInitData.SchemeData(WIDEVINE_UUID, VIDEO_MP4, buildTestData(128, 1 /* data seed */));
     DrmInitData.SchemeData drmData2 =
-        new DrmInitData.SchemeData(
-            C.UUID_NIL, VIDEO_WEBM, TestUtil.buildTestData(128, 1 /* data seed */));
+        new DrmInitData.SchemeData(C.UUID_NIL, VIDEO_WEBM, buildTestData(128, 1 /* data seed */));
     DrmInitData drmInitData = new DrmInitData(drmData1, drmData2);
 
     byte[] projectionData = new byte[] {1, 2, 3};
@@ -90,36 +90,45 @@ public final class FormatTest {
             C.COLOR_TRANSFER_SDR,
             new byte[] {1, 2, 3, 4, 5, 6, 7});
 
-    return new Format(
-        "id",
-        "label",
-        "language",
-        C.SELECTION_FLAG_DEFAULT,
-        C.ROLE_FLAG_MAIN,
-        /* averageBitrate= */ 1024,
-        /* peakBitrate= */ 2048,
-        "codec",
-        metadata,
-        /* containerMimeType= */ MimeTypes.VIDEO_MP4,
-        /* sampleMimeType= */ MimeTypes.VIDEO_H264,
-        /* maxInputSize= */ 5000,
-        initializationData,
-        drmInitData,
-        Format.OFFSET_SAMPLE_RELATIVE,
-        /* width= */ 1920,
-        /* height= */ 1080,
-        /* frameRate= */ 24,
-        /* rotationDegrees= */ 90,
-        /* pixelWidthHeightRatio= */ 4,
-        projectionData,
-        C.STEREO_MODE_TOP_BOTTOM,
-        colorInfo,
-        /* channelCount= */ 6,
-        /* sampleRate= */ 44100,
-        C.ENCODING_PCM_24BIT,
-        /* encoderDelay= */ 1001,
-        /* encoderPadding= */ 1002,
-        /* accessibilityChannel= */ 2,
-        /* exoMediaCryptoType= */ ExoMediaCrypto.class);
+    return new Format.Builder()
+        .setId("id")
+        .setLabel("label")
+        .setLanguage("language")
+        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+        .setRoleFlags(C.ROLE_FLAG_MAIN)
+        .setAverageBitrate(1024)
+        .setPeakBitrate(2048)
+        .setCodecs("codec")
+        .setMetadata(metadata)
+        .setContainerMimeType(MimeTypes.VIDEO_MP4)
+        .setSampleMimeType(MimeTypes.VIDEO_H264)
+        .setMaxInputSize(5000)
+        .setInitializationData(initializationData)
+        .setDrmInitData(drmInitData)
+        .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
+        .setWidth(1920)
+        .setHeight(1080)
+        .setFrameRate(24)
+        .setRotationDegrees(90)
+        .setPixelWidthHeightRatio(4)
+        .setProjectionData(projectionData)
+        .setStereoMode(C.STEREO_MODE_TOP_BOTTOM)
+        .setColorInfo(colorInfo)
+        .setChannelCount(6)
+        .setSampleRate(44100)
+        .setPcmEncoding(C.ENCODING_PCM_24BIT)
+        .setEncoderDelay(1001)
+        .setEncoderPadding(1002)
+        .setAccessibilityChannel(2)
+        .setExoMediaCryptoType(ExoMediaCrypto.class)
+        .build();
+  }
+
+  /** Generates an array of random bytes with the specified length. */
+  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
+  private static byte[] buildTestData(int length, int seed) {
+    byte[] source = new byte[length];
+    new Random(seed).nextBytes(source);
+    return source;
   }
 }

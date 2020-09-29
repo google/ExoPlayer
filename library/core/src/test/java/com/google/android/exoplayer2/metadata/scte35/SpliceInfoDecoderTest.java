@@ -200,7 +200,8 @@ public final class SpliceInfoDecoderTest {
   }
 
   private static long removePtsConversionPrecisionError(long timeUs, long offsetUs) {
-    return TimestampAdjuster.ptsToUs(TimestampAdjuster.usToPts(timeUs - offsetUs)) + offsetUs;
+    return TimestampAdjuster.ptsToUs(TimestampAdjuster.usToNonWrappedPts(timeUs - offsetUs))
+        + offsetUs;
   }
 
 }

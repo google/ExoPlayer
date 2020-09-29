@@ -15,33 +15,60 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Tests for {@link MatroskaExtractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class MatroskaExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void mkvSample() throws Exception {
-    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/sample.mkv");
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/sample.mkv", simulationConfig);
+  }
+
+  @Test
+  public void mkvSample_withSubripSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/sample_with_srt.mkv", simulationConfig);
+  }
+
+  @Test
+  public void mkvSample_withHtcRotationInfoInTrackName() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new,
+        "media/mkv/sample_with_htc_rotation_track_name.mkv",
+        simulationConfig);
   }
 
   @Test
   public void mkvFullBlocksSample() throws Exception {
-    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/full_blocks.mkv");
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/full_blocks.mkv", simulationConfig);
   }
 
   @Test
   public void webmSubsampleEncryption() throws Exception {
     ExtractorAsserts.assertBehavior(
-        MatroskaExtractor::new, "mkv/subsample_encrypted_noaltref.webm");
+        MatroskaExtractor::new, "media/mkv/subsample_encrypted_noaltref.webm", simulationConfig);
   }
 
   @Test
   public void webmSubsampleEncryptionWithAltrefFrames() throws Exception {
-    ExtractorAsserts.assertBehavior(MatroskaExtractor::new, "mkv/subsample_encrypted_altref.webm");
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/subsample_encrypted_altref.webm", simulationConfig);
   }
 }

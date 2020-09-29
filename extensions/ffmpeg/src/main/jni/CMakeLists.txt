@@ -1,61 +1,36 @@
-# libffmpegJNI requires modern CMake.
 cmake_minimum_required(VERSION 3.7.1 FATAL_ERROR)
 
-# libffmpegJNI requires C++11.
+# Enable C++11 features.
 set(CMAKE_CXX_STANDARD 11)
 
-project(libffmpeg C CXX)
+project(libffmpeg_jni C CXX)
 
-set(libgffmpeg_jni_root "${CMAKE_CURRENT_SOURCE_DIR}")
-set(libgffmpeg_jni_build "${CMAKE_BINARY_DIR}")
-set(libgffmpeg_jni_output_directory
-    ${libgffmpeg_jni_root}/../libs/${ANDROID_ABI}/)
+set(ffmpeg_location "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg")
+set(ffmpeg_binaries "${ffmpeg_location}/android-libs/${ANDROID_ABI}")
 
-add_library(
-        avutil
-        SHARED
-        IMPORTED)
-set_target_properties(
-        avutil PROPERTIES
-        IMPORTED_LOCATION
-        ${libgffmpeg_jni_output_directory}/libavutil.so)
-
-add_library(
-        swresample
-        SHARED
-        IMPORTED)
-set_target_properties(
-        swresample PROPERTIES
-        IMPORTED_LOCATION
-        ${libgffmpeg_jni_output_directory}/libswresample.so)
-
-add_library(
-        avcodec
-        SHARED
-        IMPORTED)
-set_target_properties(
-        avcodec PROPERTIES
-        IMPORTED_LOCATION
-        ${libgffmpeg_jni_output_directory}/libavcodec.so)
-
-# Build libgffmpegJNI.
-add_library(ffmpeg
+foreach(ffmpeg_lib avutil swresample avcodec)
+    set(ffmpeg_lib_filename lib${ffmpeg_lib}.so)
+    set(ffmpeg_lib_file_path ${ffmpeg_binaries}/${ffmpeg_lib_filename})
+    add_library(
+            ${ffmpeg_lib}
             SHARED
-            ffmpeg_jni.cc)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+            IMPORTED)
+    set_target_properties(
+            ${ffmpeg_lib} PROPERTIES
+            IMPORTED_LOCATION
+            ${ffmpeg_lib_file_path})
+endforeach()
 
-# Locate NDK log library.
+include_directories(${ffmpeg_location})
 find_library(android_log_lib log)
 
-# Link libgffmpegJNI against used libraries.
-target_link_libraries(ffmpeg
+add_library(ffmpeg_jni
+            SHARED
+            ffmpeg_jni.cc)
+
+target_link_libraries(ffmpeg_jni
                       PRIVATE android
                       PRIVATE avutil
                       PRIVATE swresample
                       PRIVATE avcodec
                       PRIVATE ${android_log_lib})
-
-# Specify output directory for libgffmpegJNI.
-set_target_properties(ffmpeg PROPERTIES
-                      LIBRARY_OUTPUT_DIRECTORY
-                      ${libgffmpeg_jni_output_directory})

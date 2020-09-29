@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +25,7 @@ import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import androidx.annotation.AttrRes;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedT
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -71,6 +72,7 @@ public class TrackSelectionView extends LinearLayout {
   private int rendererIndex;
   private TrackGroupArray trackGroups;
   private boolean isDisabled;
+  @Nullable private Comparator<TrackInfo> trackInfoComparator;
   @Nullable private TrackSelectionListener listener;
 
   /** Creates a track selection view. */
@@ -196,6 +198,8 @@ public class TrackSelectionView extends LinearLayout {
    * @param overrides List of initial overrides to be shown for this renderer. There must be at most
    *     one override for each track group. If {@link #setAllowMultipleOverrides(boolean)} hasn't
    *     been set to {@code true}, only the first override is used.
+   * @param trackFormatComparator An optional comparator used to determine the display order of the
+   *     tracks within each track group.
    * @param listener An optional listener for track selection updates.
    */
   public void init(
@@ -203,10 +207,15 @@ public class TrackSelectionView extends LinearLayout {
       int rendererIndex,
       boolean isDisabled,
       List<SelectionOverride> overrides,
+      @Nullable Comparator<Format> trackFormatComparator,
       @Nullable TrackSelectionListener listener) {
     this.mappedTrackInfo = mappedTrackInfo;
     this.rendererIndex = rendererIndex;
     this.isDisabled = isDisabled;
+    this.trackInfoComparator =
+        trackFormatComparator == null
+            ? null
+            : (o1, o2) -> trackFormatComparator.compare(o1.format, o2.format);
     this.listener = listener;
     int maxOverrides = allowMultipleOverrides ? overrides.size() : Math.min(overrides.size(), 1);
     for (int i = 0; i < maxOverrides; i++) {
@@ -259,7 +268,16 @@ public class TrackSelectionView extends LinearLayout {
       TrackGroup group = trackGroups.get(groupIndex);
       boolean enableMultipleChoiceForAdaptiveSelections = shouldEnableAdaptiveSelection(groupIndex);
       trackViews[groupIndex] = new CheckedTextView[group.length];
+
+      TrackInfo[] trackInfos = new TrackInfo[group.length];
       for (int trackIndex = 0; trackIndex < group.length; trackIndex++) {
+        trackInfos[trackIndex] = new TrackInfo(groupIndex, trackIndex, group.getFormat(trackIndex));
+      }
+      if (trackInfoComparator != null) {
+        Arrays.sort(trackInfos, trackInfoComparator);
+      }
+
+      for (int trackIndex = 0; trackIndex < trackInfos.length; trackIndex++) {
         if (trackIndex == 0) {
           addView(inflater.inflate(R.layout.exo_list_divider, this, false));
         }
@@ -270,11 +288,11 @@ public class TrackSelectionView extends LinearLayout {
         CheckedTextView trackView =
             (CheckedTextView) inflater.inflate(trackViewLayoutId, this, false);
         trackView.setBackgroundResource(selectableItemBackgroundResourceId);
-        trackView.setText(trackNameProvider.getTrackName(group.getFormat(trackIndex)));
+        trackView.setText(trackNameProvider.getTrackName(trackInfos[trackIndex].format));
         if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);
-          trackView.setTag(Pair.create(groupIndex, trackIndex));
+          trackView.setTag(trackInfos[trackIndex]);
           trackView.setOnClickListener(componentListener);
         } else {
           trackView.setFocusable(false);
@@ -294,7 +312,12 @@ public class TrackSelectionView extends LinearLayout {
     for (int i = 0; i < trackViews.length; i++) {
       SelectionOverride override = overrides.get(i);
       for (int j = 0; j < trackViews[i].length; j++) {
-        trackViews[i][j].setChecked(override != null && override.containsTrack(j));
+        if (override != null) {
+          TrackInfo trackInfo = (TrackInfo) Assertions.checkNotNull(trackViews[i][j].getTag());
+          trackViews[i][j].setChecked(override.containsTrack(trackInfo.trackIndex));
+        } else {
+          trackViews[i][j].setChecked(false);
+        }
       }
     }
   }
@@ -325,10 +348,9 @@ public class TrackSelectionView extends LinearLayout {
 
   private void onTrackViewClicked(View view) {
     isDisabled = false;
-    @SuppressWarnings("unchecked")
-    Pair<Integer, Integer> tag = (Pair<Integer, Integer>) view.getTag();
-    int groupIndex = tag.first;
-    int trackIndex = tag.second;
+    TrackInfo trackInfo = (TrackInfo) Assertions.checkNotNull(view.getTag());
+    int groupIndex = trackInfo.groupIndex;
+    int trackIndex = trackInfo.trackIndex;
     SelectionOverride override = overrides.get(groupIndex);
     Assertions.checkNotNull(mappedTrackInfo);
     if (override == null) {
@@ -404,6 +426,18 @@ public class TrackSelectionView extends LinearLayout {
     @Override
     public void onClick(View view) {
       TrackSelectionView.this.onClick(view);
+    }
+  }
+
+  private static final class TrackInfo {
+    public final int groupIndex;
+    public final int trackIndex;
+    public final Format format;
+
+    public TrackInfo(int groupIndex, int trackIndex, Format format) {
+      this.groupIndex = groupIndex;
+      this.trackIndex = trackIndex;
+      this.format = format;
     }
   }
 }

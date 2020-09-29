@@ -258,13 +258,14 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
     // negative timestamp, its offset timestamp can jump backwards compared to the last timestamp
     // read in the previous period. Renderer implementations may not allow this, so we signal a
     // discontinuity which resets the renderers before they read the clipping sample stream.
-    // However, for audio-only track selections we assume to have random access seek behaviour and
-    // do not need an initial discontinuity to reset the renderer.
+    // However, for tracks where all samples are sync samples, we assume they have random access
+    // seek behaviour and do not need an initial discontinuity to reset the renderer.
     if (startUs != 0) {
       for (TrackSelection trackSelection : selections) {
         if (trackSelection != null) {
           Format selectedFormat = trackSelection.getSelectedFormat();
-          if (!MimeTypes.isAudio(selectedFormat.sampleMimeType)) {
+          if (!MimeTypes.allSamplesAreSyncSamples(
+              selectedFormat.sampleMimeType, selectedFormat.codecs)) {
             return true;
           }
         }

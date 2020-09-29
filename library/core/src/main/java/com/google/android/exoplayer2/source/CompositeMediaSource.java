@@ -48,7 +48,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
   @CallSuper
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     this.mediaTransferListener = mediaTransferListener;
-    eventHandler = Util.createHandler();
+    eventHandler = Util.createHandlerForCurrentLooper();
   }
 
   @Override
@@ -192,18 +192,6 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     return mediaTimeMs;
   }
 
-  /**
-   * Returns whether {@link MediaSourceEventListener#onMediaPeriodCreated(int, MediaPeriodId)} and
-   * {@link MediaSourceEventListener#onMediaPeriodReleased(int, MediaPeriodId)} events of the given
-   * media period should be reported. The default implementation is to always report these events.
-   *
-   * @param mediaPeriodId A {@link MediaPeriodId} in the composite media source.
-   * @return Whether create and release events for this media period should be reported.
-   */
-  protected boolean shouldDispatchCreateOrReleaseEvent(MediaPeriodId mediaPeriodId) {
-    return true;
-  }
-
   private static final class MediaSourceAndListener {
 
     public final MediaSource mediaSource;
@@ -222,34 +210,16 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
       implements MediaSourceEventListener, DrmSessionEventListener {
 
     @UnknownNull private final T id;
-    private EventDispatcher eventDispatcher;
+    private MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+    private DrmSessionEventListener.EventDispatcher drmEventDispatcher;
 
     public ForwardingEventListener(@UnknownNull T id) {
-      this.eventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+      this.mediaSourceEventDispatcher = createEventDispatcher(/* mediaPeriodId= */ null);
+      this.drmEventDispatcher = createDrmEventDispatcher(/* mediaPeriodId= */ null);
       this.id = id;
     }
 
     // MediaSourceEventListener implementation
-
-    @Override
-    public void onMediaPeriodCreated(int windowIndex, MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        if (shouldDispatchCreateOrReleaseEvent(
-            Assertions.checkNotNull(eventDispatcher.mediaPeriodId))) {
-          eventDispatcher.mediaPeriodCreated();
-        }
-      }
-    }
-
-    @Override
-    public void onMediaPeriodReleased(int windowIndex, MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        if (shouldDispatchCreateOrReleaseEvent(
-            Assertions.checkNotNull(eventDispatcher.mediaPeriodId))) {
-          eventDispatcher.mediaPeriodReleased();
-        }
-      }
-    }
 
     @Override
     public void onLoadStarted(
@@ -258,7 +228,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
         LoadEventInfo loadEventData,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadStarted(loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
+        mediaSourceEventDispatcher.loadStarted(
+            loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
@@ -269,7 +240,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
         LoadEventInfo loadEventData,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadCompleted(loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
+        mediaSourceEventDispatcher.loadCompleted(
+            loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
@@ -280,7 +252,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
         LoadEventInfo loadEventData,
         MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadCanceled(loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
+        mediaSourceEventDispatcher.loadCanceled(
+            loadEventData, maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
@@ -293,15 +266,8 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
         IOException error,
         boolean wasCanceled) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.loadError(
+        mediaSourceEventDispatcher.loadError(
             loadEventData, maybeUpdateMediaLoadData(mediaLoadData), error, wasCanceled);
-      }
-    }
-
-    @Override
-    public void onReadingStarted(int windowIndex, MediaPeriodId mediaPeriodId) {
-      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.readingStarted();
       }
     }
 
@@ -309,7 +275,7 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     public void onUpstreamDiscarded(
         int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.upstreamDiscarded(maybeUpdateMediaLoadData(mediaLoadData));
+        mediaSourceEventDispatcher.upstreamDiscarded(maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
@@ -317,52 +283,53 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     public void onDownstreamFormatChanged(
         int windowIndex, @Nullable MediaPeriodId mediaPeriodId, MediaLoadData mediaLoadData) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        eventDispatcher.downstreamFormatChanged(maybeUpdateMediaLoadData(mediaLoadData));
+        mediaSourceEventDispatcher.downstreamFormatChanged(maybeUpdateMediaLoadData(mediaLoadData));
       }
     }
 
     // DrmSessionEventListener implementation
 
     @Override
-    public void onDrmSessionAcquired() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionAcquired(),
-          DrmSessionEventListener.class);
+    public void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        drmEventDispatcher.drmSessionAcquired();
+      }
     }
 
     @Override
-    public void onDrmKeysLoaded() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysLoaded(),
-          DrmSessionEventListener.class);
+    public void onDrmKeysLoaded(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        drmEventDispatcher.drmKeysLoaded();
+      }
     }
 
     @Override
-    public void onDrmSessionManagerError(Exception error) {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionManagerError(error),
-          DrmSessionEventListener.class);
+    public void onDrmSessionManagerError(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, Exception error) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        drmEventDispatcher.drmSessionManagerError(error);
+      }
     }
 
     @Override
-    public void onDrmKeysRestored() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRestored(),
-          DrmSessionEventListener.class);
+    public void onDrmKeysRestored(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        drmEventDispatcher.drmKeysRestored();
+      }
     }
 
     @Override
-    public void onDrmKeysRemoved() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmKeysRemoved(),
-          DrmSessionEventListener.class);
+    public void onDrmKeysRemoved(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        drmEventDispatcher.drmKeysRemoved();
+      }
     }
 
     @Override
-    public void onDrmSessionReleased() {
-      eventDispatcher.dispatch(
-          (listener, windowIndex, mediaPeriodId) -> listener.onDrmSessionReleased(),
-          DrmSessionEventListener.class);
+    public void onDrmSessionReleased(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+      if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
+        drmEventDispatcher.drmSessionReleased();
+      }
     }
 
     /** Updates the event dispatcher and returns whether the event should be dispatched. */
@@ -377,10 +344,14 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
         }
       }
       int windowIndex = getWindowIndexForChildWindowIndex(id, childWindowIndex);
-      if (eventDispatcher.windowIndex != windowIndex
-          || !Util.areEqual(eventDispatcher.mediaPeriodId, mediaPeriodId)) {
-        eventDispatcher =
+      if (mediaSourceEventDispatcher.windowIndex != windowIndex
+          || !Util.areEqual(mediaSourceEventDispatcher.mediaPeriodId, mediaPeriodId)) {
+        mediaSourceEventDispatcher =
             createEventDispatcher(windowIndex, mediaPeriodId, /* mediaTimeOffsetMs= */ 0);
+      }
+      if (drmEventDispatcher.windowIndex != windowIndex
+          || !Util.areEqual(drmEventDispatcher.mediaPeriodId, mediaPeriodId)) {
+        drmEventDispatcher = createDrmEventDispatcher(windowIndex, mediaPeriodId);
       }
       return true;
     }

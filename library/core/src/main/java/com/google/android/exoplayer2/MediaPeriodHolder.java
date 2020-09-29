@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ClippingMediaPeriod;
 import com.google.android.exoplayer2.source.EmptySampleStream;
@@ -182,7 +184,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     long requestedStartPositionUs = info.startPositionUs;
     if (info.durationUs != C.TIME_UNSET && requestedStartPositionUs >= info.durationUs) {
       // Make sure start position doesn't exceed period duration.
-      requestedStartPositionUs = Math.max(0, info.durationUs - 1);
+      requestedStartPositionUs = max(0, info.durationUs - 1);
     }
     long newStartPositionUs =
         applyTrackSelection(
@@ -297,7 +299,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             positionUs);
     associateNoSampleRenderersWithEmptySampleStream(sampleStreams);
 
-    // Update whether we have enabled tracks and sanity check the expected streams are non-null.
+    // Update whether we have enabled tracks and check that the expected streams are non-null.
     hasEnabledTracks = false;
     for (int i = 0; i < sampleStreams.length; i++) {
       if (sampleStreams[i] != null) {
@@ -380,7 +382,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * For each renderer of type {@link C#TRACK_TYPE_NONE}, we will remove the dummy {@link
+   * For each renderer of type {@link C#TRACK_TYPE_NONE}, we will remove the {@link
    * EmptySampleStream} that was associated with it.
    */
   private void disassociateNoSampleRenderersWithEmptySampleStream(
@@ -394,7 +396,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /**
    * For each renderer of type {@link C#TRACK_TYPE_NONE} that was enabled, we will associate it with
-   * a dummy {@link EmptySampleStream}.
+   * an {@link EmptySampleStream}.
    */
   private void associateNoSampleRenderersWithEmptySampleStream(
       @NullableType SampleStream[] sampleStreams) {

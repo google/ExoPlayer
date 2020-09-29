@@ -18,8 +18,8 @@ package com.google.android.exoplayer2.upstream;
 import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.util.Predicate;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Predicate;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -306,22 +306,51 @@ public interface HttpDataSource extends DataSource {
      */
     public final Map<String, List<String>> headerFields;
 
-    /** @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec)}. */
+    /** The response body. */
+    public final byte[] responseBody;
+
+    /**
+     * @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec, byte[])}.
+     */
     @Deprecated
     public InvalidResponseCodeException(
         int responseCode, Map<String, List<String>> headerFields, DataSpec dataSpec) {
-      this(responseCode, /* responseMessage= */ null, headerFields, dataSpec);
+      this(
+          responseCode,
+          /* responseMessage= */ null,
+          headerFields,
+          dataSpec,
+          /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
+    }
+
+    /**
+     * @deprecated Use {@link #InvalidResponseCodeException(int, String, Map, DataSpec, byte[])}.
+     */
+    @Deprecated
+    public InvalidResponseCodeException(
+        int responseCode,
+        @Nullable String responseMessage,
+        Map<String, List<String>> headerFields,
+        DataSpec dataSpec) {
+      this(
+          responseCode,
+          responseMessage,
+          headerFields,
+          dataSpec,
+          /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
     }
 
     public InvalidResponseCodeException(
         int responseCode,
         @Nullable String responseMessage,
         Map<String, List<String>> headerFields,
-        DataSpec dataSpec) {
+        DataSpec dataSpec,
+        byte[] responseBody) {
       super("Response code: " + responseCode, dataSpec, TYPE_OPEN);
       this.responseCode = responseCode;
       this.responseMessage = responseMessage;
       this.headerFields = headerFields;
+      this.responseBody = responseBody;
     }
 
   }

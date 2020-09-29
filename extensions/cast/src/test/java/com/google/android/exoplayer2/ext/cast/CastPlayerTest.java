@@ -59,8 +59,7 @@ public class CastPlayerTest {
 
   private CastPlayer castPlayer;
 
-  @SuppressWarnings("deprecation")
-  private RemoteMediaClient.Listener remoteMediaClientListener;
+  private RemoteMediaClient.Callback remoteMediaClientCallback;
 
   @Mock private RemoteMediaClient mockRemoteMediaClient;
   @Mock private MediaStatus mockMediaStatus;
@@ -76,7 +75,7 @@ public class CastPlayerTest {
   private ArgumentCaptor<ResultCallback<RemoteMediaClient.MediaChannelResult>>
       setResultCallbackArgumentCaptor;
 
-  @Captor private ArgumentCaptor<RemoteMediaClient.Listener> listenerArgumentCaptor;
+  @Captor private ArgumentCaptor<RemoteMediaClient.Callback> callbackArgumentCaptor;
 
   @Captor private ArgumentCaptor<MediaQueueItem[]> queueItemsArgumentCaptor;
 
@@ -95,8 +94,8 @@ public class CastPlayerTest {
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_OFF);
     castPlayer = new CastPlayer(mockCastContext);
     castPlayer.addListener(mockListener);
-    verify(mockRemoteMediaClient).addListener(listenerArgumentCaptor.capture());
-    remoteMediaClientListener = listenerArgumentCaptor.getValue();
+    verify(mockRemoteMediaClient).registerCallback(callbackArgumentCaptor.capture());
+    remoteMediaClientCallback = callbackArgumentCaptor.getValue();
   }
 
   @SuppressWarnings("deprecation")
@@ -113,7 +112,7 @@ public class CastPlayerTest {
         .onPlayWhenReadyChanged(true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
 
     // There is a status update in the middle, which should be hidden by masking.
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verifyNoMoreInteractions(mockListener);
 
     // Upon result, the remoteMediaClient has updated its state according to the play() call.
@@ -169,7 +168,7 @@ public class CastPlayerTest {
   public void playWhenReady_changesOnStatusUpdates() {
     assertThat(castPlayer.getPlayWhenReady()).isFalse();
     when(mockRemoteMediaClient.isPaused()).thenReturn(false);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verify(mockListener).onPlayerStateChanged(true, Player.STATE_IDLE);
     verify(mockListener).onPlayWhenReadyChanged(true, Player.PLAY_WHEN_READY_CHANGE_REASON_REMOTE);
     assertThat(castPlayer.getPlayWhenReady()).isTrue();
@@ -187,7 +186,7 @@ public class CastPlayerTest {
 
     // There is a status update in the middle, which should be hidden by masking.
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_ALL);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verifyNoMoreInteractions(mockListener);
 
     // Upon result, the mediaStatus now exposes the new repeat mode.
@@ -209,7 +208,7 @@ public class CastPlayerTest {
 
     // There is a status update in the middle, which should be hidden by masking.
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_ALL);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verifyNoMoreInteractions(mockListener);
 
     // Upon result, the repeat mode is ALL. The state should reflect that.
@@ -224,7 +223,7 @@ public class CastPlayerTest {
   public void repeatMode_changesOnStatusUpdates() {
     assertThat(castPlayer.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_OFF);
     when(mockMediaStatus.getQueueRepeatMode()).thenReturn(MediaStatus.REPEAT_MODE_REPEAT_SINGLE);
-    remoteMediaClientListener.onStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
     verify(mockListener).onRepeatModeChanged(Player.REPEAT_MODE_ONE);
     assertThat(castPlayer.getRepeatMode()).isEqualTo(Player.REPEAT_MODE_ONE);
   }
@@ -232,36 +231,30 @@ public class CastPlayerTest {
   @Test
   public void setMediaItems_callsRemoteMediaClient() {
     List<MediaItem> mediaItems = new ArrayList<>();
-    String sourceUri1 = "http://www.google.com/video1";
-    String sourceUri2 = "http://www.google.com/video2";
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
     mediaItems.add(
-        new MediaItem.Builder()
-            .setSourceUri(sourceUri1)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .build());
+        new MediaItem.Builder().setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
     mediaItems.add(
-        new MediaItem.Builder()
-            .setSourceUri(sourceUri2)
-            .setMimeType(MimeTypes.APPLICATION_MP4)
-            .build());
+        new MediaItem.Builder().setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
 
     castPlayer.setMediaItems(mediaItems, /* startWindowIndex= */ 1, /* startPositionMs= */ 2000L);
 
     verify(mockRemoteMediaClient)
         .queueLoad(queueItemsArgumentCaptor.capture(), eq(1), anyInt(), eq(2000L), any());
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri1);
-    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(sourceUri2);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri1);
+    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
   @Test
   public void setMediaItems_doNotReset_callsRemoteMediaClient() {
     MediaItem.Builder builder = new MediaItem.Builder();
     List<MediaItem> mediaItems = new ArrayList<>();
-    String sourceUri1 = "http://www.google.com/video1";
-    String sourceUri2 = "http://www.google.com/video2";
-    mediaItems.add(builder.setSourceUri(sourceUri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
-    mediaItems.add(builder.setSourceUri(sourceUri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
+    mediaItems.add(builder.setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
+    mediaItems.add(builder.setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
     int startWindowIndex = C.INDEX_UNSET;
     long startPositionMs = 2000L;
 
@@ -271,18 +264,18 @@ public class CastPlayerTest {
         .queueLoad(queueItemsArgumentCaptor.capture(), eq(0), anyInt(), eq(0L), any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri1);
-    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(sourceUri2);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri1);
+    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
   @Test
   public void addMediaItems_callsRemoteMediaClient() {
     MediaItem.Builder builder = new MediaItem.Builder();
     List<MediaItem> mediaItems = new ArrayList<>();
-    String sourceUri1 = "http://www.google.com/video1";
-    String sourceUri2 = "http://www.google.com/video2";
-    mediaItems.add(builder.setSourceUri(sourceUri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
-    mediaItems.add(builder.setSourceUri(sourceUri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
+    String uri1 = "http://www.google.com/video1";
+    String uri2 = "http://www.google.com/video2";
+    mediaItems.add(builder.setUri(uri1).setMimeType(MimeTypes.APPLICATION_MPD).build());
+    mediaItems.add(builder.setUri(uri2).setMimeType(MimeTypes.APPLICATION_MP4).build());
 
     castPlayer.addMediaItems(mediaItems);
 
@@ -291,8 +284,8 @@ public class CastPlayerTest {
             queueItemsArgumentCaptor.capture(), eq(MediaQueueItem.INVALID_ITEM_ID), any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri1);
-    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(sourceUri2);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri1);
+    assertThat(mediaQueueItems[1].getMedia().getContentId()).isEqualTo(uri2);
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -301,12 +294,9 @@ public class CastPlayerTest {
     int[] mediaQueueItemIds = createMediaQueueItemIds(/* numberOfIds= */ 2);
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
     fillTimeline(mediaItems, mediaQueueItemIds);
-    String sourceUri = "http://www.google.com/video3";
+    String uri = "http://www.google.com/video3";
     MediaItem anotherMediaItem =
-        new MediaItem.Builder()
-            .setSourceUri(sourceUri)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .build();
+        new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_MPD).build();
 
     // Add another on position 1
     int index = 1;
@@ -319,7 +309,7 @@ public class CastPlayerTest {
             any());
 
     MediaQueueItem[] mediaQueueItems = queueItemsArgumentCaptor.getValue();
-    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(sourceUri);
+    assertThat(mediaQueueItems[0].getMedia().getContentId()).isEqualTo(uri);
   }
 
   @Test
@@ -477,7 +467,7 @@ public class CastPlayerTest {
     for (int mediaQueueItemId : mediaQueueItemIds) {
       MediaItem mediaItem =
           builder
-              .setSourceUri("http://www.google.com/video" + mediaQueueItemId)
+              .setUri("http://www.google.com/video" + mediaQueueItemId)
               .setMimeType(MimeTypes.APPLICATION_MPD)
               .setTag(mediaQueueItemId)
               .build();
@@ -503,6 +493,6 @@ public class CastPlayerTest {
 
     castPlayer.addMediaItems(mediaItems);
     // Call listener to update the timeline of the player.
-    remoteMediaClientListener.onQueueStatusUpdated();
+    remoteMediaClientCallback.onQueueStatusUpdated();
   }
 }

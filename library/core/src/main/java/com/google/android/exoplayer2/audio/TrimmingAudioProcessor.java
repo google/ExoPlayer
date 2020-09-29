@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.min;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -45,7 +47,7 @@ import java.nio.ByteBuffer;
    *
    * @param trimStartFrames The number of audio frames to trim from the start of audio.
    * @param trimEndFrames The number of audio frames to trim from the end of audio.
-   * @see AudioSink#configure(int, int, int, int, int[], int, int)
+   * @see AudioSink#configure(com.google.android.exoplayer2.Format, int, int[])
    */
   public void setTrimFrameCount(int trimStartFrames, int trimEndFrames) {
     this.trimStartFrames = trimStartFrames;
@@ -86,7 +88,7 @@ import java.nio.ByteBuffer;
     }
 
     // Trim any pending start bytes from the input buffer.
-    int trimBytes = Math.min(remaining, pendingTrimStartBytes);
+    int trimBytes = min(remaining, pendingTrimStartBytes);
     trimmedFrameCount += trimBytes / inputAudioFormat.bytesPerFrame;
     pendingTrimStartBytes -= trimBytes;
     inputBuffer.position(position + trimBytes);
@@ -155,18 +157,20 @@ import java.nio.ByteBuffer;
   @Override
   protected void onFlush() {
     if (reconfigurationPending) {
-      // This is the initial flush after reconfiguration. Prepare to trim bytes from the start/end.
+      // Flushing activates the new configuration, so prepare to trim bytes from the start/end.
       reconfigurationPending = false;
       endBuffer = new byte[trimEndFrames * inputAudioFormat.bytesPerFrame];
       pendingTrimStartBytes = trimStartFrames * inputAudioFormat.bytesPerFrame;
-    } else {
-      // This is a flush during playback (after the initial flush). We assume this was caused by a
-      // seek to a non-zero position and clear pending start bytes. This assumption may be wrong (we
-      // may be seeking to zero), but playing data that should have been trimmed shouldn't be
-      // noticeable after a seek. Ideally we would check the timestamp of the first input buffer
-      // queued after flushing to decide whether to trim (see also [Internal: b/77292509]).
-      pendingTrimStartBytes = 0;
     }
+
+    // TODO(internal b/77292509): Flushing occurs to activate a configuration (handled above) but
+    // also when seeking within a stream. This implementation currently doesn't handle seek to start
+    // (where we need to trim at the start again), nor seeks to non-zero positions before start
+    // trimming has occurred (where we should set pendingTrimStartBytes to zero). These cases can be
+    // fixed by trimming in queueInput based on timestamp, once that information is available.
+
+    // Any data in the end buffer should no longer be output if we are playing from a different
+    // position, so discard it and refill the buffer using new input.
     endBufferSize = 0;
   }
 

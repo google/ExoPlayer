@@ -40,29 +40,33 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TtmlDecoderTest {
 
-  private static final String INLINE_ATTRIBUTES_TTML_FILE = "ttml/inline_style_attributes.xml";
-  private static final String INHERIT_STYLE_TTML_FILE = "ttml/inherit_style.xml";
+  private static final String INLINE_ATTRIBUTES_TTML_FILE =
+      "media/ttml/inline_style_attributes.xml";
+  private static final String INHERIT_STYLE_TTML_FILE = "media/ttml/inherit_style.xml";
   private static final String INHERIT_STYLE_OVERRIDE_TTML_FILE =
-      "ttml/inherit_and_override_style.xml";
+      "media/ttml/inherit_and_override_style.xml";
   private static final String INHERIT_GLOBAL_AND_PARENT_TTML_FILE =
-      "ttml/inherit_global_and_parent.xml";
+      "media/ttml/inherit_global_and_parent.xml";
   private static final String INHERIT_MULTIPLE_STYLES_TTML_FILE =
-      "ttml/inherit_multiple_styles.xml";
-  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE = "ttml/chain_multiple_styles.xml";
-  private static final String MULTIPLE_REGIONS_TTML_FILE = "ttml/multiple_regions.xml";
+      "media/ttml/inherit_multiple_styles.xml";
+  private static final String CHAIN_MULTIPLE_STYLES_TTML_FILE =
+      "media/ttml/chain_multiple_styles.xml";
+  private static final String MULTIPLE_REGIONS_TTML_FILE = "media/ttml/multiple_regions.xml";
   private static final String NO_UNDERLINE_LINETHROUGH_TTML_FILE =
-      "ttml/no_underline_linethrough.xml";
-  private static final String FONT_SIZE_TTML_FILE = "ttml/font_size.xml";
-  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "ttml/font_size_no_unit.xml";
-  private static final String FONT_SIZE_INVALID_TTML_FILE = "ttml/font_size_invalid.xml";
-  private static final String FONT_SIZE_EMPTY_TTML_FILE = "ttml/font_size_empty.xml";
-  private static final String FRAME_RATE_TTML_FILE = "ttml/frame_rate.xml";
-  private static final String BITMAP_REGION_FILE = "ttml/bitmap_percentage_region.xml";
-  private static final String BITMAP_PIXEL_REGION_FILE = "ttml/bitmap_pixel_region.xml";
-  private static final String BITMAP_UNSUPPORTED_REGION_FILE = "ttml/bitmap_unsupported_region.xml";
-  private static final String VERTICAL_TEXT_FILE = "ttml/vertical_text.xml";
-  private static final String TEXT_COMBINE_FILE = "ttml/text_combine.xml";
-  private static final String RUBIES_FILE = "ttml/rubies.xml";
+      "media/ttml/no_underline_linethrough.xml";
+  private static final String FONT_SIZE_TTML_FILE = "media/ttml/font_size.xml";
+  private static final String FONT_SIZE_MISSING_UNIT_TTML_FILE = "media/ttml/font_size_no_unit.xml";
+  private static final String FONT_SIZE_INVALID_TTML_FILE = "media/ttml/font_size_invalid.xml";
+  private static final String FONT_SIZE_EMPTY_TTML_FILE = "media/ttml/font_size_empty.xml";
+  private static final String FRAME_RATE_TTML_FILE = "media/ttml/frame_rate.xml";
+  private static final String BITMAP_REGION_FILE = "media/ttml/bitmap_percentage_region.xml";
+  private static final String BITMAP_PIXEL_REGION_FILE = "media/ttml/bitmap_pixel_region.xml";
+  private static final String BITMAP_UNSUPPORTED_REGION_FILE =
+      "media/ttml/bitmap_unsupported_region.xml";
+  private static final String TEXT_ALIGN_FILE = "media/ttml/text_align.xml";
+  private static final String VERTICAL_TEXT_FILE = "media/ttml/vertical_text.xml";
+  private static final String TEXT_COMBINE_FILE = "media/ttml/text_combine.xml";
+  private static final String RUBIES_FILE = "media/ttml/rubies.xml";
 
   @Test
   public void inlineAttributes() throws IOException, SubtitleDecoderException {
@@ -194,9 +198,6 @@ public final class TtmlDecoderTest {
     assertThat(firstCueText)
         .hasForegroundColorSpanBetween(0, firstCueText.length())
         .withColor(ColorParser.parseTtmlColor("lime"));
-    assertThat(firstCueText)
-        .hasAlignmentSpanBetween(0, firstCueText.length())
-        .withAlignment(Layout.Alignment.ALIGN_CENTER);
 
     Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
     assertThat(secondCueText.toString()).isEqualTo("text 2");
@@ -210,9 +211,6 @@ public final class TtmlDecoderTest {
     assertThat(secondCueText)
         .hasForegroundColorSpanBetween(0, secondCueText.length())
         .withColor(0xFFFFFF00);
-    assertThat(secondCueText)
-        .hasAlignmentSpanBetween(0, secondCueText.length())
-        .withAlignment(Layout.Alignment.ALIGN_CENTER);
   }
 
   @Test
@@ -309,16 +307,16 @@ public final class TtmlDecoderTest {
     // assertEquals(1f, cue.size);
 
     cue = getOnlyCueAtTimeUs(subtitle, 21_000_000);
-    assertThat(cue.text.toString()).isEqualTo("She first said this");
+    assertThat(cue.text.toString()).isEqualTo("They first said this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
     assertThat(cue.size).isEqualTo(35f / 100f);
 
     cue = getOnlyCueAtTimeUs(subtitle, 25_000_000);
-    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this");
+    assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this");
 
     cue = getOnlyCueAtTimeUs(subtitle, 29_000_000);
-    assertThat(cue.text.toString()).isEqualTo("She first said this\nThen this\nFinally this");
+    assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this\nFinally this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
   }
@@ -576,6 +574,39 @@ public final class TtmlDecoderTest {
   }
 
   @Test
+  public void textAlign() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(TEXT_ALIGN_FILE);
+
+    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.text.toString()).isEqualTo("Start alignment");
+    assertThat(firstCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.text.toString()).isEqualTo("Left alignment");
+    assertThat(secondCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+
+    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.text.toString()).isEqualTo("Center alignment");
+    assertThat(thirdCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_CENTER);
+
+    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.text.toString()).isEqualTo("Right alignment");
+    assertThat(fourthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.text.toString()).isEqualTo("End alignment");
+    assertThat(fifthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
+
+    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue.text.toString()).isEqualTo("Justify alignment (unsupported)");
+    assertThat(sixthCue.textAlignment).isNull();
+
+    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue.text.toString()).isEqualTo("No textAlign property");
+    assertThat(seventhCue.textAlignment).isNull();
+  }
+
+  @Test
   public void verticalText() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(VERTICAL_TEXT_FILE);
 
@@ -628,15 +659,19 @@ public final class TtmlDecoderTest {
 
     Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
     assertThat(thirdCue.toString()).isEqualTo("Cue with annotated text.");
-    assertThat(thirdCue).hasNoRubySpanBetween(0, thirdCue.length());
+    assertThat(thirdCue).hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length());
 
     Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
-    assertThat(fourthCue.toString()).isEqualTo("Cue with text.");
+    assertThat(fourthCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(fourthCue).hasNoRubySpanBetween(0, fourthCue.length());
 
     Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
-    assertThat(fifthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(fifthCue.toString()).isEqualTo("Cue with text.");
     assertThat(fifthCue).hasNoRubySpanBetween(0, fifthCue.length());
+
+    Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue.toString()).isEqualTo("Cue with annotated text.");
+    assertThat(sixthCue).hasNoRubySpanBetween(0, sixthCue.length());
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {

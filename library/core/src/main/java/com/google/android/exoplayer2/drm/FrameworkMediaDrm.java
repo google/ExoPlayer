@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.drm;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.DeniedByServerException;
 import android.media.MediaCryptoException;
 import android.media.MediaDrm;
@@ -35,9 +34,9 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +44,6 @@ import java.util.Map;
 import java.util.UUID;
 
 /** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
-@TargetApi(23)
 @RequiresApi(18)
 public final class FrameworkMediaDrm implements ExoMediaDrm {
 
@@ -74,6 +72,15 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   private final UUID uuid;
   private final MediaDrm mediaDrm;
   private int referenceCount;
+
+  /**
+   * Returns whether the DRM scheme with the given UUID is supported on this device.
+   *
+   * @see MediaDrm#isCryptoSchemeSupported(UUID)
+   */
+  public static boolean isCryptoSchemeSupported(UUID uuid) {
+    return MediaDrm.isCryptoSchemeSupported(adjustUuid(uuid));
+  }
 
   /**
    * Creates an instance with an initial reference count of 1. {@link #release()} must be called on
@@ -158,9 +165,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     mediaDrm.setOnExpirationUpdateListener(
         listener == null
             ? null
-            : (mediaDrm, sessionId, expirationTimeMs) -> {
-              listener.onExpirationUpdate(FrameworkMediaDrm.this, sessionId, expirationTimeMs);
-            },
+            : (mediaDrm, sessionId, expirationTimeMs) ->
+                listener.onExpirationUpdate(FrameworkMediaDrm.this, sessionId, expirationTimeMs),
         /* handler= */ null);
   }
 
@@ -254,7 +260,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
 
   @Override
   @Nullable
-  @TargetApi(28)
   public PersistableBundle getMetrics() {
     if (Util.SDK_INT < 28) {
       return null;
@@ -310,7 +315,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
       boolean canConcatenateData = true;
       for (int i = 0; i < schemeDatas.size(); i++) {
         SchemeData schemeData = schemeDatas.get(i);
-        byte[] schemeDataData = Util.castNonNull(schemeData.data);
+        byte[] schemeDataData = Assertions.checkNotNull(schemeData.data);
         if (Util.areEqual(schemeData.mimeType, firstSchemeData.mimeType)
             && Util.areEqual(schemeData.licenseServerUrl, firstSchemeData.licenseServerUrl)
             && PsshAtomUtil.isPsshAtom(schemeDataData)) {
@@ -325,7 +330,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         int concatenatedDataPosition = 0;
         for (int i = 0; i < schemeDatas.size(); i++) {
           SchemeData schemeData = schemeDatas.get(i);
-          byte[] schemeDataData = Util.castNonNull(schemeData.data);
+          byte[] schemeDataData = Assertions.checkNotNull(schemeData.data);
           int schemeDataLength = schemeDataData.length;
           System.arraycopy(
               schemeDataData, 0, concatenatedData, concatenatedDataPosition, schemeDataLength);
@@ -339,7 +344,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     // the first V0 box.
     for (int i = 0; i < schemeDatas.size(); i++) {
       SchemeData schemeData = schemeDatas.get(i);
-      int version = PsshAtomUtil.parseVersion(Util.castNonNull(schemeData.data));
+      int version = PsshAtomUtil.parseVersion(Assertions.checkNotNull(schemeData.data));
       if (Util.SDK_INT < 23 && version == 0) {
         return schemeData;
       } else if (Util.SDK_INT >= 23 && version == 1) {
@@ -441,7 +446,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
       return data;
     }
     int recordLength = byteArray.readLittleEndianShort();
-    String xml = byteArray.readString(recordLength, Charset.forName(C.UTF16LE_NAME));
+    String xml = byteArray.readString(recordLength, Charsets.UTF_16LE);
     if (xml.contains("<LA_URL>")) {
       // LA_URL already present. Do nothing.
       return data;
@@ -462,7 +467,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     newData.putShort((short) objectRecordCount);
     newData.putShort((short) recordType);
     newData.putShort((short) (xmlWithMockLaUrl.length() * UTF_16_BYTES_PER_CHARACTER));
-    newData.put(xmlWithMockLaUrl.getBytes(Charset.forName(C.UTF16LE_NAME)));
+    newData.put(xmlWithMockLaUrl.getBytes(Charsets.UTF_16LE));
     return newData.array();
   }
 }

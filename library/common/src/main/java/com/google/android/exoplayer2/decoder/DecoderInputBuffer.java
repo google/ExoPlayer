@@ -30,7 +30,8 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 public class DecoderInputBuffer extends Buffer {
 
   /**
-   * The buffer replacement mode, which may disable replacement. One of {@link
+   * The buffer replacement mode. This controls how {@link #ensureSpaceForWrite} generates
+   * replacement buffers when the capacity of the existing buffer is insufficient. One of {@link
    * #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} or {@link
    * #BUFFER_REPLACEMENT_MODE_DIRECT}.
    */
@@ -83,6 +84,7 @@ public class DecoderInputBuffer extends Buffer {
   @Nullable public ByteBuffer supplementalData;
 
   @BufferReplacementMode private final int bufferReplacementMode;
+  private final int paddingSize;
 
   /**
    * Creates a new instance for which {@link #isFlagsOnly()} will return true.
@@ -94,13 +96,28 @@ public class DecoderInputBuffer extends Buffer {
   }
 
   /**
-   * @param bufferReplacementMode Determines the behavior of {@link #ensureSpaceForWrite(int)}. One
-   *     of {@link #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} and
-   *     {@link #BUFFER_REPLACEMENT_MODE_DIRECT}.
+   * Creates a new instance.
+   *
+   * @param bufferReplacementMode The {@link BufferReplacementMode} replacement mode.
    */
   public DecoderInputBuffer(@BufferReplacementMode int bufferReplacementMode) {
+    this(bufferReplacementMode, /* paddingSize= */ 0);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param bufferReplacementMode The {@link BufferReplacementMode} replacement mode.
+   * @param paddingSize If non-zero, {@link #ensureSpaceForWrite(int)} will ensure that the buffer
+   *     is this number of bytes larger than the requested length. This can be useful for decoders
+   *     that consume data in fixed size blocks, for efficiency. Setting the padding size to the
+   *     decoder's fixed read size is necessary to prevent such a decoder from trying to read beyond
+   *     the end of the buffer.
+   */
+  public DecoderInputBuffer(@BufferReplacementMode int bufferReplacementMode, int paddingSize) {
     this.cryptoInfo = new CryptoInfo();
     this.bufferReplacementMode = bufferReplacementMode;
+    this.paddingSize = paddingSize;
   }
 
   /**
@@ -132,24 +149,27 @@ public class DecoderInputBuffer extends Buffer {
    */
   @EnsuresNonNull("data")
   public void ensureSpaceForWrite(int length) {
-    if (data == null) {
+    length += paddingSize;
+    @Nullable ByteBuffer currentData = data;
+    if (currentData == null) {
       data = createReplacementByteBuffer(length);
       return;
     }
     // Check whether the current buffer is sufficient.
-    int capacity = data.capacity();
-    int position = data.position();
+    int capacity = currentData.capacity();
+    int position = currentData.position();
     int requiredCapacity = position + length;
     if (capacity >= requiredCapacity) {
+      data = currentData;
       return;
     }
     // Instantiate a new buffer if possible.
     ByteBuffer newData = createReplacementByteBuffer(requiredCapacity);
-    newData.order(data.order());
+    newData.order(currentData.order());
     // Copy data up to the current position from the old buffer to the new one.
     if (position > 0) {
-      data.flip();
-      newData.put(data);
+      currentData.flip();
+      newData.put(currentData);
     }
     // Set the new buffer.
     data = newData;
@@ -176,7 +196,9 @@ public class DecoderInputBuffer extends Buffer {
    * @see java.nio.Buffer#flip()
    */
   public final void flip() {
-    data.flip();
+    if (data != null) {
+      data.flip();
+    }
     if (supplementalData != null) {
       supplementalData.flip();
     }
@@ -205,5 +227,4 @@ public class DecoderInputBuffer extends Buffer {
           + requiredCapacity + ")");
     }
   }
-
 }

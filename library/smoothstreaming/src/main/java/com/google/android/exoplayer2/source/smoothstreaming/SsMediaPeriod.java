@@ -19,11 +19,12 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -48,8 +49,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   @Nullable private final TransferListener transferListener;
   private final LoaderErrorThrower manifestLoaderErrorThrower;
   private final DrmSessionManager drmSessionManager;
+  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   private final LoadErrorHandlingPolicy loadErrorHandlingPolicy;
-  private final EventDispatcher eventDispatcher;
+  private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
   private final Allocator allocator;
   private final TrackGroupArray trackGroups;
   private final CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
@@ -58,7 +60,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   private SsManifest manifest;
   private ChunkSampleStream<SsChunkSource>[] sampleStreams;
   private SequenceableLoader compositeSequenceableLoader;
-  private boolean notifiedReadingStarted;
 
   public SsMediaPeriod(
       SsManifest manifest,
@@ -66,8 +67,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       @Nullable TransferListener transferListener,
       CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory,
       DrmSessionManager drmSessionManager,
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
-      EventDispatcher eventDispatcher,
+      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       LoaderErrorThrower manifestLoaderErrorThrower,
       Allocator allocator) {
     this.manifest = manifest;
@@ -75,15 +77,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     this.transferListener = transferListener;
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.drmSessionManager = drmSessionManager;
+    this.drmEventDispatcher = drmEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    this.eventDispatcher = eventDispatcher;
+    this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.allocator = allocator;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
     trackGroups = buildTrackGroups(manifest, drmSessionManager);
     sampleStreams = newSampleStreamArray(0);
     compositeSequenceableLoader =
         compositeSequenceableLoaderFactory.createCompositeSequenceableLoader(sampleStreams);
-    eventDispatcher.mediaPeriodCreated();
   }
 
   public void updateManifest(SsManifest manifest) {
@@ -99,7 +101,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       sampleStream.release();
     }
     callback = null;
-    eventDispatcher.mediaPeriodReleased();
   }
 
   // MediaPeriod implementation.
@@ -196,10 +197,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long readDiscontinuity() {
-    if (!notifiedReadingStarted) {
-      eventDispatcher.readingStarted();
-      notifiedReadingStarted = true;
-    }
     return C.TIME_UNSET;
   }
 
@@ -254,8 +251,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         allocator,
         positionUs,
         drmSessionManager,
+        drmEventDispatcher,
         loadErrorHandlingPolicy,
-        eventDispatcher);
+        mediaSourceEventDispatcher);
   }
 
   private static TrackGroupArray buildTrackGroups(
@@ -267,10 +265,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       for (int j = 0; j < manifestFormats.length; j++) {
         Format manifestFormat = manifestFormats[j];
         exposedFormats[j] =
-            manifestFormat.drmInitData != null
-                ? manifestFormat.copyWithExoMediaCryptoType(
-                    drmSessionManager.getExoMediaCryptoType(manifestFormat.drmInitData))
-                : manifestFormat;
+            manifestFormat.copyWithExoMediaCryptoType(
+                drmSessionManager.getExoMediaCryptoType(manifestFormat));
       }
       trackGroups[i] = new TrackGroup(exposedFormats);
     }

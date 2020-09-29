@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -30,12 +32,13 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private final int trackType;
   private final FormatHolder formatHolder;
 
-  private RendererConfiguration configuration;
+  @Nullable private RendererConfiguration configuration;
   private int index;
   private int state;
-  private SampleStream stream;
-  private Format[] streamFormats;
+  @Nullable private SampleStream stream;
+  @Nullable private Format[] streamFormats;
   private long streamOffsetUs;
+  private long lastResetPositionUs;
   private long readingPositionUs;
   private boolean streamIsFinal;
   private boolean throwRendererExceptionIsExecuting;
@@ -84,13 +87,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       long positionUs,
       boolean joining,
       boolean mayRenderStartOfStream,
+      long startPositionUs,
       long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
+    lastResetPositionUs = positionUs;
     onEnabled(joining, mayRenderStartOfStream);
-    replaceStream(formats, stream, offsetUs);
+    replaceStream(formats, stream, startPositionUs, offsetUs);
     onPositionReset(positionUs, joining);
   }
 
@@ -102,14 +107,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
+  public final void replaceStream(
+      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
     readingPositionUs = offsetUs;
     streamFormats = formats;
     streamOffsetUs = offsetUs;
-    onStreamChanged(formats, offsetUs);
+    onStreamChanged(formats, startPositionUs, offsetUs);
   }
 
   @Override
@@ -140,18 +146,19 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @Override
   public final void maybeThrowStreamError() throws IOException {
-    stream.maybeThrowError();
+    Assertions.checkNotNull(stream).maybeThrowError();
   }
 
   @Override
   public final void resetPosition(long positionUs) throws ExoPlaybackException {
     streamIsFinal = false;
+    lastResetPositionUs = positionUs;
     readingPositionUs = positionUs;
     onPositionReset(positionUs, false);
   }
 
   @Override
-  public final void stop() throws ExoPlaybackException {
+  public final void stop() {
     Assertions.checkState(state == STATE_STARTED);
     state = STATE_ENABLED;
     onStopped();
@@ -215,24 +222,26 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * <p>The default implementation is a no-op.
    *
    * @param formats The enabled formats.
+   * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
    *     #readSource(FormatHolder, DecoderInputBuffer, boolean)} so that decoder input buffers have
    *     monotonically increasing timestamps.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onStreamChanged(Format[] formats, long offsetUs) throws ExoPlaybackException {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+      throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
-   * Called when the position is reset. This occurs when the renderer is enabled after
-   * {@link #onStreamChanged(Format[], long)} has been called, and also when a position
-   * discontinuity is encountered.
-   * <p>
-   * After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
+   * Called when the position is reset. This occurs when the renderer is enabled after {@link
+   * #onStreamChanged(Format[], long, long)} has been called, and also when a position discontinuity
+   * is encountered.
+   *
+   * <p>After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
    * starting from a key frame.
-   * <p>
-   * The default implementation is a no-op.
+   *
+   * <p>The default implementation is a no-op.
    *
    * @param positionUs The new playback position in microseconds.
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
@@ -255,12 +264,10 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   /**
    * Called when the renderer is stopped.
-   * <p>
-   * The default implementation is a no-op.
    *
-   * @throws ExoPlaybackException If an error occurs.
+   * <p>The default implementation is a no-op.
    */
-  protected void onStopped() throws ExoPlaybackException {
+  protected void onStopped() {
     // Do nothing.
   }
 
@@ -284,22 +291,38 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   // Methods to be called by subclasses.
 
+  /**
+   * Returns the position passed to the most recent call to {@link #enable} or {@link
+   * #resetPosition}.
+   */
+  protected final long getLastResetPositionUs() {
+    return lastResetPositionUs;
+  }
+
   /** Returns a clear {@link FormatHolder}. */
   protected final FormatHolder getFormatHolder() {
     formatHolder.clear();
     return formatHolder;
   }
 
-  /** Returns the formats of the currently enabled stream. */
+  /**
+   * Returns the formats of the currently enabled stream.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
+   */
   protected final Format[] getStreamFormats() {
-    return streamFormats;
+    return Assertions.checkNotNull(streamFormats);
   }
 
   /**
    * Returns the configuration set when the renderer was most recently enabled.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
   protected final RendererConfiguration getConfiguration() {
-    return configuration;
+    return Assertions.checkNotNull(configuration);
   }
 
   /**
@@ -318,6 +341,19 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final ExoPlaybackException createRendererException(
       Exception cause, @Nullable Format format) {
+    return createRendererException(cause, format, /* isRecoverable= */ false);
+  }
+
+  /**
+   * Creates an {@link ExoPlaybackException} of type {@link ExoPlaybackException#TYPE_RENDERER} for
+   * this renderer.
+   *
+   * @param cause The cause of the exception.
+   * @param format The current format used by the renderer. May be null.
+   * @param isRecoverable If the error is recoverable by disabling and re-enabling the renderer.
+   */
+  protected final ExoPlaybackException createRendererException(
+      Exception cause, @Nullable Format format, boolean isRecoverable) {
     @FormatSupport int formatSupport = RendererCapabilities.FORMAT_HANDLED;
     if (format != null && !throwRendererExceptionIsExecuting) {
       // Prevent recursive re-entry from subclass supportsFormat implementations.
@@ -331,13 +367,16 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       }
     }
     return ExoPlaybackException.createForRenderer(
-        cause, getName(), getIndex(), format, formatSupport);
+        cause, getName(), getIndex(), format, formatSupport, isRecoverable);
   }
 
   /**
    * Reads from the enabled upstream source. If the upstream source has been read to the end then
    * {@link C#RESULT_BUFFER_READ} is only returned if {@link #setCurrentStreamFinal()} has been
    * called. {@link C#RESULT_NOTHING_READ} is returned otherwise.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @param formatHolder A {@link FormatHolder} to populate in the case of reading a format.
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
@@ -351,16 +390,17 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @SampleStream.ReadDataResult
   protected final int readSource(
       FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
-    @SampleStream.ReadDataResult int result = stream.readData(formatHolder, buffer, formatRequired);
+    @SampleStream.ReadDataResult
+    int result = Assertions.checkNotNull(stream).readData(formatHolder, buffer, formatRequired);
     if (result == C.RESULT_BUFFER_READ) {
       if (buffer.isEndOfStream()) {
         readingPositionUs = C.TIME_END_OF_SOURCE;
         return streamIsFinal ? C.RESULT_BUFFER_READ : C.RESULT_NOTHING_READ;
       }
       buffer.timeUs += streamOffsetUs;
-      readingPositionUs = Math.max(readingPositionUs, buffer.timeUs);
+      readingPositionUs = max(readingPositionUs, buffer.timeUs);
     } else if (result == C.RESULT_FORMAT_READ) {
-      Format format = formatHolder.format;
+      Format format = Assertions.checkNotNull(formatHolder.format);
       if (format.subsampleOffsetUs != Format.OFFSET_SAMPLE_RELATIVE) {
         format =
             format
@@ -377,17 +417,23 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * Attempts to skip to the keyframe before the specified position, or to the end of the stream if
    * {@code positionUs} is beyond it.
    *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
    * @param positionUs The position in microseconds.
    * @return The number of samples that were skipped.
    */
   protected int skipSource(long positionUs) {
-    return stream.skipData(positionUs - streamOffsetUs);
+    return Assertions.checkNotNull(stream).skipData(positionUs - streamOffsetUs);
   }
 
   /**
    * Returns whether the upstream source is ready.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    */
   protected final boolean isSourceReady() {
-    return hasReadStreamToEnd() ? streamIsFinal : stream.isReady();
+    return hasReadStreamToEnd() ? streamIsFinal : Assertions.checkNotNull(stream).isReady();
   }
 }

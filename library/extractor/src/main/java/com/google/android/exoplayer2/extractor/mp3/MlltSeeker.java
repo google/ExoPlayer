@@ -29,9 +29,11 @@ import com.google.android.exoplayer2.util.Util;
    *
    * @param firstFramePosition The position of the start of the first frame in the stream.
    * @param mlltFrame The MLLT frame with seeking metadata.
+   * @param durationUs The stream duration in microseconds, or {@link C#TIME_UNSET} if it is
+   *     unknown.
    * @return An {@link MlltSeeker} for seeking in the stream.
    */
-  public static MlltSeeker create(long firstFramePosition, MlltFrame mlltFrame) {
+  public static MlltSeeker create(long firstFramePosition, MlltFrame mlltFrame, long durationUs) {
     int referenceCount = mlltFrame.bytesDeviations.length;
     long[] referencePositions = new long[1 + referenceCount];
     long[] referenceTimesMs = new long[1 + referenceCount];
@@ -45,19 +47,22 @@ import com.google.android.exoplayer2.util.Util;
       referencePositions[i] = position;
       referenceTimesMs[i] = timeMs;
     }
-    return new MlltSeeker(referencePositions, referenceTimesMs);
+    return new MlltSeeker(referencePositions, referenceTimesMs, durationUs);
   }
 
   private final long[] referencePositions;
   private final long[] referenceTimesMs;
   private final long durationUs;
 
-  private MlltSeeker(long[] referencePositions, long[] referenceTimesMs) {
+  private MlltSeeker(long[] referencePositions, long[] referenceTimesMs, long durationUs) {
     this.referencePositions = referencePositions;
     this.referenceTimesMs = referenceTimesMs;
-    // Use the last reference point as the duration, as extrapolating variable bitrate at the end of
-    // the stream may give a large error.
-    durationUs = C.msToUs(referenceTimesMs[referenceTimesMs.length - 1]);
+    // Use the last reference point as the duration if it is unknown, as extrapolating variable
+    // bitrate at the end of the stream may give a large error.
+    this.durationUs =
+        durationUs != C.TIME_UNSET
+            ? durationUs
+            : C.msToUs(referenceTimesMs[referenceTimesMs.length - 1]);
   }
 
   @Override

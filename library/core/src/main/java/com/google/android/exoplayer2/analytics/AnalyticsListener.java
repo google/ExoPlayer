@@ -20,6 +20,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
@@ -35,6 +36,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.common.base.Objects;
 import java.io.IOException;
 
 /**
@@ -56,7 +58,7 @@ public interface AnalyticsListener {
      */
     public final long realtimeMs;
 
-    /** Timeline at the time of the event. */
+    /** Most recent {@link Timeline} that contains the event position. */
     public final Timeline timeline;
 
     /**
@@ -66,8 +68,8 @@ public interface AnalyticsListener {
     public final int windowIndex;
 
     /**
-     * Media period identifier for the media period this event belongs to, or {@code null} if the
-     * event is not associated with a specific media period.
+     * {@link MediaPeriodId Media period identifier} for the media period this event belongs to, or
+     * {@code null} if the event is not associated with a specific media period.
      */
     @Nullable public final MediaPeriodId mediaPeriodId;
 
@@ -77,8 +79,27 @@ public interface AnalyticsListener {
     public final long eventPlaybackPositionMs;
 
     /**
-     * Position in the current timeline window ({@link Player#getCurrentWindowIndex()}) or the
-     * currently playing ad at the time of the event, in milliseconds.
+     * The current {@link Timeline} at the time of the event (equivalent to {@link
+     * Player#getCurrentTimeline()}).
+     */
+    public final Timeline currentTimeline;
+
+    /**
+     * The current window index in {@link #currentTimeline} at the time of the event, or the
+     * prospective window index if the timeline is not yet known and empty (equivalent to {@link
+     * Player#getCurrentWindowIndex()}).
+     */
+    public final int currentWindowIndex;
+
+    /**
+     * {@link MediaPeriodId Media period identifier} for the currently playing media period at the
+     * time of the event, or {@code null} if no current media period identifier is available.
+     */
+    @Nullable public final MediaPeriodId currentMediaPeriodId;
+
+    /**
+     * Position in the {@link #currentWindowIndex current timeline window} or the currently playing
+     * ad at the time of the event, in milliseconds.
      */
     public final long currentPlaybackPositionMs;
 
@@ -91,19 +112,27 @@ public interface AnalyticsListener {
     /**
      * @param realtimeMs Elapsed real-time as returned by {@code SystemClock.elapsedRealtime()} at
      *     the time of the event, in milliseconds.
-     * @param timeline Timeline at the time of the event.
-     * @param windowIndex Window index in the {@link #timeline} this event belongs to, or the
+     * @param timeline Most recent {@link Timeline} that contains the event position.
+     * @param windowIndex Window index in the {@code timeline} this event belongs to, or the
      *     prospective window index if the timeline is not yet known and empty.
-     * @param mediaPeriodId Media period identifier for the media period this event belongs to, or
-     *     {@code null} if the event is not associated with a specific media period.
+     * @param mediaPeriodId {@link MediaPeriodId Media period identifier} for the media period this
+     *     event belongs to, or {@code null} if the event is not associated with a specific media
+     *     period.
      * @param eventPlaybackPositionMs Position in the window or ad this event belongs to at the time
      *     of the event, in milliseconds.
-     * @param currentPlaybackPositionMs Position in the current timeline window ({@link
-     *     Player#getCurrentWindowIndex()}) or the currently playing ad at the time of the event, in
-     *     milliseconds.
-     * @param totalBufferedDurationMs Total buffered duration from {@link
-     *     #currentPlaybackPositionMs} at the time of the event, in milliseconds. This includes
-     *     pre-buffered data for subsequent ads and windows.
+     * @param currentTimeline The current {@link Timeline} at the time of the event (equivalent to
+     *     {@link Player#getCurrentTimeline()}).
+     * @param currentWindowIndex The current window index in {@code currentTimeline} at the time of
+     *     the event, or the prospective window index if the timeline is not yet known and empty
+     *     (equivalent to {@link Player#getCurrentWindowIndex()}).
+     * @param currentMediaPeriodId {@link MediaPeriodId Media period identifier} for the currently
+     *     playing media period at the time of the event, or {@code null} if no current media period
+     *     identifier is available.
+     * @param currentPlaybackPositionMs Position in the current timeline window or the currently
+     *     playing ad at the time of the event, in milliseconds.
+     * @param totalBufferedDurationMs Total buffered duration from {@code currentPlaybackPositionMs}
+     *     at the time of the event, in milliseconds. This includes pre-buffered data for subsequent
+     *     ads and windows.
      */
     public EventTime(
         long realtimeMs,
@@ -111,6 +140,9 @@ public interface AnalyticsListener {
         int windowIndex,
         @Nullable MediaPeriodId mediaPeriodId,
         long eventPlaybackPositionMs,
+        Timeline currentTimeline,
+        int currentWindowIndex,
+        @Nullable MediaPeriodId currentMediaPeriodId,
         long currentPlaybackPositionMs,
         long totalBufferedDurationMs) {
       this.realtimeMs = realtimeMs;
@@ -118,8 +150,47 @@ public interface AnalyticsListener {
       this.windowIndex = windowIndex;
       this.mediaPeriodId = mediaPeriodId;
       this.eventPlaybackPositionMs = eventPlaybackPositionMs;
+      this.currentTimeline = currentTimeline;
+      this.currentWindowIndex = currentWindowIndex;
+      this.currentMediaPeriodId = currentMediaPeriodId;
       this.currentPlaybackPositionMs = currentPlaybackPositionMs;
       this.totalBufferedDurationMs = totalBufferedDurationMs;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      EventTime eventTime = (EventTime) o;
+      return realtimeMs == eventTime.realtimeMs
+          && windowIndex == eventTime.windowIndex
+          && eventPlaybackPositionMs == eventTime.eventPlaybackPositionMs
+          && currentWindowIndex == eventTime.currentWindowIndex
+          && currentPlaybackPositionMs == eventTime.currentPlaybackPositionMs
+          && totalBufferedDurationMs == eventTime.totalBufferedDurationMs
+          && Objects.equal(timeline, eventTime.timeline)
+          && Objects.equal(mediaPeriodId, eventTime.mediaPeriodId)
+          && Objects.equal(currentTimeline, eventTime.currentTimeline)
+          && Objects.equal(currentMediaPeriodId, eventTime.currentMediaPeriodId);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(
+          realtimeMs,
+          timeline,
+          windowIndex,
+          mediaPeriodId,
+          eventPlaybackPositionMs,
+          currentTimeline,
+          currentWindowIndex,
+          currentMediaPeriodId,
+          currentPlaybackPositionMs,
+          totalBufferedDurationMs);
     }
   }
 
@@ -175,6 +246,18 @@ public interface AnalyticsListener {
   default void onTimelineChanged(EventTime eventTime, @TimelineChangeReason int reason) {}
 
   /**
+   * Called when playback transitions to a different media item.
+   *
+   * @param eventTime The event time.
+   * @param mediaItem The media item.
+   * @param reason The reason for the media item transition.
+   */
+  default void onMediaItemTransition(
+      EventTime eventTime,
+      @Nullable MediaItem mediaItem,
+      @Player.MediaItemTransitionReason int reason) {}
+
+  /**
    * Called when a position discontinuity occurred.
    *
    * @param eventTime The event time.
@@ -190,28 +273,20 @@ public interface AnalyticsListener {
   default void onSeekStarted(EventTime eventTime) {}
 
   /**
-   * Called when a seek operation was processed.
-   *
-   * @param eventTime The event time.
+   * @deprecated Seeks are processed without delay. Use {@link #onPositionDiscontinuity(EventTime,
+   *     int)} with reason {@link Player#DISCONTINUITY_REASON_SEEK} instead.
    */
+  @Deprecated
   default void onSeekProcessed(EventTime eventTime) {}
 
   /**
-   * @deprecated Use {@link #onPlaybackSpeedChanged(EventTime, float)} and {@link
-   *     #onSkipSilenceEnabledChanged(EventTime, boolean)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  default void onPlaybackParametersChanged(
-      EventTime eventTime, PlaybackParameters playbackParameters) {}
-
-  /**
-   * Called when the playback speed changes.
+   * Called when the playback parameters changed.
    *
    * @param eventTime The event time.
-   * @param playbackSpeed The playback speed.
+   * @param playbackParameters The new playback parameters.
    */
-  default void onPlaybackSpeedChanged(EventTime eventTime, float playbackSpeed) {}
+  default void onPlaybackParametersChanged(
+      EventTime eventTime, PlaybackParameters playbackParameters) {}
 
   /**
    * Called when the repeat mode changed.
@@ -327,27 +402,6 @@ public interface AnalyticsListener {
   default void onUpstreamDiscarded(EventTime eventTime, MediaLoadData mediaLoadData) {}
 
   /**
-   * Called when a media source created a media period.
-   *
-   * @param eventTime The event time.
-   */
-  default void onMediaPeriodCreated(EventTime eventTime) {}
-
-  /**
-   * Called when a media source released a media period.
-   *
-   * @param eventTime The event time.
-   */
-  default void onMediaPeriodReleased(EventTime eventTime) {}
-
-  /**
-   * Called when the player started reading a media period.
-   *
-   * @param eventTime The event time.
-   */
-  default void onReadingStarted(EventTime eventTime) {}
-
-  /**
    * Called when the bandwidth estimate for the current data source has been updated.
    *
    * @param eventTime The event time.
@@ -359,17 +413,6 @@ public interface AnalyticsListener {
       EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {}
 
   /**
-   * Called when the output surface size changed.
-   *
-   * @param eventTime The event time.
-   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
-   *     video is not rendered onto a surface.
-   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
-   *     the video is not rendered onto a surface.
-   */
-  default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
-
-  /**
    * Called when there is {@link Metadata} associated with the current playback time.
    *
    * @param eventTime The event time.
@@ -377,49 +420,87 @@ public interface AnalyticsListener {
    */
   default void onMetadata(EventTime eventTime, Metadata metadata) {}
 
-  /**
-   * Called when an audio or video decoder has been enabled.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the enabled decoder. Either {@link C#TRACK_TYPE_AUDIO} or
-   *     {@link C#TRACK_TYPE_VIDEO}.
-   * @param decoderCounters The accumulated event counters associated with this decoder.
-   */
+  /** @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead. */
+  @Deprecated
   default void onDecoderEnabled(
       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
 
   /**
-   * Called when an audio or video decoder has been initialized.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the initialized decoder. Either {@link C#TRACK_TYPE_AUDIO}
-   *     or {@link C#TRACK_TYPE_VIDEO}.
-   * @param decoderName The decoder that was created.
-   * @param initializationDurationMs Time taken to initialize the decoder, in milliseconds.
+   * @deprecated Use {@link #onAudioDecoderInitialized} and {@link #onVideoDecoderInitialized}
+   *     instead.
    */
+  @Deprecated
   default void onDecoderInitialized(
       EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
 
   /**
-   * Called when an audio or video decoder input format changed.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the decoder whose format changed. Either {@link
-   *     C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}.
-   * @param format The new input format for the decoder.
+   * @deprecated Use {@link #onAudioInputFormatChanged} and {@link #onVideoInputFormatChanged}
+   *     instead.
    */
+  @Deprecated
   default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
 
-  /**
-   * Called when an audio or video decoder has been disabled.
-   *
-   * @param eventTime The event time.
-   * @param trackType The track type of the disabled decoder. Either {@link C#TRACK_TYPE_AUDIO} or
-   *     {@link C#TRACK_TYPE_VIDEO}.
-   * @param decoderCounters The accumulated event counters associated with this decoder.
-   */
+  /** @deprecated Use {@link #onAudioDisabled} and {@link #onVideoDisabled} instead. */
+  @Deprecated
   default void onDecoderDisabled(
       EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
+
+  /**
+   * Called when an audio renderer is enabled.
+   *
+   * @param eventTime The event time.
+   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
+   *     remains enabled.
+   */
+  default void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {}
+
+  /**
+   * Called when an audio renderer creates a decoder.
+   *
+   * @param eventTime The event time.
+   * @param decoderName The decoder that was created.
+   * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
+   */
+  default void onAudioDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  /**
+   * Called when the format of the media being consumed by an audio renderer changes.
+   *
+   * @param eventTime The event time.
+   * @param format The new format.
+   */
+  default void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+
+  /**
+   * Called when the audio position has increased for the first time since the last pause or
+   * position reset.
+   *
+   * @param eventTime The event time.
+   * @param playoutStartSystemTimeMs The approximate derived {@link System#currentTimeMillis()} at
+   *     which playout started.
+   */
+  default void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {}
+
+  /**
+   * Called when an audio underrun occurs.
+   *
+   * @param eventTime The event time.
+   * @param bufferSize The size of the audio output buffer, in bytes.
+   * @param bufferSizeMs The size of the audio output buffer, in milliseconds, if it contains PCM
+   *     encoded audio. {@link C#TIME_UNSET} if the output buffer contains non-PCM encoded audio.
+   * @param elapsedSinceLastFeedMs The time since audio was last written to the output buffer.
+   */
+  default void onAudioUnderrun(
+      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
+
+  /**
+   * Called when an audio renderer is disabled.
+   *
+   * @param eventTime The event time.
+   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   */
+  default void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
 
   /**
    * Called when the audio session id is set.
@@ -438,6 +519,24 @@ public interface AnalyticsListener {
   default void onAudioAttributesChanged(EventTime eventTime, AudioAttributes audioAttributes) {}
 
   /**
+   * Called when skipping silences is enabled or disabled in the audio stream.
+   *
+   * @param eventTime The event time.
+   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+   */
+  default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  /**
+   * Called when {@link AudioSink} has encountered an error. These errors are just for informational
+   * purposes and the player may recover.
+   *
+   * @param eventTime The event time.
+   * @param audioSinkError Either a {@link AudioSink.InitializationException} or a {@link
+   *     AudioSink.WriteException} describing the error.
+   */
+  default void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
+
+  /**
    * Called when the volume changes.
    *
    * @param eventTime The event time.
@@ -446,25 +545,31 @@ public interface AnalyticsListener {
   default void onVolumeChanged(EventTime eventTime, float volume) {}
 
   /**
-   * Called when an audio underrun occurred.
+   * Called when a video renderer is enabled.
    *
    * @param eventTime The event time.
-   * @param bufferSize The size of the {@link AudioSink}'s buffer, in bytes.
-   * @param bufferSizeMs The size of the {@link AudioSink}'s buffer, in milliseconds, if it is
-   *     configured for PCM output. {@link C#TIME_UNSET} if it is configured for passthrough output,
-   *     as the buffered media can have a variable bitrate so the duration may be unknown.
-   * @param elapsedSinceLastFeedMs The time since the {@link AudioSink} was last fed data.
+   * @param counters {@link DecoderCounters} that will be updated by the renderer for as long as it
+   *     remains enabled.
    */
-  default void onAudioUnderrun(
-      EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
+  default void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {}
 
   /**
-   * Called when skipping silences is enabled or disabled in the audio stream.
+   * Called when a video renderer creates a decoder.
    *
    * @param eventTime The event time.
-   * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
+   * @param decoderName The decoder that was created.
+   * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
-  default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+  default void onVideoDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  /**
+   * Called when the format of the media being consumed by a video renderer changes.
+   *
+   * @param eventTime The event time.
+   * @param format The new format.
+   */
+  default void onVideoInputFormatChanged(EventTime eventTime, Format format) {}
 
   /**
    * Called after video frames have been dropped.
@@ -478,28 +583,40 @@ public interface AnalyticsListener {
   default void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
 
   /**
+   * Called when a video renderer is disabled.
+   *
+   * @param eventTime The event time.
+   * @param counters {@link DecoderCounters} that were updated by the renderer.
+   */
+  default void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {}
+
+  /**
    * Called when there is an update to the video frame processing offset reported by a video
    * renderer.
    *
-   * <p>Video processing offset represents how early a video frame is processed compared to the
-   * player's current position. For each video frame, the offset is calculated as <em>P<sub>vf</sub>
-   * - P<sub>pl</sub></em> where <em>P<sub>vf</sub></em> is the presentation timestamp of the video
-   * frame and <em>P<sub>pl</sub></em> is the current position of the player. Positive values
-   * indicate the frame was processed early enough whereas negative values indicate that the
-   * player's position had progressed beyond the frame's timestamp when the frame was processed (and
-   * the frame was probably dropped).
-   *
-   * <p>The renderer reports the sum of video processing offset samples (one sample per processed
-   * video frame: dropped, skipped or rendered) and the total number of samples (frames).
+   * <p>The processing offset for a video frame is the difference between the time at which the
+   * frame became available to render, and the time at which it was scheduled to be rendered. A
+   * positive value indicates the frame became available early enough, whereas a negative value
+   * indicates that the frame wasn't available until after the time at which it should have been
+   * rendered.
    *
    * @param eventTime The event time.
-   * @param totalProcessingOffsetUs The sum of video frame processing offset samples for all video
-   *     frames processed by the renderer in microseconds.
-   * @param frameCount The number to samples included in the {@code totalProcessingOffsetUs}.
-   * @param format The current output {@link Format} rendered by the video renderer.
+   * @param totalProcessingOffsetUs The sum of the video frame processing offsets for frames
+   *     rendered since the last call to this method.
+   * @param frameCount The number to samples included in {@code totalProcessingOffsetUs}.
    */
   default void onVideoFrameProcessingOffset(
-      EventTime eventTime, long totalProcessingOffsetUs, int frameCount, Format format) {}
+      EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {}
+
+  /**
+   * Called when a frame is rendered for the first time since setting the surface, or since the
+   * renderer was reset, or since the stream being rendered was changed.
+   *
+   * @param eventTime The event time.
+   * @param surface The {@link Surface} to which a frame has been rendered, or {@code null} if the
+   *     renderer renders to something that isn't a {@link Surface}.
+   */
+  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time
@@ -522,14 +639,15 @@ public interface AnalyticsListener {
       float pixelWidthHeightRatio) {}
 
   /**
-   * Called when a frame is rendered for the first time since setting the surface, and when a frame
-   * is rendered for the first time since the renderer was reset.
+   * Called when the output surface size changed.
    *
    * @param eventTime The event time.
-   * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
-   *     the renderer renders to something that isn't a {@link Surface}.
+   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
+   *     video is not rendered onto a surface.
+   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+   *     the video is not rendered onto a surface.
    */
-  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
+  default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
 
   /**
    * Called each time a drm session is acquired.

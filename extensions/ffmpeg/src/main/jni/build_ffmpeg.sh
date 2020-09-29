@@ -41,10 +41,7 @@ for decoder in "${ENABLED_DECODERS[@]}"
 do
     COMMON_OPTIONS="${COMMON_OPTIONS} --enable-decoder=${decoder}"
 done
-cd "${FFMPEG_EXT_PATH}"
-(git -C ffmpeg pull || git clone git://source.ffmpeg.org/ffmpeg ffmpeg)
-cd ffmpeg
-git checkout release/4.2
+cd "${FFMPEG_EXT_PATH}/jni/ffmpeg"
 ./configure \
     --libdir=android-libs/armeabi-v7a \
     --arch=arm \

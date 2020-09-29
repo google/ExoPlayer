@@ -23,11 +23,11 @@ import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -112,10 +112,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    *     readers.
    */
   public DefaultTsPayloadReaderFactory(@Flags int flags) {
-    this(
-        flags,
-        Collections.singletonList(
-            new Format.Builder().setSampleMimeType(MimeTypes.APPLICATION_CEA608).build()));
+    this(flags, ImmutableList.of());
   }
 
   /**
@@ -165,6 +162,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
         return new PesReader(new DtsReader(esInfo.language));
       case TsExtractor.TS_STREAM_TYPE_H262:
         return new PesReader(new H262Reader(buildUserDataReader(esInfo)));
+      case TsExtractor.TS_STREAM_TYPE_H263:
+        return new PesReader(new H263Reader(buildUserDataReader(esInfo)));
       case TsExtractor.TS_STREAM_TYPE_H264:
         return isSet(FLAG_IGNORE_H264_STREAM) ? null
             : new PesReader(new H264Reader(buildSeiReader(esInfo),

@@ -18,11 +18,13 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Unit test for {@link Timeline}. */
@@ -57,7 +59,9 @@ public final class TimelineAsserts {
     for (int i = 0; i < timeline.getWindowCount(); i++) {
       timeline.getWindow(i, window);
       if (expectedWindowTags[i] != null) {
-        assertThat(window.tag).isEqualTo(expectedWindowTags[i]);
+        MediaItem.PlaybackProperties playbackProperties = window.mediaItem.playbackProperties;
+        assertThat(playbackProperties).isNotNull();
+        assertThat(Util.castNonNull(playbackProperties).tag).isEqualTo(expectedWindowTags[i]);
       }
     }
   }

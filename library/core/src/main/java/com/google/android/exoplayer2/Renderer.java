@@ -47,6 +47,34 @@ import java.lang.annotation.RetentionPolicy;
 public interface Renderer extends PlayerMessage.Target {
 
   /**
+   * Some renderers can signal when {@link #render(long, long)} should be called.
+   *
+   * <p>That allows the player to sleep until the next wakeup, instead of calling {@link
+   * #render(long, long)} in a tight loop. The aim of this interrupt based scheduling is to save
+   * power.
+   */
+  interface WakeupListener {
+
+    /**
+     * The renderer no longer needs to render until the next wakeup.
+     *
+     * <p>Must be called from the thread ExoPlayer invokes the renderer from.
+     *
+     * @param wakeupDeadlineMs Maximum time in milliseconds until {@link #onWakeup()} will be
+     *     called.
+     */
+    void onSleep(long wakeupDeadlineMs);
+
+    /**
+     * The renderer needs to render some frames. The client should call {@link #render(long, long)}
+     * at its earliest convenience.
+     *
+     * <p>Can be called from any thread.
+     */
+    void onWakeup();
+  }
+
+  /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be the target {@link Surface}, or
    * null.
@@ -138,6 +166,14 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_AUDIO_SESSION_ID = 102;
   /**
+   * A type of a message that can be passed to a {@link Renderer} via {@link
+   * ExoPlayer#createMessage(Target)}, to inform the renderer that it can schedule waking up another
+   * component.
+   *
+   * <p>The message payload must be a {@link WakeupListener} instance.
+   */
+  int MSG_SET_WAKEUP_LISTENER = 103;
+  /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.
    */
@@ -148,9 +184,16 @@ public interface Renderer extends PlayerMessage.Target {
    * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
    * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
    */
+  // VIDEO_SCALING_MODE_DEFAULT is an intentionally duplicated constant.
+  @SuppressWarnings("UniqueConstants")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
+  @IntDef(
+      value = {
+        VIDEO_SCALING_MODE_DEFAULT,
+        VIDEO_SCALING_MODE_SCALE_TO_FIT,
+        VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+      })
   @interface VideoScalingMode {}
   /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
   @SuppressWarnings("deprecation")
@@ -253,6 +296,7 @@ public interface Renderer extends PlayerMessage.Target {
    * @param joining Whether this renderer is being enabled to join an ongoing playback.
    * @param mayRenderStartOfStream Whether this renderer is allowed to render the start of the
    *     stream even if the state is not {@link #STATE_STARTED} yet.
+   * @param startPositionUs The start position of the stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
    * @throws ExoPlaybackException If an error occurs.
@@ -264,6 +308,7 @@ public interface Renderer extends PlayerMessage.Target {
       long positionUs,
       boolean joining,
       boolean mayRenderStartOfStream,
+      long startPositionUs,
       long offsetUs)
       throws ExoPlaybackException;
 
@@ -280,17 +325,18 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Replaces the {@link SampleStream} from which samples will be consumed.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_ENABLED}, {@link #STATE_STARTED}.
+   *
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_ENABLED}, {@link #STATE_STARTED}.
    *
    * @param formats The enabled formats.
    * @param stream The {@link SampleStream} from which the renderer should consume.
+   * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
    * @throws ExoPlaybackException If an error occurs.
    */
-  void replaceStream(Format[] formats, SampleStream stream, long offsetUs)
+  void replaceStream(Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException;
 
   /** Returns the {@link SampleStream} being consumed, or null if the renderer is disabled. */
@@ -306,7 +352,7 @@ public interface Renderer extends PlayerMessage.Target {
   boolean hasReadStreamToEnd();
 
   /**
-   * Returns the playback position up to which the renderer has read samples from the current {@link
+   * Returns the renderer time up to which the renderer has read samples from the current {@link
    * SampleStream}, in microseconds, or {@link C#TIME_END_OF_SOURCE} if the renderer has read the
    * current {@link SampleStream} to the end.
    *
@@ -379,8 +425,8 @@ public interface Renderer extends PlayerMessage.Target {
    * <p>The renderer may also render the very start of the media at the current position (e.g. the
    * first frame of a video stream) while still in the {@link #STATE_ENABLED} state, unless it's the
    * initial start of the media after calling {@link #enable(RendererConfiguration, Format[],
-   * SampleStream, long, boolean, boolean, long)} with {@code mayRenderStartOfStream} set to {@code
-   * false}.
+   * SampleStream, long, boolean, boolean, long, long)} with {@code mayRenderStartOfStream} set to
+   * {@code false}.
    *
    * <p>This method should return quickly, and should not block if the renderer is unable to make
    * useful progress.
@@ -427,13 +473,11 @@ public interface Renderer extends PlayerMessage.Target {
 
   /**
    * Stops the renderer, transitioning it to the {@link #STATE_ENABLED} state.
-   * <p>
-   * This method may be called when the renderer is in the following states:
-   * {@link #STATE_STARTED}.
    *
-   * @throws ExoPlaybackException If an error occurs.
+   * <p>This method may be called when the renderer is in the following states: {@link
+   * #STATE_STARTED}.
    */
-  void stop() throws ExoPlaybackException;
+  void stop();
 
   /**
    * Disable the renderer, transitioning it to the {@link #STATE_DISABLED} state.

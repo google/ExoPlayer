@@ -60,14 +60,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * The size of each sample in the fragment.
    */
   public int[] sampleSizeTable;
-  /**
-   * The composition time offset of each sample in the fragment.
-   */
-  public int[] sampleCompositionTimeOffsetTable;
-  /**
-   * The decoding time of each sample in the fragment.
-   */
-  public long[] sampleDecodingTimeTable;
+  /** The composition time offset of each sample in the fragment, in microseconds. */
+  public int[] sampleCompositionTimeOffsetUsTable;
+  /** The decoding time of each sample in the fragment, in microseconds. */
+  public long[] sampleDecodingTimeUsTable;
   /**
    * Indicates which samples are sync frames.
    */
@@ -93,16 +89,23 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public boolean sampleEncryptionDataNeedsFill;
   /**
-   * The absolute decode time of the start of the next fragment.
+   * The duration of all the samples defined in the fragments up to and including this one, plus the
+   * duration of the samples defined in the moov atom if {@link #nextFragmentDecodeTimeIncludesMoov}
+   * is {@code true}.
    */
   public long nextFragmentDecodeTime;
+  /**
+   * Whether {@link #nextFragmentDecodeTime} includes the duration of the samples referred to by the
+   * moov atom.
+   */
+  public boolean nextFragmentDecodeTimeIncludesMoov;
 
   public TrackFragment() {
     trunDataPosition = new long[0];
     trunLength = new int[0];
     sampleSizeTable = new int[0];
-    sampleCompositionTimeOffsetTable = new int[0];
-    sampleDecodingTimeTable = new long[0];
+    sampleCompositionTimeOffsetUsTable = new int[0];
+    sampleDecodingTimeUsTable = new long[0];
     sampleIsSyncFrameTable = new boolean[0];
     sampleHasSubsampleEncryptionTable = new boolean[0];
     sampleEncryptionData = new ParsableByteArray();
@@ -118,6 +121,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void reset() {
     trunCount = 0;
     nextFragmentDecodeTime = 0;
+    nextFragmentDecodeTimeIncludesMoov = false;
     definesEncryptionData = false;
     sampleEncryptionDataNeedsFill = false;
     trackEncryptionBox = null;
@@ -143,8 +147,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // likely. The choice of 25% is relatively arbitrary.
       int tableSize = (sampleCount * 125) / 100;
       sampleSizeTable = new int[tableSize];
-      sampleCompositionTimeOffsetTable = new int[tableSize];
-      sampleDecodingTimeTable = new long[tableSize];
+      sampleCompositionTimeOffsetUsTable = new int[tableSize];
+      sampleDecodingTimeUsTable = new long[tableSize];
       sampleIsSyncFrameTable = new boolean[tableSize];
       sampleHasSubsampleEncryptionTable = new boolean[tableSize];
     }
@@ -170,7 +174,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param input An {@link ExtractorInput} from which to read the encryption data.
    */
   public void fillEncryptionData(ExtractorInput input) throws IOException {
-    input.readFully(sampleEncryptionData.data, 0, sampleEncryptionData.limit());
+    input.readFully(sampleEncryptionData.getData(), 0, sampleEncryptionData.limit());
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;
   }
@@ -181,13 +185,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param source A source from which to read the encryption data.
    */
   public void fillEncryptionData(ParsableByteArray source) {
-    source.readBytes(sampleEncryptionData.data, 0, sampleEncryptionData.limit());
+    source.readBytes(sampleEncryptionData.getData(), 0, sampleEncryptionData.limit());
     sampleEncryptionData.setPosition(0);
     sampleEncryptionDataNeedsFill = false;
   }
 
-  public long getSamplePresentationTime(int index) {
-    return sampleDecodingTimeTable[index] + sampleCompositionTimeOffsetTable[index];
+  /**
+   * Returns the sample presentation timestamp in microseconds.
+   *
+   * @param index The sample index.
+   * @return The presentation timestamps of this sample in microseconds.
+   */
+  public long getSamplePresentationTimeUs(int index) {
+    return sampleDecodingTimeUsTable[index] + sampleCompositionTimeOffsetUsTable[index];
   }
 
   /** Returns whether the sample at the given index has a subsample encryption table. */

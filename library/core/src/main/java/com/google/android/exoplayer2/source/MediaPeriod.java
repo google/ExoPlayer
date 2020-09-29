@@ -239,8 +239,8 @@ public interface MediaPeriod extends SequenceableLoader {
    *
    * <p>This method is only called after the period has been prepared.
    *
-   * <p>A period may choose to discard buffered media so that it can be re-buffered in a different
-   * quality.
+   * <p>A period may choose to discard buffered media or cancel ongoing loads so that media can be
+   * re-buffered in a different quality.
    *
    * @param positionUs The current playback position in microseconds. If playback of this period has
    *     not yet started, the value will be the starting position in this period minus the duration

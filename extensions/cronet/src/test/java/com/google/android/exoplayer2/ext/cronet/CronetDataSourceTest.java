@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.cronet;
 
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,6 +41,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -47,6 +49,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -56,20 +59,16 @@ import org.chromium.net.CronetEngine;
 import org.chromium.net.NetworkException;
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlResponseInfo;
-import org.chromium.net.impl.UrlResponseInfoImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.annotation.LooperMode;
-import org.robolectric.annotation.LooperMode.Mode;
 import org.robolectric.shadows.ShadowLooper;
 
 /** Tests for {@link CronetDataSource}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(Mode.PAUSED)
 public final class CronetDataSourceTest {
 
   private static final int TEST_CONNECT_TIMEOUT_MS = 100;
@@ -146,15 +145,62 @@ public final class CronetDataSourceTest {
 
   private UrlResponseInfo createUrlResponseInfoWithUrl(String url, int statusCode) {
     ArrayList<Map.Entry<String, String>> responseHeaderList = new ArrayList<>();
-    responseHeaderList.addAll(testResponseHeader.entrySet());
-    return new UrlResponseInfoImpl(
-        Collections.singletonList(url),
-        statusCode,
-        null, // httpStatusText
-        responseHeaderList,
-        false, // wasCached
-        null, // negotiatedProtocol
-        null); // proxyServer
+    Map<String, List<String>> responseHeaderMap = new HashMap<>();
+    for (Map.Entry<String, String> entry : testResponseHeader.entrySet()) {
+      responseHeaderList.add(entry);
+      responseHeaderMap.put(entry.getKey(), Collections.singletonList(entry.getValue()));
+    }
+    return new UrlResponseInfo() {
+      @Override
+      public String getUrl() {
+        return url;
+      }
+
+      @Override
+      public List<String> getUrlChain() {
+        return Collections.singletonList(url);
+      }
+
+      @Override
+      public int getHttpStatusCode() {
+        return statusCode;
+      }
+
+      @Override
+      public String getHttpStatusText() {
+        return null;
+      }
+
+      @Override
+      public List<Map.Entry<String, String>> getAllHeadersAsList() {
+        return responseHeaderList;
+      }
+
+      @Override
+      public Map<String, List<String>> getAllHeaders() {
+        return responseHeaderMap;
+      }
+
+      @Override
+      public boolean wasCached() {
+        return false;
+      }
+
+      @Override
+      public String getNegotiatedProtocol() {
+        return null;
+      }
+
+      @Override
+      public String getProxyServer() {
+        return null;
+      }
+
+      @Override
+      public long getReceivedByteCount() {
+        return 0;
+      }
+    };
   }
 
   @Test
@@ -284,7 +330,7 @@ public final class CronetDataSourceTest {
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
       // Check for connection not automatically closed.
-      assertThat(e.getCause() instanceof UnknownHostException).isFalse();
+      assertThat(e).hasCauseThat().isNotInstanceOf(UnknownHostException.class);
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())
           .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
@@ -322,7 +368,7 @@ public final class CronetDataSourceTest {
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
       // Check for connection not automatically closed.
-      assertThat(e.getCause() instanceof UnknownHostException).isTrue();
+      assertThat(e).hasCauseThat().isInstanceOf(UnknownHostException.class);
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())
           .onTransferStart(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true);
@@ -330,15 +376,18 @@ public final class CronetDataSourceTest {
   }
 
   @Test
-  public void requestOpenValidatesStatusCode() {
+  public void requestOpenPropagatesFailureResponseBody() throws Exception {
     mockResponseStartSuccess();
-    testUrlResponseInfo = createUrlResponseInfo(500); // statusCode
+    // Use a size larger than CronetDataSource.READ_BUFFER_SIZE_BYTES
+    int responseLength = 40 * 1024;
+    mockReadSuccess(/* position= */ 0, /* length= */ responseLength);
+    testUrlResponseInfo = createUrlResponseInfo(/* statusCode= */ 500);
 
     try {
       dataSourceUnderTest.open(testDataSpec);
-      fail("HttpDataSource.HttpDataSourceException expected");
-    } catch (HttpDataSourceException e) {
-      assertThat(e instanceof HttpDataSource.InvalidResponseCodeException).isTrue();
+      fail("HttpDataSource.InvalidResponseCodeException expected");
+    } catch (HttpDataSource.InvalidResponseCodeException e) {
+      assertThat(e.responseBody).isEqualTo(buildTestDataArray(0, responseLength));
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
       verify(mockTransferListener, never())
@@ -361,7 +410,7 @@ public final class CronetDataSourceTest {
       dataSourceUnderTest.open(testDataSpec);
       fail("HttpDataSource.HttpDataSourceException expected");
     } catch (HttpDataSourceException e) {
-      assertThat(e instanceof HttpDataSource.InvalidContentTypeException).isTrue();
+      assertThat(e).isInstanceOf(HttpDataSource.InvalidContentTypeException.class);
       // Check for connection not automatically closed.
       verify(mockUrlRequest, never()).cancel();
       assertThat(testedContentTypes).hasSize(1);
@@ -892,8 +941,8 @@ public final class CronetDataSourceTest {
           fail();
         } catch (HttpDataSourceException e) {
           // Expected.
-          assertThat(e instanceof CronetDataSource.OpenException).isTrue();
-          assertThat(e.getCause() instanceof SocketTimeoutException).isTrue();
+          assertThat(e).isInstanceOf(CronetDataSource.OpenException.class);
+          assertThat(e).hasCauseThat().isInstanceOf(SocketTimeoutException.class);
           assertThat(((CronetDataSource.OpenException) e).cronetConnectionStatus)
               .isEqualTo(TEST_CONNECTION_STATUS);
           timedOutLatch.countDown();
@@ -932,8 +981,8 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertThat(e instanceof CronetDataSource.OpenException).isTrue();
-              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
+              assertThat(e).isInstanceOf(CronetDataSource.OpenException.class);
+              assertThat(e).hasCauseThat().isInstanceOf(InterruptedIOException.class);
               assertThat(((CronetDataSource.OpenException) e).cronetConnectionStatus)
                   .isEqualTo(TEST_INVALID_CONNECTION_STATUS);
               timedOutLatch.countDown();
@@ -1005,8 +1054,8 @@ public final class CronetDataSourceTest {
           fail();
         } catch (HttpDataSourceException e) {
           // Expected.
-          assertThat(e instanceof CronetDataSource.OpenException).isTrue();
-          assertThat(e.getCause() instanceof SocketTimeoutException).isTrue();
+          assertThat(e).isInstanceOf(CronetDataSource.OpenException.class);
+          assertThat(e).hasCauseThat().isInstanceOf(SocketTimeoutException.class);
           openExceptions.getAndIncrement();
           timedOutLatch.countDown();
         }
@@ -1231,7 +1280,7 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
+              assertThat(e).hasCauseThat().isInstanceOf(InterruptedIOException.class);
               timedOutLatch.countDown();
             }
           }
@@ -1262,7 +1311,7 @@ public final class CronetDataSourceTest {
               fail();
             } catch (HttpDataSourceException e) {
               // Expected.
-              assertThat(e.getCause() instanceof CronetDataSource.InterruptedIOException).isTrue();
+              assertThat(e).hasCauseThat().isInstanceOf(InterruptedIOException.class);
               timedOutLatch.countDown();
             }
           }
@@ -1375,7 +1424,7 @@ public final class CronetDataSourceTest {
                     mockUrlRequest, testUrlResponseInfo);
               } else {
                 ByteBuffer inputBuffer = (ByteBuffer) invocation.getArguments()[0];
-                int readLength = Math.min(positionAndRemaining[1], inputBuffer.remaining());
+                int readLength = min(positionAndRemaining[1], inputBuffer.remaining());
                 inputBuffer.put(buildTestDataBuffer(positionAndRemaining[0], readLength));
                 positionAndRemaining[0] += readLength;
                 positionAndRemaining[1] -= readLength;

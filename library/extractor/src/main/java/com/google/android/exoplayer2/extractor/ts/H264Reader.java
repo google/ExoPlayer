@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.ts;
 import static com.google.android.exoplayer2.extractor.ts.TsPayloadReader.FLAG_RANDOM_ACCESS_INDICATOR;
 
 import android.util.SparseArray;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -36,7 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
@@ -125,7 +125,7 @@ public final class H264Reader implements ElementaryStreamReader {
 
     int offset = data.getPosition();
     int limit = data.limit();
-    byte[] dataArray = data.data;
+    byte[] dataArray = data.getData();
 
     // Append the data to the buffer.
     totalBytesWritten += data.bytesLeft();

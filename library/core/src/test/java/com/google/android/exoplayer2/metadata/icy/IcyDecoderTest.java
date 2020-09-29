@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThrows;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
-import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.common.primitives.Bytes;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,7 +54,7 @@ public final class IcyDecoderTest {
   public void decode_respectsLimit() {
     byte[] icyTitle = "StreamTitle='test title';".getBytes(UTF_8);
     byte[] icyUrl = "StreamURL='test_url';".getBytes(UTF_8);
-    byte[] paddedRawBytes = TestUtil.joinByteArrays(icyTitle, icyUrl);
+    byte[] paddedRawBytes = Bytes.concat(icyTitle, icyUrl);
     MetadataInputBuffer metadataBuffer = createMetadataInputBuffer(paddedRawBytes);
     // Stop before the stream URL.
     metadataBuffer.data.limit(icyTitle.length);

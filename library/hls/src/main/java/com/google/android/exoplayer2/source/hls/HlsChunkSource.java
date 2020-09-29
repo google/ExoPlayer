@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static java.lang.Math.max;
+
 import android.net.Uri;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
@@ -39,7 +41,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.primitives.Ints;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -149,11 +153,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     encryptionDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_DRM);
     trackGroup = new TrackGroup(playlistFormats);
-    int[] initialTrackSelection = new int[playlistUrls.length];
+    // Use only non-trickplay variants for preparation. See [Internal ref: b/161529098].
+    ArrayList<Integer> initialTrackSelection = new ArrayList<>();
     for (int i = 0; i < playlistUrls.length; i++) {
-      initialTrackSelection[i] = i;
+      if ((playlistFormats[i].roleFlags & C.ROLE_FLAG_TRICK_PLAY) == 0) {
+        initialTrackSelection.add(i);
+      }
     }
-    trackSelection = new InitializationTrackSelection(trackGroup, initialTrackSelection);
+    trackSelection =
+        new InitializationTrackSelection(trackGroup, Ints.toArray(initialTrackSelection));
   }
 
   /**
@@ -246,9 +254,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // buffered duration to time-to-live-edge to decide whether to switch. Therefore, we subtract
       // the duration of the last loaded segment from timeToLiveEdgeUs as well.
       long subtractedDurationUs = previous.getDurationUs();
-      bufferedDurationUs = Math.max(0, bufferedDurationUs - subtractedDurationUs);
+      bufferedDurationUs = max(0, bufferedDurationUs - subtractedDurationUs);
       if (timeToLiveEdgeUs != C.TIME_UNSET) {
-        timeToLiveEdgeUs = Math.max(0, timeToLiveEdgeUs - subtractedDurationUs);
+        timeToLiveEdgeUs = max(0, timeToLiveEdgeUs - subtractedDurationUs);
       }
     }
 
@@ -371,28 +379,28 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Attempts to blacklist the track associated with the given chunk. Blacklisting will fail if the
-   * track is the only non-blacklisted track in the selection.
+   * Attempts to exclude the track associated with the given chunk. Exclusion will fail if the track
+   * is the only non-excluded track in the selection.
    *
-   * @param chunk The chunk whose load caused the blacklisting attempt.
-   * @param blacklistDurationMs The number of milliseconds for which the track selection should be
-   *     blacklisted.
-   * @return Whether the blacklisting succeeded.
+   * @param chunk The chunk whose load caused the exclusion attempt.
+   * @param exclusionDurationMs The number of milliseconds for which the track selection should be
+   *     excluded.
+   * @return Whether the exclusion succeeded.
    */
-  public boolean maybeBlacklistTrack(Chunk chunk, long blacklistDurationMs) {
+  public boolean maybeExcludeTrack(Chunk chunk, long exclusionDurationMs) {
     return trackSelection.blacklist(
-        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), blacklistDurationMs);
+        trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), exclusionDurationMs);
   }
 
   /**
    * Called when a playlist load encounters an error.
    *
    * @param playlistUrl The {@link Uri} of the playlist whose load encountered an error.
-   * @param blacklistDurationMs The duration for which the playlist should be blacklisted. Or {@link
-   *     C#TIME_UNSET} if the playlist should not be blacklisted.
-   * @return True if blacklisting did not encounter errors. False otherwise.
+   * @param exclusionDurationMs The duration for which the playlist should be excluded. Or {@link
+   *     C#TIME_UNSET} if the playlist should not be excluded.
+   * @return True if excluding did not encounter errors. False otherwise.
    */
-  public boolean onPlaylistError(Uri playlistUrl, long blacklistDurationMs) {
+  public boolean onPlaylistError(Uri playlistUrl, long exclusionDurationMs) {
     int trackGroupIndex = C.INDEX_UNSET;
     for (int i = 0; i < playlistUrls.length; i++) {
       if (playlistUrls[i].equals(playlistUrl)) {
@@ -408,8 +416,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return true;
     }
     seenExpectedPlaylistError |= playlistUrl.equals(expectedPlaylistUrl);
-    return blacklistDurationMs == C.TIME_UNSET
-        || trackSelection.blacklist(trackSelectionIndex, blacklistDurationMs);
+    return exclusionDurationMs == C.TIME_UNSET
+        || trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs);
   }
 
   /**
@@ -451,6 +459,42 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return chunkIterators;
   }
 
+  /**
+   * Evaluates whether {@link MediaChunk MediaChunks} should be removed from the back of the queue.
+   *
+   * <p>Removing {@link MediaChunk MediaChunks} from the back of the queue can be useful if they
+   * could be replaced with chunks of a significantly higher quality (e.g. because the available
+   * bandwidth has substantially increased).
+   *
+   * <p>Will only be called if no {@link MediaChunk} in the queue is currently loading.
+   *
+   * @param playbackPositionUs The current playback position, in microseconds.
+   * @param queue The queue of buffered {@link MediaChunk MediaChunks}.
+   * @return The preferred queue size.
+   */
+  public int getPreferredQueueSize(long playbackPositionUs, List<? extends MediaChunk> queue) {
+    if (fatalError != null || trackSelection.length() < 2) {
+      return queue.size();
+    }
+    return trackSelection.evaluateQueueSize(playbackPositionUs, queue);
+  }
+
+  /**
+   * Returns whether an ongoing load of a chunk should be canceled.
+   *
+   * @param playbackPositionUs The current playback position, in microseconds.
+   * @param loadingChunk The currently loading {@link Chunk}.
+   * @param queue The queue of buffered {@link MediaChunk MediaChunks}.
+   * @return Whether the ongoing load of {@code loadingChunk} should be canceled.
+   */
+  public boolean shouldCancelLoad(
+      long playbackPositionUs, Chunk loadingChunk, List<? extends MediaChunk> queue) {
+    if (fatalError != null) {
+      return false;
+    }
+    return trackSelection.shouldCancelChunkLoad(playbackPositionUs, loadingChunk, queue);
+  }
+
   // Private methods.
 
   /**
@@ -487,9 +531,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
           + mediaPlaylist.mediaSequence;
     }
-    // We ignore the case of previous not having loaded completely, in which case we load the next
-    // segment.
-    return previous.getNextChunkIndex();
+    return previous.isLoadCompleted() ? previous.getNextChunkIndex() : previous.chunkIndex;
   }
 
   private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {

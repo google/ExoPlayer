@@ -34,7 +34,7 @@ public final class ParsableByteArrayTest {
 
   private static ParsableByteArray getTestDataArray() {
     ParsableByteArray testArray = new ParsableByteArray(TEST_DATA.length);
-    System.arraycopy(TEST_DATA, 0, testArray.data, 0, TEST_DATA.length);
+    System.arraycopy(TEST_DATA, 0, testArray.getData(), 0, TEST_DATA.length);
     return testArray;
   }
 
@@ -246,7 +246,7 @@ public final class ParsableByteArrayTest {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // When modifying the wrapped byte array
-    byte[] data = parsableByteArray.data;
+    byte[] data = parsableByteArray.getData();
     long readValue = parsableByteArray.readUnsignedInt();
     data[0] = (byte) (TEST_DATA[0] + 1);
     parsableByteArray.setPosition(0);
@@ -259,7 +259,7 @@ public final class ParsableByteArrayTest {
     ParsableByteArray parsableByteArray = getTestDataArray();
 
     // Given an array with the most-significant bit set on the top byte
-    byte[] data = parsableByteArray.data;
+    byte[] data = parsableByteArray.getData();
     data[0] = (byte) 0x80;
     // Then reading an unsigned long throws.
     try {
@@ -291,7 +291,7 @@ public final class ParsableByteArrayTest {
     byte[] copy = new byte[length];
     parsableByteArray.readBytes(copy, 0, length);
     // Then the array elements are the same.
-    assertThat(copy).isEqualTo(parsableByteArray.data);
+    assertThat(copy).isEqualTo(parsableByteArray.getData());
   }
 
   @Test

@@ -11,65 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-apply from: '../../constants.gradle'
-apply plugin: 'com.android.library'
+apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
-android {
-    compileSdkVersion project.ext.compileSdkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.targetSdkVersion
-        consumerProguardFiles 'proguard-rules.txt'
-
-        externalNativeBuild {
-            cmake {
-                // Debug CMake build type causes video frames to drop,
-                // so native library should always use Release build type.
-                arguments "-DCMAKE_BUILD_TYPE=Release"
-                targets "ffmpeg"
-            }
-        }
-    }
-
-    externalNativeBuild {
-        cmake {
-            version '3.10.2'
-            path "src/main/jni/CMakeLists.txt"
-        }
-    }
-
-    buildTypes {
-        debug {
-            ndk {
-                abiFilters 'arm64-v8a'/*, 'x86_64'*/
-            }
-        }
-    }
-
-    // This option resolves the problem of finding libffmpeg.so
-    // on multiple paths. The first one found is picked.
-    packagingOptions {
-        pickFirst 'lib/arm64-v8a/libffmpeg.so'
-        pickFirst 'lib/armeabi-v7a/libffmpeg.so'
-        pickFirst 'lib/x86/libffmpeg.so'
-        pickFirst 'lib/x86_64/libffmpeg.so'
-    }
-
-    sourceSets.main {
-        // As native JNI library build is invoked from gradle, this is
-        // not needed. However, it exposes the built library and keeps
-        // consistency with the other extensions.
-        jniLibs.srcDir 'src/main/libs'
-        jni.srcDirs = [] // Disable the automatic ndk-build call by Android Studio.
-    }
-
-    testOptions.unitTests.includeAndroidResources = true
+// Configure the native build only if ffmpeg is present to avoid gradle sync
+// failures if ffmpeg hasn't been built according to the README instructions.
+if (project.file('src/main/jni/ffmpeg').exists()) {
+    android.externalNativeBuild.cmake.path = 'src/main/jni/CMakeLists.txt'
+    android.externalNativeBuild.cmake.version = '3.7.1+'
 }
 
 dependencies {

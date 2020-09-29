@@ -34,7 +34,6 @@ import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
 import android.util.DisplayMetrics;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.CaptionStyleCompat;
@@ -65,7 +64,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final float spacingAdd;
 
   private final TextPaint textPaint;
-  private final Paint paint;
+  private final Paint windowPaint;
+  private final Paint bitmapPaint;
 
   // Previous input variables.
   @Nullable private CharSequence cueText;
@@ -81,8 +81,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private int cuePositionAnchor;
   private float cueSize;
   private float cueBitmapHeight;
-  private boolean applyEmbeddedStyles;
-  private boolean applyEmbeddedFontSizes;
   private int foregroundColor;
   private int backgroundColor;
   private int windowColor;
@@ -124,9 +122,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     textPaint.setAntiAlias(true);
     textPaint.setSubpixelText(true);
 
-    paint = new Paint();
-    paint.setAntiAlias(true);
-    paint.setStyle(Style.FILL);
+    windowPaint = new Paint();
+    windowPaint.setAntiAlias(true);
+    windowPaint.setStyle(Style.FILL);
+
+    bitmapPaint = new Paint();
+    bitmapPaint.setAntiAlias(true);
+    bitmapPaint.setFilterBitmap(true);
   }
 
   /**
@@ -137,8 +139,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * which the same parameters are passed.
    *
    * @param cue The cue to draw.
-   * @param applyEmbeddedStyles Whether styling embedded within the cue should be applied.
-   * @param applyEmbeddedFontSizes If {@code applyEmbeddedStyles} is true, defines whether font
    *     sizes embedded within the cue should be applied. Otherwise, it is ignored.
    * @param style The style to use when drawing the cue text.
    * @param defaultTextSizePx The default text size to use when drawing the text, in pixels.
@@ -153,8 +153,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    */
   public void draw(
       Cue cue,
-      boolean applyEmbeddedStyles,
-      boolean applyEmbeddedFontSizes,
       CaptionStyleCompat style,
       float defaultTextSizePx,
       float cueTextSizePx,
@@ -171,8 +169,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         // Nothing to draw.
         return;
       }
-      windowColor = (cue.windowColorSet && applyEmbeddedStyles)
-          ? cue.windowColor : style.windowColor;
+      windowColor = cue.windowColorSet ? cue.windowColor : style.windowColor;
     }
     if (areCharSequencesEqual(this.cueText, cue.text)
         && Util.areEqual(this.cueTextAlignment, cue.textAlignment)
@@ -184,8 +181,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && Util.areEqual(this.cuePositionAnchor, cue.positionAnchor)
         && this.cueSize == cue.size
         && this.cueBitmapHeight == cue.bitmapHeight
-        && this.applyEmbeddedStyles == applyEmbeddedStyles
-        && this.applyEmbeddedFontSizes == applyEmbeddedFontSizes
         && this.foregroundColor == style.foregroundColor
         && this.backgroundColor == style.backgroundColor
         && this.windowColor == windowColor
@@ -214,8 +209,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.cuePositionAnchor = cue.positionAnchor;
     this.cueSize = cue.size;
     this.cueBitmapHeight = cue.bitmapHeight;
-    this.applyEmbeddedStyles = applyEmbeddedStyles;
-    this.applyEmbeddedFontSizes = applyEmbeddedFontSizes;
     this.foregroundColor = style.foregroundColor;
     this.backgroundColor = style.backgroundColor;
     this.windowColor = windowColor;
@@ -261,31 +254,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return;
     }
 
-    // Remove embedded styling or font size if requested.
-    if (!applyEmbeddedStyles) {
-      // Remove all spans, regardless of type.
-      for (Object span : cueText.getSpans(0, cueText.length(), Object.class)) {
-        cueText.removeSpan(span);
-      }
-    } else if (!applyEmbeddedFontSizes) {
-      AbsoluteSizeSpan[] absSpans = cueText.getSpans(0, cueText.length(), AbsoluteSizeSpan.class);
-      for (AbsoluteSizeSpan absSpan : absSpans) {
-        cueText.removeSpan(absSpan);
-      }
-      RelativeSizeSpan[] relSpans = cueText.getSpans(0, cueText.length(), RelativeSizeSpan.class);
-      for (RelativeSizeSpan relSpan : relSpans) {
-        cueText.removeSpan(relSpan);
-      }
-    } else {
-      // Apply embedded styles & font size.
-      if (cueTextSizePx > 0) {
-        // Use an AbsoluteSizeSpan encompassing the whole text to apply the default cueTextSizePx.
-        cueText.setSpan(
-            new AbsoluteSizeSpan((int) cueTextSizePx),
-            /* start= */ 0,
-            /* end= */ cueText.length(),
-            Spanned.SPAN_PRIORITY);
-      }
+    if (cueTextSizePx > 0) {
+      // Use an AbsoluteSizeSpan encompassing the whole text to apply the default cueTextSizePx.
+      cueText.setSpan(
+          new AbsoluteSizeSpan((int) cueTextSizePx),
+          /* start= */ 0,
+          /* end= */ cueText.length(),
+          Spanned.SPAN_PRIORITY);
     }
 
     // Remove embedded font color to not destroy edges, otherwise it overrides edge color.
@@ -362,21 +337,24 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     int textTop;
     if (cueLine != Cue.DIMEN_UNSET) {
-      int anchorPosition;
       if (cueLineType == Cue.LINE_TYPE_FRACTION) {
-        anchorPosition = Math.round(parentHeight * cueLine) + parentTop;
+        int anchorPosition = Math.round(parentHeight * cueLine) + parentTop;
+        textTop =
+            cueLineAnchor == Cue.ANCHOR_TYPE_END
+                ? anchorPosition - textHeight
+                : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE
+                    ? (anchorPosition * 2 - textHeight) / 2
+                    : anchorPosition;
       } else {
         // cueLineType == Cue.LINE_TYPE_NUMBER
         int firstLineHeight = textLayout.getLineBottom(0) - textLayout.getLineTop(0);
         if (cueLine >= 0) {
-          anchorPosition = Math.round(cueLine * firstLineHeight) + parentTop;
+          textTop = Math.round(cueLine * firstLineHeight) + parentTop;
         } else {
-          anchorPosition = Math.round((cueLine + 1) * firstLineHeight) + parentBottom;
+          textTop = Math.round((cueLine + 1) * firstLineHeight) + parentBottom - textHeight;
         }
       }
-      textTop = cueLineAnchor == Cue.ANCHOR_TYPE_END ? anchorPosition - textHeight
-          : cueLineAnchor == Cue.ANCHOR_TYPE_MIDDLE ? (anchorPosition * 2 - textHeight) / 2
-              : anchorPosition;
+
       if (textTop + textHeight > parentBottom) {
         textTop = parentBottom - textHeight;
       } else if (textTop < parentTop) {
@@ -442,9 +420,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     canvas.translate(textLeft, textTop);
 
     if (Color.alpha(windowColor) > 0) {
-      paint.setColor(windowColor);
+      windowPaint.setColor(windowColor);
       canvas.drawRect(
-          -textPaddingX, 0, textLayout.getWidth() + textPaddingX, textLayout.getHeight(), paint);
+          -textPaddingX,
+          0,
+          textLayout.getWidth() + textPaddingX,
+          textLayout.getHeight(),
+          windowPaint);
     }
 
     if (edgeType == CaptionStyleCompat.EDGE_TYPE_OUTLINE) {
@@ -478,7 +460,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @RequiresNonNull({"cueBitmap", "bitmapRect"})
   private void drawBitmapLayout(Canvas canvas) {
-    canvas.drawBitmap(cueBitmap, /* src= */ null, bitmapRect, /* paint= */ null);
+    canvas.drawBitmap(cueBitmap, /* src= */ null, bitmapRect, bitmapPaint);
   }
 
   /**

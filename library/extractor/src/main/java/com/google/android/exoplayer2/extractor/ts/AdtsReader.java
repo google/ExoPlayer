@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -163,7 +165,7 @@ public final class AdtsReader implements ElementaryStreamReader {
           findNextSample(data);
           break;
         case STATE_READING_ID3_HEADER:
-          if (continueRead(data, id3HeaderBuffer.data, ID3_HEADER_SIZE)) {
+          if (continueRead(data, id3HeaderBuffer.getData(), ID3_HEADER_SIZE)) {
             parseId3Header();
           }
           break;
@@ -213,7 +215,7 @@ public final class AdtsReader implements ElementaryStreamReader {
    * @return Whether the target length was reached.
    */
   private boolean continueRead(ParsableByteArray source, byte[] target, int targetLength) {
-    int bytesToRead = Math.min(source.bytesLeft(), targetLength - bytesRead);
+    int bytesToRead = min(source.bytesLeft(), targetLength - bytesRead);
     source.readBytes(target, bytesRead, bytesToRead);
     bytesRead += bytesToRead;
     return bytesRead == targetLength;
@@ -277,7 +279,7 @@ public final class AdtsReader implements ElementaryStreamReader {
    * @param pesBuffer The buffer whose position should be advanced.
    */
   private void findNextSample(ParsableByteArray pesBuffer) {
-    byte[] adtsData = pesBuffer.data;
+    byte[] adtsData = pesBuffer.getData();
     int position = pesBuffer.getPosition();
     int endOffset = pesBuffer.limit();
     while (position < endOffset) {
@@ -335,7 +337,7 @@ public final class AdtsReader implements ElementaryStreamReader {
       return;
     }
     // Peek the next byte of buffer into scratch array.
-    adtsScratch.data[0] = buffer.data[buffer.getPosition()];
+    adtsScratch.data[0] = buffer.getData()[buffer.getPosition()];
 
     adtsScratch.setPosition(2);
     int currentFrameSampleRateIndex = adtsScratch.readBits(4);
@@ -416,7 +418,7 @@ public final class AdtsReader implements ElementaryStreamReader {
 
     // The bytes following the frame must be either another SYNC word with the same MPEG version, or
     // the start of an ID3 header.
-    byte[] data = pesBuffer.data;
+    byte[] data = pesBuffer.getData();
     int dataLimit = pesBuffer.limit();
     int nextSyncPosition = syncPositionCandidate + frameSize;
     if (nextSyncPosition >= dataLimit) {
@@ -531,7 +533,7 @@ public final class AdtsReader implements ElementaryStreamReader {
   /** Reads the rest of the sample */
   @RequiresNonNull("currentOutput")
   private void readSample(ParsableByteArray data) {
-    int bytesToRead = Math.min(data.bytesLeft(), sampleSize - bytesRead);
+    int bytesToRead = min(data.bytesLeft(), sampleSize - bytesRead);
     currentOutput.sampleData(data, bytesToRead);
     bytesRead += bytesToRead;
     if (bytesRead == sampleSize) {

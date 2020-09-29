@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static java.lang.Math.min;
+
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -30,27 +33,20 @@ import java.nio.ByteBuffer;
 public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
 
   /**
-   * The minimum duration of audio that must be below {@link #SILENCE_THRESHOLD_LEVEL} to classify
-   * that part of audio as silent, in microseconds.
+   * The default value for {@link #SilenceSkippingAudioProcessor(long, long, short)
+   * minimumSilenceDurationUs}.
    */
-  private static final long MINIMUM_SILENCE_DURATION_US = 150_000;
+  public static final long DEFAULT_MINIMUM_SILENCE_DURATION_US = 150_000;
   /**
-   * The duration of silence by which to extend non-silent sections, in microseconds. The value must
-   * not exceed {@link #MINIMUM_SILENCE_DURATION_US}.
+   * The default value for {@link #SilenceSkippingAudioProcessor(long, long, short)
+   * paddingSilenceUs}.
    */
-  private static final long PADDING_SILENCE_US = 20_000;
+  public static final long DEFAULT_PADDING_SILENCE_US = 20_000;
   /**
-   * The absolute level below which an individual PCM sample is classified as silent. Note: the
-   * specified value will be rounded so that the threshold check only depends on the more
-   * significant byte, for efficiency.
+   * The default value for {@link #SilenceSkippingAudioProcessor(long, long, short)
+   * silenceThresholdLevel}.
    */
-  private static final short SILENCE_THRESHOLD_LEVEL = 1024;
-
-  /**
-   * Threshold for classifying an individual PCM sample as silent based on its more significant
-   * byte. This is {@link #SILENCE_THRESHOLD_LEVEL} divided by 256 with rounding.
-   */
-  private static final byte SILENCE_THRESHOLD_LEVEL_MSB = (SILENCE_THRESHOLD_LEVEL + 128) >> 8;
+  public static final short DEFAULT_SILENCE_THRESHOLD_LEVEL = 1024;
 
   /** Trimming states. */
   @Documented
@@ -68,8 +64,10 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   /** State when the input is silent. */
   private static final int STATE_SILENT = 2;
 
+  private final long minimumSilenceDurationUs;
+  private final long paddingSilenceUs;
+  private final short silenceThresholdLevel;
   private int bytesPerFrame;
-
   private boolean enabled;
 
   /**
@@ -91,8 +89,31 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   private boolean hasOutputNoise;
   private long skippedFrames;
 
-  /** Creates a new silence trimming audio processor. */
+  /** Creates a new silence skipping audio processor. */
   public SilenceSkippingAudioProcessor() {
+    this(
+        DEFAULT_MINIMUM_SILENCE_DURATION_US,
+        DEFAULT_PADDING_SILENCE_US,
+        DEFAULT_SILENCE_THRESHOLD_LEVEL);
+  }
+
+  /**
+   * Creates a new silence skipping audio processor.
+   *
+   * @param minimumSilenceDurationUs The minimum duration of audio that must be below {@code
+   *     silenceThresholdLevel} to classify that part of audio as silent, in microseconds.
+   * @param paddingSilenceUs The duration of silence by which to extend non-silent sections, in
+   *     microseconds. The value must not exceed {@code minimumSilenceDurationUs}.
+   * @param silenceThresholdLevel The absolute level below which an individual PCM sample is
+   *     classified as silent.
+   */
+  public SilenceSkippingAudioProcessor(
+      long minimumSilenceDurationUs, long paddingSilenceUs, short silenceThresholdLevel) {
+    Assertions.checkArgument(paddingSilenceUs <= minimumSilenceDurationUs);
+    this.minimumSilenceDurationUs = minimumSilenceDurationUs;
+    this.paddingSilenceUs = paddingSilenceUs;
+    this.silenceThresholdLevel = silenceThresholdLevel;
+
     maybeSilenceBuffer = Util.EMPTY_BYTE_ARRAY;
     paddingBuffer = Util.EMPTY_BYTE_ARRAY;
   }
@@ -166,11 +187,11 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
   protected void onFlush() {
     if (enabled) {
       bytesPerFrame = inputAudioFormat.bytesPerFrame;
-      int maybeSilenceBufferSize = durationUsToFrames(MINIMUM_SILENCE_DURATION_US) * bytesPerFrame;
+      int maybeSilenceBufferSize = durationUsToFrames(minimumSilenceDurationUs) * bytesPerFrame;
       if (maybeSilenceBuffer.length != maybeSilenceBufferSize) {
         maybeSilenceBuffer = new byte[maybeSilenceBufferSize];
       }
-      paddingSize = durationUsToFrames(PADDING_SILENCE_US) * bytesPerFrame;
+      paddingSize = durationUsToFrames(paddingSilenceUs) * bytesPerFrame;
       if (paddingBuffer.length != paddingSize) {
         paddingBuffer = new byte[paddingSize];
       }
@@ -199,7 +220,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
     int limit = inputBuffer.limit();
 
     // Check if there's any noise within the maybe silence buffer duration.
-    inputBuffer.limit(Math.min(limit, inputBuffer.position() + maybeSilenceBuffer.length));
+    inputBuffer.limit(min(limit, inputBuffer.position() + maybeSilenceBuffer.length));
     int noiseLimit = findNoiseLimit(inputBuffer);
     if (noiseLimit == inputBuffer.position()) {
       // The buffer contains the start of possible silence.
@@ -229,7 +250,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
       state = STATE_NOISY;
     } else {
       // Fill as much of the maybe silence buffer as possible.
-      int bytesToWrite = Math.min(maybeSilenceInputSize, maybeSilenceBufferRemaining);
+      int bytesToWrite = min(maybeSilenceInputSize, maybeSilenceBufferRemaining);
       inputBuffer.limit(inputBuffer.position() + bytesToWrite);
       inputBuffer.get(maybeSilenceBuffer, maybeSilenceBufferSize, bytesToWrite);
       maybeSilenceBufferSize += bytesToWrite;
@@ -301,7 +322,7 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    * position.
    */
   private void updatePaddingBuffer(ByteBuffer input, byte[] buffer, int size) {
-    int fromInputSize = Math.min(input.remaining(), paddingSize);
+    int fromInputSize = min(input.remaining(), paddingSize);
     int fromBufferSize = paddingSize - fromInputSize;
     System.arraycopy(
         /* src= */ buffer,
@@ -326,8 +347,8 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    */
   private int findNoisePosition(ByteBuffer buffer) {
     // The input is in ByteOrder.nativeOrder(), which is little endian on Android.
-    for (int i = buffer.position() + 1; i < buffer.limit(); i += 2) {
-      if (Math.abs(buffer.get(i)) > SILENCE_THRESHOLD_LEVEL_MSB) {
+    for (int i = buffer.position(); i < buffer.limit(); i += 2) {
+      if (Math.abs(buffer.getShort(i)) > silenceThresholdLevel) {
         // Round to the start of the frame.
         return bytesPerFrame * (i / bytesPerFrame);
       }
@@ -341,8 +362,8 @@ public final class SilenceSkippingAudioProcessor extends BaseAudioProcessor {
    */
   private int findNoiseLimit(ByteBuffer buffer) {
     // The input is in ByteOrder.nativeOrder(), which is little endian on Android.
-    for (int i = buffer.limit() - 1; i >= buffer.position(); i -= 2) {
-      if (Math.abs(buffer.get(i)) > SILENCE_THRESHOLD_LEVEL_MSB) {
+    for (int i = buffer.limit() - 2; i >= buffer.position(); i -= 2) {
+      if (Math.abs(buffer.getShort(i)) > silenceThresholdLevel) {
         // Return the start of the next frame.
         return bytesPerFrame * (i / bytesPerFrame) + bytesPerFrame;
       }

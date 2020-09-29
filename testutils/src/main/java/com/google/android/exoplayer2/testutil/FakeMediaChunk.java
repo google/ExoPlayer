@@ -28,16 +28,31 @@ public final class FakeMediaChunk extends MediaChunk {
 
   private static final DataSource DATA_SOURCE = new DefaultHttpDataSource("TEST_AGENT");
 
+  /**
+   * Creates a fake media chunk.
+   *
+   * @param trackFormat The {@link Format}.
+   * @param startTimeUs The start time of the media, in microseconds.
+   * @param endTimeUs The end time of the media, in microseconds.
+   */
   public FakeMediaChunk(Format trackFormat, long startTimeUs, long endTimeUs) {
-    this(new DataSpec(Uri.EMPTY), trackFormat, startTimeUs, endTimeUs);
+    this(trackFormat, startTimeUs, endTimeUs, C.SELECTION_REASON_UNKNOWN);
   }
 
-  public FakeMediaChunk(DataSpec dataSpec, Format trackFormat, long startTimeUs, long endTimeUs) {
+  /**
+   * Creates a fake media chunk.
+   *
+   * @param trackFormat The {@link Format}.
+   * @param startTimeUs The start time of the media, in microseconds.
+   * @param endTimeUs The end time of the media, in microseconds.
+   * @param selectionReason The reason for selecting this format.
+   */
+  public FakeMediaChunk(Format trackFormat, long startTimeUs, long endTimeUs, int selectionReason) {
     super(
         DATA_SOURCE,
-        dataSpec,
+        new DataSpec(Uri.EMPTY),
         trackFormat,
-        C.SELECTION_REASON_ADAPTIVE,
+        selectionReason,
         /* trackSelectionData= */ null,
         startTimeUs,
         endTimeUs,

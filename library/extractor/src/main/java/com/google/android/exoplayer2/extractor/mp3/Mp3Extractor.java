@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate;
 import com.google.android.exoplayer2.metadata.id3.MlltFrame;
+import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
@@ -109,7 +110,7 @@ public final class Mp3Extractor implements Extractor {
   /**
    * The maximum number of bytes to peek when sniffing, excluding the ID3 header, before giving up.
    */
-  private static final int MAX_SNIFF_BYTES = 16 * 1024;
+  private static final int MAX_SNIFF_BYTES = 32 * 1024;
   /**
    * Maximum length of data read into {@link #scratch}.
    */
@@ -414,7 +415,7 @@ public final class Mp3Extractor implements Extractor {
     }
     try {
       return !extractorInput.peekFully(
-          scratch.data, /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
+          scratch.getData(), /* offset= */ 0, /* length= */ 4, /* allowEndOfInput= */ true);
     } catch (EOFException e) {
       return true;
     }
@@ -432,7 +433,7 @@ public final class Mp3Extractor implements Extractor {
 
     @Nullable Seeker resultSeeker = null;
     if ((flags & FLAG_ENABLE_INDEX_SEEKING) != 0) {
-      long durationUs = C.TIME_UNSET;
+      long durationUs;
       long dataEndPosition = C.POSITION_UNSET;
       if (metadataSeeker != null) {
         durationUs = metadataSeeker.getDurationUs();
@@ -440,6 +441,8 @@ public final class Mp3Extractor implements Extractor {
       } else if (seekFrameSeeker != null) {
         durationUs = seekFrameSeeker.getDurationUs();
         dataEndPosition = seekFrameSeeker.getDataEndPosition();
+      } else {
+        durationUs = getId3TlenUs(metadata);
       }
       resultSeeker =
           new IndexSeeker(
@@ -471,7 +474,7 @@ public final class Mp3Extractor implements Extractor {
   @Nullable
   private Seeker maybeReadSeekFrame(ExtractorInput input) throws IOException {
     ParsableByteArray frame = new ParsableByteArray(synchronizedHeader.frameSize);
-    input.peekFully(frame.data, 0, synchronizedHeader.frameSize);
+    input.peekFully(frame.getData(), 0, synchronizedHeader.frameSize);
     int xingBase = (synchronizedHeader.version & 1) != 0
         ? (synchronizedHeader.channels != 1 ? 36 : 21) // MPEG 1
         : (synchronizedHeader.channels != 1 ? 21 : 13); // MPEG 2 or 2.5
@@ -483,7 +486,7 @@ public final class Mp3Extractor implements Extractor {
         // If there is a Xing header, read gapless playback metadata at a fixed offset.
         input.resetPeekPosition();
         input.advancePeekPosition(xingBase + 141);
-        input.peekFully(scratch.data, 0, 3);
+        input.peekFully(scratch.getData(), 0, 3);
         scratch.setPosition(0);
         gaplessInfoHolder.setFromXingHeaderValue(scratch.readUnsignedInt24());
       }
@@ -505,7 +508,7 @@ public final class Mp3Extractor implements Extractor {
 
   /** Peeks the next frame and returns a {@link ConstantBitrateSeeker} based on its bitrate. */
   private Seeker getConstantBitrateSeeker(ExtractorInput input) throws IOException {
-    input.peekFully(scratch.data, 0, 4);
+    input.peekFully(scratch.getData(), 0, 4);
     scratch.setPosition(0);
     synchronizedHeader.setForHeaderData(scratch.readInt());
     return new ConstantBitrateSeeker(input.getLength(), input.getPosition(), synchronizedHeader);
@@ -554,10 +557,24 @@ public final class Mp3Extractor implements Extractor {
       for (int i = 0; i < length; i++) {
         Metadata.Entry entry = metadata.get(i);
         if (entry instanceof MlltFrame) {
-          return MlltSeeker.create(firstFramePosition, (MlltFrame) entry);
+          return MlltSeeker.create(firstFramePosition, (MlltFrame) entry, getId3TlenUs(metadata));
         }
       }
     }
     return null;
+  }
+
+  private static long getId3TlenUs(@Nullable Metadata metadata) {
+    if (metadata != null) {
+      int length = metadata.length();
+      for (int i = 0; i < length; i++) {
+        Metadata.Entry entry = metadata.get(i);
+        if (entry instanceof TextInformationFrame
+            && ((TextInformationFrame) entry).id.equals("TLEN")) {
+          return C.msToUs(Long.parseLong(((TextInformationFrame) entry).value));
+        }
+      }
+    }
+    return C.TIME_UNSET;
   }
 }

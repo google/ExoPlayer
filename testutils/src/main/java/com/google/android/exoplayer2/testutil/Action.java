@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.IllegalSeekPositionException;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.PlayerMessage.Target;
@@ -602,32 +603,32 @@ public abstract class Action {
       } else {
         message.setPosition(positionMs);
       }
-      message.setHandler(Util.createHandler());
+      message.setHandler(Util.createHandlerForCurrentOrMainLooper());
       message.setDeleteAfterDelivery(deleteAfterDelivery);
       message.send();
     }
   }
 
-  /** Calls {@link Player#setPlaybackSpeed(float)}. */
-  public static final class SetPlaybackSpeed extends Action {
+  /** Calls {@link Player#setPlaybackParameters(PlaybackParameters)}. */
+  public static final class SetPlaybackParameters extends Action {
 
-    private final float playbackSpeed;
+    private final PlaybackParameters playbackParameters;
 
     /**
-     * Creates a set playback speed action instance.
+     * Creates a set playback parameters action instance.
      *
      * @param tag A tag to use for logging.
-     * @param playbackSpeed The playback speed.
+     * @param playbackParameters The playback parameters.
      */
-    public SetPlaybackSpeed(String tag, float playbackSpeed) {
-      super(tag, "SetPlaybackSpeed:" + playbackSpeed);
-      this.playbackSpeed = playbackSpeed;
+    public SetPlaybackParameters(String tag, PlaybackParameters playbackParameters) {
+      super(tag, "SetPlaybackParameters:" + playbackParameters);
+      this.playbackParameters = playbackParameters;
     }
 
     @Override
     protected void doActionImpl(
         SimpleExoPlayer player, DefaultTrackSelector trackSelector, @Nullable Surface surface) {
-      player.setPlaybackSpeed(playbackSpeed);
+      player.setPlaybackParameters(playbackParameters);
     }
   }
 
@@ -684,7 +685,7 @@ public abstract class Action {
         @Nullable Surface surface,
         HandlerWrapper handler,
         @Nullable ActionNode nextAction) {
-      Handler testThreadHandler = Util.createHandler();
+      Handler testThreadHandler = Util.createHandlerForCurrentOrMainLooper();
       // Schedule a message on the playback thread to ensure the player is paused immediately.
       player
           .createMessage(
@@ -890,13 +891,13 @@ public abstract class Action {
    */
   public static final class WaitForPlaybackState extends Action {
 
-    private final int targetPlaybackState;
+    @Player.State private final int targetPlaybackState;
 
     /**
      * @param tag A tag to use for logging.
      * @param targetPlaybackState The playback state to wait for.
      */
-    public WaitForPlaybackState(String tag, int targetPlaybackState) {
+    public WaitForPlaybackState(String tag, @Player.State int targetPlaybackState) {
       super(tag, "WaitForPlaybackState");
       this.targetPlaybackState = targetPlaybackState;
     }
@@ -1048,7 +1049,7 @@ public abstract class Action {
       player
           .createMessage(
               (type, data) -> nextAction.schedule(player, trackSelector, surface, handler))
-          .setHandler(Util.createHandler())
+          .setHandler(Util.createHandlerForCurrentOrMainLooper())
           .send();
     }
 

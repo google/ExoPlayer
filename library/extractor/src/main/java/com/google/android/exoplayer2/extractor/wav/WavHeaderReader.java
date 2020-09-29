@@ -54,7 +54,7 @@ import java.io.IOException;
       return null;
     }
 
-    input.peekFully(scratch.data, 0, 4);
+    input.peekFully(scratch.getData(), 0, 4);
     scratch.setPosition(0);
     int riffFormat = scratch.readInt();
     if (riffFormat != WavUtil.WAVE_FOURCC) {
@@ -70,7 +70,7 @@ import java.io.IOException;
     }
 
     Assertions.checkState(chunkHeader.size >= 16);
-    input.peekFully(scratch.data, 0, 16);
+    input.peekFully(scratch.getData(), 0, 16);
     scratch.setPosition(0);
     int audioFormatType = scratch.readLittleEndianUnsignedShort();
     int numChannels = scratch.readLittleEndianUnsignedShort();
@@ -175,7 +175,7 @@ import java.io.IOException;
      */
     public static ChunkHeader peek(ExtractorInput input, ParsableByteArray scratch)
         throws IOException {
-      input.peekFully(scratch.data, /* offset= */ 0, /* length= */ SIZE_IN_BYTES);
+      input.peekFully(scratch.getData(), /* offset= */ 0, /* length= */ SIZE_IN_BYTES);
       scratch.setPosition(0);
 
       int id = scratch.readInt();

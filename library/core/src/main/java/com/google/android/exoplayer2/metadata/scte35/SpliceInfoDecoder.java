@@ -17,19 +17,16 @@ package com.google.android.exoplayer2.metadata.scte35;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
-import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.metadata.SimpleMetadataDecoder;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Decodes splice info sections and produces splice commands.
- */
-public final class SpliceInfoDecoder implements MetadataDecoder {
+/** Decodes splice info sections and produces splice commands. */
+public final class SpliceInfoDecoder extends SimpleMetadataDecoder {
 
   private static final int TYPE_SPLICE_NULL = 0x00;
   private static final int TYPE_SPLICE_SCHEDULE = 0x04;
@@ -48,11 +45,8 @@ public final class SpliceInfoDecoder implements MetadataDecoder {
   }
 
   @Override
-  public Metadata decode(MetadataInputBuffer inputBuffer) {
-    ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
-    Assertions.checkArgument(
-        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
-
+  @SuppressWarnings("ByteBufferBackingArray") // Buffer validated by SimpleMetadataDecoder.decode
+  protected Metadata decode(MetadataInputBuffer inputBuffer, ByteBuffer buffer) {
     // Internal timestamps adjustment.
     if (timestampAdjuster == null
         || inputBuffer.subsampleOffsetUs != timestampAdjuster.getTimestampOffsetUs()) {

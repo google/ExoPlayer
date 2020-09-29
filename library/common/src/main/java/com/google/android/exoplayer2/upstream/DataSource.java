@@ -74,6 +74,8 @@ public interface DataSource extends DataReader {
   /**
    * When the source is open, returns the response headers associated with the last {@link #open}
    * call. Otherwise, returns an empty map.
+   *
+   * <p>Key look-up in the returned map is case-insensitive.
    */
   default Map<String, List<String>> getResponseHeaders() {
     return Collections.emptyMap();

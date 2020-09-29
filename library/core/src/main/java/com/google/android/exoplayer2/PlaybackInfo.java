@@ -28,10 +28,10 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 /* package */ final class PlaybackInfo {
 
   /**
-   * Dummy media period id used while the timeline is empty and no period id is specified. This id
-   * is used when playback infos are created with {@link #createDummy(TrackSelectorResult)}.
+   * Placeholder media period id used while the timeline is empty and no period id is specified.
+   * This id is used when playback infos are created with {@link #createDummy(TrackSelectorResult)}.
    */
-  private static final MediaPeriodId DUMMY_MEDIA_PERIOD_ID =
+  private static final MediaPeriodId PLACEHOLDER_MEDIA_PERIOD_ID =
       new MediaPeriodId(/* periodUid= */ new Object());
 
   /** The current {@link Timeline}. */
@@ -63,6 +63,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public final boolean playWhenReady;
   /** Reason why playback is suppressed even though {@link #playWhenReady} is {@code true}. */
   @PlaybackSuppressionReason public final int playbackSuppressionReason;
+  /** The playback parameters. */
+  public final PlaybackParameters playbackParameters;
+  /** Whether offload scheduling is enabled for the main player loop. */
+  public final boolean offloadSchedulingEnabled;
+  /** Whether the main player loop is sleeping, while using offload scheduling. */
+  public final boolean sleepingForOffload;
 
   /**
    * Position up to which media is buffered in {@link #loadingMediaPeriodId) relative to the start
@@ -81,29 +87,32 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public volatile long positionUs;
 
   /**
-   * Creates empty dummy playback info which can be used for masking as long as no real playback
-   * info is available.
+   * Creates an empty placeholder playback info which can be used for masking as long as no real
+   * playback info is available.
    *
    * @param emptyTrackSelectorResult An empty track selector result with null entries for each
    *     renderer.
-   * @return A dummy playback info.
+   * @return A placeholder playback info.
    */
   public static PlaybackInfo createDummy(TrackSelectorResult emptyTrackSelectorResult) {
     return new PlaybackInfo(
         Timeline.EMPTY,
-        DUMMY_MEDIA_PERIOD_ID,
+        PLACEHOLDER_MEDIA_PERIOD_ID,
         /* requestedContentPositionUs= */ C.TIME_UNSET,
         Player.STATE_IDLE,
         /* playbackError= */ null,
         /* isLoading= */ false,
         TrackGroupArray.EMPTY,
         emptyTrackSelectorResult,
-        DUMMY_MEDIA_PERIOD_ID,
+        PLACEHOLDER_MEDIA_PERIOD_ID,
         /* playWhenReady= */ false,
         Player.PLAYBACK_SUPPRESSION_REASON_NONE,
+        PlaybackParameters.DEFAULT,
         /* bufferedPositionUs= */ 0,
         /* totalBufferedDurationUs= */ 0,
-        /* positionUs= */ 0);
+        /* positionUs= */ 0,
+        /* offloadSchedulingEnabled= */ false,
+        /* sleepingForOffload= */ false);
   }
 
   /**
@@ -113,13 +122,19 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * @param periodId See {@link #periodId}.
    * @param requestedContentPositionUs See {@link #requestedContentPositionUs}.
    * @param playbackState See {@link #playbackState}.
+   * @param playbackError See {@link #playbackError}.
    * @param isLoading See {@link #isLoading}.
    * @param trackGroups See {@link #trackGroups}.
    * @param trackSelectorResult See {@link #trackSelectorResult}.
    * @param loadingMediaPeriodId See {@link #loadingMediaPeriodId}.
+   * @param playWhenReady See {@link #playWhenReady}.
+   * @param playbackSuppressionReason See {@link #playbackSuppressionReason}.
+   * @param playbackParameters See {@link #playbackParameters}.
    * @param bufferedPositionUs See {@link #bufferedPositionUs}.
    * @param totalBufferedDurationUs See {@link #totalBufferedDurationUs}.
    * @param positionUs See {@link #positionUs}.
+   * @param offloadSchedulingEnabled See {@link #offloadSchedulingEnabled}.
+   * @param sleepingForOffload See {@link #sleepingForOffload}.
    */
   public PlaybackInfo(
       Timeline timeline,
@@ -133,9 +148,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       MediaPeriodId loadingMediaPeriodId,
       boolean playWhenReady,
       @PlaybackSuppressionReason int playbackSuppressionReason,
+      PlaybackParameters playbackParameters,
       long bufferedPositionUs,
       long totalBufferedDurationUs,
-      long positionUs) {
+      long positionUs,
+      boolean offloadSchedulingEnabled,
+      boolean sleepingForOffload) {
     this.timeline = timeline;
     this.periodId = periodId;
     this.requestedContentPositionUs = requestedContentPositionUs;
@@ -147,14 +165,17 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.loadingMediaPeriodId = loadingMediaPeriodId;
     this.playWhenReady = playWhenReady;
     this.playbackSuppressionReason = playbackSuppressionReason;
+    this.playbackParameters = playbackParameters;
     this.bufferedPositionUs = bufferedPositionUs;
     this.totalBufferedDurationUs = totalBufferedDurationUs;
     this.positionUs = positionUs;
+    this.offloadSchedulingEnabled = offloadSchedulingEnabled;
+    this.sleepingForOffload = sleepingForOffload;
   }
 
-  /** Returns dummy period id for an empty timeline. */
+  /** Returns a placeholder period id for an empty timeline. */
   public static MediaPeriodId getDummyPeriodForEmptyTimeline() {
-    return DUMMY_MEDIA_PERIOD_ID;
+    return PLACEHOLDER_MEDIA_PERIOD_ID;
   }
 
   /**
@@ -190,9 +211,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
-        positionUs);
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -215,9 +239,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
-        positionUs);
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -240,9 +267,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
-        positionUs);
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -265,9 +295,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
-        positionUs);
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -290,9 +323,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
-        positionUs);
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -315,9 +351,12 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
-        positionUs);
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 
   /**
@@ -344,8 +383,96 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
+        playbackParameters,
         bufferedPositionUs,
         totalBufferedDurationUs,
-        positionUs);
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
+  }
+
+  /**
+   * Copies playback info with new playback parameters.
+   *
+   * @param playbackParameters New playback parameters. See {@link #playbackParameters}.
+   * @return Copied playback info with new playback parameters.
+   */
+  @CheckResult
+  public PlaybackInfo copyWithPlaybackParameters(PlaybackParameters playbackParameters) {
+    return new PlaybackInfo(
+        timeline,
+        periodId,
+        requestedContentPositionUs,
+        playbackState,
+        playbackError,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        playWhenReady,
+        playbackSuppressionReason,
+        playbackParameters,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
+  }
+
+  /**
+   * Copies playback info with new offloadSchedulingEnabled.
+   *
+   * @param offloadSchedulingEnabled New offloadSchedulingEnabled state. See {@link
+   *     #offloadSchedulingEnabled}.
+   * @return Copied playback info with new offload scheduling state.
+   */
+  @CheckResult
+  public PlaybackInfo copyWithOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
+    return new PlaybackInfo(
+        timeline,
+        periodId,
+        requestedContentPositionUs,
+        playbackState,
+        playbackError,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        playWhenReady,
+        playbackSuppressionReason,
+        playbackParameters,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
+  }
+
+  /**
+   * Copies playback info with new sleepingForOffload.
+   *
+   * @param sleepingForOffload New main player loop sleeping state. See {@link #sleepingForOffload}.
+   * @return Copied playback info with new main player loop sleeping state.
+   */
+  @CheckResult
+  public PlaybackInfo copyWithSleepingForOffload(boolean sleepingForOffload) {
+    return new PlaybackInfo(
+        timeline,
+        periodId,
+        requestedContentPositionUs,
+        playbackState,
+        playbackError,
+        isLoading,
+        trackGroups,
+        trackSelectorResult,
+        loadingMediaPeriodId,
+        playWhenReady,
+        playbackSuppressionReason,
+        playbackParameters,
+        bufferedPositionUs,
+        totalBufferedDurationUs,
+        positionUs,
+        offloadSchedulingEnabled,
+        sleepingForOffload);
   }
 }

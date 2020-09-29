@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.dash;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -36,12 +37,9 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void createMediaSource_withMimeType_dashSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
-        new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .build();
+        new MediaItem.Builder().setUri(URI_MEDIA).setMimeType(MimeTypes.APPLICATION_MPD).build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -52,24 +50,24 @@ public class DefaultMediaSourceFactoryTest {
   public void createMediaSource_withTag_tagInSource() {
     Object tag = new Object();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
     MediaItem mediaItem =
         new MediaItem.Builder()
-            .setSourceUri(URI_MEDIA)
+            .setUri(URI_MEDIA)
             .setMimeType(MimeTypes.APPLICATION_MPD)
             .setTag(tag)
             .build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
-    assertThat(mediaSource.getTag()).isEqualTo(tag);
+    assertThat(mediaSource.getMediaItem().playbackProperties.tag).isEqualTo(tag);
   }
 
   @Test
   public void createMediaSource_withPath_dashSource() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.mpd").build();
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.mpd").build();
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 
@@ -79,8 +77,8 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void createMediaSource_withNull_usesNonNullDefaults() {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext());
-    MediaItem mediaItem = new MediaItem.Builder().setSourceUri(URI_MEDIA + "/file.mpd").build();
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext());
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.mpd").build();
 
     MediaSource mediaSource =
         defaultMediaSourceFactory
@@ -95,7 +93,7 @@ public class DefaultMediaSourceFactoryTest {
   @Test
   public void getSupportedTypes_dashModule_containsTypeDash() {
     int[] supportedTypes =
-        DefaultMediaSourceFactory.newInstance(ApplicationProvider.getApplicationContext())
+        new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .getSupportedTypes();
 
     assertThat(supportedTypes).asList().containsExactly(C.TYPE_OTHER, C.TYPE_DASH);

@@ -129,7 +129,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
       return FORMAT_UNSUPPORTED_TYPE;
     } else if (!FfmpegLibrary.supportsFormat(format.sampleMimeType)) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
-    } else if (format.drmInitData != null && format.exoMediaCryptoType == null) {
+    } else if (format.exoMediaCryptoType != null) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
     } else {
       return RendererCapabilities.create(
@@ -169,5 +169,10 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
     if (decoder != null) {
       decoder.setOutputMode(outputMode);
     }
+  }
+
+  @Override
+  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
+    return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType);
   }
 }

@@ -116,6 +116,9 @@ import java.util.List;
   public static final int TYPE_mp4a = 0x6d703461;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE__mp2 = 0x2e6d7032;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE__mp3 = 0x2e6d7033;
 
   @SuppressWarnings("ConstantCaseForConstants")
@@ -275,9 +278,6 @@ import java.util.List;
   public static final int TYPE_TTML = 0x54544d4c;
 
   @SuppressWarnings("ConstantCaseForConstants")
-  public static final int TYPE_vmhd = 0x766d6864;
-
-  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_mp4v = 0x6d703476;
 
   @SuppressWarnings("ConstantCaseForConstants")
@@ -357,6 +357,9 @@ import java.util.List;
 
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_camm = 0x63616d6d;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mett = 0x6d657474;
 
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_alac = 0x616c6163;

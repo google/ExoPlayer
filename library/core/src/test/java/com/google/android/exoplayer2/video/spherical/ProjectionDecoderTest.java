@@ -21,7 +21,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -76,20 +75,19 @@ public final class ProjectionDecoderTest {
     assertThat(subMesh.textureCoords.length).isEqualTo(VERTEX_COUNT * 2);
 
     // Test first vertex
-    testCoordinate(FIRST_VERTEX, vertices, 0, 3);
+    testCoordinate(FIRST_VERTEX, vertices, /* offset= */ 0);
     // Test last vertex
-    testCoordinate(LAST_VERTEX, vertices, VERTEX_COUNT * 3 - 3, 3);
+    testCoordinate(LAST_VERTEX, vertices, /* offset= */ VERTEX_COUNT * 3 - 3);
 
     // Test first uv
-    testCoordinate(FIRST_UV, uv, 0, 2);
+    testCoordinate(FIRST_UV, uv, /* offset= */ 0);
     // Test last uv
-    testCoordinate(LAST_UV, uv, VERTEX_COUNT * 2 - 2, 2);
+    testCoordinate(LAST_UV, uv, /* offset= */ VERTEX_COUNT * 2 - 2);
   }
 
   /** Tests that the output coordinates match the expected. */
-  private static void testCoordinate(float[] expected, float[] output, int offset, int count) {
-    for (int i = 0; i < count; i++) {
-      Assert.assertEquals(expected[i], output[i + offset]);
-    }
+  private static void testCoordinate(float[] expected, float[] output, int offset) {
+    float[] adjustedOutput = Arrays.copyOfRange(output, offset, offset + expected.length);
+    assertThat(adjustedOutput).isEqualTo(expected);
   }
 }

@@ -39,13 +39,13 @@ public final class Requirements implements Parcelable {
 
   /**
    * Requirement flags. Possible flag values are {@link #NETWORK}, {@link #NETWORK_UNMETERED},
-   * {@link #DEVICE_IDLE} and {@link #DEVICE_CHARGING}.
+   * {@link #DEVICE_IDLE}, {@link #DEVICE_CHARGING} and {@link #DEVICE_STORAGE_NOT_LOW}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {NETWORK, NETWORK_UNMETERED, DEVICE_IDLE, DEVICE_CHARGING})
+      value = {NETWORK, NETWORK_UNMETERED, DEVICE_IDLE, DEVICE_CHARGING, DEVICE_STORAGE_NOT_LOW})
   public @interface RequirementFlags {}
 
   /** Requirement that the device has network connectivity. */
@@ -56,6 +56,11 @@ public final class Requirements implements Parcelable {
   public static final int DEVICE_IDLE = 1 << 2;
   /** Requirement that the device is charging. */
   public static final int DEVICE_CHARGING = 1 << 3;
+  /**
+   * Requirement that the device's <em>internal</em> storage is not low. Note that this requirement
+   * is not affected by the status of external storage.
+   */
+  public static final int DEVICE_STORAGE_NOT_LOW = 1 << 4;
 
   @RequirementFlags private final int requirements;
 
@@ -72,6 +77,18 @@ public final class Requirements implements Parcelable {
   @RequirementFlags
   public int getRequirements() {
     return requirements;
+  }
+
+  /**
+   * Filters the requirements, returning the subset that are enabled by the provided filter.
+   *
+   * @param requirementsFilter The enabled {@link RequirementFlags}.
+   * @return The filtered requirements. If the filter does not cause a change in the requirements
+   *     then this instance will be returned.
+   */
+  public Requirements filterRequirements(int requirementsFilter) {
+    int filteredRequirements = requirements & requirementsFilter;
+    return filteredRequirements == requirements ? this : new Requirements(filteredRequirements);
   }
 
   /** Returns whether network connectivity is required. */
@@ -92,6 +109,11 @@ public final class Requirements implements Parcelable {
   /** Returns whether the device is required to be idle. */
   public boolean isIdleRequired() {
     return (requirements & DEVICE_IDLE) != 0;
+  }
+
+  /** Returns whether the device is required to not be low on <em>internal</em> storage. */
+  public boolean isStorageNotLowRequired() {
+    return (requirements & DEVICE_STORAGE_NOT_LOW) != 0;
   }
 
   /**
@@ -119,6 +141,9 @@ public final class Requirements implements Parcelable {
     if (isIdleRequired() && !isDeviceIdle(context)) {
       notMetRequirements |= DEVICE_IDLE;
     }
+    if (isStorageNotLowRequired() && !isStorageNotLow(context)) {
+      notMetRequirements |= DEVICE_STORAGE_NOT_LOW;
+    }
     return notMetRequirements;
   }
 
@@ -129,8 +154,9 @@ public final class Requirements implements Parcelable {
     }
 
     ConnectivityManager connectivityManager =
-        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    NetworkInfo networkInfo = Assertions.checkNotNull(connectivityManager).getActiveNetworkInfo();
+        (ConnectivityManager)
+            Assertions.checkNotNull(context.getSystemService(Context.CONNECTIVITY_SERVICE));
+    @Nullable NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
     if (networkInfo == null
         || !networkInfo.isConnected()
         || !isInternetConnectivityValidated(connectivityManager)) {
@@ -145,8 +171,10 @@ public final class Requirements implements Parcelable {
   }
 
   private boolean isDeviceCharging(Context context) {
+    @Nullable
     Intent batteryStatus =
-        context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        context.registerReceiver(
+            /* receiver= */ null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     if (batteryStatus == null) {
       return false;
     }
@@ -156,23 +184,33 @@ public final class Requirements implements Parcelable {
   }
 
   private boolean isDeviceIdle(Context context) {
-    PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+    PowerManager powerManager =
+        (PowerManager) Assertions.checkNotNull(context.getSystemService(Context.POWER_SERVICE));
     return Util.SDK_INT >= 23
         ? powerManager.isDeviceIdleMode()
         : Util.SDK_INT >= 20 ? !powerManager.isInteractive() : !powerManager.isScreenOn();
   }
 
+  private boolean isStorageNotLow(Context context) {
+    return context.registerReceiver(
+            /* receiver= */ null, new IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW))
+        == null;
+  }
+
   private static boolean isInternetConnectivityValidated(ConnectivityManager connectivityManager) {
-    // It's possible to query NetworkCapabilities from API level 23, but RequirementsWatcher only
-    // fires an event to update its Requirements when NetworkCapabilities change from API level 24.
-    // Since Requirements won't be updated, we assume connectivity is validated on API level 23.
+    // It's possible to check NetworkCapabilities.NET_CAPABILITY_VALIDATED from API level 23, but
+    // RequirementsWatcher only fires an event to re-check the requirements when NetworkCapabilities
+    // change from API level 24. We assume that network capability is validated for API level 23 to
+    // keep in sync.
     if (Util.SDK_INT < 24) {
       return true;
     }
-    Network activeNetwork = connectivityManager.getActiveNetwork();
+
+    @Nullable Network activeNetwork = connectivityManager.getActiveNetwork();
     if (activeNetwork == null) {
       return false;
     }
+    @Nullable
     NetworkCapabilities networkCapabilities =
         connectivityManager.getNetworkCapabilities(activeNetwork);
     return networkCapabilities != null

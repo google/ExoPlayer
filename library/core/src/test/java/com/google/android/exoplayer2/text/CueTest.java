@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.Layout;
+import android.text.SpannedString;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,10 +32,10 @@ import org.junit.runner.RunWith;
 public class CueTest {
 
   @Test
-  public void buildSucceeds() {
+  public void buildAndBuildUponWorkAsExpected() {
     Cue cue =
         new Cue.Builder()
-            .setText("text")
+            .setText(SpannedString.valueOf("text"))
             .setTextAlignment(Layout.Alignment.ALIGN_CENTER)
             .setLine(5, Cue.LINE_TYPE_NUMBER)
             .setLineAnchor(Cue.ANCHOR_TYPE_END)
@@ -46,7 +47,9 @@ public class CueTest {
             .setVerticalType(Cue.VERTICAL_TYPE_RL)
             .build();
 
-    assertThat(cue.text).isEqualTo("text");
+    Cue modifiedCue = cue.buildUpon().build();
+
+    assertThat(cue.text.toString()).isEqualTo("text");
     assertThat(cue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_CENTER);
     assertThat(cue.line).isEqualTo(5);
     assertThat(cue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
@@ -58,6 +61,27 @@ public class CueTest {
     assertThat(cue.windowColor).isEqualTo(Color.CYAN);
     assertThat(cue.windowColorSet).isTrue();
     assertThat(cue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
+
+    assertThat(modifiedCue.text).isSameInstanceAs(cue.text);
+    assertThat(modifiedCue.textAlignment).isEqualTo(cue.textAlignment);
+    assertThat(modifiedCue.line).isEqualTo(cue.line);
+    assertThat(modifiedCue.lineType).isEqualTo(cue.lineType);
+    assertThat(modifiedCue.position).isEqualTo(cue.position);
+    assertThat(modifiedCue.positionAnchor).isEqualTo(cue.positionAnchor);
+    assertThat(modifiedCue.textSize).isEqualTo(cue.textSize);
+    assertThat(modifiedCue.textSizeType).isEqualTo(cue.textSizeType);
+    assertThat(modifiedCue.size).isEqualTo(cue.size);
+    assertThat(modifiedCue.windowColor).isEqualTo(cue.windowColor);
+    assertThat(modifiedCue.windowColorSet).isEqualTo(cue.windowColorSet);
+    assertThat(modifiedCue.verticalType).isEqualTo(cue.verticalType);
+  }
+
+  @Test
+  public void clearWindowColor() {
+    Cue cue =
+        new Cue.Builder().setText(SpannedString.valueOf("text")).setWindowColor(Color.CYAN).build();
+
+    assertThat(cue.buildUpon().clearWindowColor().build().windowColorSet).isFalse();
   }
 
   @Test
@@ -71,7 +95,7 @@ public class CueTest {
         RuntimeException.class,
         () ->
             new Cue.Builder()
-                .setText("foo")
+                .setText(SpannedString.valueOf("text"))
                 .setBitmap(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
                 .build());
   }

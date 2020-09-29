@@ -36,7 +36,7 @@ import com.google.android.exoplayer2.util.Util;
 public final class VideoFrameReleaseTimeHelper {
 
   private static final long CHOREOGRAPHER_SAMPLE_DELAY_MILLIS = 500;
-  private static final long MAX_ALLOWED_DRIFT_NS = 20000000;
+  private static final long MAX_ALLOWED_DRIFT_NS = 20_000_000;
 
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
   private static final int MIN_FRAMES_FOR_ADJUSTMENT = 6;

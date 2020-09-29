@@ -102,7 +102,6 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
    * @param numInputBuffers Number of input buffers.
    * @param numOutputBuffers Number of output buffers.
    */
-  @SuppressWarnings("deprecation")
   public LibvpxVideoRenderer(
       long allowedJoiningTimeMs,
       @Nullable Handler eventHandler,
@@ -129,7 +128,7 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
     }
     boolean drmIsSupported =
-        format.drmInitData == null
+        format.exoMediaCryptoType == null
             || VpxLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
     if (!drmIsSupported) {
       return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
@@ -167,5 +166,10 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
     if (decoder != null) {
       decoder.setOutputMode(outputMode);
     }
+  }
+
+  @Override
+  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
+    return true;
   }
 }

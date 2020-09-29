@@ -15,30 +15,46 @@
  */
 package com.google.android.exoplayer2.extractor.ts;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
+import com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit test for {@link AdtsExtractor}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class AdtsExtractorTest {
+
+  @Parameters(name = "{0}")
+  public static List<Object[]> params() {
+    return ExtractorAsserts.configs();
+  }
+
+  @Parameter public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
   public void sample() throws Exception {
-    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample.adts");
+    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "media/ts/sample.adts", simulationConfig);
   }
 
   @Test
   public void sample_with_id3() throws Exception {
-    ExtractorAsserts.assertBehavior(AdtsExtractor::new, "ts/sample_with_id3.adts");
+    ExtractorAsserts.assertBehavior(
+        AdtsExtractor::new, "media/ts/sample_with_id3.adts", simulationConfig);
   }
 
   @Test
   public void sample_withSeeking() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
-        "ts/sample_cbs.adts");
+        "media/ts/sample.adts",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("extractordumps/ts/sample_cbs.adts")
+            .build(),
+        simulationConfig);
   }
 
   // https://github.com/google/ExoPlayer/issues/6700
@@ -46,6 +62,7 @@ public final class AdtsExtractorTest {
   public void sample_withSeekingAndTruncatedFile() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new AdtsExtractor(/* flags= */ AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING),
-        "ts/sample_cbs_truncated.adts");
+        "media/ts/sample_cbs_truncated.adts",
+        simulationConfig);
   }
 }

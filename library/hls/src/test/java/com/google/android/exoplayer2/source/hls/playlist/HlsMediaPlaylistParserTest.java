@@ -321,7 +321,7 @@ public class HlsMediaPlaylistParserTest {
             + "#EXT-X-KEY:METHOD=NONE\n"
             + "#EXTINF:5.005,\n"
             + "#EXT-X-GAP \n"
-            + "../dummy.ts\n"
+            + "../test.ts\n"
             + "#EXT-X-KEY:METHOD=AES-128,URI=\"https://key-service.bamgrid.com/1.0/key?"
             + "hex-value=9FB8989D15EEAAF8B21B860D7ED3072A\",IV=0x410C8AC18AA42EFA18B5155484F5FC34\n"
             + "#EXTINF:5.005,\n"

@@ -16,14 +16,12 @@
 package com.google.android.exoplayer2.metadata.dvbsi;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataDecoder;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
-import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.metadata.SimpleMetadataDecoder;
 import com.google.android.exoplayer2.util.ParsableBitArray;
+import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 /**
@@ -33,7 +31,7 @@ import java.util.ArrayList;
  * href="https://www.etsi.org/deliver/etsi_ts/102800_102899/102809/01.01.01_60/ts_102809v010101p.pdf">
  * DVB ETSI TS 102 809 v1.1.1 spec</a>.
  */
-public final class AppInfoTableDecoder implements MetadataDecoder {
+public final class AppInfoTableDecoder extends SimpleMetadataDecoder {
 
   /** See section 5.3.6. */
   private static final int DESCRIPTOR_TRANSPORT_PROTOCOL = 0x02;
@@ -48,10 +46,8 @@ public final class AppInfoTableDecoder implements MetadataDecoder {
 
   @Override
   @Nullable
-  public Metadata decode(MetadataInputBuffer inputBuffer) {
-    ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
-    Assertions.checkArgument(
-        buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
+  @SuppressWarnings("ByteBufferBackingArray") // Buffer validated by SimpleMetadataDecoder.decode
+  protected Metadata decode(MetadataInputBuffer inputBuffer, ByteBuffer buffer) {
     int tableId = buffer.get();
     return tableId == APPLICATION_INFORMATION_TABLE_ID
         ? parseAit(new ParsableBitArray(buffer.array(), buffer.limit()))
@@ -109,7 +105,7 @@ public final class AppInfoTableDecoder implements MetadataDecoder {
             // See section 5.3.6.2.
             while (sectionData.getBytePosition() < positionOfNextDescriptor) {
               int urlBaseLength = sectionData.readBits(8);
-              urlBase = sectionData.readBytesAsString(urlBaseLength, Charset.forName(C.ASCII_NAME));
+              urlBase = sectionData.readBytesAsString(urlBaseLength, Charsets.US_ASCII);
 
               int extensionCount = sectionData.readBits(8);
               for (int urlExtensionIndex = 0;
@@ -122,8 +118,7 @@ public final class AppInfoTableDecoder implements MetadataDecoder {
           }
         } else if (descriptorTag == DESCRIPTOR_SIMPLE_APPLICATION_LOCATION) {
           // See section 5.3.7.
-          urlExtension =
-              sectionData.readBytesAsString(descriptorLength, Charset.forName(C.ASCII_NAME));
+          urlExtension = sectionData.readBytesAsString(descriptorLength, Charsets.US_ASCII);
         }
 
         sectionData.setPosition(positionOfNextDescriptor * 8);

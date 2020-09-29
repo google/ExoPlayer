@@ -52,7 +52,7 @@ public final class Id3Peeker {
     @Nullable Metadata metadata = null;
     while (true) {
       try {
-        input.peekFully(scratch.data, /* offset= */ 0, Id3Decoder.ID3_HEADER_LENGTH);
+        input.peekFully(scratch.getData(), /* offset= */ 0, Id3Decoder.ID3_HEADER_LENGTH);
       } catch (EOFException e) {
         // If input has less than ID3_HEADER_LENGTH, ignore the rest.
         break;
@@ -68,7 +68,7 @@ public final class Id3Peeker {
 
       if (metadata == null) {
         byte[] id3Data = new byte[tagLength];
-        System.arraycopy(scratch.data, 0, id3Data, 0, Id3Decoder.ID3_HEADER_LENGTH);
+        System.arraycopy(scratch.getData(), 0, id3Data, 0, Id3Decoder.ID3_HEADER_LENGTH);
         input.peekFully(id3Data, Id3Decoder.ID3_HEADER_LENGTH, framesLength);
 
         metadata = new Id3Decoder(id3FramePredicate).decode(id3Data, tagLength);

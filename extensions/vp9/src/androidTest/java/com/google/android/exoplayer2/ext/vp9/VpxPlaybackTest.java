@@ -24,10 +24,11 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
@@ -42,10 +43,11 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class VpxPlaybackTest {
 
-  private static final String BEAR_URI = "asset:///vp9/bear-vp9.webm";
-  private static final String BEAR_ODD_DIMENSIONS_URI = "asset:///vp9/bear-vp9-odd-dimensions.webm";
-  private static final String ROADTRIP_10BIT_URI = "asset:///vp9/roadtrip-vp92-10bit.webm";
-  private static final String INVALID_BITSTREAM_URI = "asset:///vp9/invalid-bitstream.webm";
+  private static final String BEAR_URI = "asset:///media/vp9/bear-vp9.webm";
+  private static final String BEAR_ODD_DIMENSIONS_URI =
+      "asset:///media/vp9/bear-vp9-odd-dimensions.webm";
+  private static final String ROADTRIP_10BIT_URI = "asset:///media/vp9/roadtrip-vp92-10bit.webm";
+  private static final String INVALID_BITSTREAM_URI = "asset:///media/vp9/invalid-bitstream.webm";
 
   private static final String TAG = "VpxPlaybackTest";
 
@@ -119,15 +121,15 @@ public class VpxPlaybackTest {
       player.addListener(this);
       MediaSource mediaSource =
           new ProgressiveMediaSource.Factory(
-                  new DefaultDataSourceFactory(context, "ExoPlayerExtVp9Test"),
-                  MatroskaExtractor.FACTORY)
-              .createMediaSource(uri);
+                  new DefaultDataSourceFactory(context), MatroskaExtractor.FACTORY)
+              .createMediaSource(MediaItem.fromUri(uri));
       player
           .createMessage(videoRenderer)
-          .setType(C.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
+          .setType(Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER)
           .setPayload(new VideoDecoderGLSurfaceView(context).getVideoDecoderOutputBufferRenderer())
           .send();
-      player.prepare(mediaSource);
+      player.setMediaSource(mediaSource);
+      player.prepare();
       player.play();
       Looper.loop();
     }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 
@@ -42,8 +43,23 @@ public final class DashWrappingSegmentIndex implements DashSegmentIndex {
   }
 
   @Override
+  public long getFirstAvailableSegmentNum(long periodDurationUs, long nowUnixTimeUs) {
+    return 0;
+  }
+
+  @Override
   public int getSegmentCount(long periodDurationUs) {
     return chunkIndex.length;
+  }
+
+  @Override
+  public int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
+    return chunkIndex.length;
+  }
+
+  @Override
+  public long getNextSegmentAvailableTimeUs(long periodDurationUs, long nowUnixTimeUs) {
+    return C.TIME_UNSET;
   }
 
   @Override

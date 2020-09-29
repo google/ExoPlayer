@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -22,6 +23,9 @@ import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 
 /**
@@ -94,12 +98,76 @@ public interface TrackOutput {
 
   }
 
+  /** Defines the part of the sample data to which a call to {@link #sampleData} corresponds. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({SAMPLE_DATA_PART_MAIN, SAMPLE_DATA_PART_ENCRYPTION, SAMPLE_DATA_PART_SUPPLEMENTAL})
+  @interface SampleDataPart {}
+
+  /** Main media sample data. */
+  int SAMPLE_DATA_PART_MAIN = 0;
+  /**
+   * Sample encryption data.
+   *
+   * <p>The format for encryption information is:
+   *
+   * <ul>
+   *   <li>(1 byte) {@code encryption_signal_byte}: Most significant bit signals whether the
+   *       encryption data contains subsample encryption data. The remaining bits contain {@code
+   *       initialization_vector_size}.
+   *   <li>({@code initialization_vector_size} bytes) Initialization vector.
+   *   <li>If subsample encryption data is present, as per {@code encryption_signal_byte}, the
+   *       encryption data also contains:
+   *       <ul>
+   *         <li>(2 bytes) {@code subsample_encryption_data_length}.
+   *         <li>({@code subsample_encryption_data_length * 6} bytes) Subsample encryption data
+   *             (repeated {@code subsample_encryption_data_length} times:
+   *             <ul>
+   *               <li>(2 bytes) Size of a clear section in sample.
+   *               <li>(4 bytes) Size of an encryption section in sample.
+   *             </ul>
+   *       </ul>
+   * </ul>
+   */
+  int SAMPLE_DATA_PART_ENCRYPTION = 1;
+  /**
+   * Sample supplemental data.
+   *
+   * <p>If a sample contains supplemental data, the format of the entire sample data will be:
+   *
+   * <ul>
+   *   <li>If the sample has the {@link C#BUFFER_FLAG_ENCRYPTED} flag set, all encryption
+   *       information.
+   *   <li>(4 bytes) {@code sample_data_size}: The size of the actual sample data, not including
+   *       supplemental data or encryption information.
+   *   <li>({@code sample_data_size} bytes): The media sample data.
+   *   <li>(remaining bytes) The supplemental data.
+   * </ul>
+   */
+  int SAMPLE_DATA_PART_SUPPLEMENTAL = 2;
+
   /**
    * Called when the {@link Format} of the track has been extracted from the stream.
    *
    * @param format The extracted {@link Format}.
    */
   void format(Format format);
+
+  /**
+   * Equivalent to {@link #sampleData(DataReader, int, boolean, int) sampleData(input, length,
+   * allowEndOfInput, SAMPLE_DATA_PART_MAIN)}.
+   */
+  default int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException {
+    return sampleData(input, length, allowEndOfInput, SAMPLE_DATA_PART_MAIN);
+  }
+
+  /**
+   * Equivalent to {@link #sampleData(ParsableByteArray, int, int)} sampleData(data, length,
+   * SAMPLE_DATA_PART_MAIN)}.
+   */
+  default void sampleData(ParsableByteArray data, int length) {
+    sampleData(data, length, SAMPLE_DATA_PART_MAIN);
+  }
 
   /**
    * Called to write sample data to the output.
@@ -109,18 +177,22 @@ public interface TrackOutput {
    * @param allowEndOfInput True if encountering the end of the input having read no data is
    *     allowed, and should result in {@link C#RESULT_END_OF_INPUT} being returned. False if it
    *     should be considered an error, causing an {@link EOFException} to be thrown.
+   * @param sampleDataPart The part of the sample data to which this call corresponds.
    * @return The number of bytes appended.
    * @throws IOException If an error occurred reading from the input.
    */
-  int sampleData(DataReader input, int length, boolean allowEndOfInput) throws IOException;
+  int sampleData(
+      DataReader input, int length, boolean allowEndOfInput, @SampleDataPart int sampleDataPart)
+      throws IOException;
 
   /**
    * Called to write sample data to the output.
    *
    * @param data A {@link ParsableByteArray} from which to read the sample data.
    * @param length The number of bytes to read, starting from {@code data.getPosition()}.
+   * @param sampleDataPart The part of the sample data to which this call corresponds.
    */
-  void sampleData(ParsableByteArray data, int length);
+  void sampleData(ParsableByteArray data, int length, @SampleDataPart int sampleDataPart);
 
   /**
    * Called when metadata associated with a sample has been extracted from the stream.

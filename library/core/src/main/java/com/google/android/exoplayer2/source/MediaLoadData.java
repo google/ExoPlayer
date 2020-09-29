@@ -55,22 +55,28 @@ public final class MediaLoadData {
    */
   public final long mediaEndTimeMs;
 
+  /** Creates an instance with the given {@link #dataType}. */
+  public MediaLoadData(int dataType) {
+    this(
+        dataType,
+        /* trackType= */ C.TRACK_TYPE_UNKNOWN,
+        /* trackFormat= */ null,
+        /* trackSelectionReason= */ C.SELECTION_REASON_UNKNOWN,
+        /* trackSelectionData= */ null,
+        /* mediaStartTimeMs= */ C.TIME_UNSET,
+        /* mediaEndTimeMs= */ C.TIME_UNSET);
+  }
+
   /**
    * Creates media load data.
    *
-   * @param dataType One of the {@link C} {@code DATA_TYPE_*} constants defining the type of data.
-   * @param trackType One of the {@link C} {@code TRACK_TYPE_*} constants if the data corresponds to
-   *     media of a specific type. {@link C#TRACK_TYPE_UNKNOWN} otherwise.
-   * @param trackFormat The format of the track to which the data belongs. Null if the data does not
-   *     belong to a track.
-   * @param trackSelectionReason One of the {@link C} {@code SELECTION_REASON_*} constants if the
-   *     data belongs to a track. {@link C#SELECTION_REASON_UNKNOWN} otherwise.
-   * @param trackSelectionData Optional data associated with the selection of the track to which the
-   *     data belongs. Null if the data does not belong to a track.
-   * @param mediaStartTimeMs The start time of the media, or {@link C#TIME_UNSET} if the data does
-   *     not belong to a specific media period.
-   * @param mediaEndTimeMs The end time of the media, or {@link C#TIME_UNSET} if the data does not
-   *     belong to a specific media period or the end time is unknown.
+   * @param dataType See {@link #dataType}.
+   * @param trackType See {@link #trackType}.
+   * @param trackFormat See {@link #trackFormat}.
+   * @param trackSelectionReason See {@link #trackSelectionReason}.
+   * @param trackSelectionData See {@link #trackSelectionData}.
+   * @param mediaStartTimeMs See {@link #mediaStartTimeMs}.
+   * @param mediaEndTimeMs See {@link #mediaEndTimeMs}.
    */
   public MediaLoadData(
       int dataType,

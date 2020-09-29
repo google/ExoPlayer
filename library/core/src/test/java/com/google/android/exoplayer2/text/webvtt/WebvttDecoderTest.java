@@ -26,11 +26,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.common.collect.Iterables;
 import com.google.common.truth.Expect;
 import java.io.IOException;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,20 +41,25 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class WebvttDecoderTest {
 
-  private static final String TYPICAL_FILE = "webvtt/typical";
-  private static final String TYPICAL_WITH_BAD_TIMESTAMPS = "webvtt/typical_with_bad_timestamps";
-  private static final String TYPICAL_WITH_IDS_FILE = "webvtt/typical_with_identifiers";
-  private static final String TYPICAL_WITH_COMMENTS_FILE = "webvtt/typical_with_comments";
-  private static final String WITH_POSITIONING_FILE = "webvtt/with_positioning";
-  private static final String WITH_VERTICAL_FILE = "webvtt/with_vertical";
-  private static final String WITH_BAD_CUE_HEADER_FILE = "webvtt/with_bad_cue_header";
-  private static final String WITH_TAGS_FILE = "webvtt/with_tags";
-  private static final String WITH_CSS_STYLES = "webvtt/with_css_styles";
-  private static final String WITH_CSS_COMPLEX_SELECTORS = "webvtt/with_css_complex_selectors";
+  private static final String TYPICAL_FILE = "media/webvtt/typical";
+  private static final String TYPICAL_WITH_BAD_TIMESTAMPS =
+      "media/webvtt/typical_with_bad_timestamps";
+  private static final String TYPICAL_WITH_IDS_FILE = "media/webvtt/typical_with_identifiers";
+  private static final String TYPICAL_WITH_COMMENTS_FILE = "media/webvtt/typical_with_comments";
+  private static final String WITH_POSITIONING_FILE = "media/webvtt/with_positioning";
+  private static final String WITH_OVERLAPPING_TIMESTAMPS_FILE =
+      "media/webvtt/with_overlapping_timestamps";
+  private static final String WITH_VERTICAL_FILE = "media/webvtt/with_vertical";
+  private static final String WITH_RUBIES_FILE = "media/webvtt/with_rubies";
+  private static final String WITH_BAD_CUE_HEADER_FILE = "media/webvtt/with_bad_cue_header";
+  private static final String WITH_TAGS_FILE = "media/webvtt/with_tags";
+  private static final String WITH_CSS_STYLES = "media/webvtt/with_css_styles";
+  private static final String WITH_CSS_COMPLEX_SELECTORS =
+      "media/webvtt/with_css_complex_selectors";
   private static final String WITH_CSS_TEXT_COMBINE_UPRIGHT =
-      "webvtt/with_css_text_combine_upright";
-  private static final String WITH_BOM = "webvtt/with_bom";
-  private static final String EMPTY_FILE = "webvtt/empty";
+      "media/webvtt/with_css_text_combine_upright";
+  private static final String WITH_BOM = "media/webvtt/with_bom";
+  private static final String EMPTY_FILE = "media/webvtt/empty";
 
   @Rule public final Expect expect = Expect.create();
 
@@ -184,18 +191,19 @@ public class WebvttDecoderTest {
   public void decodeWithPositioning() throws Exception {
     WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_POSITIONING_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(16);
 
     assertThat(subtitle.getEventTime(0)).isEqualTo(0L);
     assertThat(subtitle.getEventTime(1)).isEqualTo(1_234_000L);
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
     assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
-    assertThat(firstCue.position).isEqualTo(0.1f);
-    assertThat(firstCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+    assertThat(firstCue.position).isEqualTo(0.6f);
+    assertThat(firstCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
     assertThat(firstCue.textAlignment).isEqualTo(Alignment.ALIGN_NORMAL);
     assertThat(firstCue.size).isEqualTo(0.35f);
+
     // Unspecified values should use WebVTT defaults
-    assertThat(firstCue.line).isEqualTo(Cue.DIMEN_UNSET);
+    assertThat(firstCue.line).isEqualTo(-1f);
     assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
     assertThat(firstCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
 
@@ -222,7 +230,7 @@ public class WebvttDecoderTest {
     assertThat(subtitle.getEventTime(7)).isEqualTo(7_000_000L);
     Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
     assertThat(fourthCue.text.toString()).isEqualTo("This is the fourth subtitle.");
-    assertThat(fourthCue.line).isEqualTo(-11f);
+    assertThat(fourthCue.line).isEqualTo(-10f);
     assertThat(fourthCue.lineAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
     assertThat(fourthCue.textAlignment).isEqualTo(Alignment.ALIGN_CENTER);
     // Derived from `align:middle`:
@@ -246,6 +254,63 @@ public class WebvttDecoderTest {
     // Derived from `align:center`:
     assertThat(sixthCue.position).isEqualTo(0.5f);
     assertThat(sixthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_MIDDLE);
+
+    assertThat(subtitle.getEventTime(12)).isEqualTo(12_000_000L);
+    assertThat(subtitle.getEventTime(13)).isEqualTo(13_000_000L);
+    Cue seventhCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12)));
+    assertThat(seventhCue.text.toString()).isEqualTo("This is the seventh subtitle.");
+    assertThat(seventhCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_START);
+
+    assertThat(subtitle.getEventTime(14)).isEqualTo(14_000_000L);
+    assertThat(subtitle.getEventTime(15)).isEqualTo(15_000_000L);
+    Cue eighthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(14)));
+    assertThat(eighthCue.text.toString()).isEqualTo("This is the eighth subtitle.");
+    assertThat(eighthCue.positionAnchor).isEqualTo(Cue.ANCHOR_TYPE_END);
+  }
+
+  @Test
+  public void decodeWithOverlappingTimestamps() throws Exception {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_OVERLAPPING_TIMESTAMPS_FILE);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(8);
+
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("Displayed at the bottom for 3 seconds.");
+    assertThat(firstCue.line).isEqualTo(-1f);
+    assertThat(firstCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
+
+    List<Cue> firstAndSecondCue = subtitle.getCues(subtitle.getEventTime(1));
+    assertThat(firstAndSecondCue).hasSize(2);
+    assertThat(firstAndSecondCue.get(0).text.toString())
+        .isEqualTo("Displayed at the bottom for 3 seconds.");
+    assertThat(firstAndSecondCue.get(0).line).isEqualTo(-1f);
+    assertThat(firstAndSecondCue.get(0).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
+    assertThat(firstAndSecondCue.get(1).text.toString())
+        .isEqualTo("Appears directly above for 1 second.");
+    assertThat(firstAndSecondCue.get(1).line).isEqualTo(-2f);
+    assertThat(firstAndSecondCue.get(1).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
+
+    Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
+    assertThat(thirdCue.text.toString()).isEqualTo("Displayed at the bottom for 2 seconds.");
+    assertThat(thirdCue.line).isEqualTo(-1f);
+    assertThat(thirdCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
+
+    List<Cue> thirdAndFourthCue = subtitle.getCues(subtitle.getEventTime(5));
+    assertThat(thirdAndFourthCue).hasSize(2);
+    assertThat(thirdAndFourthCue.get(0).text.toString())
+        .isEqualTo("Displayed at the bottom for 2 seconds.");
+    assertThat(thirdAndFourthCue.get(0).line).isEqualTo(-1f);
+    assertThat(thirdAndFourthCue.get(0).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
+    assertThat(thirdAndFourthCue.get(1).text.toString())
+        .isEqualTo("Appears directly above the previous cue, then replaces it after 1 second.");
+    assertThat(thirdAndFourthCue.get(1).line).isEqualTo(-2f);
+    assertThat(thirdAndFourthCue.get(1).lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
+
+    Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
+    assertThat(fourthCue.text.toString())
+        .isEqualTo("Appears directly above the previous cue, then replaces it after 1 second.");
+    assertThat(fourthCue.line).isEqualTo(-1f);
+    assertThat(fourthCue.lineType).isEqualTo(Cue.LINE_TYPE_NUMBER);
   }
 
   @Test
@@ -271,6 +336,51 @@ public class WebvttDecoderTest {
     Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
     assertThat(thirdCue.text.toString()).isEqualTo("No vertical setting (i.e. horizontal)");
     assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
+  }
+
+  @Test
+  public void decodeWithRubies() throws Exception {
+    WebvttSubtitle subtitle = getSubtitleForTestAsset(WITH_RUBIES_FILE);
+
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(8);
+
+    // Check that an explicit `over` position is read from CSS.
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.text.toString()).isEqualTo("Some text with over-ruby.");
+    assertThat((Spanned) firstCue.text)
+        .hasRubySpanBetween("Some ".length(), "Some text with over-ruby".length())
+        .withTextAndPosition("over", RubySpan.POSITION_OVER);
+
+    // Check that `under` is read from CSS and unspecified defaults to `over`.
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.text.toString())
+        .isEqualTo("Some text with under-ruby and over-ruby (default).");
+    assertThat((Spanned) secondCue.text)
+        .hasRubySpanBetween("Some ".length(), "Some text with under-ruby".length())
+        .withTextAndPosition("under", RubySpan.POSITION_UNDER);
+    assertThat((Spanned) secondCue.text)
+        .hasRubySpanBetween(
+            "Some text with under-ruby and ".length(),
+            "Some text with under-ruby and over-ruby (default)".length())
+        .withTextAndPosition("over", RubySpan.POSITION_OVER);
+
+    // Check many <rt> tags with different positions nested in a single <ruby> span.
+    Cue thirdCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4)));
+    assertThat(thirdCue.text.toString()).isEqualTo("base1base2base3.");
+    assertThat((Spanned) thirdCue.text)
+        .hasRubySpanBetween(/* start= */ 0, "base1".length())
+        .withTextAndPosition("over1", RubySpan.POSITION_OVER);
+    assertThat((Spanned) thirdCue.text)
+        .hasRubySpanBetween("base1".length(), "base1base2".length())
+        .withTextAndPosition("under2", RubySpan.POSITION_UNDER);
+    assertThat((Spanned) thirdCue.text)
+        .hasRubySpanBetween("base1base2".length(), "base1base2base3".length())
+        .withTextAndPosition("under3", RubySpan.POSITION_UNDER);
+
+    // Check a <ruby> span with no <rt> tags.
+    Cue fourthCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6)));
+    assertThat(fourthCue.text.toString()).isEqualTo("Some text with no ruby text.");
+    assertThat((Spanned) fourthCue.text).hasNoSpans();
   }
 
   @Test

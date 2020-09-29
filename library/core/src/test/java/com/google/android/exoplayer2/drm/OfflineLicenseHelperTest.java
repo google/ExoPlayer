@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
-import com.google.android.exoplayer2.util.MediaSourceEventDispatcher;
 import java.util.HashMap;
 import org.junit.After;
 import org.junit.Before;
@@ -33,11 +33,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.robolectric.annotation.LooperMode;
 
 /** Tests {@link OfflineLicenseHelper}. */
 @RunWith(AndroidJUnit4.class)
-@LooperMode(LooperMode.Mode.PAUSED)
 public class OfflineLicenseHelperTest {
 
   private OfflineLicenseHelper offlineLicenseHelper;
@@ -53,11 +51,11 @@ public class OfflineLicenseHelperTest {
             new ExoMediaDrm.KeyRequest(/* data= */ new byte[0], /* licenseServerUrl= */ ""));
     offlineLicenseHelper =
         new OfflineLicenseHelper(
-            C.WIDEVINE_UUID,
-            new ExoMediaDrm.AppManagedProvider(mediaDrm),
-            mediaDrmCallback,
-            /* optionalKeyRequestParameters= */ null,
-            new MediaSourceEventDispatcher());
+            new DefaultDrmSessionManager.Builder()
+                .setUuidAndExoMediaDrmProvider(
+                    C.WIDEVINE_UUID, new ExoMediaDrm.AppManagedProvider(mediaDrm))
+                .build(mediaDrmCallback),
+            new DrmSessionEventListener.EventDispatcher());
   }
 
   @After
@@ -73,7 +71,8 @@ public class OfflineLicenseHelperTest {
     byte[] keySetId = {2, 5, 8};
     setStubKeySetId(keySetId);
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
+    byte[] offlineLicenseKeySetId =
+        offlineLicenseHelper.downloadLicense(newFormatWithDrmInitData());
 
     assertOfflineLicenseKeySetIdEqual(keySetId, offlineLicenseKeySetId);
 
@@ -88,9 +87,9 @@ public class OfflineLicenseHelperTest {
   }
 
   @Test
-  public void downloadLicenseFailsIfNullInitData() throws Exception {
+  public void downloadLicenseFailsIfNullDrmInitData() throws Exception {
     try {
-      offlineLicenseHelper.downloadLicense(null);
+      offlineLicenseHelper.downloadLicense(new Format.Builder().build());
       fail();
     } catch (IllegalArgumentException e) {
       // Expected.
@@ -102,7 +101,7 @@ public class OfflineLicenseHelperTest {
     setStubLicenseAndPlaybackDurationValues(1000, 200);
 
     try {
-      offlineLicenseHelper.downloadLicense(newDrmInitData());
+      offlineLicenseHelper.downloadLicense(newFormatWithDrmInitData());
       fail();
     } catch (Exception e) {
       // Expected.
@@ -113,7 +112,8 @@ public class OfflineLicenseHelperTest {
   public void downloadLicenseDoesNotFailIfDurationNotAvailable() throws Exception {
     setDefaultStubKeySetId();
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
+    byte[] offlineLicenseKeySetId =
+        offlineLicenseHelper.downloadLicense(newFormatWithDrmInitData());
 
     assertThat(offlineLicenseKeySetId).isNotNull();
   }
@@ -125,7 +125,8 @@ public class OfflineLicenseHelperTest {
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);
     setDefaultStubKeySetId();
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
+    byte[] offlineLicenseKeySetId =
+        offlineLicenseHelper.downloadLicense(newFormatWithDrmInitData());
 
     Pair<Long, Long> licenseDurationRemainingSec =
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId);
@@ -141,7 +142,8 @@ public class OfflineLicenseHelperTest {
     setStubLicenseAndPlaybackDurationValues(licenseDuration, playbackDuration);
     setDefaultStubKeySetId();
 
-    byte[] offlineLicenseKeySetId = offlineLicenseHelper.downloadLicense(newDrmInitData());
+    byte[] offlineLicenseKeySetId =
+        offlineLicenseHelper.downloadLicense(newFormatWithDrmInitData());
 
     Pair<Long, Long> licenseDurationRemainingSec =
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId);
@@ -176,8 +178,11 @@ public class OfflineLicenseHelperTest {
     when(mediaDrm.queryKeyStatus(any(byte[].class))).thenReturn(keyStatus);
   }
 
-  private static DrmInitData newDrmInitData() {
-    return new DrmInitData(
-        new SchemeData(C.WIDEVINE_UUID, "mimeType", new byte[] {1, 4, 7, 0, 3, 6}));
+  private static Format newFormatWithDrmInitData() {
+    return new Format.Builder()
+        .setDrmInitData(
+            new DrmInitData(
+                new SchemeData(C.WIDEVINE_UUID, "mimeType", new byte[] {1, 4, 7, 0, 3, 6})))
+        .build();
   }
 }

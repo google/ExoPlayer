@@ -15,11 +15,14 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 /** Default {@link ControlDispatcher}. */
 public class DefaultControlDispatcher implements ControlDispatcher {
 
   /** The default fast forward increment, in milliseconds. */
-  public static final int DEFAULT_FAST_FORWARD_MS = 15000;
+  public static final int DEFAULT_FAST_FORWARD_MS = 15_000;
   /** The default rewind increment, in milliseconds. */
   public static final int DEFAULT_REWIND_MS = 5000;
 
@@ -174,9 +177,9 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     long positionMs = player.getCurrentPosition() + offsetMs;
     long durationMs = player.getDuration();
     if (durationMs != C.TIME_UNSET) {
-      positionMs = Math.min(positionMs, durationMs);
+      positionMs = min(positionMs, durationMs);
     }
-    positionMs = Math.max(positionMs, 0);
+    positionMs = max(positionMs, 0);
     player.seekTo(player.getCurrentWindowIndex(), positionMs);
   }
 }

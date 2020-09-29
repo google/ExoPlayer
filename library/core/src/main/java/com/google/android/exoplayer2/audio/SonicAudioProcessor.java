@@ -29,22 +29,10 @@ import java.nio.ShortBuffer;
  */
 public final class SonicAudioProcessor implements AudioProcessor {
 
-  /**
-   * The maximum allowed playback speed in {@link #setSpeed(float)}.
-   */
-  public static final float MAXIMUM_SPEED = 8.0f;
-  /**
-   * The minimum allowed playback speed in {@link #setSpeed(float)}.
-   */
-  public static final float MINIMUM_SPEED = 0.1f;
-  /**
-   * Indicates that the output sample rate should be the same as the input.
-   */
+  /** Indicates that the output sample rate should be the same as the input. */
   public static final int SAMPLE_RATE_NO_CHANGE = -1;
 
-  /**
-   * The threshold below which the difference between two pitch/speed factors is negligible.
-   */
+  /** The threshold below which the difference between two pitch/speed factors is negligible. */
   private static final float CLOSE_THRESHOLD = 0.01f;
 
   /**
@@ -55,6 +43,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   private int pendingOutputSampleRate;
   private float speed;
+  private float pitch;
 
   private AudioFormat pendingInputAudioFormat;
   private AudioFormat pendingOutputAudioFormat;
@@ -70,11 +59,10 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private long outputBytes;
   private boolean inputEnded;
 
-  /**
-   * Creates a new Sonic audio processor.
-   */
+  /** Creates a new Sonic audio processor. */
   public SonicAudioProcessor() {
     speed = 1f;
+    pitch = 1f;
     pendingInputAudioFormat = AudioFormat.NOT_SET;
     pendingOutputAudioFormat = AudioFormat.NOT_SET;
     inputAudioFormat = AudioFormat.NOT_SET;
@@ -94,12 +82,27 @@ public final class SonicAudioProcessor implements AudioProcessor {
    * @return The actual new playback speed.
    */
   public float setSpeed(float speed) {
-    speed = Util.constrainValue(speed, MINIMUM_SPEED, MAXIMUM_SPEED);
     if (this.speed != speed) {
       this.speed = speed;
       pendingSonicRecreation = true;
     }
     return speed;
+  }
+
+  /**
+   * Sets the playback pitch. This method may only be called after draining data through the
+   * processor. The value returned by {@link #isActive()} may change, and the processor must be
+   * {@link #flush() flushed} before queueing more data.
+   *
+   * @param pitch The requested new pitch.
+   * @return The actual new pitch.
+   */
+  public float setPitch(float pitch) {
+    if (this.pitch != pitch) {
+      this.pitch = pitch;
+      pendingSonicRecreation = true;
+    }
+    return pitch;
   }
 
   /**
@@ -155,6 +158,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   public boolean isActive() {
     return pendingOutputAudioFormat.sampleRate != Format.NO_VALUE
         && (Math.abs(speed - 1f) >= CLOSE_THRESHOLD
+            || Math.abs(pitch - 1f) >= CLOSE_THRESHOLD
             || pendingOutputAudioFormat.sampleRate != pendingInputAudioFormat.sampleRate);
   }
 
@@ -215,6 +219,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
                 inputAudioFormat.sampleRate,
                 inputAudioFormat.channelCount,
                 speed,
+                pitch,
                 outputAudioFormat.sampleRate);
       } else if (sonic != null) {
         sonic.flush();
@@ -229,6 +234,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   @Override
   public void reset() {
     speed = 1f;
+    pitch = 1f;
     pendingInputAudioFormat = AudioFormat.NOT_SET;
     pendingOutputAudioFormat = AudioFormat.NOT_SET;
     inputAudioFormat = AudioFormat.NOT_SET;

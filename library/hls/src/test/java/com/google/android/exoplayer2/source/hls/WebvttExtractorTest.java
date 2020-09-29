@@ -17,9 +17,13 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
+import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import java.io.EOFException;
 import java.io.IOException;
@@ -61,6 +65,29 @@ public class WebvttExtractorTest {
     byte[] data =
         new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF, 'W', 'e', 'B', 'V', 'T', 'T', '\n'};
     assertThat(sniffData(data)).isFalse();
+  }
+
+  @Test
+  public void read_handlesLargeCueTimestamps() throws Exception {
+    TimestampAdjuster timestampAdjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
+    // Prime the TimestampAdjuster with a close-ish timestamp (5s before the first cue).
+    timestampAdjuster.adjustTsTimestamp(384615190);
+    WebvttExtractor extractor = new WebvttExtractor(/* language= */ null, timestampAdjuster);
+    // We can't use ExtractorAsserts because WebvttExtractor doesn't fulfill the whole Extractor
+    // interface (e.g. throws an exception from seek()).
+    FakeExtractorOutput output =
+        TestUtil.extractAllSamplesFromFile(
+            extractor,
+            ApplicationProvider.getApplicationContext(),
+            "media/webvtt/with_x-timestamp-map_header");
+
+    // The output has a ~5s sampleTime and a large, negative subsampleOffset because the cue
+    // timestamps are ~10 days ahead of the PTS (due to wrapping) so the offset is used to ensure
+    // they're rendered at the right time.
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        output,
+        "extractordumps/webvtt/with_x-timestamp-map_header.dump");
   }
 
   private static boolean sniffData(byte[] data) throws IOException {

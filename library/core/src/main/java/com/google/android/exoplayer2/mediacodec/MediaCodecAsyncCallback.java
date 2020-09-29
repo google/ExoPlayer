@@ -31,6 +31,7 @@ import java.util.ArrayDeque;
   private final ArrayDeque<MediaCodec.BufferInfo> bufferInfos;
   private final ArrayDeque<MediaFormat> formats;
   @Nullable private MediaFormat currentFormat;
+  @Nullable private MediaFormat pendingOutputFormat;
   @Nullable private IllegalStateException mediaCodecException;
 
   /** Creates a new MediaCodecAsyncCallback. */
@@ -82,14 +83,13 @@ import java.util.ArrayDeque;
    * <p>Call this <b>after</b> {@link #dequeueOutputBufferIndex} returned {@link
    * MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
    *
-   * @throws {@link IllegalStateException} if you call this method before before {
-   * @link #dequeueOutputBufferIndex} returned {@link MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
+   * @throws IllegalStateException If called before {@link #dequeueOutputBufferIndex} has returned
+   *     {@link MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
    */
   public MediaFormat getOutputFormat() throws IllegalStateException {
     if (currentFormat == null) {
       throw new IllegalStateException();
     }
-
     return currentFormat;
   }
 
@@ -100,7 +100,6 @@ import java.util.ArrayDeque;
   public void maybeThrowMediaCodecException() throws IllegalStateException {
     IllegalStateException exception = mediaCodecException;
     mediaCodecException = null;
-
     if (exception != null) {
       throw exception;
     }
@@ -111,6 +110,7 @@ import java.util.ArrayDeque;
    * and any error that was previously set.
    */
   public void flush() {
+    pendingOutputFormat = formats.isEmpty() ? null : formats.getLast();
     availableInputBuffers.clear();
     availableOutputBuffers.clear();
     bufferInfos.clear();
@@ -119,14 +119,18 @@ import java.util.ArrayDeque;
   }
 
   @Override
-  public void onInputBufferAvailable(MediaCodec mediaCodec, int i) {
-    availableInputBuffers.add(i);
+  public void onInputBufferAvailable(MediaCodec mediaCodec, int index) {
+    availableInputBuffers.add(index);
   }
 
   @Override
   public void onOutputBufferAvailable(
-      MediaCodec mediaCodec, int i, MediaCodec.BufferInfo bufferInfo) {
-    availableOutputBuffers.add(i);
+      MediaCodec mediaCodec, int index, MediaCodec.BufferInfo bufferInfo) {
+    if (pendingOutputFormat != null) {
+      addOutputFormat(pendingOutputFormat);
+      pendingOutputFormat = null;
+    }
+    availableOutputBuffers.add(index);
     bufferInfos.add(bufferInfo);
   }
 
@@ -137,12 +141,17 @@ import java.util.ArrayDeque;
 
   @Override
   public void onOutputFormatChanged(MediaCodec mediaCodec, MediaFormat mediaFormat) {
-    availableOutputBuffers.add(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
-    formats.add(mediaFormat);
+    addOutputFormat(mediaFormat);
+    pendingOutputFormat = null;
   }
 
   @VisibleForTesting()
   void onMediaCodecError(IllegalStateException e) {
     mediaCodecException = e;
+  }
+
+  private void addOutputFormat(MediaFormat mediaFormat) {
+    availableOutputBuffers.add(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    formats.add(mediaFormat);
   }
 }

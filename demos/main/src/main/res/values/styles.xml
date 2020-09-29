@@ -23,8 +23,4 @@
     <item name="android:windowBackground">@android:color/black</item>
   </style>
 
-  <style name="PlayerTheme.Spherical">
-    <item name="surface_type">spherical_gl_surface_view</item>
-  </style>
-
 </resources>

@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.source.ForwardingTimeline;
  * A timeline which wraps another timeline and overrides all window and period uids to 0. This is
  * useful for testing timeline equality without taking uids into account.
  */
-/* package */ class NoUidTimeline extends ForwardingTimeline {
+public class NoUidTimeline extends ForwardingTimeline {
 
   /**
    * Creates an instance.

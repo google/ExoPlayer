@@ -15,19 +15,25 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
-import com.google.android.exoplayer2.util.Assertions;
+import java.lang.reflect.Constructor;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /** Builder for a dialog with a {@link TrackSelectionView}. */
@@ -46,6 +52,7 @@ public final class TrackSelectionDialogBuilder {
   }
 
   private final Context context;
+  @StyleRes private int themeResId;
   private final CharSequence title;
   private final MappedTrackInfo mappedTrackInfo;
   private final int rendererIndex;
@@ -57,6 +64,7 @@ public final class TrackSelectionDialogBuilder {
   @Nullable private TrackNameProvider trackNameProvider;
   private boolean isDisabled;
   private List<SelectionOverride> overrides;
+  @Nullable private Comparator<Format> trackFormatComparator;
 
   /**
    * Creates a builder for a track selection dialog.
@@ -97,7 +105,7 @@ public final class TrackSelectionDialogBuilder {
       Context context, CharSequence title, DefaultTrackSelector trackSelector, int rendererIndex) {
     this.context = context;
     this.title = title;
-    this.mappedTrackInfo = Assertions.checkNotNull(trackSelector.getCurrentMappedTrackInfo());
+    this.mappedTrackInfo = checkNotNull(trackSelector.getCurrentMappedTrackInfo());
     this.rendererIndex = rendererIndex;
 
     TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
@@ -116,6 +124,17 @@ public final class TrackSelectionDialogBuilder {
                     rendererTrackGroups,
                     newIsDisabled,
                     newOverrides.isEmpty() ? null : newOverrides.get(0)));
+  }
+
+  /**
+   * Sets the resource ID of the theme used to inflate this dialog.
+   *
+   * @param themeResId The resource ID of the theme.
+   * @return This builder, for convenience.
+   */
+  public TrackSelectionDialogBuilder setTheme(@StyleRes int themeResId) {
+    this.themeResId = themeResId;
+    return this;
   }
 
   /**
@@ -193,6 +212,16 @@ public final class TrackSelectionDialogBuilder {
   }
 
   /**
+   * Sets a {@link Comparator} used to determine the display order of the tracks within each track
+   * group.
+   *
+   * @param trackFormatComparator The comparator, or {@code null} to use the original order.
+   */
+  public void setTrackFormatComparator(@Nullable Comparator<Format> trackFormatComparator) {
+    this.trackFormatComparator = trackFormatComparator;
+  }
+
+  /**
    * Sets the {@link TrackNameProvider} used to generate the user visible name of each track and
    * updates the view with track names queried from the specified provider.
    *
@@ -205,24 +234,18 @@ public final class TrackSelectionDialogBuilder {
   }
 
   /** Builds the dialog. */
-  public AlertDialog build() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+  public Dialog build() {
+    @Nullable Dialog dialog = buildForAndroidX();
+    return dialog == null ? buildForPlatform() : dialog;
+  }
+
+  private Dialog buildForPlatform() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(context, themeResId);
 
     // Inflate with the builder's context to ensure the correct style is used.
     LayoutInflater dialogInflater = LayoutInflater.from(builder.getContext());
     View dialogView = dialogInflater.inflate(R.layout.exo_track_selection_dialog, /* root= */ null);
-
-    TrackSelectionView selectionView = dialogView.findViewById(R.id.exo_track_selection_view);
-    selectionView.setAllowMultipleOverrides(allowMultipleOverrides);
-    selectionView.setAllowAdaptiveSelections(allowAdaptiveSelections);
-    selectionView.setShowDisableOption(showDisableOption);
-    if (trackNameProvider != null) {
-      selectionView.setTrackNameProvider(trackNameProvider);
-    }
-    selectionView.init(mappedTrackInfo, rendererIndex, isDisabled, overrides, /* listener= */ null);
-    Dialog.OnClickListener okClickListener =
-        (dialog, which) ->
-            callback.onTracksSelected(selectionView.getIsDisabled(), selectionView.getOverrides());
+    Dialog.OnClickListener okClickListener = setUpDialogView(dialogView);
 
     return builder
         .setTitle(title)
@@ -230,5 +253,61 @@ public final class TrackSelectionDialogBuilder {
         .setPositiveButton(android.R.string.ok, okClickListener)
         .setNegativeButton(android.R.string.cancel, null)
         .create();
+  }
+
+  // Reflection calls can't verify null safety of return values or parameters.
+  @SuppressWarnings("nullness:argument.type.incompatible")
+  @Nullable
+  private Dialog buildForAndroidX() {
+    try {
+      // This method uses reflection to avoid a dependency on AndroidX appcompat that adds 800KB to
+      // the APK size even with shrinking. See https://issuetracker.google.com/161514204.
+      // LINT.IfChange
+      Class<?> builderClazz = Class.forName("androidx.appcompat.app.AlertDialog$Builder");
+      Constructor<?> builderConstructor = builderClazz.getConstructor(Context.class, int.class);
+      Object builder = builderConstructor.newInstance(context, themeResId);
+
+      // Inflate with the builder's context to ensure the correct style is used.
+      Context builderContext = (Context) builderClazz.getMethod("getContext").invoke(builder);
+      LayoutInflater dialogInflater = LayoutInflater.from(builderContext);
+      View dialogView =
+          dialogInflater.inflate(R.layout.exo_track_selection_dialog, /* root= */ null);
+      Dialog.OnClickListener okClickListener = setUpDialogView(dialogView);
+
+      builderClazz.getMethod("setTitle", CharSequence.class).invoke(builder, title);
+      builderClazz.getMethod("setView", View.class).invoke(builder, dialogView);
+      builderClazz
+          .getMethod("setPositiveButton", int.class, DialogInterface.OnClickListener.class)
+          .invoke(builder, android.R.string.ok, okClickListener);
+      builderClazz
+          .getMethod("setNegativeButton", int.class, DialogInterface.OnClickListener.class)
+          .invoke(builder, android.R.string.cancel, null);
+      return (Dialog) builderClazz.getMethod("create").invoke(builder);
+      // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
+    } catch (ClassNotFoundException e) {
+      // Expected if the AndroidX compat library is not available.
+      return null;
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  private Dialog.OnClickListener setUpDialogView(View dialogView) {
+    TrackSelectionView selectionView = dialogView.findViewById(R.id.exo_track_selection_view);
+    selectionView.setAllowMultipleOverrides(allowMultipleOverrides);
+    selectionView.setAllowAdaptiveSelections(allowAdaptiveSelections);
+    selectionView.setShowDisableOption(showDisableOption);
+    if (trackNameProvider != null) {
+      selectionView.setTrackNameProvider(trackNameProvider);
+    }
+    selectionView.init(
+        mappedTrackInfo,
+        rendererIndex,
+        isDisabled,
+        overrides,
+        trackFormatComparator,
+        /* listener= */ null);
+    return (dialog, which) ->
+        callback.onTracksSelected(selectionView.getIsDisabled(), selectionView.getOverrides());
   }
 }
