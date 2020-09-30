@@ -120,7 +120,7 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
     ShadowMediaCodec.addDecoder(
         codecName,
         new ShadowMediaCodec.CodecConfig(
-            /* inputBufferSize= */ 50_000, /* outputBufferSize= */ 50_000, codec));
+            /* inputBufferSize= */ 100_000, /* outputBufferSize= */ 100_000, codec));
     codecsByMimeType.put(mimeType, codec);
   }
 
