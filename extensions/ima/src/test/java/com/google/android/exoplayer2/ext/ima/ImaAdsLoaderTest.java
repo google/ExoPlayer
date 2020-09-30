@@ -55,7 +55,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
-import com.google.android.exoplayer2.ext.ima.ImaAdsLoader.ImaFactory;
+import com.google.android.exoplayer2.ext.ima.ImaUtil.ImaFactory;
 import com.google.android.exoplayer2.source.MaskingMediaSource.PlaceholderTimeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -378,7 +378,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -402,7 +402,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -424,7 +424,7 @@ public final class ImaAdsLoaderTest {
     verify(mockAdsRenderingSettings, never()).setPlayAdsAfterTime(anyDouble());
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -448,7 +448,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -473,7 +473,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -500,7 +500,7 @@ public final class ImaAdsLoaderTest {
     verify(mockAdsRenderingSettings, never()).setPlayAdsAfterTime(anyDouble());
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -531,7 +531,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -563,7 +563,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
@@ -595,7 +595,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -622,7 +622,7 @@ public final class ImaAdsLoaderTest {
     verify(mockAdsManager).destroy();
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
                 .withSkippedAdGroup(/* adGroupIndex= */ 1));
@@ -663,7 +663,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
@@ -702,7 +702,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -761,7 +761,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            AdPlaybackStateFactory.fromCuePoints(cuePoints)
+            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
