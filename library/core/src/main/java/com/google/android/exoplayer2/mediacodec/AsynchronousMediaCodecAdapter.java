@@ -83,19 +83,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     labelling the internal thread accordingly.
    */
   /* package */ AsynchronousMediaCodecAdapter(MediaCodec codec, int trackType) {
-    this(codec, trackType, new HandlerThread(createThreadLabel(trackType)));
+    this(
+        codec,
+        trackType,
+        new HandlerThread(createCallbackThreadLabel(trackType)),
+        new HandlerThread(createQueueingThreadLabel(trackType)));
   }
 
   @VisibleForTesting
   /* package */ AsynchronousMediaCodecAdapter(
       MediaCodec codec,
       int trackType,
-      HandlerThread handlerThread) {
+      HandlerThread callbackThread,
+      HandlerThread enqueueingThread) {
     this.lock = new Object();
     this.mediaCodecAsyncCallback = new MediaCodecAsyncCallback();
     this.codec = codec;
-    this.handlerThread = handlerThread;
-    this.bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, trackType);
+    this.handlerThread = callbackThread;
+    this.bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, enqueueingThread);
     this.state = STATE_CREATED;
   }
 
@@ -276,8 +281,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private static String createThreadLabel(int trackType) {
-    StringBuilder labelBuilder = new StringBuilder("ExoPlayer:MediaCodecAsyncAdapter:");
+  private static String createCallbackThreadLabel(int trackType) {
+    return createThreadLabel(trackType, /* prefix= */ "ExoPlayer:MediaCodecAsyncAdapter:");
+  }
+
+  private static String createQueueingThreadLabel(int trackType) {
+    return createThreadLabel(trackType, /* prefix= */ "ExoPlayer:MediaCodecQueueingThread:");
+  }
+
+  private static String createThreadLabel(int trackType, String prefix) {
+    StringBuilder labelBuilder = new StringBuilder(prefix);
     if (trackType == C.TRACK_TYPE_AUDIO) {
       labelBuilder.append("Audio");
     } else if (trackType == C.TRACK_TYPE_VIDEO) {

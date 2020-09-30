@@ -26,7 +26,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
@@ -66,13 +65,10 @@ class AsynchronousMediaCodecBufferEnqueuer {
    * Creates a new instance that submits input buffers on the specified {@link MediaCodec}.
    *
    * @param codec The {@link MediaCodec} to submit input buffers to.
-   * @param trackType The type of stream (used for debug logs).
+   * @param queueingThread The {@link HandlerThread} to use for queueing buffers.
    */
-  public AsynchronousMediaCodecBufferEnqueuer(MediaCodec codec, int trackType) {
-    this(
-        codec,
-        new HandlerThread(createThreadLabel(trackType)),
-        /* conditionVariable= */ new ConditionVariable());
+  public AsynchronousMediaCodecBufferEnqueuer(MediaCodec codec, HandlerThread queueingThread) {
+    this(codec, queueingThread, /* conditionVariable= */ new ConditionVariable());
   }
 
   @VisibleForTesting
@@ -289,18 +285,6 @@ class AsynchronousMediaCodecBufferEnqueuer {
   private static boolean needsSynchronizationWorkaround() {
     String manufacturer = Util.toLowerInvariant(Util.MANUFACTURER);
     return manufacturer.contains("samsung") || manufacturer.contains("motorola");
-  }
-
-  private static String createThreadLabel(int trackType) {
-    StringBuilder labelBuilder = new StringBuilder("ExoPlayer:MediaCodecBufferEnqueuer:");
-    if (trackType == C.TRACK_TYPE_AUDIO) {
-      labelBuilder.append("Audio");
-    } else if (trackType == C.TRACK_TYPE_VIDEO) {
-      labelBuilder.append("Video");
-    } else {
-      labelBuilder.append("Unknown(").append(trackType).append(")");
-    }
-    return labelBuilder.toString();
   }
 
   /** Performs a deep copy of {@code cryptoInfo} to {@code frameworkCryptoInfo}. */
