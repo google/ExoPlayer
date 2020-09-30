@@ -142,7 +142,7 @@ public final class ImaAdsLoader
      * @param context The context;
      */
     public Builder(Context context) {
-      this.context = checkNotNull(context);
+      this.context = checkNotNull(context).getApplicationContext();
       adPreloadTimeoutMs = DEFAULT_AD_PRELOAD_TIMEOUT_MS;
       vastLoadTimeoutMs = TIMEOUT_UNSET;
       mediaLoadTimeoutMs = TIMEOUT_UNSET;
@@ -318,21 +318,7 @@ public final class ImaAdsLoader
      */
     public ImaAdsLoader buildForAdTag(Uri adTagUri) {
       return new ImaAdsLoader(
-          context,
-          adTagUri,
-          imaSdkSettings,
-          /* adsResponse= */ null,
-          adPreloadTimeoutMs,
-          vastLoadTimeoutMs,
-          mediaLoadTimeoutMs,
-          mediaBitrate,
-          focusSkipButtonWhenAvailable,
-          playAdBeforeStartPosition,
-          adUiElements,
-          companionAdSlots,
-          adErrorListener,
-          adEventListener,
-          imaFactory);
+          /* builder= */ this, /* adTagUri= */ adTagUri, /* adsResponse= */ null);
     }
 
     /**
@@ -343,22 +329,7 @@ public final class ImaAdsLoader
      * @return The new {@link ImaAdsLoader}.
      */
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
-      return new ImaAdsLoader(
-          context,
-          /* adTagUri= */ null,
-          imaSdkSettings,
-          adsResponse,
-          adPreloadTimeoutMs,
-          vastLoadTimeoutMs,
-          mediaLoadTimeoutMs,
-          mediaBitrate,
-          focusSkipButtonWhenAvailable,
-          playAdBeforeStartPosition,
-          adUiElements,
-          companionAdSlots,
-          adErrorListener,
-          adEventListener,
-          imaFactory);
+      return new ImaAdsLoader(/* builder= */ this, /* adTagUri= */ null, adsResponse);
     }
   }
 
@@ -520,56 +491,27 @@ public final class ImaAdsLoader
    *     more information.
    */
   public ImaAdsLoader(Context context, Uri adTagUri) {
-    this(
-        context,
-        adTagUri,
-        /* imaSdkSettings= */ null,
-        /* adsResponse= */ null,
-        /* adPreloadTimeoutMs= */ Builder.DEFAULT_AD_PRELOAD_TIMEOUT_MS,
-        /* vastLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaLoadTimeoutMs= */ TIMEOUT_UNSET,
-        /* mediaBitrate= */ BITRATE_UNSET,
-        /* focusSkipButtonWhenAvailable= */ true,
-        /* playAdBeforeStartPosition= */ true,
-        /* adUiElements= */ null,
-        /* companionAdSlots= */ null,
-        /* adErrorListener= */ null,
-        /* adEventListener= */ null,
-        /* imaFactory= */ new DefaultImaFactory());
+    this(new Builder(context), adTagUri, /* adsResponse= */ null);
   }
 
   @SuppressWarnings({"nullness:argument.type.incompatible", "methodref.receiver.bound.invalid"})
-  private ImaAdsLoader(
-      Context context,
-      @Nullable Uri adTagUri,
-      @Nullable ImaSdkSettings imaSdkSettings,
-      @Nullable String adsResponse,
-      long adPreloadTimeoutMs,
-      int vastLoadTimeoutMs,
-      int mediaLoadTimeoutMs,
-      int mediaBitrate,
-      boolean focusSkipButtonWhenAvailable,
-      boolean playAdBeforeStartPosition,
-      @Nullable Set<UiElement> adUiElements,
-      @Nullable Collection<CompanionAdSlot> companionAdSlots,
-      @Nullable AdErrorListener adErrorListener,
-      @Nullable AdEventListener adEventListener,
-      ImaFactory imaFactory) {
+  private ImaAdsLoader(Builder builder, @Nullable Uri adTagUri, @Nullable String adsResponse) {
     checkArgument(adTagUri != null || adsResponse != null);
-    this.context = context.getApplicationContext();
+    this.context = builder.context.getApplicationContext();
     this.adTagUri = adTagUri;
     this.adsResponse = adsResponse;
-    this.adPreloadTimeoutMs = adPreloadTimeoutMs;
-    this.vastLoadTimeoutMs = vastLoadTimeoutMs;
-    this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
-    this.mediaBitrate = mediaBitrate;
-    this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
-    this.playAdBeforeStartPosition = playAdBeforeStartPosition;
-    this.adUiElements = adUiElements;
-    this.companionAdSlots = companionAdSlots;
-    this.adErrorListener = adErrorListener;
-    this.adEventListener = adEventListener;
-    this.imaFactory = imaFactory;
+    this.adPreloadTimeoutMs = builder.adPreloadTimeoutMs;
+    this.vastLoadTimeoutMs = builder.vastLoadTimeoutMs;
+    this.mediaLoadTimeoutMs = builder.mediaLoadTimeoutMs;
+    this.mediaBitrate = builder.mediaBitrate;
+    this.focusSkipButtonWhenAvailable = builder.focusSkipButtonWhenAvailable;
+    this.playAdBeforeStartPosition = builder.playAdBeforeStartPosition;
+    this.adUiElements = builder.adUiElements;
+    this.companionAdSlots = builder.companionAdSlots;
+    this.adErrorListener = builder.adErrorListener;
+    this.adEventListener = builder.adEventListener;
+    this.imaFactory = builder.imaFactory;
+    @Nullable ImaSdkSettings imaSdkSettings = builder.imaSdkSettings;
     if (imaSdkSettings == null) {
       imaSdkSettings = imaFactory.createImaSdkSettings();
       if (DEBUG) {
