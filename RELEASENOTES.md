@@ -30,6 +30,8 @@
         ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
     *   Use TLEN ID3 tag to compute the duration in Mp3Extractor
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
+    *   Fix regression for Ogg files with packets that span multiple pages
+        ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
 *   UI
     *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
         `TrackSelectionDialogBuilder`
