@@ -22,6 +22,9 @@
 *   UI:
     *   Do not require subtitleButton in custom layouts of StyledPlayerView
         ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
+    *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
+        `TrackSelectionDialogBuilder`
+        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
     *   Fix the default audio sink position not advancing correctly when using
@@ -34,10 +37,6 @@
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
     *   Fix regression for Ogg files with packets that span multiple pages
         ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
-*   UI
-    *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
-        `TrackSelectionDialogBuilder`
-        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
 *   IMA extension:
     *   Fix position reporting after fetch errors
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
