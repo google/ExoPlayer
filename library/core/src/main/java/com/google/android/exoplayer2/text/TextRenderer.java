@@ -325,10 +325,13 @@ public final class TextRenderer extends BaseRenderer implements Callback {
   }
 
   private long getNextEventTime() {
+    if (nextSubtitleEventIndex == C.INDEX_UNSET) {
+      return Long.MAX_VALUE;
+    }
     checkNotNull(subtitle);
-    return nextSubtitleEventIndex == C.INDEX_UNSET
-        || nextSubtitleEventIndex >= subtitle.getEventTimeCount()
-        ? Long.MAX_VALUE : subtitle.getEventTime(nextSubtitleEventIndex);
+    return nextSubtitleEventIndex >= subtitle.getEventTimeCount()
+        ? Long.MAX_VALUE
+        : subtitle.getEventTime(nextSubtitleEventIndex);
   }
 
   private void updateOutput(List<Cue> cues) {
