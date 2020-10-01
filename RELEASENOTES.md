@@ -17,6 +17,8 @@
         ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
 *   Text:
     *   Add support for `\h` SSA/ASS style override code (non-breaking space).
+    *   Fix WebVTT subtitles in MP4 containers in DASH streams
+        ([#7985](https://github.com/google/ExoPlayer/issues/7985)).
 *   UI:
     *   Do not require subtitleButton in custom layouts of StyledPlayerView
         ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
