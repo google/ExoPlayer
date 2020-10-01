@@ -130,7 +130,7 @@ public final class CacheAsserts {
     byte[] bytes;
     try {
       dataSource.open(dataSpec);
-      bytes = TestUtil.readToEnd(dataSource);
+      bytes = Util.readToEnd(dataSource);
     } catch (IOException e) {
       throw new IOException("Opening/reading cache failed: " + dataSpec, e);
     } finally {

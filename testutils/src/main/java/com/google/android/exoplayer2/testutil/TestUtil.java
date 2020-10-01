@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -53,7 +52,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
@@ -76,52 +74,6 @@ public class TestUtil {
   private static @MonotonicNonNull Method runOneTaskMethod;
 
   private TestUtil() {}
-
-  /**
-   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
-   * until {@link C#RESULT_END_OF_INPUT} is returned.
-   *
-   * @param dataSource The source from which to read.
-   * @return The concatenation of all read data.
-   * @throws IOException If an error occurs reading from the source.
-   */
-  public static byte[] readToEnd(DataSource dataSource) throws IOException {
-    byte[] data = new byte[1024];
-    int position = 0;
-    int bytesRead = 0;
-    while (bytesRead != C.RESULT_END_OF_INPUT) {
-      if (position == data.length) {
-        data = Arrays.copyOf(data, data.length * 2);
-      }
-      bytesRead = dataSource.read(data, position, data.length - position);
-      if (bytesRead != C.RESULT_END_OF_INPUT) {
-        position += bytesRead;
-      }
-    }
-    return Arrays.copyOf(data, position);
-  }
-
-  /**
-   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
-   * until exactly {@code length} bytes have been read.
-   *
-   * @param dataSource The source from which to read.
-   * @return The read data.
-   * @throws IOException If an error occurs reading from the source.
-   */
-  public static byte[] readExactly(DataSource dataSource, int length) throws IOException {
-    byte[] data = new byte[length];
-    int position = 0;
-    while (position < length) {
-      int bytesRead = dataSource.read(data, position, data.length - position);
-      if (bytesRead == C.RESULT_END_OF_INPUT) {
-        fail("Not enough data could be read: " + position + " < " + length);
-      } else {
-        position += bytesRead;
-      }
-    }
-    return data;
-  }
 
   /**
    * Equivalent to {@code buildTestData(length, length)}.
@@ -271,7 +223,7 @@ public class TestUtil {
     try {
       long length = dataSource.open(dataSpec);
       assertThat(length).isEqualTo(expectKnownLength ? expectedData.length : C.LENGTH_UNSET);
-      byte[] readData = readToEnd(dataSource);
+      byte[] readData = Util.readToEnd(dataSource);
       assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
