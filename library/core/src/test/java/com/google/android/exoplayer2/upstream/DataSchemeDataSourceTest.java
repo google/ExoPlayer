@@ -22,7 +22,6 @@ import static org.junit.Assert.fail;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.junit.Before;
@@ -167,7 +166,7 @@ public final class DataSchemeDataSourceTest {
     try {
       long length = dataSource.open(dataSpec);
       assertThat(length).isEqualTo(expectedData.length);
-      byte[] readData = TestUtil.readToEnd(dataSource);
+      byte[] readData = Util.readToEnd(dataSource);
       assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
