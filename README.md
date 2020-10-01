@@ -1,11 +1,11 @@
 # ExoPlayer <img src="https://img.shields.io/github/v/release/google/ExoPlayer.svg?label=latest"/> #
 
-ExoPlayer is an application level media player for Android. It provides an
+ExoPlayer is an application-level media player for Android. It provides an
 alternative to Android’s MediaPlayer API for playing audio and video both
 locally and over the Internet. ExoPlayer supports features not currently
 supported by Android’s MediaPlayer API, including DASH and SmoothStreaming
 adaptive playbacks. Unlike the MediaPlayer API, ExoPlayer is easy to customize
-and extend, and can be updated through Play Store application updates.
+and extend and can be updated through Play Store application updates.
 
 ## Documentation ##
 
@@ -29,7 +29,7 @@ repository and depend on the modules locally.
 
 #### 1. Add repositories ####
 
-The easiest way to get started using ExoPlayer is to add it as a gradle
+The easiest way to get started using ExoPlayer is to add it as a Gradle
 dependency. You need to make sure you have the Google and JCenter repositories
 included in the `build.gradle` file in the root of your project:
 
@@ -42,8 +42,7 @@ repositories {
 
 #### 2. Add ExoPlayer module dependencies ####
 
-Next add a dependency in the `build.gradle` file of your app module. The
-following will add a dependency to the full library:
+Next, add a dependency in the `build.gradle` file of your app module. The following will add a dependency to the full library:
 
 ```gradle
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
@@ -52,8 +51,8 @@ implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 where `2.X.X` is your preferred version.
 
 As an alternative to the full library, you can depend on only the library
-modules that you actually need. For example the following will add dependencies
-on the Core, DASH and UI library modules, as might be required for an app that
+modules that you need. For example, the following will add dependencies
+on the Core, DASH, and UI library modules, as might be required for an app that
 plays DASH content:
 
 ```gradle
@@ -63,7 +62,7 @@ implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
 ```
 
 The available library modules are listed below. Adding a dependency to the full
-library is equivalent to adding dependencies on all of the library modules
+the library is equivalent to adding dependencies on all of the library modules
 individually.
 
 * `exoplayer-core`: Core functionality (required).
@@ -75,7 +74,7 @@ individually.
 In addition to library modules, ExoPlayer has multiple extension modules that
 depend on external libraries to provide additional functionality. Some
 extensions are available from JCenter, whereas others must be built manually.
-Browse the [extensions directory][] and their individual READMEs for details.
+Browse the [extensions directory][] and their READMEs for details.
 
 More information on the library and extension modules that are available from
 JCenter can be found on [Bintray][].
@@ -91,7 +90,7 @@ If not enabled already, you also need to turn on Java 8 support in all
 
 ```gradle
 compileOptions {
-  targetCompatibility JavaVersion.VERSION_1_8
+  targetcompatibility JavaVersion.VERSION_1_8
 }
 ```
 
