@@ -592,7 +592,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     public InitializationTrackSelection(TrackGroup group, int[] tracks) {
       super(group, tracks);
-      selectedIndex = indexOf(group.getFormat(0));
+      selectedIndex = 0;
     }
 
     @Override
