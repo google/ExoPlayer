@@ -18,7 +18,7 @@ project.ext {
     minSdkVersion = 16
     appTargetSdkVersion = 29
     targetSdkVersion = 28 // TODO: Bump once b/143232359 is resolved. Also fix TODOs in UtilTest.
-    compileSdkVersion = 29
+    compileSdkVersion = 30
     dexmakerVersion = '2.21.0'
     junitVersion = '4.13-rc-2'
     guavaVersion = '27.1-android'
