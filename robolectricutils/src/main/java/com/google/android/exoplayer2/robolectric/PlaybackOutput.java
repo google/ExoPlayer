@@ -15,12 +15,17 @@
  */
 package com.google.android.exoplayer2.robolectric;
 
+import android.graphics.Bitmap;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.testutil.Dumper;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,17 +40,19 @@ public final class PlaybackOutput implements Dumper.Dumpable {
 
   private final ShadowMediaCodecConfig codecConfig;
 
-  // TODO: Add support for subtitles too
   private final List<Metadata> metadatas;
+  private final List<List<Cue>> subtitles;
 
   private PlaybackOutput(SimpleExoPlayer player, ShadowMediaCodecConfig codecConfig) {
     this.codecConfig = codecConfig;
 
     metadatas = Collections.synchronizedList(new ArrayList<>());
+    subtitles = Collections.synchronizedList(new ArrayList<>());
     // TODO: Consider passing playback position into MetadataOutput and TextOutput. Calling
     // player.getCurrentPosition() inside onMetadata/Cues will likely be non-deterministic
     // because renderer-thread != playback-thread.
     player.addMetadataOutput(metadatas::add);
+    player.addTextOutput(subtitles::add);
   }
 
   /**
@@ -74,6 +81,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
     }
 
     dumpMetadata(dumper);
+    dumpSubtitles(dumper);
   }
 
   private void dumpMetadata(Dumper dumper) {
@@ -90,5 +98,58 @@ public final class PlaybackOutput implements Dumper.Dumpable {
       dumper.endBlock();
     }
     dumper.endBlock();
+  }
+
+  private void dumpSubtitles(Dumper dumper) {
+    if (subtitles.isEmpty()) {
+      return;
+    }
+    dumper.startBlock("TextOutput");
+    for (int i = 0; i < subtitles.size(); i++) {
+      dumper.startBlock("Subtitle[" + i + "]");
+      List<Cue> subtitle = subtitles.get(i);
+      if (subtitle.isEmpty()) {
+        dumper.add("Cues", ImmutableList.of());
+      }
+      for (int j = 0; j < subtitle.size(); j++) {
+        dumper.startBlock("Cue[" + j + "]");
+        Cue cue = subtitle.get(j);
+        dumpIfNotEqual(dumper, "text", cue.text, null);
+        dumpIfNotEqual(dumper, "textAlignment", cue.textAlignment, null);
+        dumpBitmap(dumper, cue.bitmap);
+        dumpIfNotEqual(dumper, "line", cue.line, Cue.DIMEN_UNSET);
+        dumpIfNotEqual(dumper, "lineType", cue.lineType, Cue.TYPE_UNSET);
+        dumpIfNotEqual(dumper, "lineAnchor", cue.lineAnchor, Cue.TYPE_UNSET);
+        dumpIfNotEqual(dumper, "position", cue.position, Cue.DIMEN_UNSET);
+        dumpIfNotEqual(dumper, "positionAnchor", cue.positionAnchor, Cue.TYPE_UNSET);
+        dumpIfNotEqual(dumper, "size", cue.size, Cue.DIMEN_UNSET);
+        dumpIfNotEqual(dumper, "bitmapHeight", cue.bitmapHeight, Cue.DIMEN_UNSET);
+        if (cue.windowColorSet) {
+          dumper.add("cue.windowColor", cue.windowColor);
+        }
+        dumpIfNotEqual(dumper, "textSizeType", cue.textSizeType, Cue.TYPE_UNSET);
+        dumpIfNotEqual(dumper, "textSize", cue.textSize, Cue.DIMEN_UNSET);
+        dumpIfNotEqual(dumper, "verticalType", cue.verticalType, Cue.TYPE_UNSET);
+        dumper.endBlock();
+      }
+      dumper.endBlock();
+    }
+    dumper.endBlock();
+  }
+
+  private static void dumpIfNotEqual(
+      Dumper dumper, String field, @Nullable Object actual, @Nullable Object comparison) {
+    if (!Util.areEqual(actual, comparison)) {
+      dumper.add(field, actual);
+    }
+  }
+
+  private static void dumpBitmap(Dumper dumper, @Nullable Bitmap bitmap) {
+    if (bitmap == null) {
+      return;
+    }
+    byte[] bytes = new byte[bitmap.getByteCount()];
+    bitmap.copyPixelsToBuffer(ByteBuffer.wrap(bytes));
+    dumper.add("bitmap", bytes);
   }
 }
