@@ -125,6 +125,7 @@ public final class ImaAdsLoader
     @Nullable private ImaSdkSettings imaSdkSettings;
     @Nullable private AdErrorListener adErrorListener;
     @Nullable private AdEventListener adEventListener;
+    @Nullable private VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback;
     @Nullable private Set<UiElement> adUiElements;
     @Nullable private Collection<CompanionAdSlot> companionAdSlots;
     private long adPreloadTimeoutMs;
@@ -187,6 +188,22 @@ public final class ImaAdsLoader
      */
     public Builder setAdEventListener(AdEventListener adEventListener) {
       this.adEventListener = checkNotNull(adEventListener);
+      return this;
+    }
+
+    /**
+     * Sets a callback to receive video ad player events. Note that these events are handled
+     * internally by the IMA SDK and this ads loader. For analytics and diagnostics, new
+     * implementations should generally use events from the top-level {@link Player} listeners
+     * instead of setting a callback via this method.
+     *
+     * @param videoAdPlayerCallback The callback to receive video ad player events.
+     * @return This builder, for convenience.
+     * @see com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback
+     */
+    public Builder setVideoAdPlayerCallback(
+        VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback) {
+      this.videoAdPlayerCallback = checkNotNull(videoAdPlayerCallback);
       return this;
     }
 
@@ -524,6 +541,9 @@ public final class ImaAdsLoader
     handler = Util.createHandler(getImaLooper(), /* callback= */ null);
     componentListener = new ComponentListener();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
+    if (builder.videoAdPlayerCallback != null) {
+      adCallbacks.add(builder.videoAdPlayerCallback);
+    }
     updateAdProgressRunnable = this::updateAdProgress;
     adInfoByAdMediaInfo = HashBiMap.create();
     supportedMimeTypes = Collections.emptyList();

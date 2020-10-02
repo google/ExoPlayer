@@ -42,6 +42,8 @@
 *   IMA extension:
     *   Fix position reporting after fetch errors
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
+    *   Allow apps to specify a `VideoAdPlayerCallback`
+        ([#7944](https://github.com/google/ExoPlayer/issues/7944)).
 
 ### 2.12.0 (2020-09-11) ###
 
