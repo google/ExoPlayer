@@ -28,6 +28,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
@@ -43,6 +44,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -862,6 +864,11 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  public List<Metadata> getCurrentStaticMetadata() {
+    return playbackInfo.staticMetadata;
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     return playbackInfo.timeline;
   }
@@ -1168,7 +1175,8 @@ import java.util.concurrent.TimeoutException;
               /* requestedContentPositionUs= */ C.msToUs(maskingWindowPositionMs),
               /* totalBufferedDurationUs= */ 0,
               TrackGroupArray.EMPTY,
-              emptyTrackSelectorResult);
+              emptyTrackSelectorResult,
+              ImmutableList.of());
       playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(dummyMediaPeriodId);
       playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
       return playbackInfo;
@@ -1195,7 +1203,8 @@ import java.util.concurrent.TimeoutException;
               /* requestedContentPositionUs= */ newContentPositionUs,
               /* totalBufferedDurationUs= */ 0,
               playingPeriodChanged ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
-              playingPeriodChanged ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult);
+              playingPeriodChanged ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
+              playingPeriodChanged ? ImmutableList.of() : playbackInfo.staticMetadata);
       playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(newPeriodId);
       playbackInfo.bufferedPositionUs = newContentPositionUs;
     } else if (newContentPositionUs == oldContentPositionUs) {
@@ -1219,7 +1228,8 @@ import java.util.concurrent.TimeoutException;
                 /* requestedContentPositionUs= */ playbackInfo.positionUs,
                 /* totalBufferedDurationUs= */ maskedBufferedPositionUs - playbackInfo.positionUs,
                 playbackInfo.trackGroups,
-                playbackInfo.trackSelectorResult);
+                playbackInfo.trackSelectorResult,
+                playbackInfo.staticMetadata);
         playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(newPeriodId);
         playbackInfo.bufferedPositionUs = maskedBufferedPositionUs;
       }
@@ -1241,7 +1251,8 @@ import java.util.concurrent.TimeoutException;
               /* requestedContentPositionUs= */ newContentPositionUs,
               maskedTotalBufferedDurationUs,
               playbackInfo.trackGroups,
-              playbackInfo.trackSelectorResult);
+              playbackInfo.trackSelectorResult,
+              playbackInfo.staticMetadata);
       playbackInfo.bufferedPositionUs = maskedBufferedPositionUs;
     }
     return playbackInfo;
@@ -1348,6 +1359,7 @@ import java.util.concurrent.TimeoutException;
     private final boolean isLoadingChanged;
     private final boolean timelineChanged;
     private final boolean trackSelectorResultChanged;
+    private final boolean staticMetadataChanged;
     private final boolean playWhenReadyChanged;
     private final boolean playbackSuppressionReasonChanged;
     private final boolean isPlayingChanged;
@@ -1387,6 +1399,8 @@ import java.util.concurrent.TimeoutException;
       timelineChanged = !previousPlaybackInfo.timeline.equals(playbackInfo.timeline);
       trackSelectorResultChanged =
           previousPlaybackInfo.trackSelectorResult != playbackInfo.trackSelectorResult;
+      staticMetadataChanged =
+          !previousPlaybackInfo.staticMetadata.equals(playbackInfo.staticMetadata);
       playWhenReadyChanged = previousPlaybackInfo.playWhenReady != playbackInfo.playWhenReady;
       playbackSuppressionReasonChanged =
           previousPlaybackInfo.playbackSuppressionReason != playbackInfo.playbackSuppressionReason;
@@ -1427,6 +1441,11 @@ import java.util.concurrent.TimeoutException;
             listener ->
                 listener.onTracksChanged(
                     playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections));
+      }
+      if (staticMetadataChanged) {
+        invokeAll(
+            listenerSnapshot,
+            listener -> listener.onStaticMetadataChanged(playbackInfo.staticMetadata));
       }
       if (isLoadingChanged) {
         invokeAll(

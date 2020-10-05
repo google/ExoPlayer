@@ -1762,6 +1762,12 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public List<Metadata> getCurrentStaticMetadata() {
+    verifyApplicationThread();
+    return player.getCurrentStaticMetadata();
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     verifyApplicationThread();
     return player.getCurrentTimeline();

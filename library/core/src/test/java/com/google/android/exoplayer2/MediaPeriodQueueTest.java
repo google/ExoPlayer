@@ -432,6 +432,7 @@ public final class MediaPeriodQueueTest {
             /* isLoading= */ false,
             /* trackGroups= */ null,
             /* trackSelectorResult= */ null,
+            /* staticMetadata= */ ImmutableList.of(),
             /* loadingMediaPeriodId= */ null,
             /* playWhenReady= */ false,
             Player.PLAYBACK_SUPPRESSION_REASON_NONE,

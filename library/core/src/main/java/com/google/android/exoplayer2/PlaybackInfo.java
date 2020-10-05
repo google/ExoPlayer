@@ -18,9 +18,12 @@ package com.google.android.exoplayer2;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /**
  * Information about an ongoing playback.
@@ -57,6 +60,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
   public final TrackGroupArray trackGroups;
   /** The result of the current track selection. */
   public final TrackSelectorResult trackSelectorResult;
+  /** The current static metadata of the track selections. */
+  public final List<Metadata> staticMetadata;
   /** The {@link MediaPeriodId} of the currently loading media period in the {@link #timeline}. */
   public final MediaPeriodId loadingMediaPeriodId;
   /** Whether playback should proceed when {@link #playbackState} == {@link Player#STATE_READY}. */
@@ -104,6 +109,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         /* isLoading= */ false,
         TrackGroupArray.EMPTY,
         emptyTrackSelectorResult,
+        /* staticMetadata= */ ImmutableList.of(),
         PLACEHOLDER_MEDIA_PERIOD_ID,
         /* playWhenReady= */ false,
         Player.PLAYBACK_SUPPRESSION_REASON_NONE,
@@ -126,6 +132,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * @param isLoading See {@link #isLoading}.
    * @param trackGroups See {@link #trackGroups}.
    * @param trackSelectorResult See {@link #trackSelectorResult}.
+   * @param staticMetadata See {@link #staticMetadata}.
    * @param loadingMediaPeriodId See {@link #loadingMediaPeriodId}.
    * @param playWhenReady See {@link #playWhenReady}.
    * @param playbackSuppressionReason See {@link #playbackSuppressionReason}.
@@ -145,6 +152,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       boolean isLoading,
       TrackGroupArray trackGroups,
       TrackSelectorResult trackSelectorResult,
+      List<Metadata> staticMetadata,
       MediaPeriodId loadingMediaPeriodId,
       boolean playWhenReady,
       @PlaybackSuppressionReason int playbackSuppressionReason,
@@ -162,6 +170,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
     this.isLoading = isLoading;
     this.trackGroups = trackGroups;
     this.trackSelectorResult = trackSelectorResult;
+    this.staticMetadata = staticMetadata;
     this.loadingMediaPeriodId = loadingMediaPeriodId;
     this.playWhenReady = playWhenReady;
     this.playbackSuppressionReason = playbackSuppressionReason;
@@ -189,6 +198,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
    * @param trackGroups The track groups for the new position. See {@link #trackGroups}.
    * @param trackSelectorResult The track selector result for the new position. See {@link
    *     #trackSelectorResult}.
+   * @param staticMetadata The static metadata for the track selections. See {@link
+   *     #staticMetadata}.
    * @return Copied playback info with new playing position.
    */
   @CheckResult
@@ -198,7 +209,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
       long requestedContentPositionUs,
       long totalBufferedDurationUs,
       TrackGroupArray trackGroups,
-      TrackSelectorResult trackSelectorResult) {
+      TrackSelectorResult trackSelectorResult,
+      List<Metadata> staticMetadata) {
     return new PlaybackInfo(
         timeline,
         periodId,
@@ -208,6 +220,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -236,6 +249,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -264,6 +278,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -292,6 +307,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -320,6 +336,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -348,6 +365,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -380,6 +398,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -408,6 +427,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -437,6 +457,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,
@@ -465,6 +486,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
         isLoading,
         trackGroups,
         trackSelectorResult,
+        staticMetadata,
         loadingMediaPeriodId,
         playWhenReady,
         playbackSuppressionReason,

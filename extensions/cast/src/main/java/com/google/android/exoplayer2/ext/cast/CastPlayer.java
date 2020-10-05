@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
@@ -51,6 +52,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -559,6 +561,12 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public TrackGroupArray getCurrentTrackGroups() {
     return currentTrackGroups;
+  }
+
+  @Override
+  public List<Metadata> getCurrentStaticMetadata() {
+    // CastPlayer does not currently support metadata.
+    return Collections.emptyList();
   }
 
   @Override

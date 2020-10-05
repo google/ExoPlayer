@@ -56,6 +56,8 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
@@ -104,6 +106,7 @@ import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8307,6 +8310,54 @@ public final class ExoPlayerTest {
 
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ false);
     runUntilPlaybackState(player, Player.STATE_ENDED);
+  }
+
+  @Test
+  public void staticMetadata_callbackIsCalledCorrectlyAndMatchesGetter() throws Exception {
+    Format videoFormat =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setWidth(1920)
+            .setHeight(720)
+            .setMetadata(
+                new Metadata(
+                    new TextInformationFrame(
+                        /* id= */ "TT2",
+                        /* description= */ "Video",
+                        /* value= */ "Video track name")))
+            .build();
+
+    Format audioFormat =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.AUDIO_AAC)
+            .setSampleRate(44_000)
+            .setMetadata(
+                new Metadata(
+                    new TextInformationFrame(
+                        /* id= */ "TT2",
+                        /* description= */ "Audio",
+                        /* value= */ "Audio track name")))
+            .build();
+
+    EventListener eventListener = mock(EventListener.class);
+
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 100000));
+    SimpleExoPlayer player = new TestExoPlayer.Builder(context).build();
+
+    player.setMediaSource(new FakeMediaSource(fakeTimeline, videoFormat, audioFormat));
+    player.addListener(eventListener);
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    assertThat(player.getCurrentStaticMetadata())
+        .containsExactly(videoFormat.metadata, audioFormat.metadata)
+        .inOrder();
+    verify(eventListener)
+        .onStaticMetadataChanged(ImmutableList.of(videoFormat.metadata, audioFormat.metadata));
   }
 
   // Internal methods.

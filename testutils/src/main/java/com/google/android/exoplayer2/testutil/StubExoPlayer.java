@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -372,6 +373,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Metadata> getCurrentStaticMetadata() {
     throw new UnsupportedOperationException();
   }
 

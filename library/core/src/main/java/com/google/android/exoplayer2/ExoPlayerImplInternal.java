@@ -33,12 +33,14 @@ import com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason;
 import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.RepeatMode;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -49,6 +51,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1338,6 +1341,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             /* isLoading= */ false,
             resetTrackInfo ? TrackGroupArray.EMPTY : playbackInfo.trackGroups,
             resetTrackInfo ? emptyTrackSelectorResult : playbackInfo.trackSelectorResult,
+            resetTrackInfo ? ImmutableList.of() : playbackInfo.staticMetadata,
             mediaPeriodId,
             playbackInfo.playWhenReady,
             playbackInfo.playbackSuppressionReason,
@@ -2096,6 +2100,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     resetPendingPauseAtEndOfPeriod();
     TrackGroupArray trackGroupArray = playbackInfo.trackGroups;
     TrackSelectorResult trackSelectorResult = playbackInfo.trackSelectorResult;
+    List<Metadata> staticMetadata = playbackInfo.staticMetadata;
     if (mediaSourceList.isPrepared()) {
       @Nullable MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
       trackGroupArray =
@@ -2106,18 +2111,35 @@ import java.util.concurrent.atomic.AtomicBoolean;
           playingPeriodHolder == null
               ? emptyTrackSelectorResult
               : playingPeriodHolder.getTrackSelectorResult();
+      staticMetadata = extractMetadataFromTrackSelectionArray(trackSelectorResult.selections);
     } else if (!mediaPeriodId.equals(playbackInfo.periodId)) {
       // Reset previously kept track info if unprepared and the period changes.
       trackGroupArray = TrackGroupArray.EMPTY;
       trackSelectorResult = emptyTrackSelectorResult;
+      staticMetadata = ImmutableList.of();
     }
+
     return playbackInfo.copyWithNewPosition(
         mediaPeriodId,
         positionUs,
         contentPositionUs,
         getTotalBufferedDurationUs(),
         trackGroupArray,
-        trackSelectorResult);
+        trackSelectorResult,
+        staticMetadata);
+  }
+
+  private ImmutableList<Metadata> extractMetadataFromTrackSelectionArray(
+      TrackSelectionArray trackSelectionArray) {
+    ImmutableList.Builder<Metadata> builder = new ImmutableList.Builder<>();
+    for (int i = 0; i < trackSelectionArray.length; i++) {
+      @Nullable TrackSelection trackSelection = trackSelectionArray.get(i);
+      if (trackSelection != null) {
+        Format format = trackSelection.getFormat(0);
+        builder.add(format.metadata == null ? new Metadata() : format.metadata);
+      }
+    }
+    return builder.build();
   }
 
   private void enableRenderers() throws ExoPlaybackException {

@@ -28,12 +28,14 @@ import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.device.DeviceListener;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.util.StableApiCandidate;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -490,6 +492,22 @@ public interface Player {
      */
     default void onTracksChanged(
         TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
+
+    /**
+     * Called when the static metadata changes.
+     *
+     * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances,
+     * where the elements correspond to the {@link #getCurrentTrackSelections() current track
+     * selections}, or an empty list if there are no track selections or the implementation does not
+     * support metadata.
+     *
+     * <p>The metadata is considered static in the sense that it comes from the tracks' declared
+     * Formats, rather than being timed (or dynamic) metadata, which is represented within a
+     * metadata track.
+     *
+     * @param metadataList The static metadata.
+     */
+    default void onStaticMetadataChanged(List<Metadata> metadataList) {}
 
     /**
      * Called when the player starts or stops loading the source.
@@ -1226,15 +1244,24 @@ public interface Player {
   @Nullable
   TrackSelector getTrackSelector();
 
-  /**
-   * Returns the available track groups.
-   */
+  /** Returns the available track groups. */
   TrackGroupArray getCurrentTrackGroups();
 
-  /**
-   * Returns the current track selections for each renderer.
-   */
+  /** Returns the current track selections for each renderer. */
   TrackSelectionArray getCurrentTrackSelections();
+
+  /**
+   * Returns the current static metadata for the track selections.
+   *
+   * <p>The returned {@code metadataList} is an immutable list of {@link Metadata} instances, where
+   * the elements correspond to the {@link #getCurrentTrackSelections() current track selections},
+   * or an empty list if there are no track selections or the implementation does not support
+   * metadata.
+   *
+   * <p>This metadata is considered static in that it comes from the tracks' declared Formats,
+   * rather than being timed (or dynamic) metadata, which is represented within a metadata track.
+   */
+  List<Metadata> getCurrentStaticMetadata();
 
   /**
    * Returns the current manifest. The type depends on the type of media being played. May be null.
