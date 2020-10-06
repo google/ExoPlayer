@@ -339,14 +339,15 @@ public abstract class MappingTrackSelector extends TrackSelector {
    * Returns the mapping information for the currently active track selection, or null if no
    * selection is currently active.
    */
-  public final @Nullable MappedTrackInfo getCurrentMappedTrackInfo() {
+  @Nullable
+  public final MappedTrackInfo getCurrentMappedTrackInfo() {
     return currentMappedTrackInfo;
   }
 
   // TrackSelector implementation.
 
   @Override
-  public final void onSelectionActivated(Object info) {
+  public final void onSelectionActivated(@Nullable Object info) {
     currentMappedTrackInfo = (MappedTrackInfo) info;
   }
 

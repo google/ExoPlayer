@@ -102,7 +102,7 @@ public class PlayerActivity extends AppCompatActivity
   private int startWindow;
   private long startPosition;
 
-  // Fields used only for ad playback. The ads loader is loaded via reflection.
+  // Fields used only for ad playback.
 
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;

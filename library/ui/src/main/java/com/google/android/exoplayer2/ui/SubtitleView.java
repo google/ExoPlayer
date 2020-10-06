@@ -414,5 +414,4 @@ public final class SubtitleView extends FrameLayout implements TextOutput {
     return cue;
   }
 
-
 }
