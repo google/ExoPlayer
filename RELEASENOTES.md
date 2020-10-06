@@ -29,6 +29,8 @@
     *   Add TS extractor parameter to configure the number of bytes in which
         to search for a timestamp to determine the duration and to seek.
         ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
+    *   Ignore negative payload size in PES packets
+        ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
 *   UI
     *   Do not require subtitleButton in custom layouts of StyledPlayerView
         ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
