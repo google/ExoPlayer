@@ -656,18 +656,28 @@ import java.util.concurrent.TimeoutException;
     if (this.foregroundMode != foregroundMode) {
       this.foregroundMode = foregroundMode;
       if (!internalPlayer.setForegroundMode(foregroundMode)) {
-        notifyListeners(
-            listener ->
-                listener.onPlayerError(
-                    ExoPlaybackException.createForTimeout(
-                        new TimeoutException("Setting foreground mode timed out."),
-                        ExoPlaybackException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE)));
+        stop(
+            /* reset= */ false,
+            ExoPlaybackException.createForTimeout(
+                new TimeoutException("Setting foreground mode timed out."),
+                ExoPlaybackException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE));
       }
     }
   }
 
   @Override
   public void stop(boolean reset) {
+    stop(reset, /* error= */ null);
+  }
+
+  /**
+   * Stops the player.
+   *
+   * @param reset Whether the playlist should be cleared and whether the playback position and
+   *     playback error should be reset.
+   * @param error An optional {@link ExoPlaybackException} to set.
+   */
+  public void stop(boolean reset, @Nullable ExoPlaybackException error) {
     PlaybackInfo playbackInfo;
     if (reset) {
       playbackInfo =
@@ -680,6 +690,9 @@ import java.util.concurrent.TimeoutException;
       playbackInfo.totalBufferedDurationUs = 0;
     }
     playbackInfo = playbackInfo.copyWithPlaybackState(Player.STATE_IDLE);
+    if (error != null) {
+      playbackInfo = playbackInfo.copyWithPlaybackError(error);
+    }
     pendingOperationAcks++;
     internalPlayer.stop();
     updatePlaybackInfo(

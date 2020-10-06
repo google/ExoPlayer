@@ -12,8 +12,11 @@
         ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
     *   Add a getter and callback for static metadata to the player
         ([#7266](https://github.com/google/ExoPlayer/issues/7266)).
-    *   Timeout on release to prevent ANRs if the underlying platform call
+    *   Time out on release to prevent ANRs if the underlying platform call
         is stuck ([#4352](https://github.com/google/ExoPlayer/issues/4352)).
+    *   Time out when detaching a surface to prevent ANRs if the underlying
+        platform call is stuck
+        ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:

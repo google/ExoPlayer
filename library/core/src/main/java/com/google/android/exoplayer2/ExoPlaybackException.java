@@ -83,16 +83,17 @@ public final class ExoPlaybackException extends Exception {
 
   /**
    * The operation which produced the timeout error. One of {@link #TIMEOUT_OPERATION_RELEASE},
-   * {@link #TIMEOUT_OPERATION_SET_FOREGROUND_MODE} or {@link #TIMEOUT_OPERATION_UNDEFINED}. Note
-   * that new operations may be added in the future and error handling should handle unknown
-   * operation values.
+   * {@link #TIMEOUT_OPERATION_SET_FOREGROUND_MODE}, {@link #TIMEOUT_OPERATION_DETACH_SURFACE} or
+   * {@link #TIMEOUT_OPERATION_UNDEFINED}. Note that new operations may be added in the future and
+   * error handling should handle unknown operation values.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     TIMEOUT_OPERATION_UNDEFINED,
     TIMEOUT_OPERATION_RELEASE,
-    TIMEOUT_OPERATION_SET_FOREGROUND_MODE
+    TIMEOUT_OPERATION_SET_FOREGROUND_MODE,
+    TIMEOUT_OPERATION_DETACH_SURFACE
   })
   public @interface TimeoutOperation {}
 
@@ -102,6 +103,8 @@ public final class ExoPlaybackException extends Exception {
   public static final int TIMEOUT_OPERATION_RELEASE = 1;
   /** The error occurred in {@link ExoPlayer#setForegroundMode}. */
   public static final int TIMEOUT_OPERATION_SET_FOREGROUND_MODE = 2;
+  /** The error occurred while detaching a surface from the player. */
+  public static final int TIMEOUT_OPERATION_DETACH_SURFACE = 3;
 
   /** If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer. */
   @Nullable public final String rendererName;
