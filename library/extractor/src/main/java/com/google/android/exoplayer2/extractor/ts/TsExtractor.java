@@ -80,6 +80,9 @@ public final class TsExtractor implements Extractor {
    */
   public static final int MODE_HLS = 2;
 
+  public static final int TS_PACKET_SIZE = 188;
+  public static final int DEFAULT_TIMESTAMP_SEARCH_BYTES = 600 * TS_PACKET_SIZE;
+
   public static final int TS_STREAM_TYPE_MPA = 0x03;
   public static final int TS_STREAM_TYPE_MPA_LSF = 0x04;
   public static final int TS_STREAM_TYPE_AAC_ADTS = 0x0F;
@@ -100,7 +103,6 @@ public final class TsExtractor implements Extractor {
   // Stream types that aren't defined by the MPEG-2 TS specification.
   public static final int TS_STREAM_TYPE_AIT = 0x101;
 
-  public static final int TS_PACKET_SIZE = 188;
   public static final int TS_SYNC_BYTE = 0x47; // First byte of each TS packet.
 
   private static final int TS_PAT_PID = 0;
@@ -115,6 +117,7 @@ public final class TsExtractor implements Extractor {
   private static final int SNIFF_TS_PACKET_COUNT = 5;
 
   private final @Mode int mode;
+  private final int timestampSearchBytes;
   private final List<TimestampAdjuster> timestampAdjusters;
   private final ParsableByteArray tsPacketBuffer;
   private final SparseIntArray continuityCounters;
@@ -136,7 +139,7 @@ public final class TsExtractor implements Extractor {
   private int pcrPid;
 
   public TsExtractor() {
-    this(0);
+    this(/* defaultTsPayloadReaderFlags= */ 0);
   }
 
   /**
@@ -144,7 +147,7 @@ public final class TsExtractor implements Extractor {
    *     {@code FLAG_*} values that control the behavior of the payload readers.
    */
   public TsExtractor(@Flags int defaultTsPayloadReaderFlags) {
-    this(MODE_SINGLE_PMT, defaultTsPayloadReaderFlags);
+    this(MODE_SINGLE_PMT, defaultTsPayloadReaderFlags, DEFAULT_TIMESTAMP_SEARCH_BYTES);
   }
 
   /**
@@ -152,12 +155,22 @@ public final class TsExtractor implements Extractor {
    *     and {@link #MODE_HLS}.
    * @param defaultTsPayloadReaderFlags A combination of {@link DefaultTsPayloadReaderFactory}
    *     {@code FLAG_*} values that control the behavior of the payload readers.
+   * @param timestampSearchBytes The number of bytes searched from a given position in the stream to
+   *     find a PCR timestamp. If this value is too small, the duration might be unknown and seeking
+   *     might not be supported for high bitrate progressive streams. Setting a large value for this
+   *     field might be inefficient though because the extractor stores a buffer of {@code
+   *     timestampSearchBytes} bytes when determining the duration or when performing a seek
+   *     operation. The default value is {@link #DEFAULT_TIMESTAMP_SEARCH_BYTES}. If the number of
+   *     bytes left in the stream from the current position is less than {@code
+   *     timestampSearchBytes}, the search is performed on the bytes left.
    */
-  public TsExtractor(@Mode int mode, @Flags int defaultTsPayloadReaderFlags) {
+  public TsExtractor(
+      @Mode int mode, @Flags int defaultTsPayloadReaderFlags, int timestampSearchBytes) {
     this(
         mode,
         new TimestampAdjuster(0),
-        new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags));
+        new DefaultTsPayloadReaderFactory(defaultTsPayloadReaderFlags),
+        timestampSearchBytes);
   }
 
   /**
@@ -170,7 +183,30 @@ public final class TsExtractor implements Extractor {
       @Mode int mode,
       TimestampAdjuster timestampAdjuster,
       TsPayloadReader.Factory payloadReaderFactory) {
+    this(mode, timestampAdjuster, payloadReaderFactory, DEFAULT_TIMESTAMP_SEARCH_BYTES);
+  }
+
+  /**
+   * @param mode Mode for the extractor. One of {@link #MODE_MULTI_PMT}, {@link #MODE_SINGLE_PMT}
+   *     and {@link #MODE_HLS}.
+   * @param timestampAdjuster A timestamp adjuster for offsetting and scaling sample timestamps.
+   * @param payloadReaderFactory Factory for injecting a custom set of payload readers.
+   * @param timestampSearchBytes The number of bytes searched from a given position in the stream to
+   *     find a PCR timestamp. If this value is too small, the duration might be unknown and seeking
+   *     might not be supported for high bitrate progressive streams. Setting a large value for this
+   *     field might be inefficient though because the extractor stores a buffer of {@code
+   *     timestampSearchBytes} bytes when determining the duration or when performing a seek
+   *     operation. The default value is {@link #DEFAULT_TIMESTAMP_SEARCH_BYTES}. If the number of
+   *     bytes left in the stream from the current position is less than {@code
+   *     timestampSearchBytes}, the search is performed on the bytes left.
+   */
+  public TsExtractor(
+      @Mode int mode,
+      TimestampAdjuster timestampAdjuster,
+      TsPayloadReader.Factory payloadReaderFactory,
+      int timestampSearchBytes) {
     this.payloadReaderFactory = Assertions.checkNotNull(payloadReaderFactory);
+    this.timestampSearchBytes = timestampSearchBytes;
     this.mode = mode;
     if (mode == MODE_SINGLE_PMT || mode == MODE_HLS) {
       timestampAdjusters = Collections.singletonList(timestampAdjuster);
@@ -183,7 +219,7 @@ public final class TsExtractor implements Extractor {
     trackPids = new SparseBooleanArray();
     tsPayloadReaders = new SparseArray<>();
     continuityCounters = new SparseIntArray();
-    durationReader = new TsDurationReader();
+    durationReader = new TsDurationReader(timestampSearchBytes);
     pcrPid = -1;
     resetPayloadReaders();
   }
@@ -365,7 +401,8 @@ public final class TsExtractor implements Extractor {
                 durationReader.getPcrTimestampAdjuster(),
                 durationReader.getDurationUs(),
                 inputLength,
-                pcrPid);
+                pcrPid,
+                timestampSearchBytes);
         output.seekMap(tsBinarySearchSeeker.getSeekMap());
       } else {
         output.seekMap(new SeekMap.Unseekable(durationReader.getDurationUs()));

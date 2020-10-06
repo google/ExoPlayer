@@ -15,9 +15,6 @@
         ([#7985](https://github.com/google/ExoPlayer/issues/7985)).
     *   Fix NPE in `TextRenderer` when playing content with a single subtitle
         buffer ([#8017](https://github.com/google/ExoPlayer/issues/8017)).
-*   UI:
-    *   Do not require subtitleButton in custom layouts of StyledPlayerView
-        ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
 *   Audio:
     *   Fix the default audio sink position not advancing correctly when using
         `AudioTrack`-based speed adjustment
@@ -29,7 +26,12 @@
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
     *   Fix regression for Ogg files with packets that span multiple pages
         ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
+    *   Add TS extractor parameter to configure the number of bytes in which
+        to search for a timestamp to determine the duration and to seek.
+        ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
 *   UI
+    *   Do not require subtitleButton in custom layouts of StyledPlayerView
+        ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
     *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
         `TrackSelectionDialogBuilder`
         ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
