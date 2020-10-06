@@ -41,6 +41,9 @@
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
     *   Fix regression for Ogg files with packets that span multiple pages
         ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
+    *   Add TS extractor parameter to configure the number of bytes in which
+        to search for a timestamp to determine the duration and to seek.
+        ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
 *   IMA extension:
     *   Fix position reporting after fetch errors
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
