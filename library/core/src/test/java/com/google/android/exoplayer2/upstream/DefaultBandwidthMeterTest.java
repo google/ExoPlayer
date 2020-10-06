@@ -107,7 +107,7 @@ public final class DefaultBandwidthMeterTest {
             /* isAvailable= */ true,
             CONNECTED);
   }
-  
+
   @Test
   public void defaultInitialBitrateEstimate_forWifi_isGreaterThanEstimateFor2G() {
     setActiveNetworkInfo(networkInfoWifi);

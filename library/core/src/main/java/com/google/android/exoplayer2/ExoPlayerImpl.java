@@ -153,7 +153,7 @@ import java.util.concurrent.TimeoutException;
         new TrackSelectorResult(
             new RendererConfiguration[renderers.length],
             new TrackSelection[renderers.length],
-            null);
+            /* info= */ null);
     period = new Timeline.Period();
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = new Handler(applicationLooper);

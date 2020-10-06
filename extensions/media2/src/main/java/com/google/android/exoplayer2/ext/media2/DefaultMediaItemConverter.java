@@ -45,7 +45,7 @@ public class DefaultMediaItemConverter implements MediaItemConverter {
     if (media2MediaItem instanceof CallbackMediaItem) {
       throw new IllegalStateException("CallbackMediaItem isn't supported");
     }
-    
+
     @Nullable Uri uri = null;
     @Nullable String mediaId = null;
     @Nullable String title = null;
