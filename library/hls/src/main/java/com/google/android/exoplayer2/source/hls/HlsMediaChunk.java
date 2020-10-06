@@ -403,6 +403,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       try {
         while (!loadCanceled && extractor.read(input)) {}
+      } catch(EOFException e) {
+        // See bug: https://github.com/google/ExoPlayer/issues/7512 for more details.
+        if( input.getPosition() == dataSpec.position + input.getLength() ) {
+          extractor.seek(0, C.TIME_UNSET);
+        }
+        else {
+          e.fillInStackTrace();
+          throw e;
+        }
       } finally {
         nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }

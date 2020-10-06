@@ -48,6 +48,14 @@ public interface HlsMediaChunkExtractor {
    */
   boolean read(ExtractorInput extractorInput) throws IOException;
 
+  /**
+   * Notifies the extractor that a seek has occurred.
+   *
+   * @param position The byte offset in the stream from which data will be provided.
+   * @param timeUs The seek time in microseconds.
+   */
+  void seek(long position, long timeUs);
+
   /** Returns whether this is a packed audio extractor, as defined in RFC 8216, Section 3.4. */
   boolean isPackedAudioExtractor();
 
