@@ -402,7 +402,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         input.skipFully(nextLoadPosition);
       }
       try {
-        while (!loadCanceled && extractor.read(input)) {}
+        while (!loadCanceled && extractor.read(input)) {
+          // See bug: https://github.com/google/ExoPlayer/issues/7512 for more details.
+          if( input.getPosition() == dataSpec.position + input.getLength() ) {
+            extractor.seek( 0, C.TIME_UNSET );
+            break;
+          }
+        }
       } finally {
         nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }

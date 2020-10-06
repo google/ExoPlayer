@@ -68,6 +68,11 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
   }
 
   @Override
+  public void seek(long position, long timeUs) {
+    extractor.seek( position, timeUs );
+  }
+
+  @Override
   public boolean isPackedAudioExtractor() {
     return extractor instanceof AdtsExtractor
         || extractor instanceof Ac3Extractor
