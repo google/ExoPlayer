@@ -48,6 +48,7 @@ import android.os.SystemClock;
 import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.Display;
 import android.view.SurfaceView;
 import android.view.WindowManager;
@@ -2005,6 +2006,14 @@ public final class Util {
       return null;
     }
     return builder.toString();
+  }
+
+  /** Returns a data URI with the specified MIME type and data. */
+  public static Uri getDataUriForString(String mimeType, String data) {
+    // TODO(internal: b/169937045): For now we don't pass the URL_SAFE flag as DataSchemeDataSource
+    // doesn't decode using it.
+    return Uri.parse(
+        "data:" + mimeType + ";base64," + Base64.encodeToString(data.getBytes(), Base64.NO_WRAP));
   }
 
   /**

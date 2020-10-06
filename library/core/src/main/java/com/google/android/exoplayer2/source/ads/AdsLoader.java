@@ -199,6 +199,14 @@ public interface AdsLoader {
   void setSupportedContentTypes(@C.ContentType int... contentTypes);
 
   /**
+   * Sets the data spec of the ad tag to load.
+   *
+   * @param adTagDataSpec The data spec of the ad tag to load. See the implementation's
+   *     documentation for information about compatible ad tag formats.
+   */
+  void setAdTagDataSpec(DataSpec adTagDataSpec);
+
+  /**
    * Starts using the ads loader for playback. Called on the main thread by {@link AdsMediaSource}.
    *
    * @param eventListener Listener for ads loader events.

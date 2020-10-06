@@ -145,6 +145,14 @@ public final class DataSchemeDataSourceTest {
     }
   }
 
+  @Test
+  public void readSourceToEnd_readsEncodedString() throws Exception {
+    String data = "Some Data!<>:\"/\\|?*%";
+    schemeDataDataSource.open(new DataSpec(Util.getDataUriForString("text/plain", data)));
+
+    assertThat(Util.fromUtf8Bytes(Util.readToEnd(schemeDataDataSource))).isEqualTo(data);
+  }
+
   private static DataSpec buildDataSpec(String uriString) {
     return buildDataSpec(uriString, /* position= */ 0, /* length= */ C.LENGTH_UNSET);
   }

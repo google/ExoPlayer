@@ -128,6 +128,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private final MediaSourceFactory adMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final AdsLoader.AdViewProvider adViewProvider;
+  @Nullable private final DataSpec adTagDataSpec;
   private final Handler mainHandler;
   private final Timeline.Period period;
 
@@ -145,7 +146,10 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
    * @param dataSourceFactory Factory for data sources used to load ad media.
    * @param adsLoader The loader for ads.
    * @param adViewProvider Provider of views for the ad UI.
+   * @deprecated Use {@link AdsMediaSource#AdsMediaSource(MediaSource, DataSpec, MediaSourceFactory,
+   *     AdsLoader, AdsLoader.AdViewProvider)} instead.
    */
+  @Deprecated
   public AdsMediaSource(
       MediaSource contentMediaSource,
       DataSource.Factory dataSourceFactory,
@@ -155,7 +159,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
         contentMediaSource,
         new ProgressiveMediaSource.Factory(dataSourceFactory),
         adsLoader,
-        adViewProvider);
+        adViewProvider,
+        /* adTagDataSpec= */ null);
   }
 
   /**
@@ -166,16 +171,53 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
    * @param adMediaSourceFactory Factory for media sources used to load ad media.
    * @param adsLoader The loader for ads.
    * @param adViewProvider Provider of views for the ad UI.
+   * @deprecated Use {@link AdsMediaSource#AdsMediaSource(MediaSource, DataSpec, MediaSourceFactory,
+   *     AdsLoader, AdsLoader.AdViewProvider)} instead.
    */
+  @Deprecated
   public AdsMediaSource(
       MediaSource contentMediaSource,
       MediaSourceFactory adMediaSourceFactory,
       AdsLoader adsLoader,
       AdsLoader.AdViewProvider adViewProvider) {
+    this(
+        contentMediaSource,
+        adMediaSourceFactory,
+        adsLoader,
+        adViewProvider,
+        /* adTagDataSpec= */ null);
+  }
+
+  /**
+   * Constructs a new source that inserts ads linearly with the content specified by {@code
+   * contentMediaSource}.
+   *
+   * @param contentMediaSource The {@link MediaSource} providing the content to play.
+   * @param adTagDataSpec The data specification of the ad tag to load.
+   * @param adMediaSourceFactory Factory for media sources used to load ad media.
+   * @param adsLoader The loader for ads.
+   * @param adViewProvider Provider of views for the ad UI.
+   */
+  public AdsMediaSource(
+      MediaSource contentMediaSource,
+      DataSpec adTagDataSpec,
+      MediaSourceFactory adMediaSourceFactory,
+      AdsLoader adsLoader,
+      AdsLoader.AdViewProvider adViewProvider) {
+    this(contentMediaSource, adMediaSourceFactory, adsLoader, adViewProvider, adTagDataSpec);
+  }
+
+  private AdsMediaSource(
+      MediaSource contentMediaSource,
+      MediaSourceFactory adMediaSourceFactory,
+      AdsLoader adsLoader,
+      AdsLoader.AdViewProvider adViewProvider,
+      @Nullable DataSpec adTagDataSpec) {
     this.contentMediaSource = contentMediaSource;
     this.adMediaSourceFactory = adMediaSourceFactory;
     this.adsLoader = adsLoader;
     this.adViewProvider = adViewProvider;
+    this.adTagDataSpec = adTagDataSpec;
     mainHandler = new Handler(Looper.getMainLooper());
     period = new Timeline.Period();
     adMediaSourceHolders = new AdMediaSourceHolder[0][];
@@ -204,7 +246,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     ComponentListener componentListener = new ComponentListener();
     this.componentListener = componentListener;
     prepareChildSource(CHILD_SOURCE_MEDIA_PERIOD_ID, contentMediaSource);
-    mainHandler.post(() -> adsLoader.start(componentListener, adViewProvider));
+    mainHandler.post(
+        () -> {
+          if (adTagDataSpec != null) {
+            adsLoader.setAdTagDataSpec(adTagDataSpec);
+          }
+          adsLoader.start(componentListener, adViewProvider);
+        });
   }
 
   @Override

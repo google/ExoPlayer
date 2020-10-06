@@ -32,6 +32,10 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader.OverlayInfo;
+import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -114,6 +118,24 @@ import java.util.List;
     // Cue points may be out of order, so sort them.
     Arrays.sort(adGroupTimesUs, 0, adGroupIndex);
     return new AdPlaybackState(adGroupTimesUs);
+  }
+
+  /** Returns an {@link AdsRequest} based on the specified ad tag {@link DataSpec}. */
+  public static AdsRequest getAdsRequestForAdTagDataSpec(
+      ImaFactory imaFactory, DataSpec adTagDataSpec) throws IOException {
+    AdsRequest request = imaFactory.createAdsRequest();
+    if (DataSchemeDataSource.SCHEME_DATA.equals(adTagDataSpec.uri.getScheme())) {
+      DataSchemeDataSource dataSchemeDataSource = new DataSchemeDataSource();
+      try {
+        dataSchemeDataSource.open(adTagDataSpec);
+        request.setAdsResponse(Util.fromUtf8Bytes(Util.readToEnd(dataSchemeDataSource)));
+      } finally {
+        dataSchemeDataSource.close();
+      }
+    } else {
+      request.setAdTagUrl(adTagDataSpec.uri.toString());
+    }
+    return request;
   }
 
   /** Returns whether the ad error indicates that an entire ad group failed to load. */

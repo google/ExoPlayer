@@ -49,6 +49,11 @@
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
     *   Allow apps to specify a `VideoAdPlayerCallback`
         ([#7944](https://github.com/google/ExoPlayer/issues/7944)).
+    *   Accept ad tags via the `AdsMediaSource` constructor and deprecate
+        passing them via the `ImaAdsLoader` constructor/builders. Passing the
+        ad tag via media item playback properties continues to be supported.
+        This is in preparation for supporting ads in playlists
+        ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
 
 ### 2.12.0 (2020-09-11) ###
 
