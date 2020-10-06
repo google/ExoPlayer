@@ -44,6 +44,8 @@
     *   Add TS extractor parameter to configure the number of bytes in which
         to search for a timestamp to determine the duration and to seek.
         ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
+    *   Ignore negative payload size in PES packets
+        ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
 *   IMA extension:
     *   Fix position reporting after fetch errors
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
