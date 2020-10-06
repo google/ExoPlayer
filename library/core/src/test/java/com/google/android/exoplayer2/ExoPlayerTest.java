@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -98,7 +99,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -5554,7 +5555,8 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1)),
-            new DefaultDataSourceFactory(context),
+            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
+            new DefaultMediaSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     Exception[] exception = {null};
@@ -5591,7 +5593,8 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             mediaSource,
-            new DefaultDataSourceFactory(context),
+            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
+            new DefaultMediaSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     final Exception[] exception = {null};
@@ -5630,7 +5633,8 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             mediaSource,
-            new DefaultDataSourceFactory(context),
+            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
+            new DefaultMediaSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     final Exception[] exception = {null};
@@ -8547,6 +8551,9 @@ public final class ExoPlayerTest {
 
     @Override
     public void setSupportedContentTypes(int... contentTypes) {}
+
+    @Override
+    public void setAdTagDataSpec(DataSpec adTagDataSpec) {}
 
     @Override
     public void start(AdsLoader.EventListener eventListener, AdViewProvider adViewProvider) {}

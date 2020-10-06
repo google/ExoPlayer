@@ -877,6 +877,14 @@ public class UtilTest {
   }
 
   @Test
+  public void getDataUriForString_returnsCorrectDataUri() {
+    assertThat(
+            Util.getDataUriForString(/* mimeType= */ "text/plain", "Some Data!<>:\"/\\|?*%")
+                .toString())
+        .isEqualTo("data:text/plain;base64,U29tZSBEYXRhITw+OiIvXHw/KiU=");
+  }
+
+  @Test
   public void crc32_returnsUpdatedCrc32() {
     byte[] bytes = {0x5F, 0x78, 0x04, 0x7B, 0x5F};
     int start = 1;

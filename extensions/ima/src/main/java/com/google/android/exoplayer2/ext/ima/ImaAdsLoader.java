@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.ext.ima;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 
 import android.content.Context;
@@ -91,6 +90,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>The player instance that will play the loaded ads must be set before playback using {@link
  * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
  * {@link #release()}.
+ *
+ * <p>See https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
+ * information on compatible ad tag formats. Pass the ad tag URI when setting media item playback
+ * properties (if using the media item API) or as a {@link DataSpec} when constructing the {@link
+ * com.google.android.exoplayer2.source.ads.AdsMediaSource} (if using media sources directly). For
+ * the latter case, please note that this implementation delegates loading of the data spec to the
+ * IMA SDK, so range and headers specifications will be ignored in ad tag URIs. Literal ads
+ * responses can be encoded as data scheme data specs, for example, by constructing the data spec
+ * using a URI generated via {@link Util#getDataUriForString(String, String)}.
  *
  * <p>The IMA SDK can report obstructions to the ad view for accurate viewability measurement. This
  * means that any overlay views that obstruct the ad overlay but are essential for playback need to
@@ -331,7 +339,12 @@ public final class ImaAdsLoader
      *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
      *     information on compatible ad tags.
      * @return The new {@link ImaAdsLoader}.
+     * @deprecated Pass the ad tag URI when setting media item playback properties (if using the
+     *     media item API) or as a {@link DataSpec} when constructing the {@link
+     *     com.google.android.exoplayer2.source.ads.AdsMediaSource} (if using media sources
+     *     directly).
      */
+    @Deprecated
     public ImaAdsLoader buildForAdTag(Uri adTagUri) {
       return new ImaAdsLoader(
           /* builder= */ this, /* adTagUri= */ adTagUri, /* adsResponse= */ null);
@@ -343,9 +356,20 @@ public final class ImaAdsLoader
      * @param adsResponse The sideloaded VAST, VMAP, or ad rules response to be used instead of
      *     making a request via an ad tag URL.
      * @return The new {@link ImaAdsLoader}.
+     * @deprecated Pass the ads response as a data URI when setting media item playback properties
+     *     (if using the media item API) or as a {@link DataSpec} when constructing the {@link
+     *     com.google.android.exoplayer2.source.ads.AdsMediaSource} (if using media sources
+     *     directly). {@link Util#getDataUriForString(String, String)} can be used to construct a
+     *     data URI from literal string ads response (with MIME type text/xml).
      */
+    @Deprecated
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
       return new ImaAdsLoader(/* builder= */ this, /* adTagUri= */ null, adsResponse);
+    }
+
+    /** Returns a new {@link ImaAdsLoader}. */
+    public ImaAdsLoader build() {
+      return new ImaAdsLoader(/* builder= */ this, /* adTagUri= */ null, /* adsResponse= */ null);
     }
   }
 
@@ -400,6 +424,8 @@ public final class ImaAdsLoader
    */
   private static final int IMA_AD_STATE_PAUSED = 2;
 
+  private static final DataSpec EMPTY_AD_TAG_DATA_SPEC = new DataSpec(Uri.EMPTY);
+
   private final Context context;
   @Nullable private final Uri adTagUri;
   @Nullable private final String adsResponse;
@@ -430,6 +456,7 @@ public final class ImaAdsLoader
   private List<String> supportedMimeTypes;
   @Nullable private EventListener eventListener;
   @Nullable private Player player;
+  private DataSpec adTagDataSpec;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercent;
@@ -505,14 +532,18 @@ public final class ImaAdsLoader
    * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
    *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
    *     more information.
+   * @deprecated Use {@link Builder} to create an instance. Pass the ad tag URI when setting media
+   *     item playback properties (if using the media item API) or as a {@link DataSpec} when
+   *     constructing the {@link com.google.android.exoplayer2.source.ads.AdsMediaSource} (if using
+   *     media sources directly).
    */
+  @Deprecated
   public ImaAdsLoader(Context context, Uri adTagUri) {
     this(new Builder(context), adTagUri, /* adsResponse= */ null);
   }
 
   @SuppressWarnings({"nullness:argument.type.incompatible", "methodref.receiver.bound.invalid"})
   private ImaAdsLoader(Builder builder, @Nullable Uri adTagUri, @Nullable String adsResponse) {
-    checkArgument(adTagUri != null || adsResponse != null);
     this.context = builder.context.getApplicationContext();
     this.adTagUri = adTagUri;
     this.adsResponse = adsResponse;
@@ -547,6 +578,7 @@ public final class ImaAdsLoader
     updateAdProgressRunnable = this::updateAdProgress;
     adInfoByAdMediaInfo = HashBiMap.create();
     supportedMimeTypes = Collections.emptyList();
+    adTagDataSpec = EMPTY_AD_TAG_DATA_SPEC;
     lastContentProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     lastAdProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     fakeContentProgressElapsedRealtimeMs = C.TIME_UNSET;
@@ -592,12 +624,62 @@ public final class ImaAdsLoader
    *
    * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI, or {@code
    *     null} if playing audio-only ads.
+   * @deprecated Use {@link #requestAds(DataSpec, ViewGroup)}, specifying the ad tag data spec to
+   *     request, and migrate off deprecated builder methods/constructor that require an ad tag or
+   *     ads response.
    */
+  @Deprecated
   public void requestAds(@Nullable ViewGroup adViewGroup) {
+    requestAds(adTagDataSpec, adViewGroup);
+  }
+
+  /**
+   * Requests ads, if they have not already been requested. Must be called on the main thread.
+   *
+   * <p>Ads will be requested automatically when the player is prepared if this method has not been
+   * called, so it is only necessary to call this method if you want to request ads before preparing
+   * the player.
+   *
+   * @param adTagDataSpec The data specification of the ad tag to load. See class javadoc for
+   *     information about compatible ad tag formats.
+   * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI, or {@code
+   *     null} if playing audio-only ads.
+   */
+  public void requestAds(DataSpec adTagDataSpec, @Nullable ViewGroup adViewGroup) {
     if (hasAdPlaybackState || adsManager != null || pendingAdRequestContext != null) {
       // Ads have already been requested.
       return;
     }
+
+    if (EMPTY_AD_TAG_DATA_SPEC.equals(adTagDataSpec)) {
+      // Handle deprecated ways of specifying the ad tag.
+      if (adTagUri != null) {
+        adTagDataSpec = new DataSpec(adTagUri);
+      } else if (adsResponse != null) {
+        adTagDataSpec = new DataSpec(Util.getDataUriForString(adsResponse, "text/xml"));
+      } else {
+        throw new IllegalStateException();
+      }
+    }
+
+    AdsRequest request;
+    try {
+      request = ImaUtil.getAdsRequestForAdTagDataSpec(imaFactory, adTagDataSpec);
+    } catch (IOException e) {
+      hasAdPlaybackState = true;
+      updateAdPlaybackState();
+      pendingAdLoadError = AdLoadException.createForAllAds(e);
+      maybeNotifyPendingAdLoadError();
+      return;
+    }
+    this.adTagDataSpec = adTagDataSpec;
+    pendingAdRequestContext = new Object();
+    request.setUserRequestContext(pendingAdRequestContext);
+    if (vastLoadTimeoutMs != TIMEOUT_UNSET) {
+      request.setVastLoadTimeout(vastLoadTimeoutMs);
+    }
+    request.setContentProgressProvider(componentListener);
+
     if (adViewGroup != null) {
       adDisplayContainer =
           imaFactory.createAdDisplayContainer(adViewGroup, /* player= */ componentListener);
@@ -608,24 +690,13 @@ public final class ImaAdsLoader
     if (companionAdSlots != null) {
       adDisplayContainer.setCompanionSlots(companionAdSlots);
     }
+
     adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     adsLoader.addAdErrorListener(componentListener);
     if (adErrorListener != null) {
       adsLoader.addAdErrorListener(adErrorListener);
     }
     adsLoader.addAdsLoadedListener(componentListener);
-    AdsRequest request = imaFactory.createAdsRequest();
-    if (adTagUri != null) {
-      request.setAdTagUrl(adTagUri.toString());
-    } else {
-      request.setAdsResponse(castNonNull(adsResponse));
-    }
-    if (vastLoadTimeoutMs != TIMEOUT_UNSET) {
-      request.setVastLoadTimeout(vastLoadTimeoutMs);
-    }
-    request.setContentProgressProvider(componentListener);
-    pendingAdRequestContext = new Object();
-    request.setUserRequestContext(pendingAdRequestContext);
     adsLoader.requestAds(request);
   }
 
@@ -675,6 +746,11 @@ public final class ImaAdsLoader
   }
 
   @Override
+  public void setAdTagDataSpec(DataSpec adTagDataSpec) {
+    this.adTagDataSpec = adTagDataSpec;
+  }
+
+  @Override
   public void start(EventListener eventListener, AdViewProvider adViewProvider) {
     checkState(
         wasSetPlayerCalled, "Set player using adsLoader.setPlayer before preparing the player.");
@@ -700,7 +776,7 @@ public final class ImaAdsLoader
       updateAdPlaybackState();
     } else {
       // Ads haven't loaded yet, so request them.
-      requestAds(adViewProvider.getAdViewGroup());
+      requestAds(adTagDataSpec, adViewProvider.getAdViewGroup());
     }
     if (adDisplayContainer != null) {
       for (OverlayInfo overlayInfo : adViewProvider.getAdOverlayInfos()) {
@@ -1431,7 +1507,7 @@ public final class ImaAdsLoader
 
   private void maybeNotifyPendingAdLoadError() {
     if (pendingAdLoadError != null && eventListener != null) {
-      eventListener.onAdLoadError(pendingAdLoadError, getAdsDataSpec(adTagUri));
+      eventListener.onAdLoadError(pendingAdLoadError, adTagDataSpec);
       pendingAdLoadError = null;
     }
   }
@@ -1446,8 +1522,7 @@ public final class ImaAdsLoader
     updateAdPlaybackState();
     if (eventListener != null) {
       eventListener.onAdLoadError(
-          AdLoadException.createForUnexpected(new RuntimeException(message, cause)),
-          getAdsDataSpec(adTagUri));
+          AdLoadException.createForUnexpected(new RuntimeException(message, cause)), adTagDataSpec);
     }
   }
 
@@ -1498,10 +1573,6 @@ public final class ImaAdsLoader
   private String getAdMediaInfoString(AdMediaInfo adMediaInfo) {
     @Nullable AdInfo adInfo = adInfoByAdMediaInfo.get(adMediaInfo);
     return "AdMediaInfo[" + adMediaInfo.getUrl() + (adInfo != null ? ", " + adInfo : "") + "]";
-  }
-
-  private static DataSpec getAdsDataSpec(@Nullable Uri adTagUri) {
-    return new DataSpec(adTagUri != null ? adTagUri : Uri.EMPTY);
   }
 
   private static long getContentPeriodPositionMs(

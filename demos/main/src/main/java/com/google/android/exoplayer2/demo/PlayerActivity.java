@@ -375,7 +375,7 @@ public class PlayerActivity extends AppCompatActivity
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      adsLoader = new ImaAdsLoader(/* context= */ PlayerActivity.this, adTagUri);
+      adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
     }
     adsLoader.setPlayer(player);
     return adsLoader;
