@@ -256,6 +256,7 @@ public final class ExoPlayerFactory {
         /* analyticsCollector= */ null,
         /* useLazyPreparation= */ true,
         SeekParameters.DEFAULT,
+        ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS,
         /* pauseAtEndOfMediaItems= */ false,
         Clock.DEFAULT,
         applicationLooper);

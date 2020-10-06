@@ -134,6 +134,12 @@ import java.util.List;
 public interface ExoPlayer extends Player {
 
   /**
+   * The default timeout for calls to {@link #release} and {@link #setForegroundMode}, in
+   * milliseconds.
+   */
+  long DEFAULT_RELEASE_TIMEOUT_MS = 500;
+
+  /**
    * A builder for {@link ExoPlayer} instances.
    *
    * <p>See {@link #Builder(Context, Renderer...)} for the list of default values.
@@ -152,9 +158,9 @@ public interface ExoPlayer extends Player {
     private boolean useLazyPreparation;
     private SeekParameters seekParameters;
     private boolean pauseAtEndOfMediaItems;
+    private long releaseTimeoutMs;
     private boolean buildCalled;
 
-    private long releaseTimeoutMs;
     private boolean throwWhenStuckBuffering;
 
     /**
@@ -173,6 +179,7 @@ public interface ExoPlayer extends Player {
      *   <li>{@link AnalyticsCollector}: {@link AnalyticsCollector} with {@link Clock#DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
+     *   <li>{@code releaseTimeoutMs}: {@link ExoPlayer#DEFAULT_RELEASE_TIMEOUT_MS}
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
@@ -218,20 +225,7 @@ public interface ExoPlayer extends Player {
       seekParameters = SeekParameters.DEFAULT;
       clock = Clock.DEFAULT;
       throwWhenStuckBuffering = true;
-    }
-
-    /**
-     * Set a limit on the time a call to {@link ExoPlayer#release()} can spend. If a call to {@link
-     * ExoPlayer#release()} takes more than {@code timeoutMs} milliseconds to complete, the player
-     * will raise an error via {@link Player.EventListener#onPlayerError}.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     *
-     * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
-     */
-    public Builder experimentalSetReleaseTimeoutMs(long timeoutMs) {
-      releaseTimeoutMs = timeoutMs;
-      return this;
+      releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
     }
 
     /**
@@ -357,6 +351,23 @@ public interface ExoPlayer extends Player {
     }
 
     /**
+     * Sets a timeout for calls to {@link #release} and {@link #setForegroundMode}.
+     *
+     * <p>If a call to {@link #release} or {@link #setForegroundMode} takes more than {@code
+     * timeoutMs} to complete, the player will report an error via {@link
+     * Player.EventListener#onPlayerError}.
+     *
+     * @param releaseTimeoutMs The release timeout, in milliseconds.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
+      Assertions.checkState(!buildCalled);
+      this.releaseTimeoutMs = releaseTimeoutMs;
+      return this;
+    }
+
+    /**
      * Sets whether to pause playback at the end of each media item.
      *
      * <p>This means the player will pause at the end of each window in the current {@link
@@ -407,13 +418,11 @@ public interface ExoPlayer extends Player {
               analyticsCollector,
               useLazyPreparation,
               seekParameters,
+              releaseTimeoutMs,
               pauseAtEndOfMediaItems,
               clock,
               looper);
 
-      if (releaseTimeoutMs > 0) {
-        player.experimentalSetReleaseTimeoutMs(releaseTimeoutMs);
-      }
       if (!throwWhenStuckBuffering) {
         player.experimentalDisableThrowWhenStuckBuffering();
       }

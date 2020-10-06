@@ -110,6 +110,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Renderer.VideoScalingMode private int videoScalingMode;
     private boolean useLazyPreparation;
     private SeekParameters seekParameters;
+    private long releaseTimeoutMs;
     private boolean pauseAtEndOfMediaItems;
     private boolean throwWhenStuckBuffering;
     private boolean buildCalled;
@@ -143,6 +144,7 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@link Renderer.VideoScalingMode}: {@link Renderer#VIDEO_SCALING_MODE_DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
+     *   <li>{@code releaseTimeoutMs}: {@link ExoPlayer#DEFAULT_RELEASE_TIMEOUT_MS}
      *   <li>{@code pauseAtEndOfMediaItems}: {@code false}
      *   <li>{@link Clock}: {@link Clock#DEFAULT}
      * </ul>
@@ -240,6 +242,7 @@ public class SimpleExoPlayer extends BasePlayer
       seekParameters = SeekParameters.DEFAULT;
       clock = Clock.DEFAULT;
       throwWhenStuckBuffering = true;
+      releaseTimeoutMs = ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
     }
 
     /**
@@ -457,6 +460,23 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
+     * Sets a timeout for calls to {@link #release} and {@link #setForegroundMode}.
+     *
+     * <p>If a call to {@link #release} or {@link #setForegroundMode} takes more than {@code
+     * timeoutMs} to complete, the player will report an error via {@link
+     * Player.EventListener#onPlayerError}.
+     *
+     * @param releaseTimeoutMs The release timeout, in milliseconds.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setReleaseTimeoutMs(long releaseTimeoutMs) {
+      Assertions.checkState(!buildCalled);
+      this.releaseTimeoutMs = releaseTimeoutMs;
+      return this;
+    }
+
+    /**
      * Sets whether to pause playback at the end of each media item.
      *
      * <p>This means the player will pause at the end of each window in the current {@link
@@ -631,6 +651,7 @@ public class SimpleExoPlayer extends BasePlayer
             analyticsCollector,
             builder.useLazyPreparation,
             builder.seekParameters,
+            builder.releaseTimeoutMs,
             builder.pauseAtEndOfMediaItems,
             builder.clock,
             builder.looper);

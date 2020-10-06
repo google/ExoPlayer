@@ -117,6 +117,7 @@ import java.util.concurrent.TimeoutException;
    *     loads and other initial preparation steps happen immediately. If true, these initial
    *     preparations are triggered only when the player starts buffering the media.
    * @param seekParameters The {@link SeekParameters}.
+   * @param releaseTimeoutMs The timeout for calls to {@link #release()} in milliseconds.
    * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
    * @param clock The {@link Clock}.
    * @param applicationLooper The {@link Looper} that must be used for all calls to the player and
@@ -132,6 +133,7 @@ import java.util.concurrent.TimeoutException;
       @Nullable AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
       SeekParameters seekParameters,
+      long releaseTimeoutMs,
       boolean pauseAtEndOfMediaItems,
       Clock clock,
       Looper applicationLooper) {
@@ -180,25 +182,12 @@ import java.util.concurrent.TimeoutException;
             shuffleModeEnabled,
             analyticsCollector,
             seekParameters,
+            releaseTimeoutMs,
             pauseAtEndOfMediaItems,
             applicationLooper,
             clock,
             playbackInfoUpdateListener);
     internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
-  }
-
-  /**
-   * Set a limit on the time a call to {@link #release()} can spend. If a call to {@link #release()}
-   * takes more than {@code timeoutMs} milliseconds to complete, the player will raise an error via
-   * {@link Player.EventListener#onPlayerError}.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the player is used.
-   *
-   * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
-   */
-  public void experimentalSetReleaseTimeoutMs(long timeoutMs) {
-    internalPlayer.experimentalSetReleaseTimeoutMs(timeoutMs);
   }
 
   /**
