@@ -37,6 +37,10 @@
     *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
         `TrackSelectionDialogBuilder`
         ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+*   HLS:
+    *   Fix crash affecting chunkful preparation of master playlists that start
+        with an I-FRAME only variant
+        ([#8025](https://github.com/google/ExoPlayer/issues/8025)).
 *   IMA extension:
     *   Fix position reporting after fetch errors
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
