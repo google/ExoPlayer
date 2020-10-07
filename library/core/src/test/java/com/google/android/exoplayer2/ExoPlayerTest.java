@@ -109,6 +109,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -5704,6 +5705,42 @@ public final class ExoPlayerTest {
         .blockUntilActionScheduleFinished(TIMEOUT_MS)
         .blockUntilEnded(TIMEOUT_MS);
     assertArrayEquals(new int[] {0, 0, 0}, currentWindowIndices);
+  }
+
+  @Test
+  public void setMediaItems_resetPosition_resetsPosition() throws Exception {
+    final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET};
+    final long[] currentPositions = {C.INDEX_UNSET, C.INDEX_UNSET};
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 1000);
+                    currentWindowIndices[0] = player.getCurrentWindowIndex();
+                    currentPositions[0] = player.getCurrentPosition();
+                    List<MediaItem> listOfTwo =
+                        Lists.newArrayList(
+                            MediaItem.fromUri(Uri.EMPTY), MediaItem.fromUri(Uri.EMPTY));
+                    player.setMediaItems(listOfTwo, /* resetPosition= */ true);
+                    currentWindowIndices[1] = player.getCurrentWindowIndex();
+                    currentPositions[1] = player.getCurrentPosition();
+                  }
+                })
+            .prepare()
+            .waitForTimelineChanged()
+            .play()
+            .build();
+    new ExoPlayerTestRunner.Builder(context)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start(/* doPrepare= */ false)
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+    assertArrayEquals(new int[] {1, 0}, currentWindowIndices);
+    assertArrayEquals(new long[] {1000, 0}, currentPositions);
   }
 
   @Test

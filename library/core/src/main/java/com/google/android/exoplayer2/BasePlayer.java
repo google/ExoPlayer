@@ -45,12 +45,6 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
-    setMediaItems(
-        mediaItems, /* startWindowIndex= */ C.INDEX_UNSET, /* startPositionMs= */ C.TIME_UNSET);
-  }
-
-  @Override
   public void setMediaItems(List<MediaItem> mediaItems) {
     setMediaItems(mediaItems, /* resetPosition= */ true);
   }
