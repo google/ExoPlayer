@@ -348,6 +348,11 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
+    setMediaSources(createMediaSources(mediaItems), resetPosition);
+  }
+
+  @Override
   public void setMediaItems(
       List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
     setMediaSources(createMediaSources(mediaItems), startWindowIndex, startPositionMs);
