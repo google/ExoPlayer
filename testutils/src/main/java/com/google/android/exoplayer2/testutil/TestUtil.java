@@ -297,7 +297,8 @@ public class TestUtil {
 
   /**
    * Reads from the given input using the given {@link Extractor}, until it can produce the {@link
-   * SeekMap} and all of the tracks have been identified, or until the extractor encounters EOF.
+   * SeekMap} and all of the track formats have been identified, or until the extractor encounters
+   * EOF.
    *
    * @param extractor The {@link Extractor} to extractor from input.
    * @param output The {@link FakeTrackOutput} to store the extracted {@link SeekMap} and track.
@@ -316,10 +317,17 @@ public class TestUtil {
     int readResult = Extractor.RESULT_CONTINUE;
     while (true) {
       try {
-        // Keep reading until we can get the seek map
+        // Keep reading until we get the seek map and the track information.
         while (readResult == Extractor.RESULT_CONTINUE
             && (output.seekMap == null || !output.tracksEnded)) {
           readResult = extractor.read(input, positionHolder);
+        }
+        for (int i = 0; i < output.trackOutputs.size(); i++) {
+          int trackId = output.trackOutputs.keyAt(i);
+          while (readResult == Extractor.RESULT_CONTINUE
+              && output.trackOutputs.get(trackId).lastFormat == null) {
+            readResult = extractor.read(input, positionHolder);
+          }
         }
       } finally {
         Util.closeQuietly(dataSource);
