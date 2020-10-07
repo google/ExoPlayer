@@ -592,7 +592,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     public InitializationTrackSelection(TrackGroup group, int[] tracks) {
       super(group, tracks);
-      selectedIndex = indexOf(group.getFormat(0));
+      // The initially selected index corresponds to the first EXT-X-STREAMINF tag in the master
+      // playlist.
+      selectedIndex = indexOf(group.getFormat(tracks[0]));
     }
 
     @Override
