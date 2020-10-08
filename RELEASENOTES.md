@@ -15,6 +15,16 @@
         ([#7985](https://github.com/google/ExoPlayer/issues/7985)).
     *   Fix NPE in `TextRenderer` when playing content with a single subtitle
         buffer ([#8017](https://github.com/google/ExoPlayer/issues/8017)).
+*   UI:
+    *   Do not require subtitleButton in custom layouts of StyledPlayerView
+        ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
+    *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
+        `TrackSelectionDialogBuilder`
+        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+    *   Adjusted bottom buttons' heights and paddings in StyledPlayerView for
+        easy tapping.
+    *   Show overflow button in `StyledPlayerControlView` only when there is no
+        enough space.
 *   Audio:
     *   Fix the default audio sink position not advancing correctly when using
         `AudioTrack`-based speed adjustment
@@ -31,12 +41,6 @@
         ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
     *   Ignore negative payload size in PES packets
         ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
-*   UI
-    *   Do not require subtitleButton in custom layouts of StyledPlayerView
-        ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
-    *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
-        `TrackSelectionDialogBuilder`
-        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
 *   HLS:
     *   Fix crash affecting chunkful preparation of master playlists that start
         with an I-FRAME only variant

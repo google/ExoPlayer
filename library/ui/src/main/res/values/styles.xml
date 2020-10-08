@@ -61,8 +61,8 @@
   <style name="ExoStyledControls.Button">
     <item name="android:background">?android:attr/selectableItemBackground</item>
     <item name="android:scaleType">fitXY</item>
-    <item name="android:layout_marginLeft">@dimen/exo_icon_margin</item>
-    <item name="android:layout_marginRight">@dimen/exo_icon_margin</item>
+    <item name="android:layout_marginLeft">@dimen/exo_icon_horizontal_margin</item>
+    <item name="android:layout_marginRight">@dimen/exo_icon_horizontal_margin</item>
   </style>
 
   <style name="ExoStyledControls.Button.Center">
@@ -135,8 +135,10 @@
 
   <style name="ExoStyledControls.Button.Bottom">
     <item name="android:gravity">center_horizontal</item>
-    <item name="android:layout_width">@dimen/exo_small_button_width</item>
-    <item name="android:layout_height">@dimen/exo_small_button_height</item>
+    <item name="android:layout_width">@dimen/exo_small_icon_width</item>
+    <item name="android:layout_height">@dimen/exo_small_icon_height</item>
+    <item name="android:layout_marginLeft">@dimen/exo_small_icon_horizontal_margin</item>
+    <item name="android:layout_marginRight">@dimen/exo_small_icon_horizontal_margin</item>
     <item name="android:paddingLeft">@dimen/exo_small_icon_padding_horizontal</item>
     <item name="android:paddingRight">@dimen/exo_small_icon_padding_horizontal</item>
     <item name="android:paddingTop">@dimen/exo_small_icon_padding_vertical</item>

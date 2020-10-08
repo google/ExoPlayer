@@ -40,11 +40,12 @@
       android:layout_height="@dimen/exo_bottom_bar_height"
       android:layout_gravity="bottom"
       android:background="@color/exo_bottom_bar_background"
+      android:paddingBottom="@dimen/exo_bottom_bar_padding_bottom"
       android:layoutDirection="ltr">
 
     <LinearLayout android:id="@+id/exo_time"
         android:layout_width="@dimen/exo_time_view_width"
-        android:layout_height="@dimen/exo_bottom_bar_height"
+        android:layout_height="@dimen/exo_small_icon_height"
         android:paddingStart="@dimen/exo_time_view_padding"
         android:paddingEnd="@dimen/exo_time_view_padding"
         android:paddingLeft="@dimen/exo_time_view_padding"
