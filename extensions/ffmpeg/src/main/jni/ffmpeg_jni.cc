@@ -105,7 +105,9 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
   if (vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
     return -1;
   }
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
   avcodec_register_all();
+#endif
   return JNI_VERSION_1_6;
 }
 
