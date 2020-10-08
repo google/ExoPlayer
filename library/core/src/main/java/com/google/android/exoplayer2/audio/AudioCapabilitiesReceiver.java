@@ -24,7 +24,15 @@ import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
+import androidx.mediarouter.media.MediaControlIntent;
+import androidx.mediarouter.media.MediaRouteSelector;
+import androidx.mediarouter.media.MediaRouter;
+import androidx.mediarouter.media.MediaRouter.Callback;
+import androidx.mediarouter.media.MediaRouter.ProviderInfo;
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 
@@ -57,6 +65,10 @@ public final class AudioCapabilitiesReceiver {
   @Nullable /* package */ AudioCapabilities audioCapabilities;
   private boolean registered;
 
+  Intent stickyIntent = null;
+  private MediaRouter mediaRouter;
+  private MediaRouteSelector mSelector;
+
   /**
    * @param context A context for registering the receiver.
    * @param listener The listener to notify when audio capabilities change.
@@ -73,6 +85,11 @@ public final class AudioCapabilitiesReceiver {
             ? new ExternalSurroundSoundSettingObserver(
                 handler, context.getContentResolver(), externalSurroundSoundUri)
             : null;
+
+    mediaRouter = MediaRouter.getInstance(context);
+    mSelector = new MediaRouteSelector.Builder()
+            .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+            .build();
   }
 
   /**
@@ -91,7 +108,6 @@ public final class AudioCapabilitiesReceiver {
     if (externalSurroundSoundSettingObserver != null) {
       externalSurroundSoundSettingObserver.register();
     }
-    Intent stickyIntent = null;
     if (receiver != null) {
       IntentFilter intentFilter = new IntentFilter(AudioManager.ACTION_HDMI_AUDIO_PLUG);
       stickyIntent =
@@ -99,6 +115,10 @@ public final class AudioCapabilitiesReceiver {
               receiver, intentFilter, /* broadcastPermission= */ null, handler);
     }
     audioCapabilities = AudioCapabilities.getCapabilities(context, stickyIntent);
+
+    mediaRouter.addCallback(mSelector, mediaRouterCallback,
+            MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
+
     return audioCapabilities;
   }
 
@@ -117,6 +137,9 @@ public final class AudioCapabilitiesReceiver {
     if (externalSurroundSoundSettingObserver != null) {
       externalSurroundSoundSettingObserver.unregister();
     }
+
+    mediaRouter.removeCallback(mediaRouterCallback);
+
     registered = false;
   }
 
@@ -163,4 +186,27 @@ public final class AudioCapabilitiesReceiver {
     }
   }
 
+  // Define the Callback object and its method to detect the Bluetooth speaker connenction
+  private final MediaRouter.Callback mediaRouterCallback =
+          new MediaRouter.Callback() {
+            @Override
+            public void onRouteChanged(MediaRouter router, RouteInfo route) {
+            }
+
+            @Override
+            public void onRouteSelected(MediaRouter router, RouteInfo route) {
+              if (route.getDeviceType() == 3) {
+                AudioCapabilities.setExternalPcmOnlySoundset(true);
+                onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, null));
+              }
+            }
+
+            @Override
+            public void onRouteUnselected(MediaRouter router, RouteInfo route, int reason) {
+              if (route.getDeviceType() == 3) {
+                AudioCapabilities.setExternalPcmOnlySoundset(false);
+                onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, stickyIntent));
+              }
+            }
+          };
 }

@@ -37,6 +37,8 @@ dependencies {
     api project(modulePrefix + 'library-common')
     api project(modulePrefix + 'library-extractor')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.mediarouter:mediarouter:1.1.0'
     compileOnly 'com.google.code.findbugs:jsr305:' + jsr305Version
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion

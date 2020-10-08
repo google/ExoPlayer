@@ -143,7 +143,7 @@ public abstract class TrackSelector {
    * Calls {@link InvalidationListener#onTrackSelectionsInvalidated()} to invalidate all previously
    * generated track selections.
    */
-  protected final void invalidate() {
+  public final void invalidate() {
     if (listener != null) {
       listener.onTrackSelectionsInvalidated();
     }

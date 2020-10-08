@@ -48,6 +48,9 @@ public final class AudioCapabilities {
   /** Global settings key for devices that can specify external surround sound. */
   private static final String EXTERNAL_SURROUND_SOUND_KEY = "external_surround_sound_enabled";
 
+  private static boolean externalPcmOnlySound = false;
+  public static final int[] EXTERNAL_PCM_ONLY = {AudioFormat.ENCODING_PCM_16BIT,
+          AudioFormat.ENCODING_PCM_8BIT, AudioFormat.ENCODING_PCM_FLOAT, AudioFormat.ENCODING_MP3};
   /**
    * Returns the current audio capabilities for the device.
    *
@@ -113,6 +116,9 @@ public final class AudioCapabilities {
     this.maxChannelCount = maxChannelCount;
   }
 
+  public static void setExternalPcmOnlySoundset(boolean flag) {
+    externalPcmOnlySound = flag;
+  }
   /**
    * Returns whether this device supports playback of the specified audio {@code encoding}.
    *
@@ -120,6 +126,9 @@ public final class AudioCapabilities {
    * @return Whether this device supports playback the specified audio {@code encoding}.
    */
   public boolean supportsEncoding(@C.Encoding int encoding) {
+    if (externalPcmOnlySound) {
+      return Arrays.binarySearch(EXTERNAL_PCM_ONLY, encoding) >= 0;
+    }
     return Arrays.binarySearch(supportedEncodings, encoding) >= 0;
   }
 
