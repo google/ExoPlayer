@@ -34,6 +34,8 @@
     *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
         `TrackSelectionDialogBuilder`
         ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+    *   Adjusted bottom buttons' heights and paddings in StyledPlayerView for
+        easy tapping.
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
     *   Fix the default audio sink position not advancing correctly when using
