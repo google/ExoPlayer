@@ -87,7 +87,11 @@
       <ImageButton android:id="@+id/exo_fullscreen"
           style="@style/ExoStyledControls.Button.Bottom.FullScreen"/>
 
+      <ImageButton android:id="@+id/exo_settings"
+          style="@style/ExoStyledControls.Button.Bottom.Settings"/>
+
       <ImageButton android:id="@+id/exo_overflow_show"
+          android:visibility="gone"
           style="@style/ExoStyledControls.Button.Bottom.OverflowShow"/>
 
     </LinearLayout>
@@ -104,9 +108,6 @@
           android:layout_gravity="bottom|end"
           android:orientation="horizontal"
           android:layoutDirection="ltr">
-
-        <ImageButton android:id="@+id/exo_settings"
-            style="@style/ExoStyledControls.Button.Bottom.Settings"/>
 
         <ImageButton android:id="@+id/exo_overflow_hide"
             style="@style/ExoStyledControls.Button.Bottom.OverflowHide"/>

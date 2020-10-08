@@ -56,6 +56,7 @@
         with an I-FRAME only variant
         ([#8025](https://github.com/google/ExoPlayer/issues/8025)).
 *   IMA extension:
+
     *   Fix position reporting after fetch errors
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
     *   Allow apps to specify a `VideoAdPlayerCallback`
@@ -65,6 +66,11 @@
         ad tag via media item playback properties continues to be supported.
         This is in preparation for supporting ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
+
+*   UI:
+
+    *   Show overflow button in `StyledPlayerControlView` only when there is no
+        enough space.
 
 ### 2.12.0 (2020-09-11) ###
 
