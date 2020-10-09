@@ -106,7 +106,7 @@ public final class SsMediaSource extends BaseMediaSource
      * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
      *     to load (and refresh) the manifest. May be {@code null} if the factory will only ever be
      *     used to create create media sources with sideloaded manifests via {@link
-     *     #createMediaSource(SsManifest, Handler, MediaSourceEventListener)}.
+     *     #createMediaSource(SsManifest, MediaItem)}.
      */
     public Factory(
         SsChunkSource.Factory chunkSourceFactory,
@@ -291,39 +291,6 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     /**
-     * @deprecated Use {@link #createMediaSource(SsManifest)} and {@link #addEventListener(Handler,
-     *     MediaSourceEventListener)} instead.
-     */
-    @Deprecated
-    public SsMediaSource createMediaSource(
-        SsManifest manifest,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
-      SsMediaSource mediaSource = createMediaSource(manifest);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
-    }
-
-    /**
-     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
-     *     MediaSourceEventListener)} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    public SsMediaSource createMediaSource(
-        Uri manifestUri,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
-      SsMediaSource mediaSource = createMediaSource(manifestUri);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
-    }
-
-    /**
      * Returns a new {@link SsMediaSource} using the current parameters.
      *
      * @param mediaItem The {@link MediaItem}.
@@ -411,162 +378,6 @@ public final class SsMediaSource extends BaseMediaSource
   private SsManifest manifest;
 
   private Handler manifestRefreshHandler;
-
-  /**
-   * Constructs an instance to play a given {@link SsManifest}, which must not be live.
-   *
-   * @param manifest The manifest. {@link SsManifest#isLive} must be false.
-   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public SsMediaSource(
-      SsManifest manifest,
-      SsChunkSource.Factory chunkSourceFactory,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        manifest,
-        chunkSourceFactory,
-        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        eventHandler,
-        eventListener);
-  }
-
-  /**
-   * Constructs an instance to play a given {@link SsManifest}, which must not be live.
-   *
-   * @param manifest The manifest. {@link SsManifest#isLive} must be false.
-   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
-   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  public SsMediaSource(
-      SsManifest manifest,
-      SsChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        new MediaItem.Builder().setUri(Uri.EMPTY).setMimeType(MimeTypes.APPLICATION_SS).build(),
-        manifest,
-        /* manifestDataSourceFactory= */ null,
-        /* manifestParser= */ null,
-        chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(),
-        DrmSessionManager.getDummyDrmSessionManager(),
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        DEFAULT_LIVE_PRESENTATION_DELAY_MS);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, eventListener);
-    }
-  }
-
-  /**
-   * Constructs an instance to play the manifest at a given {@link Uri}, which may be live or
-   * on-demand.
-   *
-   * @param manifestUri The manifest {@link Uri}.
-   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
-   *     to load (and refresh) the manifest.
-   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public SsMediaSource(
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      SsChunkSource.Factory chunkSourceFactory,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        manifestUri,
-        manifestDataSourceFactory,
-        chunkSourceFactory,
-        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        DEFAULT_LIVE_PRESENTATION_DELAY_MS,
-        eventHandler,
-        eventListener);
-  }
-
-  /**
-   * Constructs an instance to play the manifest at a given {@link Uri}, which may be live or
-   * on-demand.
-   *
-   * @param manifestUri The manifest {@link Uri}.
-   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
-   *     to load (and refresh) the manifest.
-   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
-   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-   * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
-   *     default start position should precede the end of the live window.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public SsMediaSource(
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      SsChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount,
-      long livePresentationDelayMs,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(manifestUri, manifestDataSourceFactory, new SsManifestParser(), chunkSourceFactory,
-        minLoadableRetryCount, livePresentationDelayMs, eventHandler, eventListener);
-  }
-
-  /**
-   * Constructs an instance to play the manifest at a given {@link Uri}, which may be live or
-   * on-demand.
-   *
-   * @param manifestUri The manifest {@link Uri}.
-   * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
-   *     to load (and refresh) the manifest.
-   * @param manifestParser A parser for loaded manifest data.
-   * @param chunkSourceFactory A factory for {@link SsChunkSource} instances.
-   * @param minLoadableRetryCount The minimum number of times to retry if a loading error occurs.
-   * @param livePresentationDelayMs For live playbacks, the duration in milliseconds by which the
-   *     default start position should precede the end of the live window.
-   * @param eventHandler A handler for events. May be null if delivery of events is not required.
-   * @param eventListener A listener of events. May be null if delivery of events is not required.
-   * @deprecated Use {@link Factory} instead.
-   */
-  @Deprecated
-  public SsMediaSource(
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      ParsingLoadable.Parser<? extends SsManifest> manifestParser,
-      SsChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount,
-      long livePresentationDelayMs,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        new MediaItem.Builder().setUri(manifestUri).setMimeType(MimeTypes.APPLICATION_SS).build(),
-        /* manifest= */ null,
-        manifestDataSourceFactory,
-        manifestParser,
-        chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(),
-        DrmSessionManager.getDummyDrmSessionManager(),
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        livePresentationDelayMs);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, eventListener);
-    }
-  }
 
   private SsMediaSource(
       MediaItem mediaItem,

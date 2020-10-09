@@ -125,7 +125,7 @@ public final class DashMediaSource extends BaseMediaSource {
      * @param manifestDataSourceFactory A factory for {@link DataSource} instances that will be used
      *     to load (and refresh) the manifest. May be {@code null} if the factory will only ever be
      *     used to create create media sources with sideloaded manifests via {@link
-     *     #createMediaSource(DashManifest, Handler, MediaSourceEventListener)}.
+     *     #createMediaSource(DashManifest, MediaItem)}.
      */
     public Factory(
         DashChunkSource.Factory chunkSourceFactory,
@@ -327,39 +327,6 @@ public final class DashMediaSource extends BaseMediaSource {
           livePresentationDelayOverridesManifest);
     }
 
-    /**
-     * @deprecated Use {@link #createMediaSource(DashManifest)} and {@link
-     *     #addEventListener(Handler, MediaSourceEventListener)} instead.
-     */
-    @Deprecated
-    public DashMediaSource createMediaSource(
-        DashManifest manifest,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
-      DashMediaSource mediaSource = createMediaSource(manifest);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
-    }
-
-    /**
-     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
-     *     MediaSourceEventListener)} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    public DashMediaSource createMediaSource(
-        Uri manifestUri,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
-      DashMediaSource mediaSource = createMediaSource(manifestUri);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
-    }
-
     /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */
     @SuppressWarnings("deprecation")
     @Deprecated
@@ -492,121 +459,6 @@ public final class DashMediaSource extends BaseMediaSource {
   private long expiredManifestPublishTimeUs;
 
   private int firstPeriodId;
-
-  /** @deprecated Use {@link Factory} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DashMediaSource(
-      DashManifest manifest,
-      DashChunkSource.Factory chunkSourceFactory,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        manifest,
-        chunkSourceFactory,
-        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        eventHandler,
-        eventListener);
-  }
-
-  /** @deprecated Use {@link Factory} instead. */
-  @Deprecated
-  public DashMediaSource(
-      DashManifest manifest,
-      DashChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        new MediaItem.Builder()
-            .setMediaId(DUMMY_MEDIA_ID)
-            .setMimeType(MimeTypes.APPLICATION_MPD)
-            .setUri(Uri.EMPTY)
-            .build(),
-        manifest,
-        /* manifestDataSourceFactory= */ null,
-        /* manifestParser= */ null,
-        chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(),
-        DrmSessionManager.getDummyDrmSessionManager(),
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        DEFAULT_LIVE_PRESENTATION_DELAY_MS,
-        /* livePresentationDelayOverridesManifest= */ false);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, eventListener);
-    }
-  }
-
-  /** @deprecated Use {@link Factory} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DashMediaSource(
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      DashChunkSource.Factory chunkSourceFactory,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        manifestUri,
-        manifestDataSourceFactory,
-        chunkSourceFactory,
-        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT,
-        DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS,
-        eventHandler,
-        eventListener);
-  }
-
-  /** @deprecated Use {@link Factory} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DashMediaSource(
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      DashChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount,
-      long livePresentationDelayMs,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        manifestUri,
-        manifestDataSourceFactory,
-        new DashManifestParser(),
-        chunkSourceFactory,
-        minLoadableRetryCount,
-        livePresentationDelayMs,
-        eventHandler,
-        eventListener);
-  }
-
-  /** @deprecated Use {@link Factory} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public DashMediaSource(
-      Uri manifestUri,
-      DataSource.Factory manifestDataSourceFactory,
-      ParsingLoadable.Parser<? extends DashManifest> manifestParser,
-      DashChunkSource.Factory chunkSourceFactory,
-      int minLoadableRetryCount,
-      long livePresentationDelayMs,
-      @Nullable Handler eventHandler,
-      @Nullable MediaSourceEventListener eventListener) {
-    this(
-        new MediaItem.Builder().setUri(manifestUri).setMimeType(MimeTypes.APPLICATION_MPD).build(),
-        /* manifest= */ null,
-        manifestDataSourceFactory,
-        manifestParser,
-        chunkSourceFactory,
-        new DefaultCompositeSequenceableLoaderFactory(),
-        DrmSessionManager.getDummyDrmSessionManager(),
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        livePresentationDelayMs == DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS
-            ? DEFAULT_LIVE_PRESENTATION_DELAY_MS
-            : livePresentationDelayMs,
-        livePresentationDelayMs != DEFAULT_LIVE_PRESENTATION_DELAY_PREFER_MANIFEST_MS);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, eventListener);
-    }
-  }
 
   private DashMediaSource(
       MediaItem mediaItem,
