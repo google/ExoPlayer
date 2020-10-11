@@ -7844,6 +7844,7 @@ public final class ExoPlayerTest {
     SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
+            .pause()
             .waitForPlaybackState(Player.STATE_READY)
             .playUntilPosition(/* windowIndex= */ 1, /* positionMs= */ 2000)
             .clearMediaItems()
