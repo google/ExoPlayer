@@ -744,11 +744,37 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (released || prepared || !sampleQueuesBuilt || seekMap == null) {
       return;
     }
-    for (SampleQueue sampleQueue : sampleQueues) {
-      if (sampleQueue.getUpstreamFormat() == null) {
-        return;
+
+    // If all streams have an upstream format we can finish preparing.
+    // If there is a video and an audio stream with upstream format
+    // and there is one single stream without upstream format, it is likely
+    // an audio stream with no data. Set it to a dummy mime type of
+    // audio/null so that playback can continue.
+
+    int nullStream = -1;
+    int nullStreamCount = 0;
+    boolean videoFound = false;
+    boolean audioFound = false;
+    for (int i = 0; i < sampleQueues.length; i++) {
+      Format upstreamFormat = sampleQueues[i].getUpstreamFormat();
+      if (upstreamFormat == null) {
+        nullStream = i;
+        ++nullStreamCount;
       }
+      else if (MimeTypes.isVideo(upstreamFormat.sampleMimeType))
+        videoFound = true;
+      else if (MimeTypes.isAudio(upstreamFormat.sampleMimeType))
+        audioFound = true;
     }
+    if (nullStreamCount == 1 && videoFound && audioFound) {
+      Format.Builder builder = new Format.Builder();
+      builder.setSampleMimeType("audio/null");
+      sampleQueues[nullStream].format(builder.build());
+      nullStreamCount = 0;
+    }
+    if (nullStreamCount > 0)
+      return;
+
     loadCondition.close();
     int trackCount = sampleQueues.length;
     TrackGroup[] trackArray = new TrackGroup[trackCount];
