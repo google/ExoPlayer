@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Cheza</string>
   <string name="exo_controls_stop_description">Simamisha</string>
   <string name="exo_controls_rewind_description">Rudisha nyuma</string>
-  <string name="exo_controls_rewind_by_amount_description">Rudisha nyuma kwa sekunde %d</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Rudisha nyuma kwa sekunde %d</item>
+    <item quantity="other">Rudisha nyuma kwa sekunde %d</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Sogeza mbele haraka</string>
-  <string name="exo_controls_fastforward_by_amount_description">Sogeza mbele haraka kwa sekunde %d</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Sogeza mbele haraka kwa sekunde %d</item>
+    <item quantity="other">Sogeza mbele haraka kwa sekunde %d</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Usirudie yoyote</string>
   <string name="exo_controls_repeat_one_description">Rudia moja</string>
   <string name="exo_controls_repeat_all_description">Rudia zote</string>

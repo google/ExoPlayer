@@ -28,9 +28,19 @@
   <string name="exo_controls_play_description">Odtwórz</string>
   <string name="exo_controls_stop_description">Zatrzymaj</string>
   <string name="exo_controls_rewind_description">Przewiń do tyłu</string>
-  <string name="exo_controls_rewind_by_amount_description">Przewiń do tyłu o %d s</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Przewiń do tyłu o %d sekundę</item>
+    <item quantity="few">Przewiń do tyłu o %d sekundy</item>
+    <item quantity="many">Przewiń do tyłu o %d sekund</item>
+    <item quantity="other">Przewiń do tyłu o %d sekundy</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Przewiń do przodu</string>
-  <string name="exo_controls_fastforward_by_amount_description">Przewiń do przodu o %d s</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Przewiń do przodu o %d sekundę</item>
+    <item quantity="few">Przewiń do przodu o %d sekundy</item>
+    <item quantity="many">Przewiń do przodu o %d sekund</item>
+    <item quantity="other">Przewiń do przodu o %d sekundy</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Nie powtarzaj</string>
   <string name="exo_controls_repeat_one_description">Powtórz jeden</string>
   <string name="exo_controls_repeat_all_description">Powtórz wszystkie</string>

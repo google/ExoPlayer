@@ -28,9 +28,19 @@
   <string name="exo_controls_play_description">הפעלה</string>
   <string name="exo_controls_stop_description">הפסקה</string>
   <string name="exo_controls_rewind_description">הרצה אחורה</string>
-  <string name="exo_controls_rewind_by_amount_description">הרצה %d שניות אחורה</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">הרצה שנייה אחת (%d) אחורה</item>
+    <item quantity="two">הרצה %d שניות אחורה</item>
+    <item quantity="many">הרצה %d שניות אחורה</item>
+    <item quantity="other">הרצה %d שניות אחורה</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">הרצה קדימה</string>
-  <string name="exo_controls_fastforward_by_amount_description">הרצה %d שניות קדימה</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">הרצה שנייה אחת (%d) קדימה</item>
+    <item quantity="two">הרצה %d שניות קדימה</item>
+    <item quantity="many">הרצה %d שניות קדימה</item>
+    <item quantity="other">הרצה %d שניות קדימה</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">אל תחזור על אף פריט</string>
   <string name="exo_controls_repeat_one_description">חזור על פריט אחד</string>
   <string name="exo_controls_repeat_all_description">חזור על הכול</string>

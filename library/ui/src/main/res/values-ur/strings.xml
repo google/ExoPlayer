@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">چلائیں</string>
   <string name="exo_controls_stop_description">روکیں</string>
   <string name="exo_controls_rewind_description">ریوائینڈ کریں</string>
-  <string name="exo_controls_rewind_by_amount_description">%d سیکنڈز ریوائنڈ کریں</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d سیکنڈ ریوائنڈ کریں</item>
+    <item quantity="other">%d سیکنڈز ریوائنڈ کریں</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">تیزی سے فارورڈ کریں</string>
-  <string name="exo_controls_fastforward_by_amount_description">تیزی سے %d سیکنڈز فارورڈ کریں</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d سیکنڈ تیزی سے فارورڈ کریں</item>
+    <item quantity="other">%d سیکنڈز تیزی سے فارورڈ کریں</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">کسی کو نہ دہرائیں</string>
   <string name="exo_controls_repeat_one_description">ایک کو دہرائیں</string>
   <string name="exo_controls_repeat_all_description">سبھی کو دہرائیں</string>

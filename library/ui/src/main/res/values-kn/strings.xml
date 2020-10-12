@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">ಪ್ಲೇ</string>
   <string name="exo_controls_stop_description">ನಿಲ್ಲಿಸಿ</string>
   <string name="exo_controls_rewind_description">ರಿವೈಂಡ್</string>
-  <string name="exo_controls_rewind_by_amount_description">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ರಿವೈಂಡ್ ಮಾಡಿ</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ರಿವೈಂಡ್ ಮಾಡಿ</item>
+    <item quantity="other">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ರಿವೈಂಡ್ ಮಾಡಿ</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">ಫಾಸ್ಟ್ ಫಾರ್ವರ್ಡ್</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಫಾಸ್ಟ್ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಫಾಸ್ಟ್ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ</item>
+    <item quantity="other">%d ಸೆಕೆಂಡ್‌ಗಳಷ್ಟು ಫಾಸ್ಟ್ ಫಾರ್ವರ್ಡ್ ಮಾಡಿ</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">ಯಾವುದನ್ನೂ ಪುನರಾವರ್ತಿಸಬೇಡಿ</string>
   <string name="exo_controls_repeat_one_description">ಒಂದನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>
   <string name="exo_controls_repeat_all_description">ಎಲ್ಲವನ್ನು ಪುನರಾವರ್ತಿಸಿ</string>

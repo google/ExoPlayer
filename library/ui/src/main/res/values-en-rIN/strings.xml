@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Play</string>
   <string name="exo_controls_stop_description">Stop</string>
   <string name="exo_controls_rewind_description">Rewind</string>
-  <string name="exo_controls_rewind_by_amount_description">Rewind %d seconds</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Rewind %d second</item>
+    <item quantity="other">Rewind %d seconds</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Fast-forward</string>
-  <string name="exo_controls_fastforward_by_amount_description">Fast forward %d seconds</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Fast-forward %d second</item>
+    <item quantity="other">Fast-forward %d seconds</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Repeat none</string>
   <string name="exo_controls_repeat_one_description">Repeat one</string>
   <string name="exo_controls_repeat_all_description">Repeat all</string>

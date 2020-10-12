@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">លេង</string>
   <string name="exo_controls_stop_description">ឈប់</string>
   <string name="exo_controls_rewind_description">ខា​ថយ​ក្រោយ</string>
-  <string name="exo_controls_rewind_by_amount_description">ខា​ថយក្រោយ %d វិនាទី</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">ខា​ថយក្រោយ %d វិនាទី</item>
+    <item quantity="other">ខា​ថយក្រោយ %d វិនាទី</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">ទៅ​មុខ​​​រហ័ស</string>
-  <string name="exo_controls_fastforward_by_amount_description">ខា​ទៅមុខ %d វិនាទី</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">ខា​ទៅមុខ %d វិនាទី</item>
+    <item quantity="other">ខា​ទៅមុខ %d វិនាទី</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">មិន​លេង​ឡើងវិញ</string>
   <string name="exo_controls_repeat_one_description">លេង​ឡើង​វិញ​ម្ដង</string>
   <string name="exo_controls_repeat_all_description">លេង​ឡើងវិញ​ទាំងអស់</string>

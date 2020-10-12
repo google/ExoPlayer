@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">დაკვრა</string>
   <string name="exo_controls_stop_description">შეწყვეტა</string>
   <string name="exo_controls_rewind_description">უკან გადახვევა</string>
-  <string name="exo_controls_rewind_by_amount_description">უკან გადახვევა %d წამით</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">უკან გადახვევა %d წამით</item>
+    <item quantity="other">უკან გადახვევა %d წამით</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">წინ გადახვევა</string>
-  <string name="exo_controls_fastforward_by_amount_description">წინ გადახვევა %d წამით</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">წინ გადახვევა %d წამით</item>
+    <item quantity="other">წინ გადახვევა %d წამით</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">არცერთის გამეორება</string>
   <string name="exo_controls_repeat_one_description">ერთის გამეორება</string>
   <string name="exo_controls_repeat_all_description">ყველას გამეორება</string>

@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Erreproduzitu</string>
   <string name="exo_controls_stop_description">Gelditu</string>
   <string name="exo_controls_rewind_description">Atzeratu</string>
-  <string name="exo_controls_rewind_by_amount_description">Atzeratu %d segundo</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Atzeratu %d segundo</item>
+    <item quantity="other">Atzeratu %d segundo</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Aurreratu</string>
-  <string name="exo_controls_fastforward_by_amount_description">Aurreratu %d segundo</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Aurreratu %d segundo</item>
+    <item quantity="other">Aurreratu %d segundo</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Ez errepikatu</string>
   <string name="exo_controls_repeat_one_description">Errepikatu bat</string>
   <string name="exo_controls_repeat_all_description">Errepikatu guztiak</string>

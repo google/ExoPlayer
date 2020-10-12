@@ -28,9 +28,19 @@
   <string name="exo_controls_play_description">Přehrát</string>
   <string name="exo_controls_stop_description">Zastavit</string>
   <string name="exo_controls_rewind_description">Přetočit zpět</string>
-  <string name="exo_controls_rewind_by_amount_description">Přetočit zpět o %d s</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Přetočit zpět o %d sekundu</item>
+    <item quantity="few">Přetočit zpět o %d sekundy</item>
+    <item quantity="many">Přetočit zpět o %d sekundy</item>
+    <item quantity="other">Přetočit zpět o %d sekund</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Rychle vpřed</string>
-  <string name="exo_controls_fastforward_by_amount_description">Posunout vpřed o %d s</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Posunout vpřed o %d sekundu</item>
+    <item quantity="few">Posunout vpřed o %d sekundy</item>
+    <item quantity="many">Posunout vpřed o %d sekundy</item>
+    <item quantity="other">Posunout vpřed o %d sekund</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Neopakovat</string>
   <string name="exo_controls_repeat_one_description">Opakovat jednu</string>
   <string name="exo_controls_repeat_all_description">Opakovat vše</string>
