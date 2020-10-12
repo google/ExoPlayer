@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
+import com.google.android.exoplayer2.testutil.TestPlayerRunHelper;
 import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
@@ -88,7 +88,7 @@ public class TsPlaybackTest {
     player.setMediaItem(MediaItem.fromUri("asset:///media/ts/" + inputFile));
     player.prepare();
     player.play();
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
     DumpFileAsserts.assertOutput(

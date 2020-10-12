@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
+import com.google.android.exoplayer2.testutil.TestPlayerRunHelper;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +54,7 @@ public class Mp4PlaybackTest {
     player.setMediaItem(MediaItem.fromUri("asset:///media/mp4/sample.mp4"));
     player.prepare();
     player.play();
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
     DumpFileAsserts.assertOutput(

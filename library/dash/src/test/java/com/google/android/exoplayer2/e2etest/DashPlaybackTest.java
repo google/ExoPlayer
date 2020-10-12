@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
+import com.google.android.exoplayer2.testutil.TestPlayerRunHelper;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public final class DashPlaybackTest {
     player.setMediaItem(MediaItem.fromUri("asset:///media/dash/webvtt-in-mp4/sample.mpd"));
     player.prepare();
     player.play();
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
     DumpFileAsserts.assertOutput(

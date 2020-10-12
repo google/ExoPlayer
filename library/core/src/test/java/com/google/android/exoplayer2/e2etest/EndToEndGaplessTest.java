@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.RandomizedMp3Decoder;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
+import com.google.android.exoplayer2.testutil.TestPlayerRunHelper;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
@@ -90,7 +90,7 @@ public class EndToEndGaplessTest {
             MediaItem.fromUri("asset:///media/mp3/test.mp3")));
     player.prepare();
     player.play();
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
 
     Format playerAudioFormat = player.getAudioFormat();
     assertThat(playerAudioFormat).isNotNull();
