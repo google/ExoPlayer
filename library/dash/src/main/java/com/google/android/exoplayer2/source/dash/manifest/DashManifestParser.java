@@ -1363,7 +1363,8 @@ public class DashManifestParser extends DefaultHandler
       // All other text types are raw formats.
       return containerMimeType;
     } else if (MimeTypes.APPLICATION_MP4.equals(containerMimeType)) {
-      return MimeTypes.getMediaMimeType(codecs);
+      @Nullable String mimeType = MimeTypes.getMediaMimeType(codecs);
+      return MimeTypes.TEXT_VTT.equals(mimeType) ? MimeTypes.APPLICATION_MP4VTT : mimeType;
     }
     return null;
   }

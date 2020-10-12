@@ -91,15 +91,11 @@ public interface SubtitleDecoderFactory {
 
         @Override
         public SubtitleDecoder createDecoder(Format format) {
-          @Nullable String sampleMimeType = format.sampleMimeType;
-          if (sampleMimeType != null) {
-            switch (sampleMimeType) {
+          @Nullable String mimeType = format.sampleMimeType;
+          if (mimeType != null) {
+            switch (mimeType) {
               case MimeTypes.TEXT_VTT:
-                if (MimeTypes.APPLICATION_MP4.equals(format.containerMimeType)) {
-                  return new Mp4WebvttDecoder();
-                } else {
-                  return new WebvttDecoder();
-                }
+                return new WebvttDecoder();
               case MimeTypes.TEXT_SSA:
                 return new SsaDecoder(format.initializationData);
               case MimeTypes.APPLICATION_MP4VTT:
@@ -113,7 +109,7 @@ public interface SubtitleDecoderFactory {
               case MimeTypes.APPLICATION_CEA608:
               case MimeTypes.APPLICATION_MP4CEA608:
                 return new Cea608Decoder(
-                    sampleMimeType,
+                    mimeType,
                     format.accessibilityChannel,
                     Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
               case MimeTypes.APPLICATION_CEA708:
@@ -127,7 +123,7 @@ public interface SubtitleDecoderFactory {
             }
           }
           throw new IllegalArgumentException(
-              "Attempted to create decoder for unsupported MIME type: " + sampleMimeType);
+              "Attempted to create decoder for unsupported MIME type: " + mimeType);
         }
       };
 }
