@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">प्‍ले करा</string>
   <string name="exo_controls_stop_description">थांबा</string>
   <string name="exo_controls_rewind_description">रीवाइंड करा</string>
-  <string name="exo_controls_rewind_by_amount_description">%d सेकंद रीवाइंड करा</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d सेकंद रिवाइंड करा</item>
+    <item quantity="other">%d सेकंद रिवाइंड करा</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">फास्ट फॉरवर्ड करा</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d सेकंद फास्ट फॉरवर्ड करा</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d सेकंद फास्ट फॉरवर्ड करा</item>
+    <item quantity="other">%d सेकंद फास्ट फॉरवर्ड करा</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">रीपीट करू नका</string>
   <string name="exo_controls_repeat_one_description">एक रीपीट करा</string>
   <string name="exo_controls_repeat_all_description">सर्व रीपीट करा</string>

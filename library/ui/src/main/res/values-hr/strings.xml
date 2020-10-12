@@ -28,9 +28,17 @@
   <string name="exo_controls_play_description">Reproduciraj</string>
   <string name="exo_controls_stop_description">Zaustavi</string>
   <string name="exo_controls_rewind_description">Unatrag</string>
-  <string name="exo_controls_rewind_by_amount_description">Premotavanje %d s unatrag</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Premotavanje unatrag za %d sekundu</item>
+    <item quantity="few">Premotavanje unatrag za %d sekunde</item>
+    <item quantity="other">Premotavanje unatrag za %d sekundi</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Brzo unaprijed</string>
-  <string name="exo_controls_fastforward_by_amount_description">Premotavanje %d s unaprijed</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Premotavanje unaprijed za %d sekundu</item>
+    <item quantity="few">Premotavanje unaprijed za %d sekunde</item>
+    <item quantity="other">Premotavanje unaprijed za %d sekundi</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Bez ponavljanja</string>
   <string name="exo_controls_repeat_one_description">Ponovi jedno</string>
   <string name="exo_controls_repeat_all_description">Ponovi sve</string>

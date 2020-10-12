@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Main</string>
   <string name="exo_controls_stop_description">Berhenti</string>
   <string name="exo_controls_rewind_description">Mandir</string>
-  <string name="exo_controls_rewind_by_amount_description">Mandir %d saat</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Mandir %d saat</item>
+    <item quantity="other">Mandir %d saat</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Mundar laju</string>
-  <string name="exo_controls_fastforward_by_amount_description">Mundar laju %d saat</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Mundar laju %d saat</item>
+    <item quantity="other">Mundar laju %d saat</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Jangan ulang</string>
   <string name="exo_controls_repeat_one_description">Ulang satu</string>
   <string name="exo_controls_repeat_all_description">Ulang semua</string>

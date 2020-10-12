@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Afspil</string>
   <string name="exo_controls_stop_description">Stop</string>
   <string name="exo_controls_rewind_description">Spol tilbage</string>
-  <string name="exo_controls_rewind_by_amount_description">Spol %d sekunder tilbage</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Spol %d sekund tilbage</item>
+    <item quantity="other">Spol %d sekunder tilbage</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Spol frem</string>
-  <string name="exo_controls_fastforward_by_amount_description">Spol %d sekunder frem</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Spol %d sekund frem</item>
+    <item quantity="other">Spol %d sekunder frem</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Gentag ingen</string>
   <string name="exo_controls_repeat_one_description">Gentag én</string>
   <string name="exo_controls_repeat_all_description">Gentag alle</string>

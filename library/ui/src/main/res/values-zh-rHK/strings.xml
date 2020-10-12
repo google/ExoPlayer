@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">播放</string>
   <string name="exo_controls_stop_description">停止</string>
   <string name="exo_controls_rewind_description">倒轉</string>
-  <string name="exo_controls_rewind_by_amount_description">倒帶 %d 秒</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">倒帶 %d 秒</item>
+    <item quantity="other">倒帶 %d 秒</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">向前快轉</string>
-  <string name="exo_controls_fastforward_by_amount_description">快轉 %d 秒</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">快轉 %d 秒</item>
+    <item quantity="other">快轉 %d 秒</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">不重複播放</string>
   <string name="exo_controls_repeat_one_description">重複播放單一項目</string>
   <string name="exo_controls_repeat_all_description">全部重複播放</string>

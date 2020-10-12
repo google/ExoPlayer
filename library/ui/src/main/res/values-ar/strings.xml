@@ -28,9 +28,23 @@
   <string name="exo_controls_play_description">تشغيل</string>
   <string name="exo_controls_stop_description">إيقاف</string>
   <string name="exo_controls_rewind_description">ترجيع</string>
-  <string name="exo_controls_rewind_by_amount_description">ترجيع الفيديو بمقدار %d ثانية</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="zero">ترجيع الفيديو بمقدار %d ثانية</item>
+    <item quantity="one">ترجيع الفيديو بمقدار ثانية واحدة (%d)</item>
+    <item quantity="two">ترجيع الفيديو بمقدار ثانيتَين (%d)</item>
+    <item quantity="few">ترجيع الفيديو بمقدار %d ثوانٍ</item>
+    <item quantity="many">ترجيع الفيديو بمقدار %d ثانية</item>
+    <item quantity="other">ترجيع الفيديو بمقدار %d ثانية</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">تقديم سريع</string>
-  <string name="exo_controls_fastforward_by_amount_description">تقديم سريع للفيديو بمقدار %d ثانية</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="zero">تقديم سريع للفيديو بمقدار %d ثانية</item>
+    <item quantity="one">تقديم سريع للفيديو بمقدار ثانية واحدة (%d)</item>
+    <item quantity="two">تقديم سريع للفيديو بمقدار ثانيتَين (%d)</item>
+    <item quantity="few">تقديم سريع للفيديو بمقدار %d ثوانٍ</item>
+    <item quantity="many">تقديم سريع للفيديو بمقدار %d ثانية</item>
+    <item quantity="other">تقديم سريع للفيديو بمقدار %d ثانية</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">عدم التكرار</string>
   <string name="exo_controls_repeat_one_description">تكرار مقطع صوتي واحد</string>
   <string name="exo_controls_repeat_all_description">تكرار الكل</string>

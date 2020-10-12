@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Ijro</string>
   <string name="exo_controls_stop_description">To‘xtatish</string>
   <string name="exo_controls_rewind_description">Orqaga qaytarish</string>
-  <string name="exo_controls_rewind_by_amount_description">%d soniya orqaga oʻtkazish</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d soniya orqaga</item>
+    <item quantity="other">%d soniya orqaga</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Oldinga o‘tkazish</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d soniya oldinga oʻtkazish</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d soniya oldinga</item>
+    <item quantity="other">%d soniya oldinga</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Takrorlanmasin</string>
   <string name="exo_controls_repeat_one_description">Bittasini takrorlash</string>
   <string name="exo_controls_repeat_all_description">Hammasini takrorlash</string>

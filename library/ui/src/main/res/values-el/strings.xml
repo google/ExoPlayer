@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Αναπαραγωγή</string>
   <string name="exo_controls_stop_description">Διακοπή</string>
   <string name="exo_controls_rewind_description">Επαναφορά</string>
-  <string name="exo_controls_rewind_by_amount_description">Μετάβαση προς τα πίσω κατά %d δ.</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Μετάβαση προς τα πίσω κατά %d δευτερόλεπτο</item>
+    <item quantity="other">Μετάβαση προς τα πίσω κατά %d δευτερόλεπτα</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Γρήγορη προώθηση</string>
-  <string name="exo_controls_fastforward_by_amount_description">Γρήγορη προώθηση κατά %d δευτερόλεπτα</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Γρήγορη προώθηση κατά %d δευτερόλεπτο</item>
+    <item quantity="other">Γρήγορη προώθηση κατά %d δευτερόλεπτα</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Καμία επανάληψη</string>
   <string name="exo_controls_repeat_one_description">Επανάληψη ενός κομματιού</string>
   <string name="exo_controls_repeat_all_description">Επανάληψη όλων</string>

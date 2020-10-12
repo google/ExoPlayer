@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">പ്ലേ ചെയ്യുക</string>
   <string name="exo_controls_stop_description">നിര്‍ത്തുക</string>
   <string name="exo_controls_rewind_description">പിന്നിലേക്ക് പോവുക</string>
-  <string name="exo_controls_rewind_by_amount_description">%d സെക്കൻഡ് പിന്നോട്ട് നീക്കുക</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d സെക്കൻഡ് പിന്നോട്ട് നീക്കുക</item>
+    <item quantity="other">%d സെക്കൻഡ് പിന്നോട്ട് നീക്കുക</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">വേഗത്തിൽ മുന്നോട്ട് പോവുക</string>
-  <string name="exo_controls_fastforward_by_amount_description">വേഗത്തിൽ %d സെക്കൻഡ് മുന്നോട്ട് നീക്കുക</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">വേഗത്തിൽ %d സെക്കൻഡ് മുന്നോട്ട് നീക്കുക</item>
+    <item quantity="other">വേഗത്തിൽ %d സെക്കൻഡ് മുന്നോട്ട് നീക്കുക</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">ഒന്നും ആവർത്തിക്കരുത്</string>
   <string name="exo_controls_repeat_one_description">ഒരെണ്ണം ആവർത്തിക്കുക</string>
   <string name="exo_controls_repeat_all_description">എല്ലാം ആവർത്തിക്കുക</string>

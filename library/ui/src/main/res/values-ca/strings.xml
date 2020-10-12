@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Reprodueix</string>
   <string name="exo_controls_stop_description">Atura</string>
   <string name="exo_controls_rewind_description">Rebobina</string>
-  <string name="exo_controls_rewind_by_amount_description">Rebobina %d segons</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Rebobina %d segon</item>
+    <item quantity="other">Rebobina %d segons</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Avança ràpidament</string>
-  <string name="exo_controls_fastforward_by_amount_description">Avança ràpidament %d segons</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Avança ràpidament %d segon</item>
+    <item quantity="other">Avança ràpidament %d segons</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">No en repeteixis cap</string>
   <string name="exo_controls_repeat_one_description">Repeteix una</string>
   <string name="exo_controls_repeat_all_description">Repeteix tot</string>

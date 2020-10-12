@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">प्ले गर्नुहोस्</string>
   <string name="exo_controls_stop_description">रोक्नुहोस्</string>
   <string name="exo_controls_rewind_description">रिवाइन्ड गर्नुहोस्</string>
-  <string name="exo_controls_rewind_by_amount_description">%d सेकेन्ड पछाडि जानुहोस्</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d सेकेन्ड रिवाइन्ड गर्नुहोस्</item>
+    <item quantity="other">%d सेकेन्ड रिवाइन्ड गर्नुहोस्</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">फास्ट फर्वार्ड गर्नुहोस्</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d सेकेन्ड अगाडि जानुहोस्</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d सेकेन्ड फास्ट फर्वार्ड गर्नुहोस्</item>
+    <item quantity="other">%d सेकेन्ड फास्ट फर्वार्ड गर्नुहोस्</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">कुनै पनि नदोहोर्‍याउनुहोस्</string>
   <string name="exo_controls_repeat_one_description">एउटा दोहोर्‍याउनुहोस्</string>
   <string name="exo_controls_repeat_all_description">सबै दोहोर्‍याउनुहोस्</string>

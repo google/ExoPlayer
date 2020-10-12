@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Riproduci</string>
   <string name="exo_controls_stop_description">Interrompi</string>
   <string name="exo_controls_rewind_description">Riavvolgi</string>
-  <string name="exo_controls_rewind_by_amount_description">Indietro di %d secondi</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Indietro di %d secondo</item>
+    <item quantity="other">Indietro di %d secondi</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Avanti veloce</string>
-  <string name="exo_controls_fastforward_by_amount_description">Avanti di %d secondi</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Avanti di %d secondo</item>
+    <item quantity="other">Avanti di %d secondi</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Non ripetere nulla</string>
   <string name="exo_controls_repeat_one_description">Ripeti uno</string>
   <string name="exo_controls_repeat_all_description">Ripeti tutto</string>

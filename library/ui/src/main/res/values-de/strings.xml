@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Wiedergeben</string>
   <string name="exo_controls_stop_description">Beenden</string>
   <string name="exo_controls_rewind_description">Zurückspulen</string>
-  <string name="exo_controls_rewind_by_amount_description">%d Sekunden zurückspulen</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d Sekunde zurückspulen</item>
+    <item quantity="other">%d Sekunden zurückspulen</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Vorspulen</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d Sekunden vorspulen</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d Sekunde vorspulen</item>
+    <item quantity="other">%d Sekunden vorspulen</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Keinen wiederholen</string>
   <string name="exo_controls_repeat_one_description">Einen wiederholen</string>
   <string name="exo_controls_repeat_all_description">Alle wiederholen</string>

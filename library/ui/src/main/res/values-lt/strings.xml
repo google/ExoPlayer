@@ -28,9 +28,19 @@
   <string name="exo_controls_play_description">Leisti</string>
   <string name="exo_controls_stop_description">Sustabdyti</string>
   <string name="exo_controls_rewind_description">Sukti atgal</string>
-  <string name="exo_controls_rewind_by_amount_description">Atsukti %d sek.</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Atsukti atgal %d sekundę</item>
+    <item quantity="few">Atsukti atgal %d sekundes</item>
+    <item quantity="many">Atsukti atgal %d sekundės</item>
+    <item quantity="other">Atsukti atgal %d sekundžių</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Sukti pirmyn</string>
-  <string name="exo_controls_fastforward_by_amount_description">Prasukti pirmyn %d sek.</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Prasukti pirmyn %d sekundę</item>
+    <item quantity="few">Prasukti pirmyn %d sekundes</item>
+    <item quantity="many">Prasukti pirmyn %d sekundės</item>
+    <item quantity="other">Prasukti pirmyn %d sekundžių</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Nekartoti nieko</string>
   <string name="exo_controls_repeat_one_description">Kartoti vieną</string>
   <string name="exo_controls_repeat_all_description">Kartoti viską</string>

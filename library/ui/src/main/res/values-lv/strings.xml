@@ -28,9 +28,17 @@
   <string name="exo_controls_play_description">Atskaņot</string>
   <string name="exo_controls_stop_description">Apturēt</string>
   <string name="exo_controls_rewind_description">Attīt atpakaļ</string>
-  <string name="exo_controls_rewind_by_amount_description">Attīt atpakaļ par %d sekundēm</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="zero">Attīt atpakaļ par %d sekundēm</item>
+    <item quantity="one">Attīt atpakaļ par %d sekundi</item>
+    <item quantity="other">Attīt atpakaļ par %d sekundēm</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Pārtīt uz priekšu</string>
-  <string name="exo_controls_fastforward_by_amount_description">Pārtīt %d sekundes uz priekšu</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="zero">Pārtīt uz priekšu par %d sekundēm</item>
+    <item quantity="one">Pārtīt uz priekšu par %d sekundi</item>
+    <item quantity="other">Pārtīt uz priekšu par %d sekundēm</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Neatkārtot nevienu</string>
   <string name="exo_controls_repeat_one_description">Atkārtot vienu</string>
   <string name="exo_controls_repeat_all_description">Atkārtot visu</string>

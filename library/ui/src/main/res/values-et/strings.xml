@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Esita</string>
   <string name="exo_controls_stop_description">Lõpeta</string>
   <string name="exo_controls_rewind_description">Keri tagasi</string>
-  <string name="exo_controls_rewind_by_amount_description">Keri %d sekundit tagasi</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Keri %d sekund tagasi</item>
+    <item quantity="other">Keri %d sekundit tagasi</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Keri edasi</string>
-  <string name="exo_controls_fastforward_by_amount_description">Keri %d sekundit edasi</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Keri %d sekund edasi</item>
+    <item quantity="other">Keri %d sekundit edasi</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Ära korda ühtegi</string>
   <string name="exo_controls_repeat_one_description">Korda ühte</string>
   <string name="exo_controls_repeat_all_description">Korda kõiki</string>

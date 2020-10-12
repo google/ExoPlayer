@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">ચલાવો</string>
   <string name="exo_controls_stop_description">રોકો</string>
   <string name="exo_controls_rewind_description">રિવાઇન્ડ કરો</string>
-  <string name="exo_controls_rewind_by_amount_description">%d સેકન્ડ રિવાઇન્ડ કરો</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d સેકન્ડ રિવાઇન્ડ કરો</item>
+    <item quantity="other">%d સેકન્ડ રિવાઇન્ડ કરો</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">ફાસ્ટ ફૉરવર્ડ કરો</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</item>
+    <item quantity="other">%d સેકન્ડ ફાસ્ટ ફૉરવર્ડ કરો</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">કોઈ રિપીટ કરતા નહીં</string>
   <string name="exo_controls_repeat_one_description">એક રિપીટ કરો</string>
   <string name="exo_controls_repeat_all_description">બધાને રિપીટ કરો</string>

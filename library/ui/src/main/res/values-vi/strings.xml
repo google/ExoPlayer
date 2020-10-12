@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Phát</string>
   <string name="exo_controls_stop_description">Dừng</string>
   <string name="exo_controls_rewind_description">Tua lại</string>
-  <string name="exo_controls_rewind_by_amount_description">Tua lại %d giây</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Tua lại %d giây</item>
+    <item quantity="other">Tua lại %d giây</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Tua đi</string>
-  <string name="exo_controls_fastforward_by_amount_description">Tua nhanh %d giây</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Tua nhanh %d giây</item>
+    <item quantity="other">Tua nhanh %d giây</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Không lặp lại</string>
   <string name="exo_controls_repeat_one_description">Lặp lại một</string>
   <string name="exo_controls_repeat_all_description">Lặp lại tất cả</string>

@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Çal</string>
   <string name="exo_controls_stop_description">Durdur</string>
   <string name="exo_controls_rewind_description">Geri sar</string>
-  <string name="exo_controls_rewind_by_amount_description">%d saniye geri sar</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d saniye geri sar</item>
+    <item quantity="other">%d saniye geri sar</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">İleri sar</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d saniye ileri sar</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d saniye ileri sar</item>
+    <item quantity="other">%d saniye ileri sar</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Hiçbirini tekrarlama</string>
   <string name="exo_controls_repeat_one_description">Birini tekrarla</string>
   <string name="exo_controls_repeat_all_description">Tümünü tekrarla</string>

@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">ప్లే చేయండి</string>
   <string name="exo_controls_stop_description">ఆపండి</string>
   <string name="exo_controls_rewind_description">రివైండ్ చేయండి</string>
-  <string name="exo_controls_rewind_by_amount_description">%d సెకన్లు రివైండ్ చేయండి</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d సెకండ్ రివైండ్ చేయండి</item>
+    <item quantity="other">%d సెకన్లు రివైండ్ చేయండి</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">వేగంగా ఫార్వార్డ్ చేయండి</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d సెకన్లు వేగంగా ఫార్వర్డ్ చేయండి</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d సెకండ్ వేగంగా ఫార్వర్డ్ చేయండి</item>
+    <item quantity="other">%d సెకన్లు వేగంగా ఫార్వర్డ్ చేయండి</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">దేన్నీ పునరావృతం చేయకండి</string>
   <string name="exo_controls_repeat_one_description">ఒకదాన్ని పునరావృతం చేయండి</string>
   <string name="exo_controls_repeat_all_description">అన్నింటినీ పునరావృతం చేయండి</string>
