@@ -73,6 +73,8 @@
 
     *   Show overflow button in `StyledPlayerControlView` only when there is no
         enough space.
+*   UI:
+    *   Fix animation when `StyledPlayerView` first shows its playback controls.
 
 ### 2.12.0 (2020-09-11) ###
 
