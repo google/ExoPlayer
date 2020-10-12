@@ -459,6 +459,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   @SuppressWarnings({
     "nullness:argument.type.incompatible",
+    "nullness:assignment.type.incompatible",
     "nullness:method.invocation.invalid",
     "nullness:methodref.receiver.bound.invalid"
   })
@@ -526,8 +527,11 @@ public class StyledPlayerControlView extends FrameLayout {
         a.recycle();
       }
     }
-    controlViewLayoutManager = new StyledPlayerControlViewLayoutManager();
-    controlViewLayoutManager.setAnimationEnabled(animationEnabled);
+
+    LayoutInflater.from(context).inflate(controllerLayoutId, /* root= */ this);
+    setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+
+    componentListener = new ComponentListener();
     visibilityListeners = new CopyOnWriteArrayList<>();
     period = new Timeline.Period();
     window = new Timeline.Window();
@@ -537,12 +541,8 @@ public class StyledPlayerControlView extends FrameLayout {
     playedAdGroups = new boolean[0];
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
-    componentListener = new ComponentListener();
     controlDispatcher = new DefaultControlDispatcher(fastForwardMs, rewindMs);
     updateProgressAction = this::updateProgress;
-
-    LayoutInflater.from(context).inflate(controllerLayoutId, /* root= */ this);
-    setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
     // Relating to Bottom Bar Left View
     durationView = findViewById(R.id.exo_duration);
@@ -581,10 +581,10 @@ public class StyledPlayerControlView extends FrameLayout {
     } else {
       timeBar = null;
     }
-
     if (timeBar != null) {
       timeBar.addListener(componentListener);
     }
+
     playPauseButton = findViewById(R.id.exo_play_pause);
     if (playPauseButton != null) {
       playPauseButton.setOnClickListener(componentListener);
@@ -626,7 +626,6 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     resources = context.getResources();
-
     buttonAlphaEnabled =
         (float) resources.getInteger(R.integer.exo_media_button_opacity_percentage_enabled) / 100;
     buttonAlphaDisabled =
@@ -634,9 +633,11 @@ public class StyledPlayerControlView extends FrameLayout {
 
     vrButton = findViewById(R.id.exo_vr);
     if (vrButton != null) {
-      setShowVrButton(showVrButton);
       updateButton(/* enabled= */ false, vrButton);
     }
+
+    controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
+    controlViewLayoutManager.setAnimationEnabled(animationEnabled);
 
     // Related to Settings List View
     String[] settingTexts = new String[2];
@@ -1069,6 +1070,11 @@ public class StyledPlayerControlView extends FrameLayout {
   /** Hides the controller. */
   public void hide() {
     controlViewLayoutManager.hide();
+  }
+
+  /** Hides the controller without any animation. */
+  public void hideImmediately() {
+    controlViewLayoutManager.hideImmediately();
   }
 
   /** Returns whether the controller is fully visible, which means all UI controls are visible. */
@@ -1607,7 +1613,7 @@ public class StyledPlayerControlView extends FrameLayout {
   @Override
   public void onAttachedToWindow() {
     super.onAttachedToWindow();
-    controlViewLayoutManager.onViewAttached(this);
+    controlViewLayoutManager.onAttachedToWindow();
     isAttachedToWindow = true;
     if (isFullyVisible()) {
       controlViewLayoutManager.resetHideCallbacks();
@@ -1618,7 +1624,7 @@ public class StyledPlayerControlView extends FrameLayout {
   @Override
   public void onDetachedFromWindow() {
     super.onDetachedFromWindow();
-    controlViewLayoutManager.onViewDetached(this);
+    controlViewLayoutManager.onDetachedFromWindow();
     isAttachedToWindow = false;
     removeCallbacks(updateProgressAction);
     controlViewLayoutManager.removeHideCallbacks();

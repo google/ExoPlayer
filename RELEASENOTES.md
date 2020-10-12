@@ -25,6 +25,7 @@
         easy tapping.
     *   Show overflow button in `StyledPlayerControlView` only when there is no
         enough space.
+    *   Fix animation when `StyledPlayerView` first shows its playback controls.
 *   Audio:
     *   Fix the default audio sink position not advancing correctly when using
         `AudioTrack`-based speed adjustment

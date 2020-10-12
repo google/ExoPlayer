@@ -511,11 +511,11 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     this.controllerAutoShow = controllerAutoShow;
     this.controllerHideDuringAds = controllerHideDuringAds;
     this.useController = useController && controller != null;
-    hideController();
-    updateContentDescription();
     if (controller != null) {
+      controller.hideImmediately();
       controller.addVisibilityListener(/* listener= */ componentListener);
     }
+    updateContentDescription();
   }
 
   /**
