@@ -47,6 +47,9 @@ import java.util.List;
  * time at the time of the event.
  *
  * <p>All methods have no-op default implementations to allow selective overrides.
+ *
+ * <p>NOTE: implementations must not alter playback state during the processing of the event, for
+ * example in {@link #onPlayerError(EventTime, ExoPlaybackException)}, instead implement {@link Player.EventListener}
  */
 public interface AnalyticsListener {
 
