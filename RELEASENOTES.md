@@ -55,6 +55,8 @@
         ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
     *   Ignore negative payload size in PES packets
         ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
+    *   Make FLV files seekable by using the key frame index
+        ([#7378](https://github.com/google/ExoPlayer/issues/7378)).
 *   HLS:
     *   Fix crash affecting chunkful preparation of master playlists that start
         with an I-FRAME only variant

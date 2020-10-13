@@ -70,7 +70,7 @@ import com.google.android.exoplayer2.util.Util;
     int targetIndex =
         Util.binarySearchFloor(timesUs, timeUs, /* inclusive= */ true, /* stayInBounds= */ true);
     SeekPoint seekPoint = new SeekPoint(timesUs.get(targetIndex), positions.get(targetIndex));
-    if (seekPoint.timeUs >= timeUs || targetIndex == timesUs.size() - 1) {
+    if (seekPoint.timeUs == timeUs || targetIndex == timesUs.size() - 1) {
       return new SeekPoints(seekPoint);
     } else {
       SeekPoint nextSeekPoint =

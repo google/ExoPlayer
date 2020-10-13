@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.IndexSeekMap;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.util.Assertions;
@@ -135,8 +136,12 @@ public final class FlvExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    state = STATE_READING_FLV_HEADER;
-    outputFirstSample = false;
+    if (position == 0) {
+      state = STATE_READING_FLV_HEADER;
+      outputFirstSample = false;
+    } else {
+      state = STATE_READING_TAG_HEADER;
+    }
     bytesToNextTagHeader = 0;
   }
 
@@ -267,7 +272,11 @@ public final class FlvExtractor implements Extractor {
       wasSampleOutput = metadataReader.consume(prepareTagData(input), timestampUs);
       long durationUs = metadataReader.getDurationUs();
       if (durationUs != C.TIME_UNSET) {
-        extractorOutput.seekMap(new SeekMap.Unseekable(durationUs));
+        extractorOutput.seekMap(
+            new IndexSeekMap(
+                metadataReader.getKeyFrameTagPositions(),
+                metadataReader.getKeyFrameTimesUs(),
+                durationUs));
         outputSeekMap = true;
       }
     } else {
