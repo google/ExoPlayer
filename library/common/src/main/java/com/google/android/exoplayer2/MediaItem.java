@@ -669,6 +669,10 @@ public final class MediaItem {
     @Nullable public final String language;
     /** The selection flags. */
     @C.SelectionFlags public final int selectionFlags;
+    /** The role flags. */
+    @C.RoleFlags public final int roleFlags;
+    /** The label. */
+    @Nullable public final String label;
 
     /**
      * Creates an instance.
@@ -682,7 +686,7 @@ public final class MediaItem {
     }
 
     /**
-     * Creates an instance with the given selection flags.
+     * Creates an instance.
      *
      * @param uri The {@link Uri URI} to the subtitle file.
      * @param mimeType The MIME type.
@@ -691,10 +695,32 @@ public final class MediaItem {
      */
     public Subtitle(
         Uri uri, String mimeType, @Nullable String language, @C.SelectionFlags int selectionFlags) {
+      this(uri, mimeType, language, selectionFlags, /* roleFlags= */ 0, /* label= */ null);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param uri The {@link Uri URI} to the subtitle file.
+     * @param mimeType The MIME type.
+     * @param language The optional language.
+     * @param selectionFlags The selection flags.
+     * @param roleFlags The role flags.
+     * @param label The optional label.
+     */
+    public Subtitle(
+        Uri uri,
+        String mimeType,
+        @Nullable String language,
+        @C.SelectionFlags int selectionFlags,
+        @C.RoleFlags int roleFlags,
+        @Nullable String label) {
       this.uri = uri;
       this.mimeType = mimeType;
       this.language = language;
       this.selectionFlags = selectionFlags;
+      this.roleFlags = roleFlags;
+      this.label = label;
     }
 
     @Override
@@ -711,7 +737,9 @@ public final class MediaItem {
       return uri.equals(other.uri)
           && mimeType.equals(other.mimeType)
           && Util.areEqual(language, other.language)
-          && selectionFlags == other.selectionFlags;
+          && selectionFlags == other.selectionFlags
+          && roleFlags == other.roleFlags
+          && Util.areEqual(label, other.label);
     }
 
     @Override
@@ -720,6 +748,8 @@ public final class MediaItem {
       result = 31 * result + mimeType.hashCode();
       result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + selectionFlags;
+      result = 31 * result + roleFlags;
+      result = 31 * result + (label == null ? 0 : label.hashCode());
       return result;
     }
   }
