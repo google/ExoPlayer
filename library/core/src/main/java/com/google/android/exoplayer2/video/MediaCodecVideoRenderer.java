@@ -60,7 +60,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
@@ -104,24 +103,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   /** Magic frame render timestamp that indicates the EOS in tunneling mode. */
   private static final long TUNNELING_EOS_PRESENTATION_TIME_US = Long.MAX_VALUE;
 
-  // TODO: Remove reflection once we target API level 30.
-  @Nullable private static final Method surfaceSetFrameRateMethod;
-
-  static {
-    @Nullable Method setFrameRateMethod = null;
-    if (Util.SDK_INT >= 30) {
-      try {
-        setFrameRateMethod = Surface.class.getMethod("setFrameRate", float.class, int.class);
-      } catch (NoSuchMethodException e) {
-        // Do nothing.
-      }
-    }
-    surfaceSetFrameRateMethod = setFrameRateMethod;
-  }
-  // TODO: Remove these constants and use those defined by Surface once we target API level 30.
-  private static final int SURFACE_FRAME_RATE_COMPATIBILITY_DEFAULT = 0;
-  private static final int SURFACE_FRAME_RATE_COMPATIBILITY_FIXED_SOURCE = 1;
-
   private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
 
@@ -136,9 +117,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean codecNeedsSetOutputSurfaceWorkaround;
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
 
-  private Surface surface;
+  @Nullable private Surface surface;
   private float surfaceFrameRate;
-  private Surface dummySurface;
+  @Nullable private Surface dummySurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   @VideoScalingMode private int scalingMode;
   private boolean renderedFirstFrameAfterReset;
@@ -1116,19 +1097,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @RequiresApi(30)
-  private void setSurfaceFrameRateV30(Surface surface, float frameRate) {
-    if (surfaceSetFrameRateMethod == null) {
-      Log.e(TAG, "Failed to call Surface.setFrameRate (method does not exist)");
-    }
+  private static void setSurfaceFrameRateV30(Surface surface, float frameRate) {
     int compatibility =
         frameRate == 0
-            ? SURFACE_FRAME_RATE_COMPATIBILITY_DEFAULT
-            : SURFACE_FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
-    try {
-      surfaceSetFrameRateMethod.invoke(surface, frameRate, compatibility);
-    } catch (Exception e) {
-      Log.e(TAG, "Failed to call Surface.setFrameRate", e);
-    }
+            ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
+            : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
+    surface.setFrameRate(frameRate, compatibility);
   }
 
   private boolean shouldUseDummySurface(MediaCodecInfo codecInfo) {
