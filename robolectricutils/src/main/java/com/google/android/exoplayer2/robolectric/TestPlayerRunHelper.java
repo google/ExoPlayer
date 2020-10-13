@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.testutil;
+package com.google.android.exoplayer2.robolectric;
 
-import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
+import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -48,7 +48,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @param expectedState The expected {@link Player.State}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void runUntilPlaybackState(Player player, @Player.State int expectedState)
@@ -78,7 +78,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @param expectedPlayWhenReady The expected value for {@link Player#getPlayWhenReady()}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void runUntilPlayWhenReady(Player player, boolean expectedPlayWhenReady)
@@ -108,7 +108,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @param expectedTimeline The expected {@link Timeline}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void runUntilTimelineChanged(Player player, Timeline expectedTimeline)
@@ -137,7 +137,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @return The new {@link Timeline}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static Timeline runUntilTimelineChanged(Player player) throws TimeoutException {
@@ -163,7 +163,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @param expectedReason The expected {@link Player.DiscontinuityReason}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void runUntilPositionDiscontinuity(
@@ -189,7 +189,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @return The raised {@link ExoPlaybackException}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static ExoPlaybackException runUntilError(Player player) throws TimeoutException {
@@ -214,7 +214,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @return The new offloadSchedulingEnabled state.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static boolean runUntilReceiveOffloadSchedulingEnabledNewState(Player player)
@@ -241,7 +241,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @param expectedSleepForOffload The expected sleep of offload state.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void runUntilSleepingForOffload(Player player, boolean expectedSleepForOffload)
@@ -266,7 +266,7 @@ public class TestPlayerRunHelper {
    * callback has been called.
    *
    * @param player The {@link Player}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void runUntilRenderedFirstFrame(SimpleExoPlayer player) throws TimeoutException {
@@ -291,7 +291,7 @@ public class TestPlayerRunHelper {
    * @param player The {@link Player}.
    * @param windowIndex The window.
    * @param positionMs The position within the window, in milliseconds.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void playUntilPosition(ExoPlayer player, int windowIndex, long positionMs)
@@ -329,7 +329,7 @@ public class TestPlayerRunHelper {
    *
    * @param player The {@link Player}.
    * @param windowIndex The window.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void playUntilStartOfWindow(ExoPlayer player, int windowIndex)
@@ -342,7 +342,7 @@ public class TestPlayerRunHelper {
    * commands on the internal playback thread.
    *
    * @param player The {@link Player}.
-   * @throws TimeoutException If the {@link TestUtil#DEFAULT_TIMEOUT_MS default timeout} is
+   * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
   public static void runUntilPendingCommandsAreFullyHandled(ExoPlayer player)
