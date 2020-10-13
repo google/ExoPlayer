@@ -125,6 +125,7 @@ public class DashManifestParser extends DefaultHandler
     ProgramInformation programInformation = null;
     UtcTimingElement utcTiming = null;
     Uri location = null;
+    ServiceDescriptionElement serviceDescription = null;
     long baseUrlAvailabilityTimeOffsetUs = dynamic ? 0 : C.TIME_UNSET;
 
     List<Period> periods = new ArrayList<>();
@@ -146,6 +147,8 @@ public class DashManifestParser extends DefaultHandler
         utcTiming = parseUtcTiming(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Location")) {
         location = Uri.parse(xpp.nextText());
+      } else if (XmlPullParserUtil.isStartTag(xpp, "ServiceDescription")) {
+        serviceDescription = parseServiceDescription(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Period") && !seenEarlyAccessPeriod) {
         Pair<Period, Long> periodWithDurationMs =
             parsePeriod(
@@ -199,6 +202,7 @@ public class DashManifestParser extends DefaultHandler
         publishTimeMs,
         programInformation,
         utcTiming,
+        serviceDescription,
         location,
         periods);
   }
@@ -214,6 +218,7 @@ public class DashManifestParser extends DefaultHandler
       long publishTimeMs,
       @Nullable ProgramInformation programInformation,
       @Nullable UtcTimingElement utcTiming,
+      @Nullable ServiceDescriptionElement serviceDescription,
       @Nullable Uri location,
       List<Period> periods) {
     return new DashManifest(
@@ -227,6 +232,7 @@ public class DashManifestParser extends DefaultHandler
         publishTimeMs,
         programInformation,
         utcTiming,
+        serviceDescription,
         location,
         periods);
   }
@@ -239,6 +245,23 @@ public class DashManifestParser extends DefaultHandler
 
   protected UtcTimingElement buildUtcTimingElement(String schemeIdUri, String value) {
     return new UtcTimingElement(schemeIdUri, value);
+  }
+
+  protected ServiceDescriptionElement parseServiceDescription(XmlPullParser xpp)
+      throws XmlPullParserException, IOException {
+    long targetOffsetMs = C.TIME_UNSET;
+    float minPlaybackSpeed = C.RATE_UNSET;
+    float maxPlaybackSpeed = C.RATE_UNSET;
+    do {
+      xpp.next();
+      if (XmlPullParserUtil.isStartTag(xpp, "Latency")) {
+        targetOffsetMs = parseLong(xpp, "target", C.TIME_UNSET);
+      } else if (XmlPullParserUtil.isStartTag(xpp, "PlaybackRate")) {
+        minPlaybackSpeed = parseFloat(xpp, "min", C.RATE_UNSET);
+        maxPlaybackSpeed = parseFloat(xpp, "max", C.RATE_UNSET);
+      }
+    } while (!XmlPullParserUtil.isEndTag(xpp, "ServiceDescription"));
+    return new ServiceDescriptionElement(targetOffsetMs, minPlaybackSpeed, maxPlaybackSpeed);
   }
 
   protected Pair<Period, Long> parsePeriod(
@@ -1713,6 +1736,11 @@ public class DashManifestParser extends DefaultHandler
   protected static long parseLong(XmlPullParser xpp, String name, long defaultValue) {
     String value = xpp.getAttributeValue(null, name);
     return value == null ? defaultValue : Long.parseLong(value);
+  }
+
+  protected static float parseFloat(XmlPullParser xpp, String name, float defaultValue) {
+    String value = xpp.getAttributeValue(null, name);
+    return value == null ? defaultValue : Float.parseFloat(value);
   }
 
   protected static String parseString(XmlPullParser xpp, String name, String defaultValue) {

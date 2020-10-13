@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD type="static" duration="1s" mediaPresentationDuration="PT1S">
+ <ServiceDescription>
+  <Latency target="20000"/>
+ </ServiceDescription>
+ <Period>
+  <AdaptationSet id="0" mimeType="audio/mp4" subsegmentAlignment="true">
+   <Representation id="0" codecs="mp4a.40.2" audioSamplingRate="48000" bandwidth="144000">
+    <BaseURL>https://test.com/0</BaseURL>
+   </Representation>
+  </AdaptationSet>
+ </Period>
+</MPD>
