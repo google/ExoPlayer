@@ -3,6 +3,8 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
+    *   `LoadControl`:
+        *   Add a `targetLiveOffsetUs` parameter to `shouldStartPlayback`.
     *   Fix bug where streams with highly uneven durations may get stuck in a
         buffering state
         ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
@@ -12,8 +14,8 @@
         ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
     *   Add a getter and callback for static metadata to the player
         ([#7266](https://github.com/google/ExoPlayer/issues/7266)).
-    *   Time out on release to prevent ANRs if the underlying platform call
-        is stuck ([#4352](https://github.com/google/ExoPlayer/issues/4352)).
+    *   Time out on release to prevent ANRs if the underlying platform call is
+        stuck ([#4352](https://github.com/google/ExoPlayer/issues/4352)).
     *   Time out when detaching a surface to prevent ANRs if the underlying
         platform call is stuck
         ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
@@ -48,8 +50,8 @@
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
     *   Fix regression for Ogg files with packets that span multiple pages
         ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
-    *   Add TS extractor parameter to configure the number of bytes in which
-        to search for a timestamp to determine the duration and to seek.
+    *   Add TS extractor parameter to configure the number of bytes in which to
+        search for a timestamp to determine the duration and to seek.
         ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
     *   Ignore negative payload size in PES packets
         ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
@@ -64,9 +66,9 @@
     *   Allow apps to specify a `VideoAdPlayerCallback`
         ([#7944](https://github.com/google/ExoPlayer/issues/7944)).
     *   Accept ad tags via the `AdsMediaSource` constructor and deprecate
-        passing them via the `ImaAdsLoader` constructor/builders. Passing the
-        ad tag via media item playback properties continues to be supported.
-        This is in preparation for supporting ads in playlists
+        passing them via the `ImaAdsLoader` constructor/builders. Passing the ad
+        tag via media item playback properties continues to be supported. This
+        is in preparation for supporting ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
 
 *   UI:

@@ -25,9 +25,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
  */
 public interface LoadControl {
 
-  /**
-   * Called by the player when prepared with a new source.
-   */
+  /** Called by the player when prepared with a new source. */
   void onPrepared();
 
   /**
@@ -113,7 +111,11 @@ public interface LoadControl {
    * @param rebuffering Whether the player is rebuffering. A rebuffer is defined to be caused by
    *     buffer depletion rather than a user action. Hence this parameter is false during initial
    *     buffering and when buffering as a result of a seek operation.
+   * @param targetLiveOffsetUs The desired playback position offset to the live edge in
+   *     microseconds, or {@link C#TIME_UNSET} if the media is not a live stream or no offset is
+   *     configured.
    * @return Whether playback should be allowed to start or resume.
    */
-  boolean shouldStartPlayback(long bufferedDurationUs, float playbackSpeed, boolean rebuffering);
+  boolean shouldStartPlayback(
+      long bufferedDurationUs, float playbackSpeed, boolean rebuffering, long targetLiveOffsetUs);
 }

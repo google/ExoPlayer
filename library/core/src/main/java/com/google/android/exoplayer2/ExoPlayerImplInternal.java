@@ -1647,10 +1647,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     // Renderers are ready and we're loading. Ask the LoadControl whether to transition.
     MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
+    int windowIndex =
+        playbackInfo.timeline.getPeriodByUid(queue.getPlayingPeriod().uid, period).windowIndex;
+    playbackInfo.timeline.getWindow(windowIndex, window);
+    long targetLiveOffsetUs =
+        window.isLive && window.isDynamic
+            ? livePlaybackSpeedControl.getTargetLiveOffsetUs()
+            : C.TIME_UNSET;
     boolean bufferedToEnd = loadingHolder.isFullyBuffered() && loadingHolder.info.isFinal;
     return bufferedToEnd
         || loadControl.shouldStartPlayback(
-            getTotalBufferedDurationUs(), mediaClock.getPlaybackParameters().speed, rebuffering);
+            getTotalBufferedDurationUs(),
+            mediaClock.getPlaybackParameters().speed,
+            rebuffering,
+            targetLiveOffsetUs);
   }
 
   private boolean isTimelineReady() {

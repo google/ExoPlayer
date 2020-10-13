@@ -4605,7 +4605,10 @@ public final class ExoPlayerTest {
 
           @Override
           public boolean shouldStartPlayback(
-              long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+              long bufferedDurationUs,
+              float playbackSpeed,
+              boolean rebuffering,
+              long targetLiveOffsetUs) {
             return true;
           }
         };
@@ -4649,7 +4652,10 @@ public final class ExoPlayerTest {
 
           @Override
           public boolean shouldStartPlayback(
-              long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+              long bufferedDurationUs,
+              float playbackSpeed,
+              boolean rebuffering,
+              long targetLiveOffsetUs) {
             return true;
           }
         };
@@ -4724,7 +4730,10 @@ public final class ExoPlayerTest {
 
           @Override
           public boolean shouldStartPlayback(
-              long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+              long bufferedDurationUs,
+              float playbackSpeed,
+              boolean rebuffering,
+              long targetLiveOffsetUs) {
             return false;
           }
         };
