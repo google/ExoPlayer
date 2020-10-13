@@ -300,8 +300,11 @@ public class EventLogger implements AnalyticsListener {
   public void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {
     logd("staticMetadata [" + getEventTimeString(eventTime));
     for (int i = 0; i < metadataList.size(); i++) {
-      logd("  " + i);
-      printMetadata(metadataList.get(i), "    ");
+      @Nullable Metadata currentMetadata = metadataList.get(i);
+      if (currentMetadata != null && currentMetadata.length() != 0) {
+        logd("  " + i);
+        printMetadata(currentMetadata, "    ");
+      }
     }
     logd("]");
   }

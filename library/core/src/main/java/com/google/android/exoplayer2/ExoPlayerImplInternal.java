@@ -2121,15 +2121,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private ImmutableList<Metadata> extractMetadataFromTrackSelectionArray(
       TrackSelectionArray trackSelectionArray) {
-    ImmutableList.Builder<Metadata> builder = new ImmutableList.Builder<>();
+    ImmutableList.Builder<Metadata> result = new ImmutableList.Builder<>();
     for (int i = 0; i < trackSelectionArray.length; i++) {
       @Nullable TrackSelection trackSelection = trackSelectionArray.get(i);
       if (trackSelection != null) {
-        Format format = trackSelection.getFormat(0);
-        builder.add(format.metadata == null ? new Metadata() : format.metadata);
+        Format format = trackSelection.getFormat(/* index= */ 0);
+        result.add(format.metadata == null ? new Metadata() : format.metadata);
       }
     }
-    return builder.build();
+    return result.build();
   }
 
   private void enableRenderers() throws ExoPlaybackException {
