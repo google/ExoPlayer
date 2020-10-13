@@ -173,7 +173,14 @@ public class MediaItemTest {
                 Uri.parse(URI_STRING + "/de"),
                 MimeTypes.APPLICATION_TTML,
                 /* language= */ null,
-                C.SELECTION_FLAG_DEFAULT));
+                C.SELECTION_FLAG_DEFAULT),
+            new MediaItem.Subtitle(
+                Uri.parse(URI_STRING + "/fr"),
+                MimeTypes.APPLICATION_SUBRIP,
+                /* language= */ "fr",
+                C.SELECTION_FLAG_DEFAULT,
+                C.ROLE_FLAG_ALTERNATE,
+                "label"));
 
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setSubtitles(subtitles).build();
@@ -336,15 +343,18 @@ public class MediaItemTest {
             .setMimeType(MimeTypes.APPLICATION_MP4)
             .setUri(URI_STRING)
             .setStreamKeys(Collections.singletonList(new StreamKey(1, 0, 0)))
+            .setLiveTargetOffsetMs(20_000)
+            .setLiveMinPlaybackSpeed(.9f)
+            .setLiveMaxPlaybackSpeed(1.1f)
             .setSubtitles(
                 Collections.singletonList(
                     new MediaItem.Subtitle(
                         Uri.parse(URI_STRING + "/en"),
                         MimeTypes.APPLICATION_TTML,
-                        /* language= */ "en")))
-            .setLiveTargetOffsetMs(20_000)
-            .setLiveMinPlaybackSpeed(.9f)
-            .setLiveMaxPlaybackSpeed(1.1f)
+                        /* language= */ "en",
+                        C.SELECTION_FLAG_FORCED,
+                        C.ROLE_FLAG_ALTERNATE,
+                        "label")))
             .setTag(new Object())
             .build();
 

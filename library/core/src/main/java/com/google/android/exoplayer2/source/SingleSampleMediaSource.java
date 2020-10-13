@@ -281,6 +281,8 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
             .setSampleMimeType(subtitle.mimeType)
             .setLanguage(subtitle.language)
             .setSelectionFlags(subtitle.selectionFlags)
+            .setRoleFlags(subtitle.roleFlags)
+            .setLabel(subtitle.label)
             .build();
     dataSpec =
         new DataSpec.Builder().setUri(subtitle.uri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
