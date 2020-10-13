@@ -114,6 +114,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Renderer.VideoScalingMode private int videoScalingMode;
     private boolean useLazyPreparation;
     private SeekParameters seekParameters;
+    private LivePlaybackSpeedControl livePlaybackSpeedControl;
     private long releaseTimeoutMs;
     private long detachSurfaceTimeoutMs;
     private boolean pauseAtEndOfMediaItems;
@@ -137,6 +138,7 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@link MediaSourceFactory}: {@link DefaultMediaSourceFactory}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
      *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
+     *   <li>{@link LivePlaybackSpeedControl}: {@link DefaultLivePlaybackSpeedControl}
      *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
      *       Looper} of the application's main thread if the current thread doesn't have a {@link
      *       Looper}
@@ -246,6 +248,7 @@ public class SimpleExoPlayer extends BasePlayer
       videoScalingMode = Renderer.VIDEO_SCALING_MODE_DEFAULT;
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
+      livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
       clock = Clock.DEFAULT;
       throwWhenStuckBuffering = true;
       releaseTimeoutMs = ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
@@ -519,14 +522,30 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
+     * Sets the {@link LivePlaybackSpeedControl} that will control the playback speed when playing
+     * live streams, in order to maintain a steady target offset from the live stream edge.
+     *
+     * @param livePlaybackSpeedControl The {@link LivePlaybackSpeedControl}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
+      Assertions.checkState(!buildCalled);
+      this.livePlaybackSpeedControl = livePlaybackSpeedControl;
+      return this;
+    }
+
+    /**
      * Sets whether the player should throw when it detects it's stuck buffering.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      *
      * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
      * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder experimentalSetThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
+      Assertions.checkState(!buildCalled);
       this.throwWhenStuckBuffering = throwWhenStuckBuffering;
       return this;
     }
@@ -677,6 +696,7 @@ public class SimpleExoPlayer extends BasePlayer
             analyticsCollector,
             builder.useLazyPreparation,
             builder.seekParameters,
+            builder.livePlaybackSpeedControl,
             builder.releaseTimeoutMs,
             builder.pauseAtEndOfMediaItems,
             builder.clock,

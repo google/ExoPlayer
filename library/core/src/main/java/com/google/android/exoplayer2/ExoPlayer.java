@@ -159,6 +159,7 @@ public interface ExoPlayer extends Player {
     private SeekParameters seekParameters;
     private boolean pauseAtEndOfMediaItems;
     private long releaseTimeoutMs;
+    private LivePlaybackSpeedControl livePlaybackSpeedControl;
     private boolean buildCalled;
 
     private boolean throwWhenStuckBuffering;
@@ -173,6 +174,7 @@ public interface ExoPlayer extends Player {
      *   <li>{@link MediaSourceFactory}: {@link DefaultMediaSourceFactory}
      *   <li>{@link LoadControl}: {@link DefaultLoadControl}
      *   <li>{@link BandwidthMeter}: {@link DefaultBandwidthMeter#getSingletonInstance(Context)}
+     *   <li>{@link LivePlaybackSpeedControl}: {@link DefaultLivePlaybackSpeedControl}
      *   <li>{@link Looper}: The {@link Looper} associated with the current thread, or the {@link
      *       Looper} of the application's main thread if the current thread doesn't have a {@link
      *       Looper}
@@ -223,6 +225,7 @@ public interface ExoPlayer extends Player {
       looper = Util.getCurrentOrMainLooper();
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
+      livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
       clock = Clock.DEFAULT;
       throwWhenStuckBuffering = true;
       releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
@@ -386,6 +389,20 @@ public interface ExoPlayer extends Player {
     }
 
     /**
+     * Sets the {@link LivePlaybackSpeedControl} that will control the playback speed when playing
+     * live streams, in order to maintain a steady target offset from the live stream edge.
+     *
+     * @param livePlaybackSpeedControl The {@link LivePlaybackSpeedControl}.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder setLivePlaybackSpeedControl(LivePlaybackSpeedControl livePlaybackSpeedControl) {
+      Assertions.checkState(!buildCalled);
+      this.livePlaybackSpeedControl = livePlaybackSpeedControl;
+      return this;
+    }
+
+    /**
      * Sets the {@link Clock} that will be used by the player. Should only be set for testing
      * purposes.
      *
@@ -418,6 +435,7 @@ public interface ExoPlayer extends Player {
               analyticsCollector,
               useLazyPreparation,
               seekParameters,
+              livePlaybackSpeedControl,
               releaseTimeoutMs,
               pauseAtEndOfMediaItems,
               clock,

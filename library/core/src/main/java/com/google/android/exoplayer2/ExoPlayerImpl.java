@@ -117,6 +117,7 @@ import java.util.concurrent.TimeoutException;
    *     loads and other initial preparation steps happen immediately. If true, these initial
    *     preparations are triggered only when the player starts buffering the media.
    * @param seekParameters The {@link SeekParameters}.
+   * @param livePlaybackSpeedControl The {@link LivePlaybackSpeedControl}.
    * @param releaseTimeoutMs The timeout for calls to {@link #release()} in milliseconds.
    * @param pauseAtEndOfMediaItems Whether to pause playback at the end of each media item.
    * @param clock The {@link Clock}.
@@ -133,6 +134,7 @@ import java.util.concurrent.TimeoutException;
       @Nullable AnalyticsCollector analyticsCollector,
       boolean useLazyPreparation,
       SeekParameters seekParameters,
+      LivePlaybackSpeedControl livePlaybackSpeedControl,
       long releaseTimeoutMs,
       boolean pauseAtEndOfMediaItems,
       Clock clock,
@@ -182,6 +184,7 @@ import java.util.concurrent.TimeoutException;
             shuffleModeEnabled,
             analyticsCollector,
             seekParameters,
+            livePlaybackSpeedControl,
             releaseTimeoutMs,
             pauseAtEndOfMediaItems,
             applicationLooper,

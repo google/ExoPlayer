@@ -256,6 +256,7 @@ public final class ExoPlayerFactory {
         /* analyticsCollector= */ null,
         /* useLazyPreparation= */ true,
         SeekParameters.DEFAULT,
+        new DefaultLivePlaybackSpeedControl.Builder().build(),
         ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS,
         /* pauseAtEndOfMediaItems= */ false,
         Clock.DEFAULT,

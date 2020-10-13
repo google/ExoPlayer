@@ -178,6 +178,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private final PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final MediaPeriodQueue queue;
   private final MediaSourceList mediaSourceList;
+  private final LivePlaybackSpeedControl livePlaybackSpeedControl;
   private final long releaseTimeoutMs;
 
   @SuppressWarnings("unused")
@@ -215,6 +216,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean shuffleModeEnabled,
       @Nullable AnalyticsCollector analyticsCollector,
       SeekParameters seekParameters,
+      LivePlaybackSpeedControl livePlaybackSpeedControl,
       long releaseTimeoutMs,
       boolean pauseAtEndOfWindow,
       Looper applicationLooper,
@@ -229,6 +231,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.repeatMode = repeatMode;
     this.shuffleModeEnabled = shuffleModeEnabled;
     this.seekParameters = seekParameters;
+    this.livePlaybackSpeedControl = livePlaybackSpeedControl;
     this.releaseTimeoutMs = releaseTimeoutMs;
     this.pauseAtEndOfWindow = pauseAtEndOfWindow;
     this.clock = clock;
