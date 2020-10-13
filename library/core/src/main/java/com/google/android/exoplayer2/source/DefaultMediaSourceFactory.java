@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.content.Context;
 import android.net.Uri;
 import android.util.SparseArray;
@@ -107,6 +109,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Nullable private DrmSessionManager drmSessionManager;
   @Nullable private List<StreamKey> streamKeys;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+  private long liveTargetOffsetMs;
+  private float liveMinSpeed;
+  private float liveMaxSpeed;
 
   /**
    * Creates a new instance.
@@ -155,6 +160,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
       supportedTypes[i] = mediaSourceFactories.keyAt(i);
     }
+    liveTargetOffsetMs = C.TIME_UNSET;
+    liveMinSpeed = C.RATE_UNSET;
+    liveMaxSpeed = C.RATE_UNSET;
   }
 
   /**
@@ -178,6 +186,42 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public DefaultMediaSourceFactory setAdViewProvider(@Nullable AdViewProvider adViewProvider) {
     this.adViewProvider = adViewProvider;
+    return this;
+  }
+
+  /**
+   * Sets the target live offset for live streams, in milliseconds.
+   *
+   * @param liveTargetOffsetMs The target live offset, in milliseconds, or {@link C#TIME_UNSET} to
+   *     use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveTargetOffsetMs(long liveTargetOffsetMs) {
+    this.liveTargetOffsetMs = liveTargetOffsetMs;
+    return this;
+  }
+
+  /**
+   * Sets the minimum playback speed for live streams.
+   *
+   * @param minSpeed The minimum playback speed for live streams, or {@link C#RATE_UNSET} to use the
+   *     media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMinSpeed(float minSpeed) {
+    this.liveMinSpeed = minSpeed;
+    return this;
+  }
+
+  /**
+   * Sets the maximum playback speed for live streams.
+   *
+   * @param maxSpeed The maximum playback speed for live streams, or {@link C#RATE_UNSET} to use the
+   *     media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMaxSpeed(float maxSpeed) {
+    this.liveMaxSpeed = maxSpeed;
     return this;
   }
 
@@ -244,9 +288,33 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
             : streamKeys);
     mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
 
+    // Make sure to retain the very same media item instance, if no value needs to be overridden.
+    if ((mediaItem.liveConfiguration.targetLiveOffsetMs == C.TIME_UNSET
+            && liveTargetOffsetMs != C.TIME_UNSET)
+        || (mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
+            && liveMinSpeed != C.RATE_UNSET)
+        || (mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
+            && liveMaxSpeed != C.RATE_UNSET)) {
+      mediaItem =
+          mediaItem
+              .buildUpon()
+              .setLiveTargetOffsetMs(
+                  mediaItem.liveConfiguration.targetLiveOffsetMs == C.TIME_UNSET
+                      ? liveTargetOffsetMs
+                      : mediaItem.liveConfiguration.targetLiveOffsetMs)
+              .setLiveMinPlaybackSpeed(
+                  mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
+                      ? liveMinSpeed
+                      : mediaItem.liveConfiguration.minPlaybackSpeed)
+              .setLiveMaxPlaybackSpeed(
+                  mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
+                      ? liveMaxSpeed
+                      : mediaItem.liveConfiguration.maxPlaybackSpeed)
+              .build();
+    }
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
-    List<MediaItem.Subtitle> subtitles = mediaItem.playbackProperties.subtitles;
+    List<MediaItem.Subtitle> subtitles = castNonNull(mediaItem.playbackProperties).subtitles;
     if (!subtitles.isEmpty()) {
       MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
       mediaSources[0] = mediaSource;
