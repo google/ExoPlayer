@@ -28,6 +28,12 @@ import java.util.Arrays;
  */
 public final class MdtaMetadataEntry implements Metadata.Entry {
 
+  /** Key for the capture frame rate (in frames per second). */
+  public static final String KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
+  /** Key for the temporal SVC layer count. */
+  public static final String KEY_ANDROID_TEMPORAL_LAYER_COUNT =
+      "com.android.video.temporal_layers_count";
+
   /** The metadata key name. */
   public final String key;
   /** The payload. The interpretation of the value depends on {@link #typeIndicator}. */

@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.metadata.id3.InternalFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Utilities for handling metadata in MP4. */
 /* package */ final class MetadataUtil {
@@ -282,8 +284,6 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
   private static final int TYPE_TOP_BYTE_COPYRIGHT = 0xA9;
   private static final int TYPE_TOP_BYTE_REPLACEMENT = 0xFD; // Truncated value of \uFFFD.
 
-  private static final String MDTA_KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
-
   private MetadataUtil() {}
 
   /** Updates a {@link Format.Builder} to include metadata from the provided sources. */
@@ -305,14 +305,19 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       }
     } else if (trackType == C.TRACK_TYPE_VIDEO && mdtaMetadata != null) {
       // Populate only metadata keys that are known to be specific to video.
+      List<MdtaMetadataEntry> mdtaMetadataEntries = new ArrayList<>();
       for (int i = 0; i < mdtaMetadata.length(); i++) {
         Metadata.Entry entry = mdtaMetadata.get(i);
         if (entry instanceof MdtaMetadataEntry) {
           MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-          if (MDTA_KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)) {
-            formatBuilder.setMetadata(new Metadata(mdtaMetadataEntry));
+          if (MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)
+              || MdtaMetadataEntry.KEY_ANDROID_TEMPORAL_LAYER_COUNT.equals(mdtaMetadataEntry.key)) {
+            mdtaMetadataEntries.add(mdtaMetadataEntry);
           }
         }
+      }
+      if (!mdtaMetadataEntries.isEmpty()) {
+        formatBuilder.setMetadata(new Metadata(mdtaMetadataEntries));
       }
     }
   }
