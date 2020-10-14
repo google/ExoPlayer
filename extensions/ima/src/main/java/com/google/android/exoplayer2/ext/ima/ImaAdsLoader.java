@@ -347,7 +347,11 @@ public final class ImaAdsLoader
     @Deprecated
     public ImaAdsLoader buildForAdTag(Uri adTagUri) {
       return new ImaAdsLoader(
-          /* builder= */ this, /* adTagUri= */ adTagUri, /* adsResponse= */ null);
+          context,
+          getConfiguration(),
+          imaFactory,
+          /* adTagUri= */ adTagUri,
+          /* adsResponse= */ null);
     }
 
     /**
@@ -364,12 +368,31 @@ public final class ImaAdsLoader
      */
     @Deprecated
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
-      return new ImaAdsLoader(/* builder= */ this, /* adTagUri= */ null, adsResponse);
+      return new ImaAdsLoader(
+          context, getConfiguration(), imaFactory, /* adTagUri= */ null, adsResponse);
     }
 
     /** Returns a new {@link ImaAdsLoader}. */
     public ImaAdsLoader build() {
-      return new ImaAdsLoader(/* builder= */ this, /* adTagUri= */ null, /* adsResponse= */ null);
+      return new ImaAdsLoader(
+          context, getConfiguration(), imaFactory, /* adTagUri= */ null, /* adsResponse= */ null);
+    }
+
+    // TODO(internal: b/169646419): Remove/hide once the deprecated constructor has been removed.
+    /* package */ ImaUtil.Configuration getConfiguration() {
+      return new ImaUtil.Configuration(
+          adPreloadTimeoutMs,
+          vastLoadTimeoutMs,
+          mediaLoadTimeoutMs,
+          focusSkipButtonWhenAvailable,
+          playAdBeforeStartPosition,
+          mediaBitrate,
+          adUiElements,
+          companionAdSlots,
+          adErrorListener,
+          adEventListener,
+          videoAdPlayerCallback,
+          imaSdkSettings);
     }
   }
 
@@ -426,20 +449,11 @@ public final class ImaAdsLoader
 
   private static final DataSpec EMPTY_AD_TAG_DATA_SPEC = new DataSpec(Uri.EMPTY);
 
+  private final ImaUtil.Configuration configuration;
   private final Context context;
+  private final ImaUtil.ImaFactory imaFactory;
   @Nullable private final Uri adTagUri;
   @Nullable private final String adsResponse;
-  private final long adPreloadTimeoutMs;
-  private final int vastLoadTimeoutMs;
-  private final int mediaLoadTimeoutMs;
-  private final boolean focusSkipButtonWhenAvailable;
-  private final boolean playAdBeforeStartPosition;
-  private final int mediaBitrate;
-  @Nullable private final Set<UiElement> adUiElements;
-  @Nullable private final Collection<CompanionAdSlot> companionAdSlots;
-  @Nullable private final AdErrorListener adErrorListener;
-  @Nullable private final AdEventListener adEventListener;
-  private final ImaUtil.ImaFactory imaFactory;
   private final ImaSdkSettings imaSdkSettings;
   private final Timeline.Period period;
   private final Handler handler;
@@ -539,26 +553,27 @@ public final class ImaAdsLoader
    */
   @Deprecated
   public ImaAdsLoader(Context context, Uri adTagUri) {
-    this(new Builder(context), adTagUri, /* adsResponse= */ null);
+    this(
+        context,
+        new Builder(context).getConfiguration(),
+        new DefaultImaFactory(),
+        adTagUri,
+        /* adsResponse= */ null);
   }
 
   @SuppressWarnings({"nullness:argument.type.incompatible", "methodref.receiver.bound.invalid"})
-  private ImaAdsLoader(Builder builder, @Nullable Uri adTagUri, @Nullable String adsResponse) {
-    this.context = builder.context.getApplicationContext();
+  private ImaAdsLoader(
+      Context context,
+      ImaUtil.Configuration configuration,
+      ImaUtil.ImaFactory imaFactory,
+      @Nullable Uri adTagUri,
+      @Nullable String adsResponse) {
+    this.context = context.getApplicationContext();
+    this.configuration = configuration;
+    this.imaFactory = imaFactory;
     this.adTagUri = adTagUri;
     this.adsResponse = adsResponse;
-    this.adPreloadTimeoutMs = builder.adPreloadTimeoutMs;
-    this.vastLoadTimeoutMs = builder.vastLoadTimeoutMs;
-    this.mediaLoadTimeoutMs = builder.mediaLoadTimeoutMs;
-    this.mediaBitrate = builder.mediaBitrate;
-    this.focusSkipButtonWhenAvailable = builder.focusSkipButtonWhenAvailable;
-    this.playAdBeforeStartPosition = builder.playAdBeforeStartPosition;
-    this.adUiElements = builder.adUiElements;
-    this.companionAdSlots = builder.companionAdSlots;
-    this.adErrorListener = builder.adErrorListener;
-    this.adEventListener = builder.adEventListener;
-    this.imaFactory = builder.imaFactory;
-    @Nullable ImaSdkSettings imaSdkSettings = builder.imaSdkSettings;
+    @Nullable ImaSdkSettings imaSdkSettings = configuration.imaSdkSettings;
     if (imaSdkSettings == null) {
       imaSdkSettings = imaFactory.createImaSdkSettings();
       if (DEBUG) {
@@ -572,8 +587,8 @@ public final class ImaAdsLoader
     handler = Util.createHandler(getImaLooper(), /* callback= */ null);
     componentListener = new ComponentListener();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
-    if (builder.videoAdPlayerCallback != null) {
-      adCallbacks.add(builder.videoAdPlayerCallback);
+    if (configuration.applicationVideoAdPlayerCallback != null) {
+      adCallbacks.add(configuration.applicationVideoAdPlayerCallback);
     }
     updateAdProgressRunnable = this::updateAdProgress;
     adInfoByAdMediaInfo = HashBiMap.create();
@@ -675,8 +690,8 @@ public final class ImaAdsLoader
     this.adTagDataSpec = adTagDataSpec;
     pendingAdRequestContext = new Object();
     request.setUserRequestContext(pendingAdRequestContext);
-    if (vastLoadTimeoutMs != TIMEOUT_UNSET) {
-      request.setVastLoadTimeout(vastLoadTimeoutMs);
+    if (configuration.vastLoadTimeoutMs != TIMEOUT_UNSET) {
+      request.setVastLoadTimeout(configuration.vastLoadTimeoutMs);
     }
     request.setContentProgressProvider(componentListener);
 
@@ -687,14 +702,14 @@ public final class ImaAdsLoader
       adDisplayContainer =
           imaFactory.createAudioAdDisplayContainer(context, /* player= */ componentListener);
     }
-    if (companionAdSlots != null) {
-      adDisplayContainer.setCompanionSlots(companionAdSlots);
+    if (configuration.companionAdSlots != null) {
+      adDisplayContainer.setCompanionSlots(configuration.companionAdSlots);
     }
 
     adsLoader = imaFactory.createAdsLoader(context, imaSdkSettings, adDisplayContainer);
     adsLoader.addAdErrorListener(componentListener);
-    if (adErrorListener != null) {
-      adsLoader.addAdErrorListener(adErrorListener);
+    if (configuration.applicationAdErrorListener != null) {
+      adsLoader.addAdErrorListener(configuration.applicationAdErrorListener);
     }
     adsLoader.addAdsLoadedListener(componentListener);
     adsLoader.requestAds(request);
@@ -819,8 +834,8 @@ public final class ImaAdsLoader
     if (adsLoader != null) {
       adsLoader.removeAdsLoadedListener(componentListener);
       adsLoader.removeAdErrorListener(componentListener);
-      if (adErrorListener != null) {
-        adsLoader.removeAdErrorListener(adErrorListener);
+      if (configuration.applicationAdErrorListener != null) {
+        adsLoader.removeAdErrorListener(configuration.applicationAdErrorListener);
       }
     }
     imaPausedContent = false;
@@ -924,7 +939,7 @@ public final class ImaAdsLoader
       long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
       long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
       long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
-      if (timeUntilAdMs < adPreloadTimeoutMs) {
+      if (timeUntilAdMs < configuration.adPreloadTimeoutMs) {
         waitingForPreloadElapsedRealtimeMs = SystemClock.elapsedRealtime();
       }
     } else if (playbackState == Player.STATE_READY) {
@@ -974,15 +989,16 @@ public final class ImaAdsLoader
     AdsRenderingSettings adsRenderingSettings = imaFactory.createAdsRenderingSettings();
     adsRenderingSettings.setEnablePreloading(true);
     adsRenderingSettings.setMimeTypes(supportedMimeTypes);
-    if (mediaLoadTimeoutMs != TIMEOUT_UNSET) {
-      adsRenderingSettings.setLoadVideoTimeout(mediaLoadTimeoutMs);
+    if (configuration.mediaLoadTimeoutMs != TIMEOUT_UNSET) {
+      adsRenderingSettings.setLoadVideoTimeout(configuration.mediaLoadTimeoutMs);
     }
-    if (mediaBitrate != BITRATE_UNSET) {
-      adsRenderingSettings.setBitrateKbps(mediaBitrate / 1000);
+    if (configuration.mediaBitrate != BITRATE_UNSET) {
+      adsRenderingSettings.setBitrateKbps(configuration.mediaBitrate / 1000);
     }
-    adsRenderingSettings.setFocusSkipButtonWhenAvailable(focusSkipButtonWhenAvailable);
-    if (adUiElements != null) {
-      adsRenderingSettings.setUiElements(adUiElements);
+    adsRenderingSettings.setFocusSkipButtonWhenAvailable(
+        configuration.focusSkipButtonWhenAvailable);
+    if (configuration.adUiElements != null) {
+      adsRenderingSettings.setUiElements(configuration.adUiElements);
     }
 
     // Skip ads based on the start position as required.
@@ -993,7 +1009,7 @@ public final class ImaAdsLoader
             C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
     if (adGroupForPositionIndex != C.INDEX_UNSET) {
       boolean playAdWhenStartingPlayback =
-          playAdBeforeStartPosition
+          configuration.playAdBeforeStartPosition
               || adGroupTimesUs[adGroupForPositionIndex] == C.msToUs(contentPositionMs);
       if (!playAdWhenStartingPlayback) {
         adGroupForPositionIndex++;
@@ -1605,12 +1621,12 @@ public final class ImaAdsLoader
   private void destroyAdsManager() {
     if (adsManager != null) {
       adsManager.removeAdErrorListener(componentListener);
-      if (adErrorListener != null) {
-        adsManager.removeAdErrorListener(adErrorListener);
+      if (configuration.applicationAdErrorListener != null) {
+        adsManager.removeAdErrorListener(configuration.applicationAdErrorListener);
       }
       adsManager.removeAdEventListener(componentListener);
-      if (adEventListener != null) {
-        adsManager.removeAdEventListener(adEventListener);
+      if (configuration.applicationAdEventListener != null) {
+        adsManager.removeAdEventListener(configuration.applicationAdEventListener);
       }
       adsManager.destroy();
       adsManager = null;
@@ -1636,12 +1652,12 @@ public final class ImaAdsLoader
       pendingAdRequestContext = null;
       ImaAdsLoader.this.adsManager = adsManager;
       adsManager.addAdErrorListener(this);
-      if (adErrorListener != null) {
-        adsManager.addAdErrorListener(adErrorListener);
+      if (configuration.applicationAdErrorListener != null) {
+        adsManager.addAdErrorListener(configuration.applicationAdErrorListener);
       }
       adsManager.addAdEventListener(this);
-      if (adEventListener != null) {
-        adsManager.addAdEventListener(adEventListener);
+      if (configuration.applicationAdEventListener != null) {
+        adsManager.addAdEventListener(configuration.applicationAdEventListener);
       }
       if (player != null) {
         // If a player is attached already, start playback immediately.
