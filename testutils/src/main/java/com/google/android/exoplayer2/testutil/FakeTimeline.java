@@ -314,8 +314,10 @@ public final class FakeTimeline extends Timeline {
         windowDefinition.mediaItem,
         manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
-        /* windowStartTimeMs= */ C.TIME_UNSET,
-        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+        /* windowStartTimeMs= */ windowDefinition.isLive
+            ? C.usToMs(windowDefinition.windowOffsetInFirstPeriodUs)
+            : C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ windowDefinition.isLive ? 0 : C.TIME_UNSET,
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
         windowDefinition.isLive,

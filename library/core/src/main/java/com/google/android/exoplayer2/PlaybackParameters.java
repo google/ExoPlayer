@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -68,6 +69,17 @@ public final class PlaybackParameters {
    */
   public long getMediaTimeUsForPlayoutTimeMs(long timeMs) {
     return timeMs * scaledUsPerMs;
+  }
+
+  /**
+   * Returns a copy with the given speed.
+   *
+   * @param speed The new speed.
+   * @return The copied playback parameters.
+   */
+  @CheckResult
+  public PlaybackParameters withSpeed(float speed) {
+    return new PlaybackParameters(speed, pitch);
   }
 
   @Override

@@ -111,6 +111,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Range;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8410,6 +8411,428 @@ public final class ExoPlayerTest {
         .inOrder();
     verify(eventListener)
         .onStaticMetadataChanged(ImmutableList.of(videoFormat.metadata, audioFormat.metadata));
+  }
+
+  @Test
+  public void targetLiveOffsetInMedia_adjustsLiveOffsetToTargetOffset() throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    player.addListener(mockListener);
+    player.pause();
+    player.setMediaSource(new FakeMediaSource(timeline));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long liveOffsetAtStart = player.getCurrentLiveOffset();
+    // Verify test setup (now = 20 seconds in live window, default start position = 8 seconds).
+    assertThat(liveOffsetAtStart).isIn(Range.closed(11_900L, 12_100L));
+
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert that player adjusted live offset to the media value.
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(8_900L, 9_100L));
+    // Assert that none of these playback speed changes were reported.
+    verify(mockListener, never()).onPlaybackParametersChanged(any());
+  }
+
+  @Test
+  public void targetLiveOffsetInMedia_withInitialSeek_adjustsLiveOffsetToInitialSeek()
+      throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    player.pause();
+
+    player.seekTo(18_000);
+    player.setMediaSource(new FakeMediaSource(timeline), /* resetPosition= */ false);
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long liveOffsetAtStart = player.getCurrentLiveOffset();
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Target should have been permanently adjusted to 2 seconds.
+    // (initial now = 20 seconds in live window, initial seek to 18 seconds)
+    assertThat(liveOffsetAtStart).isIn(Range.closed(1_900L, 2_100L));
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(1_900L, 2_100L));
+  }
+
+  @Test
+  public void targetLiveOffsetInMedia_withUserSeek_adjustsLiveOffsetToSeek() throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    player.pause();
+    player.setMediaSource(new FakeMediaSource(timeline));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long liveOffsetAtStart = player.getCurrentLiveOffset();
+    // Verify test setup (now = 20 seconds in live window, default start position = 8 seconds).
+    assertThat(liveOffsetAtStart).isIn(Range.closed(11_900L, 12_100L));
+
+    // Seek to a live offset of 2 seconds.
+    player.seekTo(18_000);
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert the live offset adjustment was permanent.
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(1_900L, 2_100L));
+  }
+
+  @Test
+  public void targetLiveOffsetInMedia_withTimelineUpdate_adjustsLiveOffsetToLatestTimeline()
+      throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline initialTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    Timeline updatedTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs + 50_000),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build()));
+    FakeMediaSource fakeMediaSource = new FakeMediaSource(initialTimeline);
+    player.pause();
+    player.setMediaSource(fakeMediaSource);
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long liveOffsetAtStart = player.getCurrentLiveOffset();
+    // Verify test setup (now = 20 seconds in live window, default start position = 8 seconds).
+    assertThat(liveOffsetAtStart).isIn(Range.closed(11_900L, 12_100L));
+
+    // Play a bit and update configuration.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 55_000);
+    fakeMediaSource.setNewSourceInfo(updatedTimeline);
+
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert that adjustment uses target offset from the updated timeline.
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(3_900L, 4_100L));
+  }
+
+  @Test
+  public void targetLiveOffsetInMedia_withSetPlaybackParameters_usesPlaybackParameterSpeed()
+      throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 20 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    player.addListener(mockListener);
+    player.pause();
+    player.setMediaSource(new FakeMediaSource(timeline));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long liveOffsetAtStart = player.getCurrentLiveOffset();
+    // Verify test setup (now = 20 seconds in live window, default start position = 20 seconds).
+    assertThat(liveOffsetAtStart).isIn(Range.closed(-100L, 100L));
+
+    player.setPlaybackParameters(new PlaybackParameters(/* speed */ 2.0f));
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert that the player didn't adjust the live offset to the media value (9 seconds) and
+    // instead played the media with double speed (resulting in a negative live offset).
+    assertThat(liveOffsetAtEnd).isLessThan(0);
+    // Assert that user-set speed was reported
+    verify(mockListener).onPlaybackParametersChanged(new PlaybackParameters(2.0f));
+  }
+
+  @Test
+  public void
+      targetLiveOffsetInMedia_afterAutomaticPeriodTransition_adjustsLiveOffsetToTargetOffset()
+          throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 10_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline liveTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    player.pause();
+    player.addMediaSource(new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1)));
+    player.addMediaSource(new FakeMediaSource(liveTimeline));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 1, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert that player adjusted live offset to the media value.
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(8_900L, 9_100L));
+  }
+
+  @Test
+  public void
+      targetLiveOffsetInMedia_afterSeekToDefaultPositionInOtherStream_adjustsLiveOffsetToMediaOffset()
+          throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline liveTimeline1 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    Timeline liveTimeline2 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build()));
+    player.pause();
+    player.addMediaSource(new FakeMediaSource(liveTimeline1));
+    player.addMediaSource(new FakeMediaSource(liveTimeline2));
+    // Ensure we override the target live offset to a seek position in the first live stream.
+    player.seekTo(10_000);
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+
+    // Seek to default position in second stream.
+    player.next();
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 1, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert that player adjusted live offset to the media value.
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(3_900L, 4_100L));
+  }
+
+  @Test
+  public void
+      targetLiveOffsetInMedia_afterSeekToSpecificPositionInOtherStream_adjustsLiveOffsetToSeekPosition()
+          throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline liveTimeline1 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(9_000).build()));
+    Timeline liveTimeline2 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build()));
+    player.pause();
+    player.addMediaSource(new FakeMediaSource(liveTimeline1));
+    player.addMediaSource(new FakeMediaSource(liveTimeline2));
+    // Ensure we override the target live offset to a seek position in the first live stream.
+    player.seekTo(10_000);
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+
+    // Seek to specific position in second stream (at 2 seconds live offset).
+    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 18_000);
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 1, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert that player adjusted live offset to the seek.
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(1_900L, 2_100L));
+  }
+
+  @Test
+  public void noTargetLiveOffsetInMedia_doesNotAdjustLiveOffset() throws Exception {
+    long windowStartUnixTimeMs = 987_654_321_000L;
+    long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .build();
+    Timeline liveTimelineWithoutTargetLiveOffset =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 1000 * C.MICROS_PER_SECOND,
+                /* defaultPositionUs= */ 8 * C.MICROS_PER_SECOND,
+                /* windowOffsetInFirstPeriodUs= */ C.msToUs(windowStartUnixTimeMs),
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setUri(Uri.EMPTY).build()));
+    player.pause();
+    player.setMediaSource(new FakeMediaSource(liveTimelineWithoutTargetLiveOffset));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    long liveOffsetAtStart = player.getCurrentLiveOffset();
+    // Verify test setup (now = 20 seconds in live window, default start position = 8 seconds).
+    assertThat(liveOffsetAtStart).isIn(Range.closed(11_900L, 12_100L));
+
+    // Play until close to the end of the available live window.
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 999_000);
+    long liveOffsetAtEnd = player.getCurrentLiveOffset();
+    player.release();
+
+    // Assert that live offset is still the same (i.e. unadjusted).
+    assertThat(liveOffsetAtEnd).isIn(Range.closed(11_900L, 12_100L));
   }
 
   // Internal methods.
