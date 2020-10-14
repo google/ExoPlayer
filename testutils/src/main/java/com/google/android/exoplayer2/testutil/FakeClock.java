@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import android.os.Handler.Callback;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Clock;
@@ -25,7 +26,16 @@ import com.google.android.exoplayer2.util.HandlerWrapper;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Fake {@link Clock} implementation independent of {@link android.os.SystemClock}. */
+/**
+ * Fake {@link Clock} implementation that allows to {@link #advanceTime(long) advance the time}
+ * manually to trigger pending timed messages.
+ *
+ * <p>All timed messages sent by a {@link #createHandler(Looper, Callback) Handler} created from
+ * this clock are governed by the clock's time.
+ *
+ * <p>The clock also sets the time of the {@link SystemClock} to match the {@link #elapsedRealtime()
+ * clock's time}.
+ */
 public class FakeClock implements Clock {
 
   private final List<Long> wakeUpTimes;
@@ -57,6 +67,7 @@ public class FakeClock implements Clock {
     this.timeSinceBootMs = initialTimeMs;
     this.wakeUpTimes = new ArrayList<>();
     this.handlerMessages = new ArrayList<>();
+    SystemClock.setCurrentTimeMillis(initialTimeMs);
   }
 
   /**
@@ -66,6 +77,7 @@ public class FakeClock implements Clock {
    */
   public synchronized void advanceTime(long timeDiffMs) {
     timeSinceBootMs += timeDiffMs;
+    SystemClock.setCurrentTimeMillis(timeSinceBootMs);
     for (Long wakeUpTime : wakeUpTimes) {
       if (wakeUpTime <= timeSinceBootMs) {
         notifyAll();
