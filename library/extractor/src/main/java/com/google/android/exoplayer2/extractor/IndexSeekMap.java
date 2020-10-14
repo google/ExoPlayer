@@ -74,7 +74,7 @@ public final class IndexSeekMap implements SeekMap {
     int targetIndex =
         Util.binarySearchFloor(timesUs, timeUs, /* inclusive= */ true, /* stayInBounds= */ true);
     SeekPoint leftSeekPoint = new SeekPoint(timesUs[targetIndex], positions[targetIndex]);
-    if (leftSeekPoint.timeUs >= timeUs || targetIndex == timesUs.length - 1) {
+    if (leftSeekPoint.timeUs == timeUs || targetIndex == timesUs.length - 1) {
       return new SeekMap.SeekPoints(leftSeekPoint);
     } else {
       SeekPoint rightSeekPoint =
