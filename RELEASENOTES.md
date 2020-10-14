@@ -78,6 +78,13 @@
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Add a way to override ad media MIME types
         ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
+    *   Fix truncating large cue points in microseconds
+        ([#8067](https://github.com/google/ExoPlayer/issues/8067)).
+
+*   UI:
+
+    *   Show overflow button in `StyledPlayerControlView` only when there is no
+        enough space.
 
 ### 2.12.0 (2020-09-11) ###
 
