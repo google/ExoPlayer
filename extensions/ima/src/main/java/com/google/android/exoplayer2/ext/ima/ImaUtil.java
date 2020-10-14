@@ -21,13 +21,17 @@ import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdError;
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
 import com.google.ads.interactivemedia.v3.api.FriendlyObstruction;
 import com.google.ads.interactivemedia.v3.api.FriendlyObstructionPurpose;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
+import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -37,7 +41,9 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /** Utilities for working with IMA SDK and IMA extension data types. */
 /* package */ final class ImaUtil {
@@ -71,6 +77,50 @@ import java.util.List;
     /** Creates an {@link AdsLoader} for requesting ads using the specified settings. */
     AdsLoader createAdsLoader(
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
+  }
+
+  /** Stores configuration for ad loading and playback. */
+  public static final class Configuration {
+
+    public final long adPreloadTimeoutMs;
+    public final int vastLoadTimeoutMs;
+    public final int mediaLoadTimeoutMs;
+    public final boolean focusSkipButtonWhenAvailable;
+    public final boolean playAdBeforeStartPosition;
+    public final int mediaBitrate;
+    @Nullable public final Set<UiElement> adUiElements;
+    @Nullable public final Collection<CompanionAdSlot> companionAdSlots;
+    @Nullable public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
+    @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
+    @Nullable public final VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback;
+    @Nullable public final ImaSdkSettings imaSdkSettings;
+
+    public Configuration(
+        long adPreloadTimeoutMs,
+        int vastLoadTimeoutMs,
+        int mediaLoadTimeoutMs,
+        boolean focusSkipButtonWhenAvailable,
+        boolean playAdBeforeStartPosition,
+        int mediaBitrate,
+        @Nullable Set<UiElement> adUiElements,
+        @Nullable Collection<CompanionAdSlot> companionAdSlots,
+        @Nullable AdErrorEvent.AdErrorListener applicationAdErrorListener,
+        @Nullable AdEvent.AdEventListener applicationAdEventListener,
+        @Nullable VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback,
+        @Nullable ImaSdkSettings imaSdkSettings) {
+      this.adPreloadTimeoutMs = adPreloadTimeoutMs;
+      this.vastLoadTimeoutMs = vastLoadTimeoutMs;
+      this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
+      this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
+      this.playAdBeforeStartPosition = playAdBeforeStartPosition;
+      this.mediaBitrate = mediaBitrate;
+      this.adUiElements = adUiElements;
+      this.companionAdSlots = companionAdSlots;
+      this.applicationAdErrorListener = applicationAdErrorListener;
+      this.applicationAdEventListener = applicationAdEventListener;
+      this.applicationVideoAdPlayerCallback = applicationVideoAdPlayerCallback;
+      this.imaSdkSettings = imaSdkSettings;
+    }
   }
 
   /**
