@@ -6,6 +6,9 @@
     *   Fix bug where streams with highly uneven durations may get stuck in a
         buffering state
         ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
+    *   Switch Guava dependency from `implementation` to `api`
+        ([#7905](https://github.com/google/ExoPlayer/issues/7905),
+        ([#7993](https://github.com/google/ExoPlayer/issues/7993)).
 *   Data sources:
     *   Add support for `android.resource` URI scheme in `RawResourceDataSource`
         ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
