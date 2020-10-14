@@ -1596,7 +1596,8 @@ public final class ImaAdsLoader
     // We receive initial cue points from IMA SDK as floats. This code replicates the same
     // calculation used to populate adGroupTimesUs (having truncated input back to float, to avoid
     // failures if the behavior of the IMA SDK changes to provide greater precision).
-    long adPodTimeUs = Math.round((float) cuePointTimeSeconds * C.MICROS_PER_SECOND);
+    float cuePointTimeSecondsFloat = (float) cuePointTimeSeconds;
+    long adPodTimeUs = Math.round((double) cuePointTimeSecondsFloat * C.MICROS_PER_SECOND);
     for (int adGroupIndex = 0; adGroupIndex < adPlaybackState.adGroupCount; adGroupIndex++) {
       long adGroupTimeUs = adPlaybackState.adGroupTimesUs[adGroupIndex];
       if (adGroupTimeUs != C.TIME_END_OF_SOURCE

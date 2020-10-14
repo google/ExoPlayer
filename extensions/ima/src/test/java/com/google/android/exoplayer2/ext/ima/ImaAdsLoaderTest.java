@@ -803,7 +803,8 @@ public final class ImaAdsLoaderTest {
 
   @Test
   public void loadAd_withLargeAdCuePoint_updatesAdPlaybackStateWithLoadedAd() {
-    float midrollTimeSecs = 1_765f;
+    // Use a large enough value to test correct truncating of large cue points.
+    float midrollTimeSecs = Float.MAX_VALUE;
     ImmutableList<Float> cuePoints = ImmutableList.of(midrollTimeSecs);
     setupPlayback(CONTENT_TIMELINE, cuePoints);
     imaAdsLoader.start(adsLoaderListener, adViewProvider);
