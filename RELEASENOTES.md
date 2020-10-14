@@ -19,6 +19,9 @@
     *   Time out when detaching a surface to prevent ANRs if the underlying
         platform call is stuck
         ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
+    *   Switch Guava dependency from `implementation` to `api`
+        ([#7905](https://github.com/google/ExoPlayer/issues/7905),
+        ([#7993](https://github.com/google/ExoPlayer/issues/7993)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:
