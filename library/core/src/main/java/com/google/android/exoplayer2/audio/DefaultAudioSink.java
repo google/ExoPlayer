@@ -1731,39 +1731,47 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @RequiresApi(29)
-  private final class StreamEventCallbackV29 extends AudioTrack.StreamEventCallback {
+  private final class StreamEventCallbackV29 {
     private final Handler handler;
+    private final AudioTrack.StreamEventCallback callback;
 
     public StreamEventCallbackV29() {
       handler = new Handler();
-    }
+      // StreamEventCallbackV29 can NOT inherit directly from AudioTrack.StreamEventCallback as it
+      // would cause a NoClassDefFoundError on the first load of DefaultAudioSink for SDK < 29
+      // fatal on some devices. See: https://github.com/google/ExoPlayer/issues/8058
+      callback =
+          new AudioTrack.StreamEventCallback() {
+            @Override
+            public void onDataRequest(AudioTrack track, int size) {
+              Assertions.checkState(track == audioTrack);
+              if (listener != null && playing) {
+                // Do not signal that the buffer is emptying if not playing as it is a transient
+                // state.
+                listener.onOffloadBufferEmptying();
+              }
+            }
 
-    @Override
-    public void onDataRequest(AudioTrack track, int size) {
-      Assertions.checkState(track == audioTrack);
-      if (listener != null && playing) {
-        // Do not signal that the buffer is emptying if not playing as it is a transient state.
-        listener.onOffloadBufferEmptying();
-      }
-    }
-
-    @Override
-    public void onTearDown(@NonNull AudioTrack track) {
-      Assertions.checkState(track == audioTrack);
-      if (listener != null && playing) {
-        // The audio track was destroyed while in use. Thus a new AudioTrack needs to be created
-        // and its buffer filled, which will be done on the next handleBuffer call.
-        // Request this call explicitly in case ExoPlayer is sleeping waiting for a data request.
-        listener.onOffloadBufferEmptying();
-      }
+            @Override
+            public void onTearDown(@NonNull AudioTrack track) {
+              Assertions.checkState(track == audioTrack);
+              if (listener != null && playing) {
+                // The audio track was destroyed while in use. Thus a new AudioTrack needs to be
+                // created and its buffer filled, which will be done on the next handleBuffer call.
+                // Request this call explicitly in case ExoPlayer is sleeping waiting for a data
+                // request.
+                listener.onOffloadBufferEmptying();
+              }
+            }
+          };
     }
 
     public void register(AudioTrack audioTrack) {
-      audioTrack.registerStreamEventCallback(handler::post, this);
+      audioTrack.registerStreamEventCallback(handler::post, callback);
     }
 
     public void unregister(AudioTrack audioTrack) {
-      audioTrack.unregisterStreamEventCallback(this);
+      audioTrack.unregisterStreamEventCallback(callback);
       handler.removeCallbacksAndMessages(/* token= */ null);
     }
   }
