@@ -32,6 +32,9 @@
     *   Fix the default audio sink position not advancing correctly when using
         `AudioTrack`-based speed adjustment
         ([#7982](https://github.com/google/ExoPlayer/issues/7982)).
+    *   Fix `NoClassDefFoundError` warning for `AudioTrack$StreamEventCallback`
+        even though the class was not used
+        ([#8058](https://github.com/google/ExoPlayer/issues/8058)).
 *   Extractors:
     *   Add support for .mp2 boxes in the `AtomParsers`
         ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
