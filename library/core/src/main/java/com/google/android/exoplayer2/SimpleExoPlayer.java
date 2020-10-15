@@ -732,7 +732,14 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
+    verifyApplicationThread();
     player.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);
+  }
+
+  @Override
+  public boolean experimentalIsSleepingForOffload() {
+    verifyApplicationThread();
+    return player.experimentalIsSleepingForOffload();
   }
 
   @Override
@@ -2154,7 +2161,9 @@ public class SimpleExoPlayer extends BasePlayer
     switch (playbackState) {
       case Player.STATE_READY:
       case Player.STATE_BUFFERING:
-        wakeLockManager.setStayAwake(getPlayWhenReady());
+        boolean isSleeping = experimentalIsSleepingForOffload();
+        wakeLockManager.setStayAwake(getPlayWhenReady() && !isSleeping);
+        // The wifi lock is not released while sleeping to avoid interrupting downloads.
         wifiLockManager.setStayAwake(getPlayWhenReady());
         break;
       case Player.STATE_ENDED:
@@ -2495,12 +2504,7 @@ public class SimpleExoPlayer extends BasePlayer
 
     @Override
     public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
-      if (sleepingForOffload) {
-        // The wifi lock is not released to avoid interrupting downloads.
-        wakeLockManager.setStayAwake(false);
-      } else {
-        updateWakeAndWifiLock();
-      }
+      updateWakeAndWifiLock();
     }
   }
 }

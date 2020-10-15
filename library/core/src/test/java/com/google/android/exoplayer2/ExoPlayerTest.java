@@ -8327,6 +8327,7 @@ public final class ExoPlayerTest {
     sleepRenderer.sleepOnNextRender();
 
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
+    assertThat(player.experimentalIsSleepingForOffload()).isTrue();
   }
 
   @Test
@@ -8345,6 +8346,7 @@ public final class ExoPlayerTest {
     player.experimentalSetOffloadSchedulingEnabled(false); // Force the player to exit offload sleep
 
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ false);
+    assertThat(player.experimentalIsSleepingForOffload()).isFalse();
     runUntilPlaybackState(player, Player.STATE_ENDED);
   }
 
@@ -8362,6 +8364,7 @@ public final class ExoPlayerTest {
     sleepRenderer.wakeup();
 
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ false);
+    assertThat(player.experimentalIsSleepingForOffload()).isFalse();
     runUntilPlaybackState(player, Player.STATE_ENDED);
   }
 

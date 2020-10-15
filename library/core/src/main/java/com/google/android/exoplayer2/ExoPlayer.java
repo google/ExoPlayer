@@ -631,7 +631,7 @@ public interface ExoPlayer extends Player {
   boolean getPauseAtEndOfMediaItems();
 
   /**
-   * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will as
+   * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will run as
    * rarely as possible when playing an audio stream using audio offload.
    *
    * <p>Only use this scheduling mode if the player is not displaying anything to the user. For
@@ -660,9 +660,19 @@ public interface ExoPlayer extends Player {
    *   <li>The {@link AudioSink} is playing with an offload {@link AudioTrack}.
    * </ul>
    *
+   * <p>The state where ExoPlayer main loop has been paused to save power during offload playback
+   * can be queried with {@link #experimentalIsSleepingForOffload()}.
+   *
    * <p>This method is experimental, and will be renamed or removed in a future release.
    *
    * @param offloadSchedulingEnabled Whether to enable offload scheduling.
    */
   void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled);
+
+  /**
+   * Returns whether the player has paused its main loop to save power in offload scheduling mode.
+   *
+   * @see #experimentalSetOffloadSchedulingEnabled(boolean)
+   */
+  boolean experimentalIsSleepingForOffload();
 }

@@ -209,6 +209,11 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
+  public boolean experimentalIsSleepingForOffload() {
+    return playbackInfo.sleepingForOffload;
+  }
+
+  @Override
   @Nullable
   public AudioComponent getAudioComponent() {
     return null;
