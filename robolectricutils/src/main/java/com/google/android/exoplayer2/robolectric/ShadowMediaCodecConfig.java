@@ -76,6 +76,7 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
 
     // Audio codecs
     configureCodec("exotest.audio.aac", MimeTypes.AUDIO_AAC);
+    configureCodec("exotest.audio.mpeg", MimeTypes.AUDIO_MPEG);
     configureCodec("exotest.audio.mpegl2", MimeTypes.AUDIO_MPEG_L2);
   }
 
