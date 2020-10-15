@@ -67,6 +67,9 @@
         ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
     *   Fix truncating large cue points in microseconds
         ([#8067](https://github.com/google/ExoPlayer/issues/8067)).
+    *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for
+        companion ads rendering when targeting API 29
+        ([#6432](https://github.com/google/ExoPlayer/issues/6432)).
 
 ### 2.12.0 (2020-09-11) ###
 
