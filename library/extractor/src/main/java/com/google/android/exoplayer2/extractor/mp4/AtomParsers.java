@@ -232,7 +232,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     // Fixed sample size raw audio may need to be rechunked.
     boolean isFixedSampleSizeRawAudio =
         sampleSizeBox.isFixedSampleSize()
-            && MimeTypes.AUDIO_RAW.equals(track.format.sampleMimeType)
+            && (MimeTypes.AUDIO_RAW.equals(track.format.sampleMimeType)
+            || MimeTypes.AUDIO_MLAW.equals(track.format.sampleMimeType)
+            || MimeTypes.AUDIO_ALAW.equals(track.format.sampleMimeType))
             && remainingTimestampDeltaChanges == 0
             && remainingTimestampOffsetChanges == 0
             && remainingSynchronizationSamples == 0;
@@ -362,8 +364,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
-      int fixedSampleSize =
-          Util.getPcmFrameSize(track.format.pcmEncoding, track.format.channelCount);
+      int fixedSampleSize;
+      if (MimeTypes.AUDIO_ALAW.equalsIgnoreCase(track.format.sampleMimeType)
+          || MimeTypes.AUDIO_MLAW.equalsIgnoreCase(track.format.sampleMimeType)) {
+        fixedSampleSize = sampleSizeBox.isFixedSampleSize() ? sampleSizeBox.readNextSampleSize() : 1;
+      } else {
+        fixedSampleSize =
+            Util.getPcmFrameSize(track.format.pcmEncoding, track.format.channelCount);
+      }
       FixedSampleSizeRechunker.Results rechunkedResults = FixedSampleSizeRechunker.rechunk(
           fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
       offsets = rechunkedResults.offsets;
