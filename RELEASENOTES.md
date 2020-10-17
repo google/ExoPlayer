@@ -16,16 +16,15 @@
     *   Fix NPE in `TextRenderer` when playing content with a single subtitle
         buffer ([#8017](https://github.com/google/ExoPlayer/issues/8017)).
 *   UI:
-    *   Do not require subtitleButton in custom layouts of StyledPlayerView
-        ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
-    *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
-        `TrackSelectionDialogBuilder`
-        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
-    *   Adjusted bottom buttons' heights and paddings in StyledPlayerView for
-        easy tapping.
-    *   Show overflow button in `StyledPlayerControlView` only when there is no
+    *   Show overflow button in `StyledPlayerControlView` only when there is not
         enough space.
     *   Fix animation when `StyledPlayerView` first shows its playback controls.
+    *   Allow subtitleButton to be omitted in custom `StyledPlayerView` layouts
+        ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
+    *   Add an option to sort tracks by `Format` in `TrackSelectionView` and
+        `TrackSelectionDialogBuilder`
+        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+    *   Improve touch targets in `StyledPlayerView` to make tapping easier.
 *   Audio:
     *   Fix the default audio sink position not advancing correctly when using
         `AudioTrack`-based speed adjustment
@@ -58,6 +57,8 @@
         ad tag via media item playback properties continues to be supported.
         This is in preparation for supporting ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
+    *   Add a way to override ad media MIME types
+        ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
 
 ### 2.12.0 (2020-09-11) ###
 

@@ -88,6 +88,7 @@ import java.util.Set;
     public final boolean focusSkipButtonWhenAvailable;
     public final boolean playAdBeforeStartPosition;
     public final int mediaBitrate;
+    @Nullable public final List<String> adMediaMimeTypes;
     @Nullable public final Set<UiElement> adUiElements;
     @Nullable public final Collection<CompanionAdSlot> companionAdSlots;
     @Nullable public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
@@ -102,6 +103,7 @@ import java.util.Set;
         boolean focusSkipButtonWhenAvailable,
         boolean playAdBeforeStartPosition,
         int mediaBitrate,
+        @Nullable List<String> adMediaMimeTypes,
         @Nullable Set<UiElement> adUiElements,
         @Nullable Collection<CompanionAdSlot> companionAdSlots,
         @Nullable AdErrorEvent.AdErrorListener applicationAdErrorListener,
@@ -114,6 +116,7 @@ import java.util.Set;
       this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
       this.playAdBeforeStartPosition = playAdBeforeStartPosition;
       this.mediaBitrate = mediaBitrate;
+      this.adMediaMimeTypes = adMediaMimeTypes;
       this.adUiElements = adUiElements;
       this.companionAdSlots = companionAdSlots;
       this.applicationAdErrorListener = applicationAdErrorListener;
