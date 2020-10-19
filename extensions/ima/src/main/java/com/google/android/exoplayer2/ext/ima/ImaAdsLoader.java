@@ -144,6 +144,7 @@ public final class ImaAdsLoader
     private int mediaBitrate;
     private boolean focusSkipButtonWhenAvailable;
     private boolean playAdBeforeStartPosition;
+    private boolean debugModeEnabled;
     private ImaUtil.ImaFactory imaFactory;
 
     /**
@@ -345,6 +346,21 @@ public final class ImaAdsLoader
       return this;
     }
 
+    /**
+     * Sets whether to enable outputting verbose logs for the IMA extension and IMA SDK. The default
+     * value is {@code false}. This setting is intended for debugging only, and should not be
+     * enabled in production applications.
+     *
+     * @param debugModeEnabled Whether to enable outputting verbose logs for the IMA extension and
+     *     IMA SDK.
+     * @return This builder, for convenience.
+     * @see ImaSdkSettings#setDebugMode(boolean)
+     */
+    public Builder setDebugModeEnabled(boolean debugModeEnabled) {
+      this.debugModeEnabled = debugModeEnabled;
+      return this;
+    }
+
     @VisibleForTesting
     /* package */ Builder setImaFactory(ImaUtil.ImaFactory imaFactory) {
       this.imaFactory = checkNotNull(imaFactory);
@@ -411,11 +427,11 @@ public final class ImaAdsLoader
           adErrorListener,
           adEventListener,
           videoAdPlayerCallback,
-          imaSdkSettings);
+          imaSdkSettings,
+          debugModeEnabled);
     }
   }
 
-  private static final boolean DEBUG = false;
   private static final String TAG = "ImaAdsLoader";
 
   private static final String IMA_SDK_SETTINGS_PLAYER_TYPE = "google/exo.ext.ima";
@@ -594,7 +610,7 @@ public final class ImaAdsLoader
     @Nullable ImaSdkSettings imaSdkSettings = configuration.imaSdkSettings;
     if (imaSdkSettings == null) {
       imaSdkSettings = imaFactory.createImaSdkSettings();
-      if (DEBUG) {
+      if (configuration.debugModeEnabled) {
         imaSdkSettings.setDebugMode(true);
       }
     }
@@ -870,7 +886,7 @@ public final class ImaAdsLoader
   @Override
   public void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup) {
     AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
-    if (DEBUG) {
+    if (configuration.debugModeEnabled) {
       Log.d(TAG, "Prepared ad " + adInfo);
     }
     @Nullable AdMediaInfo adMediaInfo = adInfoByAdMediaInfo.inverse().get(adInfo);
@@ -920,7 +936,7 @@ public final class ImaAdsLoader
       } else {
         adsManager.init(adsRenderingSettings);
         adsManager.start();
-        if (DEBUG) {
+        if (configuration.debugModeEnabled) {
           Log.d(TAG, "Initialized with ads rendering settings: " + adsRenderingSettings);
         }
       }
@@ -1143,7 +1159,7 @@ public final class ImaAdsLoader
     switch (adEvent.getType()) {
       case AD_BREAK_FETCH_ERROR:
         String adGroupTimeSecondsString = checkNotNull(adEvent.getAdData().get("adBreakTime"));
-        if (DEBUG) {
+        if (configuration.debugModeEnabled) {
           Log.d(TAG, "Fetch error for ad at " + adGroupTimeSecondsString + " seconds");
         }
         double adGroupTimeSeconds = Double.parseDouble(adGroupTimeSecondsString);
@@ -1230,7 +1246,7 @@ public final class ImaAdsLoader
           adCallbacks.get(i).onEnded(adMediaInfo);
         }
       }
-      if (DEBUG) {
+      if (configuration.debugModeEnabled) {
         Log.d(TAG, "VideoAdPlayerCallback.onEnded in onPlaybackStateChanged");
       }
     }
@@ -1270,7 +1286,7 @@ public final class ImaAdsLoader
           adCallbacks.get(i).onEnded(adMediaInfo);
         }
       }
-      if (DEBUG) {
+      if (configuration.debugModeEnabled) {
         Log.d(TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
       }
     }
@@ -1292,7 +1308,7 @@ public final class ImaAdsLoader
   private void loadAdInternal(AdMediaInfo adMediaInfo, AdPodInfo adPodInfo) {
     if (adsManager == null) {
       // Drop events after release.
-      if (DEBUG) {
+      if (configuration.debugModeEnabled) {
         Log.d(
             TAG,
             "loadAd after release " + getAdMediaInfoString(adMediaInfo) + ", ad pod " + adPodInfo);
@@ -1304,7 +1320,7 @@ public final class ImaAdsLoader
     int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
     AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
     adInfoByAdMediaInfo.put(adMediaInfo, adInfo);
-    if (DEBUG) {
+    if (configuration.debugModeEnabled) {
       Log.d(TAG, "loadAd " + getAdMediaInfoString(adMediaInfo));
     }
     if (adPlaybackState.isAdInErrorState(adGroupIndex, adIndexInAdGroup)) {
@@ -1335,7 +1351,7 @@ public final class ImaAdsLoader
   }
 
   private void playAdInternal(AdMediaInfo adMediaInfo) {
-    if (DEBUG) {
+    if (configuration.debugModeEnabled) {
       Log.d(TAG, "playAd " + getAdMediaInfoString(adMediaInfo));
     }
     if (adsManager == null) {
@@ -1379,7 +1395,7 @@ public final class ImaAdsLoader
   }
 
   private void pauseAdInternal(AdMediaInfo adMediaInfo) {
-    if (DEBUG) {
+    if (configuration.debugModeEnabled) {
       Log.d(TAG, "pauseAd " + getAdMediaInfoString(adMediaInfo));
     }
     if (adsManager == null) {
@@ -1399,7 +1415,7 @@ public final class ImaAdsLoader
   }
 
   private void stopAdInternal(AdMediaInfo adMediaInfo) {
-    if (DEBUG) {
+    if (configuration.debugModeEnabled) {
       Log.d(TAG, "stopAd " + getAdMediaInfoString(adMediaInfo));
     }
     if (adsManager == null) {
@@ -1459,7 +1475,7 @@ public final class ImaAdsLoader
     }
     for (int i = 0; i < adGroup.count; i++) {
       if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
-        if (DEBUG) {
+        if (configuration.debugModeEnabled) {
           Log.d(TAG, "Removing ad " + i + " in ad group " + adGroupIndex);
         }
         adPlaybackState = adPlaybackState.withAdLoadError(adGroupIndex, i);
@@ -1472,7 +1488,7 @@ public final class ImaAdsLoader
   }
 
   private void handleAdPrepareError(int adGroupIndex, int adIndexInAdGroup, Exception exception) {
-    if (DEBUG) {
+    if (configuration.debugModeEnabled) {
       Log.d(
           TAG, "Prepare error for ad " + adIndexInAdGroup + " in group " + adGroupIndex, exception);
     }
@@ -1524,7 +1540,7 @@ public final class ImaAdsLoader
       adCallbacks.get(i).onContentComplete();
     }
     sentContentComplete = true;
-    if (DEBUG) {
+    if (configuration.debugModeEnabled) {
       Log.d(TAG, "adsLoader.contentComplete");
     }
     for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
@@ -1699,7 +1715,7 @@ public final class ImaAdsLoader
     @Override
     public VideoProgressUpdate getContentProgress() {
       VideoProgressUpdate videoProgressUpdate = getContentVideoProgressUpdate();
-      if (DEBUG) {
+      if (configuration.debugModeEnabled) {
         if (VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(videoProgressUpdate)) {
           Log.d(TAG, "Content progress: not ready");
         } else {
@@ -1731,7 +1747,7 @@ public final class ImaAdsLoader
     @Override
     public void onAdEvent(AdEvent adEvent) {
       AdEventType adEventType = adEvent.getType();
-      if (DEBUG && adEventType != AdEventType.AD_PROGRESS) {
+      if (configuration.debugModeEnabled && adEventType != AdEventType.AD_PROGRESS) {
         Log.d(TAG, "onAdEvent: " + adEventType);
       }
       try {
@@ -1746,7 +1762,7 @@ public final class ImaAdsLoader
     @Override
     public void onAdError(AdErrorEvent adErrorEvent) {
       AdError error = adErrorEvent.getError();
-      if (DEBUG) {
+      if (configuration.debugModeEnabled) {
         Log.d(TAG, "onAdError", error);
       }
       if (adsManager == null) {
