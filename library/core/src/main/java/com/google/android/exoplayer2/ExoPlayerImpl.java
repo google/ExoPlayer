@@ -42,14 +42,13 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -74,9 +73,8 @@ import java.util.concurrent.TimeoutException;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
-  private final CopyOnWriteArrayList<ListenerHolder> listeners;
+  private final ListenerSet<Player.EventListener> listeners;
   private final Timeline.Period period;
-  private final ArrayDeque<Runnable> pendingListenerNotifications;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
   private final boolean useLazyPreparation;
   private final MediaSourceFactory mediaSourceFactory;
@@ -152,7 +150,7 @@ import java.util.concurrent.TimeoutException;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.applicationLooper = applicationLooper;
     repeatMode = Player.REPEAT_MODE_OFF;
-    listeners = new CopyOnWriteArrayList<>();
+    listeners = new ListenerSet<>();
     mediaSourceHolderSnapshots = new ArrayList<>();
     shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
     emptyTrackSelectorResult =
@@ -167,7 +165,6 @@ import java.util.concurrent.TimeoutException;
         playbackInfoUpdate ->
             playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
-    pendingListenerNotifications = new ArrayDeque<>();
     if (analyticsCollector != null) {
       analyticsCollector.setPlayer(this);
       addListener(analyticsCollector);
@@ -255,18 +252,12 @@ import java.util.concurrent.TimeoutException;
 
   @Override
   public void addListener(Player.EventListener listener) {
-    Assertions.checkNotNull(listener);
-    listeners.addIfAbsent(new ListenerHolder(listener));
+    listeners.add(listener);
   }
 
   @Override
   public void removeListener(Player.EventListener listener) {
-    for (ListenerHolder listenerHolder : listeners) {
-      if (listenerHolder.listener.equals(listener)) {
-        listenerHolder.release();
-        listeners.remove(listenerHolder);
-      }
-    }
+    listeners.remove(listener);
   }
 
   @Override
@@ -560,7 +551,7 @@ import java.util.concurrent.TimeoutException;
     if (this.repeatMode != repeatMode) {
       this.repeatMode = repeatMode;
       internalPlayer.setRepeatMode(repeatMode);
-      notifyListeners(listener -> listener.onRepeatModeChanged(repeatMode));
+      listeners.sendEvent(listener -> listener.onRepeatModeChanged(repeatMode));
     }
   }
 
@@ -574,7 +565,7 @@ import java.util.concurrent.TimeoutException;
     if (this.shuffleModeEnabled != shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
       internalPlayer.setShuffleModeEnabled(shuffleModeEnabled);
-      notifyListeners(listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
+      listeners.sendEvent(listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
     }
   }
 
@@ -723,7 +714,7 @@ import java.util.concurrent.TimeoutException;
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
         + ExoPlayerLibraryInfo.registeredModules() + "]");
     if (!internalPlayer.release()) {
-      notifyListeners(
+      listeners.sendEvent(
           listener ->
               listener.onPlayerError(
                   ExoPlaybackException.createForTimeout(
@@ -942,6 +933,8 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  // Calling deprecated listeners.
+  @SuppressWarnings("deprecation")
   private void updatePlaybackInfo(
       PlaybackInfo playbackInfo,
       boolean positionDiscontinuity,
@@ -949,39 +942,106 @@ import java.util.concurrent.TimeoutException;
       @TimelineChangeReason int timelineChangeReason,
       @PlayWhenReadyChangeReason int playWhenReadyChangeReason,
       boolean seekProcessed) {
-    // Assign playback info immediately such that all getters return the right values.
+    // Assign playback info immediately such that all getters return the right values, but keep
+    // snapshot of previous and new state so that listener invocations are triggered correctly.
     PlaybackInfo previousPlaybackInfo = this.playbackInfo;
+    PlaybackInfo newPlaybackInfo = playbackInfo;
     this.playbackInfo = playbackInfo;
 
     Pair<Boolean, Integer> mediaItemTransitionInfo =
         evaluateMediaItemTransitionReason(
-            playbackInfo,
+            newPlaybackInfo,
             previousPlaybackInfo,
             positionDiscontinuity,
             positionDiscontinuityReason,
-            !previousPlaybackInfo.timeline.equals(playbackInfo.timeline));
+            !previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline));
     boolean mediaItemTransitioned = mediaItemTransitionInfo.first;
     int mediaItemTransitionReason = mediaItemTransitionInfo.second;
-    @Nullable MediaItem newMediaItem = null;
-    if (mediaItemTransitioned && !playbackInfo.timeline.isEmpty()) {
-      int windowIndex =
-          playbackInfo.timeline.getPeriodByUid(playbackInfo.periodId.periodUid, period).windowIndex;
-      newMediaItem = playbackInfo.timeline.getWindow(windowIndex, window).mediaItem;
+    if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
+      listeners.queueEvent(
+          listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
     }
-    notifyListeners(
-        new PlaybackInfoUpdate(
-            playbackInfo,
-            previousPlaybackInfo,
-            listeners,
-            trackSelector,
-            positionDiscontinuity,
-            positionDiscontinuityReason,
-            timelineChangeReason,
-            mediaItemTransitioned,
-            mediaItemTransitionReason,
-            newMediaItem,
-            playWhenReadyChangeReason,
-            seekProcessed));
+    if (positionDiscontinuity) {
+      listeners.queueEvent(
+          listener -> listener.onPositionDiscontinuity(positionDiscontinuityReason));
+    }
+    if (mediaItemTransitioned) {
+      @Nullable final MediaItem mediaItem;
+      if (!newPlaybackInfo.timeline.isEmpty()) {
+        int windowIndex =
+            newPlaybackInfo.timeline.getPeriodByUid(newPlaybackInfo.periodId.periodUid, period)
+                .windowIndex;
+        mediaItem = newPlaybackInfo.timeline.getWindow(windowIndex, window).mediaItem;
+      } else {
+        mediaItem = null;
+      }
+      listeners.queueEvent(
+          listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
+    }
+    if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError
+        && newPlaybackInfo.playbackError != null) {
+      listeners.queueEvent(listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
+    }
+    if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
+      trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
+      listeners.queueEvent(
+          listener ->
+              listener.onTracksChanged(
+                  newPlaybackInfo.trackGroups, newPlaybackInfo.trackSelectorResult.selections));
+    }
+    if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
+      listeners.queueEvent(
+          listener -> listener.onStaticMetadataChanged(newPlaybackInfo.staticMetadata));
+    }
+    if (previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading) {
+      listeners.queueEvent(listener -> listener.onIsLoadingChanged(newPlaybackInfo.isLoading));
+    }
+    if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState
+        || previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
+      listeners.queueEvent(
+          listener ->
+              listener.onPlayerStateChanged(
+                  newPlaybackInfo.playWhenReady, newPlaybackInfo.playbackState));
+    }
+    if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState) {
+      listeners.queueEvent(
+          listener -> listener.onPlaybackStateChanged(newPlaybackInfo.playbackState));
+    }
+    if (previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
+      listeners.queueEvent(
+          listener ->
+              listener.onPlayWhenReadyChanged(
+                  newPlaybackInfo.playWhenReady, playWhenReadyChangeReason));
+    }
+    if (previousPlaybackInfo.playbackSuppressionReason
+        != newPlaybackInfo.playbackSuppressionReason) {
+      listeners.queueEvent(
+          listener ->
+              listener.onPlaybackSuppressionReasonChanged(
+                  newPlaybackInfo.playbackSuppressionReason));
+    }
+    if (isPlaying(previousPlaybackInfo) != isPlaying(newPlaybackInfo)) {
+      listeners.queueEvent(listener -> listener.onIsPlayingChanged(isPlaying(newPlaybackInfo)));
+    }
+    if (!previousPlaybackInfo.playbackParameters.equals(newPlaybackInfo.playbackParameters)) {
+      listeners.queueEvent(
+          listener -> listener.onPlaybackParametersChanged(newPlaybackInfo.playbackParameters));
+    }
+    if (seekProcessed) {
+      listeners.queueEvent(EventListener::onSeekProcessed);
+    }
+    if (previousPlaybackInfo.offloadSchedulingEnabled != newPlaybackInfo.offloadSchedulingEnabled) {
+      listeners.queueEvent(
+          listener ->
+              listener.onExperimentalOffloadSchedulingEnabledChanged(
+                  newPlaybackInfo.offloadSchedulingEnabled));
+    }
+    if (previousPlaybackInfo.sleepingForOffload != newPlaybackInfo.sleepingForOffload) {
+      listeners.queueEvent(
+          listener ->
+              listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload));
+    }
+    listeners.flushEvents();
   }
 
   private Pair<Boolean, Integer> evaluateMediaItemTransitionReason(
@@ -1332,23 +1392,6 @@ import java.util.concurrent.TimeoutException;
     return timeline.getPeriodPosition(window, period, windowIndex, C.msToUs(windowPositionMs));
   }
 
-  private void notifyListeners(ListenerInvocation listenerInvocation) {
-    CopyOnWriteArrayList<ListenerHolder> listenerSnapshot = new CopyOnWriteArrayList<>(listeners);
-    notifyListeners(() -> invokeAll(listenerSnapshot, listenerInvocation));
-  }
-
-  private void notifyListeners(Runnable listenerNotificationRunnable) {
-    boolean isRunningRecursiveListenerNotification = !pendingListenerNotifications.isEmpty();
-    pendingListenerNotifications.addLast(listenerNotificationRunnable);
-    if (isRunningRecursiveListenerNotification) {
-      return;
-    }
-    while (!pendingListenerNotifications.isEmpty()) {
-      pendingListenerNotifications.peekFirst().run();
-      pendingListenerNotifications.removeFirst();
-    }
-  }
-
   private long periodPositionUsToWindowPositionMs(MediaPeriodId periodId, long positionUs) {
     long positionMs = C.usToMs(positionUs);
     playbackInfo.timeline.getPeriodByUid(periodId.periodUid, period);
@@ -1356,183 +1399,10 @@ import java.util.concurrent.TimeoutException;
     return positionMs;
   }
 
-  private static final class PlaybackInfoUpdate implements Runnable {
-
-    private final PlaybackInfo playbackInfo;
-    private final CopyOnWriteArrayList<ListenerHolder> listenerSnapshot;
-    private final TrackSelector trackSelector;
-    private final boolean positionDiscontinuity;
-    @DiscontinuityReason private final int positionDiscontinuityReason;
-    @TimelineChangeReason private final int timelineChangeReason;
-    private final boolean mediaItemTransitioned;
-    private final int mediaItemTransitionReason;
-    @Nullable private final MediaItem mediaItem;
-    @PlayWhenReadyChangeReason private final int playWhenReadyChangeReason;
-    private final boolean seekProcessed;
-    private final boolean playbackStateChanged;
-    private final boolean playbackErrorChanged;
-    private final boolean isLoadingChanged;
-    private final boolean timelineChanged;
-    private final boolean trackSelectorResultChanged;
-    private final boolean staticMetadataChanged;
-    private final boolean playWhenReadyChanged;
-    private final boolean playbackSuppressionReasonChanged;
-    private final boolean isPlayingChanged;
-    private final boolean playbackParametersChanged;
-    private final boolean offloadSchedulingEnabledChanged;
-    private final boolean sleepingForOffloadChanged;
-
-    public PlaybackInfoUpdate(
-        PlaybackInfo playbackInfo,
-        PlaybackInfo previousPlaybackInfo,
-        CopyOnWriteArrayList<ListenerHolder> listeners,
-        TrackSelector trackSelector,
-        boolean positionDiscontinuity,
-        @DiscontinuityReason int positionDiscontinuityReason,
-        @TimelineChangeReason int timelineChangeReason,
-        boolean mediaItemTransitioned,
-        @MediaItemTransitionReason int mediaItemTransitionReason,
-        @Nullable MediaItem mediaItem,
-        @PlayWhenReadyChangeReason int playWhenReadyChangeReason,
-        boolean seekProcessed) {
-      this.playbackInfo = playbackInfo;
-      this.listenerSnapshot = new CopyOnWriteArrayList<>(listeners);
-      this.trackSelector = trackSelector;
-      this.positionDiscontinuity = positionDiscontinuity;
-      this.positionDiscontinuityReason = positionDiscontinuityReason;
-      this.timelineChangeReason = timelineChangeReason;
-      this.mediaItemTransitioned = mediaItemTransitioned;
-      this.mediaItemTransitionReason = mediaItemTransitionReason;
-      this.mediaItem = mediaItem;
-      this.playWhenReadyChangeReason = playWhenReadyChangeReason;
-      this.seekProcessed = seekProcessed;
-      playbackStateChanged = previousPlaybackInfo.playbackState != playbackInfo.playbackState;
-      playbackErrorChanged =
-          previousPlaybackInfo.playbackError != playbackInfo.playbackError
-              && playbackInfo.playbackError != null;
-      isLoadingChanged = previousPlaybackInfo.isLoading != playbackInfo.isLoading;
-      timelineChanged = !previousPlaybackInfo.timeline.equals(playbackInfo.timeline);
-      trackSelectorResultChanged =
-          previousPlaybackInfo.trackSelectorResult != playbackInfo.trackSelectorResult;
-      staticMetadataChanged =
-          !previousPlaybackInfo.staticMetadata.equals(playbackInfo.staticMetadata);
-      playWhenReadyChanged = previousPlaybackInfo.playWhenReady != playbackInfo.playWhenReady;
-      playbackSuppressionReasonChanged =
-          previousPlaybackInfo.playbackSuppressionReason != playbackInfo.playbackSuppressionReason;
-      isPlayingChanged = isPlaying(previousPlaybackInfo) != isPlaying(playbackInfo);
-      playbackParametersChanged =
-          !previousPlaybackInfo.playbackParameters.equals(playbackInfo.playbackParameters);
-      offloadSchedulingEnabledChanged =
-          previousPlaybackInfo.offloadSchedulingEnabled != playbackInfo.offloadSchedulingEnabled;
-      sleepingForOffloadChanged =
-          previousPlaybackInfo.sleepingForOffload != playbackInfo.sleepingForOffload;
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public void run() {
-      if (timelineChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener -> listener.onTimelineChanged(playbackInfo.timeline, timelineChangeReason));
-      }
-      if (positionDiscontinuity) {
-        invokeAll(
-            listenerSnapshot,
-            listener -> listener.onPositionDiscontinuity(positionDiscontinuityReason));
-      }
-      if (mediaItemTransitioned) {
-        invokeAll(
-            listenerSnapshot,
-            listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
-      }
-      if (playbackErrorChanged) {
-        invokeAll(listenerSnapshot, listener -> listener.onPlayerError(playbackInfo.playbackError));
-      }
-      if (trackSelectorResultChanged) {
-        trackSelector.onSelectionActivated(playbackInfo.trackSelectorResult.info);
-        invokeAll(
-            listenerSnapshot,
-            listener ->
-                listener.onTracksChanged(
-                    playbackInfo.trackGroups, playbackInfo.trackSelectorResult.selections));
-      }
-      if (staticMetadataChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener -> listener.onStaticMetadataChanged(playbackInfo.staticMetadata));
-      }
-      if (isLoadingChanged) {
-        invokeAll(
-            listenerSnapshot, listener -> listener.onIsLoadingChanged(playbackInfo.isLoading));
-      }
-      if (playbackStateChanged || playWhenReadyChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener ->
-                listener.onPlayerStateChanged(
-                    playbackInfo.playWhenReady, playbackInfo.playbackState));
-      }
-      if (playbackStateChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener -> listener.onPlaybackStateChanged(playbackInfo.playbackState));
-      }
-      if (playWhenReadyChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener ->
-                listener.onPlayWhenReadyChanged(
-                    playbackInfo.playWhenReady, playWhenReadyChangeReason));
-      }
-      if (playbackSuppressionReasonChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener ->
-                listener.onPlaybackSuppressionReasonChanged(
-                    playbackInfo.playbackSuppressionReason));
-      }
-      if (isPlayingChanged) {
-        invokeAll(
-            listenerSnapshot, listener -> listener.onIsPlayingChanged(isPlaying(playbackInfo)));
-      }
-      if (playbackParametersChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener -> {
-              listener.onPlaybackParametersChanged(playbackInfo.playbackParameters);
-            });
-      }
-      if (seekProcessed) {
-        invokeAll(listenerSnapshot, EventListener::onSeekProcessed);
-      }
-      if (offloadSchedulingEnabledChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener ->
-                listener.onExperimentalOffloadSchedulingEnabledChanged(
-                    playbackInfo.offloadSchedulingEnabled));
-      }
-      if (sleepingForOffloadChanged) {
-        invokeAll(
-            listenerSnapshot,
-            listener ->
-                listener.onExperimentalSleepingForOffloadChanged(playbackInfo.sleepingForOffload));
-      }
-    }
-
-    private static boolean isPlaying(PlaybackInfo playbackInfo) {
-      return playbackInfo.playbackState == Player.STATE_READY
-          && playbackInfo.playWhenReady
-          && playbackInfo.playbackSuppressionReason == PLAYBACK_SUPPRESSION_REASON_NONE;
-    }
-  }
-
-  private static void invokeAll(
-      CopyOnWriteArrayList<ListenerHolder> listeners, ListenerInvocation listenerInvocation) {
-    for (ListenerHolder listenerHolder : listeners) {
-      listenerHolder.invoke(listenerInvocation);
-    }
+  private static boolean isPlaying(PlaybackInfo playbackInfo) {
+    return playbackInfo.playbackState == Player.STATE_READY
+        && playbackInfo.playWhenReady
+        && playbackInfo.playbackSuppressionReason == PLAYBACK_SUPPRESSION_REASON_NONE;
   }
 
   private static final class MediaSourceHolderSnapshot implements MediaSourceInfoHolder {
