@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -124,9 +125,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private TrackSelection trackSelection;
   private DashManifest manifest;
   private int periodIndex;
-  private IOException fatalError;
+  @Nullable private IOException fatalError;
   private boolean missingLastSegment;
-  private long liveEdgeTimeUs;
 
   /**
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
@@ -172,7 +172,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.playerTrackEmsgHandler = playerTrackEmsgHandler;
 
     long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
-    liveEdgeTimeUs = C.TIME_UNSET;
 
     List<Representation> representations = getRepresentations();
     representationHolders = new RepresentationHolder[trackSelection.length()];
@@ -266,7 +265,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
-    long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
     long presentationPositionUs =
         C.msToUs(manifest.availabilityStartTimeMs)
             + C.msToUs(manifest.getPeriod(periodIndex).startMs)
@@ -307,8 +305,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
       }
     }
 
+    long availableLiveDurationUs = getAvailableLiveDurationUs(nowUnixTimeUs, playbackPositionUs);
     trackSelection.updateSelectedTrack(
-        playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs, queue, chunkIterators);
+        playbackPositionUs, bufferedDurationUs, availableLiveDurationUs, queue, chunkIterators);
 
     RepresentationHolder representationHolder =
         representationHolders[trackSelection.getSelectedIndex()];
@@ -343,9 +342,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     long firstAvailableSegmentNum = representationHolder.getFirstAvailableSegmentNum(nowUnixTimeUs);
     long lastAvailableSegmentNum = representationHolder.getLastAvailableSegmentNum(nowUnixTimeUs);
-
-    updateLiveEdgeTimeUs(representationHolder, lastAvailableSegmentNum);
-
     long segmentNum =
         getSegmentNum(
             representationHolder,
@@ -486,15 +482,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
     return representations;
   }
 
-  private void updateLiveEdgeTimeUs(
-      RepresentationHolder representationHolder, long lastAvailableSegmentNum) {
-    liveEdgeTimeUs = manifest.dynamic
-        ? representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum) : C.TIME_UNSET;
-  }
-
-  private long resolveTimeToLiveEdgeUs(long playbackPositionUs) {
-    boolean resolveTimeToLiveEdgePossible = manifest.dynamic && liveEdgeTimeUs != C.TIME_UNSET;
-    return resolveTimeToLiveEdgePossible ? liveEdgeTimeUs - playbackPositionUs : C.TIME_UNSET;
+  private long getAvailableLiveDurationUs(long nowUnixTimeUs, long playbackPositionUs) {
+    if (!manifest.dynamic) {
+      return C.TIME_UNSET;
+    }
+    long lastSegmentNum = representationHolders[0].getLastAvailableSegmentNum(nowUnixTimeUs);
+    long lastSegmentEndTimeUs = representationHolders[0].getSegmentEndTimeUs(lastSegmentNum);
+    long nowPeriodTimeUs =
+        nowUnixTimeUs
+            - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
+    long availabilityEndTimeUs = min(nowPeriodTimeUs, lastSegmentEndTimeUs);
+    return max(0, availabilityEndTimeUs - playbackPositionUs);
   }
 
   protected Chunk newInitializationChunk(
