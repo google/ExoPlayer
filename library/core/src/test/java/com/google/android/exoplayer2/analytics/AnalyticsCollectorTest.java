@@ -18,6 +18,10 @@ package com.google.android.exoplayer2.analytics;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -60,6 +64,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinit
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -71,6 +76,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 /** Integration test for {@link AnalyticsCollector}. */
 @RunWith(AndroidJUnit4.class)
@@ -1644,6 +1651,36 @@ public final class AnalyticsCollectorTest {
               new MediaPeriodId(
                   timeline.getUidOfPeriod(/* periodIndex= */ 1), /* windowSequenceNumber= */ 0));
     }
+  }
+
+  @Test
+  public void recursiveListenerInvocation_arrivesInCorrectOrder() {
+    AnalyticsCollector analyticsCollector = new AnalyticsCollector(Clock.DEFAULT);
+    analyticsCollector.setPlayer(
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build());
+    AnalyticsListener listener1 = mock(AnalyticsListener.class);
+    AnalyticsListener listener2 =
+        spy(
+            new AnalyticsListener() {
+              @Override
+              public void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
+                analyticsCollector.onSurfaceSizeChanged(/* width= */ 0, /* height= */ 0);
+              }
+            });
+    AnalyticsListener listener3 = mock(AnalyticsListener.class);
+    analyticsCollector.addListener(listener1);
+    analyticsCollector.addListener(listener2);
+    analyticsCollector.addListener(listener3);
+
+    analyticsCollector.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
+
+    InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
+    inOrder.verify(listener1).onPlayerError(any(), any());
+    inOrder.verify(listener2).onPlayerError(any(), any());
+    inOrder.verify(listener3).onPlayerError(any(), any());
+    inOrder.verify(listener1).onSurfaceSizeChanged(any(), eq(0), eq(0));
+    inOrder.verify(listener2).onSurfaceSizeChanged(any(), eq(0), eq(0));
+    inOrder.verify(listener3).onSurfaceSizeChanged(any(), eq(0), eq(0));
   }
 
   private static TestAnalyticsListener runAnalyticsTest(MediaSource mediaSource) throws Exception {

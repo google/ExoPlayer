@@ -22,6 +22,8 @@
     *   Switch Guava dependency from `implementation` to `api`
         ([#7905](https://github.com/google/ExoPlayer/issues/7905),
         ([#7993](https://github.com/google/ExoPlayer/issues/7993)).
+    *   Fix bug where `AnalyticsListener` callbacks can arrive in the wrong
+        order ([#8048](https://github.com/google/ExoPlayer/issues/8048)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:
