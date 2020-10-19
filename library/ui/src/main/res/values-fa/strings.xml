@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">پخش</string>
   <string name="exo_controls_stop_description">توقف</string>
   <string name="exo_controls_rewind_description">عقب بردن</string>
-  <string name="exo_controls_rewind_by_amount_description">‫%d ثانیه به‌عقب بردن</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d ثانیه به‌عقب بردن</item>
+    <item quantity="other">%d ثانیه به‌عقب بردن</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">جلو بردن سریع</string>
-  <string name="exo_controls_fastforward_by_amount_description">‫%d ثانیه سریع به‌جلو بردن</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d ثانیه سریع به‌جلو بردن</item>
+    <item quantity="other">%d ثانیه سریع به‌جلو بردن</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">تکرار هیچ‌کدام</string>
   <string name="exo_controls_repeat_one_description">یکبار تکرار</string>
   <string name="exo_controls_repeat_all_description">تکرار همه</string>

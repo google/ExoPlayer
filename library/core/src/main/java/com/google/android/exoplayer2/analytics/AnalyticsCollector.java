@@ -471,6 +471,14 @@ public class AnalyticsCollector
   }
 
   @Override
+  public final void onStaticMetadataChanged(List<Metadata> metadataList) {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    for (AnalyticsListener listener : listeners) {
+      listener.onStaticMetadataChanged(eventTime, metadataList);
+    }
+  }
+
+  @Override
   public final void onIsLoadingChanged(boolean isLoading) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     for (AnalyticsListener listener : listeners) {

@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">ਚਲਾਓ</string>
   <string name="exo_controls_stop_description">ਬੰਦ ਕਰੋ</string>
   <string name="exo_controls_rewind_description">ਪਿੱਛੇ ਕਰੋ</string>
-  <string name="exo_controls_rewind_by_amount_description">%d ਸਕਿੰਟ ਪਿੱਛੇ ਕਰੋ</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d ਸਕਿੰਟ ਪਿੱਛੇ ਕਰੋ</item>
+    <item quantity="other">%d ਸਕਿੰਟ ਪਿੱਛੇ ਕਰੋ</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">ਤੇਜ਼ੀ ਨਾਲ ਅੱਗੇ ਕਰੋ</string>
-  <string name="exo_controls_fastforward_by_amount_description">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</item>
+    <item quantity="other">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">ਕਿਸੇ ਨੂੰ ਨਾ ਦੁਹਰਾਓ</string>
   <string name="exo_controls_repeat_one_description">ਇੱਕ ਵਾਰ ਦੁਹਰਾਓ</string>
   <string name="exo_controls_repeat_all_description">ਸਾਰਿਆਂ ਨੂੰ ਦੁਹਰਾਓ</string>

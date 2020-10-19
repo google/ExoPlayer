@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Putar</string>
   <string name="exo_controls_stop_description">Berhenti</string>
   <string name="exo_controls_rewind_description">Putar Ulang</string>
-  <string name="exo_controls_rewind_by_amount_description">Mundur %d detik</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Mundur %d detik</item>
+    <item quantity="other">Mundur %d detik</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Maju cepat</string>
-  <string name="exo_controls_fastforward_by_amount_description">Maju cepat %d detik</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Maju cepat %d detik</item>
+    <item quantity="other">Maju cepat %d detik</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Jangan ulangi</string>
   <string name="exo_controls_repeat_one_description">Ulangi 1</string>
   <string name="exo_controls_repeat_all_description">Ulangi semua</string>

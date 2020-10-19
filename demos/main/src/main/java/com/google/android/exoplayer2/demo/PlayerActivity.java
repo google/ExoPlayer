@@ -102,7 +102,7 @@ public class PlayerActivity extends AppCompatActivity
   private int startWindow;
   private long startPosition;
 
-  // Fields used only for ad playback. The ads loader is loaded via reflection.
+  // Fields used only for ad playback.
 
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
@@ -375,7 +375,7 @@ public class PlayerActivity extends AppCompatActivity
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      adsLoader = new ImaAdsLoader(/* context= */ PlayerActivity.this, adTagUri);
+      adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
     }
     adsLoader.setPlayer(player);
     return adsLoader;

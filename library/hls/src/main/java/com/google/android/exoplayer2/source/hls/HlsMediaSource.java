@@ -20,7 +20,6 @@ import static java.lang.Math.max;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.net.Uri;
-import android.os.Handler;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -316,23 +315,6 @@ public final class HlsMediaSource extends BaseMediaSource
     public Factory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
       this.streamKeys = streamKeys != null ? streamKeys : Collections.emptyList();
       return this;
-    }
-
-    /**
-     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
-     *     MediaSourceEventListener)} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    public HlsMediaSource createMediaSource(
-        Uri playlistUri,
-        @Nullable Handler eventHandler,
-        @Nullable MediaSourceEventListener eventListener) {
-      HlsMediaSource mediaSource = createMediaSource(playlistUri);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
     }
 
     /** @deprecated Use {@link #createMediaSource(MediaItem)} instead. */

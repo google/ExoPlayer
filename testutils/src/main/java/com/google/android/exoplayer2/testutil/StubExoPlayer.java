@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -376,6 +377,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public List<Metadata> getCurrentStaticMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     throw new UnsupportedOperationException();
   }
@@ -452,6 +458,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean experimentalIsSleepingForOffload() {
     throw new UnsupportedOperationException();
   }
 }

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
+import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;

@@ -137,7 +137,7 @@ public abstract class TrackSelector {
    *
    * @param info The value of {@link TrackSelectorResult#info} in the activated selection.
    */
-  public abstract void onSelectionActivated(Object info);
+  public abstract void onSelectionActivated(@Nullable Object info);
 
   /**
    * Calls {@link InvalidationListener#onTrackSelectionsInvalidated()} to invalidate all previously

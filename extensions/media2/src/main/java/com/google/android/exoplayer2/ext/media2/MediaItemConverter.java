@@ -23,13 +23,13 @@ import com.google.android.exoplayer2.MediaItem;
  */
 public interface MediaItemConverter {
   /**
-   * Converts an {@link androidx.media2.common.MediaItem Media2 MediaItem} to an {@link MediaItem
+   * Converts a {@link androidx.media2.common.MediaItem Media2 MediaItem} to an {@link MediaItem
    * ExoPlayer MediaItem}.
    */
   MediaItem convertToExoPlayerMediaItem(androidx.media2.common.MediaItem media2MediaItem);
 
   /**
-   * Converts an {@link MediaItem ExoPlayer MediaItem} to an {@link androidx.media2.common.MediaItem
+   * Converts an {@link MediaItem ExoPlayer MediaItem} to a {@link androidx.media2.common.MediaItem
    * Media2 MediaItem}.
    */
   androidx.media2.common.MediaItem convertToMedia2MediaItem(MediaItem exoPlayerMediaItem);

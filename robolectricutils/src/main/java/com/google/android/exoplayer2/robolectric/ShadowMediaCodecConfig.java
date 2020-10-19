@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.e2etest.util;
+package com.google.android.exoplayer2.robolectric;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -76,6 +76,8 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
 
     // Audio codecs
     configureCodec("exotest.audio.aac", MimeTypes.AUDIO_AAC);
+    configureCodec("exotest.audio.flac", MimeTypes.AUDIO_FLAC);
+    configureCodec("exotest.audio.mpeg", MimeTypes.AUDIO_MPEG);
     configureCodec("exotest.audio.mpegl2", MimeTypes.AUDIO_MPEG_L2);
   }
 

@@ -340,7 +340,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
             /* manifest= */ null,
             mediaItem);
     if (timelineIsPlaceholder) {
-      // TODO: Actually prepare the extractors during prepatation so that we don't need a
+      // TODO: Actually prepare the extractors during preparation so that we don't need a
       // placeholder. See https://github.com/google/ExoPlayer/issues/4727.
       timeline =
           new ForwardingTimeline(timeline) {

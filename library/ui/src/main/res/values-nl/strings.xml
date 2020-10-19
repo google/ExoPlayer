@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Afspelen</string>
   <string name="exo_controls_stop_description">Stoppen</string>
   <string name="exo_controls_rewind_description">Terugspoelen</string>
-  <string name="exo_controls_rewind_by_amount_description">%d seconden terugspoelen</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d seconde terugspoelen</item>
+    <item quantity="other">%d seconden terugspoelen</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Vooruitspoelen</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d seconden vooruitspoelen</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d seconde vooruitspoelen</item>
+    <item quantity="other">%d seconden vooruitspoelen</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Niets herhalen</string>
   <string name="exo_controls_repeat_one_description">Eén herhalen</string>
   <string name="exo_controls_repeat_all_description">Alles herhalen</string>

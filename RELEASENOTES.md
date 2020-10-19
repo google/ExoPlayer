@@ -3,6 +3,8 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
+    *   `LoadControl`:
+        *   Add a `targetLiveOffsetUs` parameter to `shouldStartPlayback`.
     *   Fix bug where streams with highly uneven durations may get stuck in a
         buffering state
         ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
@@ -10,6 +12,16 @@
         still possible until the next major release using
         `setThrowsWhenUsingWrongThread(false)`
         ([#4463](https://github.com/google/ExoPlayer/issues/4463)).
+    *   Add a getter and callback for static metadata to the player
+        ([#7266](https://github.com/google/ExoPlayer/issues/7266)).
+    *   Time out on release to prevent ANRs if the underlying platform call is
+        stuck ([#4352](https://github.com/google/ExoPlayer/issues/4352)).
+    *   Time out when detaching a surface to prevent ANRs if the underlying
+        platform call is stuck
+        ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
+    *   Switch Guava dependency from `implementation` to `api`
+        ([#7905](https://github.com/google/ExoPlayer/issues/7905),
+        ([#7993](https://github.com/google/ExoPlayer/issues/7993)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   Data sources:
@@ -17,26 +29,63 @@
         ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
 *   Text:
     *   Add support for `\h` SSA/ASS style override code (non-breaking space).
+    *   Fix WebVTT subtitles in MP4 containers in DASH streams
+        ([#7985](https://github.com/google/ExoPlayer/issues/7985)).
+    *   Fix NPE in `TextRenderer` when playing content with a single subtitle
+        buffer ([#8017](https://github.com/google/ExoPlayer/issues/8017)).
 *   UI:
-    *   Do not require subtitleButton in custom layouts of StyledPlayerView
+    *   Show overflow button in `StyledPlayerControlView` only when there is not
+        enough space.
+    *   Fix animation when `StyledPlayerView` first shows its playback controls.
+    *   Allow subtitleButton to be omitted in custom `StyledPlayerView` layouts
         ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
+    *   Add an option to sort tracks by `Format` in `TrackSelectionView` and
+        `TrackSelectionDialogBuilder`
+        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+    *   Improve touch targets in `StyledPlayerView` to make tapping easier.
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
     *   Fix the default audio sink position not advancing correctly when using
         `AudioTrack`-based speed adjustment
         ([#7982](https://github.com/google/ExoPlayer/issues/7982)).
+    *   Fix `NoClassDefFoundError` warning for `AudioTrack$StreamEventCallback`
+        even though the class was not used
+        ([#8058](https://github.com/google/ExoPlayer/issues/8058)).
 *   Extractors:
     *   Add support for .mp2 boxes in the `AtomParsers`
         ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
     *   Use TLEN ID3 tag to compute the duration in Mp3Extractor
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
-*   UI
-    *   Add the option to sort tracks by `Format` in `TrackSelectionView` and
-        `TrackSelectionDialogBuilder`
-        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+    *   Fix regression for Ogg files with packets that span multiple pages
+        ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
+    *   Add TS extractor parameter to configure the number of bytes in which to
+        search for a timestamp to determine the duration and to seek.
+        ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
+    *   Ignore negative payload size in PES packets
+        ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
+    *   Make FLV files seekable by using the key frame index
+        ([#7378](https://github.com/google/ExoPlayer/issues/7378)).
+*   HLS:
+    *   Fix crash affecting chunkful preparation of master playlists that start
+        with an I-FRAME only variant
+        ([#8025](https://github.com/google/ExoPlayer/issues/8025)).
 *   IMA extension:
     *   Fix position reporting after fetch errors
         ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
+    *   Allow apps to specify a `VideoAdPlayerCallback`
+        ([#7944](https://github.com/google/ExoPlayer/issues/7944)).
+    *   Accept ad tags via the `AdsMediaSource` constructor and deprecate
+        passing them via the `ImaAdsLoader` constructor/builders. Passing the ad
+        tag via media item playback properties continues to be supported. This
+        is in preparation for supporting ads in playlists
+        ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
+    *   Add a way to override ad media MIME types
+        ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
+    *   Fix truncating large cue points in microseconds
+        ([#8067](https://github.com/google/ExoPlayer/issues/8067)).
+    *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for
+        companion ads rendering when targeting API 29
+        ([#6432](https://github.com/google/ExoPlayer/issues/6432)).
 
 ### 2.12.0 (2020-09-11) ###
 

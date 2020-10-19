@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Възпроизвеждане</string>
   <string name="exo_controls_stop_description">Спиране</string>
   <string name="exo_controls_rewind_description">Превъртане назад</string>
-  <string name="exo_controls_rewind_by_amount_description">Превъртане с(ъс) %d сек назад</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Превъртане с %d секунда назад</item>
+    <item quantity="other">Превъртане с(ъс) %d секунди назад</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Превъртане напред</string>
-  <string name="exo_controls_fastforward_by_amount_description">Превъртане с(ъс) %d секунди напред</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Превъртане с %d секунда напред</item>
+    <item quantity="other">Превъртане с(ъс) %d секунди напред</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Без повтаряне</string>
   <string name="exo_controls_repeat_one_description">Повтаряне на един елемент</string>
   <string name="exo_controls_repeat_all_description">Повтаряне на всички</string>

@@ -302,7 +302,7 @@ public final class CacheDataSourceTest {
     CacheDataSource cacheDataSource = new CacheDataSource(cache, upstream, 0);
 
     cacheDataSource.open(unboundedDataSpec);
-    TestUtil.readToEnd(cacheDataSource);
+    Util.readToEnd(cacheDataSource);
     cacheDataSource.close();
 
     assertThat(upstream.getAndClearOpenedDataSpecs()).hasLength(1);
@@ -319,7 +319,7 @@ public final class CacheDataSourceTest {
             cache, upstream, CacheDataSource.FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS);
 
     cacheDataSource.open(unboundedDataSpec);
-    TestUtil.readToEnd(cacheDataSource);
+    Util.readToEnd(cacheDataSource);
     cacheDataSource.close();
 
     assertThat(cache.getKeys()).isEmpty();
@@ -369,7 +369,7 @@ public final class CacheDataSourceTest {
     cacheWriter.cache();
 
     // Read the rest of the data.
-    TestUtil.readToEnd(cacheDataSource);
+    Util.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -419,7 +419,7 @@ public final class CacheDataSourceTest {
     cacheWriter.cache();
 
     // Read the rest of the data.
-    TestUtil.readToEnd(cacheDataSource);
+    Util.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -449,14 +449,14 @@ public final class CacheDataSourceTest {
 
     // Open source and read some data from upstream as the data hasn't cached yet.
     cacheDataSource.open(unboundedDataSpec);
-    TestUtil.readExactly(cacheDataSource, 100);
+    Util.readExactly(cacheDataSource, 100);
 
     // Delete cached data.
     cache.removeResource(cacheDataSource.getCacheKeyFactory().buildCacheKey(unboundedDataSpec));
     assertCacheEmpty(cache);
 
     // Read the rest of the data.
-    TestUtil.readToEnd(cacheDataSource);
+    Util.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 
@@ -487,7 +487,7 @@ public final class CacheDataSourceTest {
     cacheDataSource.open(unboundedDataSpec);
 
     // Read the first half from upstream as it hasn't cached yet.
-    TestUtil.readExactly(cacheDataSource, halfDataLength);
+    Util.readExactly(cacheDataSource, halfDataLength);
 
     // Delete the cached latter half.
     NavigableSet<CacheSpan> cachedSpans = cache.getCachedSpans(defaultCacheKey);
@@ -498,7 +498,7 @@ public final class CacheDataSourceTest {
     }
 
     // Read the rest of the data.
-    TestUtil.readToEnd(cacheDataSource);
+    Util.readToEnd(cacheDataSource);
     cacheDataSource.close();
   }
 

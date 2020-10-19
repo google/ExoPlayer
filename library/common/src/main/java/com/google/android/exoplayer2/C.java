@@ -60,9 +60,10 @@ public final class C {
    */
   public static final int POSITION_UNSET = -1;
 
-  /**
-   * Represents an unset or unknown length.
-   */
+  /** Represents an unset or unknown rate. */
+  public static final float RATE_UNSET = -Float.MAX_VALUE;
+
+  /** Represents an unset or unknown length. */
   public static final int LENGTH_UNSET = -1;
 
   /** Represents an unset or unknown percentage. */

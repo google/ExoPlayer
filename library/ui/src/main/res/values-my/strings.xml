@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">ဖွင့်ရန်</string>
   <string name="exo_controls_stop_description">ရပ်ရန်</string>
   <string name="exo_controls_rewind_description">ပြန်ရစ်ရန်</string>
-  <string name="exo_controls_rewind_by_amount_description">နောက်သို့ %d စက္ကန့်ရစ်ရန်</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">နောက်သို့ %d စက္ကန့်ရစ်ရန်</item>
+    <item quantity="other">နောက်သို့ %d စက္ကန့်ရစ်ရန်</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">ရှေ့သို့ အမြန်သွားရန်</string>
-  <string name="exo_controls_fastforward_by_amount_description">ရှေ့သို့ %d စက္ကန့်ရစ်ရန်</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">ရှေ့သို့ %d စက္ကန့်ရစ်ရန်</item>
+    <item quantity="other">ရှေ့သို့ %d စက္ကန့်ရစ်ရန်</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">မည်သည်ကိုမျှ ပြန်မကျော့ရန်</string>
   <string name="exo_controls_repeat_one_description">တစ်ခုကို ပြန်ကျော့ရန်</string>
   <string name="exo_controls_repeat_all_description">အားလုံး ပြန်ကျော့ရန်</string>

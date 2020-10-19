@@ -37,7 +37,7 @@ public final class TsDurationReaderTest {
 
   @Before
   public void setUp() {
-    tsDurationReader = new TsDurationReader();
+    tsDurationReader = new TsDurationReader(TsExtractor.DEFAULT_TIMESTAMP_SEARCH_BYTES);
     seekPositionHolder = new PositionHolder();
   }
 

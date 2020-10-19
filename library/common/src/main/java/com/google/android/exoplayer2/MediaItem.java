@@ -76,6 +76,9 @@ public final class MediaItem {
     @Nullable private Uri adTagUri;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
+    private long liveTargetOffsetMs;
+    private float liveMinPlaybackSpeed;
+    private float liveMaxPlaybackSpeed;
 
     /** Creates a builder. */
     public Builder() {
@@ -84,6 +87,9 @@ public final class MediaItem {
       drmLicenseRequestHeaders = Collections.emptyMap();
       streamKeys = Collections.emptyList();
       subtitles = Collections.emptyList();
+      liveTargetOffsetMs = C.TIME_UNSET;
+      liveMinPlaybackSpeed = C.RATE_UNSET;
+      liveMaxPlaybackSpeed = C.RATE_UNSET;
     }
 
     private Builder(MediaItem mediaItem) {
@@ -95,6 +101,9 @@ public final class MediaItem {
       clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
+      liveTargetOffsetMs = mediaItem.liveConfiguration.targetLiveOffsetMs;
+      liveMinPlaybackSpeed = mediaItem.liveConfiguration.minPlaybackSpeed;
+      liveMaxPlaybackSpeed = mediaItem.liveConfiguration.maxPlaybackSpeed;
       @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
       if (playbackProperties != null) {
         adTagUri = playbackProperties.adTagUri;
@@ -415,6 +424,45 @@ public final class MediaItem {
     }
 
     /**
+     * Sets the optional target offset from the live edge for live streams, in milliseconds.
+     *
+     * <p>See {@code Player#getCurrentLiveOffset()}.
+     *
+     * @param liveTargetOffsetMs The target live offset, in milliseconds, or {@link C#TIME_UNSET} to
+     *     use the media-defined default.
+     */
+    public Builder setLiveTargetOffsetMs(long liveTargetOffsetMs) {
+      this.liveTargetOffsetMs = liveTargetOffsetMs;
+      return this;
+    }
+
+    /**
+     * Sets the optional minimum playback speed for live stream speed adjustment.
+     *
+     * <p>This value is ignored for other stream types.
+     *
+     * @param minPlaybackSpeed The minimum playback speed for live streams, or {@link C#RATE_UNSET}
+     *     to use the media-defined default.
+     */
+    public Builder setLiveMinPlaybackSpeed(float minPlaybackSpeed) {
+      this.liveMinPlaybackSpeed = minPlaybackSpeed;
+      return this;
+    }
+
+    /**
+     * Sets the optional maximum playback speed for live stream speed adjustment.
+     *
+     * <p>This value is ignored for other stream types.
+     *
+     * @param maxPlaybackSpeed The maximum playback speed for live streams, or {@link C#RATE_UNSET}
+     *     to use the media-defined default.
+     */
+    public Builder setLiveMaxPlaybackSpeed(float maxPlaybackSpeed) {
+      this.liveMaxPlaybackSpeed = maxPlaybackSpeed;
+      return this;
+    }
+
+    /**
      * Sets the optional tag for custom attributes. The tag for the media source which will be
      * published in the {@code com.google.android.exoplayer2.Timeline} of the source as {@code
      * com.google.android.exoplayer2.Timeline.Window#tag}.
@@ -471,6 +519,7 @@ public final class MediaItem {
               clipRelativeToDefaultPosition,
               clipStartsAtKeyFrame),
           playbackProperties,
+          new LiveConfiguration(liveTargetOffsetMs, liveMinPlaybackSpeed, liveMaxPlaybackSpeed),
           mediaMetadata != null ? mediaMetadata : new MediaMetadata.Builder().build());
     }
   }
@@ -658,6 +707,66 @@ public final class MediaItem {
     }
   }
 
+  /** Live playback configuration. */
+  public static final class LiveConfiguration {
+
+    /** A live playback configuration with unset values. */
+    public static final LiveConfiguration UNSET =
+        new LiveConfiguration(C.TIME_UNSET, C.RATE_UNSET, C.RATE_UNSET);
+
+    /**
+     * Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use the media-defined
+     * default.
+     */
+    public final long targetLiveOffsetMs;
+
+    /** Minimum playback speed, or {@link C#RATE_UNSET} to use the media-defined default. */
+    public final float minPlaybackSpeed;
+
+    /** Maximum playback speed, or {@link C#RATE_UNSET} to use the media-defined default. */
+    public final float maxPlaybackSpeed;
+
+    /**
+     * Creates a live playback configuration.
+     *
+     * @param targetLiveOffsetMs Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use
+     *     the media-defined default.
+     * @param minPlaybackSpeed Minimum playback speed, or {@link C#RATE_UNSET} to use the
+     *     media-defined default.
+     * @param maxPlaybackSpeed Maximum playback speed, or {@link C#RATE_UNSET} to use the
+     *     media-defined default.
+     */
+    public LiveConfiguration(
+        long targetLiveOffsetMs, float minPlaybackSpeed, float maxPlaybackSpeed) {
+      this.targetLiveOffsetMs = targetLiveOffsetMs;
+      this.minPlaybackSpeed = minPlaybackSpeed;
+      this.maxPlaybackSpeed = maxPlaybackSpeed;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof LiveConfiguration)) {
+        return false;
+      }
+      LiveConfiguration other = (LiveConfiguration) obj;
+
+      return targetLiveOffsetMs == other.targetLiveOffsetMs
+          && minPlaybackSpeed == other.minPlaybackSpeed
+          && maxPlaybackSpeed == other.maxPlaybackSpeed;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = (int) (targetLiveOffsetMs ^ (targetLiveOffsetMs >>> 32));
+      result = 31 * result + (minPlaybackSpeed != 0 ? Float.floatToIntBits(minPlaybackSpeed) : 0);
+      result = 31 * result + (maxPlaybackSpeed != 0 ? Float.floatToIntBits(maxPlaybackSpeed) : 0);
+      return result;
+    }
+  }
+
   /** Properties for a text track. */
   public static final class Subtitle {
 
@@ -669,6 +778,10 @@ public final class MediaItem {
     @Nullable public final String language;
     /** The selection flags. */
     @C.SelectionFlags public final int selectionFlags;
+    /** The role flags. */
+    @C.RoleFlags public final int roleFlags;
+    /** The label. */
+    @Nullable public final String label;
 
     /**
      * Creates an instance.
@@ -682,7 +795,7 @@ public final class MediaItem {
     }
 
     /**
-     * Creates an instance with the given selection flags.
+     * Creates an instance.
      *
      * @param uri The {@link Uri URI} to the subtitle file.
      * @param mimeType The MIME type.
@@ -691,10 +804,32 @@ public final class MediaItem {
      */
     public Subtitle(
         Uri uri, String mimeType, @Nullable String language, @C.SelectionFlags int selectionFlags) {
+      this(uri, mimeType, language, selectionFlags, /* roleFlags= */ 0, /* label= */ null);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param uri The {@link Uri URI} to the subtitle file.
+     * @param mimeType The MIME type.
+     * @param language The optional language.
+     * @param selectionFlags The selection flags.
+     * @param roleFlags The role flags.
+     * @param label The optional label.
+     */
+    public Subtitle(
+        Uri uri,
+        String mimeType,
+        @Nullable String language,
+        @C.SelectionFlags int selectionFlags,
+        @C.RoleFlags int roleFlags,
+        @Nullable String label) {
       this.uri = uri;
       this.mimeType = mimeType;
       this.language = language;
       this.selectionFlags = selectionFlags;
+      this.roleFlags = roleFlags;
+      this.label = label;
     }
 
     @Override
@@ -711,7 +846,9 @@ public final class MediaItem {
       return uri.equals(other.uri)
           && mimeType.equals(other.mimeType)
           && Util.areEqual(language, other.language)
-          && selectionFlags == other.selectionFlags;
+          && selectionFlags == other.selectionFlags
+          && roleFlags == other.roleFlags
+          && Util.areEqual(label, other.label);
     }
 
     @Override
@@ -720,6 +857,8 @@ public final class MediaItem {
       result = 31 * result + mimeType.hashCode();
       result = 31 * result + (language == null ? 0 : language.hashCode());
       result = 31 * result + selectionFlags;
+      result = 31 * result + roleFlags;
+      result = 31 * result + (label == null ? 0 : label.hashCode());
       return result;
     }
   }
@@ -784,8 +923,8 @@ public final class MediaItem {
 
     @Override
     public int hashCode() {
-      int result = Long.valueOf(startPositionMs).hashCode();
-      result = 31 * result + Long.valueOf(endPositionMs).hashCode();
+      int result = (int) (startPositionMs ^ (startPositionMs >>> 32));
+      result = 31 * result + (int) (endPositionMs ^ (endPositionMs >>> 32));
       result = 31 * result + (relativeToLiveWindow ? 1 : 0);
       result = 31 * result + (relativeToDefaultPosition ? 1 : 0);
       result = 31 * result + (startsAtKeyFrame ? 1 : 0);
@@ -799,6 +938,9 @@ public final class MediaItem {
   /** Optional playback properties. Maybe be {@code null} if shared over process boundaries. */
   @Nullable public final PlaybackProperties playbackProperties;
 
+  /** The live playback configuration. */
+  public final LiveConfiguration liveConfiguration;
+
   /** The media metadata. */
   public final MediaMetadata mediaMetadata;
 
@@ -809,9 +951,11 @@ public final class MediaItem {
       String mediaId,
       ClippingProperties clippingProperties,
       @Nullable PlaybackProperties playbackProperties,
+      LiveConfiguration liveConfiguration,
       MediaMetadata mediaMetadata) {
     this.mediaId = mediaId;
     this.playbackProperties = playbackProperties;
+    this.liveConfiguration = liveConfiguration;
     this.mediaMetadata = mediaMetadata;
     this.clippingProperties = clippingProperties;
   }
@@ -835,6 +979,7 @@ public final class MediaItem {
     return Util.areEqual(mediaId, other.mediaId)
         && clippingProperties.equals(other.clippingProperties)
         && Util.areEqual(playbackProperties, other.playbackProperties)
+        && Util.areEqual(liveConfiguration, other.liveConfiguration)
         && Util.areEqual(mediaMetadata, other.mediaMetadata);
   }
 
@@ -842,6 +987,7 @@ public final class MediaItem {
   public int hashCode() {
     int result = mediaId.hashCode();
     result = 31 * result + (playbackProperties != null ? playbackProperties.hashCode() : 0);
+    result = 31 * result + liveConfiguration.hashCode();
     result = 31 * result + clippingProperties.hashCode();
     result = 31 * result + mediaMetadata.hashCode();
     return result;

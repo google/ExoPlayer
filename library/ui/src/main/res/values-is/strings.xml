@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Spila</string>
   <string name="exo_controls_stop_description">Stöðva</string>
   <string name="exo_controls_rewind_description">Spóla til baka</string>
-  <string name="exo_controls_rewind_by_amount_description">Spóla aftur um %d sekúndur</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Spóla til baka um %d sekúndu</item>
+    <item quantity="other">Spóla til baka um %d sekúndur</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Spóla áfram</string>
-  <string name="exo_controls_fastforward_by_amount_description">Spóla fram um %d sekúndur</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Spóla áfram um %d sekúndu</item>
+    <item quantity="other">Spóla áfram um %d sekúndur</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Endurtaka ekkert</string>
   <string name="exo_controls_repeat_one_description">Endurtaka eitt</string>
   <string name="exo_controls_repeat_all_description">Endurtaka allt</string>

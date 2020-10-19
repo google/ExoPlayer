@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.common.base.Objects;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * A listener for analytics events.
@@ -336,6 +337,23 @@ public interface AnalyticsListener {
    */
   default void onTracksChanged(
       EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
+
+  /**
+   * Called when the static metadata changes.
+   *
+   * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances, where
+   * the elements correspond to the current track selections (as returned by {@link
+   * #onTracksChanged(EventTime, TrackGroupArray, TrackSelectionArray)}, or an empty list if there
+   * are no track selections or the implementation does not support metadata.
+   *
+   * <p>The metadata is considered static in the sense that it comes from the tracks' declared
+   * Formats, rather than being timed (or dynamic) metadata, which is represented within a metadata
+   * track.
+   *
+   * @param eventTime The event time.
+   * @param metadataList The static metadata.
+   */
+  default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
 
   /**
    * Called when a media source started loading data.
