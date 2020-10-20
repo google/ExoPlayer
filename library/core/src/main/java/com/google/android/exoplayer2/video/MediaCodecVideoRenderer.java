@@ -1589,11 +1589,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // https://github.com/google/ExoPlayer/issues/4468,
       // https://github.com/google/ExoPlayer/issues/5312,
       // https://github.com/google/ExoPlayer/issues/6503.
-      // https://github.com/google/ExoPlayer/issues/8014.
+      // https://github.com/google/ExoPlayer/issues/8014,
+      // https://github.com/google/ExoPlayer/pull/8030.
       switch (Util.DEVICE) {
         case "1601":
         case "1713":
         case "1714":
+        case "601LV":
+        case "602LV":
         case "A10-70F":
         case "A10-70L":
         case "A1601":
@@ -1605,6 +1608,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         case "AquaPowerM":
         case "ASUS_X00AD_2":
         case "Aura_Note_2":
+        case "b5":
         case "BLACK-1X":
         case "BRAVIA_ATV2":
         case "BRAVIA_ATV3_4K":
@@ -1612,18 +1616,24 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         case "ComioS1":
         case "CP8676_I02":
         case "CPH1609":
+        case "CPH1715":
         case "CPY83_I00":
         case "cv1":
         case "cv3":
         case "deb":
+        case "DM-01K":
         case "E5643":
         case "ELUGA_A3_Pro":
         case "ELUGA_Note":
         case "ELUGA_Prim":
         case "ELUGA_Ray_X":
         case "EverStar_S":
+        case "F01H":
+        case "F01J":
         case "F02H":
         case "F03H":
+        case "F04H":
+        case "F04J":
         case "F3111":
         case "F3113":
         case "F3116":
@@ -1661,6 +1671,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         case "l5460":
         case "le_x6":
         case "LS-5017":
+        case "M04":
         case "M5c":
         case "manning":
         case "marino_f":
@@ -1697,6 +1708,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         case "Q5":
         case "QM16XE_U":
         case "QX1":
+        case "RAIJIN":
         case "santoni":
         case "Slate_Pro":
         case "SVP-DTV15":
