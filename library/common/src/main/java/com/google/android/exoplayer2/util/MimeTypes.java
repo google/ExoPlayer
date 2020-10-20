@@ -83,6 +83,8 @@ public final class MimeTypes {
   public static final String AUDIO_MSGSM = BASE_TYPE_AUDIO + "/gsm";
   public static final String AUDIO_OGG = BASE_TYPE_AUDIO + "/ogg";
   public static final String AUDIO_WAV = BASE_TYPE_AUDIO + "/wav";
+  public static final String AUDIO_MPEGH_MHA1 = BASE_TYPE_AUDIO + "/mha1";
+  public static final String AUDIO_MPEGH_MHM1 = BASE_TYPE_AUDIO + "/mhm1";
   public static final String AUDIO_UNKNOWN = BASE_TYPE_AUDIO + "/x-unknown";
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
@@ -391,6 +393,10 @@ public final class MimeTypes {
       return MimeTypes.APPLICATION_CEA708;
     } else if (codec.contains("eia608") || codec.contains("cea608")) {
       return MimeTypes.APPLICATION_CEA608;
+    } else if (codec.startsWith("mha1")) {
+      return MimeTypes.AUDIO_MPEGH_MHA1;
+    } else if (codec.startsWith("mhm1")) {
+      return MimeTypes.AUDIO_MPEGH_MHM1;
     } else {
       return getCustomMimeTypeForCodec(codec);
     }

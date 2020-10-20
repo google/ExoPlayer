@@ -966,7 +966,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_alaw
           || childAtomType == Atom.TYPE_ulaw
           || childAtomType == Atom.TYPE_Opus
-          || childAtomType == Atom.TYPE_fLaC) {
+          || childAtomType == Atom.TYPE_fLaC
+          || childAtomType == Atom.TYPE_mha1
+          || childAtomType == Atom.TYPE_mhm1) {
         parseAudioSampleEntry(
             stsd,
             childAtomType,
@@ -1358,6 +1360,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       mimeType = MimeTypes.AUDIO_OPUS;
     } else if (atomType == Atom.TYPE_fLaC) {
       mimeType = MimeTypes.AUDIO_FLAC;
+    } else if (atomType == Atom.TYPE_mha1) {
+      mimeType = MimeTypes.AUDIO_MPEGH_MHA1;
+    } else if (atomType == Atom.TYPE_mhm1) {
+      mimeType = MimeTypes.AUDIO_MPEGH_MHM1;
     }
 
     @Nullable List<byte[]> initializationData = null;
@@ -1439,6 +1445,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             CodecSpecificDataUtil.parseAlacAudioSpecificConfig(initializationDataBytes);
         sampleRate = audioSpecificConfig.first;
         channelCount = audioSpecificConfig.second;
+        initializationData = ImmutableList.of(initializationDataBytes);
+      } else if (childAtomType == Atom.TYPE_mhaC) {
+        // See ISO_IEC_23008-3;2019 MHADecoderConfigurationRecord
+        int mhacHeaderSize = 4 /* size */ + 4 /* boxtype 'mhaC' */
+            + 1 /* configurationVersion */ + 1 /* mpegh3daProfileLevelIndication */
+            + 1 /* referenceChannelLayout */ + 2 /* mpegh3daConfigLength */;
+        int childAtomBodySize = childAtomSize - mhacHeaderSize;
+        byte[] initializationDataBytes = new byte[childAtomBodySize];
+        parent.setPosition(childPosition + mhacHeaderSize);
+        parent.readBytes(initializationDataBytes, 0, childAtomBodySize);
         initializationData = ImmutableList.of(initializationDataBytes);
       }
       childPosition += childAtomSize;
