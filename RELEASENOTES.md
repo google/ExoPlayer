@@ -51,6 +51,9 @@
         ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
     *   Make FLV files seekable by using the key frame index
         ([#7378](https://github.com/google/ExoPlayer/issues/7378)).
+*   Adaptive playback (DASH / HLS / SmoothStreaming):
+    *   Add 403, 500 and 503 to the list of HTTP status codes that can trigger
+        failover to another quality variant.
 *   HLS:
     *   Fix crash affecting chunkful preparation of master playlists that start
         with an I-FRAME only variant
