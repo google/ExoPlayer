@@ -384,9 +384,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     // Fixed sample size raw audio may need to be rechunked.
-    boolean isFixedSampleSizeRawAudio =
-        sampleSizeBox.isFixedSampleSize()
-            && MimeTypes.AUDIO_RAW.equals(track.format.sampleMimeType)
+    int fixedSampleSize = sampleSizeBox.getFixedSampleSize();
+    @Nullable String sampleMimeType = track.format.sampleMimeType;
+    boolean rechunkFixedSizeSamples =
+        fixedSampleSize != C.LENGTH_UNSET
+            && (MimeTypes.AUDIO_RAW.equals(sampleMimeType)
+                || MimeTypes.AUDIO_MLAW.equals(sampleMimeType)
+                || MimeTypes.AUDIO_ALAW.equals(sampleMimeType))
             && remainingTimestampDeltaChanges == 0
             && remainingTimestampOffsetChanges == 0
             && remainingSynchronizationSamples == 0;
@@ -399,15 +403,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     long timestampTimeUnits = 0;
     long duration;
 
-    if (isFixedSampleSizeRawAudio) {
+    if (rechunkFixedSizeSamples) {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
       int[] chunkSampleCounts = new int[chunkIterator.length];
       while (chunkIterator.moveNext()) {
         chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
-      int fixedSampleSize =
-          Util.getPcmFrameSize(track.format.pcmEncoding, track.format.channelCount);
       FixedSampleSizeRechunker.Results rechunkedResults =
           FixedSampleSizeRechunker.rechunk(
               fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
@@ -1661,16 +1663,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
      */
     int getSampleCount();
 
-    /**
-     * Returns the size for the next sample.
-     */
+    /** Returns the size of each sample if fixed, or {@link C#LENGTH_UNSET} otherwise. */
+    int getFixedSampleSize();
+
+    /** Returns the size for the next sample. */
     int readNextSampleSize();
-
-    /**
-     * Returns whether samples have a fixed size.
-     */
-    boolean isFixedSampleSize();
-
   }
 
   /**
@@ -1685,7 +1682,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
       data = stszAtom.data;
       data.setPosition(Atom.FULL_HEADER_SIZE);
-      fixedSampleSize = data.readUnsignedIntToInt();
+      int fixedSampleSize = data.readUnsignedIntToInt();
+      this.fixedSampleSize = fixedSampleSize == 0 ? C.LENGTH_UNSET : fixedSampleSize;
       sampleCount = data.readUnsignedIntToInt();
     }
 
@@ -1695,15 +1693,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public int readNextSampleSize() {
-      return fixedSampleSize == 0 ? data.readUnsignedIntToInt() : fixedSampleSize;
+    public int getFixedSampleSize() {
+      return fixedSampleSize;
     }
 
     @Override
-    public boolean isFixedSampleSize() {
-      return fixedSampleSize != 0;
+    public int readNextSampleSize() {
+      return fixedSampleSize == C.LENGTH_UNSET ? data.readUnsignedIntToInt() : fixedSampleSize;
     }
-
   }
 
   /**
@@ -1732,6 +1729,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
+    public int getFixedSampleSize() {
+      return C.LENGTH_UNSET;
+    }
+
+    @Override
     public int readNextSampleSize() {
       if (fieldSize == 8) {
         return data.readUnsignedByte();
@@ -1750,12 +1752,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         }
       }
     }
-
-    @Override
-    public boolean isFixedSampleSize() {
-      return false;
-    }
-
   }
 
 }

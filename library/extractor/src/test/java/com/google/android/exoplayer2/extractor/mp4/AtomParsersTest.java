@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.extractor.mp4;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
@@ -64,7 +65,7 @@ public final class AtomParsersTest {
   private static void verifyStz2Parsing(Atom.LeafAtom stz2Atom) {
     AtomParsers.Stz2SampleSizeBox box = new AtomParsers.Stz2SampleSizeBox(stz2Atom);
     assertThat(box.getSampleCount()).isEqualTo(4);
-    assertThat(box.isFixedSampleSize()).isFalse();
+    assertThat(box.getFixedSampleSize()).isEqualTo(C.LENGTH_UNSET);
     for (int i = 0; i < box.getSampleCount(); i++) {
       assertThat(box.readNextSampleSize()).isEqualTo(i + 1);
     }

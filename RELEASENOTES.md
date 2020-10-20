@@ -36,9 +36,11 @@
         even though the class was not used
         ([#8058](https://github.com/google/ExoPlayer/issues/8058)).
 *   Extractors:
-    *   Add support for .mp2 boxes in the `AtomParsers`
+    *   Add support for `_mp2` boxes in `Mp4Extractor`
         ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
-    *   Use TLEN ID3 tag to compute the duration in Mp3Extractor
+    *   Fix playback of MP4 and MOV files containing `pcm_alaw` or `pcm_mulaw`
+        audio tracks, by enabling sample rechunking of such tracks
+    *   Use TLEN ID3 tag to compute the duration in `Mp3Extractor`
         ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
     *   Fix regression for Ogg files with packets that span multiple pages
         ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
