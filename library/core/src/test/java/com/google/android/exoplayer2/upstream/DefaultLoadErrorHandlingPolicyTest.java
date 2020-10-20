@@ -48,40 +48,45 @@ public final class DefaultLoadErrorHandlingPolicyTest {
       new MediaLoadData(/* dataType= */ C.DATA_TYPE_UNKNOWN);
 
   @Test
+  public void getExclusionDurationMsFor_responseCode403() {
+    InvalidResponseCodeException exception = buildInvalidResponseCodeException(403, "Forbidden");
+    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+  }
+
+  @Test
   public void getExclusionDurationMsFor_responseCode404() {
-    InvalidResponseCodeException exception =
-        new InvalidResponseCodeException(
-            404,
-            "Not Found",
-            Collections.emptyMap(),
-            new DataSpec(Uri.EMPTY),
-            /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
+    InvalidResponseCodeException exception = buildInvalidResponseCodeException(404, "Not found");
     assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   @Test
   public void getExclusionDurationMsFor_responseCode410() {
+    InvalidResponseCodeException exception = buildInvalidResponseCodeException(410, "Gone");
+    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+  }
+
+  @Test
+  public void getExclusionDurationMsFor_responseCode500() {
     InvalidResponseCodeException exception =
-        new InvalidResponseCodeException(
-            410,
-            "Gone",
-            Collections.emptyMap(),
-            new DataSpec(Uri.EMPTY),
-            /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
+        buildInvalidResponseCodeException(500, "Internal server error");
+    assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
+        .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
+  }
+
+  @Test
+  public void getExclusionDurationMsFor_responseCode503() {
+    InvalidResponseCodeException exception =
+        buildInvalidResponseCodeException(503, "Service unavailable");
     assertThat(getDefaultPolicyExclusionDurationMsFor(exception))
         .isEqualTo(DefaultLoadErrorHandlingPolicy.DEFAULT_TRACK_BLACKLIST_MS);
   }
 
   @Test
   public void getExclusionDurationMsFor_dontExcludeUnexpectedHttpCodes() {
-    InvalidResponseCodeException exception =
-        new InvalidResponseCodeException(
-            500,
-            "Internal Server Error",
-            Collections.emptyMap(),
-            new DataSpec(Uri.EMPTY),
-            /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
+    InvalidResponseCodeException exception = buildInvalidResponseCodeException(418, "I'm a teapot");
     assertThat(getDefaultPolicyExclusionDurationMsFor(exception)).isEqualTo(C.TIME_UNSET);
   }
 
@@ -119,5 +124,15 @@ public final class DefaultLoadErrorHandlingPolicyTest {
         new LoadErrorInfo(
             PLACEHOLDER_LOAD_EVENT_INFO, PLACEHOLDER_MEDIA_LOAD_DATA, exception, errorCount);
     return new DefaultLoadErrorHandlingPolicy().getRetryDelayMsFor(loadErrorInfo);
+  }
+
+  private static InvalidResponseCodeException buildInvalidResponseCodeException(
+      int statusCode, String message) {
+    return new InvalidResponseCodeException(
+        statusCode,
+        message,
+        Collections.emptyMap(),
+        new DataSpec(Uri.EMPTY),
+        /* responseBody= */ Util.EMPTY_BYTE_ARRAY);
   }
 }
