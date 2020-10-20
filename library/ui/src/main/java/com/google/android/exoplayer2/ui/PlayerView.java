@@ -57,7 +57,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
@@ -1373,15 +1372,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     closeShutter();
     // Display artwork if enabled and available, else hide it.
     if (useArtwork()) {
-      for (int i = 0; i < selections.length; i++) {
-        @Nullable TrackSelection selection = selections.get(i);
-        if (selection != null) {
-          for (int j = 0; j < selection.length(); j++) {
-            @Nullable Metadata metadata = selection.getFormat(j).metadata;
-            if (metadata != null && setArtworkFromMetadata(metadata)) {
-              return;
-            }
-          }
+      for (Metadata metadata : player.getCurrentStaticMetadata()) {
+        if (setArtworkFromMetadata(metadata)) {
+          return;
         }
       }
       if (setDrawableArtwork(defaultArtwork)) {
