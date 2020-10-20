@@ -1737,9 +1737,9 @@ public final class DefaultAudioSink implements AudioSink {
 
     public StreamEventCallbackV29() {
       handler = new Handler();
-      // StreamEventCallbackV29 can NOT inherit directly from AudioTrack.StreamEventCallback as it
-      // would cause a NoClassDefFoundError on the first load of DefaultAudioSink for SDK < 29
-      // fatal on some devices. See: https://github.com/google/ExoPlayer/issues/8058
+      // Avoid StreamEventCallbackV29 inheriting directly from AudioTrack.StreamEventCallback as it
+      // would cause a NoClassDefFoundError warning on load of DefaultAudioSink for SDK < 29.
+      // See: https://github.com/google/ExoPlayer/issues/8058
       callback =
           new AudioTrack.StreamEventCallback() {
             @Override
