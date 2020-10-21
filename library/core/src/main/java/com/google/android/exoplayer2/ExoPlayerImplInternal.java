@@ -870,7 +870,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (playbackInfo.playWhenReady
         && isCurrentPeriodInMovingLiveWindow()
         && playbackInfo.playbackParameters.speed == 1f) {
-      float adjustedSpeed = livePlaybackSpeedControl.adjustPlaybackSpeed(getCurrentLiveOffsetUs());
+      float adjustedSpeed =
+          livePlaybackSpeedControl.getAdjustedPlaybackSpeed(getCurrentLiveOffsetUs());
       if (mediaClock.getPlaybackParameters().speed != adjustedSpeed) {
         mediaClock.setPlaybackParameters(playbackInfo.playbackParameters.withSpeed(adjustedSpeed));
       }
@@ -1798,9 +1799,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     int windowIndex = newTimeline.getPeriodByUid(newPeriodId.periodUid, period).windowIndex;
     newTimeline.getWindow(windowIndex, window);
-    livePlaybackSpeedControl.updateLiveConfiguration(window.mediaItem.liveConfiguration);
+    livePlaybackSpeedControl.setLiveConfiguration(window.mediaItem.liveConfiguration);
     if (positionForTargetOffsetOverrideUs != C.TIME_UNSET) {
-      livePlaybackSpeedControl.overrideTargetLiveOffsetUs(
+      livePlaybackSpeedControl.setTargetLiveOffsetOverrideUs(
           getLiveOffsetUs(newTimeline, newPeriodId.periodUid, positionForTargetOffsetOverrideUs));
     } else {
       Object windowUid = window.uid;
@@ -1811,7 +1812,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       if (!Util.areEqual(oldWindowUid, windowUid)) {
         // Reset overridden target live offset to media values if window changes.
-        livePlaybackSpeedControl.overrideTargetLiveOffsetUs(C.TIME_UNSET);
+        livePlaybackSpeedControl.setTargetLiveOffsetOverrideUs(C.TIME_UNSET);
       }
     }
   }

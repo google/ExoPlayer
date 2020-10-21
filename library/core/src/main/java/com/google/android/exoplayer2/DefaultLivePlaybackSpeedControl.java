@@ -181,19 +181,19 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   }
 
   @Override
-  public void updateLiveConfiguration(LiveConfiguration liveConfiguration) {
+  public void setLiveConfiguration(LiveConfiguration liveConfiguration) {
     this.mediaConfiguration = liveConfiguration;
     lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
   }
 
   @Override
-  public void overrideTargetLiveOffsetUs(long liveOffsetUs) {
+  public void setTargetLiveOffsetOverrideUs(long liveOffsetUs) {
     this.targetLiveOffsetOverrideUs = liveOffsetUs;
     lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
   }
 
   @Override
-  public float adjustPlaybackSpeed(long liveOffsetUs) {
+  public float getAdjustedPlaybackSpeed(long liveOffsetUs) {
     long targetLiveOffsetUs = getTargetLiveOffsetUs();
     if (targetLiveOffsetUs == C.TIME_UNSET) {
       return 1f;

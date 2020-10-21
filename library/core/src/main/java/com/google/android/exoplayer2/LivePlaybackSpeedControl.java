@@ -24,20 +24,21 @@ import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 public interface LivePlaybackSpeedControl {
 
   /**
-   * Updates the live configuration defined by the media.
+   * Sets the live configuration defined by the media.
    *
    * @param liveConfiguration The {@link LiveConfiguration} as defined by the media.
    */
-  void updateLiveConfiguration(LiveConfiguration liveConfiguration);
+  void setLiveConfiguration(LiveConfiguration liveConfiguration);
 
   /**
-   * Overrides the {@link #updateLiveConfiguration configured} target live offset in microseconds,
-   * or {@code C.TIME_UNSET} to delete a previous override.
+   * Sets the target live offset in microseconds that overrides the live offset {@link
+   * #setLiveConfiguration configured} by the media. Passing {@code C.TIME_UNSET} deletes a previous
+   * override.
    *
-   * <p>If no target live offset is configured by {@link #updateLiveConfiguration}, this override
-   * has no effect.
+   * <p>If no target live offset is configured by {@link #setLiveConfiguration}, this override has
+   * no effect.
    */
-  void overrideTargetLiveOffsetUs(long liveOffsetUs);
+  void setTargetLiveOffsetOverrideUs(long liveOffsetUs);
 
   /**
    * Returns the adjusted playback speed in order get closer towards the {@link
@@ -46,7 +47,7 @@ public interface LivePlaybackSpeedControl {
    * @param liveOffsetUs The current live offset, in microseconds.
    * @return The adjusted playback speed.
    */
-  float adjustPlaybackSpeed(long liveOffsetUs);
+  float getAdjustedPlaybackSpeed(long liveOffsetUs);
 
   /**
    * Returns the current target live offset, in microseconds, or {@link C#TIME_UNSET} if no target
