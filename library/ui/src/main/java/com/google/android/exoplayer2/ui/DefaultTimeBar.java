@@ -227,13 +227,22 @@ public class DefaultTimeBar extends View implements TimeBar {
     this(context, attrs, defStyleAttr, attrs);
   }
 
+  public DefaultTimeBar(
+      Context context,
+      @Nullable AttributeSet attrs,
+      int defStyleAttr,
+      @Nullable AttributeSet timebarAttrs) {
+    this(context, attrs, defStyleAttr, timebarAttrs, 0);
+  }
+
   // Suppress warnings due to usage of View methods in the constructor.
   @SuppressWarnings("nullness:method.invocation.invalid")
   public DefaultTimeBar(
       Context context,
       @Nullable AttributeSet attrs,
       int defStyleAttr,
-      @Nullable AttributeSet timebarAttrs) {
+      @Nullable AttributeSet timebarAttrs,
+      int defStyleRes) {
     super(context, attrs, defStyleAttr);
     seekBounds = new Rect();
     progressBar = new Rect();
@@ -262,7 +271,10 @@ public class DefaultTimeBar extends View implements TimeBar {
     int defaultScrubberDraggedSize = dpToPx(density, DEFAULT_SCRUBBER_DRAGGED_SIZE_DP);
     if (timebarAttrs != null) {
       TypedArray a =
-          context.getTheme().obtainStyledAttributes(timebarAttrs, R.styleable.DefaultTimeBar, 0, 0);
+          context
+              .getTheme()
+              .obtainStyledAttributes(
+                  timebarAttrs, R.styleable.DefaultTimeBar, defStyleAttr, defStyleRes);
       try {
         scrubberDrawable = a.getDrawable(R.styleable.DefaultTimeBar_scrubber_drawable);
         if (scrubberDrawable != null) {

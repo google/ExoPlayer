@@ -570,7 +570,8 @@ public class StyledPlayerControlView extends FrameLayout {
     } else if (timeBarPlaceholder != null) {
       // Propagate attrs as timebarAttrs so that DefaultTimeBar's custom attributes are transferred,
       // but standard attributes (e.g. background) are not.
-      DefaultTimeBar defaultTimeBar = new DefaultTimeBar(context, null, 0, playbackAttrs);
+      DefaultTimeBar defaultTimeBar =
+          new DefaultTimeBar(context, null, 0, playbackAttrs, R.style.ExoStyledControls_TimeBar);
       defaultTimeBar.setId(R.id.exo_progress);
       defaultTimeBar.setLayoutParams(timeBarPlaceholder.getLayoutParams());
       ViewGroup parent = ((ViewGroup) timeBarPlaceholder.getParent());
