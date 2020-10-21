@@ -125,8 +125,13 @@ import java.util.List;
     }
 
     Resources resources = styledPlayerControlView.getResources();
-    float progressBarHeight = resources.getDimension(R.dimen.exo_custom_progress_thumb_size);
-    float bottomBarHeight = resources.getDimension(R.dimen.exo_bottom_bar_height);
+    float bottomBarHeight =
+        resources.getDimension(R.dimen.exo_bottom_bar_height)
+            - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
+    float progressBarHeight =
+        resources.getDimension(R.dimen.exo_styled_progress_margin_bottom)
+            + resources.getDimension(R.dimen.exo_styled_progress_layout_height)
+            - bottomBarHeight;
 
     ValueAnimator fadeOutAnimator = ValueAnimator.ofFloat(1.0f, 0.0f);
     fadeOutAnimator.setInterpolator(new LinearInterpolator());
@@ -590,7 +595,7 @@ import java.util.List;
       int timeBarMarginBottom =
           styledPlayerControlView
               .getResources()
-              .getDimensionPixelSize(R.dimen.exo_custom_progress_margin_bottom);
+              .getDimensionPixelSize(R.dimen.exo_styled_progress_margin_bottom);
       timeBarParams.bottomMargin = (isMinimalMode ? 0 : timeBarMarginBottom);
       timeBar.setLayoutParams(timeBarParams);
       if (timeBar instanceof DefaultTimeBar

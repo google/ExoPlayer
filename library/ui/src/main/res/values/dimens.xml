@@ -35,11 +35,14 @@
     <dimen name="exo_small_icon_padding_horizontal">12dp</dimen>
     <dimen name="exo_small_icon_padding_vertical">12dp</dimen>
 
-    <dimen name="exo_custom_progress_max_size">2dp</dimen>
-    <dimen name="exo_custom_progress_thumb_size">24dp</dimen>
-    <dimen name="exo_custom_progress_margin_bottom">56dp</dimen>
+    <dimen name="exo_styled_progress_bar_height">2dp</dimen>
+    <dimen name="exo_styled_progress_enabled_thumb_size">10dp</dimen>
+    <dimen name="exo_styled_progress_dragged_thumb_size">14dp</dimen>
+    <dimen name="exo_styled_progress_layout_height">14dp</dimen>
+    <dimen name="exo_styled_progress_touch_target_height">14dp</dimen>
+    <dimen name="exo_styled_progress_margin_bottom">52dp</dimen>
 
-    <dimen name="exo_bottom_bar_height">70dp</dimen>
+    <dimen name="exo_bottom_bar_height">60dp</dimen>
     <dimen name="exo_bottom_bar_padding_bottom">4dp</dimen>
 
     <dimen name="exo_time_view_padding">10dp</dimen>

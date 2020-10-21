@@ -123,15 +123,14 @@
       android:layout_height="wrap_content"
       android:orientation="vertical"
       android:layout_gravity="bottom|end"
-      android:layout_marginBottom="@dimen/exo_custom_progress_thumb_size"
+      android:layout_marginBottom="@dimen/exo_styled_progress_layout_height"
       android:visibility="invisible">
 
   </LinearLayout>
 
   <View android:id="@id/exo_progress_placeholder"
       android:layout_width="match_parent"
-      android:layout_height="@dimen/exo_custom_progress_thumb_size"
+      android:layout_height="@dimen/exo_styled_progress_layout_height"
       android:layout_gravity="bottom"
-      android:layout_marginBottom="@dimen/exo_custom_progress_margin_bottom"/>
-
+      android:layout_marginBottom="@dimen/exo_styled_progress_margin_bottom"/>
 </merge>
