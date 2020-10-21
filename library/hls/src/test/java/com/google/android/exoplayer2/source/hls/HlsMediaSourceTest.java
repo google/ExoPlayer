@@ -40,11 +40,11 @@ public class HlsMediaSourceTest {
     HlsMediaSource.Factory factory =
         new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(tag);
 
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
+    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.tag).isEqualTo(tag);
+    assertThat(hlsMediaItem.playbackProperties).isNotNull();
+    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
+    assertThat(hlsMediaItem.playbackProperties.tag).isEqualTo(tag);
   }
 
   // Tests backwards compatibility
@@ -58,11 +58,11 @@ public class HlsMediaSourceTest {
     HlsMediaSource.Factory factory =
         new HlsMediaSource.Factory(mock(DataSource.Factory.class)).setTag(factoryTag);
 
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
+    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
+    assertThat(hlsMediaItem.playbackProperties).isNotNull();
+    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
+    assertThat(hlsMediaItem.playbackProperties.tag).isEqualTo(mediaItemTag);
   }
 
   // Tests backwards compatibility
@@ -104,11 +104,11 @@ public class HlsMediaSourceTest {
         new HlsMediaSource.Factory(mock(DataSource.Factory.class))
             .setStreamKeys(Collections.singletonList(streamKey));
 
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
+    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.streamKeys).containsExactly(streamKey);
+    assertThat(hlsMediaItem.playbackProperties).isNotNull();
+    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
+    assertThat(hlsMediaItem.playbackProperties.streamKeys).containsExactly(streamKey);
   }
 
   // Tests backwards compatibility
@@ -126,10 +126,10 @@ public class HlsMediaSourceTest {
             .setStreamKeys(
                 Collections.singletonList(new StreamKey(/* groupIndex= */ 1, /* trackIndex= */ 0)));
 
-    MediaItem dashMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
+    MediaItem hlsMediaItem = factory.createMediaSource(mediaItem).getMediaItem();
 
-    assertThat(dashMediaItem.playbackProperties).isNotNull();
-    assertThat(dashMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
-    assertThat(dashMediaItem.playbackProperties.streamKeys).containsExactly(mediaItemStreamKey);
+    assertThat(hlsMediaItem.playbackProperties).isNotNull();
+    assertThat(hlsMediaItem.playbackProperties.uri).isEqualTo(mediaItem.playbackProperties.uri);
+    assertThat(hlsMediaItem.playbackProperties.streamKeys).containsExactly(mediaItemStreamKey);
   }
 }
