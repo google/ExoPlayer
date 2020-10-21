@@ -48,6 +48,8 @@ public final class ListenerSet<T> {
   private final ArrayDeque<Runnable> flushingEvents;
   private final ArrayDeque<Runnable> queuedEvents;
 
+  private boolean released;
+
   /** Creates the listener set. */
   public ListenerSet() {
     listeners = new CopyOnWriteArraySet<>();
@@ -63,6 +65,9 @@ public final class ListenerSet<T> {
    * @param listener The listener to be added.
    */
   public void add(T listener) {
+    if (released) {
+      return;
+    }
     Assertions.checkNotNull(listener);
     listeners.add(new ListenerHolder<T>(listener));
   }
@@ -122,6 +127,19 @@ public final class ListenerSet<T> {
   public void sendEvent(Event<T> event) {
     queueEvent(event);
     flushEvents();
+  }
+
+  /**
+   * Releases the set of listeners.
+   *
+   * <p>This will ensure no events are sent to any listener after this method has been called.
+   */
+  public void release() {
+    for (ListenerHolder<T> listenerHolder : listeners) {
+      listenerHolder.release();
+    }
+    listeners.clear();
+    released = true;
   }
 
   private static final class ListenerHolder<T> {

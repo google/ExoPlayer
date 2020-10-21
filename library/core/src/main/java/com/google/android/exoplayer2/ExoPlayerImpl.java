@@ -721,6 +721,7 @@ import java.util.concurrent.TimeoutException;
                       new TimeoutException("Player release timed out."),
                       ExoPlaybackException.TIMEOUT_OPERATION_RELEASE)));
     }
+    listeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
     if (analyticsCollector != null) {
       bandwidthMeter.removeEventListener(analyticsCollector);

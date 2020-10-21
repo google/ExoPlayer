@@ -184,6 +184,44 @@ public class ListenerSetTest {
     verify(listener2, times(2)).callback1();
   }
 
+  @Test
+  public void release_stopsForwardingEventsImmediately() {
+    ListenerSet<TestListener> listenerSet = new ListenerSet<>();
+    TestListener listener2 = mock(TestListener.class);
+    // Listener1 releases the set from within the callback.
+    TestListener listener1 =
+        spy(
+            new TestListener() {
+              @Override
+              public void callback1() {
+                listenerSet.release();
+              }
+            });
+    listenerSet.add(listener1);
+    listenerSet.add(listener2);
+
+    // Listener2 shouldn't even get this event as it's released before the event can be invoked.
+    listenerSet.sendEvent(TestListener::callback1);
+    listenerSet.sendEvent(TestListener::callback2);
+
+    verify(listener1).callback1();
+    verify(listener2, never()).callback1();
+    verify(listener1, never()).callback2();
+    verify(listener2, never()).callback2();
+  }
+
+  @Test
+  public void release_preventsRegisteringNewListeners() {
+    ListenerSet<TestListener> listenerSet = new ListenerSet<>();
+    TestListener listener = mock(TestListener.class);
+
+    listenerSet.release();
+    listenerSet.add(listener);
+    listenerSet.sendEvent(TestListener::callback1);
+
+    verify(listener, never()).callback1();
+  }
+
   private interface TestListener {
     default void callback1() {}
 
