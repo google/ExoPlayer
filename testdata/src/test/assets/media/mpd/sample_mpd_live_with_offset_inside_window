@@ -17,7 +17,8 @@
 						timescale="1000000"
 						duration="2000000"
 						availabilityTimeOffset="2"
-						startNumber="1"/>
+						startNumber="1"
+						media="chunk-$Number%05d$.mp4"/>
 			</Representation>
 		</AdaptationSet>
 	</Period>

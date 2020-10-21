@@ -277,6 +277,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
+    long nowPeriodTimeUs = getNowPeriodTimeUs(nowUnixTimeUs);
     MediaChunk previous = queue.isEmpty() ? null : queue.get(queue.size() - 1);
     MediaChunkIterator[] chunkIterators = new MediaChunkIterator[trackSelection.length()];
     for (int i = 0; i < chunkIterators.length; i++) {
@@ -300,7 +301,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         } else {
           chunkIterators[i] =
               new RepresentationSegmentIterator(
-                  representationHolder, segmentNum, lastAvailableSegmentNum, nowUnixTimeUs);
+                  representationHolder, segmentNum, lastAvailableSegmentNum, nowPeriodTimeUs);
         }
       }
     }
@@ -391,7 +392,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             segmentNum,
             maxSegmentCount,
             seekTimeUs,
-            nowUnixTimeUs);
+            nowPeriodTimeUs);
   }
 
   @Override
@@ -488,11 +489,14 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
     long lastSegmentNum = representationHolders[0].getLastAvailableSegmentNum(nowUnixTimeUs);
     long lastSegmentEndTimeUs = representationHolders[0].getSegmentEndTimeUs(lastSegmentNum);
-    long nowPeriodTimeUs =
-        nowUnixTimeUs
-            - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
+    long nowPeriodTimeUs = getNowPeriodTimeUs(nowUnixTimeUs);
     long availabilityEndTimeUs = min(nowPeriodTimeUs, lastSegmentEndTimeUs);
     return max(0, availabilityEndTimeUs - playbackPositionUs);
+  }
+
+  private long getNowPeriodTimeUs(long nowUnixTimeUs) {
+    return nowUnixTimeUs
+        - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
   }
 
   protected Chunk newInitializationChunk(
@@ -535,7 +539,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       long firstSegmentNum,
       int maxSegmentCount,
       long seekTimeUs,
-      long nowUnixTimeUs) {
+      long nowPeriodTimeUs) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
@@ -543,7 +547,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (representationHolder.chunkExtractor == null) {
       long endTimeUs = representationHolder.getSegmentEndTimeUs(firstSegmentNum);
       int flags =
-          representationHolder.isSegmentAvailableAtFullNetworkSpeed(firstSegmentNum, nowUnixTimeUs)
+          representationHolder.isSegmentAvailableAtFullNetworkSpeed(
+                  firstSegmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
@@ -569,7 +574,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
               ? periodDurationUs
               : C.TIME_UNSET;
       int flags =
-          representationHolder.isSegmentAvailableAtFullNetworkSpeed(segmentNum, nowUnixTimeUs)
+          representationHolder.isSegmentAvailableAtFullNetworkSpeed(segmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       DataSpec dataSpec = DashUtil.buildDataSpec(representation, segmentUri, flags);
@@ -597,7 +602,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   protected static final class RepresentationSegmentIterator extends BaseMediaChunkIterator {
 
     private final RepresentationHolder representationHolder;
-    private final long currentUnixTimeUs;
+    private final long nowPeriodTimeUs;
 
     /**
      * Creates iterator.
@@ -605,17 +610,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
      * @param representation The {@link RepresentationHolder} to wrap.
      * @param firstAvailableSegmentNum The number of the first available segment.
      * @param lastAvailableSegmentNum The number of the last available segment.
-     * @param currentUnixTimeUs The current time in microseconds since the epoch used for
-     *     calculating if segments are available at full network speed.
+     * @param nowPeriodTimeUs The current time in microseconds since the start of the period used
+     *     for calculating if segments are available at full network speed.
      */
     public RepresentationSegmentIterator(
         RepresentationHolder representation,
         long firstAvailableSegmentNum,
         long lastAvailableSegmentNum,
-        long currentUnixTimeUs) {
+        long nowPeriodTimeUs) {
       super(/* fromIndex= */ firstAvailableSegmentNum, /* toIndex= */ lastAvailableSegmentNum);
       this.representationHolder = representation;
-      this.currentUnixTimeUs = currentUnixTimeUs;
+      this.nowPeriodTimeUs = nowPeriodTimeUs;
     }
 
     @Override
@@ -624,7 +629,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       long currentIndex = getCurrentIndex();
       RangedUri segmentUri = representationHolder.getSegmentUrl(currentIndex);
       int flags =
-          representationHolder.isSegmentAvailableAtFullNetworkSpeed(currentIndex, currentUnixTimeUs)
+          representationHolder.isSegmentAvailableAtFullNetworkSpeed(currentIndex, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       return DashUtil.buildDataSpec(representationHolder.representation, segmentUri, flags);
@@ -787,8 +792,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
           - 1;
     }
 
-    public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowUnixTimeUs) {
-      return getSegmentEndTimeUs(segmentNum) <= nowUnixTimeUs;
+    public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowPeriodTimeUs) {
+      return getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
     }
 
     @Nullable
