@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -68,7 +70,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_VERSION = "#EXT-X-VERSION";
   private static final String TAG_PLAYLIST_TYPE = "#EXT-X-PLAYLIST-TYPE";
   private static final String TAG_DEFINE = "#EXT-X-DEFINE";
+  private static final String TAG_SERVER_CONTROL = "#EXT-X-SERVER-CONTROL";
   private static final String TAG_STREAM_INF = "#EXT-X-STREAM-INF";
+  private static final String TAG_PART_INF = "#EXT-X-PART-INF";
   private static final String TAG_I_FRAME_STREAM_INF = "#EXT-X-I-FRAME-STREAM-INF";
   private static final String TAG_IFRAME = "#EXT-X-I-FRAMES-ONLY";
   private static final String TAG_MEDIA = "#EXT-X-MEDIA";
@@ -122,9 +126,20 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_FRAME_RATE = Pattern.compile("FRAME-RATE=([\\d\\.]+)\\b");
   private static final Pattern REGEX_TARGET_DURATION = Pattern.compile(TAG_TARGET_DURATION
       + ":(\\d+)\\b");
+  private static final Pattern REGEX_PART_TARGET_DURATION =
+      Pattern.compile("PART-TARGET=([\\d\\.]+)\\b");
   private static final Pattern REGEX_VERSION = Pattern.compile(TAG_VERSION + ":(\\d+)\\b");
   private static final Pattern REGEX_PLAYLIST_TYPE = Pattern.compile(TAG_PLAYLIST_TYPE
       + ":(.+)\\b");
+  private static final Pattern REGEX_CAN_SKIP_UNTIL =
+      Pattern.compile("CAN-SKIP-UNTIL=([\\d\\.]+)\\b");
+  private static final Pattern REGEX_CAN_SKIP_DATE_RANGES =
+      compileBooleanAttrPattern("CAN-SKIP-DATERANGES");
+  private static final Pattern REGEX_HOLD_BACK = Pattern.compile("[:|,]HOLD-BACK=([\\d\\.]+)\\b");
+  private static final Pattern REGEX_PART_HOLD_BACK =
+      Pattern.compile("PART-HOLD-BACK=([\\d\\.]+)\\b");
+  private static final Pattern REGEX_CAN_BLOCK_RELOAD =
+      compileBooleanAttrPattern("CAN-BLOCK-RELOAD");
   private static final Pattern REGEX_MEDIA_SEQUENCE = Pattern.compile(TAG_MEDIA_SEQUENCE
       + ":(\\d+)\\b");
   private static final Pattern REGEX_MEDIA_DURATION = Pattern.compile(TAG_MEDIA_DURATION
@@ -394,7 +409,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             new HlsTrackMetadataEntry(
                 /* groupId= */ null,
                 /* name= */ null,
-                Assertions.checkNotNull(urlToVariantInfos.get(variant.url)));
+                checkNotNull(urlToVariantInfos.get(variant.url)));
         Metadata metadata = new Metadata(hlsMetadataEntry);
         Format format = variant.format.buildUpon().setMetadata(metadata).build();
         deduplicatedVariants.add(variant.copyWithFormat(format));
@@ -566,6 +581,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long mediaSequence = 0;
     int version = 1; // Default version == 1.
     long targetDurationUs = C.TIME_UNSET;
+    long partTargetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
     @Nullable Segment initializationSegment = null;
@@ -586,6 +602,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     boolean isIFrameOnly = false;
     long segmentMediaSequence = 0;
     boolean hasGapTag = false;
+    HlsMediaPlaylist.ServerControl serverControl =
+        new HlsMediaPlaylist.ServerControl(
+            /* skipUntilUs= */ C.TIME_UNSET,
+            /* canSkipDateRanges= */ false,
+            /* holdBackUs= */ C.TIME_UNSET,
+            /* partHoldBackUs= */ C.TIME_UNSET,
+            /* canBlockReload= */ false);
 
     DrmInitData playlistProtectionSchemes = null;
     String fullSegmentEncryptionKeyUri = null;
@@ -614,6 +637,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         isIFrameOnly = true;
       } else if (line.startsWith(TAG_START)) {
         startOffsetUs = (long) (parseDoubleAttr(line, REGEX_TIME_OFFSET) * C.MICROS_PER_SECOND);
+      } else if (line.startsWith(TAG_SERVER_CONTROL)) {
+        serverControl = parseServerControl(line);
+      } else if (line.startsWith(TAG_PART_INF)) {
+        double partTargetDurationSeconds = parseDoubleAttr(line, REGEX_PART_TARGET_DURATION);
+        partTargetDurationUs = (long) (partTargetDurationSeconds * C.MICROS_PER_SECOND);
       } else if (line.startsWith(TAG_INIT_SEGMENT)) {
         String uri = parseStringAttr(line, REGEX_URI, variableDefinitions);
         String byteRange = parseOptionalStringAttr(line, REGEX_ATTR_BYTERANGE, variableDefinitions);
@@ -786,6 +814,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasGapTag = false;
       }
     }
+
     return new HlsMediaPlaylist(
         playlistType,
         baseUri,
@@ -797,11 +826,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         mediaSequence,
         version,
         targetDurationUs,
+        partTargetDurationUs,
         hasIndependentSegmentsTag,
         hasEndTag,
         /* hasProgramDateTime= */ playlistStartTimeUs != 0,
         playlistProtectionSchemes,
-        segments);
+        segments,
+        serverControl);
   }
 
   @C.SelectionFlags
@@ -866,6 +897,33 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     return null;
   }
 
+  private static HlsMediaPlaylist.ServerControl parseServerControl(String line) {
+    double skipUntilSeconds =
+        parseOptionalDoubleAttr(line, REGEX_CAN_SKIP_UNTIL, /* defaultValue= */ C.TIME_UNSET);
+    long skipUntilUs =
+        skipUntilSeconds == C.TIME_UNSET
+            ? C.TIME_UNSET
+            : (long) (skipUntilSeconds * C.MICROS_PER_SECOND);
+    boolean canSkipDateRanges =
+        parseOptionalBooleanAttribute(line, REGEX_CAN_SKIP_DATE_RANGES, /* defaultValue= */ false);
+    double holdBackSeconds =
+        parseOptionalDoubleAttr(line, REGEX_HOLD_BACK, /* defaultValue= */ C.TIME_UNSET);
+    long holdBackUs =
+        holdBackSeconds == C.TIME_UNSET
+            ? C.TIME_UNSET
+            : (long) (holdBackSeconds * C.MICROS_PER_SECOND);
+    double partHoldBackSeconds = parseOptionalDoubleAttr(line, REGEX_PART_HOLD_BACK, C.TIME_UNSET);
+    long partHoldBackUs =
+        partHoldBackSeconds == C.TIME_UNSET
+            ? C.TIME_UNSET
+            : (long) (partHoldBackSeconds * C.MICROS_PER_SECOND);
+    boolean canBlockReload =
+        parseOptionalBooleanAttribute(line, REGEX_CAN_BLOCK_RELOAD, /* defaultValue= */ false);
+
+    return new HlsMediaPlaylist.ServerControl(
+        skipUntilUs, canSkipDateRanges, holdBackUs, partHoldBackUs, canBlockReload);
+  }
+
   private static String parseEncryptionScheme(String method) {
     return METHOD_SAMPLE_AES_CENC.equals(method) || METHOD_SAMPLE_AES_CTR.equals(method)
         ? C.CENC_TYPE_cenc
@@ -879,7 +937,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static int parseOptionalIntAttr(String line, Pattern pattern, int defaultValue) {
     Matcher matcher = pattern.matcher(line);
     if (matcher.find()) {
-      return Integer.parseInt(Assertions.checkNotNull(matcher.group(1)));
+      return Integer.parseInt(checkNotNull(matcher.group(1)));
     }
     return defaultValue;
   }
@@ -914,11 +972,18 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       @PolyNull String defaultValue,
       Map<String, String> variableDefinitions) {
     Matcher matcher = pattern.matcher(line);
-    @PolyNull
-    String value = matcher.find() ? Assertions.checkNotNull(matcher.group(1)) : defaultValue;
+    @PolyNull String value = matcher.find() ? checkNotNull(matcher.group(1)) : defaultValue;
     return variableDefinitions.isEmpty() || value == null
         ? value
         : replaceVariableReferences(value, variableDefinitions);
+  }
+
+  private static double parseOptionalDoubleAttr(String line, Pattern pattern, double defaultValue) {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find()) {
+      return Double.parseDouble(checkNotNull(matcher.group(1)));
+    }
+    return defaultValue;
   }
 
   private static String replaceVariableReferences(
@@ -970,7 +1035,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         return true;
       }
       if (!extraLines.isEmpty()) {
-        next = Assertions.checkNotNull(extraLines.poll());
+        next = checkNotNull(extraLines.poll());
         return true;
       }
       while ((next = reader.readLine()) != null) {
@@ -992,7 +1057,5 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         throw new NoSuchElementException();
       }
     }
-
   }
-
 }

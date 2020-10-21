@@ -29,6 +29,54 @@ import java.util.List;
 /** Represents an HLS media playlist. */
 public final class HlsMediaPlaylist extends HlsPlaylist {
 
+  /** Server control attributes. */
+  public static final class ServerControl {
+
+    /**
+     * The skip boundary for delta updates in microseconds, or {@link C#TIME_UNSET} if delta updates
+     * are not supported.
+     */
+    public final long skipUntilUs;
+    /**
+     * Whether the playlist can produce delta updates that skip older #EXT-X-DATERANGE tags in
+     * addition to media segments.
+     */
+    public final boolean canSkipDateRanges;
+    /**
+     * The server-recommended live offset in microseconds, or {@link C#TIME_UNSET} if none defined.
+     */
+    public final long holdBackUs;
+    /**
+     * The server-recommended live offset in microseconds in low-latency mode, or {@link
+     * C#TIME_UNSET} if none defined.
+     */
+    public final long partHoldBackUs;
+    /** Whether the server supports blocking playlist reload. */
+    public final boolean canBlockReload;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param skipUntilUs See {@link #skipUntilUs}.
+     * @param canSkipDateRanges See {@link #canSkipDateRanges}.
+     * @param holdBackUs See {@link #holdBackUs}.
+     * @param partHoldBackUs See {@link #partHoldBackUs}.
+     * @param canBlockReload See {@link #canBlockReload}.
+     */
+    public ServerControl(
+        long skipUntilUs,
+        boolean canSkipDateRanges,
+        long holdBackUs,
+        long partHoldBackUs,
+        boolean canBlockReload) {
+      this.skipUntilUs = skipUntilUs;
+      this.canSkipDateRanges = canSkipDateRanges;
+      this.holdBackUs = holdBackUs;
+      this.partHoldBackUs = partHoldBackUs;
+      this.canBlockReload = canBlockReload;
+    }
+  }
+
   /** Media segment reference. */
   @SuppressWarnings("ComparableType")
   public static final class Segment implements Comparable<Long> {
@@ -208,8 +256,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final long targetDurationUs;
   /**
-   * Whether the playlist contains the #EXT-X-ENDLIST tag.
+   * The target duration for segment parts, as defined by #EXT-X-PART-INF, or {@link C#TIME_UNSET}
+   * if undefined.
    */
+  public final long partTargetDurationUs;
+  /** Whether the playlist contains the #EXT-X-ENDLIST tag. */
   public final boolean hasEndTag;
   /**
    * Whether the playlist contains a #EXT-X-PROGRAM-DATE-TIME tag.
@@ -228,6 +279,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * The total duration of the playlist in microseconds.
    */
   public final long durationUs;
+  /** The attributes of the #EXT-X-SERVER-CONTROL header. */
+  public final ServerControl serverControl;
 
   /**
    * @param playlistType See {@link #playlistType}.
@@ -245,6 +298,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param protectionSchemes See {@link #protectionSchemes}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
    * @param segments See {@link #segments}.
+   * @param serverControl See {@link #serverControl}
    */
   public HlsMediaPlaylist(
       @PlaylistType int playlistType,
@@ -257,11 +311,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       long mediaSequence,
       int version,
       long targetDurationUs,
+      long partTargetDurationUs,
       boolean hasIndependentSegments,
       boolean hasEndTag,
       boolean hasProgramDateTime,
       @Nullable DrmInitData protectionSchemes,
-      List<Segment> segments) {
+      List<Segment> segments,
+      ServerControl serverControl) {
     super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
@@ -270,6 +326,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.mediaSequence = mediaSequence;
     this.version = version;
     this.targetDurationUs = targetDurationUs;
+    this.partTargetDurationUs = partTargetDurationUs;
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
     this.protectionSchemes = protectionSchemes;
@@ -282,6 +339,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     }
     this.startOffsetUs = startOffsetUs == C.TIME_UNSET ? C.TIME_UNSET
         : startOffsetUs >= 0 ? startOffsetUs : durationUs + startOffsetUs;
+    this.serverControl = serverControl;
   }
 
   @Override
@@ -337,11 +395,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         mediaSequence,
         version,
         targetDurationUs,
+        partTargetDurationUs,
         hasIndependentSegments,
         hasEndTag,
         hasProgramDateTime,
         protectionSchemes,
-        segments);
+        segments,
+        serverControl);
   }
 
   /**
@@ -363,11 +423,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         mediaSequence,
         version,
         targetDurationUs,
+        partTargetDurationUs,
         hasIndependentSegments,
         /* hasEndTag= */ true,
         hasProgramDateTime,
         protectionSchemes,
-        segments);
+        segments,
+        serverControl);
   }
 
 }
