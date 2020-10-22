@@ -20,21 +20,23 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.common.primitives.Longs;
 
 /** Metadata of a motion photo file. */
 public final class MotionPhoto implements Metadata.Entry {
 
   /** The start offset of the photo data, in bytes. */
-  public final int photoStartPosition;
+  public final long photoStartPosition;
   /** The size of the photo data, in bytes. */
-  public final int photoSize;
+  public final long photoSize;
   /** The start offset of the video data, in bytes. */
-  public final int videoStartPosition;
+  public final long videoStartPosition;
   /** The size of the video data, in bytes. */
-  public final int videoSize;
+  public final long videoSize;
 
   /** Creates an instance. */
-  public MotionPhoto(int photoStartPosition, int photoSize, int videoStartPosition, int videoSize) {
+  public MotionPhoto(
+      long photoStartPosition, long photoSize, long videoStartPosition, long videoSize) {
     this.photoStartPosition = photoStartPosition;
     this.photoSize = photoSize;
     this.videoStartPosition = videoStartPosition;
@@ -42,10 +44,10 @@ public final class MotionPhoto implements Metadata.Entry {
   }
 
   private MotionPhoto(Parcel in) {
-    photoStartPosition = in.readInt();
-    photoSize = in.readInt();
-    videoStartPosition = in.readInt();
-    videoSize = in.readInt();
+    photoStartPosition = in.readLong();
+    photoSize = in.readLong();
+    videoStartPosition = in.readLong();
+    videoSize = in.readLong();
   }
 
   @Override
@@ -66,10 +68,10 @@ public final class MotionPhoto implements Metadata.Entry {
   @Override
   public int hashCode() {
     int result = 17;
-    result = 31 * result + photoStartPosition;
-    result = 31 * result + photoSize;
-    result = 31 * result + videoStartPosition;
-    result = 31 * result + videoSize;
+    result = 31 * result + Longs.hashCode(photoStartPosition);
+    result = 31 * result + Longs.hashCode(photoSize);
+    result = 31 * result + Longs.hashCode(videoStartPosition);
+    result = 31 * result + Longs.hashCode(videoSize);
     return result;
   }
 
@@ -89,10 +91,10 @@ public final class MotionPhoto implements Metadata.Entry {
 
   @Override
   public void writeToParcel(Parcel dest, int flags) {
-    dest.writeInt(photoStartPosition);
-    dest.writeInt(photoSize);
-    dest.writeInt(videoStartPosition);
-    dest.writeInt(videoSize);
+    dest.writeLong(photoStartPosition);
+    dest.writeLong(photoSize);
+    dest.writeLong(videoStartPosition);
+    dest.writeLong(videoSize);
   }
 
   @Override

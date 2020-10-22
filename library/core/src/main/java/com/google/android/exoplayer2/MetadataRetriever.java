@@ -22,6 +22,9 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -43,8 +46,9 @@ public final class MetadataRetriever {
   /**
    * Retrieves the {@link TrackGroupArray} corresponding to a {@link MediaItem}.
    *
-   * <p>This is equivalent to using {@code retrieveMetadata(new DefaultMediaSourceFactory(context),
-   * mediaItem)}.
+   * <p>This is equivalent to using {@link #retrieveMetadata(MediaSourceFactory, MediaItem)} with a
+   * {@link DefaultMediaSourceFactory} and a {@link DefaultExtractorsFactory} with {@link
+   * Mp4Extractor#FLAG_READ_MOTION_PHOTO_METADATA} set.
    *
    * @param context The {@link Context}.
    * @param mediaItem The {@link MediaItem} whose metadata should be retrieved.
@@ -52,7 +56,12 @@ public final class MetadataRetriever {
    */
   public static ListenableFuture<TrackGroupArray> retrieveMetadata(
       Context context, MediaItem mediaItem) {
-    return retrieveMetadata(new DefaultMediaSourceFactory(context), mediaItem);
+    ExtractorsFactory extractorsFactory =
+        new DefaultExtractorsFactory()
+            .setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_MOTION_PHOTO_METADATA);
+    MediaSourceFactory mediaSourceFactory =
+        new DefaultMediaSourceFactory(context, extractorsFactory);
+    return retrieveMetadata(mediaSourceFactory, mediaItem);
   }
 
   /**

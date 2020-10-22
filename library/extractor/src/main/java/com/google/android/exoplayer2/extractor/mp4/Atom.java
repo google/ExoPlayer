@@ -182,6 +182,9 @@ import java.util.List;
   public static final int TYPE_moov = 0x6d6f6f76;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mpvd = 0x6d707664;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_mvhd = 0x6d766864;
 
   @SuppressWarnings("ConstantCaseForConstants")

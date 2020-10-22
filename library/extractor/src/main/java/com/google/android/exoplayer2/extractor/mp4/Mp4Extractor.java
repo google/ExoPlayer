@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.MotionPhoto;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -61,19 +62,27 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   public static final ExtractorsFactory FACTORY = () -> new Extractor[] {new Mp4Extractor()};
 
   /**
-   * Flags controlling the behavior of the extractor. Possible flag value is {@link
-   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}.
+   * Flags controlling the behavior of the extractor. Possible flag values are {@link
+   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS} and {@link #FLAG_READ_MOTION_PHOTO_METADATA}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {FLAG_WORKAROUND_IGNORE_EDIT_LISTS})
+      value = {FLAG_WORKAROUND_IGNORE_EDIT_LISTS, FLAG_READ_MOTION_PHOTO_METADATA})
   public @interface Flags {}
   /**
    * Flag to ignore any edit lists in the stream.
    */
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1;
+  /**
+   * Flag to extract {@link MotionPhoto} metadata from HEIC motion photos following the Google
+   * Photos Motion Photo File Format V1.1.
+   *
+   * <p>As playback is not supported for motion photos, this flag should only be used for metadata
+   * retrieval use cases.
+   */
+  public static final int FLAG_READ_MOTION_PHOTO_METADATA = 1 << 1;
 
   /** Parser states. */
   @Documented
@@ -154,7 +163,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return Sniffer.sniffUnfragmented(input);
+    return Sniffer.sniffUnfragmented(
+        input, /* acceptHeic= */ (flags & FLAG_READ_MOTION_PHOTO_METADATA) != 0);
   }
 
   @Override
@@ -335,6 +345,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       this.atomData = atomData;
       parserState = STATE_READING_ATOM_PAYLOAD;
     } else {
+      if (atomType == Atom.TYPE_mpvd && (flags & FLAG_READ_MOTION_PHOTO_METADATA) != 0) {
+        // There is no need to parse the mpvd atom payload. All the necessary information is in the
+        // header.
+        processMpvdBox(
+            /* atomStartPosition= */ input.getPosition() - atomHeaderBytesRead,
+            /* atomHeaderSize= */ atomHeaderBytesRead,
+            atomSize);
+      }
       atomData = null;
       parserState = STATE_READING_ATOM_PAYLOAD;
     }
@@ -660,6 +678,26 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     } else {
       input.skipFully(4);
     }
+  }
+
+  /**
+   * Processes the Motion Photo Video Data of an HEIC motion photo following the Google Photos
+   * Motion Photo File Format V1.1. This consists in adding a track with the motion photo metadata
+   * and ending playback preparation.
+   */
+  private void processMpvdBox(long atomStartPosition, int atomHeaderSize, long atomSize) {
+    ExtractorOutput extractorOutput = checkNotNull(this.extractorOutput);
+    extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
+
+    TrackOutput trackOutput = extractorOutput.track(/* id= */ 0, C.TRACK_TYPE_IMAGE);
+    MotionPhoto motionPhoto =
+        new MotionPhoto(
+            /* photoStartPosition= */ 0,
+            /* photoSize= */ atomStartPosition,
+            /* videoStartPosition= */ atomStartPosition + atomHeaderSize,
+            /* videoSize= */ atomSize - atomHeaderSize);
+    trackOutput.format(new Format.Builder().setMetadata(new Metadata(motionPhoto)).build());
+    extractorOutput.endTracks();
   }
 
   /**

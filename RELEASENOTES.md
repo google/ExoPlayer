@@ -99,6 +99,8 @@
     *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for
         companion ads rendering when targeting API 29
         ([#6432](https://github.com/google/ExoPlayer/issues/6432)).
+*   Metadata retriever:
+    *   Parse Google Photos HEIC motion photos metadata.
 
 ### 2.12.0 (2020-09-11) ###
 

@@ -690,12 +690,14 @@ public final class C {
   public static final int TRACK_TYPE_VIDEO = 2;
   /** A type constant for text tracks. */
   public static final int TRACK_TYPE_TEXT = 3;
+  /** A type constant for image tracks. */
+  public static final int TRACK_TYPE_IMAGE = 4;
   /** A type constant for metadata tracks. */
-  public static final int TRACK_TYPE_METADATA = 4;
+  public static final int TRACK_TYPE_METADATA = 5;
   /** A type constant for camera motion tracks. */
-  public static final int TRACK_TYPE_CAMERA_MOTION = 5;
+  public static final int TRACK_TYPE_CAMERA_MOTION = 6;
   /** A type constant for a fake or empty track. */
-  public static final int TRACK_TYPE_NONE = 6;
+  public static final int TRACK_TYPE_NONE = 7;
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.

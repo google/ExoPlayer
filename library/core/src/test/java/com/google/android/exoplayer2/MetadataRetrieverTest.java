@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.metadata.mp4.MotionPhoto;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,7 +38,7 @@ import org.junit.runner.RunWith;
 public class MetadataRetrieverTest {
 
   @Test
-  public void retrieveMetadata_singleMediaItem() throws Exception {
+  public void retrieveMetadata_singleMediaItem_outputsExpectedMetadata() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample.mp4"));
@@ -55,7 +56,7 @@ public class MetadataRetrieverTest {
   }
 
   @Test
-  public void retrieveMetadata_multipleMediaItems() throws Exception {
+  public void retrieveMetadata_multipleMediaItems_outputsExpectedMetadata() throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     MediaItem mediaItem1 =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample.mp4"));
@@ -84,7 +85,28 @@ public class MetadataRetrieverTest {
   }
 
   @Test
-  public void retrieveMetadata_throwsErrorIfCannotLoad() {
+  public void retrieveMetadata_motionPhoto_outputsExpectedMetadata() throws Exception {
+    Context context = ApplicationProvider.getApplicationContext();
+    MediaItem mediaItem =
+        MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample_MP.heic"));
+    MotionPhoto expectedMotionPhoto =
+        new MotionPhoto(
+            /* photoStartPosition= */ 0,
+            /* photoSize= */ 28_853,
+            /* videoStartPosition= */ 28_869,
+            /* videoSize= */ 28_803);
+
+    ListenableFuture<TrackGroupArray> trackGroupsFuture = retrieveMetadata(context, mediaItem);
+    TrackGroupArray trackGroups = waitAndGetTrackGroups(trackGroupsFuture);
+
+    assertThat(trackGroups.length).isEqualTo(1);
+    assertThat(trackGroups.get(0).length).isEqualTo(1);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(1);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(0)).isEqualTo(expectedMotionPhoto);
+  }
+
+  @Test
+  public void retrieveMetadata_invalidMediaItem_throwsError() {
     Context context = ApplicationProvider.getApplicationContext();
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/does_not_exist"));
