@@ -42,17 +42,17 @@ import org.robolectric.annotation.Config;
 public class FlacPlaybackTest {
 
   @Parameters(name = "{0}")
-  public static ImmutableList<String[]> params() {
+  public static ImmutableList<String> mediaSamples() {
     return ImmutableList.of(
-        new String[] {"bear.flac"},
-        new String[] {"bear_no_min_max_frame_size.flac"},
-        new String[] {"bear_no_num_samples.flac"},
-        new String[] {"bear_no_seek_table_no_num_samples.flac"},
-        new String[] {"bear_one_metadata_block.flac"},
-        new String[] {"bear_uncommon_sample_rate.flac"},
-        new String[] {"bear_with_id3.flac"},
-        new String[] {"bear_with_picture.flac"},
-        new String[] {"bear_with_vorbis_comments.flac"});
+        "bear.flac",
+        "bear_no_min_max_frame_size.flac",
+        "bear_no_num_samples.flac",
+        "bear_no_seek_table_no_num_samples.flac",
+        "bear_one_metadata_block.flac",
+        "bear_uncommon_sample_rate.flac",
+        "bear_with_id3.flac",
+        "bear_with_picture.flac",
+        "bear_with_vorbis_comments.flac");
   }
 
   @Parameter public String inputFile;

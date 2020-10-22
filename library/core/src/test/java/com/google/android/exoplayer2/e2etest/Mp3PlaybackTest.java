@@ -32,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 import org.robolectric.annotation.Config;
 
 /** End-to-end tests using MP3 samples. */
@@ -39,16 +40,16 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 29)
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public final class Mp3PlaybackTest {
-  @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-  public static ImmutableList<String[]> params() {
+  @Parameters(name = "{0}")
+  public static ImmutableList<String> mediaSamples() {
     return ImmutableList.of(
-        new String[] {"bear-cbr-constant-frame-size-no-seek-table.mp3"},
-        new String[] {"bear-cbr-variable-frame-size-no-seek-table.mp3"},
-        new String[] {"bear-id3.mp3"},
-        new String[] {"bear-vbr-no-seek-table.mp3"},
-        new String[] {"bear-vbr-xing-header.mp3"},
-        new String[] {"play-trimmed.mp3"},
-        new String[] {"test.mp3"});
+        "bear-cbr-constant-frame-size-no-seek-table.mp3",
+        "bear-cbr-variable-frame-size-no-seek-table.mp3",
+        "bear-id3.mp3",
+        "bear-vbr-no-seek-table.mp3",
+        "bear-vbr-xing-header.mp3",
+        "play-trimmed.mp3",
+        "test.mp3");
   }
 
   @ParameterizedRobolectricTestRunner.Parameter public String inputFile;

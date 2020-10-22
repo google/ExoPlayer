@@ -44,26 +44,26 @@ public class TsPlaybackTest {
   // TODO: Add samples with >2 audio channels when supported (sample.ac3, sample_ac3.ts,
   //       sample.eac3, sample_eac3joc.ec3, sample_eac3joc.ts, sample_eac3.ts).
   @Parameters(name = "{0}")
-  public static ImmutableList<String[]> params() {
+  public static ImmutableList<String> mediaSamples() {
     return ImmutableList.of(
-        new String[] {"bbb_2500ms.ts"},
-        new String[] {"elephants_dream.mpg"},
-        new String[] {"sample.ac4"},
-        new String[] {"sample_ac4.ts"},
-        new String[] {"sample.adts"},
-        new String[] {"sample_ait.ts"},
-        new String[] {"sample_cbs_truncated.adts"},
-        new String[] {"sample_h262_mpeg_audio.ps"},
-        new String[] {"sample_h262_mpeg_audio.ts"},
-        new String[] {"sample_h263.ts"},
-        new String[] {"sample_h264_dts_audio.ts"},
-        new String[] {"sample_h264_mpeg_audio.ts"},
-        new String[] {"sample_h264_no_access_unit_delimiters.ts"},
-        new String[] {"sample_h265.ts"},
-        new String[] {"sample_latm.ts"},
-        new String[] {"sample_scte35.ts"},
-        new String[] {"sample_with_id3.adts"},
-        new String[] {"sample_with_junk"});
+        "bbb_2500ms.ts",
+        "elephants_dream.mpg",
+        "sample.ac4",
+        "sample_ac4.ts",
+        "sample.adts",
+        "sample_ait.ts",
+        "sample_cbs_truncated.adts",
+        "sample_h262_mpeg_audio.ps",
+        "sample_h262_mpeg_audio.ts",
+        "sample_h263.ts",
+        "sample_h264_dts_audio.ts",
+        "sample_h264_mpeg_audio.ts",
+        "sample_h264_no_access_unit_delimiters.ts",
+        "sample_h265.ts",
+        "sample_latm.ts",
+        "sample_scte35.ts",
+        "sample_with_id3.adts",
+        "sample_with_junk");
   }
 
   @Parameter public String inputFile;

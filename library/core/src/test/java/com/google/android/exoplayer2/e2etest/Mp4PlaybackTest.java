@@ -32,6 +32,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 import org.robolectric.annotation.Config;
 
 /** End-to-end tests using MP4 samples. */
@@ -43,27 +45,27 @@ public class Mp4PlaybackTest {
   // TODO: Add samples with >2 audio channels when supported (sample_ac3_fragmented.mp4,
   //       sample_ac3.mp4sample_eac3.mp4, sample_eac3_fragmented.mp4, sample_eac3joc.mp4,
   //       sample_eac3joc_fragmented.mp4).
-  @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
-  public static ImmutableList<String[]> params() {
+  @Parameters(name = "{0}")
+  public static ImmutableList<String> mediaSamples() {
     return ImmutableList.of(
-        new String[] {"midroll-5s.mp4"},
-        new String[] {"postroll-5s.mp4"},
-        new String[] {"preroll-5s.mp4"},
-        new String[] {"sample_ac4_fragmented.mp4"},
-        new String[] {"sample_ac4.mp4"},
-        new String[] {"sample_android_slow_motion.mp4"},
-        new String[] {"sample_fragmented.mp4"},
-        new String[] {"sample_fragmented_seekable.mp4"},
-        new String[] {"sample_fragmented_sei.mp4"},
-        new String[] {"sample_mdat_too_long.mp4"},
-        new String[] {"sample.mp4"},
-        new String[] {"sample_opus_fragmented.mp4"},
-        new String[] {"sample_opus.mp4"},
-        new String[] {"sample_partially_fragmented.mp4"},
-        new String[] {"testvid_1022ms.mp4"});
+        "midroll-5s.mp4",
+        "postroll-5s.mp4",
+        "preroll-5s.mp4",
+        "sample_ac4_fragmented.mp4",
+        "sample_ac4.mp4",
+        "sample_android_slow_motion.mp4",
+        "sample_fragmented.mp4",
+        "sample_fragmented_seekable.mp4",
+        "sample_fragmented_sei.mp4",
+        "sample_mdat_too_long.mp4",
+        "sample.mp4",
+        "sample_opus_fragmented.mp4",
+        "sample_opus.mp4",
+        "sample_partially_fragmented.mp4",
+        "testvid_1022ms.mp4");
   }
 
-  @ParameterizedRobolectricTestRunner.Parameter public String inputFile;
+  @Parameter public String inputFile;
 
   @Rule
   public ShadowMediaCodecConfig mediaCodecConfig =
