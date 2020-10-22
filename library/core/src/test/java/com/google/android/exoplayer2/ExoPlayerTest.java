@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -98,12 +99,13 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -5553,7 +5555,8 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1)),
-            new DefaultDataSourceFactory(context),
+            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
+            new DefaultMediaSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     Exception[] exception = {null};
@@ -5590,7 +5593,8 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             mediaSource,
-            new DefaultDataSourceFactory(context),
+            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
+            new DefaultMediaSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     final Exception[] exception = {null};
@@ -5629,7 +5633,8 @@ public final class ExoPlayerTest {
     AdsMediaSource adsMediaSource =
         new AdsMediaSource(
             mediaSource,
-            new DefaultDataSourceFactory(context),
+            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
+            new DefaultMediaSourceFactory(context),
             new FakeAdsLoader(),
             new FakeAdViewProvider());
     final Exception[] exception = {null};
@@ -5697,6 +5702,42 @@ public final class ExoPlayerTest {
         .blockUntilActionScheduleFinished(TIMEOUT_MS)
         .blockUntilEnded(TIMEOUT_MS);
     assertArrayEquals(new int[] {0, 0, 0}, currentWindowIndices);
+  }
+
+  @Test
+  public void setMediaItems_resetPosition_resetsPosition() throws Exception {
+    final int[] currentWindowIndices = {C.INDEX_UNSET, C.INDEX_UNSET};
+    final long[] currentPositions = {C.INDEX_UNSET, C.INDEX_UNSET};
+    ActionSchedule actionSchedule =
+        new ActionSchedule.Builder(TAG)
+            .pause()
+            .executeRunnable(
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 1000);
+                    currentWindowIndices[0] = player.getCurrentWindowIndex();
+                    currentPositions[0] = player.getCurrentPosition();
+                    List<MediaItem> listOfTwo =
+                        Lists.newArrayList(
+                            MediaItem.fromUri(Uri.EMPTY), MediaItem.fromUri(Uri.EMPTY));
+                    player.setMediaItems(listOfTwo, /* resetPosition= */ true);
+                    currentWindowIndices[1] = player.getCurrentWindowIndex();
+                    currentPositions[1] = player.getCurrentPosition();
+                  }
+                })
+            .prepare()
+            .waitForTimelineChanged()
+            .play()
+            .build();
+    new ExoPlayerTestRunner.Builder(context)
+        .setActionSchedule(actionSchedule)
+        .build()
+        .start(/* doPrepare= */ false)
+        .blockUntilActionScheduleFinished(TIMEOUT_MS)
+        .blockUntilEnded(TIMEOUT_MS);
+    assertArrayEquals(new int[] {1, 0}, currentWindowIndices);
+    assertArrayEquals(new long[] {1000, 0}, currentPositions);
   }
 
   @Test
@@ -7334,6 +7375,8 @@ public final class ExoPlayerTest {
         new DefaultLoadControl.Builder()
             .setTargetBufferBytes(10 * C.DEFAULT_BUFFER_SEGMENT_SIZE)
             .build();
+    // Return no end of stream signal to prevent playback from ending.
+    FakeMediaPeriod.TrackDataFactory trackDataWithoutEos = (format, periodId) -> ImmutableList.of();
     MediaSource continuouslyAllocatingMediaSource =
         new FakeMediaSource(
             new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT) {
@@ -7348,8 +7391,11 @@ public final class ExoPlayerTest {
               @Nullable TransferListener transferListener) {
             return new FakeMediaPeriod(
                 trackGroupArray,
-                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
-                mediaSourceEventDispatcher) {
+                trackDataWithoutEos,
+                mediaSourceEventDispatcher,
+                drmSessionManager,
+                drmEventDispatcher,
+                /* deferOnPrepared= */ false) {
 
               private final List<Allocation> allocations = new ArrayList<>();
 
@@ -7382,14 +7428,8 @@ public final class ExoPlayerTest {
             };
           }
         };
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            // Prevent player from ever assuming it finished playing.
-            .setRepeatMode(Player.REPEAT_MODE_ALL)
-            .build();
     ExoPlayerTestRunner testRunner =
         new ExoPlayerTestRunner.Builder(context)
-            .setActionSchedule(actionSchedule)
             .setMediaSources(continuouslyAllocatingMediaSource)
             .setLoadControl(loadControl)
             .build();
@@ -8511,6 +8551,9 @@ public final class ExoPlayerTest {
 
     @Override
     public void setSupportedContentTypes(int... contentTypes) {}
+
+    @Override
+    public void setAdTagDataSpec(DataSpec adTagDataSpec) {}
 
     @Override
     public void start(AdsLoader.EventListener eventListener, AdViewProvider adViewProvider) {}

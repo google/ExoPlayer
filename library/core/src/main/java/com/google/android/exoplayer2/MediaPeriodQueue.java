@@ -315,8 +315,8 @@ import com.google.common.collect.ImmutableList;
   public boolean updateQueuedPeriods(
       Timeline timeline, long rendererPositionUs, long maxRendererReadPositionUs) {
     // TODO: Merge this into setTimeline so that the queue gets updated as soon as the new timeline
-    // is set, once all cases handled by ExoPlayerImplInternal.handleSourceInfoRefreshed can be
-    // handled here.
+    // is set, once all cases handled by ExoPlayerImplInternal.handleMediaSourceListInfoRefreshed
+    // can be handled here.
     MediaPeriodHolder previousPeriodHolder = null;
     MediaPeriodHolder periodHolder = playing;
     while (periodHolder != null) {
@@ -326,8 +326,8 @@ import com.google.common.collect.ImmutableList;
       MediaPeriodInfo newPeriodInfo;
       if (previousPeriodHolder == null) {
         // The id and start position of the first period have already been verified by
-        // ExoPlayerImplInternal.handleSourceInfoRefreshed. Just update duration, isLastInTimeline
-        // and isLastInPeriod flags.
+        // ExoPlayerImplInternal.handleMediaSourceListInfoRefreshed. Just update duration,
+        // isLastInTimeline and isLastInPeriod flags.
         newPeriodInfo = getUpdatedMediaPeriodInfo(timeline, oldPeriodInfo);
       } else {
         newPeriodInfo =

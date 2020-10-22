@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Toista</string>
   <string name="exo_controls_stop_description">Lopeta</string>
   <string name="exo_controls_rewind_description">Kelaa taaksepäin</string>
-  <string name="exo_controls_rewind_by_amount_description">Kelaa taaksepäin %d sekuntia</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Siirry taaksepäin %d sekunti</item>
+    <item quantity="other">Siirry taaksepäin %d sekuntia</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Kelaa eteenpäin</string>
-  <string name="exo_controls_fastforward_by_amount_description">Kelaa eteenpäin %d sekuntia</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Siirry eteenpäin %d sekunti</item>
+    <item quantity="other">Siirry eteenpäin %d sekuntia</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Ei uudelleentoistoa</string>
   <string name="exo_controls_repeat_one_description">Toista yksi uudelleen</string>
   <string name="exo_controls_repeat_all_description">Toista kaikki uudelleen</string>

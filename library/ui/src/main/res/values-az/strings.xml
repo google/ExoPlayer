@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Oxudun</string>
   <string name="exo_controls_stop_description">Dayandırın</string>
   <string name="exo_controls_rewind_description">Geri çəkin</string>
-  <string name="exo_controls_rewind_by_amount_description">%d saniyə geri keçin</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d saniyə geri çəkin</item>
+    <item quantity="other">%d saniyə geri çəkin</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">İrəli çəkin</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d saniyə irəli keçin</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d saniyə irəli çəkin</item>
+    <item quantity="other">%d saniyə irəli çəkin</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Heç biri təkrarlanmasın</string>
   <string name="exo_controls_repeat_one_description">Biri təkrarlansın</string>
   <string name="exo_controls_repeat_all_description">Hamısı təkrarlansın</string>

@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Пушти</string>
   <string name="exo_controls_stop_description">Сопри</string>
   <string name="exo_controls_rewind_description">Премотај наназад</string>
-  <string name="exo_controls_rewind_by_amount_description">Премотајте наназад %d секунди</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Премотајте %d секунда</item>
+    <item quantity="other">Премотајте %d секунди</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Премотај напред</string>
-  <string name="exo_controls_fastforward_by_amount_description">Премотајте нанапред %d секунди</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Премотајте напред %d секунда</item>
+    <item quantity="other">Премотајте напред %d секунди</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Не повторувај ниту една</string>
   <string name="exo_controls_repeat_one_description">Повтори една</string>
   <string name="exo_controls_repeat_all_description">Повтори ги сите</string>

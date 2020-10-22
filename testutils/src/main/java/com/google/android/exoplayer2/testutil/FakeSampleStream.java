@@ -190,7 +190,13 @@ public class FakeSampleStream implements SampleStream {
       }
     }
     sampleItemIndex = fakeSampleStreamItems.size();
-    readEOSBuffer = true;
+    @Nullable
+    FakeSampleStreamItem lastItem =
+        Iterables.getLast(fakeSampleStreamItems, /* defaultValue= */ null);
+    readEOSBuffer =
+        lastItem != null
+            && lastItem.sampleInfo != null
+            && ((lastItem.sampleInfo.flags & C.BUFFER_FLAG_END_OF_STREAM) != 0);
   }
 
   /**

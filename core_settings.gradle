@@ -29,6 +29,7 @@ include modulePrefix + 'library-extractor'
 include modulePrefix + 'library-hls'
 include modulePrefix + 'library-smoothstreaming'
 include modulePrefix + 'library-ui'
+include modulePrefix + 'robolectricutils'
 include modulePrefix + 'testutils'
 include modulePrefix + 'testdata'
 include modulePrefix + 'extension-av1'
@@ -56,6 +57,7 @@ project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'libr
 project(modulePrefix + 'library-hls').projectDir = new File(rootDir, 'library/hls')
 project(modulePrefix + 'library-smoothstreaming').projectDir = new File(rootDir, 'library/smoothstreaming')
 project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
+project(modulePrefix + 'robolectricutils').projectDir = new File(rootDir, 'robolectricutils')
 project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')
 project(modulePrefix + 'testdata').projectDir = new File(rootDir, 'testdata')
 project(modulePrefix + 'extension-av1').projectDir = new File(rootDir, 'extensions/av1')

@@ -527,6 +527,20 @@
       {
         "name": "MPEG-4 Timed Text (tx3g, mov_text)",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"
+      },
+      {
+        "name": "Japanese features (vertical + rubies) [TTML]",
+        "uri": "https://html5demos.com/assets/dizzy.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/japanese-ttml.xml",
+        "subtitle_mime_type": "application/ttml+xml",
+        "subtitle_language": "ja"
+      },
+      {
+        "name": "Japanese features (vertical + rubies) [WebVTT]",
+        "uri": "https://html5demos.com/assets/dizzy.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/webvtt/japanese.vtt",
+        "subtitle_mime_type": "text/vtt",
+        "subtitle_language": "ja"
       }
     ]
   },

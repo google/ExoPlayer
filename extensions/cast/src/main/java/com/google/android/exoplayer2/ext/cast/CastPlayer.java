@@ -308,6 +308,13 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
+    int windowIndex = resetPosition ? 0 : getCurrentWindowIndex();
+    long startPositionMs = resetPosition ? C.TIME_UNSET : getContentPosition();
+    setMediaItems(mediaItems, windowIndex, startPositionMs);
+  }
+
+  @Override
   public void setMediaItems(
       List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
     setMediaItemsInternal(

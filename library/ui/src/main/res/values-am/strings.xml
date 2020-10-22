@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">አጫውት</string>
   <string name="exo_controls_stop_description">አቁም</string>
   <string name="exo_controls_rewind_description">ወደኋላ መልስ</string>
-  <string name="exo_controls_rewind_by_amount_description">በ%d ሰከንዶች ወደኋላ መልስ</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">በ%d ሰከንዶች ወደኋላ ይመልሱ</item>
+    <item quantity="other">በ%d ሰከንዶች ወደኋላ ይመልሱ</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">በፍጥነት አሳልፍ</string>
-  <string name="exo_controls_fastforward_by_amount_description">በ%d ሰከንዶች ወደፊት አሳልፍ</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">በ%d ሰከንዶች በፍጥነት ወደፊት ያሳልፉ</item>
+    <item quantity="other">በ%d ሰከንዶች በፍጥነት ወደፊት ያሳልፉ</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">ምንም አትድገም</string>
   <string name="exo_controls_repeat_one_description">አንድ ድገም</string>
   <string name="exo_controls_repeat_all_description">ሁሉንም ድገም</string>

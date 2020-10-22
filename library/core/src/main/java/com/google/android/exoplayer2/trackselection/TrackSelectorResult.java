@@ -40,19 +40,20 @@ public final class TrackSelectorResult {
    * An opaque object that will be returned to {@link TrackSelector#onSelectionActivated(Object)}
    * should the selections be activated.
    */
-  public final Object info;
+  @Nullable public final Object info;
 
   /**
    * @param rendererConfigurations A {@link RendererConfiguration} for each renderer. A null entry
    *     indicates the corresponding renderer should be disabled.
    * @param selections A {@link TrackSelectionArray} containing the selection for each renderer.
    * @param info An opaque object that will be returned to {@link
-   *     TrackSelector#onSelectionActivated(Object)} should the selection be activated.
+   *     TrackSelector#onSelectionActivated(Object)} should the selection be activated. May be
+   *     {@code null}.
    */
   public TrackSelectorResult(
       @NullableType RendererConfiguration[] rendererConfigurations,
       @NullableType TrackSelection[] selections,
-      Object info) {
+      @Nullable Object info) {
     this.rendererConfigurations = rendererConfigurations;
     this.selections = new TrackSelectionArray(selections);
     this.info = info;

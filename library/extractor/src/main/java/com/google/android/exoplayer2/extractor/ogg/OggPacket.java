@@ -88,7 +88,9 @@ import java.util.Arrays;
       int segmentIndex = currentSegmentIndex + segmentCount;
       if (size > 0) {
         if (packetArray.capacity() < packetArray.limit() + size) {
-          packetArray.reset(Arrays.copyOf(packetArray.getData(), packetArray.limit() + size));
+          packetArray.reset(
+              Arrays.copyOf(packetArray.getData(), packetArray.limit() + size),
+              /* limit= */ packetArray.limit());
         }
         input.readFully(packetArray.getData(), packetArray.limit(), size);
         packetArray.setLimit(packetArray.limit() + size);
@@ -131,7 +133,8 @@ import java.util.Arrays;
     }
     packetArray.reset(
         Arrays.copyOf(
-            packetArray.getData(), max(OggPageHeader.MAX_PAGE_PAYLOAD, packetArray.limit())));
+            packetArray.getData(), max(OggPageHeader.MAX_PAGE_PAYLOAD, packetArray.limit())),
+        /* limit= */ packetArray.limit());
   }
 
   /**

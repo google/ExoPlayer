@@ -4,3 +4,6 @@
 -dontwarn org.checkerframework.**
 -dontwarn kotlin.annotations.jvm.**
 -dontwarn javax.annotation.**
+
+# From https://github.com/google/guava/wiki/UsingProGuardWithGuava
+-dontwarn java.lang.ClassValue

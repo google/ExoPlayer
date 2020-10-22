@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Тоглуулах</string>
   <string name="exo_controls_stop_description">Зогсоох</string>
   <string name="exo_controls_rewind_description">Ухраах</string>
-  <string name="exo_controls_rewind_by_amount_description">%d секунд ухраах</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d секунд ухраах</item>
+    <item quantity="other">%d секунд ухраах</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Хурдан урагшлуулах</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d секунд хурдан урагшлуулах</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d секундээр хурдан урагшлуулах</item>
+    <item quantity="other">%d секундээр хурдан урагшлуулах</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Алийг нь ч дахин тоглуулахгүй</string>
   <string name="exo_controls_repeat_one_description">Одоогийн тоглуулж буй медиаг дахин тоглуулах</string>
   <string name="exo_controls_repeat_all_description">Бүгдийг нь дахин тоглуулах</string>

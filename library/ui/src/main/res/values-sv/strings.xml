@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Spela upp</string>
   <string name="exo_controls_stop_description">Stoppa</string>
   <string name="exo_controls_rewind_description">Spola tillbaka</string>
-  <string name="exo_controls_rewind_by_amount_description">Spola tillbaka %d sekunder</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Spola tillbaka %d sekund</item>
+    <item quantity="other">Spola tillbaka %d sekunder</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Snabbspola framåt</string>
-  <string name="exo_controls_fastforward_by_amount_description">Spola framåt %d sekunder</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Spola framåt %d sekund</item>
+    <item quantity="other">Spola framåt %d sekunder</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Upprepa inga</string>
   <string name="exo_controls_repeat_one_description">Upprepa en</string>
   <string name="exo_controls_repeat_all_description">Upprepa alla</string>

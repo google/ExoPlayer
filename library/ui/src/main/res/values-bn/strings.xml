@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">চালান</string>
   <string name="exo_controls_stop_description">থামান</string>
   <string name="exo_controls_rewind_description">পিছিয়ে যান</string>
-  <string name="exo_controls_rewind_by_amount_description">%d সেকেন্ড রিওয়াইন্ড করুন</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d সেকেন্ড রিওয়াইন্ড করুন</item>
+    <item quantity="other">%d সেকেন্ড রিওয়াইন্ড করুন</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">দ্রুত এগিয়ে যান</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d সেকেন্ড ফাস্ট ফরওয়ার্ড করুন</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d সেকেন্ড ফাস্ট ফরওয়ার্ড করুন</item>
+    <item quantity="other">%d সেকেন্ড ফাস্ট ফরওয়ার্ড করুন</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">কোনও আইটেম আবার চালাবেন না</string>
   <string name="exo_controls_repeat_one_description">একটি আইটেম আবার চালান</string>
   <string name="exo_controls_repeat_all_description">সবগুলি আইটেম আবার চালান</string>

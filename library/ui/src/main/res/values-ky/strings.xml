@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Ойнотуу</string>
   <string name="exo_controls_stop_description">Токтотуу</string>
   <string name="exo_controls_rewind_description">Артка түрүү</string>
-  <string name="exo_controls_rewind_by_amount_description">%d секунд артка түрдүрүү</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d секунд артка түрдүрүү</item>
+    <item quantity="other">%d секунд артка түрдүрүү</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Алдыга түрүү</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d секунд алдыга түрдүрүү</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d секунд алдыга түрдүрүү</item>
+    <item quantity="other">%d секунд алдыга түрдүрүү</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Кайталанбасын</string>
   <string name="exo_controls_repeat_one_description">Бирөөнү кайталоо</string>
   <string name="exo_controls_repeat_all_description">Баарын кайталоо</string>

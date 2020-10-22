@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -280,7 +281,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
-    if (mediaItem.playbackProperties.adTagUri == null) {
+    @Nullable Uri adTagUri = mediaItem.playbackProperties.adTagUri;
+    if (adTagUri == null) {
       return mediaSource;
     }
     AdsLoaderProvider adsLoaderProvider = this.adsLoaderProvider;
@@ -292,14 +294,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
               + " setAdViewProvider.");
       return mediaSource;
     }
-    @Nullable
-    AdsLoader adsLoader = adsLoaderProvider.getAdsLoader(mediaItem.playbackProperties.adTagUri);
+    @Nullable AdsLoader adsLoader = adsLoaderProvider.getAdsLoader(adTagUri);
     if (adsLoader == null) {
       Log.w(TAG, "Playing media without ads. No AdsLoader for provided adTagUri");
       return mediaSource;
     }
     return new AdsMediaSource(
-        mediaSource, /* adMediaSourceFactory= */ this, adsLoader, adViewProvider);
+        mediaSource,
+        new DataSpec(adTagUri),
+        /* adMediaSourceFactory= */ this,
+        adsLoader,
+        adViewProvider);
   }
 
   private static SparseArray<MediaSourceFactory> loadDelegates(

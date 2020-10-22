@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * {@link StreamReader} to extract Vorbis data out of Ogg byte stream.
@@ -160,8 +161,11 @@ import java.util.ArrayList;
   @VisibleForTesting
   /* package */ static void appendNumberOfSamples(
       ParsableByteArray buffer, long packetSampleCount) {
-
-    buffer.setLimit(buffer.limit() + 4);
+    if (buffer.capacity() < buffer.limit() + 4) {
+      buffer.reset(Arrays.copyOf(buffer.getData(), buffer.limit() + 4));
+    } else {
+      buffer.setLimit(buffer.limit() + 4);
+    }
     // The vorbis decoder expects the number of samples in the packet
     // to be appended to the audio data as an int32
     byte[] data = buffer.getData();

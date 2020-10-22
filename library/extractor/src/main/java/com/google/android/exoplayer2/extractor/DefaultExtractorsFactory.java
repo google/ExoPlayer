@@ -131,9 +131,11 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   @Mp3Extractor.Flags private int mp3Flags;
   @TsExtractor.Mode private int tsMode;
   @DefaultTsPayloadReaderFactory.Flags private int tsFlags;
+  private int tsTimestampSearchBytes;
 
   public DefaultExtractorsFactory() {
     tsMode = TsExtractor.MODE_SINGLE_PMT;
+    tsTimestampSearchBytes = TsExtractor.DEFAULT_TIMESTAMP_SEARCH_BYTES;
   }
 
   /**
@@ -246,7 +248,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   /**
    * Sets the mode for {@link TsExtractor} instances created by the factory.
    *
-   * @see TsExtractor#TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory)
+   * @see TsExtractor#TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory, int)
    * @param mode The mode to use.
    * @return The factory, for convenience.
    */
@@ -266,6 +268,20 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   public synchronized DefaultExtractorsFactory setTsExtractorFlags(
       @DefaultTsPayloadReaderFactory.Flags int flags) {
     tsFlags = flags;
+    return this;
+  }
+
+  /**
+   * Sets the number of bytes searched to find a timestamp for {@link TsExtractor} instances created
+   * by the factory.
+   *
+   * @see TsExtractor#TsExtractor(int, TimestampAdjuster, TsPayloadReader.Factory, int)
+   * @param timestampSearchBytes The number of search bytes to use.
+   * @return The factory, for convenience.
+   */
+  public synchronized DefaultExtractorsFactory setTsExtractorTimestampSearchBytes(
+      int timestampSearchBytes) {
+    tsTimestampSearchBytes = timestampSearchBytes;
     return this;
   }
 
@@ -361,7 +377,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         extractors.add(new PsExtractor());
         break;
       case FileTypes.TS:
-        extractors.add(new TsExtractor(tsMode, tsFlags));
+        extractors.add(new TsExtractor(tsMode, tsFlags, tsTimestampSearchBytes));
         break;
       case FileTypes.WAV:
         extractors.add(new WavExtractor());

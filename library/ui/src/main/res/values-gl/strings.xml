@@ -27,10 +27,16 @@
   <string name="exo_controls_pause_description">Pausar</string>
   <string name="exo_controls_play_description">Reproducir</string>
   <string name="exo_controls_stop_description">Deter</string>
-  <string name="exo_controls_rewind_description">Rebobinar</string>
-  <string name="exo_controls_rewind_by_amount_description">Rebobina %d segundos</string>
+  <string name="exo_controls_rewind_description">Retroceder</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Rebobina %d segundo</item>
+    <item quantity="other">Rebobina %d segundos</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Avance rápido</string>
-  <string name="exo_controls_fastforward_by_amount_description">Avanza rapidamente %d segundos</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Avanza rapidamente %d segundo</item>
+    <item quantity="other">Avanza rapidamente %d segundos</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Non repetir</string>
   <string name="exo_controls_repeat_one_description">Repetir unha pista</string>
   <string name="exo_controls_repeat_all_description">Repetir todas as pistas</string>

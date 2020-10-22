@@ -28,9 +28,19 @@
   <string name="exo_controls_play_description">Гуляць</string>
   <string name="exo_controls_stop_description">Спыніць</string>
   <string name="exo_controls_rewind_description">Пераматаць назад</string>
-  <string name="exo_controls_rewind_by_amount_description">Пераматаць назад на %d с</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Пераматаць назад на %d секунду</item>
+    <item quantity="few">Пераматаць назад на %d секунды</item>
+    <item quantity="many">Пераматаць назад на %d секунд</item>
+    <item quantity="other">Пераматаць назад на %d секунды</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Пераматаць уперад</string>
-  <string name="exo_controls_fastforward_by_amount_description">Пераматаць уперад на %d с</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Пераматаць уперад на %d секунду</item>
+    <item quantity="few">Пераматаць уперад на %d секунды</item>
+    <item quantity="many">Пераматаць уперад на %d секунд</item>
+    <item quantity="other">Пераматаць уперад на %d секунды</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Не паўтараць нічога</string>
   <string name="exo_controls_repeat_one_description">Паўтарыць адзін элемент</string>
   <string name="exo_controls_repeat_all_description">Паўтарыць усе</string>

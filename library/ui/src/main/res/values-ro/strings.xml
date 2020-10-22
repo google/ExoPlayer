@@ -28,9 +28,17 @@
   <string name="exo_controls_play_description">Redați</string>
   <string name="exo_controls_stop_description">Opriți</string>
   <string name="exo_controls_rewind_description">Derulați înapoi</string>
-  <string name="exo_controls_rewind_by_amount_description">Derulați înapoi cu %d secunde</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Derulează înapoi cu %d secundă</item>
+    <item quantity="few">Derulează înapoi cu %d secunde</item>
+    <item quantity="other">Derulează înapoi cu %d de secunde</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Derulați rapid înainte</string>
-  <string name="exo_controls_fastforward_by_amount_description">Derulați rapid înainte cu %d secunde</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Derulează rapid înainte cu %d secundă</item>
+    <item quantity="few">Derulează rapid înainte cu %d secunde</item>
+    <item quantity="other">Derulează rapid înainte cu %d de secunde</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Nu repetați niciunul</string>
   <string name="exo_controls_repeat_one_description">Repetați unul</string>
   <string name="exo_controls_repeat_all_description">Repetați-le pe toate</string>

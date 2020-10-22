@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -335,6 +336,7 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean tunneling;
   private long lastFeedElapsedRealtimeMs;
   private boolean offloadDisabledUntilNextConfiguration;
+  private boolean isWaitingForOffloadEndOfStreamHandled;
 
   /**
    * Creates a new default audio sink.
@@ -711,6 +713,7 @@ public final class DefaultAudioSink implements AudioSink {
           audioTrack.setOffloadEndOfStream();
           audioTrack.setOffloadDelayPadding(
               configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
+          isWaitingForOffloadEndOfStreamHandled = true;
         }
       }
       // Re-apply playback parameters.
@@ -931,13 +934,26 @@ public final class DefaultAudioSink implements AudioSink {
       throw new WriteException(bytesWritten);
     }
 
-    if (playing
-        && listener != null
-        && bytesWritten < bytesRemaining
-        && isOffloadedPlayback(audioTrack)) {
-      long pendingDurationMs =
-          audioTrackPositionTracker.getPendingBufferDurationMs(writtenEncodedFrames);
-      listener.onOffloadBufferFull(pendingDurationMs);
+    if (isOffloadedPlayback(audioTrack)) {
+      // After calling AudioTrack.setOffloadEndOfStream, the AudioTrack internally stops and
+      // restarts during which AudioTrack.write will return 0. This situation must be detected to
+      // prevent reporting the buffer as full even though it is not which could lead ExoPlayer to
+      // sleep forever waiting for a onDataRequest that will never come.
+      if (writtenEncodedFrames > 0) {
+        isWaitingForOffloadEndOfStreamHandled = false;
+      }
+
+      // Consider the offload buffer as full if the AudioTrack is playing and AudioTrack.write could
+      // not write all the data provided to it. This relies on the assumption that AudioTrack.write
+      // always writes as much as possible.
+      if (playing
+          && listener != null
+          && bytesWritten < bytesRemaining
+          && !isWaitingForOffloadEndOfStreamHandled) {
+        long pendingDurationMs =
+            audioTrackPositionTracker.getPendingBufferDurationMs(writtenEncodedFrames);
+        listener.onOffloadBufferFull(pendingDurationMs);
+      }
     }
 
     if (configuration.outputMode == OUTPUT_MODE_PCM) {
@@ -1220,6 +1236,7 @@ public final class DefaultAudioSink implements AudioSink {
     submittedEncodedFrames = 0;
     writtenPcmBytes = 0;
     writtenEncodedFrames = 0;
+    isWaitingForOffloadEndOfStreamHandled = false;
     framesPerEncodedSample = 0;
     mediaPositionParameters =
         new MediaPositionParameters(
@@ -1679,27 +1696,43 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @RequiresApi(29)
-  private final class StreamEventCallbackV29 extends AudioTrack.StreamEventCallback {
+  private final class StreamEventCallbackV29 {
     private final Handler handler;
+    private final AudioTrack.StreamEventCallback callback;
 
     public StreamEventCallbackV29() {
       handler = new Handler();
-    }
+      // Avoid StreamEventCallbackV29 inheriting directly from AudioTrack.StreamEventCallback as it
+      // would cause a NoClassDefFoundError warning on load of DefaultAudioSink for SDK < 29.
+      // See: https://github.com/google/ExoPlayer/issues/8058
+      callback =
+          new AudioTrack.StreamEventCallback() {
+            @Override
+            public void onDataRequest(AudioTrack track, int size) {
+              Assertions.checkState(track == DefaultAudioSink.this.audioTrack);
+              if (listener != null) {
+                listener.onOffloadBufferEmptying();
+              }
+            }
 
-    @Override
-    public void onDataRequest(AudioTrack track, int size) {
-      Assertions.checkState(track == DefaultAudioSink.this.audioTrack);
-      if (listener != null) {
-        listener.onOffloadBufferEmptying();
-      }
+            @Override
+            public void onTearDown(@NonNull AudioTrack track) {
+              if (listener != null && playing) {
+                // A new Audio Track needs to be created and it's buffer filled, which will be done
+                // on the next handleBuffer call. Request this call explicitly in case ExoPlayer is
+                // sleeping waiting for a data request.
+                listener.onOffloadBufferEmptying();
+              }
+            }
+          };
     }
 
     public void register(AudioTrack audioTrack) {
-      audioTrack.registerStreamEventCallback(handler::post, this);
+      audioTrack.registerStreamEventCallback(handler::post, callback);
     }
 
     public void unregister(AudioTrack audioTrack) {
-      audioTrack.unregisterStreamEventCallback(this);
+      audioTrack.unregisterStreamEventCallback(callback);
       handler.removeCallbacksAndMessages(/* token= */ null);
     }
   }

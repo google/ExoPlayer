@@ -46,7 +46,6 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -107,8 +106,7 @@ public class MediaCodecVideoRendererTest {
             /* maxDroppedFramesToNotify= */ 1) {
           @Override
           @Capabilities
-          protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
-              throws DecoderQueryException {
+          protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format) {
             return RendererCapabilities.create(FORMAT_HANDLED);
           }
 

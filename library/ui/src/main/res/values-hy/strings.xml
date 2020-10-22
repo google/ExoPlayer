@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Նվագարկել</string>
   <string name="exo_controls_stop_description">Կանգնեցնել</string>
   <string name="exo_controls_rewind_description">Հետ</string>
-  <string name="exo_controls_rewind_by_amount_description">%d վայրկյան հետ</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d վայրկյան հետ տալ</item>
+    <item quantity="other">%d վայրկյան հետ տալ</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Առաջ</string>
-  <string name="exo_controls_fastforward_by_amount_description">%d վայրկյան առաջ</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d վայրկյան առաջ տալ</item>
+    <item quantity="other">%d վայրկյան առաջ տալ</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Չկրկնել</string>
   <string name="exo_controls_repeat_one_description">Կրկնել մեկը</string>
   <string name="exo_controls_repeat_all_description">Կրկնել բոլորը</string>

@@ -173,7 +173,14 @@ public class MediaItemTest {
                 Uri.parse(URI_STRING + "/de"),
                 MimeTypes.APPLICATION_TTML,
                 /* language= */ null,
-                C.SELECTION_FLAG_DEFAULT));
+                C.SELECTION_FLAG_DEFAULT),
+            new MediaItem.Subtitle(
+                Uri.parse(URI_STRING + "/fr"),
+                MimeTypes.APPLICATION_SUBRIP,
+                /* language= */ "fr",
+                C.SELECTION_FLAG_DEFAULT,
+                C.ROLE_FLAG_ALTERNATE,
+                "label"));
 
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setSubtitles(subtitles).build();
@@ -317,7 +324,10 @@ public class MediaItemTest {
                     new MediaItem.Subtitle(
                         Uri.parse(URI_STRING + "/en"),
                         MimeTypes.APPLICATION_TTML,
-                        /* language= */ "en")))
+                        /* language= */ "en",
+                        C.SELECTION_FLAG_FORCED,
+                        C.ROLE_FLAG_ALTERNATE,
+                        "label")))
             .setTag(new Object())
             .build();
 

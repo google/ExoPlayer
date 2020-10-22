@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">ධාවනය කරන්න</string>
   <string name="exo_controls_stop_description">නවත්වන්න</string>
   <string name="exo_controls_rewind_description">නැවත ඔතන්න</string>
-  <string name="exo_controls_rewind_by_amount_description">තත්පර %dක් ආපස්සට යවන්න</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">තත්පර %dක් ආපස්සට</item>
+    <item quantity="other">තත්පර %dක් ආපස්සට</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">වේගයෙන් ඉදිරියට</string>
-  <string name="exo_controls_fastforward_by_amount_description">තත්පර %dක් වේගයෙන් ඉදිරියට යවන්න</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">තත්පර %dක් වේගයෙන් ඉදිරියට</item>
+    <item quantity="other">තත්පර %dක් වේගයෙන් ඉදිරියට</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">කිසිවක් පුනරාවර්තනය නොකරන්න</string>
   <string name="exo_controls_repeat_one_description">එකක් පුනරාවර්තනය කරන්න</string>
   <string name="exo_controls_repeat_all_description">සියල්ල පුනරාවර්තනය කරන්න</string>

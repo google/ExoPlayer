@@ -61,8 +61,8 @@
   <style name="ExoStyledControls.Button">
     <item name="android:background">?android:attr/selectableItemBackground</item>
     <item name="android:scaleType">fitXY</item>
-    <item name="android:layout_marginLeft">@dimen/exo_icon_margin</item>
-    <item name="android:layout_marginRight">@dimen/exo_icon_margin</item>
+    <item name="android:layout_marginLeft">@dimen/exo_icon_horizontal_margin</item>
+    <item name="android:layout_marginRight">@dimen/exo_icon_horizontal_margin</item>
   </style>
 
   <style name="ExoStyledControls.Button.Center">
@@ -90,14 +90,12 @@
 
   <style name="ExoStyledControls.Button.Center.FfwdWithAmount">
     <item name="android:background">@drawable/exo_ripple_ffwd</item>
-    <item name="android:contentDescription">@string/exo_controls_fastforward_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
   </style>
   <style name="ExoStyledControls.Button.Center.RewWithAmount">
     <item name="android:background">@drawable/exo_ripple_rew</item>
-    <item name="android:contentDescription">@string/exo_controls_rewind_by_amount_description</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
@@ -125,7 +123,7 @@
     <item name="android:text">@string/exo_controls_time_placeholder</item>
   </style>
 
-  <style name="ExoStyledControls.TimeText.Interpunct">
+  <style name="ExoStyledControls.TimeText.Separator">
     <item name="android:textColor">@color/exo_white_opacity_70</item>
     <item name="android:text">·</item>
   </style>
@@ -137,8 +135,10 @@
 
   <style name="ExoStyledControls.Button.Bottom">
     <item name="android:gravity">center_horizontal</item>
-    <item name="android:layout_width">@dimen/exo_small_button_width</item>
-    <item name="android:layout_height">@dimen/exo_small_button_height</item>
+    <item name="android:layout_width">@dimen/exo_small_icon_width</item>
+    <item name="android:layout_height">@dimen/exo_small_icon_height</item>
+    <item name="android:layout_marginLeft">@dimen/exo_small_icon_horizontal_margin</item>
+    <item name="android:layout_marginRight">@dimen/exo_small_icon_horizontal_margin</item>
     <item name="android:paddingLeft">@dimen/exo_small_icon_padding_horizontal</item>
     <item name="android:paddingRight">@dimen/exo_small_icon_padding_horizontal</item>
     <item name="android:paddingTop">@dimen/exo_small_icon_padding_vertical</item>
@@ -185,4 +185,11 @@
     <item name="android:contentDescription">@string/exo_controls_settings_description</item>
   </style>
 
+  <style name="ExoStyledControls.TimeBar">
+    <item name="bar_height">@dimen/exo_styled_progress_bar_height</item>
+    <item name="touch_target_height">@dimen/exo_styled_progress_touch_target_height</item>
+    <item name="scrubber_enabled_size">@dimen/exo_styled_progress_enabled_thumb_size</item>
+    <item name="scrubber_dragged_size">@dimen/exo_styled_progress_dragged_thumb_size</item>
+    <item name="android:layout_height">@dimen/exo_styled_progress_layout_height</item>
+  </style>
 </resources>

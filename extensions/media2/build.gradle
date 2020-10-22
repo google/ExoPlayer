@@ -19,13 +19,6 @@ dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
     implementation 'androidx.concurrent:concurrent-futures:1.1.0'
-    implementation ('com.google.guava:guava:' + guavaVersion) {
-        exclude group: 'com.google.code.findbugs', module: 'jsr305'
-        exclude group: 'org.checkerframework', module: 'checker-compat-qual'
-        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
-        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
-        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
-    }
     api 'androidx.media2:media2-session:1.0.3'
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion

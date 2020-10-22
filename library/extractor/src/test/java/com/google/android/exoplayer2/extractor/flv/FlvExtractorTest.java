@@ -38,4 +38,10 @@ public final class FlvExtractorTest {
   public void sample() throws Exception {
     ExtractorAsserts.assertBehavior(FlvExtractor::new, "media/flv/sample.flv", simulationConfig);
   }
+
+  @Test
+  public void sampleSeekable() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        FlvExtractor::new, "media/flv/sample-with-key-frame-index.flv", simulationConfig);
+  }
 }

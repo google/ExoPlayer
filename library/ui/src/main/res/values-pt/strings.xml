@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Reproduzir</string>
   <string name="exo_controls_stop_description">Parar</string>
   <string name="exo_controls_rewind_description">Retroceder</string>
-  <string name="exo_controls_rewind_by_amount_description">Retroceder %d segundos</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Retroceder %d segundo</item>
+    <item quantity="other">Retroceder %d segundos</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Avançar</string>
-  <string name="exo_controls_fastforward_by_amount_description">Avançar %d segundos</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Avançar %d segundo</item>
+    <item quantity="other">Avançar %d segundos</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Não repetir</string>
   <string name="exo_controls_repeat_one_description">Repetir uma</string>
   <string name="exo_controls_repeat_all_description">Repetir tudo</string>

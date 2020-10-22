@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">ຫຼິ້ນ</string>
   <string name="exo_controls_stop_description">ຢຸດ</string>
   <string name="exo_controls_rewind_description">ຍ້ອນກັບ</string>
-  <string name="exo_controls_rewind_by_amount_description">ຖອຍຫຼັງ %d ວິນາທີ</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">ຖອຍຫຼັງ %d ວິນາທີ</item>
+    <item quantity="other">ຖອຍຫຼັງ %d ວິນາທີ</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">ເລື່ອນໄປໜ້າ</string>
-  <string name="exo_controls_fastforward_by_amount_description">ເລື່ອນໄປໜ້າ %d ວິນາທີ</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">ເລື່ອນໄປໜ້າ %d ວິນາທີ</item>
+    <item quantity="other">ເລື່ອນໄປໜ້າ %d ວິນາທີ</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">ບໍ່ຫຼິ້ນຊ້ຳ</string>
   <string name="exo_controls_repeat_one_description">ຫຼິ້ນຊໍ້າ</string>
   <string name="exo_controls_repeat_all_description">ຫຼິ້ນຊ້ຳທັງໝົດ</string>

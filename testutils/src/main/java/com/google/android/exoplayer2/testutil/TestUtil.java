@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -53,7 +52,6 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
@@ -76,52 +74,6 @@ public class TestUtil {
   private static @MonotonicNonNull Method runOneTaskMethod;
 
   private TestUtil() {}
-
-  /**
-   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
-   * until {@link C#RESULT_END_OF_INPUT} is returned.
-   *
-   * @param dataSource The source from which to read.
-   * @return The concatenation of all read data.
-   * @throws IOException If an error occurs reading from the source.
-   */
-  public static byte[] readToEnd(DataSource dataSource) throws IOException {
-    byte[] data = new byte[1024];
-    int position = 0;
-    int bytesRead = 0;
-    while (bytesRead != C.RESULT_END_OF_INPUT) {
-      if (position == data.length) {
-        data = Arrays.copyOf(data, data.length * 2);
-      }
-      bytesRead = dataSource.read(data, position, data.length - position);
-      if (bytesRead != C.RESULT_END_OF_INPUT) {
-        position += bytesRead;
-      }
-    }
-    return Arrays.copyOf(data, position);
-  }
-
-  /**
-   * Given an open {@link DataSource}, repeatedly calls {@link DataSource#read(byte[], int, int)}
-   * until exactly {@code length} bytes have been read.
-   *
-   * @param dataSource The source from which to read.
-   * @return The read data.
-   * @throws IOException If an error occurs reading from the source.
-   */
-  public static byte[] readExactly(DataSource dataSource, int length) throws IOException {
-    byte[] data = new byte[length];
-    int position = 0;
-    while (position < length) {
-      int bytesRead = dataSource.read(data, position, data.length - position);
-      if (bytesRead == C.RESULT_END_OF_INPUT) {
-        fail("Not enough data could be read: " + position + " < " + length);
-      } else {
-        position += bytesRead;
-      }
-    }
-    return data;
-  }
 
   /**
    * Equivalent to {@code buildTestData(length, length)}.
@@ -271,7 +223,7 @@ public class TestUtil {
     try {
       long length = dataSource.open(dataSpec);
       assertThat(length).isEqualTo(expectKnownLength ? expectedData.length : C.LENGTH_UNSET);
-      byte[] readData = readToEnd(dataSource);
+      byte[] readData = Util.readToEnd(dataSource);
       assertThat(readData).isEqualTo(expectedData);
     } finally {
       dataSource.close();
@@ -345,7 +297,8 @@ public class TestUtil {
 
   /**
    * Reads from the given input using the given {@link Extractor}, until it can produce the {@link
-   * SeekMap} and all of the tracks have been identified, or until the extractor encounters EOF.
+   * SeekMap} and all of the track formats have been identified, or until the extractor encounters
+   * EOF.
    *
    * @param extractor The {@link Extractor} to extractor from input.
    * @param output The {@link FakeTrackOutput} to store the extracted {@link SeekMap} and track.
@@ -364,10 +317,17 @@ public class TestUtil {
     int readResult = Extractor.RESULT_CONTINUE;
     while (true) {
       try {
-        // Keep reading until we can get the seek map
+        // Keep reading until we get the seek map and the track information.
         while (readResult == Extractor.RESULT_CONTINUE
             && (output.seekMap == null || !output.tracksEnded)) {
           readResult = extractor.read(input, positionHolder);
+        }
+        for (int i = 0; i < output.trackOutputs.size(); i++) {
+          int trackId = output.trackOutputs.keyAt(i);
+          while (readResult == Extractor.RESULT_CONTINUE
+              && output.trackOutputs.get(trackId).lastFormat == null) {
+            readResult = extractor.read(input, positionHolder);
+          }
         }
       } finally {
         Util.closeQuietly(dataSource);

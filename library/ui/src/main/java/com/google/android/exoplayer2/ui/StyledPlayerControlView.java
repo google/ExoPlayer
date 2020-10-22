@@ -459,6 +459,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   @SuppressWarnings({
     "nullness:argument.type.incompatible",
+    "nullness:assignment.type.incompatible",
     "nullness:method.invocation.invalid",
     "nullness:methodref.receiver.bound.invalid"
   })
@@ -526,8 +527,11 @@ public class StyledPlayerControlView extends FrameLayout {
         a.recycle();
       }
     }
-    controlViewLayoutManager = new StyledPlayerControlViewLayoutManager();
-    controlViewLayoutManager.setAnimationEnabled(animationEnabled);
+
+    LayoutInflater.from(context).inflate(controllerLayoutId, /* root= */ this);
+    setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
+
+    componentListener = new ComponentListener();
     visibilityListeners = new CopyOnWriteArrayList<>();
     period = new Timeline.Period();
     window = new Timeline.Window();
@@ -537,12 +541,8 @@ public class StyledPlayerControlView extends FrameLayout {
     playedAdGroups = new boolean[0];
     extraAdGroupTimesMs = new long[0];
     extraPlayedAdGroups = new boolean[0];
-    componentListener = new ComponentListener();
     controlDispatcher = new DefaultControlDispatcher(fastForwardMs, rewindMs);
     updateProgressAction = this::updateProgress;
-
-    LayoutInflater.from(context).inflate(controllerLayoutId, /* root= */ this);
-    setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
 
     // Relating to Bottom Bar Left View
     durationView = findViewById(R.id.exo_duration);
@@ -570,7 +570,8 @@ public class StyledPlayerControlView extends FrameLayout {
     } else if (timeBarPlaceholder != null) {
       // Propagate attrs as timebarAttrs so that DefaultTimeBar's custom attributes are transferred,
       // but standard attributes (e.g. background) are not.
-      DefaultTimeBar defaultTimeBar = new DefaultTimeBar(context, null, 0, playbackAttrs);
+      DefaultTimeBar defaultTimeBar =
+          new DefaultTimeBar(context, null, 0, playbackAttrs, R.style.ExoStyledControls_TimeBar);
       defaultTimeBar.setId(R.id.exo_progress);
       defaultTimeBar.setLayoutParams(timeBarPlaceholder.getLayoutParams());
       ViewGroup parent = ((ViewGroup) timeBarPlaceholder.getParent());
@@ -581,10 +582,10 @@ public class StyledPlayerControlView extends FrameLayout {
     } else {
       timeBar = null;
     }
-
     if (timeBar != null) {
       timeBar.addListener(componentListener);
     }
+
     playPauseButton = findViewById(R.id.exo_play_pause);
     if (playPauseButton != null) {
       playPauseButton.setOnClickListener(componentListener);
@@ -626,7 +627,6 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     resources = context.getResources();
-
     buttonAlphaEnabled =
         (float) resources.getInteger(R.integer.exo_media_button_opacity_percentage_enabled) / 100;
     buttonAlphaDisabled =
@@ -634,9 +634,11 @@ public class StyledPlayerControlView extends FrameLayout {
 
     vrButton = findViewById(R.id.exo_vr);
     if (vrButton != null) {
-      setShowVrButton(showVrButton);
       updateButton(/* enabled= */ false, vrButton);
     }
+
+    controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
+    controlViewLayoutManager.setAnimationEnabled(animationEnabled);
 
     // Related to Settings List View
     String[] settingTexts = new String[2];
@@ -1071,6 +1073,11 @@ public class StyledPlayerControlView extends FrameLayout {
     controlViewLayoutManager.hide();
   }
 
+  /** Hides the controller without any animation. */
+  public void hideImmediately() {
+    controlViewLayoutManager.hideImmediately();
+  }
+
   /** Returns whether the controller is fully visible, which means all UI controls are visible. */
   public boolean isFullyVisible() {
     return controlViewLayoutManager.isFullyVisible();
@@ -1159,13 +1166,14 @@ public class StyledPlayerControlView extends FrameLayout {
     if (controlDispatcher instanceof DefaultControlDispatcher) {
       rewindMs = ((DefaultControlDispatcher) controlDispatcher).getRewindIncrementMs();
     }
-    long rewindSec = rewindMs / 1_000;
+    int rewindSec = (int) (rewindMs / 1_000);
     if (rewindButtonTextView != null) {
       rewindButtonTextView.setText(String.valueOf(rewindSec));
     }
     if (rewindButton != null) {
       rewindButton.setContentDescription(
-          resources.getString(R.string.exo_controls_rewind_by_amount_description, rewindSec));
+          resources.getQuantityString(
+              R.plurals.exo_controls_rewind_by_amount_description, rewindSec, rewindSec));
     }
   }
 
@@ -1173,14 +1181,16 @@ public class StyledPlayerControlView extends FrameLayout {
     if (controlDispatcher instanceof DefaultControlDispatcher) {
       fastForwardMs = ((DefaultControlDispatcher) controlDispatcher).getFastForwardIncrementMs();
     }
-    long fastForwardSec = fastForwardMs / 1_000;
+    int fastForwardSec = (int) (fastForwardMs / 1_000);
     if (fastForwardButtonTextView != null) {
       fastForwardButtonTextView.setText(String.valueOf(fastForwardSec));
     }
     if (fastForwardButton != null) {
       fastForwardButton.setContentDescription(
-          resources.getString(
-              R.string.exo_controls_fastforward_by_amount_description, fastForwardSec));
+          resources.getQuantityString(
+              R.plurals.exo_controls_fastforward_by_amount_description,
+              fastForwardSec,
+              fastForwardSec));
     }
   }
 
@@ -1604,7 +1614,7 @@ public class StyledPlayerControlView extends FrameLayout {
   @Override
   public void onAttachedToWindow() {
     super.onAttachedToWindow();
-    controlViewLayoutManager.onViewAttached(this);
+    controlViewLayoutManager.onAttachedToWindow();
     isAttachedToWindow = true;
     if (isFullyVisible()) {
       controlViewLayoutManager.resetHideCallbacks();
@@ -1615,7 +1625,7 @@ public class StyledPlayerControlView extends FrameLayout {
   @Override
   public void onDetachedFromWindow() {
     super.onDetachedFromWindow();
-    controlViewLayoutManager.onViewDetached(this);
+    controlViewLayoutManager.onDetachedFromWindow();
     isAttachedToWindow = false;
     removeCallbacks(updateProgressAction);
     controlViewLayoutManager.removeHideCallbacks();
@@ -2002,11 +2012,13 @@ public class StyledPlayerControlView extends FrameLayout {
           break;
         }
       }
-      checkNotNull(subtitleButton)
-          .setImageDrawable(subtitleIsOn ? subtitleOnButtonDrawable : subtitleOffButtonDrawable);
-      checkNotNull(subtitleButton)
-          .setContentDescription(
-              subtitleIsOn ? subtitleOnContentDescription : subtitleOffContentDescription);
+
+      if (subtitleButton != null) {
+        subtitleButton.setImageDrawable(
+            subtitleIsOn ? subtitleOnButtonDrawable : subtitleOffButtonDrawable);
+        subtitleButton.setContentDescription(
+            subtitleIsOn ? subtitleOnContentDescription : subtitleOffContentDescription);
+      }
       this.rendererIndices = rendererIndices;
       this.tracks = trackInfos;
       this.mappedTrackInfo = mappedTrackInfo;

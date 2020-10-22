@@ -384,9 +384,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     // Fixed sample size raw audio may need to be rechunked.
-    boolean isFixedSampleSizeRawAudio =
-        sampleSizeBox.isFixedSampleSize()
-            && MimeTypes.AUDIO_RAW.equals(track.format.sampleMimeType)
+    int fixedSampleSize = sampleSizeBox.getFixedSampleSize();
+    @Nullable String sampleMimeType = track.format.sampleMimeType;
+    boolean rechunkFixedSizeSamples =
+        fixedSampleSize != C.LENGTH_UNSET
+            && (MimeTypes.AUDIO_RAW.equals(sampleMimeType)
+                || MimeTypes.AUDIO_MLAW.equals(sampleMimeType)
+                || MimeTypes.AUDIO_ALAW.equals(sampleMimeType))
             && remainingTimestampDeltaChanges == 0
             && remainingTimestampOffsetChanges == 0
             && remainingSynchronizationSamples == 0;
@@ -399,15 +403,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     long timestampTimeUnits = 0;
     long duration;
 
-    if (isFixedSampleSizeRawAudio) {
+    if (rechunkFixedSizeSamples) {
       long[] chunkOffsetsBytes = new long[chunkIterator.length];
       int[] chunkSampleCounts = new int[chunkIterator.length];
       while (chunkIterator.moveNext()) {
         chunkOffsetsBytes[chunkIterator.index] = chunkIterator.offset;
         chunkSampleCounts[chunkIterator.index] = chunkIterator.numSamples;
       }
-      int fixedSampleSize =
-          Util.getPcmFrameSize(track.format.pcmEncoding, track.format.channelCount);
       FixedSampleSizeRechunker.Results rechunkedResults =
           FixedSampleSizeRechunker.rechunk(
               fixedSampleSize, chunkOffsetsBytes, chunkSampleCounts, timestampDeltaInTimeUnits);
@@ -878,6 +880,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_lpcm
           || childAtomType == Atom.TYPE_sowt
           || childAtomType == Atom.TYPE_twos
+          || childAtomType == Atom.TYPE__mp2
           || childAtomType == Atom.TYPE__mp3
           || childAtomType == Atom.TYPE_alac
           || childAtomType == Atom.TYPE_alaw
@@ -891,6 +894,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_c608) {
         parseTextSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             language, out);
+      } else if (childAtomType == Atom.TYPE_mett) {
+        parseMetaDataSampleEntry(stsd, childAtomType, childStartPosition, trackId, out);
       } else if (childAtomType == Atom.TYPE_camm) {
         out.format =
             new Format.Builder()
@@ -1097,6 +1102,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             .build();
   }
 
+  private static void parseMetaDataSampleEntry(
+      ParsableByteArray parent, int atomType, int position, int trackId, StsdData out) {
+    parent.setPosition(position + Atom.HEADER_SIZE + StsdData.STSD_HEADER_SIZE);
+    if (atomType == Atom.TYPE_mett) {
+      parent.readNullTerminatedString(); // Skip optional content_encoding
+      @Nullable String mimeType = parent.readNullTerminatedString();
+      if (mimeType != null) {
+        out.format = new Format.Builder().setId(trackId).setSampleMimeType(mimeType).build();
+      }
+    }
+  }
+
   /**
    * Parses the edts atom (defined in ISO/IEC 14496-12 subsection 8.6.5).
    *
@@ -1229,7 +1246,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     } else if (atomType == Atom.TYPE_twos) {
       mimeType = MimeTypes.AUDIO_RAW;
       pcmEncoding = C.ENCODING_PCM_16BIT_BIG_ENDIAN;
-    } else if (atomType == Atom.TYPE__mp3) {
+    } else if (atomType == Atom.TYPE__mp2 || atomType == Atom.TYPE__mp3) {
       mimeType = MimeTypes.AUDIO_MPEG;
     } else if (atomType == Atom.TYPE_alac) {
       mimeType = MimeTypes.AUDIO_ALAC;
@@ -1646,16 +1663,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
      */
     int getSampleCount();
 
-    /**
-     * Returns the size for the next sample.
-     */
+    /** Returns the size of each sample if fixed, or {@link C#LENGTH_UNSET} otherwise. */
+    int getFixedSampleSize();
+
+    /** Returns the size for the next sample. */
     int readNextSampleSize();
-
-    /**
-     * Returns whether samples have a fixed size.
-     */
-    boolean isFixedSampleSize();
-
   }
 
   /**
@@ -1670,7 +1682,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
       data = stszAtom.data;
       data.setPosition(Atom.FULL_HEADER_SIZE);
-      fixedSampleSize = data.readUnsignedIntToInt();
+      int fixedSampleSize = data.readUnsignedIntToInt();
+      this.fixedSampleSize = fixedSampleSize == 0 ? C.LENGTH_UNSET : fixedSampleSize;
       sampleCount = data.readUnsignedIntToInt();
     }
 
@@ -1680,15 +1693,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
-    public int readNextSampleSize() {
-      return fixedSampleSize == 0 ? data.readUnsignedIntToInt() : fixedSampleSize;
+    public int getFixedSampleSize() {
+      return fixedSampleSize;
     }
 
     @Override
-    public boolean isFixedSampleSize() {
-      return fixedSampleSize != 0;
+    public int readNextSampleSize() {
+      return fixedSampleSize == C.LENGTH_UNSET ? data.readUnsignedIntToInt() : fixedSampleSize;
     }
-
   }
 
   /**
@@ -1717,6 +1729,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
 
     @Override
+    public int getFixedSampleSize() {
+      return C.LENGTH_UNSET;
+    }
+
+    @Override
     public int readNextSampleSize() {
       if (fieldSize == 8) {
         return data.readUnsignedByte();
@@ -1735,12 +1752,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         }
       }
     }
-
-    @Override
-    public boolean isFixedSampleSize() {
-      return false;
-    }
-
   }
 
 }

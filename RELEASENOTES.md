@@ -1,5 +1,77 @@
 # Release notes
 
+### 2.12.1 (2020-10-23) ###
+
+*   Core library:
+    *   Fix issue where `Player.setMediaItems` would ignore its `resetPosition`
+        argument ([#8024](https://github.com/google/ExoPlayer/issues/8024)).
+    *   Fix bug where streams with highly uneven track durations may get stuck
+        in a buffering state
+    *   Add 403, 500 and 503 to the list of HTTP status codes that can trigger
+        failover to another quality variant during adaptive playbacks.
+*   Data sources:
+    *   Add support for `android.resource` URI scheme in `RawResourceDataSource`
+        ([#7866](https://github.com/google/ExoPlayer/issues/7866)).
+*   Text:
+    *   Add support for `\h` SSA/ASS style override code (non-breaking space).
+    *   Fix playback of WebVTT subtitles in MP4 containers in DASH streams
+        ([#7985](https://github.com/google/ExoPlayer/issues/7985)).
+    *   Fix `NullPointerException` in `TextRenderer` when playing content with a
+        single subtitle buffer
+        ([#8017](https://github.com/google/ExoPlayer/issues/8017)).
+*   UI:
+    *   Fix animation when `StyledPlayerView` first shows its playback controls.
+    *   Improve touch targets in `StyledPlayerView` to make tapping easier.
+    *   Allow `subtitleButton` to be omitted in custom `StyledPlayerView`
+        layouts ([#7962](https://github.com/google/ExoPlayer/issues/7962)).
+    *   Add an option to sort tracks by `Format` in `TrackSelectionView` and
+        `TrackSelectionDialogBuilder`
+        ([#7709](https://github.com/google/ExoPlayer/issues/7709)).
+*   Audio:
+    *   Fix the default audio sink position not advancing correctly when using
+        `AudioTrack` based speed adjustment
+        ([#7982](https://github.com/google/ExoPlayer/issues/7982)).
+    *   Fix `NoClassDefFoundError` warning for `AudioTrack$StreamEventCallback`
+        ([#8058](https://github.com/google/ExoPlayer/issues/8058)).
+*   Extractors:
+    *   MP4:
+        *    Add support for `_mp2` boxes
+            ([#7967](https://github.com/google/ExoPlayer/issues/7967)).
+        *   Fix playback of files containing `pcm_alaw` or `pcm_mulaw` audio
+            tracks, by enabling sample rechunking for such tracks.
+    *   MPEG-TS:
+        *   Add `TsExtractor` parameter to configure the number of bytes in
+            which to search for timestamps when seeking and determining stream
+            duration ([#7988](https://github.com/google/ExoPlayer/issues/7988)).
+        *   Ignore negative payload size in PES packets
+            ([#8005](https://github.com/google/ExoPlayer/issues/8005)).
+    *   MP3: Use TLEN ID3 tag to compute the stream duration
+        ([#7949](https://github.com/google/ExoPlayer/issues/7949)).
+    *   Ogg: Fix regression playing files with packets that span multiple pages
+        ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
+    *   FLV: Make files seekable by using the key frame index
+        ([#7378](https://github.com/google/ExoPlayer/issues/7378)).
+*   HLS: Fix crash affecting chunkful preparation of master playlists that start
+    with an I-FRAME only variant
+    ([#8025](https://github.com/google/ExoPlayer/issues/8025)).
+*   IMA extension:
+    *   Fix position reporting after fetch errors
+        ([#7956](https://github.com/google/ExoPlayer/issues/7956)).
+    *   Allow apps to specify a `VideoAdPlayerCallback`
+        ([#7944](https://github.com/google/ExoPlayer/issues/7944)).
+    *   Accept ad tags via the `AdsMediaSource` constructor and deprecate
+        passing them via the `ImaAdsLoader` constructor/builders. Passing the
+        ad tag via media item playback properties continues to be supported.
+        This is in preparation for supporting ads in playlists
+        ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
+    *   Add a way to override ad media MIME types
+        ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
+    *   Fix incorrect truncation of large cue point positions
+        ([#8067](https://github.com/google/ExoPlayer/issues/8067)).
+    *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for
+        companion ads rendering when targeting API 29
+        ([#6432](https://github.com/google/ExoPlayer/issues/6432)).
+
 ### 2.12.0 (2020-09-11) ###
 
 To learn more about what's new in 2.12, read the corresponding
@@ -163,7 +235,7 @@ To learn more about what's new in 2.12, read the corresponding
     *   Redefine `Cue.lineType=LINE_TYPE_NUMBER` in terms of aligning the cue
         text lines to grid of viewport lines. Only consider `Cue.lineAnchor`
         when `Cue.lineType=LINE_TYPE_FRACTION`.
-    *   WebVTT
+    *   WebVTT:
         *   Add support for default
             [text](https://www.w3.org/TR/webvtt1/#default-text-color) and
             [background](https://www.w3.org/TR/webvtt1/#default-text-background)
@@ -178,10 +250,10 @@ To learn more about what's new in 2.12, read the corresponding
         *   Parse the `ruby-position` CSS property.
         *   Parse the `text-combine-upright` CSS property (i.e., tate-chu-yoko).
         *   Parse the `<ruby>` and `<rt>` tags.
-    *   TTML
+    *   TTML:
         *   Parse the `tts:combineText` property (i.e., tate-chu-yoko).
         *   Parse t`tts:ruby` and `tts:rubyPosition` properties.
-    *   CEA-608
+    *   CEA-608:
         *   Implement timing-out of stuck captions, as permitted by
             ANSI/CTA-608-E R-2014 Annex C.9. The default timeout is set to 16
             seconds ([#7181](https://github.com/google/ExoPlayer/issues/7181)).

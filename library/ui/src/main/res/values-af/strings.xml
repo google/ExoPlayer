@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Speel</string>
   <string name="exo_controls_stop_description">Stop</string>
   <string name="exo_controls_rewind_description">Spoel terug</string>
-  <string name="exo_controls_rewind_by_amount_description">Gaan %d sekondes terug</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Spoel %d sekonde terug</item>
+    <item quantity="other">Spoel %d sekondes terug</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Spoel vorentoe</string>
-  <string name="exo_controls_fastforward_by_amount_description">Gaan %d sekondes vinnig vorentoe</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Spoel %d sekonde vinnig vorentoe</item>
+    <item quantity="other">Spoel %d sekondes vinnig vorentoe</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Herhaal niks</string>
   <string name="exo_controls_repeat_one_description">Herhaal een</string>
   <string name="exo_controls_repeat_all_description">Herhaal alles</string>

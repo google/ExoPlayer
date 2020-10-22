@@ -28,9 +28,15 @@
   <string name="exo_controls_play_description">Dlala</string>
   <string name="exo_controls_stop_description">Misa</string>
   <string name="exo_controls_rewind_description">Buyisela emuva</string>
-  <string name="exo_controls_rewind_by_amount_description">Hlehlisa ngamasekhondi angu-%d</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Hlehlisa ngamasekhondi angu-%d</item>
+    <item quantity="other">Hlehlisa ngamasekhondi angu-%d</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Dlulisela phambili</string>
-  <string name="exo_controls_fastforward_by_amount_description">Dlulisela phambili ngamasekhondi angu-%d</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Dlulisela phambili ngamasekhondi angu-%d</item>
+    <item quantity="other">Dlulisela phambili ngamasekhondi angu-%d</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Phinda okungekho</string>
   <string name="exo_controls_repeat_one_description">Phinda okukodwa</string>
   <string name="exo_controls_repeat_all_description">Phinda konke</string>

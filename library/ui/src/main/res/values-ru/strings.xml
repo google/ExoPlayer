@@ -28,9 +28,19 @@
   <string name="exo_controls_play_description">Воспроизвести</string>
   <string name="exo_controls_stop_description">Остановить</string>
   <string name="exo_controls_rewind_description">Перемотать назад</string>
-  <string name="exo_controls_rewind_by_amount_description">Перемотать на %d сек. назад</string>
+  <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Перемотать на %d секунду назад</item>
+    <item quantity="few">Перемотать на %d секунды назад</item>
+    <item quantity="many">Перемотать на %d секунд назад</item>
+    <item quantity="other">Перемотать на %d секунды назад</item>
+  </plurals>
   <string name="exo_controls_fastforward_description">Перемотать вперед</string>
-  <string name="exo_controls_fastforward_by_amount_description">Перемотать на %d сек. вперед</string>
+  <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Перемотать на %d секунду вперед</item>
+    <item quantity="few">Перемотать на %d секунды вперед</item>
+    <item quantity="many">Перемотать на %d секунд вперед</item>
+    <item quantity="other">Перемотать на %d секунды вперед</item>
+  </plurals>
   <string name="exo_controls_repeat_off_description">Не повторять</string>
   <string name="exo_controls_repeat_one_description">Повторять трек</string>
   <string name="exo_controls_repeat_all_description">Повторять все</string>
