@@ -26,6 +26,11 @@ import java.io.IOException;
  */
 /* package */ final class Sniffer {
 
+  /** Brand stored in the ftyp atom for QuickTime media. */
+  public static final int BRAND_QUICKTIME = 0x71742020;
+  /** Brand stored in the ftyp atom for HEIC media. */
+  public static final int BRAND_HEIC = 0x68656963;
+
   /** The maximum number of bytes to peek when sniffing. */
   private static final int SEARCH_LENGTH = 4 * 1024;
 
@@ -54,7 +59,7 @@ import java.io.IOException;
         0x66347620, // f4v[space]
         0x6b646469, // kddi
         0x4d345650, // M4VP
-        0x71742020, // qt[space][space], Apple QuickTime
+        BRAND_QUICKTIME, // qt[space][space]
         0x4d534e56, // MSNV, Sony PSP
         0x64627931, // dby1, Dolby Vision
         0x69736d6c, // isml
@@ -203,8 +208,7 @@ import java.io.IOException;
     if (brand >>> 8 == 0x00336770) {
       // Brand starts with '3gp'.
       return true;
-    } else if (brand == 0x68656963 && acceptHeic) {
-      // Brand is `heic` and HEIC is supported by the extractor.
+    } else if (brand == BRAND_HEIC && acceptHeic) {
       return true;
     }
     for (int compatibleBrand : COMPATIBLE_BRANDS) {
