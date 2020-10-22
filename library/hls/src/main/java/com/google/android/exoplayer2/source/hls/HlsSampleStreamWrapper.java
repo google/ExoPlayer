@@ -1404,8 +1404,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return sampleFormat;
     }
 
-    int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
-    @Nullable String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
+    @Nullable
+    String codecs =
+        MimeTypes.getCodecsCorrespondingToMimeType(
+            playlistFormat.codecs, sampleFormat.sampleMimeType);
     @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
 
     Format.Builder formatBuilder =

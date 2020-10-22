@@ -250,16 +250,37 @@ public final class MimeTypes {
    */
   public static boolean containsCodecsCorrespondingToMimeType(
       @Nullable String codecs, String mimeType) {
-    if (codecs == null) {
-      return false;
+    return getCodecsCorrespondingToMimeType(codecs, mimeType) != null;
+  }
+
+  /**
+   * Returns a subsequence of {@code codecs} containing the codec strings that correspond to the
+   * given {@code mimeType}. Returns null if {@code mimeType} is null, {@code codecs} is null, or
+   * {@code codecs} does not contain a codec that corresponds to {@code mimeType}.
+   *
+   * @param codecs An RFC 6381 codecs string.
+   * @param mimeType A MIME type to look for.
+   * @return A subsequence of {@code codecs} containing the codec strings that correspond to the
+   *     given {@code mimeType}. Returns null if {@code mimeType} is null, {@code codecs} is null,
+   *     or {@code codecs} does not contain a codec that corresponds to {@code mimeType}.
+   */
+  @Nullable
+  public static String getCodecsCorrespondingToMimeType(
+      @Nullable String codecs, @Nullable String mimeType) {
+    if (codecs == null || mimeType == null) {
+      return null;
     }
     String[] codecList = Util.splitCodecs(codecs);
+    StringBuilder builder = new StringBuilder();
     for (String codec : codecList) {
       if (mimeType.equals(getMediaMimeType(codec))) {
-        return true;
+        if (builder.length() > 0) {
+          builder.append(",");
+        }
+        builder.append(codec);
       }
     }
-    return false;
+    return builder.length() > 0 ? builder.toString() : null;
   }
 
   /**
