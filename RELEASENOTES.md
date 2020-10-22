@@ -29,6 +29,8 @@
 ### 2.12.1 (2020-10-23) ###
 
 *   Core library:
+    *   Fix issue where `Player.setMediaItems` would ignore its `resetPosition`
+        argument ([#8024](https://github.com/google/ExoPlayer/issues/8024)).
     *   Fix bug where streams with highly uneven track durations may get stuck
         in a buffering state
         ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
