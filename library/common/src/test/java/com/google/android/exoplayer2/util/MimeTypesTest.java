@@ -29,6 +29,38 @@ import org.junit.runner.RunWith;
 public final class MimeTypesTest {
 
   @Test
+  public void containsCodecsCorrespondingToMimeType_returnsCorrectResult() {
+    assertThat(
+            MimeTypes.containsCodecsCorrespondingToMimeType(
+                /* codecs= */ "ac-3,mp4a.40.2,avc1.4D4015", MimeTypes.AUDIO_AAC))
+        .isTrue();
+    assertThat(
+            MimeTypes.containsCodecsCorrespondingToMimeType(
+                /* codecs= */ "ac-3,mp4a.40.2,avc1.4D4015", MimeTypes.AUDIO_AC3))
+        .isTrue();
+    assertThat(
+            MimeTypes.containsCodecsCorrespondingToMimeType(
+                /* codecs= */ "ac-3,mp4a.40.2,avc1.4D4015", MimeTypes.VIDEO_H264))
+        .isTrue();
+    assertThat(
+            MimeTypes.containsCodecsCorrespondingToMimeType(
+                /* codecs= */ "unknown-codec,mp4a.40.2,avc1.4D4015", MimeTypes.AUDIO_AAC))
+        .isTrue();
+
+    assertThat(
+            MimeTypes.containsCodecsCorrespondingToMimeType(
+                /* codecs= */ "unknown-codec,mp4a.40.2,avc1.4D4015", MimeTypes.AUDIO_AC3))
+        .isFalse();
+    assertThat(
+            MimeTypes.containsCodecsCorrespondingToMimeType(
+                /* codecs= */ null, MimeTypes.AUDIO_AC3))
+        .isFalse();
+    assertThat(
+            MimeTypes.containsCodecsCorrespondingToMimeType(/* codecs= */ "", MimeTypes.AUDIO_AC3))
+        .isFalse();
+  }
+
+  @Test
   public void isText_returnsCorrectResult() {
     assertThat(MimeTypes.isText(MimeTypes.TEXT_VTT)).isTrue();
     assertThat(MimeTypes.isText(MimeTypes.TEXT_SSA)).isTrue();
