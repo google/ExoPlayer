@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>MediaSourceEventListener (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,9 +106,15 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.source</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/package-summary.html">com.google.android.exoplayer2.source</a></div>
 <h2 title="Interface MediaSourceEventListener" class="title">Interface MediaSourceEventListener</h2>
 </div>
 <div class="contentContainer">
@@ -98,14 +123,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/source/AdaptiveMediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">AdaptiveMediaSourceEventListener</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/AdaptiveMediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">AdaptiveMediaSourceEventListener</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a>, <a href="../../../../../com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceEventListener</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/source/DefaultMediaSourceEventListener.html" title="class in com.google.android.exoplayer2.source">DefaultMediaSourceEventListener</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public interface <span class="typeNameLabel">MediaSourceEventListener</span></pre>
 <div class="block">Interface for callbacks to be notified of <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> events.</div>
 </li>
@@ -120,15 +144,17 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Interface and Description</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></span></code></th>
+<td class="colLast">
 <div class="block">Dispatches events to <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListeners</code></a>.</div>
 </td>
 </tr>
@@ -141,63 +167,70 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onDownstreamFormatChanged-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaLoadData-">onDownstreamFormatChanged</a></span>(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onDownstreamFormatChanged-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaLoadData-">onDownstreamFormatChanged</a></span>&#8203;(int&nbsp;windowIndex,
                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
-                         <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code>
+                         <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
+<td class="colLast">
 <div class="block">Called when a downstream format change occurs (i.e.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCanceled-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-">onLoadCanceled</a></span>(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCanceled-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-">onLoadCanceled</a></span>&#8203;(int&nbsp;windowIndex,
               <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
               <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
-              <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code>
+              <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
+<td class="colLast">
 <div class="block">Called when a load is canceled.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCompleted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-">onLoadCompleted</a></span>(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadCompleted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-">onLoadCompleted</a></span>&#8203;(int&nbsp;windowIndex,
                <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
-               <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code>
+               <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
+<td class="colLast">
 <div class="block">Called when a load ends.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadError-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-java.io.IOException-boolean-">onLoadError</a></span>(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadError-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-java.io.IOException-boolean-">onLoadError</a></span>&#8203;(int&nbsp;windowIndex,
            <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
            <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
            <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData,
-           <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;error,
-           boolean&nbsp;wasCanceled)</code>
+           <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
+           boolean&nbsp;wasCanceled)</code></th>
+<td class="colLast">
 <div class="block">Called when a load error occurs.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadStarted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-">onLoadStarted</a></span>(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadStarted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-">onLoadStarted</a></span>&#8203;(int&nbsp;windowIndex,
              <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
              <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
-             <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code>
+             <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
+<td class="colLast">
 <div class="block">Called when a load begins.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onUpstreamDiscarded-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaLoadData-">onUpstreamDiscarded</a></span>(int&nbsp;windowIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onUpstreamDiscarded-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.MediaLoadData-">onUpstreamDiscarded</a></span>&#8203;(int&nbsp;windowIndex,
                    <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
-                   <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code>
+                   <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
+<td class="colLast">
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
  re-buffered in a different format.</div>
 </td>
@@ -223,7 +256,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onLoadStarted</h4>
-<pre>default&nbsp;void&nbsp;onLoadStarted(int&nbsp;windowIndex,
+<pre>default&nbsp;void&nbsp;onLoadStarted&#8203;(int&nbsp;windowIndex,
                            @Nullable
                            <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                            <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -245,7 +278,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onLoadCompleted</h4>
-<pre>default&nbsp;void&nbsp;onLoadCompleted(int&nbsp;windowIndex,
+<pre>default&nbsp;void&nbsp;onLoadCompleted&#8203;(int&nbsp;windowIndex,
                              @Nullable
                              <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                              <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -257,7 +290,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> this load belongs to. Null if the load does not
      belong to a specific media period.</dd>
 <dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>LoadEventInfo</code></a> corresponding to the event. The values of <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html#elapsedRealtimeMs"><code>LoadEventInfo.elapsedRealtimeMs</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html#bytesLoaded"><code>LoadEventInfo.bytesLoaded</code></a> are relative to the
-     corresponding <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>
+     corresponding <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadStarted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-"><code>onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code></a>
      event.</dd>
 <dd><code>mediaLoadData</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><code>MediaLoadData</code></a> defining the data being loaded.</dd>
 </dl>
@@ -269,7 +302,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onLoadCanceled</h4>
-<pre>default&nbsp;void&nbsp;onLoadCanceled(int&nbsp;windowIndex,
+<pre>default&nbsp;void&nbsp;onLoadCanceled&#8203;(int&nbsp;windowIndex,
                             @Nullable
                             <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                             <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -281,7 +314,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> this load belongs to. Null if the load does not
      belong to a specific media period.</dd>
 <dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>LoadEventInfo</code></a> corresponding to the event. The values of <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html#elapsedRealtimeMs"><code>LoadEventInfo.elapsedRealtimeMs</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html#bytesLoaded"><code>LoadEventInfo.bytesLoaded</code></a> are relative to the
-     corresponding <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>
+     corresponding <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadStarted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-"><code>onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code></a>
      event.</dd>
 <dd><code>mediaLoadData</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><code>MediaLoadData</code></a> defining the data being loaded.</dd>
 </dl>
@@ -293,12 +326,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onLoadError</h4>
-<pre>default&nbsp;void&nbsp;onLoadError(int&nbsp;windowIndex,
+<pre>default&nbsp;void&nbsp;onLoadError&#8203;(int&nbsp;windowIndex,
                          @Nullable
                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                          <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                          <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData,
-                         <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">IOException</a>&nbsp;error,
+                         <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
                          boolean&nbsp;wasCanceled)</pre>
 <div class="block">Called when a load error occurs.
 
@@ -309,7 +342,7 @@ var activeTableTab = "activeTableTab";
  <p>This method being called does not indicate that playback has failed, or that it will fail.
  The player may be able to recover from the error and continue. Hence applications should
  <em>not</em> implement this method to display a user visible error or initiate an application
- level retry (<code>Player.EventListener#onPlayerError</code> is the appropriate place to implement
+ level retry (<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-"><code>Player.EventListener.onPlayerError(com.google.android.exoplayer2.ExoPlaybackException)</code></a> is the appropriate place to implement
  such behavior). This method is called to provide the application with an opportunity to log the
  error if it wishes to do so.</div>
 <dl>
@@ -318,7 +351,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>mediaPeriodId</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> this load belongs to. Null if the load does not
      belong to a specific media period.</dd>
 <dd><code>loadEventInfo</code> - The <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source"><code>LoadEventInfo</code></a> corresponding to the event. The values of <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html#elapsedRealtimeMs"><code>LoadEventInfo.elapsedRealtimeMs</code></a> and <a href="../../../../../com/google/android/exoplayer2/source/LoadEventInfo.html#bytesLoaded"><code>LoadEventInfo.bytesLoaded</code></a> are relative to the
-     corresponding <code>#onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code>
+     corresponding <a href="../../../../../com/google/android/exoplayer2/source/MediaSourceEventListener.html#onLoadStarted-int-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.source.LoadEventInfo-com.google.android.exoplayer2.source.MediaLoadData-"><code>onLoadStarted(int, MediaPeriodId, LoadEventInfo, MediaLoadData)</code></a>
      event.</dd>
 <dd><code>mediaLoadData</code> - The <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source"><code>MediaLoadData</code></a> defining the data being loaded.</dd>
 <dd><code>error</code> - The load error.</dd>
@@ -332,7 +365,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onUpstreamDiscarded</h4>
-<pre>default&nbsp;void&nbsp;onUpstreamDiscarded(int&nbsp;windowIndex,
+<pre>default&nbsp;void&nbsp;onUpstreamDiscarded&#8203;(int&nbsp;windowIndex,
                                  <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                  <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
@@ -351,7 +384,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onDownstreamFormatChanged</h4>
-<pre>default&nbsp;void&nbsp;onDownstreamFormatChanged(int&nbsp;windowIndex,
+<pre>default&nbsp;void&nbsp;onDownstreamFormatChanged&#8203;(int&nbsp;windowIndex,
                                        @Nullable
                                        <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                        <a href="../../../../../com/google/android/exoplayer2/source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
@@ -413,6 +446,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

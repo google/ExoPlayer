@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>StubExoPlayer (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.testutil</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/package-summary.html">com.google.android.exoplayer2.testutil</a></div>
 <h2 title="Class StubExoPlayer" class="title">Class StubExoPlayer</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li><a href="../../../../../com/google/android/exoplayer2/BasePlayer.html" title="class in com.google.android.exoplayer2">com.google.android.exoplayer2.BasePlayer</a></li>
@@ -111,14 +136,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a>, <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public abstract class <span class="typeNameLabel">StubExoPlayer</span>
 extends <a href="../../../../../com/google/android/exoplayer2/BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a>
 implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></pre>
-<div class="block">An abstract <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> implementation that throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" target="_top"><code>UnsupportedOperationException</code></a>
+<div class="block">An abstract <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> implementation that throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>UnsupportedOperationException</code></a>
  from every method.</div>
 </li>
 </ul>
@@ -183,13 +207,15 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#StubExoPlayer--">StubExoPlayer</a></span>()</code>&nbsp;</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#StubExoPlayer--">StubExoPlayer</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -200,144 +226,166 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addListener-com.google.android.exoplayer2.Player.EventListener-">addListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addListener-com.google.android.exoplayer2.Player.EventListener-">addListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Register a listener to receive events from the player.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItem-int-com.google.android.exoplayer2.MediaItem-">addMediaItem</a></span>(int&nbsp;index,
-            <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItem-int-com.google.android.exoplayer2.MediaItem-">addMediaItem</a></span>&#8203;(int&nbsp;index,
+            <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
+<td class="colLast">
 <div class="block">Adds a media item at the given index of the playlist.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItem-com.google.android.exoplayer2.MediaItem-">addMediaItem</a></span>(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItem-com.google.android.exoplayer2.MediaItem-">addMediaItem</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
+<td class="colLast">
 <div class="block">Adds a media item to the end of the playlist.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItems-int-java.util.List-">addMediaItems</a></span>(int&nbsp;index,
-             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItems-int-java.util.List-">addMediaItems</a></span>&#8203;(int&nbsp;index,
+             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code></th>
+<td class="colLast">
 <div class="block">Adds a list of media items at the given index of the playlist.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItems-java.util.List-">addMediaItems</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaItems-java.util.List-">addMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code></th>
+<td class="colLast">
 <div class="block">Adds a list of media items to the end of the playlist.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSource-int-com.google.android.exoplayer2.source.MediaSource-">addMediaSource</a></span>(int&nbsp;index,
-              <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSource-int-com.google.android.exoplayer2.source.MediaSource-">addMediaSource</a></span>&#8203;(int&nbsp;index,
+              <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code></th>
+<td class="colLast">
 <div class="block">Adds a media source at the given index of the playlist.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSource-com.google.android.exoplayer2.source.MediaSource-">addMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSource-com.google.android.exoplayer2.source.MediaSource-">addMediaSource</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code></th>
+<td class="colLast">
 <div class="block">Adds a media source to the end of the playlist.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSources-int-java.util.List-">addMediaSources</a></span>(int&nbsp;index,
-               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSources-int-java.util.List-">addMediaSources</a></span>&#8203;(int&nbsp;index,
+               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</code></th>
+<td class="colLast">
 <div class="block">Adds a list of media sources at the given index of the playlist.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSources-java.util.List-">addMediaSources</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#addMediaSources-java.util.List-">addMediaSources</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</code></th>
+<td class="colLast">
 <div class="block">Adds a list of media sources to the end of the playlist.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#clearMediaItems--">clearMediaItems</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#clearMediaItems--">clearMediaItems</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-">createMessage</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-">createMessage</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target)</code></th>
+<td class="colLast">
 <div class="block">Creates a message that can be sent to a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-">experimentalSetOffloadSchedulingEnabled</a></span>(boolean&nbsp;offloadSchedulingEnabled)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-">experimentalSetOffloadSchedulingEnabled</a></span>&#8203;(boolean&nbsp;offloadSchedulingEnabled)</code></th>
+<td class="colLast">
 <div class="block">Sets whether audio offload scheduling is enabled.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getApplicationLooper--">getApplicationLooper</a></span>()</code>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top"><code>Looper</code></a> associated with the application thread that's used to access the
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getApplicationLooper--">getApplicationLooper</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> associated with the application thread that's used to access the
  player and on which player events are received.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Player.AudioComponent.html" title="interface in com.google.android.exoplayer2">Player.AudioComponent</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getAudioComponent--">getAudioComponent</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getAudioComponent--">getAudioComponent</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the component of this player for audio output, or null if audio is not supported.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getBufferedPosition--">getBufferedPosition</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getBufferedPosition--">getBufferedPosition</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns an estimate of the position in the current content window or ad up to which data is
  buffered, in milliseconds.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getContentBufferedPosition--">getContentBufferedPosition</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getContentBufferedPosition--">getContentBufferedPosition</a></span>()</code></th>
+<td class="colLast">
 <div class="block">If <a href="../../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns <code>true</code>, returns an estimate of the content position in
  the current content window up to which data is buffered, in milliseconds.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getContentPosition--">getContentPosition</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getContentPosition--">getContentPosition</a></span>()</code></th>
+<td class="colLast">
 <div class="block">If <a href="../../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns <code>true</code>, returns the content position that will be
  played once all ads in the ad group have finished playing, in milliseconds.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentAdGroupIndex--">getCurrentAdGroupIndex</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentAdGroupIndex--">getCurrentAdGroupIndex</a></span>()</code></th>
+<td class="colLast">
 <div class="block">If <a href="../../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns true, returns the index of the ad group in the period
  currently being played.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentAdIndexInAdGroup--">getCurrentAdIndexInAdGroup</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentAdIndexInAdGroup--">getCurrentAdIndexInAdGroup</a></span>()</code></th>
+<td class="colLast">
 <div class="block">If <a href="../../../../../com/google/android/exoplayer2/Player.html#isPlayingAd--"><code>Player.isPlayingAd()</code></a> returns true, returns the index of the ad in its ad group.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentPeriodIndex--">getCurrentPeriodIndex</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentPeriodIndex--">getCurrentPeriodIndex</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the index of the period currently being played.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentPosition--">getCurrentPosition</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentPosition--">getCurrentPosition</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the playback position in the current content window or ad, in milliseconds, or the
  prospective position in milliseconds if the <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>current timeline</code></a> is
  empty.</div>
@@ -345,380 +393,439 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentTimeline--">getCurrentTimeline</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentTimeline--">getCurrentTimeline</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the current <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentTrackGroups--">getCurrentTrackGroups</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentTrackGroups--">getCurrentTrackGroups</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the available track groups.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentTrackSelections--">getCurrentTrackSelections</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentTrackSelections--">getCurrentTrackSelections</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the current track selections for each renderer.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentWindowIndex--">getCurrentWindowIndex</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getCurrentWindowIndex--">getCurrentWindowIndex</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the index of the current <a href="../../../../../com/google/android/exoplayer2/Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>window</code></a> in the <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>timeline</code></a>, or the prospective window index if the <a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>current timeline</code></a> is empty.</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Player.DeviceComponent.html" title="interface in com.google.android.exoplayer2">Player.DeviceComponent</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getDeviceComponent--">getDeviceComponent</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getDeviceComponent--">getDeviceComponent</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the component of this player for playback device, or null if it's not supported.</div>
 </td>
 </tr>
 <tr id="i26" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getDuration--">getDuration</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getDuration--">getDuration</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the duration of the current content window or ad in milliseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the duration is not known.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Player.MetadataComponent.html" title="interface in com.google.android.exoplayer2">Player.MetadataComponent</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getMetadataComponent--">getMetadataComponent</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getMetadataComponent--">getMetadataComponent</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the component of this player for metadata output, or null if metadata is not supported.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPauseAtEndOfMediaItems--">getPauseAtEndOfMediaItems</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPauseAtEndOfMediaItems--">getPauseAtEndOfMediaItems</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the player pauses playback at the end of each media item.</div>
 </td>
 </tr>
 <tr id="i29" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackError--">getPlaybackError</a></span>()</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackError--">getPlaybackError</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 </td>
 </tr>
 <tr id="i30" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackLooper--">getPlaybackLooper</a></span>()</code>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top"><code>Looper</code></a> associated with the playback thread.</div>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackLooper--">getPlaybackLooper</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> associated with the playback thread.</div>
 </td>
 </tr>
 <tr id="i31" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackParameters--">getPlaybackParameters</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackParameters--">getPlaybackParameters</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the currently active playback parameters.</div>
 </td>
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackState--">getPlaybackState</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackState--">getPlaybackState</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the current <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a> of the player.</div>
 </td>
 </tr>
 <tr id="i33" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackSuppressionReason--">getPlaybackSuppressionReason</a></span>()</code>
-<div class="block">Returns the reason why playback is suppressed even though <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>true</code>, or <a href="../../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>Player.PLAYBACK_SUPPRESSION_REASON_NONE</code></a> if playback is not suppressed.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlaybackSuppressionReason--">getPlaybackSuppressionReason</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns the reason why playback is suppressed even though <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>
+ true</code>, or <a href="../../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>Player.PLAYBACK_SUPPRESSION_REASON_NONE</code></a> if playback is not suppressed.</div>
 </td>
 </tr>
 <tr id="i34" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlayerError--">getPlayerError</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlayerError--">getPlayerError</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the error that caused playback to fail.</div>
 </td>
 </tr>
 <tr id="i35" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlayWhenReady--">getPlayWhenReady</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getPlayWhenReady--">getPlayWhenReady</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Whether playback will proceed when <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> == <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a>.</div>
 </td>
 </tr>
 <tr id="i36" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getRendererCount--">getRendererCount</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getRendererCount--">getRendererCount</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the number of renderers.</div>
 </td>
 </tr>
 <tr id="i37" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getRendererType-int-">getRendererType</a></span>(int&nbsp;index)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getRendererType-int-">getRendererType</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colLast">
 <div class="block">Returns the track type that the renderer at a given index handles.</div>
 </td>
 </tr>
 <tr id="i38" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getRepeatMode--">getRepeatMode</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getRepeatMode--">getRepeatMode</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the current <a href="../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> used for playback.</div>
 </td>
 </tr>
 <tr id="i39" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getSeekParameters--">getSeekParameters</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getSeekParameters--">getSeekParameters</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the currently active <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a> of the player.</div>
 </td>
 </tr>
 <tr id="i40" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getShuffleModeEnabled--">getShuffleModeEnabled</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getShuffleModeEnabled--">getShuffleModeEnabled</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether shuffling of windows is enabled.</div>
 </td>
 </tr>
 <tr id="i41" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Player.TextComponent.html" title="interface in com.google.android.exoplayer2">Player.TextComponent</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getTextComponent--">getTextComponent</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getTextComponent--">getTextComponent</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the component of this player for text output, or null if text is not supported.</div>
 </td>
 </tr>
 <tr id="i42" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getTotalBufferedDuration--">getTotalBufferedDuration</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getTotalBufferedDuration--">getTotalBufferedDuration</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns an estimate of the total buffered duration from the current position, in milliseconds.</div>
 </td>
 </tr>
 <tr id="i43" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelector</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getTrackSelector--">getTrackSelector</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getTrackSelector--">getTrackSelector</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the track selector that this player uses, or null if track selection is not supported.</div>
 </td>
 </tr>
 <tr id="i44" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/Player.VideoComponent.html" title="interface in com.google.android.exoplayer2">Player.VideoComponent</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getVideoComponent--">getVideoComponent</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#getVideoComponent--">getVideoComponent</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the component of this player for video output, or null if video is not supported.</div>
 </td>
 </tr>
 <tr id="i45" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#isLoading--">isLoading</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#isLoading--">isLoading</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Whether the player is currently loading the source.</div>
 </td>
 </tr>
 <tr id="i46" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#isPlayingAd--">isPlayingAd</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#isPlayingAd--">isPlayingAd</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the player is currently playing an ad.</div>
 </td>
 </tr>
 <tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#moveMediaItem-int-int-">moveMediaItem</a></span>(int&nbsp;currentIndex,
-             int&nbsp;newIndex)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#moveMediaItem-int-int-">moveMediaItem</a></span>&#8203;(int&nbsp;currentIndex,
+             int&nbsp;newIndex)</code></th>
+<td class="colLast">
 <div class="block">Moves the media item at the current index to the new index.</div>
 </td>
 </tr>
 <tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#moveMediaItems-int-int-int-">moveMediaItems</a></span>(int&nbsp;fromIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#moveMediaItems-int-int-int-">moveMediaItems</a></span>&#8203;(int&nbsp;fromIndex,
               int&nbsp;toIndex,
-              int&nbsp;newIndex)</code>
+              int&nbsp;newIndex)</code></th>
+<td class="colLast">
 <div class="block">Moves the media item range to the new index.</div>
 </td>
 </tr>
 <tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare--">prepare</a></span>()</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</span></div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare--">prepare</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i50" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-">prepare</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</span></div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-">prepare</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i51" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-">prepare</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-">prepare</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
        boolean&nbsp;resetPosition,
-       boolean&nbsp;resetState)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-boolean-"><code>setMediaSource(MediaSource, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>
-     instead.</span></div>
+       boolean&nbsp;resetState)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-boolean-"><code>setMediaSource(MediaSource, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>
+     instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i52" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#release--">release</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#release--">release</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Releases the player.</div>
 </td>
 </tr>
 <tr id="i53" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">removeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">removeListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Unregister a listener.</div>
 </td>
 </tr>
 <tr id="i54" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#removeMediaItem-int-">removeMediaItem</a></span>(int&nbsp;index)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#removeMediaItem-int-">removeMediaItem</a></span>&#8203;(int&nbsp;index)</code></th>
+<td class="colLast">
 <div class="block">Removes the media item at the given index of the playlist.</div>
 </td>
 </tr>
 <tr id="i55" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#removeMediaItems-int-int-">removeMediaItems</a></span>(int&nbsp;fromIndex,
-                int&nbsp;toIndex)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#removeMediaItems-int-int-">removeMediaItems</a></span>&#8203;(int&nbsp;fromIndex,
+                int&nbsp;toIndex)</code></th>
+<td class="colLast">
 <div class="block">Removes a range of media items from the playlist.</div>
 </td>
 </tr>
 <tr id="i56" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#retry--">retry</a></span>()</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare--"><code>prepare()</code></a> instead.</span></div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#retry--">retry</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare--"><code>prepare()</code></a> instead.</div>
 </div>
 </td>
 </tr>
 <tr id="i57" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#seekTo-int-long-">seekTo</a></span>(int&nbsp;windowIndex,
-      long&nbsp;positionMs)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#seekTo-int-long-">seekTo</a></span>&#8203;(int&nbsp;windowIndex,
+      long&nbsp;positionMs)</code></th>
+<td class="colLast">
 <div class="block">Seeks to a position specified in milliseconds in the specified window.</div>
 </td>
 </tr>
 <tr id="i58" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setForegroundMode-boolean-">setForegroundMode</a></span>(boolean&nbsp;foregroundMode)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setForegroundMode-boolean-">setForegroundMode</a></span>&#8203;(boolean&nbsp;foregroundMode)</code></th>
+<td class="colLast">
 <div class="block">Sets whether the player is allowed to keep holding limited resources such as video decoders,
  even when in the idle state.</div>
 </td>
 </tr>
 <tr id="i59" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItem-com.google.android.exoplayer2.MediaItem-">setMediaItem</a></span>(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItem-com.google.android.exoplayer2.MediaItem-">setMediaItem</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> and resets the position to the
  default position.</div>
 </td>
 </tr>
 <tr id="i60" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItem-com.google.android.exoplayer2.MediaItem-boolean-">setMediaItem</a></span>(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
-            boolean&nbsp;resetPosition)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItem-com.google.android.exoplayer2.MediaItem-boolean-">setMediaItem</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            boolean&nbsp;resetPosition)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
 <tr id="i61" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItem-com.google.android.exoplayer2.MediaItem-long-">setMediaItem</a></span>(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
-            long&nbsp;startPositionMs)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItem-com.google.android.exoplayer2.MediaItem-long-">setMediaItem</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+            long&nbsp;startPositionMs)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
 <tr id="i62" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItems-java.util.List-">setMediaItems</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItems-java.util.List-">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a> and resets the position to
  the default position.</div>
 </td>
 </tr>
 <tr id="i63" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItems-java.util.List-boolean-">setMediaItems</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
-             boolean&nbsp;resetPosition)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItems-java.util.List-boolean-">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
+             boolean&nbsp;resetPosition)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</div>
 </td>
 </tr>
 <tr id="i64" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItems-java.util.List-int-long-">setMediaItems</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaItems-java.util.List-int-long-">setMediaItems</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
              int&nbsp;startWindowIndex,
-             long&nbsp;startPositionMs)</code>
+             long&nbsp;startPositionMs)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</div>
 </td>
 </tr>
 <tr id="i65" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-">setMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-">setMediaSource</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> and resets the position to the
  default position.</div>
 </td>
 </tr>
 <tr id="i66" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-boolean-">setMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
-              boolean&nbsp;resetPosition)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-boolean-">setMediaSource</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+              boolean&nbsp;resetPosition)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </td>
 </tr>
 <tr id="i67" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-long-">setMediaSource</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
-              long&nbsp;startPositionMs)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-long-">setMediaSource</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+              long&nbsp;startPositionMs)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </td>
 </tr>
 <tr id="i68" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSources-java.util.List-">setMediaSources</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSources-java.util.List-">setMediaSources</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSources</code></a> and resets the
  position to the default position.</div>
 </td>
 </tr>
 <tr id="i69" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSources-java.util.List-boolean-">setMediaSources</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
-               boolean&nbsp;resetPosition)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSources-java.util.List-boolean-">setMediaSources</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
+               boolean&nbsp;resetPosition)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSources</code></a>.</div>
 </td>
 </tr>
 <tr id="i70" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSources-java.util.List-int-long-">setMediaSources</a></span>(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSources-java.util.List-int-long-">setMediaSources</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
                int&nbsp;startWindowIndex,
-               long&nbsp;startPositionMs)</code>
+               long&nbsp;startPositionMs)</code></th>
+<td class="colLast">
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSources</code></a>.</div>
 </td>
 </tr>
 <tr id="i71" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setPauseAtEndOfMediaItems-boolean-">setPauseAtEndOfMediaItems</a></span>(boolean&nbsp;pauseAtEndOfMediaItems)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setPauseAtEndOfMediaItems-boolean-">setPauseAtEndOfMediaItems</a></span>&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</code></th>
+<td class="colLast">
 <div class="block">Sets whether to pause playback at the end of each media item.</div>
 </td>
 </tr>
 <tr id="i72" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
+<td class="colLast">
 <div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
 <tr id="i73" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setPlayWhenReady-boolean-">setPlayWhenReady</a></span>(boolean&nbsp;playWhenReady)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setPlayWhenReady-boolean-">setPlayWhenReady</a></span>&#8203;(boolean&nbsp;playWhenReady)</code></th>
+<td class="colLast">
 <div class="block">Sets whether playback should proceed when <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> == <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a>.</div>
 </td>
 </tr>
 <tr id="i74" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setRepeatMode-int-">setRepeatMode</a></span>(int&nbsp;repeatMode)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setRepeatMode-int-">setRepeatMode</a></span>&#8203;(int&nbsp;repeatMode)</code></th>
+<td class="colLast">
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> to be used for playback.</div>
 </td>
 </tr>
 <tr id="i75" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">setSeekParameters</a></span>(<a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">setSeekParameters</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
+<td class="colLast">
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
 </td>
 </tr>
 <tr id="i76" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setShuffleModeEnabled-boolean-">setShuffleModeEnabled</a></span>(boolean&nbsp;shuffleModeEnabled)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setShuffleModeEnabled-boolean-">setShuffleModeEnabled</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
+<td class="colLast">
 <div class="block">Sets whether shuffling of windows is enabled.</div>
 </td>
 </tr>
 <tr id="i77" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-">setShuffleOrder</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-">setShuffleOrder</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</code></th>
+<td class="colLast">
 <div class="block">Sets the shuffle order.</div>
 </td>
 </tr>
 <tr id="i78" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#stop-boolean-">stop</a></span>(boolean&nbsp;reset)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#stop-boolean-">stop</a></span>&#8203;(boolean&nbsp;reset)</code></th>
+<td class="colLast">
 <div class="block">Stops playback and optionally clears the playlist and resets the position and playback error.</div>
 </td>
 </tr>
@@ -734,8 +841,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.Player">
@@ -856,9 +963,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaybackLooper</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;getPlaybackLooper()</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;getPlaybackLooper()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#getPlaybackLooper--">ExoPlayer</a></code></span></div>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top"><code>Looper</code></a> associated with the playback thread.</div>
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> associated with the playback thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#getPlaybackLooper--">getPlaybackLooper</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>
@@ -871,9 +978,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <ul class="blockList">
 <li class="blockList">
 <h4>getApplicationLooper</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;getApplicationLooper()</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;getApplicationLooper()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#getApplicationLooper--">Player</a></code></span></div>
-<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top"><code>Looper</code></a> associated with the application thread that's used to access the
+<div class="block">Returns the <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> associated with the application thread that's used to access the
  player and on which player events are received.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -887,11 +994,11 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <ul class="blockList">
 <li class="blockList">
 <h4>addListener</h4>
-<pre>public&nbsp;void&nbsp;addListener(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;addListener&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#addListener-com.google.android.exoplayer2.Player.EventListener-">Player</a></code></span></div>
 <div class="block">Register a listener to receive events from the player. The listener's methods will be called on
  the thread that was used to construct the player. However, if the thread used to construct the
- player does not have a <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top"><code>Looper</code></a>, then the listener will be called on the main thread.</div>
+ player does not have a <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a>, then the listener will be called on the main thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#addListener-com.google.android.exoplayer2.Player.EventListener-">addListener</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -906,7 +1013,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <ul class="blockList">
 <li class="blockList">
 <h4>removeListener</h4>
-<pre>public&nbsp;void&nbsp;removeListener(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;removeListener&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html" title="interface in com.google.android.exoplayer2">Player.EventListener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#removeListener-com.google.android.exoplayer2.Player.EventListener-">Player</a></code></span></div>
 <div class="block">Unregister a listener. The listener will no longer receive events from the player.</div>
 <dl>
@@ -923,7 +1030,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html"
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaybackState</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@Player.State</a>
+<pre><a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
 public&nbsp;int&nbsp;getPlaybackState()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--">Player</a></code></span></div>
 <div class="block">Returns the current <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a> of the player.</div>
@@ -941,10 +1048,11 @@ public&nbsp;int&nbsp;getPlaybackState()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaybackSuppressionReason</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@Player.PlaybackSuppressionReason</a>
+<pre><a href="../../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@PlaybackSuppressionReason</a>
 public&nbsp;int&nbsp;getPlaybackSuppressionReason()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackSuppressionReason--">Player</a></code></span></div>
-<div class="block">Returns the reason why playback is suppressed even though <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>true</code>, or <a href="../../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>Player.PLAYBACK_SUPPRESSION_REASON_NONE</code></a> if playback is not suppressed.</div>
+<div class="block">Returns the reason why playback is suppressed even though <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--"><code>Player.getPlayWhenReady()</code></a> is <code>
+ true</code>, or <a href="../../../../../com/google/android/exoplayer2/Player.html#PLAYBACK_SUPPRESSION_REASON_NONE"><code>Player.PLAYBACK_SUPPRESSION_REASON_NONE</code></a> if playback is not suppressed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackSuppressionReason--">getPlaybackSuppressionReason</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -959,9 +1067,9 @@ public&nbsp;int&nbsp;getPlaybackSuppressionReason()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getPlaybackError</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="../../../../../com/google/android/exoplayer2/ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;getPlaybackError()</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackError--">getPlaybackError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -997,9 +1105,11 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/ExoPlaybackExc
 <ul class="blockList">
 <li class="blockList">
 <h4>retry</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;retry()</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare--"><code>prepare()</code></a> instead.</span></div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#prepare--"><code>prepare()</code></a> instead.</div>
+</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#retry--">retry</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>
@@ -1012,9 +1122,11 @@ public&nbsp;void&nbsp;retry()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>prepare</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;prepare()</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</span></div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</div>
+</div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--">Player</a></code></span></div>
 <div class="block">Prepares the player.</div>
 <dl>
@@ -1029,9 +1141,11 @@ public&nbsp;void&nbsp;prepare()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>prepare</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;prepare&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-"><code>setMediaSource(MediaSource)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> instead.</div>
+</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-">prepare</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>
@@ -1044,12 +1158,14 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>prepare</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
-                                boolean&nbsp;resetPosition,
-                                boolean&nbsp;resetState)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-boolean-"><code>setMediaSource(MediaSource, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>
-     instead.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;prepare&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+                    boolean&nbsp;resetPosition,
+                    boolean&nbsp;resetState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/testutil/StubExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-boolean-"><code>setMediaSource(MediaSource, boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>
+     instead.</div>
+</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#prepare-com.google.android.exoplayer2.source.MediaSource-boolean-boolean-">prepare</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>
@@ -1062,7 +1178,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaItem</h4>
-<pre>public&nbsp;void&nbsp;setMediaItem(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
+<pre>public&nbsp;void&nbsp;setMediaItem&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setMediaItem-com.google.android.exoplayer2.MediaItem-">Player</a></code></span></div>
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> and resets the position to the
  default position.</div>
@@ -1082,7 +1198,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaItem</h4>
-<pre>public&nbsp;void&nbsp;setMediaItem(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+<pre>public&nbsp;void&nbsp;setMediaItem&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                          long&nbsp;startPositionMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setMediaItem-com.google.android.exoplayer2.MediaItem-long-">Player</a></code></span></div>
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
@@ -1103,7 +1219,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaItem</h4>
-<pre>public&nbsp;void&nbsp;setMediaItem(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
+<pre>public&nbsp;void&nbsp;setMediaItem&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                          boolean&nbsp;resetPosition)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setMediaItem-com.google.android.exoplayer2.MediaItem-boolean-">Player</a></code></span></div>
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
@@ -1126,7 +1242,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaItems</h4>
-<pre>public&nbsp;void&nbsp;setMediaItems(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
+<pre>public&nbsp;void&nbsp;setMediaItems&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setMediaItems-java.util.List-">Player</a></code></span></div>
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a> and resets the position to
  the default position.</div>
@@ -1146,15 +1262,13 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaItems</h4>
-<pre>public&nbsp;void&nbsp;setMediaItems(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
+<pre>public&nbsp;void&nbsp;setMediaItems&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
                           boolean&nbsp;resetPosition)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setMediaItems-java.util.List-boolean-">Player</a></code></span></div>
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#setMediaItems-java.util.List-boolean-">setMediaItems</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../com/google/android/exoplayer2/BasePlayer.html#setMediaItems-java.util.List-boolean-">setMediaItems</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/BasePlayer.html" title="class in com.google.android.exoplayer2">BasePlayer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaItems</code> - The new <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItems</code></a>.</dd>
 <dd><code>resetPosition</code> - Whether the playback position should be reset to the default position in
@@ -1169,7 +1283,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaItems</h4>
-<pre>public&nbsp;void&nbsp;setMediaItems(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
+<pre>public&nbsp;void&nbsp;setMediaItems&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems,
                           int&nbsp;startWindowIndex,
                           long&nbsp;startPositionMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setMediaItems-java.util.List-int-long-">Player</a></code></span></div>
@@ -1193,7 +1307,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSource</h4>
-<pre>public&nbsp;void&nbsp;setMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
+<pre>public&nbsp;void&nbsp;setMediaSource&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-">ExoPlayer</a></code></span></div>
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> and resets the position to the
  default position.</div>
@@ -1211,7 +1325,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSource</h4>
-<pre>public&nbsp;void&nbsp;setMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+<pre>public&nbsp;void&nbsp;setMediaSource&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                            long&nbsp;startPositionMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-long-">ExoPlayer</a></code></span></div>
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
@@ -1230,7 +1344,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSource</h4>
-<pre>public&nbsp;void&nbsp;setMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
+<pre>public&nbsp;void&nbsp;setMediaSource&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                            boolean&nbsp;resetPosition)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSource-com.google.android.exoplayer2.source.MediaSource-boolean-">ExoPlayer</a></code></span></div>
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
@@ -1251,7 +1365,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre>public&nbsp;void&nbsp;setMediaSources(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</pre>
+<pre>public&nbsp;void&nbsp;setMediaSources&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSources-java.util.List-">ExoPlayer</a></code></span></div>
 <div class="block">Clears the playlist, adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSources</code></a> and resets the
  position to the default position.</div>
@@ -1269,7 +1383,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre>public&nbsp;void&nbsp;setMediaSources(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
+<pre>public&nbsp;void&nbsp;setMediaSources&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
                             boolean&nbsp;resetPosition)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSources-java.util.List-boolean-">ExoPlayer</a></code></span></div>
 <div class="block">Clears the playlist and adds the specified <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSources</code></a>.</div>
@@ -1290,7 +1404,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaSources</h4>
-<pre>public&nbsp;void&nbsp;setMediaSources(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
+<pre>public&nbsp;void&nbsp;setMediaSources&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources,
                             int&nbsp;startWindowIndex,
                             long&nbsp;startPositionMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setMediaSources-java.util.List-int-long-">ExoPlayer</a></code></span></div>
@@ -1314,7 +1428,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaItem</h4>
-<pre>public&nbsp;void&nbsp;addMediaItem(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
+<pre>public&nbsp;void&nbsp;addMediaItem&#8203;(<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#addMediaItem-com.google.android.exoplayer2.MediaItem-">Player</a></code></span></div>
 <div class="block">Adds a media item to the end of the playlist.</div>
 <dl>
@@ -1333,7 +1447,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaItem</h4>
-<pre>public&nbsp;void&nbsp;addMediaItem(int&nbsp;index,
+<pre>public&nbsp;void&nbsp;addMediaItem&#8203;(int&nbsp;index,
                          <a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#addMediaItem-int-com.google.android.exoplayer2.MediaItem-">Player</a></code></span></div>
 <div class="block">Adds a media item at the given index of the playlist.</div>
@@ -1354,7 +1468,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaItems</h4>
-<pre>public&nbsp;void&nbsp;addMediaItems(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
+<pre>public&nbsp;void&nbsp;addMediaItems&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#addMediaItems-java.util.List-">Player</a></code></span></div>
 <div class="block">Adds a list of media items to the end of the playlist.</div>
 <dl>
@@ -1371,8 +1485,8 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaItems</h4>
-<pre>public&nbsp;void&nbsp;addMediaItems(int&nbsp;index,
-                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
+<pre>public&nbsp;void&nbsp;addMediaItems&#8203;(int&nbsp;index,
+                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/MediaItem.html" title="class in com.google.android.exoplayer2" target="_top">MediaItem</a>&gt;&nbsp;mediaItems)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#addMediaItems-int-java.util.List-">Player</a></code></span></div>
 <div class="block">Adds a list of media items at the given index of the playlist.</div>
 <dl>
@@ -1390,7 +1504,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaSource</h4>
-<pre>public&nbsp;void&nbsp;addMediaSource(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
+<pre>public&nbsp;void&nbsp;addMediaSource&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#addMediaSource-com.google.android.exoplayer2.source.MediaSource-">ExoPlayer</a></code></span></div>
 <div class="block">Adds a media source to the end of the playlist.</div>
 <dl>
@@ -1407,7 +1521,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaSource</h4>
-<pre>public&nbsp;void&nbsp;addMediaSource(int&nbsp;index,
+<pre>public&nbsp;void&nbsp;addMediaSource&#8203;(int&nbsp;index,
                            <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#addMediaSource-int-com.google.android.exoplayer2.source.MediaSource-">ExoPlayer</a></code></span></div>
 <div class="block">Adds a media source at the given index of the playlist.</div>
@@ -1426,7 +1540,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaSources</h4>
-<pre>public&nbsp;void&nbsp;addMediaSources(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</pre>
+<pre>public&nbsp;void&nbsp;addMediaSources&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#addMediaSources-java.util.List-">ExoPlayer</a></code></span></div>
 <div class="block">Adds a list of media sources to the end of the playlist.</div>
 <dl>
@@ -1443,8 +1557,8 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>addMediaSources</h4>
-<pre>public&nbsp;void&nbsp;addMediaSources(int&nbsp;index,
-                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</pre>
+<pre>public&nbsp;void&nbsp;addMediaSources&#8203;(int&nbsp;index,
+                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source" target="_top">MediaSource</a>&gt;&nbsp;mediaSources)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#addMediaSources-int-java.util.List-">ExoPlayer</a></code></span></div>
 <div class="block">Adds a list of media sources at the given index of the playlist.</div>
 <dl>
@@ -1462,7 +1576,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>moveMediaItem</h4>
-<pre>public&nbsp;void&nbsp;moveMediaItem(int&nbsp;currentIndex,
+<pre>public&nbsp;void&nbsp;moveMediaItem&#8203;(int&nbsp;currentIndex,
                           int&nbsp;newIndex)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#moveMediaItem-int-int-">Player</a></code></span></div>
 <div class="block">Moves the media item at the current index to the new index.</div>
@@ -1484,7 +1598,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>moveMediaItems</h4>
-<pre>public&nbsp;void&nbsp;moveMediaItems(int&nbsp;fromIndex,
+<pre>public&nbsp;void&nbsp;moveMediaItems&#8203;(int&nbsp;fromIndex,
                            int&nbsp;toIndex,
                            int&nbsp;newIndex)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#moveMediaItems-int-int-int-">Player</a></code></span></div>
@@ -1507,7 +1621,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>removeMediaItem</h4>
-<pre>public&nbsp;void&nbsp;removeMediaItem(int&nbsp;index)</pre>
+<pre>public&nbsp;void&nbsp;removeMediaItem&#8203;(int&nbsp;index)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#removeMediaItem-int-">Player</a></code></span></div>
 <div class="block">Removes the media item at the given index of the playlist.</div>
 <dl>
@@ -1526,7 +1640,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>removeMediaItems</h4>
-<pre>public&nbsp;void&nbsp;removeMediaItems(int&nbsp;fromIndex,
+<pre>public&nbsp;void&nbsp;removeMediaItems&#8203;(int&nbsp;fromIndex,
                              int&nbsp;toIndex)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#removeMediaItems-int-int-">Player</a></code></span></div>
 <div class="block">Removes a range of media items from the playlist.</div>
@@ -1560,7 +1674,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlayWhenReady</h4>
-<pre>public&nbsp;void&nbsp;setPlayWhenReady(boolean&nbsp;playWhenReady)</pre>
+<pre>public&nbsp;void&nbsp;setPlayWhenReady&#8203;(boolean&nbsp;playWhenReady)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-">Player</a></code></span></div>
 <div class="block">Sets whether playback should proceed when <a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--"><code>Player.getPlaybackState()</code></a> == <a href="../../../../../com/google/android/exoplayer2/Player.html#STATE_READY"><code>Player.STATE_READY</code></a>.
 
@@ -1596,7 +1710,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setRepeatMode</h4>
-<pre>public&nbsp;void&nbsp;setRepeatMode(<a href="../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@Player.RepeatMode</a>
+<pre>public&nbsp;void&nbsp;setRepeatMode&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                           int&nbsp;repeatMode)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-">Player</a></code></span></div>
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2"><code>Player.RepeatMode</code></a> to be used for playback.</div>
@@ -1631,7 +1745,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setShuffleOrder</h4>
-<pre>public&nbsp;void&nbsp;setShuffleOrder(<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
+<pre>public&nbsp;void&nbsp;setShuffleOrder&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setShuffleOrder-com.google.android.exoplayer2.source.ShuffleOrder-">ExoPlayer</a></code></span></div>
 <div class="block">Sets the shuffle order.</div>
 <dl>
@@ -1648,7 +1762,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setShuffleModeEnabled</h4>
-<pre>public&nbsp;void&nbsp;setShuffleModeEnabled(boolean&nbsp;shuffleModeEnabled)</pre>
+<pre>public&nbsp;void&nbsp;setShuffleModeEnabled&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-">Player</a></code></span></div>
 <div class="block">Sets whether shuffling of windows is enabled.</div>
 <dl>
@@ -1697,7 +1811,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>seekTo</h4>
-<pre>public&nbsp;void&nbsp;seekTo(int&nbsp;windowIndex,
+<pre>public&nbsp;void&nbsp;seekTo&#8203;(int&nbsp;windowIndex,
                    long&nbsp;positionMs)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-">Player</a></code></span></div>
 <div class="block">Seeks to a position specified in milliseconds in the specified window.</div>
@@ -1717,7 +1831,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
-<pre>public&nbsp;void&nbsp;setPlaybackParameters(@Nullable
+<pre>public&nbsp;void&nbsp;setPlaybackParameters&#8203;(@Nullable
                                   <a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">Player</a></code></span></div>
 <div class="block">Attempts to set the playback parameters. Passing <code>null</code> sets the parameters to the
@@ -1756,7 +1870,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>setSeekParameters</h4>
-<pre>public&nbsp;void&nbsp;setSeekParameters(@Nullable
+<pre>public&nbsp;void&nbsp;setSeekParameters&#8203;(@Nullable
                               <a href="../../../../../com/google/android/exoplayer2/SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setSeekParameters-com.google.android.exoplayer2.SeekParameters-">ExoPlayer</a></code></span></div>
 <div class="block">Sets the parameters that control how seek operations are performed.</div>
@@ -1789,7 +1903,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>stop</h4>
-<pre>public&nbsp;void&nbsp;stop(boolean&nbsp;reset)</pre>
+<pre>public&nbsp;void&nbsp;stop&#8203;(boolean&nbsp;reset)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#stop-boolean-">Player</a></code></span></div>
 <div class="block">Stops playback and optionally clears the playlist and resets the position and playback error.
  Use <a href="../../../../../com/google/android/exoplayer2/Player.html#pause--"><code>Player.pause()</code></a> rather than this method if the intention is to pause playback.
@@ -1828,7 +1942,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>createMessage</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;createMessage(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target)</pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html" title="class in com.google.android.exoplayer2">PlayerMessage</a>&nbsp;createMessage&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a>&nbsp;target)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#createMessage-com.google.android.exoplayer2.PlayerMessage.Target-">ExoPlayer</a></code></span></div>
 <div class="block">Creates a message that can be sent to a <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2"><code>PlayerMessage.Target</code></a>. By default, the message
  will be delivered immediately without blocking on the playback thread. The default <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html#getType--"><code>PlayerMessage.getType()</code></a> is 0 and the default <a href="../../../../../com/google/android/exoplayer2/PlayerMessage.html#getPayload--"><code>PlayerMessage.getPayload()</code></a> is null. If a
@@ -1862,7 +1976,7 @@ public&nbsp;void&nbsp;prepare(<a href="../../../../../com/google/android/exoplay
 <ul class="blockList">
 <li class="blockList">
 <h4>getRendererType</h4>
-<pre>public&nbsp;int&nbsp;getRendererType(int&nbsp;index)</pre>
+<pre>public&nbsp;int&nbsp;getRendererType&#8203;(int&nbsp;index)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#getRendererType-int-">Player</a></code></span></div>
 <div class="block">Returns the track type that the renderer at a given index handles.</div>
 <dl>
@@ -2119,7 +2233,7 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <ul class="blockList">
 <li class="blockList">
 <h4>setForegroundMode</h4>
-<pre>public&nbsp;void&nbsp;setForegroundMode(boolean&nbsp;foregroundMode)</pre>
+<pre>public&nbsp;void&nbsp;setForegroundMode&#8203;(boolean&nbsp;foregroundMode)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setForegroundMode-boolean-">ExoPlayer</a></code></span></div>
 <div class="block">Sets whether the player is allowed to keep holding limited resources such as video decoders,
  even when in the idle state. By doing so, the player may be able to reduce latency when
@@ -2159,7 +2273,7 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <ul class="blockList">
 <li class="blockList">
 <h4>setPauseAtEndOfMediaItems</h4>
-<pre>public&nbsp;void&nbsp;setPauseAtEndOfMediaItems(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
+<pre>public&nbsp;void&nbsp;setPauseAtEndOfMediaItems&#8203;(boolean&nbsp;pauseAtEndOfMediaItems)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#setPauseAtEndOfMediaItems-boolean-">ExoPlayer</a></code></span></div>
 <div class="block">Sets whether to pause playback at the end of each media item.
 
@@ -2195,7 +2309,7 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <ul class="blockListLast">
 <li class="blockList">
 <h4>experimentalSetOffloadSchedulingEnabled</h4>
-<pre>public&nbsp;void&nbsp;experimentalSetOffloadSchedulingEnabled(boolean&nbsp;offloadSchedulingEnabled)</pre>
+<pre>public&nbsp;void&nbsp;experimentalSetOffloadSchedulingEnabled&#8203;(boolean&nbsp;offloadSchedulingEnabled)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-">ExoPlayer</a></code></span></div>
 <div class="block">Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will as
  rarely as possible when playing an audio stream using audio offload.
@@ -2216,12 +2330,11 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
  the following:
 
  <ul>
-   <li>audio offload rendering is enabled in <a href="../../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioOffload-boolean-"><code>DefaultRenderersFactory.setEnableAudioOffload(boolean)</code></a> or the equivalent option passed to <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain-boolean-boolean-boolean-"><code>DefaultAudioSink.DefaultAudioSink(AudioCapabilities,
+   <li>Audio offload rendering is enabled in <a href="../../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioOffload-boolean-"><code>DefaultRenderersFactory.setEnableAudioOffload(boolean)</code></a> or the equivalent option passed to <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain-boolean-boolean-boolean-"><code>DefaultAudioSink(AudioCapabilities,
        DefaultAudioSink.AudioProcessorChain, boolean, boolean, boolean)</code></a>.
-   <li>an audio track is playing in a format which the device supports offloading (for example,
+   <li>An audio track is playing in a format that the device supports offloading (for example,
        MP3 or AAC).
-   <li>The <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> is playing with an offload
-       <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>.
+   <li>The <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> is playing with an offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>.
  </ul>
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
@@ -2281,6 +2394,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

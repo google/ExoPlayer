@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>com.google.android.exoplayer2.offline Class Hierarchy (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -16,10 +25,11 @@
     catch(err) {
     }
 //-->
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -50,6 +60,12 @@
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -61,11 +77,20 @@
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <a name="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <div class="header">
 <h1 class="title">Hierarchy For Package com.google.android.exoplayer2.offline</h1>
 <span class="packageHierarchyLabel">Package Hierarchies:</span>
@@ -76,44 +101,44 @@
 <div class="contentContainer">
 <h2 title="Class Hierarchy">Class Hierarchy</h2>
 <ul>
-<li type="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang"><span class="typeNameLink" target="_top">Object</span></a>
+<li class="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink" target="_top">Object</span></a>
 <ul>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">ActionFileUpgradeUtil</span></a></li>
-<li type="circle">android.content.<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content"><span class="typeNameLink" target="_top">Context</span></a>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">ActionFileUpgradeUtil</span></a></li>
+<li class="circle">android.content.<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink"><span class="typeNameLink" target="_top">Context</span></a>
 <ul>
-<li type="circle">android.content.<a href="https://developer.android.com/reference/android/content/ContextWrapper.html" title="class or interface in android.content"><span class="typeNameLink" target="_top">ContextWrapper</span></a>
+<li class="circle">android.content.<a href="https://developer.android.com/reference/android/content/ContextWrapper.html" title="class or interface in android.content" class="externalLink"><span class="typeNameLink" target="_top">ContextWrapper</span></a>
 <ul>
-<li type="circle">android.app.<a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app"><span class="typeNameLink">Service</span></a> (implements android.content.<a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true" title="class or interface in android.content" target="_top">ComponentCallbacks2</a>)
+<li class="circle">android.app.<a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink"><span class="typeNameLink">Service</span></a> (implements android.content.<a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ComponentCallbacks2</a>)
 <ul>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadService</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadService</span></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DefaultDownloaderFactory</span></a> (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a>)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DefaultDownloadIndex</span></a> (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a>)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Download</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadHelper</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadManager</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadProgress.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadProgress</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadRequest</span></a> (implements android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" target="_top">Parcelable</a>)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.Builder.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadRequest.Builder</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">FilteringManifestParser</span></a>&lt;T&gt; (implements com.google.android.exoplayer2.upstream.<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">ProgressiveDownloader</span></a> (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a>)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">SegmentDownloader</span></a>&lt;M&gt; (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a>)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">SegmentDownloader.Segment</span></a> (implements java.lang.<a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" target="_top">Comparable</a>&lt;T&gt;)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">StreamKey</span></a> (implements java.lang.<a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang">Comparable</a>&lt;T&gt;, android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" target="_top">Parcelable</a>)</li>
-<li type="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang"><span class="typeNameLink">Throwable</span></a> (implements java.io.<a href="https://developer.android.com/reference/java/io/Serializable.html?is-external=true" title="class or interface in java.io" target="_top">Serializable</a>)
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DefaultDownloaderFactory</span></a> (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a>)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DefaultDownloadIndex</span></a> (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a>)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">Download</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadHelper</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadManager</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadProgress.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadProgress</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadRequest</span></a> (implements android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a>)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.Builder.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadRequest.Builder</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">FilteringManifestParser</span></a>&lt;T&gt; (implements com.google.android.exoplayer2.upstream.<a href="../../../../../com/google/android/exoplayer2/upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">ProgressiveDownloader</span></a> (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a>)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">SegmentDownloader</span></a>&lt;M&gt; (implements com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a>)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">SegmentDownloader.Segment</span></a> (implements java.lang.<a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" class="externalLink" target="_top">Comparable</a>&lt;T&gt;)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">StreamKey</span></a> (implements java.lang.<a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;T&gt;, android.os.<a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a>)</li>
+<li class="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink">Throwable</span></a> (implements java.io.<a href="https://developer.android.com/reference/java/io/Serializable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a>)
 <ul>
-<li type="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang"><span class="typeNameLink" target="_top">Exception</span></a>
+<li class="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink" target="_top">Exception</span></a>
 <ul>
-<li type="circle">java.io.<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io"><span class="typeNameLink" target="_top">IOException</span></a>
+<li class="circle">java.io.<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink"><span class="typeNameLink" target="_top">IOException</span></a>
 <ul>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadException</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadHelper.LiveContentUnsupportedException</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.UnsupportedRequestException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadRequest.UnsupportedRequestException</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadException</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadHelper.LiveContentUnsupportedException</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.UnsupportedRequestException.html" title="class in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadRequest.UnsupportedRequestException</span></a></li>
 </ul>
 </li>
 </ul>
@@ -125,32 +150,32 @@
 </ul>
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">ActionFileUpgradeUtil.DownloadIdProvider</span></a></li>
-<li type="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/AutoCloseable.html" title="class or interface in java.lang"><span class="typeNameLink" target="_top">AutoCloseable</span></a>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">ActionFileUpgradeUtil.DownloadIdProvider</span></a></li>
+<li class="circle">java.lang.<a href="https://developer.android.com/reference/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="externalLink"><span class="typeNameLink" target="_top">AutoCloseable</span></a>
 <ul>
-<li type="circle">java.io.<a href="https://developer.android.com/reference/java/io/Closeable.html" title="class or interface in java.io"><span class="typeNameLink" target="_top">Closeable</span></a>
+<li class="circle">java.io.<a href="https://developer.android.com/reference/java/io/Closeable.html" title="class or interface in java.io" class="externalLink"><span class="typeNameLink" target="_top">Closeable</span></a>
 <ul>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadCursor</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadCursor</span></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Downloader</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Downloader.ProgressListener</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloaderFactory</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadHelper.Callback</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadIndex</span></a>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Downloader</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">Downloader.ProgressListener</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloaderFactory</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadHelper.Callback</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadIndex</span></a>
 <ul>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">WritableDownloadIndex</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">WritableDownloadIndex</span></a></li>
 </ul>
 </li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadManager.Listener</span></a></li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">FilterableManifest</span></a>&lt;T&gt;</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">DownloadManager.Listener</span></a></li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline"><span class="typeNameLink">FilterableManifest</span></a>&lt;T&gt;</li>
 </ul>
 <h2 title="Annotation Type Hierarchy">Annotation Type Hierarchy</h2>
 <ul>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline"><span class="typeNameLink">Download.State</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" target="_top">Annotation</a>)</li>
-<li type="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Download.FailureReason.html" title="annotation in com.google.android.exoplayer2.offline"><span class="typeNameLink">Download.FailureReason</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" target="_top">Annotation</a>)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Download.FailureReason.html" title="annotation in com.google.android.exoplayer2.offline"><span class="typeNameLink">Download.FailureReason</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
+<li class="circle">com.google.android.exoplayer2.offline.<a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline"><span class="typeNameLink">Download.State</span></a> (implements java.lang.annotation.<a href="https://developer.android.com/reference/java/lang/annotation/Annotation.html" title="class or interface in java.lang.annotation" class="externalLink" target="_top">Annotation</a>)</li>
 </ul>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
@@ -194,6 +219,9 @@
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <a name="skip.navbar.bottom">
 <!--   -->

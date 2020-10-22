@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>PlaybackSessionManager (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,9 +106,15 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.analytics</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/analytics/package-summary.html">com.google.android.exoplayer2.analytics</a></div>
 <h2 title="Interface PlaybackSessionManager" class="title">Interface PlaybackSessionManager</h2>
 </div>
 <div class="contentContainer">
@@ -98,10 +123,9 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html" title="class in com.google.android.exoplayer2.analytics">DefaultPlaybackSessionManager</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/DefaultPlaybackSessionManager.html" title="class in com.google.android.exoplayer2.analytics">DefaultPlaybackSessionManager</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public interface <span class="typeNameLabel">PlaybackSessionManager</span></pre>
 <div class="block">Manager for active playback sessions.
 
@@ -119,15 +143,17 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Interface and Description</th>
+<th class="colSecond" scope="col">Interface</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a></span></code></th>
+<td class="colLast">
 <div class="block">A listener for session updates.</div>
 </td>
 </tr>
@@ -140,54 +166,62 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#belongsToSession-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-java.lang.String-">belongsToSession</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;sessionId)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#belongsToSession-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-java.lang.String-">belongsToSession</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sessionId)</code></th>
+<td class="colLast">
 <div class="block">Returns whether an event time belong to a session.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#finishAllSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">finishAllSessions</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
-<div class="block">Finishes all existing sessions and calls their respective <code>Listener#onSessionFinished(EventTime, String, boolean)</code> callback.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#finishAllSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">finishAllSessions</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
+<td class="colLast">
+<div class="block">Finishes all existing sessions and calls their respective <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html#onSessionFinished-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-java.lang.String-boolean-"><code>PlaybackSessionManager.Listener.onSessionFinished(EventTime, String, boolean)</code></a> callback.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#getSessionForMediaPeriodId-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">getSessionForMediaPeriodId</a></span>(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
-                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#getSessionForMediaPeriodId-com.google.android.exoplayer2.Timeline-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-">getSessionForMediaPeriodId</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                          <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
+<td class="colLast">
 <div class="block">Returns the session identifier for the given media period id.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#setListener-com.google.android.exoplayer2.analytics.PlaybackSessionManager.Listener-">setListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#setListener-com.google.android.exoplayer2.analytics.PlaybackSessionManager.Listener-">setListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Sets the listener to be notified of session updates.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessions</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessions</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
+<td class="colLast">
 <div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">updateSessionsWithDiscontinuity</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                               int&nbsp;reason)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-">updateSessionsWithDiscontinuity</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                               int&nbsp;reason)</code></th>
+<td class="colLast">
 <div class="block">Updates or creates sessions based on a position discontinuity at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessionsWithTimelineChange</a></span>(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-">updateSessionsWithTimelineChange</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
+<td class="colLast">
 <div class="block">Updates or creates sessions based on a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
@@ -212,7 +246,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>setListener</h4>
-<pre>void&nbsp;setListener(<a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</pre>
+<pre>void&nbsp;setListener&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</pre>
 <div class="block">Sets the listener to be notified of session updates. Must be called before the session manager
  is used.</div>
 <dl>
@@ -227,7 +261,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>getSessionForMediaPeriodId</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang">String</a>&nbsp;getSessionForMediaPeriodId(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&nbsp;timeline,
+<pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getSessionForMediaPeriodId&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&nbsp;timeline,
                                   <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
 <div class="block">Returns the session identifier for the given media period id.
 
@@ -246,8 +280,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>belongsToSession</h4>
-<pre>boolean&nbsp;belongsToSession(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;sessionId)</pre>
+<pre>boolean&nbsp;belongsToSession&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sessionId)</pre>
 <div class="block">Returns whether an event time belong to a session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -264,10 +298,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>updateSessions</h4>
-<pre>void&nbsp;updateSessions(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<pre>void&nbsp;updateSessions&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
 <div class="block">Updates or creates sessions based on a player <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
- <p>Call <code>#updateSessionsWithTimelineChange(EventTime)</code> or <code>#updateSessionsWithDiscontinuity(EventTime, int)</code> if the event is a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change or
+ <p>Call <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithTimelineChange-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-"><code>updateSessionsWithTimelineChange(EventTime)</code></a> or <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessionsWithDiscontinuity-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-int-"><code>updateSessionsWithDiscontinuity(EventTime, int)</code></a> if the event is a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change or
  a position discontinuity respectively.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -281,10 +315,10 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>updateSessionsWithTimelineChange</h4>
-<pre>void&nbsp;updateSessionsWithTimelineChange(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<pre>void&nbsp;updateSessionsWithTimelineChange&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
 <div class="block">Updates or creates sessions based on a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
- <p>Should be called instead of <code>#updateSessions(EventTime)</code> if a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change
+ <p>Should be called instead of <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-"><code>updateSessions(EventTime)</code></a> if a <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change
  occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -298,12 +332,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>updateSessionsWithDiscontinuity</h4>
-<pre>void&nbsp;updateSessionsWithDiscontinuity(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                                     <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@Player.DiscontinuityReason</a>
+<pre>void&nbsp;updateSessionsWithDiscontinuity&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
+                                     <a href="../../../../../com/google/android/exoplayer2/Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
                                      int&nbsp;reason)</pre>
 <div class="block">Updates or creates sessions based on a position discontinuity at <a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
- <p>Should be called instead of <code>#updateSessions(EventTime)</code> if a position discontinuity
+ <p>Should be called instead of <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.html#updateSessions-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-"><code>updateSessions(EventTime)</code></a> if a position discontinuity
  occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -318,8 +352,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>finishAllSessions</h4>
-<pre>void&nbsp;finishAllSessions(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
-<div class="block">Finishes all existing sessions and calls their respective <code>Listener#onSessionFinished(EventTime, String, boolean)</code> callback.</div>
+<pre>void&nbsp;finishAllSessions&#8203;(<a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="block">Finishes all existing sessions and calls their respective <a href="../../../../../com/google/android/exoplayer2/analytics/PlaybackSessionManager.Listener.html#onSessionFinished-com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime-java.lang.String-boolean-"><code>PlaybackSessionManager.Listener.onSessionFinished(EventTime, String, boolean)</code></a> callback.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>eventTime</code> - The event time at which sessions are finished.</dd>
@@ -374,6 +408,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>Ac3Util (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.audio</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/package-summary.html">com.google.android.exoplayer2.audio</a></div>
 <h2 title="Class Ac3Util" class="title">Class Ac3Util</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.audio.Ac3Util</li>
@@ -105,9 +130,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<br>
 <pre>public final class <span class="typeNameLabel">Ac3Util</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes. (E-)AC-3 parsing follows the
  definition in ETSI TS 102 366 V1.4.1.</div>
 </li>
@@ -122,15 +146,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></span></code></th>
+<td class="colLast">
 <div class="block">Holds sample format information as presented by a syncframe header.</div>
 </td>
 </tr>
@@ -143,39 +169,45 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#AC3_MAX_RATE_BYTES_PER_SECOND">AC3_MAX_RATE_BYTES_PER_SECOND</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#AC3_MAX_RATE_BYTES_PER_SECOND">AC3_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<td class="colLast">
 <div class="block">Maximum rate for an AC-3 audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#E_AC3_MAX_RATE_BYTES_PER_SECOND">E_AC3_MAX_RATE_BYTES_PER_SECOND</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#E_AC3_MAX_RATE_BYTES_PER_SECOND">E_AC3_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<td class="colLast">
 <div class="block">Maximum rate for an E-AC-3 audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#TRUEHD_MAX_RATE_BYTES_PER_SECOND">TRUEHD_MAX_RATE_BYTES_PER_SECOND</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#TRUEHD_MAX_RATE_BYTES_PER_SECOND">TRUEHD_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
+<td class="colLast">
 <div class="block">Maximum rate for a TrueHD audio stream, in bytes per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#TRUEHD_RECHUNK_SAMPLE_COUNT">TRUEHD_RECHUNK_SAMPLE_COUNT</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#TRUEHD_RECHUNK_SAMPLE_COUNT">TRUEHD_RECHUNK_SAMPLE_COUNT</a></span></code></th>
+<td class="colLast">
 <div class="block">The number of samples to store in each output chunk when rechunking TrueHD streams.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#TRUEHD_SYNCFRAME_PREFIX_LENGTH">TRUEHD_SYNCFRAME_PREFIX_LENGTH</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#TRUEHD_SYNCFRAME_PREFIX_LENGTH">TRUEHD_SYNCFRAME_PREFIX_LENGTH</a></span></code></th>
+<td class="colLast">
 <div class="block">The number of bytes that must be parsed from a TrueHD syncframe to calculate the sample count.</div>
 </td>
 </tr>
@@ -188,67 +220,76 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#findTrueHdSyncframeOffset-java.nio.ByteBuffer-">findTrueHdSyncframeOffset</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#findTrueHdSyncframeOffset-java.nio.ByteBuffer-">findTrueHdSyncframeOffset</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
+<td class="colLast">
 <div class="block">Returns the offset relative to the buffer's position of the start of a TrueHD syncframe, or
  <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no syncframe was found.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3AnnexFFormat-com.google.android.exoplayer2.util.ParsableByteArray-java.lang.String-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">parseAc3AnnexFFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;trackId,
-                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;language,
-                    <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3AnnexFFormat-com.google.android.exoplayer2.util.ParsableByteArray-java.lang.String-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">parseAc3AnnexFFormat</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;trackId,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                    <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
+<td class="colLast">
 <div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to Annex F.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeAudioSampleCount-java.nio.ByteBuffer-">parseAc3SyncframeAudioSampleCount</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeAudioSampleCount-java.nio.ByteBuffer-">parseAc3SyncframeAudioSampleCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
+<td class="colLast">
 <div class="block">Reads the number of audio samples represented by the given (E-)AC-3 syncframe.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeInfo-com.google.android.exoplayer2.util.ParsableBitArray-">parseAc3SyncframeInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;data)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeInfo-com.google.android.exoplayer2.util.ParsableBitArray-">parseAc3SyncframeInfo</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;data)</code></th>
+<td class="colLast">
 <div class="block">Returns (E-)AC-3 format information given <code>data</code> containing a syncframe.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeSize-byte:A-">parseAc3SyncframeSize</a></span>(byte[]&nbsp;data)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseAc3SyncframeSize-byte:A-">parseAc3SyncframeSize</a></span>&#8203;(byte[]&nbsp;data)</code></th>
+<td class="colLast">
 <div class="block">Returns the size in bytes of the given (E-)AC-3 syncframe.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseEAc3AnnexFFormat-com.google.android.exoplayer2.util.ParsableByteArray-java.lang.String-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">parseEAc3AnnexFFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;trackId,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;language,
-                     <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseEAc3AnnexFFormat-com.google.android.exoplayer2.util.ParsableByteArray-java.lang.String-java.lang.String-com.google.android.exoplayer2.drm.DrmInitData-">parseEAc3AnnexFFormat</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;trackId,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
+                     <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
+<td class="colLast">
 <div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to Annex
  F.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseTrueHdSyncframeAudioSampleCount-byte:A-">parseTrueHdSyncframeAudioSampleCount</a></span>(byte[]&nbsp;syncframe)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseTrueHdSyncframeAudioSampleCount-byte:A-">parseTrueHdSyncframeAudioSampleCount</a></span>&#8203;(byte[]&nbsp;syncframe)</code></th>
+<td class="colLast">
 <div class="block">Returns the number of audio samples represented by the given TrueHD syncframe, or 0 if the
  buffer is not the start of a syncframe.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseTrueHdSyncframeAudioSampleCount-java.nio.ByteBuffer-int-">parseTrueHdSyncframeAudioSampleCount</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
-                                    int&nbsp;offset)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.html#parseTrueHdSyncframeAudioSampleCount-java.nio.ByteBuffer-int-">parseTrueHdSyncframeAudioSampleCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
+                                    int&nbsp;offset)</code></th>
+<td class="colLast">
 <div class="block">Reads the number of audio samples represented by a TrueHD syncframe.</div>
 </td>
 </tr>
@@ -257,8 +298,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -360,9 +401,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>parseAc3AnnexFFormat</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;parseAc3AnnexFFormat(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;trackId,
-                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;language,
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;parseAc3AnnexFFormat&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;trackId,
+                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
                                           @Nullable
                                           <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 <div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to Annex F.
@@ -384,9 +425,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>parseEAc3AnnexFFormat</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;parseEAc3AnnexFFormat(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
-                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;trackId,
-                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;language,
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;parseEAc3AnnexFFormat&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;trackId,
+                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
                                            @Nullable
                                            <a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
 <div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to Annex
@@ -408,7 +449,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>parseAc3SyncframeInfo</h4>
-<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a>&nbsp;parseAc3SyncframeInfo(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;data)</pre>
+<pre>public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a>&nbsp;parseAc3SyncframeInfo&#8203;(<a href="../../../../../com/google/android/exoplayer2/util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;data)</pre>
 <div class="block">Returns (E-)AC-3 format information given <code>data</code> containing a syncframe. The reading
  position of <code>data</code> will be modified.</div>
 <dl>
@@ -425,7 +466,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>parseAc3SyncframeSize</h4>
-<pre>public static&nbsp;int&nbsp;parseAc3SyncframeSize(byte[]&nbsp;data)</pre>
+<pre>public static&nbsp;int&nbsp;parseAc3SyncframeSize&#8203;(byte[]&nbsp;data)</pre>
 <div class="block">Returns the size in bytes of the given (E-)AC-3 syncframe.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -441,12 +482,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>parseAc3SyncframeAudioSampleCount</h4>
-<pre>public static&nbsp;int&nbsp;parseAc3SyncframeAudioSampleCount(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<pre>public static&nbsp;int&nbsp;parseAc3SyncframeAudioSampleCount&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
 <div class="block">Reads the number of audio samples represented by the given (E-)AC-3 syncframe. The buffer's
  position is not modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> from which to read the syncframe.</dd>
+<dd><code>buffer</code> - The <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> from which to read the syncframe.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of audio samples represented by the syncframe.</dd>
 </dl>
@@ -458,12 +499,12 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>findTrueHdSyncframeOffset</h4>
-<pre>public static&nbsp;int&nbsp;findTrueHdSyncframeOffset(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<pre>public static&nbsp;int&nbsp;findTrueHdSyncframeOffset&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
 <div class="block">Returns the offset relative to the buffer's position of the start of a TrueHD syncframe, or
  <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no syncframe was found. The buffer's position is not modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> within which to find a syncframe.</dd>
+<dd><code>buffer</code> - The <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> within which to find a syncframe.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The offset relative to the buffer's position of the start of a TrueHD syncframe, or
      <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no syncframe was found.</dd>
@@ -476,7 +517,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>parseTrueHdSyncframeAudioSampleCount</h4>
-<pre>public static&nbsp;int&nbsp;parseTrueHdSyncframeAudioSampleCount(byte[]&nbsp;syncframe)</pre>
+<pre>public static&nbsp;int&nbsp;parseTrueHdSyncframeAudioSampleCount&#8203;(byte[]&nbsp;syncframe)</pre>
 <div class="block">Returns the number of audio samples represented by the given TrueHD syncframe, or 0 if the
  buffer is not the start of a syncframe.</div>
 <dl>
@@ -494,13 +535,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>parseTrueHdSyncframeAudioSampleCount</h4>
-<pre>public static&nbsp;int&nbsp;parseTrueHdSyncframeAudioSampleCount(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
+<pre>public static&nbsp;int&nbsp;parseTrueHdSyncframeAudioSampleCount&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
                                                        int&nbsp;offset)</pre>
 <div class="block">Reads the number of audio samples represented by a TrueHD syncframe. The buffer's position is
  not modified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>buffer</code> - The <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> from which to read the syncframe.</dd>
+<dd><code>buffer</code> - The <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> from which to read the syncframe.</dd>
 <dd><code>offset</code> - The offset of the start of the syncframe relative to the buffer's position.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of audio samples represented by the syncframe.</dd>
@@ -555,6 +596,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

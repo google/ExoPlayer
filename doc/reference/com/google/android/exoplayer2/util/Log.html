@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>Log (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.util</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></div>
 <h2 title="Class Log" class="title">Class Log</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.util.Log</li>
@@ -105,10 +130,9 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<br>
 <pre>public final class <span class="typeNameLabel">Log</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
-<div class="block">Wrapper around <a href="https://developer.android.com/reference/android/util/Log.html" title="class or interface in android.util" target="_top"><code>Log</code></a> which allows to set the log level.</div>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="block">Wrapper around <a href="https://developer.android.com/reference/android/util/Log.html" title="class or interface in android.util" class="externalLink" target="_top"><code>Log</code></a> which allows to set the log level.</div>
 </li>
 </ul>
 </div>
@@ -121,39 +145,45 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_ALL">LOG_LEVEL_ALL</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_ALL">LOG_LEVEL_ALL</a></span></code></th>
+<td class="colLast">
 <div class="block">Log level to log all messages.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_ERROR">LOG_LEVEL_ERROR</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_ERROR">LOG_LEVEL_ERROR</a></span></code></th>
+<td class="colLast">
 <div class="block">Log level to only log error messages.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_INFO">LOG_LEVEL_INFO</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_INFO">LOG_LEVEL_INFO</a></span></code></th>
+<td class="colLast">
 <div class="block">Log level to only log informative, warning and error messages.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_OFF">LOG_LEVEL_OFF</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_OFF">LOG_LEVEL_OFF</a></span></code></th>
+<td class="colLast">
 <div class="block">Log level to disable all logging.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_WARNING">LOG_LEVEL_WARNING</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#LOG_LEVEL_WARNING">LOG_LEVEL_WARNING</a></span></code></th>
+<td class="colLast">
 <div class="block">Log level to only log warning and error messages.</div>
 </td>
 </tr>
@@ -166,94 +196,108 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#d-java.lang.String-java.lang.String-">d</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#d-java.lang.String-java.lang.String-">d</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#d-java.lang.String-java.lang.String-java.lang.Throwable-">d</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
- <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#d-java.lang.String-java.lang.String-java.lang.Throwable-">d</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+ <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#e-java.lang.String-java.lang.String-">e</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#e-java.lang.String-java.lang.String-">e</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#e-java.lang.String-java.lang.String-java.lang.Throwable-">e</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
- <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#e-java.lang.String-java.lang.String-java.lang.Throwable-">e</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+ <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#getLogLevel--">getLogLevel</a></span>()</code>
-<div class="block">Returns current <code>LogLevel</code> for ExoPlayer logcat logging.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#getLogLevel--">getLogLevel</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns current <code>Log.LogLevel</code> for ExoPlayer logcat logging.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#getLogStackTraces--">getLogStackTraces</a></span>()</code>
-<div class="block">Returns whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#getLogStackTraces--">getLogStackTraces</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#getThrowableString-java.lang.Throwable-">getThrowableString</a></span>(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</code>
-<div class="block">Returns a string representation of a <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a> suitable for logging, taking into
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#getThrowableString-java.lang.Throwable-">getThrowableString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
+<td class="colLast">
+<div class="block">Returns a string representation of a <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a> suitable for logging, taking into
  account whether <a href="../../../../../com/google/android/exoplayer2/util/Log.html#setLogStackTraces-boolean-"><code>setLogStackTraces(boolean)</code></a> stack trace logging} is enabled.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#i-java.lang.String-java.lang.String-">i</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#i-java.lang.String-java.lang.String-">i</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#i-java.lang.String-java.lang.String-java.lang.Throwable-">i</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
- <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#i-java.lang.String-java.lang.String-java.lang.Throwable-">i</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+ <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#setLogLevel-int-">setLogLevel</a></span>(int&nbsp;logLevel)</code>
-<div class="block">Sets the <code>LogLevel</code> for ExoPlayer logcat logging.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#setLogLevel-int-">setLogLevel</a></span>&#8203;(int&nbsp;logLevel)</code></th>
+<td class="colLast">
+<div class="block">Sets the <code>Log.LogLevel</code> for ExoPlayer logcat logging.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#setLogStackTraces-boolean-">setLogStackTraces</a></span>(boolean&nbsp;logStackTraces)</code>
-<div class="block">Sets whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#setLogStackTraces-boolean-">setLogStackTraces</a></span>&#8203;(boolean&nbsp;logStackTraces)</code></th>
+<td class="colLast">
+<div class="block">Sets whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#w-java.lang.String-java.lang.String-">w</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#w-java.lang.String-java.lang.String-">w</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#w-java.lang.String-java.lang.String-java.lang.Throwable-">w</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
- <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
- <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Log.html#w-java.lang.String-java.lang.String-java.lang.Throwable-">w</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+ <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+ <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -353,9 +397,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>getLogLevel</h4>
-<pre>@Log.LogLevel
+<pre>@LogLevel
 public static&nbsp;int&nbsp;getLogLevel()</pre>
-<div class="block">Returns current <code>LogLevel</code> for ExoPlayer logcat logging.</div>
+<div class="block">Returns current <code>Log.LogLevel</code> for ExoPlayer logcat logging.</div>
 </li>
 </ul>
 <a name="getLogStackTraces--">
@@ -365,7 +409,7 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <li class="blockList">
 <h4>getLogStackTraces</h4>
 <pre>public&nbsp;boolean&nbsp;getLogStackTraces()</pre>
-<div class="block">Returns whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
+<div class="block">Returns whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
 </li>
 </ul>
 <a name="setLogLevel-int-">
@@ -374,12 +418,12 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setLogLevel</h4>
-<pre>public static&nbsp;void&nbsp;setLogLevel(@Log.LogLevel
+<pre>public static&nbsp;void&nbsp;setLogLevel&#8203;(@LogLevel
                                int&nbsp;logLevel)</pre>
-<div class="block">Sets the <code>LogLevel</code> for ExoPlayer logcat logging.</div>
+<div class="block">Sets the <code>Log.LogLevel</code> for ExoPlayer logcat logging.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>logLevel</code> - The new <code>LogLevel</code>.</dd>
+<dd><code>logLevel</code> - The new <code>Log.LogLevel</code>.</dd>
 </dl>
 </li>
 </ul>
@@ -389,8 +433,8 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setLogStackTraces</h4>
-<pre>public static&nbsp;void&nbsp;setLogStackTraces(boolean&nbsp;logStackTraces)</pre>
-<div class="block">Sets whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a>s will be logged to logcat. Stack trace logging
+<pre>public static&nbsp;void&nbsp;setLogStackTraces&#8203;(boolean&nbsp;logStackTraces)</pre>
+<div class="block">Sets whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>s will be logged to logcat. Stack trace logging
  is enabled by default.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -404,11 +448,11 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>d</h4>
-<pre>public static&nbsp;void&nbsp;d(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</pre>
+<pre>public static&nbsp;void&nbsp;d&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#d-java.lang.String-java.lang.String-" title="class or interface in android.util" target="_top"><code>Log.d(String, String)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#d-java.lang.String-java.lang.String-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.d(String, String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -418,13 +462,13 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>d</h4>
-<pre>public static&nbsp;void&nbsp;d(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
+<pre>public static&nbsp;void&nbsp;d&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
-                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</pre>
+                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#d-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" target="_top"><code>Log.d(String, String, Throwable)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#d-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.d(String, String, Throwable)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -434,11 +478,11 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>i</h4>
-<pre>public static&nbsp;void&nbsp;i(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</pre>
+<pre>public static&nbsp;void&nbsp;i&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#i-java.lang.String-java.lang.String-" title="class or interface in android.util" target="_top"><code>Log.i(String, String)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#i-java.lang.String-java.lang.String-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.i(String, String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -448,13 +492,13 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>i</h4>
-<pre>public static&nbsp;void&nbsp;i(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
+<pre>public static&nbsp;void&nbsp;i&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
-                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</pre>
+                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#i-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" target="_top"><code>Log.i(String, String, Throwable)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#i-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.i(String, String, Throwable)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -464,11 +508,11 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>w</h4>
-<pre>public static&nbsp;void&nbsp;w(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</pre>
+<pre>public static&nbsp;void&nbsp;w&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#w-java.lang.String-java.lang.String-" title="class or interface in android.util" target="_top"><code>Log.w(String, String)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#w-java.lang.String-java.lang.String-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.w(String, String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -478,13 +522,13 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>w</h4>
-<pre>public static&nbsp;void&nbsp;w(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
+<pre>public static&nbsp;void&nbsp;w&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
-                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</pre>
+                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#w-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" target="_top"><code>Log.w(String, String, Throwable)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#w-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.w(String, String, Throwable)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -494,11 +538,11 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>e</h4>
-<pre>public static&nbsp;void&nbsp;e(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message)</pre>
+<pre>public static&nbsp;void&nbsp;e&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#e-java.lang.String-java.lang.String-" title="class or interface in android.util" target="_top"><code>Log.e(String, String)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#e-java.lang.String-java.lang.String-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.e(String, String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -508,13 +552,13 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>e</h4>
-<pre>public static&nbsp;void&nbsp;e(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;tag,
-                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;message,
+<pre>public static&nbsp;void&nbsp;e&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
+                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
-                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</pre>
+                     <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/util/Log.html#e-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" target="_top"><code>Log.e(String, String, Throwable)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/util/Log.html#e-java.lang.String-java.lang.String-java.lang.Throwable-" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.e(String, String, Throwable)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -525,19 +569,19 @@ public static&nbsp;int&nbsp;getLogLevel()</pre>
 <li class="blockList">
 <h4>getThrowableString</h4>
 <pre>@Nullable
-public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;getThrowableString(@Nullable
-                                                  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a>&nbsp;throwable)</pre>
-<div class="block">Returns a string representation of a <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a> suitable for logging, taking into
+public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getThrowableString&#8203;(@Nullable
+                                        <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
+<div class="block">Returns a string representation of a <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a> suitable for logging, taking into
  account whether <a href="../../../../../com/google/android/exoplayer2/util/Log.html#setLogStackTraces-boolean-"><code>setLogStackTraces(boolean)</code></a> stack trace logging} is enabled.
 
  <p>Stack trace logging may be unconditionally suppressed for some expected failure modes (e.g.,
- <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwables</code></a> that are expected if the device doesn't have network connectivity)
+ <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwables</code></a> that are expected if the device doesn't have network connectivity)
  to avoid log spam.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>throwable</code> - The <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a>.</dd>
+<dd><code>throwable</code> - The <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The string representation of the <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top"><code>Throwable</code></a>.</dd>
+<dd>The string representation of the <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -589,6 +633,9 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

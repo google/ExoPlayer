@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>com.google.android.exoplayer2.drm (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -16,10 +25,11 @@
     catch(err) {
     }
 //-->
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -50,6 +60,12 @@
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -61,18 +77,27 @@
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <a name="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.drm</h1>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Interface Summary table, listing interfaces, and an explanation">
+<table class="typeSummary" summary="Interface Summary table, listing interfaces, and an explanation">
 <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Interface</th>
@@ -80,55 +105,55 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></th>
 <td class="colLast">
 <div class="block">A DRM session.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a></th>
 <td class="colLast">
 <div class="block">Listener of <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> events.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a></th>
 <td class="colLast">
 <div class="block">Manages a DRM session.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></th>
 <td class="colLast">
-<div class="block">An opaque <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" target="_top"><code>MediaCrypto</code></a> equivalent.</div>
+<div class="block">An opaque <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCrypto</code></a> equivalent.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></th>
 <td class="colLast">
 <div class="block">Used to obtain keys for decrypting protected media streams.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a></th>
 <td class="colLast">
 <div class="block"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instances provider.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a></th>
 <td class="colLast">
 <div class="block">Performs <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> key and provisioning requests.</div>
 </td>
@@ -137,7 +162,7 @@
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Class Summary table, listing classes, and an explanation">
+<table class="typeSummary" summary="Class Summary table, listing classes, and an explanation">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -145,104 +170,104 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></th>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> that supports playbacks using <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></th>
 <td class="colLast">
 <div class="block">Builder for <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></th>
 <td class="colLast">
 <div class="block">Initialization data for one or more DRM schemes.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></th>
 <td class="colLast">
 <div class="block">Scheme initialization data.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a></th>
 <td class="colLast">
 <div class="block">Dispatches events to <a href="../../../../../com/google/android/exoplayer2/drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionEventListeners</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DummyExoMediaDrm.html" title="class in com.google.android.exoplayer2.drm">DummyExoMediaDrm</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DummyExoMediaDrm.html" title="class in com.google.android.exoplayer2.drm">DummyExoMediaDrm</a></th>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> that does not support any protection schemes.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="class in com.google.android.exoplayer2.drm">ErrorStateDrmSession</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ErrorStateDrmSession.html" title="class in com.google.android.exoplayer2.drm">ErrorStateDrmSession</a></th>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> that's in a terminal error state.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.AppManagedProvider.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.AppManagedProvider</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.AppManagedProvider.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.AppManagedProvider</a></th>
 <td class="colLast">
 <div class="block">Provides an <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instance owned by the app.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaCrypto</a></th>
 <td class="colLast">
 <div class="block">An <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> implementation that contains the necessary information to build or
- update a framework <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" target="_top"><code>MediaCrypto</code></a>.</div>
+ update a framework <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCrypto</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaDrm</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/FrameworkMediaDrm.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaDrm</a></th>
 <td class="colLast">
-<div class="block">An <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> implementation that wraps the framework <a href="https://developer.android.com/reference/android/media/MediaDrm.html" title="class or interface in android.media" target="_top"><code>MediaDrm</code></a>.</div>
+<div class="block">An <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> implementation that wraps the framework <a href="https://developer.android.com/reference/android/media/MediaDrm.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm">HttpMediaDrmCallback</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/HttpMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm">HttpMediaDrmCallback</a></th>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm"><code>MediaDrmCallback</code></a> that makes requests using <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/LocalMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm">LocalMediaDrmCallback</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/LocalMediaDrmCallback.html" title="class in com.google.android.exoplayer2.drm">LocalMediaDrmCallback</a></th>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm"><code>MediaDrmCallback</code></a> that provides a fixed response to key requests.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a></th>
 <td class="colLast">
 <div class="block">Helper class to download, renew and release offline licenses.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">UnsupportedMediaCrypto</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedMediaCrypto.html" title="class in com.google.android.exoplayer2.drm">UnsupportedMediaCrypto</a></th>
 <td class="colLast">
 <div class="block"><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type that cannot be used to handle any type of protected content.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/WidevineUtil.html" title="class in com.google.android.exoplayer2.drm">WidevineUtil</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/WidevineUtil.html" title="class in com.google.android.exoplayer2.drm">WidevineUtil</a></th>
 <td class="colLast">
 <div class="block">Utility methods for Widevine.</div>
 </td>
@@ -251,7 +276,7 @@
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Exception Summary table, listing exceptions, and an explanation">
+<table class="typeSummary" summary="Exception Summary table, listing exceptions, and an explanation">
 <caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Exception</th>
@@ -259,39 +284,39 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionException.html" title="class in com.google.android.exoplayer2.drm">DecryptionException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DecryptionException.html" title="class in com.google.android.exoplayer2.drm">DecryptionException</a></th>
 <td class="colLast">
 <div class="block">Thrown when a non-platform component fails to decrypt data.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.MissingSchemeDataException.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.MissingSchemeDataException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.MissingSchemeDataException.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.MissingSchemeDataException</a></th>
 <td class="colLast">
 <div class="block">Signals that the <a href="../../../../../com/google/android/exoplayer2/Format.html#drmInitData"><code>Format.drmInitData</code></a> passed to <a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.html#acquireSession-android.os.Looper-com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher-com.google.android.exoplayer2.Format-"><code>DefaultDrmSessionManager.acquireSession(android.os.Looper, com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> does not contain
  scheme data for the required UUID.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></th>
 <td class="colLast">
 <div class="block">Wraps the throwable which is the cause of the error state.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/KeysExpiredException.html" title="class in com.google.android.exoplayer2.drm">KeysExpiredException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/KeysExpiredException.html" title="class in com.google.android.exoplayer2.drm">KeysExpiredException</a></th>
 <td class="colLast">
 <div class="block">Thrown when the drm keys loaded into an open session expire.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallbackException.html" title="class in com.google.android.exoplayer2.drm">MediaDrmCallbackException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallbackException.html" title="class in com.google.android.exoplayer2.drm">MediaDrmCallbackException</a></th>
 <td class="colLast">
 <div class="block">Thrown when an error occurs while executing a DRM <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html#executeKeyRequest-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest-"><code>key</code></a>
  or <a href="../../../../../com/google/android/exoplayer2/drm/MediaDrmCallback.html#executeProvisionRequest-java.util.UUID-com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest-"><code>provisioning</code></a> request.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.html" title="class in com.google.android.exoplayer2.drm">UnsupportedDrmException</a></th>
 <td class="colLast">
 <div class="block">Thrown when the requested DRM scheme is not supported.</div>
 </td>
@@ -300,7 +325,7 @@
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Annotation Types Summary table, listing annotation types, and an explanation">
+<table class="typeSummary" summary="Annotation Types Summary table, listing annotation types, and an explanation">
 <caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Annotation Type</th>
@@ -308,19 +333,19 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Mode.html" title="annotation in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Mode</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DefaultDrmSessionManager.Mode.html" title="annotation in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Mode</a></th>
 <td class="colLast">
 <div class="block">Determines the action to be done after a session acquired.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">DrmSession.State</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">DrmSession.State</a></th>
 <td class="colLast">
 <div class="block">The state of the DRM session.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.Reason.html" title="annotation in com.google.android.exoplayer2.drm">UnsupportedDrmException.Reason</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/drm/UnsupportedDrmException.Reason.html" title="annotation in com.google.android.exoplayer2.drm">UnsupportedDrmException.Reason</a></th>
 <td class="colLast">
 <div class="block">The reason for the exception.</div>
 </td>
@@ -371,6 +396,9 @@
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <a name="skip.navbar.bottom">
 <!--   -->

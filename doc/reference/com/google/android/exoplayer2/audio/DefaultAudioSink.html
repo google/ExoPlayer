@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>DefaultAudioSink (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.audio</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/audio/package-summary.html">com.google.android.exoplayer2.audio</a></div>
 <h2 title="Class DefaultAudioSink" class="title">Class DefaultAudioSink</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.audio.DefaultAudioSink</li>
@@ -106,14 +131,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public final class <span class="typeNameLabel">DefaultAudioSink</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></pre>
-<div class="block">Plays audio data. The implementation delegates to an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a> and handles playback
+<div class="block">Plays audio data. The implementation delegates to an <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> and handles playback
  position smoothing, non-blocking writes and reconfiguration.
 
  <p>If tunneling mode is enabled, care must be taken that audio processors do not output buffers
@@ -132,29 +156,33 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></span></code></th>
+<td class="colLast">
 <div class="block">Provides a chain of audio processors, which are used for any user-defined processing and
  applying playback parameters (if supported).</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></span></code></th>
+<td class="colLast">
 <div class="block">The default audio processor chain, which applies a (possibly empty) chain of user-defined audio
  processors followed by <a href="../../../../../com/google/android/exoplayer2/audio/SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SilenceSkippingAudioProcessor</code></a> and <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html" title="class in com.google.android.exoplayer2.audio"><code>SonicAudioProcessor</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.InvalidAudioTrackTimestampException</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.InvalidAudioTrackTimestampException</a></span></code></th>
+<td class="colLast">
 <div class="block">Thrown when the audio track has provided a spurious timestamp, if <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp"><code>failOnSpuriousAudioTimestamp</code></a> is set.</div>
 </td>
 </tr>
@@ -174,21 +202,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DEFAULT_PLAYBACK_SPEED">DEFAULT_PLAYBACK_SPEED</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DEFAULT_PLAYBACK_SPEED">DEFAULT_PLAYBACK_SPEED</a></span></code></th>
+<td class="colLast">
 <div class="block">The default playback speed.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#enablePreV21AudioSessionWorkaround">enablePreV21AudioSessionWorkaround</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#enablePreV21AudioSessionWorkaround">enablePreV21AudioSessionWorkaround</a></span></code></th>
+<td class="colLast">
 <div class="block">Whether to enable a workaround for an issue where an audio effect does not keep its session
  active across releasing/initializing a new audio track, on platform builds where
  <a href="../../../../../com/google/android/exoplayer2/util/Util.html#SDK_INT"><code>Util.SDK_INT</code></a> &lt; 21.</div>
@@ -196,32 +227,37 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp">failOnSpuriousAudioTimestamp</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#failOnSpuriousAudioTimestamp">failOnSpuriousAudioTimestamp</a></span></code></th>
+<td class="colLast">
 <div class="block">Whether to throw an <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.InvalidAudioTrackTimestampException</code></a> when a spurious timestamp is
- reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media" target="_top"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.</div>
+ reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MAX_PITCH">MAX_PITCH</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MAX_PITCH">MAX_PITCH</a></span></code></th>
+<td class="colLast">
 <div class="block">The maximum allowed pitch factor.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MAX_PLAYBACK_SPEED">MAX_PLAYBACK_SPEED</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MAX_PLAYBACK_SPEED">MAX_PLAYBACK_SPEED</a></span></code></th>
+<td class="colLast">
 <div class="block">The maximum allowed playback speed.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MIN_PITCH">MIN_PITCH</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MIN_PITCH">MIN_PITCH</a></span></code></th>
+<td class="colLast">
 <div class="block">The minimum allowed pitch factor.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MIN_PLAYBACK_SPEED">MIN_PLAYBACK_SPEED</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#MIN_PLAYBACK_SPEED">MIN_PLAYBACK_SPEED</a></span></code></th>
+<td class="colLast">
 <div class="block">The minimum allowed playback speed.</div>
 </td>
 </tr>
@@ -241,30 +277,34 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
-                <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</code>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-">DefaultAudioSink</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
+                <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</code></th>
+<td class="colLast">
 <div class="block">Creates a new default audio sink.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-boolean-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.AudioProcessor:A-boolean-">DefaultAudioSink</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                 <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
-                boolean&nbsp;enableFloatOutput)</code>
+                boolean&nbsp;enableFloatOutput)</code></th>
+<td class="colLast">
 <div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain-boolean-boolean-boolean-">DefaultAudioSink</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#DefaultAudioSink-com.google.android.exoplayer2.audio.AudioCapabilities-com.google.android.exoplayer2.audio.DefaultAudioSink.AudioProcessorChain-boolean-boolean-boolean-">DefaultAudioSink</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                 <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain,
                 boolean&nbsp;enableFloatOutput,
                 boolean&nbsp;enableAudioTrackPlaybackParams,
-                boolean&nbsp;enableOffload)</code>
+                boolean&nbsp;enableOffload)</code></th>
+<td class="colLast">
 <div class="block">Creates a new default audio sink, optionally using float output for high resolution PCM and
  with the specified <code>audioProcessorChain</code>.</div>
 </td>
@@ -278,164 +318,190 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-">configure</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-">configure</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
          int&nbsp;specifiedBufferSize,
-         int[]&nbsp;outputChannels)</code>
+         int[]&nbsp;outputChannels)</code></th>
+<td class="colLast">
 <div class="block">Configures (or reconfigures) the sink.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#disableTunneling--">disableTunneling</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#disableTunneling--">disableTunneling</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Disables tunneling.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#enableTunnelingV21-int-">enableTunnelingV21</a></span>(int&nbsp;tunnelingAudioSessionId)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#enableTunnelingV21-int-">enableTunnelingV21</a></span>&#8203;(int&nbsp;tunnelingAudioSessionId)</code></th>
+<td class="colLast">
 <div class="block">Enables tunneling, if possible.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#experimentalFlushWithoutAudioTrackRelease--">experimentalFlushWithoutAudioTrackRelease</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#experimentalFlushWithoutAudioTrackRelease--">experimentalFlushWithoutAudioTrackRelease</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#flush--">flush</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#flush--">flush</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getCurrentPositionUs-boolean-">getCurrentPositionUs</a></span>(boolean&nbsp;sourceEnded)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getCurrentPositionUs-boolean-">getCurrentPositionUs</a></span>&#8203;(boolean&nbsp;sourceEnded)</code></th>
+<td class="colLast">
 <div class="block">Returns the playback position in the stream starting at zero, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#CURRENT_POSITION_NOT_SET"><code>AudioSink.CURRENT_POSITION_NOT_SET</code></a> if it is not yet available.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getFormatSupport-com.google.android.exoplayer2.Format-">getFormatSupport</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getFormatSupport-com.google.android.exoplayer2.Format-">getFormatSupport</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
 <div class="block">Returns the level of support that the sink provides for a given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getPlaybackParameters--">getPlaybackParameters</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getPlaybackParameters--">getPlaybackParameters</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the active <a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getSkipSilenceEnabled--">getSkipSilenceEnabled</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#getSkipSilenceEnabled--">getSkipSilenceEnabled</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether silences are skipped in the audio stream.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-int-">handleBuffer</a></span>(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#handleBuffer-java.nio.ByteBuffer-long-int-">handleBuffer</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
             long&nbsp;presentationTimeUs,
-            int&nbsp;encodedAccessUnitCount)</code>
-<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
+            int&nbsp;encodedAccessUnitCount)</code></th>
+<td class="colLast">
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
  ending at its limit (exclusive).</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#handleDiscontinuity--">handleDiscontinuity</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#handleDiscontinuity--">handleDiscontinuity</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#hasPendingData--">hasPendingData</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#hasPendingData--">hasPendingData</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the sink has data pending that has not been consumed yet.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#isEnded--">isEnded</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#isEnded--">isEnded</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#playToEndOfStream--"><code>AudioSink.playToEndOfStream()</code></a> has been called and all buffers have been processed.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#pause--">pause</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#pause--">pause</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Pauses playback.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#play--">play</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#play--">play</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Starts or resumes consuming audio if initialized.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#playToEndOfStream--">playToEndOfStream</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#playToEndOfStream--">playToEndOfStream</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Processes any remaining data.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#reset--">reset</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#reset--">reset</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Resets the renderer, releasing any resources that it currently holds.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">setAudioAttributes</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">setAudioAttributes</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
+<td class="colLast">
 <div class="block">Sets attributes for audio playback.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setAudioSessionId-int-">setAudioSessionId</a></span>(int&nbsp;audioSessionId)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setAudioSessionId-int-">setAudioSessionId</a></span>&#8203;(int&nbsp;audioSessionId)</code></th>
+<td class="colLast">
 <div class="block">Sets the audio session id.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">setAuxEffectInfo</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">setAuxEffectInfo</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code></th>
+<td class="colLast">
 <div class="block">Sets the auxiliary effect.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setListener-com.google.android.exoplayer2.audio.AudioSink.Listener-">setListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setListener-com.google.android.exoplayer2.audio.AudioSink.Listener-">setListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Sets the listener for sink events, which should be the audio renderer.</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">setPlaybackParameters</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
+<td class="colLast">
 <div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setSkipSilenceEnabled-boolean-">setSkipSilenceEnabled</a></span>(boolean&nbsp;skipSilenceEnabled)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setSkipSilenceEnabled-boolean-">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
+<td class="colLast">
 <div class="block">Sets whether silences should be skipped in the audio stream.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setVolume-float-">setVolume</a></span>(float&nbsp;volume)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#setVolume-float-">setVolume</a></span>&#8203;(float&nbsp;volume)</code></th>
+<td class="colLast">
 <div class="block">Sets the playback volume.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.html#supportsFormat-com.google.android.exoplayer2.Format-">supportsFormat</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
 <div class="block">Returns whether the sink supports a given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -444,8 +510,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -553,7 +619,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <h4>failOnSpuriousAudioTimestamp</h4>
 <pre>public static&nbsp;boolean failOnSpuriousAudioTimestamp</pre>
 <div class="block">Whether to throw an <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.InvalidAudioTrackTimestampException.html" title="class in com.google.android.exoplayer2.audio"><code>DefaultAudioSink.InvalidAudioTrackTimestampException</code></a> when a spurious timestamp is
- reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media" target="_top"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.
+ reported from <a href="https://developer.android.com/reference/android/media/AudioTrack.html#getTimestamp-android.media.AudioTimestamp-" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.getTimestamp(android.media.AudioTimestamp)</code></a>.
  <p>
  The flag must be set before creating a player. Should be set to <code>true</code> for testing and
  debugging purposes only.</div>
@@ -573,7 +639,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultAudioSink</h4>
-<pre>public&nbsp;DefaultAudioSink(@Nullable
+<pre>public&nbsp;DefaultAudioSink&#8203;(@Nullable
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors)</pre>
 <div class="block">Creates a new default audio sink.</div>
@@ -592,7 +658,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultAudioSink</h4>
-<pre>public&nbsp;DefaultAudioSink(@Nullable
+<pre>public&nbsp;DefaultAudioSink&#8203;(@Nullable
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;audioProcessors,
                         boolean&nbsp;enableFloatOutput)</pre>
@@ -616,7 +682,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultAudioSink</h4>
-<pre>public&nbsp;DefaultAudioSink(@Nullable
+<pre>public&nbsp;DefaultAudioSink&#8203;(@Nullable
                         <a href="../../../../../com/google/android/exoplayer2/audio/AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                         <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a>&nbsp;audioProcessorChain,
                         boolean&nbsp;enableFloatOutput,
@@ -635,10 +701,10 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
      (24-bit or 32-bit) integer PCM. Float output is supported from API level 21. Audio
      processing (for example, speed adjustment) will not be available when float output is in
      use.</dd>
-<dd><code>enableAudioTrackPlaybackParams</code> - Whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, if supported.</dd>
+<dd><code>enableAudioTrackPlaybackParams</code> - Whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, if supported.</dd>
 <dd><code>enableOffload</code> - Whether to enable audio offload. If an audio format can be both played
      with offload and encoded audio passthrough, it will be played in offload. Audio offload is
-     supported from API level 29. Most Android devices can only support one offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a> at a time and can invalidate it at any time. Thus an app can
+     supported from API level 29. Most Android devices can only support one offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> at a time and can invalidate it at any time. Thus an app can
      never be guaranteed that it will be able to play in offload. Audio processing (for example,
      speed adjustment) will not be available when offload is in use.</dd>
 </dl>
@@ -658,7 +724,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <ul class="blockList">
 <li class="blockList">
 <h4>setListener</h4>
-<pre>public&nbsp;void&nbsp;setListener(<a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</pre>
+<pre>public&nbsp;void&nbsp;setListener&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setListener-com.google.android.exoplayer2.audio.AudioSink.Listener-">AudioSink</a></code></span></div>
 <div class="block">Sets the listener for sink events, which should be the audio renderer.</div>
 <dl>
@@ -675,7 +741,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <ul class="blockList">
 <li class="blockList">
 <h4>supportsFormat</h4>
-<pre>public&nbsp;boolean&nbsp;supportsFormat(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<pre>public&nbsp;boolean&nbsp;supportsFormat&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#supportsFormat-com.google.android.exoplayer2.Format-">AudioSink</a></code></span></div>
 <div class="block">Returns whether the sink supports a given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
@@ -694,8 +760,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink
 <ul class="blockList">
 <li class="blockList">
 <h4>getFormatSupport</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">@AudioSink.SinkFormatSupport</a>
-public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<pre><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">@SinkFormatSupport</a>
+public&nbsp;int&nbsp;getFormatSupport&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#getFormatSupport-com.google.android.exoplayer2.Format-">AudioSink</a></code></span></div>
 <div class="block">Returns the level of support that the sink provides for a given <a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
@@ -714,7 +780,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>getCurrentPositionUs</h4>
-<pre>public&nbsp;long&nbsp;getCurrentPositionUs(boolean&nbsp;sourceEnded)</pre>
+<pre>public&nbsp;long&nbsp;getCurrentPositionUs&#8203;(boolean&nbsp;sourceEnded)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#getCurrentPositionUs-boolean-">AudioSink</a></code></span></div>
 <div class="block">Returns the playback position in the stream starting at zero, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#CURRENT_POSITION_NOT_SET"><code>AudioSink.CURRENT_POSITION_NOT_SET</code></a> if it is not yet available.</div>
 <dl>
@@ -733,7 +799,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre>public&nbsp;void&nbsp;configure(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
+<pre>public&nbsp;void&nbsp;configure&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;inputFormat,
                       int&nbsp;specifiedBufferSize,
                       @Nullable
                       int[]&nbsp;outputChannels)
@@ -793,19 +859,19 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>handleBuffer</h4>
-<pre>public&nbsp;boolean&nbsp;handleBuffer(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top">ByteBuffer</a>&nbsp;buffer,
+<pre>public&nbsp;boolean&nbsp;handleBuffer&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
                             long&nbsp;presentationTimeUs,
                             int&nbsp;encodedAccessUnitCount)
                      throws <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>,
                             <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#handleBuffer-java.nio.ByteBuffer-long-int-">AudioSink</a></code></span></div>
-<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
- ending at its limit (exclusive). The position of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> is advanced by the
+<div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
+ ending at its limit (exclusive). The position of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> is advanced by the
  number of bytes that were handled. <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.Listener.html#onPositionDiscontinuity--"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a> will be called if
  <code>presentationTimeUs</code> is discontinuous with the last buffer handled since the last reset.
 
  <p>Returns whether the data was handled in full. If the data was not handled in full then the
- same <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" target="_top"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
+ same <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> must be provided to subsequent calls until it has been fully consumed,
  except in the case of an intervening call to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#flush--"><code>AudioSink.flush()</code></a> (or to <a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#configure-com.google.android.exoplayer2.Format-int-int:A-"><code>AudioSink.configure(Format,
  int, int[])</code></a> that causes the sink to be flushed).</div>
 <dl>
@@ -879,7 +945,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
-<pre>public&nbsp;void&nbsp;setPlaybackParameters(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<pre>public&nbsp;void&nbsp;setPlaybackParameters&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setPlaybackParameters-com.google.android.exoplayer2.PlaybackParameters-">AudioSink</a></code></span></div>
 <div class="block">Attempts to set the playback parameters. The audio sink may override these parameters if they
  are not supported.</div>
@@ -912,7 +978,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>setSkipSilenceEnabled</h4>
-<pre>public&nbsp;void&nbsp;setSkipSilenceEnabled(boolean&nbsp;skipSilenceEnabled)</pre>
+<pre>public&nbsp;void&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setSkipSilenceEnabled-boolean-">AudioSink</a></code></span></div>
 <div class="block">Sets whether silences should be skipped in the audio stream.</div>
 <dl>
@@ -942,7 +1008,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioAttributes</h4>
-<pre>public&nbsp;void&nbsp;setAudioAttributes(<a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
+<pre>public&nbsp;void&nbsp;setAudioAttributes&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioAttributes-com.google.android.exoplayer2.audio.AudioAttributes-">AudioSink</a></code></span></div>
 <div class="block">Sets attributes for audio playback. If the attributes have changed and if the sink is not
  configured for use with tunneling, then it is reset and the audio session id is cleared.
@@ -964,7 +1030,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioSessionId</h4>
-<pre>public&nbsp;void&nbsp;setAudioSessionId(int&nbsp;audioSessionId)</pre>
+<pre>public&nbsp;void&nbsp;setAudioSessionId&#8203;(int&nbsp;audioSessionId)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAudioSessionId-int-">AudioSink</a></code></span></div>
 <div class="block">Sets the audio session id.</div>
 <dl>
@@ -979,7 +1045,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>setAuxEffectInfo</h4>
-<pre>public&nbsp;void&nbsp;setAuxEffectInfo(<a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</pre>
+<pre>public&nbsp;void&nbsp;setAuxEffectInfo&#8203;(<a href="../../../../../com/google/android/exoplayer2/audio/AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setAuxEffectInfo-com.google.android.exoplayer2.audio.AuxEffectInfo-">AudioSink</a></code></span></div>
 <div class="block">Sets the auxiliary effect.</div>
 <dl>
@@ -994,11 +1060,11 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>enableTunnelingV21</h4>
-<pre>public&nbsp;void&nbsp;enableTunnelingV21(int&nbsp;tunnelingAudioSessionId)</pre>
+<pre>public&nbsp;void&nbsp;enableTunnelingV21&#8203;(int&nbsp;tunnelingAudioSessionId)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-">AudioSink</a></code></span></div>
 <div class="block">Enables tunneling, if possible. The sink is reset if tunneling was previously disabled or if
  the audio session id has changed. Enabling tunneling is only possible if the sink is based on a
- platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a>, and requires platform API version 21 onwards.</div>
+ platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>, and requires platform API version 21 onwards.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#enableTunnelingV21-int-">enableTunnelingV21</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></dd>
@@ -1029,7 +1095,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <ul class="blockList">
 <li class="blockList">
 <h4>setVolume</h4>
-<pre>public&nbsp;void&nbsp;setVolume(float&nbsp;volume)</pre>
+<pre>public&nbsp;void&nbsp;setVolume&#8203;(float&nbsp;volume)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#setVolume-float-">AudioSink</a></code></span></div>
 <div class="block">Sets the playback volume.</div>
 <dl>
@@ -1082,7 +1148,7 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/AudioSink.html#experimentalFlushWithoutAudioTrackRelease--">AudioSink</a></code></span></div>
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.
 
- <p>Does not release the <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a> held by the sink.
+ <p>Does not release the <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> held by the sink.
 
  <p>This method is experimental, and will be renamed or removed in a future release.
 
@@ -1156,6 +1222,9 @@ public&nbsp;int&nbsp;getFormatSupport(<a href="../../../../../com/google/android
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

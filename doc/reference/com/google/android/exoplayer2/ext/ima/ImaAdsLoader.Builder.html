@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>ImaAdsLoader.Builder (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -16,16 +25,17 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var methods = {"i0":10,"i1":42,"i2":42,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.ext.ima</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/package-summary.html">com.google.android.exoplayer2.ext.ima</a></div>
 <h2 title="Class ImaAdsLoader.Builder" class="title">Class ImaAdsLoader.Builder</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.ext.ima.ImaAdsLoader.Builder</li>
@@ -109,9 +134,8 @@ var activeTableTab = "activeTableTab";
 <dd><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a></dd>
 </dl>
 <hr>
-<br>
 <pre>public static final class <span class="typeNameLabel">ImaAdsLoader.Builder</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">Builder for <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a>.</div>
 </li>
 </ul>
@@ -125,15 +149,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#DEFAULT_AD_PRELOAD_TIMEOUT_MS">DEFAULT_AD_PRELOAD_TIMEOUT_MS</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#DEFAULT_AD_PRELOAD_TIMEOUT_MS">DEFAULT_AD_PRELOAD_TIMEOUT_MS</a></span></code></th>
+<td class="colLast">
 <div class="block">The default duration in milliseconds for which the player must buffer while preloading an ad
  group before that ad group is skipped and marked as having failed to load.</div>
 </td>
@@ -147,13 +173,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#Builder-android.content.Context-">Builder</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</code>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#Builder-android.content.Context-">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
+<td class="colLast">
 <div class="block">Creates a new builder for <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a>.</div>
 </td>
 </tr>
@@ -166,89 +194,138 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#buildForAdsResponse-java.lang.String-">buildForAdsResponse</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adsResponse)</code>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a> with the specified sideloaded ads response.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#build--">build</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#buildForAdTag-android.net.Uri-">buildForAdTag</a></span>(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;adTagUri)</code>
-<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a> for the specified ad tag.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#buildForAdsResponse-java.lang.String-">buildForAdsResponse</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adsResponse)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Pass the ads response as a data URI when setting media item playback properties
+     (if using the media item API) or as a <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> when constructing the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> (if using media sources directly).</div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdErrorListener-com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener-">setAdErrorListener</a></span>(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</code>
-<div class="block">Sets a listener for ad errors that will be passed to <code>AdsLoader#addAdErrorListener(AdErrorListener)</code> and <code>AdsManager#addAdErrorListener(AdErrorListener)</code>.</div>
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#buildForAdTag-android.net.Uri-">buildForAdTag</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Pass the ad tag URI when setting media item playback properties (if using the
+     media item API) or as a <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> when constructing the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> (if
+     using media sources directly).</div>
+</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdEventListener-com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener-">setAdEventListener</a></span>(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</code>
-<div class="block">Sets a listener for ad events that will be passed to <code>AdsManager#addAdEventListener(AdEventListener)</code>.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdErrorListener-com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener-">setAdErrorListener</a></span>&#8203;(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</code></th>
+<td class="colLast">
+<div class="block">Sets a listener for ad errors that will be passed to <code>AdsLoader.addAdErrorListener(AdErrorListener)</code> and <code>BaseManager.addAdErrorListener(AdErrorListener)</code>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdPreloadTimeoutMs-long-">setAdPreloadTimeoutMs</a></span>(long&nbsp;adPreloadTimeoutMs)</code>
-<div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
- group before that ad group is skipped and marked as having failed to load.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdEventListener-com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener-">setAdEventListener</a></span>&#8203;(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</code></th>
+<td class="colLast">
+<div class="block">Sets a listener for ad events that will be passed to <code>BaseManager.addAdEventListener(AdEventListener)</code>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdUiElements-java.util.Set-">setAdUiElements</a></span>(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</code>
-<div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdMediaMimeTypes-java.util.List-">setAdMediaMimeTypes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;adMediaMimeTypes)</code></th>
+<td class="colLast">
+<div class="block">Sets the MIME types to prioritize for linear ad media.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setCompanionAdSlots-java.util.Collection-">setCompanionAdSlots</a></span>(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</code>
-<div class="block">Sets the slots to use for companion ads, if they are present in the loaded ad.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdPreloadTimeoutMs-long-">setAdPreloadTimeoutMs</a></span>&#8203;(long&nbsp;adPreloadTimeoutMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
+ group before that ad group is skipped and marked as having failed to load.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setFocusSkipButtonWhenAvailable-boolean-">setFocusSkipButtonWhenAvailable</a></span>(boolean&nbsp;focusSkipButtonWhenAvailable)</code>
-<div class="block">Sets whether to focus the skip button (when available) on Android TV devices.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setAdUiElements-java.util.Set-">setAdUiElements</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</code></th>
+<td class="colLast">
+<div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setImaSdkSettings-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">setImaSdkSettings</a></span>(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code>
-<div class="block">Sets the IMA SDK settings.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setCompanionAdSlots-java.util.Collection-">setCompanionAdSlots</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</code></th>
+<td class="colLast">
+<div class="block">Sets the slots to use for companion ads, if they are present in the loaded ad.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMaxMediaBitrate-int-">setMaxMediaBitrate</a></span>(int&nbsp;bitrate)</code>
-<div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setDebugModeEnabled-boolean-">setDebugModeEnabled</a></span>&#8203;(boolean&nbsp;debugModeEnabled)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to enable outputting verbose logs for the IMA extension and IMA SDK.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMediaLoadTimeoutMs-int-">setMediaLoadTimeoutMs</a></span>(int&nbsp;mediaLoadTimeoutMs)</code>
-<div class="block">Sets the ad media load timeout, in milliseconds.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setFocusSkipButtonWhenAvailable-boolean-">setFocusSkipButtonWhenAvailable</a></span>&#8203;(boolean&nbsp;focusSkipButtonWhenAvailable)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to focus the skip button (when available) on Android TV devices.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setPlayAdBeforeStartPosition-boolean-">setPlayAdBeforeStartPosition</a></span>(boolean&nbsp;playAdBeforeStartPosition)</code>
-<div class="block">Sets whether to play an ad before the start position when beginning playback.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setImaSdkSettings-com.google.ads.interactivemedia.v3.api.ImaSdkSettings-">setImaSdkSettings</a></span>&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</code></th>
+<td class="colLast">
+<div class="block">Sets the IMA SDK settings.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-int-">setVastLoadTimeoutMs</a></span>(int&nbsp;vastLoadTimeoutMs)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMaxMediaBitrate-int-">setMaxMediaBitrate</a></span>&#8203;(int&nbsp;bitrate)</code></th>
+<td class="colLast">
+<div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setMediaLoadTimeoutMs-int-">setMediaLoadTimeoutMs</a></span>&#8203;(int&nbsp;mediaLoadTimeoutMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the ad media load timeout, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setPlayAdBeforeStartPosition-boolean-">setPlayAdBeforeStartPosition</a></span>&#8203;(boolean&nbsp;playAdBeforeStartPosition)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to play an ad before the start position when beginning playback.</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVastLoadTimeoutMs-int-">setVastLoadTimeoutMs</a></span>&#8203;(int&nbsp;vastLoadTimeoutMs)</code></th>
+<td class="colLast">
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#setVideoAdPlayerCallback-com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback-">setVideoAdPlayerCallback</a></span>&#8203;(com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback&nbsp;videoAdPlayerCallback)</code></th>
+<td class="colLast">
+<div class="block">Sets a callback to receive video ad player events.</div>
 </td>
 </tr>
 </table>
@@ -256,8 +333,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -306,7 +383,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
-<pre>public&nbsp;Builder(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</pre>
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
 <div class="block">Creates a new builder for <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -328,7 +405,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setImaSdkSettings</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setImaSdkSettings(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setImaSdkSettings&#8203;(com.google.ads.interactivemedia.v3.api.ImaSdkSettings&nbsp;imaSdkSettings)</pre>
 <div class="block">Sets the IMA SDK settings. The provided settings instance's player type and version fields
  may be overwritten.
 
@@ -347,8 +424,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdErrorListener</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdErrorListener(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</pre>
-<div class="block">Sets a listener for ad errors that will be passed to <code>AdsLoader#addAdErrorListener(AdErrorListener)</code> and <code>AdsManager#addAdErrorListener(AdErrorListener)</code>.</div>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdErrorListener&#8203;(com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener&nbsp;adErrorListener)</pre>
+<div class="block">Sets a listener for ad errors that will be passed to <code>AdsLoader.addAdErrorListener(AdErrorListener)</code> and <code>BaseManager.addAdErrorListener(AdErrorListener)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adErrorListener</code> - The ad error listener.</dd>
@@ -363,13 +440,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdEventListener</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdEventListener(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</pre>
-<div class="block">Sets a listener for ad events that will be passed to <code>AdsManager#addAdEventListener(AdEventListener)</code>.</div>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdEventListener&#8203;(com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener&nbsp;adEventListener)</pre>
+<div class="block">Sets a listener for ad events that will be passed to <code>BaseManager.addAdEventListener(AdEventListener)</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>adEventListener</code> - The ad event listener.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a name="setVideoAdPlayerCallback-com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoAdPlayerCallback</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVideoAdPlayerCallback&#8203;(com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback&nbsp;videoAdPlayerCallback)</pre>
+<div class="block">Sets a callback to receive video ad player events. Note that these events are handled
+ internally by the IMA SDK and this ads loader. For analytics and diagnostics, new
+ implementations should generally use events from the top-level <a href="../../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> listeners
+ instead of setting a callback via this method.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>videoAdPlayerCallback</code> - The callback to receive video ad player events.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>VideoAdPlayer.VideoAdPlayerCallback</code></dd>
 </dl>
 </li>
 </ul>
@@ -379,7 +477,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdUiElements</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdUiElements(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdUiElements&#8203;(<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink" target="_top">Set</a>&lt;com.google.ads.interactivemedia.v3.api.UiElement&gt;&nbsp;adUiElements)</pre>
 <div class="block">Sets the ad UI elements to be rendered by the IMA SDK.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -397,7 +495,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setCompanionAdSlots</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setCompanionAdSlots(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setCompanionAdSlots&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;com.google.ads.interactivemedia.v3.api.CompanionAdSlot&gt;&nbsp;companionAdSlots)</pre>
 <div class="block">Sets the slots to use for companion ads, if they are present in the loaded ad.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -409,13 +507,32 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a name="setAdMediaMimeTypes-java.util.List-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAdMediaMimeTypes</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdMediaMimeTypes&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;adMediaMimeTypes)</pre>
+<div class="block">Sets the MIME types to prioritize for linear ad media. If not specified, MIME types supported
+ by the <a href="../../../../../../com/google/android/exoplayer2/source/MediaSourceFactory.html" title="interface in com.google.android.exoplayer2.source"><code>adMediaSourceFactory</code></a> used to construct the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> will be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adMediaMimeTypes</code> - The MIME types to prioritize for linear ad media. May contain <a href="../../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_MPD"><code>MimeTypes.APPLICATION_MPD</code></a>, <a href="../../../../../../com/google/android/exoplayer2/util/MimeTypes.html#APPLICATION_M3U8"><code>MimeTypes.APPLICATION_M3U8</code></a>, <a href="../../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_MP4"><code>MimeTypes.VIDEO_MP4</code></a>, <a href="../../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_WEBM"><code>MimeTypes.VIDEO_WEBM</code></a>, <a href="../../../../../../com/google/android/exoplayer2/util/MimeTypes.html#VIDEO_H263"><code>MimeTypes.VIDEO_H263</code></a>, <a href="../../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MP4"><code>MimeTypes.AUDIO_MP4</code></a> and <a href="../../../../../../com/google/android/exoplayer2/util/MimeTypes.html#AUDIO_MPEG"><code>MimeTypes.AUDIO_MPEG</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>AdsRenderingSettings.setMimeTypes(List)</code></dd>
+</dl>
+</li>
+</ul>
 <a name="setAdPreloadTimeoutMs-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setAdPreloadTimeoutMs</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdPreloadTimeoutMs(long&nbsp;adPreloadTimeoutMs)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setAdPreloadTimeoutMs&#8203;(long&nbsp;adPreloadTimeoutMs)</pre>
 <div class="block">Sets the duration in milliseconds for which the player must buffer while preloading an ad
  group before that ad group is skipped and marked as having failed to load. Pass <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there should be no such timeout. The default value is <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html#DEFAULT_AD_PRELOAD_TIMEOUT_MS">10000L</a> ms.
 
@@ -435,7 +552,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setVastLoadTimeoutMs</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVastLoadTimeoutMs(int&nbsp;vastLoadTimeoutMs)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setVastLoadTimeoutMs&#8203;(int&nbsp;vastLoadTimeoutMs)</pre>
 <div class="block">Sets the VAST load timeout, in milliseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -453,7 +570,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaLoadTimeoutMs</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMediaLoadTimeoutMs(int&nbsp;mediaLoadTimeoutMs)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMediaLoadTimeoutMs&#8203;(int&nbsp;mediaLoadTimeoutMs)</pre>
 <div class="block">Sets the ad media load timeout, in milliseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -471,7 +588,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setMaxMediaBitrate</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMaxMediaBitrate(int&nbsp;bitrate)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setMaxMediaBitrate&#8203;(int&nbsp;bitrate)</pre>
 <div class="block">Sets the media maximum recommended bitrate for ads, in bps.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -489,7 +606,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setFocusSkipButtonWhenAvailable</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setFocusSkipButtonWhenAvailable(boolean&nbsp;focusSkipButtonWhenAvailable)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setFocusSkipButtonWhenAvailable&#8203;(boolean&nbsp;focusSkipButtonWhenAvailable)</pre>
 <div class="block">Sets whether to focus the skip button (when available) on Android TV devices. The default
  setting is <code>true</code>.</div>
 <dl>
@@ -509,8 +626,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlayAdBeforeStartPosition</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setPlayAdBeforeStartPosition(boolean&nbsp;playAdBeforeStartPosition)</pre>
-<div class="block">Sets whether to play an ad before the start position when beginning playback. If <code>true</code>, an ad will be played if there is one at or before the start position. If <code>false</code>, an ad will be played only if there is one exactly at the start position. The default
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setPlayAdBeforeStartPosition&#8203;(boolean&nbsp;playAdBeforeStartPosition)</pre>
+<div class="block">Sets whether to play an ad before the start position when beginning playback. If <code>
+ true</code>, an ad will be played if there is one at or before the start position. If <code>
+ false</code>, an ad will be played only if there is one exactly at the start position. The default
  setting is <code>true</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -521,13 +640,40 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a name="setDebugModeEnabled-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setDebugModeEnabled</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.Builder.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader.Builder</a>&nbsp;setDebugModeEnabled&#8203;(boolean&nbsp;debugModeEnabled)</pre>
+<div class="block">Sets whether to enable outputting verbose logs for the IMA extension and IMA SDK. The default
+ value is <code>false</code>. This setting is intended for debugging only, and should not be
+ enabled in production applications.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>debugModeEnabled</code> - Whether to enable outputting verbose logs for the IMA extension and
+     IMA SDK.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder, for convenience.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><code>ImaSdkSettings.setDebugMode(boolean)</code></dd>
+</dl>
+</li>
+</ul>
 <a name="buildForAdTag-android.net.Uri-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>buildForAdTag</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a>&nbsp;buildForAdTag(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" target="_top">Uri</a>&nbsp;adTagUri)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a>&nbsp;buildForAdTag&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;adTagUri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Pass the ad tag URI when setting media item playback properties (if using the
+     media item API) or as a <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> when constructing the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> (if
+     using media sources directly).</div>
+</div>
 <div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a> for the specified ad tag.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -542,10 +688,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a name="buildForAdsResponse-java.lang.String-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>buildForAdsResponse</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a>&nbsp;buildForAdsResponse(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;adsResponse)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a>&nbsp;buildForAdsResponse&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;adsResponse)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Pass the ads response as a data URI when setting media item playback properties
+     (if using the media item API) or as a <a href="../../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> when constructing the <a href="../../../../../../com/google/android/exoplayer2/source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> (if using media sources directly). <a href="../../../../../../com/google/android/exoplayer2/util/Util.html#getDataUriForString-java.lang.String-java.lang.String-"><code>Util.getDataUriForString(String, String)</code></a> can be used to construct a data URI from
+     literal string ads response (with MIME type text/xml).</div>
+</div>
 <div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a> with the specified sideloaded ads response.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -554,6 +706,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The new <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a>.</dd>
 </dl>
+</li>
+</ul>
+<a name="build--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>build</h4>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a>&nbsp;build()</pre>
+<div class="block">Returns a new <a href="../../../../../../com/google/android/exoplayer2/ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima"><code>ImaAdsLoader</code></a>.</div>
 </li>
 </ul>
 </li>
@@ -604,6 +766,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

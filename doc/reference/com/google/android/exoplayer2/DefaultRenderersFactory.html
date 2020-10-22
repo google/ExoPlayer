@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>DefaultRenderersFactory (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../script.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../com/google/android/exoplayer2/package-summary.html">com.google.android.exoplayer2</a></div>
 <h2 title="Class DefaultRenderersFactory" class="title">Class DefaultRenderersFactory</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.DefaultRenderersFactory</li>
@@ -106,12 +131,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a></dd>
+<dd><code><a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public class <span class="typeNameLabel">DefaultRenderersFactory</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2">RenderersFactory</a></pre>
 <div class="block">Default <a href="../../../../com/google/android/exoplayer2/RenderersFactory.html" title="interface in com.google.android.exoplayer2"><code>RenderersFactory</code></a> implementation.</div>
 </li>
@@ -126,15 +150,17 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">DefaultRenderersFactory.ExtensionRendererMode</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">DefaultRenderersFactory.ExtensionRendererMode</a></span></code></th>
+<td class="colLast">
 <div class="block">Modes for using extension renderers.</div>
 </td>
 </tr>
@@ -147,40 +173,46 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS">DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS">DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS</a></span></code></th>
+<td class="colLast">
 <div class="block">The default maximum duration for which a video renderer can attempt to seamlessly join an
  ongoing playback.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_OFF">EXTENSION_RENDERER_MODE_OFF</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_OFF">EXTENSION_RENDERER_MODE_OFF</a></span></code></th>
+<td class="colLast">
 <div class="block">Do not allow use of extension renderers.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_ON">EXTENSION_RENDERER_MODE_ON</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_ON">EXTENSION_RENDERER_MODE_ON</a></span></code></th>
+<td class="colLast">
 <div class="block">Allow use of extension renderers.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_PREFER">EXTENSION_RENDERER_MODE_PREFER</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#EXTENSION_RENDERER_MODE_PREFER">EXTENSION_RENDERER_MODE_PREFER</a></span></code></th>
+<td class="colLast">
 <div class="block">Allow use of extension renderers.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY">MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY</a></span></code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY">MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY</a></span></code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -191,28 +223,32 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-">DefaultRenderersFactory</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</code>&nbsp;</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-">DefaultRenderersFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-">DefaultRenderersFactory</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                       int&nbsp;extensionRendererMode)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>.</span></div>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-">DefaultRenderersFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                       int&nbsp;extensionRendererMode)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>.</div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-">DefaultRenderersFactory</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-int-long-">DefaultRenderersFactory</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                        int&nbsp;extensionRendererMode,
-                       long&nbsp;allowedVideoJoiningTimeMs)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</span></div>
+                       long&nbsp;allowedVideoJoiningTimeMs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</div>
 </div>
 </td>
 </tr>
@@ -225,157 +261,176 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-boolean-com.google.android.exoplayer2.audio.AudioSink-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">buildAudioRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-boolean-com.google.android.exoplayer2.audio.AudioSink-android.os.Handler-com.google.android.exoplayer2.audio.AudioRendererEventListener-java.util.ArrayList-">buildAudioRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                    int&nbsp;extensionRendererMode,
                    <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    boolean&nbsp;enableDecoderFallback,
                    <a href="../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink,
-                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
-                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code>
+                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
+<td class="colLast">
 <div class="block">Builds audio renderers for use by the player.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioSink-android.content.Context-boolean-boolean-boolean-">buildAudioSink</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildAudioSink-android.content.Context-boolean-boolean-boolean-">buildAudioSink</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
               boolean&nbsp;enableFloatOutput,
               boolean&nbsp;enableAudioTrackPlaybackParams,
-              boolean&nbsp;enableOffload)</code>
+              boolean&nbsp;enableOffload)</code></th>
+<td class="colLast">
 <div class="block">Builds an <a href="../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> to which the audio renderers will output.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildCameraMotionRenderers-android.content.Context-int-java.util.ArrayList-">buildCameraMotionRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildCameraMotionRenderers-android.content.Context-int-java.util.ArrayList-">buildCameraMotionRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                           int&nbsp;extensionRendererMode,
-                          <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code>
+                          <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
+<td class="colLast">
 <div class="block">Builds camera motion renderers for use by the player.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildMetadataRenderers-android.content.Context-com.google.android.exoplayer2.metadata.MetadataOutput-android.os.Looper-int-java.util.ArrayList-">buildMetadataRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildMetadataRenderers-android.content.Context-com.google.android.exoplayer2.metadata.MetadataOutput-android.os.Looper-int-java.util.ArrayList-">buildMetadataRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                       <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
-                      <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;outputLooper,
+                      <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
                       int&nbsp;extensionRendererMode,
-                      <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code>
+                      <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
+<td class="colLast">
 <div class="block">Builds metadata renderers for use by the player.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildMiscellaneousRenderers-android.content.Context-android.os.Handler-int-java.util.ArrayList-">buildMiscellaneousRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildMiscellaneousRenderers-android.content.Context-android.os.Handler-int-java.util.ArrayList-">buildMiscellaneousRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                            int&nbsp;extensionRendererMode,
-                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code>
+                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
+<td class="colLast">
 <div class="block">Builds any miscellaneous renderers used by the player.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildTextRenderers-android.content.Context-com.google.android.exoplayer2.text.TextOutput-android.os.Looper-int-java.util.ArrayList-">buildTextRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildTextRenderers-android.content.Context-com.google.android.exoplayer2.text.TextOutput-android.os.Looper-int-java.util.ArrayList-">buildTextRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                   <a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output,
-                  <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;outputLooper,
+                  <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
                   int&nbsp;extensionRendererMode,
-                  <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code>
+                  <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
+<td class="colLast">
 <div class="block">Builds text renderers for use by the player.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">buildVideoRenderers</a></span>(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#buildVideoRenderers-android.content.Context-int-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-boolean-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-long-java.util.ArrayList-">buildVideoRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                    int&nbsp;extensionRendererMode,
                    <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                    boolean&nbsp;enableDecoderFallback,
-                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                    <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                    long&nbsp;allowedVideoJoiningTimeMs,
-                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code>
+                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</code></th>
+<td class="colLast">
 <div class="block">Builds video renderers for use by the player.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#createRenderers-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.text.TextOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">createRenderers</a></span>(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#createRenderers-android.os.Handler-com.google.android.exoplayer2.video.VideoRendererEventListener-com.google.android.exoplayer2.audio.AudioRendererEventListener-com.google.android.exoplayer2.text.TextOutput-com.google.android.exoplayer2.metadata.MetadataOutput-">createRenderers</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;videoRendererEventListener,
                <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;audioRendererEventListener,
                <a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;textRendererOutput,
-               <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;metadataRendererOutput)</code>
+               <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;metadataRendererOutput)</code></th>
+<td class="colLast">
 <div class="block">Builds the <a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> instances for a <a href="../../../../com/google/android/exoplayer2/SimpleExoPlayer.html" title="class in com.google.android.exoplayer2"><code>SimpleExoPlayer</code></a>.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#experimentalSetAudioMediaCodecOperationMode-int-">experimentalSetAudioMediaCodecOperationMode</a></span>(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec">@MediaCodecRenderer.MediaCodecOperationMode</a> int&nbsp;mode)</code>
-<div class="block">Set the <code>MediaCodecRenderer.MediaCodecOperationMode</code> of <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#experimentalSetAudioMediaCodecOperationMode-@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationModeint-">experimentalSetAudioMediaCodecOperationMode</a></span>&#8203;(@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode int&nbsp;mode)</code></th>
+<td class="colLast">
+<div class="block">Set the <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> of <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a>
  instances.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#experimentalSetMediaCodecOperationMode-int-">experimentalSetMediaCodecOperationMode</a></span>(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec">@MediaCodecRenderer.MediaCodecOperationMode</a> int&nbsp;mode)</code>
-<div class="block">Set the <code>MediaCodecRenderer.MediaCodecOperationMode</code> for both <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a> <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a> instances.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#experimentalSetMediaCodecOperationMode-@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationModeint-">experimentalSetMediaCodecOperationMode</a></span>&#8203;(@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode int&nbsp;mode)</code></th>
+<td class="colLast">
+<div class="block">Set the <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> for both <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a> <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a> instances.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#experimentalSetVideoMediaCodecOperationMode-int-">experimentalSetVideoMediaCodecOperationMode</a></span>(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec">@MediaCodecRenderer.MediaCodecOperationMode</a> int&nbsp;mode)</code>
-<div class="block">Set the <code>MediaCodecRenderer.MediaCodecOperationMode</code> of <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#experimentalSetVideoMediaCodecOperationMode-@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationModeint-">experimentalSetVideoMediaCodecOperationMode</a></span>&#8203;(@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode int&nbsp;mode)</code></th>
+<td class="colLast">
+<div class="block">Set the <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> of <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a>
  instances.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-">setAllowedVideoJoiningTimeMs</a></span>(long&nbsp;allowedVideoJoiningTimeMs)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-">setAllowedVideoJoiningTimeMs</a></span>&#8203;(long&nbsp;allowedVideoJoiningTimeMs)</code></th>
+<td class="colLast">
 <div class="block">Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
  playback.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioFloatOutput-boolean-">setEnableAudioFloatOutput</a></span>(boolean&nbsp;enableFloatOutput)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioFloatOutput-boolean-">setEnableAudioFloatOutput</a></span>&#8203;(boolean&nbsp;enableFloatOutput)</code></th>
+<td class="colLast">
 <div class="block">Sets whether floating point audio should be output when possible.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioOffload-boolean-">setEnableAudioOffload</a></span>(boolean&nbsp;enableOffload)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioOffload-boolean-">setEnableAudioOffload</a></span>&#8203;(boolean&nbsp;enableOffload)</code></th>
+<td class="colLast">
 <div class="block">Sets whether audio should be played using the offload path.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioTrackPlaybackParams-boolean-">setEnableAudioTrackPlaybackParams</a></span>(boolean&nbsp;enableAudioTrackPlaybackParams)</code>
-<div class="block">Sets whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, which is supported from API level
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableAudioTrackPlaybackParams-boolean-">setEnableAudioTrackPlaybackParams</a></span>&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, which is supported from API level
  23, rather than using application-level audio speed adjustment.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableDecoderFallback-boolean-">setEnableDecoderFallback</a></span>(boolean&nbsp;enableDecoderFallback)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setEnableDecoderFallback-boolean-">setEnableDecoderFallback</a></span>&#8203;(boolean&nbsp;enableDecoderFallback)</code></th>
+<td class="colLast">
 <div class="block">Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-">setExtensionRendererMode</a></span>(int&nbsp;extensionRendererMode)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-">setExtensionRendererMode</a></span>&#8203;(int&nbsp;extensionRendererMode)</code></th>
+<td class="colLast">
 <div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
  used.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setMediaCodecSelector-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-">setMediaCodecSelector</a></span>(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</code>
-<div class="block">Sets a <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" target="_top"><code>MediaCodec</code></a> based renderers.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setMediaCodecSelector-com.google.android.exoplayer2.mediacodec.MediaCodecSelector-">setMediaCodecSelector</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</code></th>
+<td class="colLast">
+<div class="block">Sets a <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> based renderers.</div>
 </td>
 </tr>
 </table>
@@ -383,8 +438,8 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -490,10 +545,10 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultRenderersFactory</h4>
-<pre>public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context)</pre>
+<pre>public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a>.</dd>
+<dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -503,11 +558,13 @@ implements <a href="../../../../com/google/android/exoplayer2/RenderersFactory.h
 <ul class="blockList">
 <li class="blockList">
 <h4>DefaultRenderersFactory</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                           <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
-                                           int&nbsp;extensionRendererMode)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                               <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
+                               int&nbsp;extensionRendererMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a name="DefaultRenderersFactory-android.content.Context-int-long-">
@@ -516,12 +573,14 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DefaultRenderersFactory</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                           <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
-                                           int&nbsp;extensionRendererMode,
-                                           long&nbsp;allowedVideoJoiningTimeMs)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;DefaultRenderersFactory&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                               <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
+                               int&nbsp;extensionRendererMode,
+                               long&nbsp;allowedVideoJoiningTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#DefaultRenderersFactory-android.content.Context-"><code>DefaultRenderersFactory(Context)</code></a>, <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setExtensionRendererMode-int-"><code>setExtensionRendererMode(int)</code></a> and <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html#setAllowedVideoJoiningTimeMs-long-"><code>setAllowedVideoJoiningTimeMs(long)</code></a>.</div>
+</div>
 </li>
 </ul>
 </li>
@@ -538,7 +597,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>setExtensionRendererMode</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setExtensionRendererMode(<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setExtensionRendererMode&#8203;(<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
                                                         int&nbsp;extensionRendererMode)</pre>
 <div class="block">Sets the extension renderer mode, which determines if and how available extension renderers are
  used. Note that extensions must be included in the application build for them to be considered
@@ -553,57 +612,57 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 </dl>
 </li>
 </ul>
-<a name="experimentalSetAudioMediaCodecOperationMode-int-">
+<a name="experimentalSetAudioMediaCodecOperationMode-@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationModeint-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>experimentalSetAudioMediaCodecOperationMode</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetAudioMediaCodecOperationMode(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec">@MediaCodecRenderer.MediaCodecOperationMode</a> int&nbsp;mode)</pre>
-<div class="block">Set the <code>MediaCodecRenderer.MediaCodecOperationMode</code> of <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetAudioMediaCodecOperationMode&#8203;(@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode int&nbsp;mode)</pre>
+<div class="block">Set the <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> of <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a>
  instances.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mode</code> - The <code>MediaCodecRenderer.MediaCodecOperationMode</code> to set.</dd>
+<dd><code>mode</code> - The <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> to set.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
 </li>
 </ul>
-<a name="experimentalSetVideoMediaCodecOperationMode-int-">
+<a name="experimentalSetVideoMediaCodecOperationMode-@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationModeint-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>experimentalSetVideoMediaCodecOperationMode</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetVideoMediaCodecOperationMode(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec">@MediaCodecRenderer.MediaCodecOperationMode</a> int&nbsp;mode)</pre>
-<div class="block">Set the <code>MediaCodecRenderer.MediaCodecOperationMode</code> of <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetVideoMediaCodecOperationMode&#8203;(@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode int&nbsp;mode)</pre>
+<div class="block">Set the <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> of <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a>
  instances.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mode</code> - The <code>MediaCodecRenderer.MediaCodecOperationMode</code> to set.</dd>
+<dd><code>mode</code> - The <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> to set.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
 </li>
 </ul>
-<a name="experimentalSetMediaCodecOperationMode-int-">
+<a name="experimentalSetMediaCodecOperationMode-@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationModeint-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>experimentalSetMediaCodecOperationMode</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetMediaCodecOperationMode(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec">@MediaCodecRenderer.MediaCodecOperationMode</a> int&nbsp;mode)</pre>
-<div class="block">Set the <code>MediaCodecRenderer.MediaCodecOperationMode</code> for both <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a> <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a> instances.
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;experimentalSetMediaCodecOperationMode&#8203;(@com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.MediaCodecOperationMode int&nbsp;mode)</pre>
+<div class="block">Set the <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> for both <a href="../../../../com/google/android/exoplayer2/audio/MediaCodecAudioRenderer.html" title="class in com.google.android.exoplayer2.audio"><code>MediaCodecAudioRenderer</code></a> <a href="../../../../com/google/android/exoplayer2/video/MediaCodecVideoRenderer.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer</code></a> instances.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mode</code> - The <code>MediaCodecRenderer.MediaCodecOperationMode</code> to set.</dd>
+<dd><code>mode</code> - The <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecRenderer.MediaCodecOperationMode.html" title="annotation in com.google.android.exoplayer2.mediacodec"><code>MediaCodecRenderer.MediaCodecOperationMode</code></a> to set.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -615,7 +674,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableDecoderFallback</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableDecoderFallback(boolean&nbsp;enableDecoderFallback)</pre>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableDecoderFallback&#8203;(boolean&nbsp;enableDecoderFallback)</pre>
 <div class="block">Sets whether to enable fallback to lower-priority decoders if decoder initialization fails.
  This may result in using a decoder that is less efficient or slower than the primary decoder.</div>
 <dl>
@@ -633,8 +692,8 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>setMediaCodecSelector</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setMediaCodecSelector(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</pre>
-<div class="block">Sets a <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" target="_top"><code>MediaCodec</code></a> based renderers.
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setMediaCodecSelector&#8203;(<a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</pre>
+<div class="block">Sets a <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> for use by <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> based renderers.
 
  <p>The default value is <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html#DEFAULT"><code>MediaCodecSelector.DEFAULT</code></a>.</div>
 <dl>
@@ -651,7 +710,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableAudioFloatOutput</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioFloatOutput(boolean&nbsp;enableFloatOutput)</pre>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioFloatOutput&#8203;(boolean&nbsp;enableFloatOutput)</pre>
 <div class="block">Sets whether floating point audio should be output when possible.
 
  <p>Enabling floating point output disables audio processing, but may allow for higher quality
@@ -672,13 +731,13 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableAudioOffload</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioOffload(boolean&nbsp;enableOffload)</pre>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioOffload&#8203;(boolean&nbsp;enableOffload)</pre>
 <div class="block">Sets whether audio should be played using the offload path.
 
  <p>Audio offload disables ExoPlayer audio processing, but significantly reduces the energy
  consumption of the playback when <a href="../../../../com/google/android/exoplayer2/ExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-"><code>offload scheduling</code></a> is enabled.
 
- <p>Most Android devices can only support one offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" target="_top"><code>AudioTrack</code></a> at a time
+ <p>Most Android devices can only support one offload <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> at a time
  and can invalidate it at any time. Thus an app can never be guaranteed that it will be able to
  play in offload.
 
@@ -698,8 +757,8 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableAudioTrackPlaybackParams</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioTrackPlaybackParams(boolean&nbsp;enableAudioTrackPlaybackParams)</pre>
-<div class="block">Sets whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, which is supported from API level
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setEnableAudioTrackPlaybackParams&#8203;(boolean&nbsp;enableAudioTrackPlaybackParams)</pre>
+<div class="block">Sets whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, which is supported from API level
  23, rather than using application-level audio speed adjustment. This setting has no effect on
  builds before API level 23 (application-level speed adjustment will be used in all cases).
 
@@ -712,7 +771,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
  old playback speed reflecting the fact that the requested speed was not supported.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enableAudioTrackPlaybackParams</code> - Whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>.</dd>
+<dd><code>enableAudioTrackPlaybackParams</code> - Whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>
@@ -724,7 +783,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>setAllowedVideoJoiningTimeMs</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setAllowedVideoJoiningTimeMs(long&nbsp;allowedVideoJoiningTimeMs)</pre>
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.html" title="class in com.google.android.exoplayer2">DefaultRenderersFactory</a>&nbsp;setAllowedVideoJoiningTimeMs&#8203;(long&nbsp;allowedVideoJoiningTimeMs)</pre>
 <div class="block">Sets the maximum duration for which video renderers can attempt to seamlessly join an ongoing
  playback.
 
@@ -744,7 +803,7 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>createRenderers</h4>
-<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;createRenderers(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+<pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;createRenderers&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                                   <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;videoRendererEventListener,
                                   <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;audioRendererEventListener,
                                   <a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;textRendererOutput,
@@ -771,19 +830,19 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>buildVideoRenderers</h4>
-<pre>protected&nbsp;void&nbsp;buildVideoRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                   <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+<pre>protected&nbsp;void&nbsp;buildVideoRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                   <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
                                    int&nbsp;extensionRendererMode,
                                    <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                    boolean&nbsp;enableDecoderFallback,
-                                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+                                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                                    <a href="../../../../com/google/android/exoplayer2/video/VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                                    long&nbsp;allowedVideoJoiningTimeMs,
-                                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
+                                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds video renderers for use by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a> associated with the player.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> associated with the player.</dd>
 <dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
 <dd><code>mediaCodecSelector</code> - A decoder selector.</dd>
 <dd><code>enableDecoderFallback</code> - Whether to enable fallback to lower-priority decoders if decoder
@@ -803,19 +862,19 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>buildAudioRenderers</h4>
-<pre>protected&nbsp;void&nbsp;buildAudioRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                   <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+<pre>protected&nbsp;void&nbsp;buildAudioRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                   <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
                                    int&nbsp;extensionRendererMode,
                                    <a href="../../../../com/google/android/exoplayer2/mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                    boolean&nbsp;enableDecoderFallback,
                                    <a href="../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink,
-                                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
+                                   <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                                    <a href="../../../../com/google/android/exoplayer2/audio/AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
-                                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
+                                   <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds audio renderers for use by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a> associated with the player.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> associated with the player.</dd>
 <dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
 <dd><code>mediaCodecSelector</code> - A decoder selector.</dd>
 <dd><code>enableDecoderFallback</code> - Whether to enable fallback to lower-priority decoders if decoder
@@ -834,16 +893,16 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>buildTextRenderers</h4>
-<pre>protected&nbsp;void&nbsp;buildTextRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<pre>protected&nbsp;void&nbsp;buildTextRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                   <a href="../../../../com/google/android/exoplayer2/text/TextOutput.html" title="interface in com.google.android.exoplayer2.text">TextOutput</a>&nbsp;output,
-                                  <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;outputLooper,
-                                  <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+                                  <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
+                                  <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
                                   int&nbsp;extensionRendererMode,
-                                  <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
+                                  <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds text renderers for use by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a> associated with the player.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> associated with the player.</dd>
 <dd><code>output</code> - An output for the renderers.</dd>
 <dd><code>outputLooper</code> - The looper associated with the thread on which the output should be called.</dd>
 <dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
@@ -857,16 +916,16 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>buildMetadataRenderers</h4>
-<pre>protected&nbsp;void&nbsp;buildMetadataRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
+<pre>protected&nbsp;void&nbsp;buildMetadataRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                       <a href="../../../../com/google/android/exoplayer2/metadata/MetadataOutput.html" title="interface in com.google.android.exoplayer2.metadata">MetadataOutput</a>&nbsp;output,
-                                      <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" target="_top">Looper</a>&nbsp;outputLooper,
-                                      <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+                                      <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;outputLooper,
+                                      <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
                                       int&nbsp;extensionRendererMode,
-                                      <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
+                                      <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds metadata renderers for use by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a> associated with the player.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> associated with the player.</dd>
 <dd><code>output</code> - An output for the renderers.</dd>
 <dd><code>outputLooper</code> - The looper associated with the thread on which the output should be called.</dd>
 <dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
@@ -880,14 +939,14 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>buildCameraMotionRenderers</h4>
-<pre>protected&nbsp;void&nbsp;buildCameraMotionRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                          <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+<pre>protected&nbsp;void&nbsp;buildCameraMotionRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                          <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
                                           int&nbsp;extensionRendererMode,
-                                          <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
+                                          <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds camera motion renderers for use by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a> associated with the player.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> associated with the player.</dd>
 <dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
 <dd><code>out</code> - An array to which the built renderers should be appended.</dd>
 </dl>
@@ -899,15 +958,15 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>buildMiscellaneousRenderers</h4>
-<pre>protected&nbsp;void&nbsp;buildMiscellaneousRenderers(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" target="_top">Handler</a>&nbsp;eventHandler,
-                                           <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@DefaultRenderersFactory.ExtensionRendererMode</a>
+<pre>protected&nbsp;void&nbsp;buildMiscellaneousRenderers&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
+                                           <a href="../../../../com/google/android/exoplayer2/DefaultRenderersFactory.ExtensionRendererMode.html" title="annotation in com.google.android.exoplayer2">@ExtensionRendererMode</a>
                                            int&nbsp;extensionRendererMode,
-                                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
+                                           <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../../com/google/android/exoplayer2/Renderer.html" title="interface in com.google.android.exoplayer2" target="_top">Renderer</a>&gt;&nbsp;out)</pre>
 <div class="block">Builds any miscellaneous renderers used by the player.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a> associated with the player.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> associated with the player.</dd>
 <dd><code>eventHandler</code> - A handler to use when invoking event listeners and outputs.</dd>
 <dd><code>extensionRendererMode</code> - The extension renderer mode.</dd>
 <dd><code>out</code> - An array to which the built renderers should be appended.</dd>
@@ -921,16 +980,16 @@ public&nbsp;DefaultRenderersFactory(<a href="https://developer.android.com/refer
 <li class="blockList">
 <h4>buildAudioSink</h4>
 <pre>@Nullable
-protected&nbsp;<a href="../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;buildAudioSink(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top">Context</a>&nbsp;context,
-                                             boolean&nbsp;enableFloatOutput,
-                                             boolean&nbsp;enableAudioTrackPlaybackParams,
-                                             boolean&nbsp;enableOffload)</pre>
+protected&nbsp;<a href="../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;buildAudioSink&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                   boolean&nbsp;enableFloatOutput,
+                                   boolean&nbsp;enableAudioTrackPlaybackParams,
+                                   boolean&nbsp;enableOffload)</pre>
 <div class="block">Builds an <a href="../../../../com/google/android/exoplayer2/audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> to which the audio renderers will output.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" target="_top"><code>Context</code></a> associated with the player.</dd>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> associated with the player.</dd>
 <dd><code>enableFloatOutput</code> - Whether to enable use of floating point audio output, if available.</dd>
-<dd><code>enableAudioTrackPlaybackParams</code> - Whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, if supported.</dd>
+<dd><code>enableAudioTrackPlaybackParams</code> - Whether to enable setting playback speed using <a href="https://developer.android.com/reference/android/media/AudioTrack.html#setPlaybackParams-android.media.PlaybackParams-" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack.setPlaybackParams(PlaybackParams)</code></a>, if supported.</dd>
 <dd><code>enableOffload</code> - Whether to enable use of audio offload for supported formats, if
      available.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -987,6 +1046,9 @@ protected&nbsp;<a href="../../../../com/google/android/exoplayer2/audio/AudioSin
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>DownloadCursor (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,9 +106,15 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.offline</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/offline/package-summary.html">com.google.android.exoplayer2.offline</a></div>
 <h2 title="Interface DownloadCursor" class="title">Interface DownloadCursor</h2>
 </div>
 <div class="contentContainer">
@@ -98,12 +123,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Superinterfaces:</dt>
-<dd><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html" title="class or interface in java.lang">AutoCloseable</a>, <a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" target="_top">Closeable</a></dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="externalLink">AutoCloseable</a></code>, <code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public interface <span class="typeNameLabel">DownloadCursor</span>
-extends <a href="https://developer.android.com/reference/java/io/Closeable.html" title="class or interface in java.io" target="_top">Closeable</a></pre>
+extends <a href="https://developer.android.com/reference/java/io/Closeable.html" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></pre>
 <div class="block">Provides random read-write access to the result set returned by a database query.</div>
 </li>
 </ul>
@@ -117,91 +141,106 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#close--">close</a></span>()</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#close--">close</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#getCount--">getCount</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#getCount--">getCount</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the numbers of downloads in the cursor.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#getDownload--">getDownload</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#getDownload--">getDownload</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the download at the current position.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#getPosition--">getPosition</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#getPosition--">getPosition</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the current position of the cursor in the download set.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isAfterLast--">isAfterLast</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isAfterLast--">isAfterLast</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the cursor is pointing to the position after the last download.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isBeforeFirst--">isBeforeFirst</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isBeforeFirst--">isBeforeFirst</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the cursor is pointing to the position before the first download.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isClosed--">isClosed</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isClosed--">isClosed</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the cursor is closed</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isFirst--">isFirst</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isFirst--">isFirst</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the cursor is pointing to the first download.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isLast--">isLast</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#isLast--">isLast</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns whether the cursor is pointing to the last download.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToFirst--">moveToFirst</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToFirst--">moveToFirst</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Move the cursor to the first download.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToLast--">moveToLast</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToLast--">moveToLast</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Move the cursor to the last download.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToNext--">moveToNext</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToNext--">moveToNext</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Move the cursor to the next download.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToPosition-int-">moveToPosition</a></span>(int&nbsp;position)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToPosition-int-">moveToPosition</a></span>&#8203;(int&nbsp;position)</code></th>
+<td class="colLast">
 <div class="block">Move the cursor to an absolute position.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>default boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToPrevious--">moveToPrevious</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html#moveToPrevious--">moveToPrevious</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Move the cursor to the previous download.</div>
 </td>
 </tr>
@@ -263,7 +302,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <ul class="blockList">
 <li class="blockList">
 <h4>moveToPosition</h4>
-<pre>boolean&nbsp;moveToPosition(int&nbsp;position)</pre>
+<pre>boolean&nbsp;moveToPosition&#8203;(int&nbsp;position)</pre>
 <div class="block">Move the cursor to an absolute position. The valid range of values is -1 &lt;= position &lt;=
  count.
 
@@ -402,9 +441,9 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <pre>void&nbsp;close()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html#close--" title="class or interface in java.lang">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" target="_top">AutoCloseable</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html#close--" title="class or interface in java.lang" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/io/Closeable.html#close--" title="class or interface in java.io">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" target="_top">Closeable</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/Closeable.html#close--" title="class or interface in java.io" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -456,6 +495,9 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

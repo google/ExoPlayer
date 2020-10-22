@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>HttpDataSource.InvalidResponseCodeException (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -16,10 +25,11 @@
     catch(err) {
     }
 //-->
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -50,6 +60,12 @@
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -61,6 +77,9 @@
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -81,23 +100,29 @@
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.upstream</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/upstream/package-summary.html">com.google.android.exoplayer2.upstream</a></div>
 <h2 title="Class HttpDataSource.InvalidResponseCodeException" class="title">Class HttpDataSource.InvalidResponseCodeException</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">java.lang.Throwable</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Throwable</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" target="_top">java.lang.Exception</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Exception</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" target="_top">java.io.IOException</a></li>
+<li><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">java.io.IOException</a></li>
 <li>
 <ul class="inheritance">
 <li><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">com.google.android.exoplayer2.upstream.HttpDataSource.HttpDataSourceException</a></li>
@@ -120,14 +145,13 @@
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" target="_top">Serializable</a></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
 <dl>
 <dt>Enclosing interface:</dt>
 <dd><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></dd>
 </dl>
 <hr>
-<br>
 <pre>public static final class <span class="typeNameLabel">HttpDataSource.InvalidResponseCodeException</span>
 extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
 <div class="block">Thrown when an attempt to open a connection results in a response code not in the 2xx range.</div>
@@ -162,33 +186,38 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#headerFields">headerFields</a></span></code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#headerFields">headerFields</a></span></code></th>
+<td class="colLast">
 <div class="block">An unmodifiable map of the response header fields and values.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#responseBody">responseBody</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#responseBody">responseBody</a></span></code></th>
+<td class="colLast">
 <div class="block">The response body.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#responseCode">responseCode</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#responseCode">responseCode</a></span></code></th>
+<td class="colLast">
 <div class="block">The response code that was outside of the 2xx range.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#responseMessage">responseMessage</a></span></code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#responseMessage">responseMessage</a></span></code></th>
+<td class="colLast">
 <div class="block">The http status message.</div>
 </td>
 </tr>
@@ -208,36 +237,40 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">InvalidResponseCodeException</a></span>(int&nbsp;responseCode,
-                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <code>#InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code>.</span></div>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">InvalidResponseCodeException</a></span>&#8203;(int&nbsp;responseCode,
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
+                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-byte:A-"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">InvalidResponseCodeException</a></span>(int&nbsp;responseCode,
-                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;responseMessage,
-                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use <code>#InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code>.</span></div>
-</div>
-</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-byte:A-">InvalidResponseCodeException</a></span>&#8203;(int&nbsp;responseCode,
+                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
+                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
+                            byte[]&nbsp;responseBody)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-byte:A-">InvalidResponseCodeException</a></span>(int&nbsp;responseCode,
-                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;responseMessage,
-                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
-                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
-                            byte[]&nbsp;responseBody)</code>&nbsp;</td>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">InvalidResponseCodeException</a></span>&#8203;(int&nbsp;responseCode,
+                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
+                            <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-byte:A-"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
+</div>
+</td>
 </tr>
 </table>
 </li>
@@ -249,18 +282,18 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 </a>
 <h3>Method Summary</h3>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Throwable">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" target="_top">Throwable</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Throwable.html#addSuppressed-java.lang.Throwable-" title="class or interface in java.lang">addSuppressed</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#fillInStackTrace--" title="class or interface in java.lang">fillInStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getCause--" title="class or interface in java.lang">getCause</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getLocalizedMessage--" title="class or interface in java.lang">getLocalizedMessage</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getMessage--" title="class or interface in java.lang">getMessage</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getStackTrace--" title="class or interface in java.lang">getStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getSuppressed--" title="class or interface in java.lang">getSuppressed</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#initCause-java.lang.Throwable-" title="class or interface in java.lang">initCause</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#printStackTrace--" title="class or interface in java.lang">printStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#printStackTrace-java.io.PrintStream-" title="class or interface in java.lang">printStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#printStackTrace-java.io.PrintWriter-" title="class or interface in java.lang">printStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#setStackTrace-java.lang.StackTraceElement:A-" title="class or interface in java.lang">setStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#toString--" title="class or interface in java.lang" target="_top">toString</a></code></li>
-</ul>
-<ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a name="methods.inherited.from.class.java.lang.Throwable">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Throwable.html#addSuppressed-java.lang.Throwable-" title="class or interface in java.lang" class="externalLink">addSuppressed</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#fillInStackTrace--" title="class or interface in java.lang" class="externalLink">fillInStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getCause--" title="class or interface in java.lang" class="externalLink">getCause</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getLocalizedMessage--" title="class or interface in java.lang" class="externalLink">getLocalizedMessage</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getMessage--" title="class or interface in java.lang" class="externalLink">getMessage</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getStackTrace--" title="class or interface in java.lang" class="externalLink">getStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#getSuppressed--" title="class or interface in java.lang" class="externalLink">getSuppressed</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#initCause-java.lang.Throwable-" title="class or interface in java.lang" class="externalLink">initCause</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#printStackTrace--" title="class or interface in java.lang" class="externalLink">printStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#printStackTrace-java.io.PrintStream-" title="class or interface in java.lang" class="externalLink">printStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#printStackTrace-java.io.PrintWriter-" title="class or interface in java.lang" class="externalLink">printStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#setStackTrace-java.lang.StackTraceElement:A-" title="class or interface in java.lang" class="externalLink">setStackTrace</a>, <a href="https://developer.android.com/reference/java/lang/Throwable.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink" target="_top">toString</a></code></li>
 </ul>
 </li>
 </ul>
@@ -293,7 +326,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataS
 <li class="blockList">
 <h4>responseMessage</h4>
 <pre>@Nullable
-public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> responseMessage</pre>
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> responseMessage</pre>
 <div class="block">The http status message.</div>
 </li>
 </ul>
@@ -303,7 +336,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <ul class="blockList">
 <li class="blockList">
 <h4>headerFields</h4>
-<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt; headerFields</pre>
+<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt; headerFields</pre>
 <div class="block">An unmodifiable map of the response header fields and values.</div>
 </li>
 </ul>
@@ -331,11 +364,13 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <ul class="blockList">
 <li class="blockList">
 <h4>InvalidResponseCodeException</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
-                                                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
-                                                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code>.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;InvalidResponseCodeException&#8203;(int&nbsp;responseCode,
+                                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
+                                    <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-byte:A-"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
+</div>
 </li>
 </ul>
 <a name="InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-">
@@ -344,13 +379,15 @@ public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
 <ul class="blockList">
 <li class="blockList">
 <h4>InvalidResponseCodeException</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
-                                                @Nullable
-                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;responseMessage,
-                                                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
-                                                <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use <code>#InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code>.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;InvalidResponseCodeException&#8203;(int&nbsp;responseCode,
+                                    @Nullable
+                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
+                                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
+                                    <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/upstream/HttpDataSource.InvalidResponseCodeException.html#InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-byte:A-"><code>InvalidResponseCodeException(int, String, Map, DataSpec, byte[])</code></a>.</div>
+</div>
 </li>
 </ul>
 <a name="InvalidResponseCodeException-int-java.lang.String-java.util.Map-com.google.android.exoplayer2.upstream.DataSpec-byte:A-">
@@ -359,10 +396,10 @@ public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
 <ul class="blockListLast">
 <li class="blockList">
 <h4>InvalidResponseCodeException</h4>
-<pre>public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
+<pre>public&nbsp;InvalidResponseCodeException&#8203;(int&nbsp;responseCode,
                                     @Nullable
-                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;responseMessage,
-                                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
+                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;responseMessage,
+                                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;headerFields,
                                     <a href="../../../../../com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                     byte[]&nbsp;responseBody)</pre>
 </li>
@@ -415,6 +452,9 @@ public&nbsp;InvalidResponseCodeException(int&nbsp;responseCode,
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

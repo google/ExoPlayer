@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>ExtractorOutput (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,9 +106,15 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.extractor</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/package-summary.html">com.google.android.exoplayer2.extractor</a></div>
 <h2 title="Interface ExtractorOutput" class="title">Interface ExtractorOutput</h2>
 </div>
 <div class="contentContainer">
@@ -98,10 +123,9 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/source/chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk">BundledChunkExtractor</a>, <a href="../../../../../com/google/android/exoplayer2/extractor/DummyExtractorOutput.html" title="class in com.google.android.exoplayer2.extractor">DummyExtractorOutput</a>, <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/source/chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk">BundledChunkExtractor</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/extractor/DummyExtractorOutput.html" title="class in com.google.android.exoplayer2.extractor">DummyExtractorOutput</a></code>, <code><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public interface <span class="typeNameLabel">ExtractorOutput</span></pre>
 <div class="block">Receives stream level data extracted by an <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>.</div>
 </li>
@@ -116,16 +140,18 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#PLACEHOLDER">PLACEHOLDER</a></span></code>
-<div class="block">Placeholder <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> implementation throwing an <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" target="_top"><code>UnsupportedOperationException</code></a> in each method.</div>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#PLACEHOLDER">PLACEHOLDER</a></span></code></th>
+<td class="colLast">
+<div class="block">Placeholder <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> implementation throwing an <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>UnsupportedOperationException</code></a> in each method.</div>
 </td>
 </tr>
 </table>
@@ -137,29 +163,33 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#endTracks--">endTracks</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#endTracks--">endTracks</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Called when all tracks have been identified, meaning no new <code>trackId</code> values will be
  passed to <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#track-int-int-"><code>track(int, int)</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#seekMap-com.google.android.exoplayer2.extractor.SeekMap-">seekMap</a></span>(<a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a>&nbsp;seekMap)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#seekMap-com.google.android.exoplayer2.extractor.SeekMap-">seekMap</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a>&nbsp;seekMap)</code></th>
+<td class="colLast">
 <div class="block">Called when a <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> has been extracted from the stream.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#track-int-int-">track</a></span>(int&nbsp;id,
-     int&nbsp;type)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html#track-int-int-">track</a></span>&#8203;(int&nbsp;id,
+     int&nbsp;type)</code></th>
+<td class="colLast">
 <div class="block">Called by the <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to get the <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for a specific track.</div>
 </td>
 </tr>
@@ -185,7 +215,7 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <h4>PLACEHOLDER</h4>
 <pre>static final&nbsp;<a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a> PLACEHOLDER</pre>
-<div class="block">Placeholder <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> implementation throwing an <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" target="_top"><code>UnsupportedOperationException</code></a> in each method.</div>
+<div class="block">Placeholder <a href="../../../../../com/google/android/exoplayer2/extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> implementation throwing an <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>UnsupportedOperationException</code></a> in each method.</div>
 </li>
 </ul>
 </li>
@@ -202,11 +232,12 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>track</h4>
-<pre><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;track(int&nbsp;id,
+<pre><a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;track&#8203;(int&nbsp;id,
                   int&nbsp;type)</pre>
 <div class="block">Called by the <a href="../../../../../com/google/android/exoplayer2/extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to get the <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for a specific track.
 
- <p>The same <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> is returned if multiple calls are made with the same <code>id</code>.</div>
+ <p>The same <a href="../../../../../com/google/android/exoplayer2/extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> is returned if multiple calls are made with the same <code>
+ id</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - A track identifier.</dd>
@@ -234,7 +265,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockListLast">
 <li class="blockList">
 <h4>seekMap</h4>
-<pre>void&nbsp;seekMap(<a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a>&nbsp;seekMap)</pre>
+<pre>void&nbsp;seekMap&#8203;(<a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a>&nbsp;seekMap)</pre>
 <div class="block">Called when a <a href="../../../../../com/google/android/exoplayer2/extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> has been extracted from the stream.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -290,6 +321,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

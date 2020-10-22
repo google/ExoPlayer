@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>Track (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.extractor.mp4</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/package-summary.html">com.google.android.exoplayer2.extractor.mp4</a></div>
 <h2 title="Class Track" class="title">Class Track</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.extractor.mp4.Track</li>
@@ -105,9 +130,8 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<br>
 <pre>public final class <span class="typeNameLabel">Track</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></pre>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">Encapsulates information describing an MP4 track.</div>
 </li>
 </ul>
@@ -121,15 +145,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">Track.Transformation</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">Track.Transformation</a></span></code></th>
+<td class="colLast">
 <div class="block">The transformation to apply to samples in the track, if any.</div>
 </td>
 </tr>
@@ -142,81 +168,94 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#durationUs">durationUs</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#durationUs">durationUs</a></span></code></th>
+<td class="colLast">
 <div class="block">The duration of the track in microseconds, or <a href="../../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#editListDurations">editListDurations</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#editListDurations">editListDurations</a></span></code></th>
+<td class="colLast">
 <div class="block">Durations of edit list segments in the movie timescale.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>long[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#editListMediaTimes">editListMediaTimes</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#editListMediaTimes">editListMediaTimes</a></span></code></th>
+<td class="colLast">
 <div class="block">Media times for edit list segments in the track timescale.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#format">format</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#format">format</a></span></code></th>
+<td class="colLast">
 <div class="block">The format.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#id">id</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#id">id</a></span></code></th>
+<td class="colLast">
 <div class="block">The track identifier.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#movieTimescale">movieTimescale</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#movieTimescale">movieTimescale</a></span></code></th>
+<td class="colLast">
 <div class="block">The movie timescale.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#nalUnitLengthFieldLength">nalUnitLengthFieldLength</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#nalUnitLengthFieldLength">nalUnitLengthFieldLength</a></span></code></th>
+<td class="colLast">
 <div class="block">For H264 video tracks, the length in bytes of the NALUnitLength field in each sample.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#sampleTransformation">sampleTransformation</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#sampleTransformation">sampleTransformation</a></span></code></th>
+<td class="colLast">
 <div class="block">One of <code>TRANSFORMATION_*</code>.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#timescale">timescale</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#timescale">timescale</a></span></code></th>
+<td class="colLast">
 <div class="block">The track timescale, defined as the number of time units that pass in one second.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#TRANSFORMATION_CEA608_CDAT">TRANSFORMATION_CEA608_CDAT</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#TRANSFORMATION_CEA608_CDAT">TRANSFORMATION_CEA608_CDAT</a></span></code></th>
+<td class="colLast">
 <div class="block">A transformation for caption samples in cdat atoms.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#TRANSFORMATION_NONE">TRANSFORMATION_NONE</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#TRANSFORMATION_NONE">TRANSFORMATION_NONE</a></span></code></th>
+<td class="colLast">
 <div class="block">A no-op sample transformation.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#type">type</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#type">type</a></span></code></th>
+<td class="colLast">
 <div class="block">One of <a href="../../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_AUDIO"><code>C.TRACK_TYPE_AUDIO</code></a>, <a href="../../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_VIDEO"><code>C.TRACK_TYPE_VIDEO</code></a> and <a href="../../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_TEXT"><code>C.TRACK_TYPE_TEXT</code></a>.</div>
 </td>
 </tr>
@@ -229,13 +268,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#Track-int-int-long-long-long-com.google.android.exoplayer2.Format-int-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-int-long:A-long:A-">Track</a></span>(int&nbsp;id,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#Track-int-int-long-long-long-com.google.android.exoplayer2.Format-int-com.google.android.exoplayer2.extractor.mp4.TrackEncryptionBox:A-int-long:A-long:A-">Track</a></span>&#8203;(int&nbsp;id,
      int&nbsp;type,
      long&nbsp;timescale,
      long&nbsp;movieTimescale,
@@ -245,7 +285,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
      <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;sampleDescriptionEncryptionBoxes,
      int&nbsp;nalUnitLengthFieldLength,
      long[]&nbsp;editListDurations,
-     long[]&nbsp;editListMediaTimes)</code>&nbsp;</td>
+     long[]&nbsp;editListMediaTimes)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -256,19 +297,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#copyWithFormat-com.google.android.exoplayer2.Format-">copyWithFormat</a></span>(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#copyWithFormat-com.google.android.exoplayer2.Format-">copyWithFormat</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#getSampleDescriptionEncryptionBox-int-">getSampleDescriptionEncryptionBox</a></span>(int&nbsp;sampleDescriptionIndex)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html#getSampleDescriptionEncryptionBox-int-">getSampleDescriptionEncryptionBox</a></span>&#8203;(int&nbsp;sampleDescriptionIndex)</code></th>
+<td class="colLast">
 <div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>TrackEncryptionBox</code></a> for the given sample description index.</div>
 </td>
 </tr>
@@ -277,8 +321,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -388,7 +432,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>sampleTransformation</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Track.Transformation</a>
+<pre><a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Transformation</a>
 public final&nbsp;int sampleTransformation</pre>
 <div class="block">One of <code>TRANSFORMATION_*</code>. Defines the transformation to apply before outputting each
  sample.</div>
@@ -441,13 +485,13 @@ public final&nbsp;long[] editListMediaTimes</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Track</h4>
-<pre>public&nbsp;Track(int&nbsp;id,
+<pre>public&nbsp;Track&#8203;(int&nbsp;id,
              int&nbsp;type,
              long&nbsp;timescale,
              long&nbsp;movieTimescale,
              long&nbsp;durationUs,
              <a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-             <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Track.Transformation</a>
+             <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.Transformation.html" title="annotation in com.google.android.exoplayer2.extractor.mp4">@Transformation</a>
              int&nbsp;sampleTransformation,
              @Nullable
              <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>[]&nbsp;sampleDescriptionEncryptionBoxes,
@@ -473,7 +517,7 @@ public final&nbsp;long[] editListMediaTimes</pre>
 <li class="blockList">
 <h4>getSampleDescriptionEncryptionBox</h4>
 <pre>@Nullable
-public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>&nbsp;getSampleDescriptionEncryptionBox(int&nbsp;sampleDescriptionIndex)</pre>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4">TrackEncryptionBox</a>&nbsp;getSampleDescriptionEncryptionBox&#8203;(int&nbsp;sampleDescriptionIndex)</pre>
 <div class="block">Returns the <a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>TrackEncryptionBox</code></a> for the given sample description index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -490,7 +534,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/m
 <ul class="blockListLast">
 <li class="blockList">
 <h4>copyWithFormat</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;copyWithFormat(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/mp4/Track.html" title="class in com.google.android.exoplayer2.extractor.mp4">Track</a>&nbsp;copyWithFormat&#8203;(<a href="../../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
 </li>
 </ul>
 </li>
@@ -541,6 +585,9 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/extractor/m
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

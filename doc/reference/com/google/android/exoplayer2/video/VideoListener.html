@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>VideoListener (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,9 +106,15 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.video</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/video/package-summary.html">com.google.android.exoplayer2.video</a></div>
 <h2 title="Interface VideoListener" class="title">Interface VideoListener</h2>
 </div>
 <div class="contentContainer">
@@ -98,14 +123,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Known Subinterfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.VideoListener.html" title="interface in com.google.android.exoplayer2">SimpleExoPlayer.VideoListener</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/SimpleExoPlayer.VideoListener.html" title="interface in com.google.android.exoplayer2">SimpleExoPlayer.VideoListener</a></code></dd>
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/analytics/AnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsCollector</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public interface <span class="typeNameLabel">VideoListener</span></pre>
 <div class="block">A listener for metadata corresponding to video being rendered.</div>
 </li>
@@ -120,33 +144,37 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onRenderedFirstFrame--">onRenderedFirstFrame</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onRenderedFirstFrame--">onRenderedFirstFrame</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Called when a frame is rendered for the first time since setting the surface, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onSurfaceSizeChanged-int-int-">onSurfaceSizeChanged</a></span>(int&nbsp;width,
-                    int&nbsp;height)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onSurfaceSizeChanged-int-int-">onSurfaceSizeChanged</a></span>&#8203;(int&nbsp;width,
+                    int&nbsp;height)</code></th>
+<td class="colLast">
 <div class="block">Called each time there's a change in the size of the surface onto which the video is being
  rendered.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onVideoSizeChanged-int-int-int-float-">onVideoSizeChanged</a></span>(int&nbsp;width,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/video/VideoListener.html#onVideoSizeChanged-int-int-int-float-">onVideoSizeChanged</a></span>&#8203;(int&nbsp;width,
                   int&nbsp;height,
                   int&nbsp;unappliedRotationDegrees,
-                  float&nbsp;pixelWidthHeightRatio)</code>
+                  float&nbsp;pixelWidthHeightRatio)</code></th>
+<td class="colLast">
 <div class="block">Called each time there's a change in the size of the video being rendered.</div>
 </td>
 </tr>
@@ -171,7 +199,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onVideoSizeChanged</h4>
-<pre>default&nbsp;void&nbsp;onVideoSizeChanged(int&nbsp;width,
+<pre>default&nbsp;void&nbsp;onVideoSizeChanged&#8203;(int&nbsp;width,
                                 int&nbsp;height,
                                 int&nbsp;unappliedRotationDegrees,
                                 float&nbsp;pixelWidthHeightRatio)</pre>
@@ -184,8 +212,8 @@ var activeTableTab = "activeTableTab";
      rotation in degrees that the application should apply for the video for it to be rendered
      in the correct orientation. This value will always be zero on API levels 21 and above,
      since the renderer will apply all necessary rotations internally. On earlier API levels
-     this is not possible. Applications that use <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" target="_top"><code>TextureView</code></a> can apply the
-     rotation by calling <a href="https://developer.android.com/reference/android/view/TextureView.html#setTransform-android.graphics.Matrix-" title="class or interface in android.view" target="_top"><code>TextureView.setTransform(android.graphics.Matrix)</code></a>. Applications that do not
+     this is not possible. Applications that use <a href="https://developer.android.com/reference/android/view/TextureView.html" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView</code></a> can apply the
+     rotation by calling <a href="https://developer.android.com/reference/android/view/TextureView.html#setTransform-android.graphics.Matrix-" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView.setTransform(android.graphics.Matrix)</code></a>. Applications that do not
      expect to encounter rotated videos can safely ignore this parameter.</dd>
 <dd><code>pixelWidthHeightRatio</code> - The width to height ratio of each pixel. For the normal case of
      square pixels this will be equal to 1.0. Different values are indicative of anamorphic
@@ -199,7 +227,7 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <h4>onSurfaceSizeChanged</h4>
-<pre>default&nbsp;void&nbsp;onSurfaceSizeChanged(int&nbsp;width,
+<pre>default&nbsp;void&nbsp;onSurfaceSizeChanged&#8203;(int&nbsp;width,
                                   int&nbsp;height)</pre>
 <div class="block">Called each time there's a change in the size of the surface onto which the video is being
  rendered.</div>
@@ -271,6 +299,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

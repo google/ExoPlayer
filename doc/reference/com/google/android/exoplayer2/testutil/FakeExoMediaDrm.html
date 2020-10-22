@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>FakeExoMediaDrm (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.testutil</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/testutil/package-summary.html">com.google.android.exoplayer2.testutil</a></div>
 <h2 title="Class FakeExoMediaDrm" class="title">Class FakeExoMediaDrm</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.testutil.FakeExoMediaDrm</li>
@@ -106,12 +131,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public final class <span class="typeNameLabel">FakeExoMediaDrm</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></pre>
 <div class="block">A fake implementation of <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use in tests.
 
@@ -130,15 +154,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.LicenseServer.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.LicenseServer</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.LicenseServer.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm.LicenseServer</a></span></code></th>
+<td class="colLast">
 <div class="block">An license server implementation to interact with <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeExoMediaDrm</code></a>.</div>
 </td>
 </tr>
@@ -158,31 +184,36 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#DUMMY_PROVISION_REQUEST">DUMMY_PROVISION_REQUEST</a></span></code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#DUMMY_PROVISION_REQUEST">DUMMY_PROVISION_REQUEST</a></span></code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#KEY_STATUS_AVAILABLE">KEY_STATUS_AVAILABLE</a></span></code>
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#KEY_STATUS_AVAILABLE">KEY_STATUS_AVAILABLE</a></span></code></th>
+<td class="colLast">
 <div class="block">Value for use with the Map returned from <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-"><code>queryKeyStatus(byte[])</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#KEY_STATUS_KEY">KEY_STATUS_KEY</a></span></code>
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#KEY_STATUS_KEY">KEY_STATUS_KEY</a></span></code></th>
+<td class="colLast">
 <div class="block">Key for use with the Map returned from <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-"><code>queryKeyStatus(byte[])</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#KEY_STATUS_UNAVAILABLE">KEY_STATUS_UNAVAILABLE</a></span></code>
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#KEY_STATUS_UNAVAILABLE">KEY_STATUS_UNAVAILABLE</a></span></code></th>
+<td class="colLast">
 <div class="block">Value for use with the Map returned from <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-"><code>queryKeyStatus(byte[])</code></a>.</div>
 </td>
 </tr>
@@ -202,19 +233,22 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#FakeExoMediaDrm--">FakeExoMediaDrm</a></span>()</code>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#FakeExoMediaDrm--">FakeExoMediaDrm</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Constructs an instance that returns random and unique <code>sessionIds</code> for subsequent calls
  to <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#openSession--"><code>openSession()</code></a> with no limit on the number of concurrent open sessions.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#FakeExoMediaDrm-int-">FakeExoMediaDrm</a></span>(int&nbsp;maxConcurrentSessions)</code>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#FakeExoMediaDrm-int-">FakeExoMediaDrm</a></span>&#8203;(int&nbsp;maxConcurrentSessions)</code></th>
+<td class="colLast">
 <div class="block">Constructs an instance that returns random and unique <code>sessionIds</code> for subsequent calls
  to <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#openSession--"><code>openSession()</code></a> with a limit on the number of concurrent open sessions.</div>
 </td>
@@ -228,122 +262,143 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#acquire--">acquire</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#acquire--">acquire</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Increments the reference count.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#closeSession-byte:A-">closeSession</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#closeSession-byte:A-">closeSession</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#createMediaCrypto-byte:A-">createMediaCrypto</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#createMediaCrypto-byte:A-">createMediaCrypto</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" target="_top">Class</a>&lt;com.google.android.exoplayer2.testutil.FakeExoMediaDrm.FakeExoMediaCrypto&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getExoMediaCryptoType--">getExoMediaCryptoType</a></span>()</code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink" target="_top">Class</a>&lt;com.google.android.exoplayer2.testutil.FakeExoMediaDrm.FakeExoMediaCrypto&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getExoMediaCryptoType--">getExoMediaCryptoType</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type created by <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-"><code>ExoMediaDrm.createMediaCrypto(byte[])</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">getKeyRequest</a></span>(byte[]&nbsp;scope,
-             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">getKeyRequest</a></span>&#8203;(byte[]&nbsp;scope,
+             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
              int&nbsp;keyType,
-             <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;optionalParameters)</code>
+             <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalParameters)</code></th>
+<td class="colLast">
 <div class="block">Generates a key request.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" target="_top">PersistableBundle</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getMetrics--">getMetrics</a></span>()</code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getMetrics--">getMetrics</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns drm metrics.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getPropertyByteArray-java.lang.String-">getPropertyByteArray</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getPropertyByteArray-java.lang.String-">getPropertyByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getPropertyString-java.lang.String-">getPropertyString</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName)</code>&nbsp;</td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getPropertyString-java.lang.String-">getPropertyString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getProvisionRequest--">getProvisionRequest</a></span>()</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#getProvisionRequest--">getProvisionRequest</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#openSession--">openSession</a></span>()</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#openSession--">openSession</a></span>()</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#provideKeyResponse-byte:A-byte:A-">provideKeyResponse</a></span>(byte[]&nbsp;scope,
-                  byte[]&nbsp;response)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#provideKeyResponse-byte:A-byte:A-">provideKeyResponse</a></span>&#8203;(byte[]&nbsp;scope,
+                  byte[]&nbsp;response)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#provideProvisionResponse-byte:A-">provideProvisionResponse</a></span>(byte[]&nbsp;response)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#provideProvisionResponse-byte:A-">provideProvisionResponse</a></span>&#8203;(byte[]&nbsp;response)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-">queryKeyStatus</a></span>(byte[]&nbsp;sessionId)</code>&nbsp;</td>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-">queryKeyStatus</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#release--">release</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#release--">release</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Decrements the reference count.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#restoreKeys-byte:A-byte:A-">restoreKeys</a></span>(byte[]&nbsp;sessionId,
-           byte[]&nbsp;keySetId)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#restoreKeys-byte:A-byte:A-">restoreKeys</a></span>&#8203;(byte[]&nbsp;sessionId,
+           byte[]&nbsp;keySetId)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setOnEventListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener-">setOnEventListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setOnEventListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener-">setOnEventListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Sets the listener for DRM events.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setOnExpirationUpdateListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnExpirationUpdateListener-">setOnExpirationUpdateListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setOnExpirationUpdateListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnExpirationUpdateListener-">setOnExpirationUpdateListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Sets the listener for session expiration events.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setOnKeyStatusChangeListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener-">setOnKeyStatusChangeListener</a></span>(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setOnKeyStatusChangeListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener-">setOnKeyStatusChangeListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Sets the listener for key status change events.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setPropertyByteArray-java.lang.String-byte:A-">setPropertyByteArray</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName,
-                    byte[]&nbsp;value)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setPropertyByteArray-java.lang.String-byte:A-">setPropertyByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
+                    byte[]&nbsp;value)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setPropertyString-java.lang.String-java.lang.String-">setPropertyString</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName,
-                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;value)</code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#setPropertyString-java.lang.String-java.lang.String-">setPropertyString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
+                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -374,7 +429,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>KEY_STATUS_KEY</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> KEY_STATUS_KEY</pre>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_STATUS_KEY</pre>
 <div class="block">Key for use with the Map returned from <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-"><code>queryKeyStatus(byte[])</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -388,7 +443,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>KEY_STATUS_AVAILABLE</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> KEY_STATUS_AVAILABLE</pre>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_STATUS_AVAILABLE</pre>
 <div class="block">Value for use with the Map returned from <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-"><code>queryKeyStatus(byte[])</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -402,7 +457,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>KEY_STATUS_UNAVAILABLE</h4>
-<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a> KEY_STATUS_UNAVAILABLE</pre>
+<pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_STATUS_UNAVAILABLE</pre>
 <div class="block">Value for use with the Map returned from <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#queryKeyStatus-byte:A-"><code>queryKeyStatus(byte[])</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -435,7 +490,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockListLast">
 <li class="blockList">
 <h4>FakeExoMediaDrm</h4>
-<pre>public&nbsp;FakeExoMediaDrm(int&nbsp;maxConcurrentSessions)</pre>
+<pre>public&nbsp;FakeExoMediaDrm&#8203;(int&nbsp;maxConcurrentSessions)</pre>
 <div class="block">Constructs an instance that returns random and unique <code>sessionIds</code> for subsequent calls
  to <a href="../../../../../com/google/android/exoplayer2/testutil/FakeExoMediaDrm.html#openSession--"><code>openSession()</code></a> with a limit on the number of concurrent open sessions.</div>
 <dl>
@@ -458,7 +513,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>setOnEventListener</h4>
-<pre>public&nbsp;void&nbsp;setOnEventListener(@Nullable
+<pre>public&nbsp;void&nbsp;setOnEventListener&#8203;(@Nullable
                                <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setOnEventListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener-">ExoMediaDrm</a></code></span></div>
 <div class="block">Sets the listener for DRM events.
@@ -471,7 +526,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - The listener to receive events, or <code>null</code> to stop receiving events.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setOnEventListener-android.media.MediaDrm.OnEventListener-" title="class or interface in android.media" target="_top"><code>MediaDrm.setOnEventListener(MediaDrm.OnEventListener)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setOnEventListener-android.media.MediaDrm.OnEventListener-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.setOnEventListener(MediaDrm.OnEventListener)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -481,7 +536,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>setOnKeyStatusChangeListener</h4>
-<pre>public&nbsp;void&nbsp;setOnKeyStatusChangeListener(@Nullable
+<pre>public&nbsp;void&nbsp;setOnKeyStatusChangeListener&#8203;(@Nullable
                                          <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setOnKeyStatusChangeListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener-">ExoMediaDrm</a></code></span></div>
 <div class="block">Sets the listener for key status change events.
@@ -494,7 +549,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - The listener to receive events, or <code>null</code> to stop receiving events.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setOnKeyStatusChangeListener-android.media.MediaDrm.OnKeyStatusChangeListener-android.os.Handler-" title="class or interface in android.media" target="_top"><code>MediaDrm.setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setOnKeyStatusChangeListener-android.media.MediaDrm.OnKeyStatusChangeListener-android.os.Handler-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.setOnKeyStatusChangeListener(MediaDrm.OnKeyStatusChangeListener, Handler)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -504,7 +559,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>setOnExpirationUpdateListener</h4>
-<pre>public&nbsp;void&nbsp;setOnExpirationUpdateListener(@Nullable
+<pre>public&nbsp;void&nbsp;setOnExpirationUpdateListener&#8203;(@Nullable
                                           <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setOnExpirationUpdateListener-com.google.android.exoplayer2.drm.ExoMediaDrm.OnExpirationUpdateListener-">ExoMediaDrm</a></code></span></div>
 <div class="block">Sets the listener for session expiration events.
@@ -517,7 +572,7 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>listener</code> - The listener to receive events, or <code>null</code> to stop receiving events.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setOnExpirationUpdateListener-android.media.MediaDrm.OnExpirationUpdateListener-android.os.Handler-" title="class or interface in android.media" target="_top"><code>MediaDrm.setOnExpirationUpdateListener(MediaDrm.OnExpirationUpdateListener, Handler)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setOnExpirationUpdateListener-android.media.MediaDrm.OnExpirationUpdateListener-android.os.Handler-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.setOnExpirationUpdateListener(MediaDrm.OnExpirationUpdateListener, Handler)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -528,14 +583,14 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <li class="blockList">
 <h4>openSession</h4>
 <pre>public&nbsp;byte[]&nbsp;openSession()
-                   throws <a href="https://developer.android.com/reference/android/media/MediaDrmException.html" title="class or interface in android.media" target="_top">MediaDrmException</a></pre>
+                   throws <a href="https://developer.android.com/reference/android/media/MediaDrmException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaDrmException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#openSession--">openSession</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/media/MediaDrmException.html" title="class or interface in android.media" target="_top">MediaDrmException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/android/media/MediaDrmException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaDrmException</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#openSession--" title="class or interface in android.media" target="_top"><code>MediaDrm.openSession()</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#openSession--" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.openSession()</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -545,12 +600,12 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>closeSession</h4>
-<pre>public&nbsp;void&nbsp;closeSession(byte[]&nbsp;sessionId)</pre>
+<pre>public&nbsp;void&nbsp;closeSession&#8203;(byte[]&nbsp;sessionId)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#closeSession-byte:A-">closeSession</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#closeSession-byte:A-" title="class or interface in android.media" target="_top"><code>MediaDrm.closeSession(byte[])</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#closeSession-byte:A-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.closeSession(byte[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -560,13 +615,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeyRequest</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;getKeyRequest(byte[]&nbsp;scope,
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;getKeyRequest&#8203;(byte[]&nbsp;scope,
                                             @Nullable
-                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
+                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../../../com/google/android/exoplayer2/drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas,
                                             int&nbsp;keyType,
                                             @Nullable
-                                            <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;optionalParameters)
-                                     throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" target="_top">NotProvisionedException</a></pre>
+                                            <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalParameters)
+                                     throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top">NotProvisionedException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getKeyRequest-byte:A-java.util.List-int-java.util.HashMap-">ExoMediaDrm</a></code></span></div>
 <div class="block">Generates a key request.</div>
 <dl>
@@ -586,9 +641,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The generated key request.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" target="_top">NotProvisionedException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top">NotProvisionedException</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-" title="class or interface in android.media" target="_top"><code>MediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getKeyRequest-byte:A-byte:A-java.lang.String-int-java.util.HashMap-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.getKeyRequest(byte[], byte[], String, int, HashMap)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -599,18 +654,18 @@ implements <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm
 <li class="blockList">
 <h4>provideKeyResponse</h4>
 <pre>@Nullable
-public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
-                                           byte[]&nbsp;response)
-                                    throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" target="_top">NotProvisionedException</a>,
-                                           <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" target="_top">DeniedByServerException</a></pre>
+public&nbsp;byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
+                                 byte[]&nbsp;response)
+                          throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top">NotProvisionedException</a>,
+                                 <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" class="externalLink" target="_top">DeniedByServerException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#provideKeyResponse-byte:A-byte:A-">provideKeyResponse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" target="_top">NotProvisionedException</a></code></dd>
-<dd><code><a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" target="_top">DeniedByServerException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top">NotProvisionedException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" class="externalLink" target="_top">DeniedByServerException</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#provideKeyResponse-byte:A-byte:A-" title="class or interface in android.media" target="_top"><code>MediaDrm.provideKeyResponse(byte[], byte[])</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#provideKeyResponse-byte:A-byte:A-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.provideKeyResponse(byte[], byte[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -625,7 +680,7 @@ public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getProvisionRequest--">getProvisionRequest</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getProvisionRequest--" title="class or interface in android.media" target="_top"><code>MediaDrm.getProvisionRequest()</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getProvisionRequest--" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.getProvisionRequest()</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -635,15 +690,15 @@ public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <ul class="blockList">
 <li class="blockList">
 <h4>provideProvisionResponse</h4>
-<pre>public&nbsp;void&nbsp;provideProvisionResponse(byte[]&nbsp;response)
-                              throws <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" target="_top">DeniedByServerException</a></pre>
+<pre>public&nbsp;void&nbsp;provideProvisionResponse&#8203;(byte[]&nbsp;response)
+                              throws <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" class="externalLink" target="_top">DeniedByServerException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#provideProvisionResponse-byte:A-">provideProvisionResponse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" target="_top">DeniedByServerException</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" class="externalLink" target="_top">DeniedByServerException</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#provideProvisionResponse-byte:A-" title="class or interface in android.media" target="_top"><code>MediaDrm.provideProvisionResponse(byte[])</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#provideProvisionResponse-byte:A-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.provideProvisionResponse(byte[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -653,12 +708,12 @@ public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <ul class="blockList">
 <li class="blockList">
 <h4>queryKeyStatus</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;queryKeyStatus(byte[]&nbsp;sessionId)</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;queryKeyStatus&#8203;(byte[]&nbsp;sessionId)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#queryKeyStatus-byte:A-">queryKeyStatus</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#queryKeyStatus-byte:A-" title="class or interface in android.media" target="_top"><code>MediaDrm.queryKeyStatus(byte[])</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#queryKeyStatus-byte:A-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.queryKeyStatus(byte[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -703,13 +758,13 @@ public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <ul class="blockList">
 <li class="blockList">
 <h4>restoreKeys</h4>
-<pre>public&nbsp;void&nbsp;restoreKeys(byte[]&nbsp;sessionId,
+<pre>public&nbsp;void&nbsp;restoreKeys&#8203;(byte[]&nbsp;sessionId,
                         byte[]&nbsp;keySetId)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#restoreKeys-byte:A-byte:A-">restoreKeys</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#restoreKeys-byte:A-byte:A-" title="class or interface in android.media" target="_top"><code>MediaDrm.restoreKeys(byte[], byte[])</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#restoreKeys-byte:A-byte:A-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.restoreKeys(byte[], byte[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -720,14 +775,14 @@ public&nbsp;byte[]&nbsp;provideKeyResponse(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>getMetrics</h4>
 <pre>@Nullable
-public&nbsp;<a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" target="_top">PersistableBundle</a>&nbsp;getMetrics()</pre>
+public&nbsp;<a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a>&nbsp;getMetrics()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getMetrics--">ExoMediaDrm</a></code></span></div>
 <div class="block">Returns drm metrics. May be null if unavailable.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getMetrics--">getMetrics</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getMetrics--" title="class or interface in android.media" target="_top"><code>MediaDrm.getMetrics()</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getMetrics--" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.getMetrics()</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -737,12 +792,12 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockList">
 <li class="blockList">
 <h4>getPropertyString</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang">String</a>&nbsp;getPropertyString(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName)</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getPropertyString&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyString-java.lang.String-">getPropertyString</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getPropertyString-java.lang.String-" title="class or interface in android.media" target="_top"><code>MediaDrm.getPropertyString(String)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getPropertyString-java.lang.String-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.getPropertyString(String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -752,12 +807,12 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockList">
 <li class="blockList">
 <h4>getPropertyByteArray</h4>
-<pre>public&nbsp;byte[]&nbsp;getPropertyByteArray(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName)</pre>
+<pre>public&nbsp;byte[]&nbsp;getPropertyByteArray&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getPropertyByteArray-java.lang.String-">getPropertyByteArray</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getPropertyByteArray-java.lang.String-" title="class or interface in android.media" target="_top"><code>MediaDrm.getPropertyByteArray(String)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#getPropertyByteArray-java.lang.String-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.getPropertyByteArray(String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -767,13 +822,13 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockList">
 <li class="blockList">
 <h4>setPropertyString</h4>
-<pre>public&nbsp;void&nbsp;setPropertyString(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName,
-                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;value)</pre>
+<pre>public&nbsp;void&nbsp;setPropertyString&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
+                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setPropertyString-java.lang.String-java.lang.String-">setPropertyString</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setPropertyString-java.lang.String-java.lang.String-" title="class or interface in android.media" target="_top"><code>MediaDrm.setPropertyString(String, String)</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setPropertyString-java.lang.String-java.lang.String-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.setPropertyString(String, String)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -783,13 +838,13 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockList">
 <li class="blockList">
 <h4>setPropertyByteArray</h4>
-<pre>public&nbsp;void&nbsp;setPropertyByteArray(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;propertyName,
+<pre>public&nbsp;void&nbsp;setPropertyByteArray&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                                  byte[]&nbsp;value)</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#setPropertyByteArray-java.lang.String-byte:A-">setPropertyByteArray</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setPropertyByteArray-java.lang.String-byte:A-" title="class or interface in android.media" target="_top"><code>MediaDrm.setPropertyByteArray(String, byte[])</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaDrm.html#setPropertyByteArray-java.lang.String-byte:A-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.setPropertyByteArray(String, byte[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -799,8 +854,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockList">
 <li class="blockList">
 <h4>createMediaCrypto</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;createMediaCrypto(byte[]&nbsp;sessionId)
-                                 throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" target="_top">MediaCryptoException</a></pre>
+<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaCrypto</a>&nbsp;createMediaCrypto&#8203;(byte[]&nbsp;sessionId)
+                                 throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCryptoException</a></pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-">createMediaCrypto</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a></code></dd>
@@ -809,9 +864,9 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An object extends <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a>, using opaque crypto scheme specific data.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" target="_top">MediaCryptoException</a></code> - If the instance can't be created.</dd>
+<dd><code><a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCryptoException</a></code> - If the instance can't be created.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="https://developer.android.com/reference/android/media/MediaCrypto.html#MediaCrypto-java.util.UUID-byte:A-" title="class or interface in android.media" target="_top"><code>MediaCrypto.MediaCrypto(UUID, byte[])</code></a></dd>
+<dd><a href="https://developer.android.com/reference/android/media/MediaCrypto.html#MediaCrypto-java.util.UUID-byte:A-" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCrypto(UUID, byte[])</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -821,7 +876,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getExoMediaCryptoType</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" target="_top">Class</a>&lt;com.google.android.exoplayer2.testutil.FakeExoMediaDrm.FakeExoMediaCrypto&gt;&nbsp;getExoMediaCryptoType()</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink" target="_top">Class</a>&lt;com.google.android.exoplayer2.testutil.FakeExoMediaDrm.FakeExoMediaCrypto&gt;&nbsp;getExoMediaCryptoType()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#getExoMediaCryptoType--">ExoMediaDrm</a></code></span></div>
 <div class="block">Returns the <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaCrypto.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaCrypto</code></a> type created by <a href="../../../../../com/google/android/exoplayer2/drm/ExoMediaDrm.html#createMediaCrypto-byte:A-"><code>ExoMediaDrm.createMediaCrypto(byte[])</code></a>.</div>
 <dl>
@@ -878,6 +933,9 @@ public&nbsp;<a href="https://developer.android.com/reference/android/os/Persista
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

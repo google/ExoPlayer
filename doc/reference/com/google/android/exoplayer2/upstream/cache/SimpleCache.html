@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>SimpleCache (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.upstream.cache</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/package-summary.html">com.google.android.exoplayer2.upstream.cache</a></div>
 <h2 title="Class SimpleCache" class="title">Class SimpleCache</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.google.android.exoplayer2.upstream.cache.SimpleCache</li>
@@ -106,12 +131,11 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public final class <span class="typeNameLabel">SimpleCache</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></pre>
 <div class="block">A <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> implementation that maintains an in-memory representation.
 
@@ -162,52 +186,58 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-">SimpleCache</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
-           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-">SimpleCache</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
+           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-byte:A-">SimpleCache</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-byte:A-">SimpleCache</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
-           byte[]&nbsp;secretKey)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+           byte[]&nbsp;secretKey)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</div>
 </div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-byte:A-boolean-">SimpleCache</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-byte:A-boolean-">SimpleCache</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
            byte[]&nbsp;secretKey,
-           boolean&nbsp;encrypt)</code>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+           boolean&nbsp;encrypt)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</div>
 </div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-">SimpleCache</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-">SimpleCache</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
-           <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</code>
+           <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</code></th>
+<td class="colLast">
 <div class="block">Constructs the cache.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-byte:A-boolean-boolean-">SimpleCache</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#SimpleCache-java.io.File-com.google.android.exoplayer2.upstream.cache.CacheEvictor-com.google.android.exoplayer2.database.DatabaseProvider-byte:A-boolean-boolean-">SimpleCache</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
            <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
            byte[]&nbsp;legacyIndexSecretKey,
            boolean&nbsp;legacyIndexEncrypt,
-           boolean&nbsp;preferLegacyIndex)</code>
+           boolean&nbsp;preferLegacyIndex)</code></th>
+<td class="colLast">
 <div class="block">Constructs the cache.</div>
 </td>
 </tr>
@@ -220,162 +250,186 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#addListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">addListener</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util" class="externalLink">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#addListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">addListener</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
+           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Registers a listener to listen for changes to a given resource.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#applyContentMetadataMutations-java.lang.String-com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations-">applyContentMetadataMutations</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                             <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#applyContentMetadataMutations-java.lang.String-com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations-">applyContentMetadataMutations</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
+                             <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)</code></th>
+<td class="colLast">
 <div class="block">Applies <code>mutations</code> to the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given resource.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#checkInitialization--">checkInitialization</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#checkInitialization--">checkInitialization</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Checks whether the cache was initialized successfully.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#commitFile-java.io.File-long-">commitFile</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;file,
-          long&nbsp;length)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#commitFile-java.io.File-long-">commitFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;file,
+          long&nbsp;length)</code></th>
+<td class="colLast">
 <div class="block">Commits a file into the cache.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#delete-java.io.File-com.google.android.exoplayer2.database.DatabaseProvider-">delete</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
-      <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#delete-java.io.File-com.google.android.exoplayer2.database.DatabaseProvider-">delete</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
+      <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</code></th>
+<td class="colLast">
 <div class="block">Deletes all content belonging to a cache instance.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedBytes-java.lang.String-long-long-">getCachedBytes</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedBytes-java.lang.String-long-long-">getCachedBytes</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
               long&nbsp;position,
-              long&nbsp;length)</code>
-<div class="block">Returns the total number of cached bytes between <code>position</code> (inclusive) and <code>(position + length)</code> (exclusive) of a resource.</div>
+              long&nbsp;length)</code></th>
+<td class="colLast">
+<div class="block">Returns the total number of cached bytes between <code>position</code> (inclusive) and <code>
+ (position + length)</code> (exclusive) of a resource.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedLength-java.lang.String-long-long-">getCachedLength</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedLength-java.lang.String-long-long-">getCachedLength</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                long&nbsp;position,
-               long&nbsp;length)</code>
+               long&nbsp;length)</code></th>
+<td class="colLast">
 <div class="block">Returns the length of continuously cached data starting from <code>position</code>, up to a maximum
  of <code>maxLength</code>, of a resource.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedSpans-java.lang.String-">getCachedSpans</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util" class="externalLink">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCachedSpans-java.lang.String-">getCachedSpans</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</code></th>
+<td class="colLast">
 <div class="block">Returns the cached spans for a given resource.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCacheSpace--">getCacheSpace</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getCacheSpace--">getCacheSpace</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the total disk space in bytes used by the cache.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getContentMetadata-java.lang.String-">getContentMetadata</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getContentMetadata-java.lang.String-">getContentMetadata</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</code></th>
+<td class="colLast">
 <div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given resource.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util">Set</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getKeys--">getKeys</a></span>()</code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getKeys--">getKeys</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the cache keys of all of the resources that are at least partially cached.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getUid--">getUid</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#getUid--">getUid</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns a non-negative unique identifier for the cache, or <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#UID_UNSET"><code>Cache.UID_UNSET</code></a> if initialization
  failed before the unique identifier was determined.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#isCached-java.lang.String-long-long-">isCached</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#isCached-java.lang.String-long-long-">isCached</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
         long&nbsp;position,
-        long&nbsp;length)</code>
+        long&nbsp;length)</code></th>
+<td class="colLast">
 <div class="block">Returns whether the specified range of data in a resource is fully cached.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#isCacheFolderLocked-java.io.File-">isCacheFolderLocked</a></span>(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheFolder)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#isCacheFolderLocked-java.io.File-">isCacheFolderLocked</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheFolder)</code></th>
+<td class="colLast">
 <div class="block">Returns whether <code>cacheFolder</code> is locked by a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>SimpleCache</code></a> instance.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#release--">release</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#release--">release</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Releases the cache.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">releaseHoleSpan</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;holeSpan)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">releaseHoleSpan</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;holeSpan)</code></th>
+<td class="colLast">
 <div class="block">Releases a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-long-"><code>Cache.startReadWrite(String, long, long)</code></a> which
  corresponded to a hole in the cache.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">removeListener</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">removeListener</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
+              <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</code></th>
+<td class="colLast">
 <div class="block">Unregisters a listener.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeResource-java.lang.String-">removeResource</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeResource-java.lang.String-">removeResource</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</code></th>
+<td class="colLast">
 <div class="block">Removes all <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a> for a resource, deleting the underlying files.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">removeSpan</a></span>(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#removeSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">removeSpan</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code></th>
+<td class="colLast">
 <div class="block">Removes a cached <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> from the cache, deleting the underlying file.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startFile-java.lang.String-long-long-">startFile</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startFile-java.lang.String-long-long-">startFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
          long&nbsp;position,
-         long&nbsp;length)</code>
+         long&nbsp;length)</code></th>
+<td class="colLast">
 <div class="block">Obtains a cache file into which data can be written.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startReadWrite-java.lang.String-long-long-">startReadWrite</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startReadWrite-java.lang.String-long-long-">startReadWrite</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
               long&nbsp;position,
-              long&nbsp;length)</code>
+              long&nbsp;length)</code></th>
+<td class="colLast">
 <div class="block">A caller should invoke this method when they require data starting from a given position in a
  given resource.</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startReadWriteNonBlocking-java.lang.String-long-long-">startReadWriteNonBlocking</a></span>(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html#startReadWriteNonBlocking-java.lang.String-long-long-">startReadWriteNonBlocking</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                          long&nbsp;position,
-                         long&nbsp;length)</code>
+                         long&nbsp;length)</code></th>
+<td class="colLast">
 <div class="block">Same as <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-long-"><code>Cache.startReadWrite(String, long, long)</code></a>.</div>
 </td>
 </tr>
@@ -384,8 +438,8 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -407,10 +461,12 @@ implements <a href="../../../../../../com/google/android/exoplayer2/upstream/cac
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
-                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;SimpleCache&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
+                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</div>
+</div>
 <div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
  the directory cannot be used to store other files.</div>
 <dl>
@@ -427,12 +483,14 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
-                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
-                               @Nullable
-                               byte[]&nbsp;secretKey)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;SimpleCache&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
+                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+                   @Nullable
+                   byte[]&nbsp;secretKey)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</div>
+</div>
 <div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
  the directory cannot be used to store other files.</div>
 <dl>
@@ -451,13 +509,15 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" target="_top">@Deprecated</a>
-public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
-                               <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
-                               @Nullable
-                               byte[]&nbsp;secretKey,
-                               boolean&nbsp;encrypt)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</span></div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;SimpleCache&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
+                   <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
+                   @Nullable
+                   byte[]&nbsp;secretKey,
+                   boolean&nbsp;encrypt)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use a constructor that takes a <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> for improved performance.</div>
+</div>
 <div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
  the directory cannot be used to store other files.</div>
 <dl>
@@ -467,7 +527,8 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
      occur, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
 <dd><code>secretKey</code> - If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
      The key must be 16 bytes long.</dd>
-<dd><code>encrypt</code> - Whether the index will be encrypted when written. Must be false if <code>secretKey</code> is null.</dd>
+<dd><code>encrypt</code> - Whether the index will be encrypted when written. Must be false if <code>
+     secretKey</code> is null.</dd>
 </dl>
 </li>
 </ul>
@@ -477,7 +538,7 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
 <ul class="blockList">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre>public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
+<pre>public&nbsp;SimpleCache&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
                    <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
                    <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</pre>
 <div class="block">Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
@@ -497,7 +558,7 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
 <ul class="blockListLast">
 <li class="blockList">
 <h4>SimpleCache</h4>
-<pre>public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
+<pre>public&nbsp;SimpleCache&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
                    <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheEvictor.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheEvictor</a>&nbsp;evictor,
                    @Nullable
                    <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
@@ -512,12 +573,14 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
 <dd><code>cacheDir</code> - A dedicated cache directory.</dd>
 <dd><code>evictor</code> - The evictor to be used. For download use cases where cache eviction should not
      occur, use <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>NoOpCacheEvictor</code></a>.</dd>
-<dd><code>databaseProvider</code> - Provides the database in which the cache index is stored, or <code>null</code> to use a legacy index. Using a database index is highly recommended for performance
+<dd><code>databaseProvider</code> - Provides the database in which the cache index is stored, or <code>
+     null</code> to use a legacy index. Using a database index is highly recommended for performance
      reasons.</dd>
 <dd><code>legacyIndexSecretKey</code> - A 16 byte AES key for reading, and optionally writing, the legacy
      index. Not used by the database index, however should still be provided when using the
      database index in cases where upgrading from the legacy index may be necessary.</dd>
-<dd><code>legacyIndexEncrypt</code> - Whether to encrypt when writing to the legacy index. Must be <code>false</code> if <code>legacyIndexSecretKey</code> is <code>null</code>. Not used by the database index.</dd>
+<dd><code>legacyIndexEncrypt</code> - Whether to encrypt when writing to the legacy index. Must be <code>
+     false</code> if <code>legacyIndexSecretKey</code> is <code>null</code>. Not used by the database index.</dd>
 <dd><code>preferLegacyIndex</code> - Whether to use the legacy index even if a <code>databaseProvider</code> is
      provided. Should be <code>false</code> in nearly all cases. Setting this to <code>true</code> is only
      useful for downgrading from the database index back to the legacy index.</dd>
@@ -538,7 +601,7 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
 <ul class="blockList">
 <li class="blockList">
 <h4>isCacheFolderLocked</h4>
-<pre>public static&nbsp;boolean&nbsp;isCacheFolderLocked(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheFolder)</pre>
+<pre>public static&nbsp;boolean&nbsp;isCacheFolderLocked&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheFolder)</pre>
 <div class="block">Returns whether <code>cacheFolder</code> is locked by a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>SimpleCache</code></a> instance. To unlock the
  folder the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/SimpleCache.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>SimpleCache</code></a> instance should be released.</div>
 </li>
@@ -550,9 +613,9 @@ public&nbsp;SimpleCache(<a href="https://developer.android.com/reference/java/io
 <li class="blockList">
 <h4>delete</h4>
 <pre>@WorkerThread
-public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;cacheDir,
-                                        @Nullable
-                                        <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</pre>
+public static&nbsp;void&nbsp;delete&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;cacheDir,
+                          @Nullable
+                          <a href="../../../../../../com/google/android/exoplayer2/database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</pre>
 <div class="block">Deletes all content belonging to a cache instance.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
@@ -575,8 +638,7 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <div class="block">Checks whether the cache was initialized successfully.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>CacheException</code> - If an error occurred during initialization.</dd>
-<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code></dd>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code> - If an error occurred during initialization.</dd>
 </dl>
 </li>
 </ul>
@@ -624,7 +686,7 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>addListener</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;&nbsp;addListener(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util" class="externalLink">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;&nbsp;addListener&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                                            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#addListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">Cache</a></code></span></div>
 <div class="block">Registers a listener to listen for changes to a given resource.
@@ -649,7 +711,7 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>removeListener</h4>
-<pre>public&nbsp;void&nbsp;removeListener(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;void&nbsp;removeListener&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                            <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a>&nbsp;listener)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#removeListener-java.lang.String-com.google.android.exoplayer2.upstream.cache.Cache.Listener-">Cache</a></code></span></div>
 <div class="block">Unregisters a listener.</div>
@@ -668,7 +730,7 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>getCachedSpans</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;&nbsp;getCachedSpans(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/NavigableSet.html" title="class or interface in java.util" class="externalLink">NavigableSet</a>&lt;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&gt;&nbsp;getCachedSpans&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCachedSpans-java.lang.String-">Cache</a></code></span></div>
 <div class="block">Returns the cached spans for a given resource.</div>
 <dl>
@@ -687,7 +749,7 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>getKeys</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util">Set</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&gt;&nbsp;getKeys()</pre>
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;getKeys()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getKeys--">Cache</a></code></span></div>
 <div class="block">Returns the cache keys of all of the resources that are at least partially cached.</div>
 <dl>
@@ -717,10 +779,10 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <ul class="blockList">
 <li class="blockList">
 <h4>startReadWrite</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;startReadWrite(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;startReadWrite&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                                 long&nbsp;position,
                                 long&nbsp;length)
-                         throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a>,
+                         throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a>,
                                 <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-long-">Cache</a></code></span></div>
 <div class="block">A caller should invoke this method when they require data starting from a given position in a
@@ -753,7 +815,7 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></code> - If the thread was interrupted.</dd>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></code> - If an error is encountered.</dd>
 </dl>
 </li>
@@ -765,10 +827,10 @@ public static&nbsp;void&nbsp;delete(<a href="https://developer.android.com/refer
 <li class="blockList">
 <h4>startReadWriteNonBlocking</h4>
 <pre>@Nullable
-public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;startReadWriteNonBlocking(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
-                                                     long&nbsp;position,
-                                                     long&nbsp;length)
-                                              throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
+public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;startReadWriteNonBlocking&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
+                                           long&nbsp;position,
+                                           long&nbsp;length)
+                                    throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWriteNonBlocking-java.lang.String-long-long-">Cache</a></code></span></div>
 <div class="block">Same as <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-long-"><code>Cache.startReadWrite(String, long, long)</code></a>. However, if the cache entry is locked,
  then instead of blocking, this method will return null as the <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.
@@ -796,7 +858,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>startFile</h4>
-<pre>public&nbsp;<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io">File</a>&nbsp;startFile(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink">File</a>&nbsp;startFile&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                       long&nbsp;position,
                       long&nbsp;length)
                throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
@@ -826,7 +888,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>commitFile</h4>
-<pre>public&nbsp;void&nbsp;commitFile(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" target="_top">File</a>&nbsp;file,
+<pre>public&nbsp;void&nbsp;commitFile&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;file,
                        long&nbsp;length)
                 throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#commitFile-java.io.File-long-">Cache</a></code></span></div>
@@ -850,7 +912,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>releaseHoleSpan</h4>
-<pre>public&nbsp;void&nbsp;releaseHoleSpan(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;holeSpan)</pre>
+<pre>public&nbsp;void&nbsp;releaseHoleSpan&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;holeSpan)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#releaseHoleSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">Cache</a></code></span></div>
 <div class="block">Releases a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> obtained from <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#startReadWrite-java.lang.String-long-long-"><code>Cache.startReadWrite(String, long, long)</code></a> which
  corresponded to a hole in the cache.</div>
@@ -868,7 +930,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>removeResource</h4>
-<pre>public&nbsp;void&nbsp;removeResource(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</pre>
+<pre>public&nbsp;void&nbsp;removeResource&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#removeResource-java.lang.String-">Cache</a></code></span></div>
 <div class="block">Removes all <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a> for a resource, deleting the underlying files.</div>
 <dl>
@@ -885,7 +947,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>removeSpan</h4>
-<pre>public&nbsp;void&nbsp;removeSpan(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</pre>
+<pre>public&nbsp;void&nbsp;removeSpan&#8203;(<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#removeSpan-com.google.android.exoplayer2.upstream.cache.CacheSpan-">Cache</a></code></span></div>
 <div class="block">Removes a cached <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> from the cache, deleting the underlying file.
 
@@ -904,7 +966,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>isCached</h4>
-<pre>public&nbsp;boolean&nbsp;isCached(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;boolean&nbsp;isCached&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                         long&nbsp;position,
                         long&nbsp;length)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#isCached-java.lang.String-long-long-">Cache</a></code></span></div>
@@ -927,7 +989,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>getCachedLength</h4>
-<pre>public&nbsp;long&nbsp;getCachedLength(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;long&nbsp;getCachedLength&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                             long&nbsp;position,
                             long&nbsp;length)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCachedLength-java.lang.String-long-long-">Cache</a></code></span></div>
@@ -942,7 +1004,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <dd><code>key</code> - The cache key of the resource.</dd>
 <dd><code>position</code> - The starting position of the data in the resource.</dd>
 <dd><code>length</code> - The maximum length of the data or hole to be returned. <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> is
-     permitted, and is equivalent to passing <a href="https://developer.android.com/reference/java/lang/Long.html#MAX_VALUE" title="class or interface in java.lang" target="_top"><code>Long.MAX_VALUE</code></a>.</dd>
+     permitted, and is equivalent to passing <a href="https://developer.android.com/reference/java/lang/Long.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MAX_VALUE</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The length of the continuously cached data, or <code>-holeLength</code> if <code>position</code>
      isn't cached.</dd>
@@ -955,11 +1017,12 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>getCachedBytes</h4>
-<pre>public&nbsp;long&nbsp;getCachedBytes(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;long&nbsp;getCachedBytes&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                            long&nbsp;position,
                            long&nbsp;length)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCachedBytes-java.lang.String-long-long-">Cache</a></code></span></div>
-<div class="block">Returns the total number of cached bytes between <code>position</code> (inclusive) and <code>(position + length)</code> (exclusive) of a resource.</div>
+<div class="block">Returns the total number of cached bytes between <code>position</code> (inclusive) and <code>
+ (position + length)</code> (exclusive) of a resource.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getCachedBytes-java.lang.String-long-long-">getCachedBytes</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></dd>
@@ -967,7 +1030,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <dd><code>key</code> - The cache key of the resource.</dd>
 <dd><code>position</code> - The starting position of the data in the resource.</dd>
 <dd><code>length</code> - The length of the data to check. <a href="../../../../../../com/google/android/exoplayer2/C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> is permitted, and is
-     equivalent to passing <a href="https://developer.android.com/reference/java/lang/Long.html#MAX_VALUE" title="class or interface in java.lang" target="_top"><code>Long.MAX_VALUE</code></a>.</dd>
+     equivalent to passing <a href="https://developer.android.com/reference/java/lang/Long.html#MAX_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MAX_VALUE</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The total number of cached bytes.</dd>
 </dl>
@@ -979,7 +1042,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockList">
 <li class="blockList">
 <h4>applyContentMetadataMutations</h4>
-<pre>public&nbsp;void&nbsp;applyContentMetadataMutations(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key,
+<pre>public&nbsp;void&nbsp;applyContentMetadataMutations&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                                           <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)
                                    throws <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.CacheException.html" title="class in com.google.android.exoplayer2.upstream.cache">Cache.CacheException</a></pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#applyContentMetadataMutations-java.lang.String-com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations-">Cache</a></code></span></div>
@@ -1003,7 +1066,7 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getContentMetadata</h4>
-<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a>&nbsp;getContentMetadata(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" target="_top">String</a>&nbsp;key)</pre>
+<pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a>&nbsp;getContentMetadata&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/upstream/cache/Cache.html#getContentMetadata-java.lang.String-">Cache</a></code></span></div>
 <div class="block">Returns a <a href="../../../../../../com/google/android/exoplayer2/upstream/cache/ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a> for the given resource.</div>
 <dl>
@@ -1064,6 +1127,9 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/upstream/ca
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

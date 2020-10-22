@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>AdaptiveTrackSelection (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -22,10 +31,11 @@ var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -56,6 +66,12 @@ var activeTableTab = "activeTableTab";
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -67,6 +83,9 @@ var activeTableTab = "activeTableTab";
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">
@@ -87,14 +106,20 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="subTitle">com.google.android.exoplayer2.trackselection</div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/package-summary.html">com.google.android.exoplayer2.trackselection</a></div>
 <h2 title="Class AdaptiveTrackSelection" class="title">Class AdaptiveTrackSelection</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">java.lang.Object</a></li>
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li><a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">com.google.android.exoplayer2.trackselection.BaseTrackSelection</a></li>
@@ -111,10 +136,9 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></dd>
+<dd><code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>
 </dl>
 <hr>
-<br>
 <pre>public class <span class="typeNameLabel">AdaptiveTrackSelection</span>
 extends <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></pre>
 <div class="block">A bandwidth based adaptive <a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelection</code></a>, whose selected track is updated to be the one
@@ -131,15 +155,17 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Nested Class Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Nested Class Summary table, listing nested classes, and an explanation">
+<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
 <caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Class and Description</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.Factory</a></span></code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.Factory</a></span></code></th>
+<td class="colLast">
 <div class="block">Factory for <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>AdaptiveTrackSelection</code></a> instances.</div>
 </td>
 </tr>
@@ -159,31 +185,37 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Field Summary table, listing fields, and an explanation">
+<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
 <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Field and Description</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_BANDWIDTH_FRACTION">DEFAULT_BANDWIDTH_FRACTION</a></span></code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_BANDWIDTH_FRACTION">DEFAULT_BANDWIDTH_FRACTION</a></span></code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static float</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE">DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE</a></span></code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE">DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE</a></span></code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS">DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS</a></span></code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS">DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS</a></span></code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS">DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS</a></span></code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS">DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS</a></span></code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS">DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS</a></span></code>&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS">DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS</a></span></code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -201,18 +233,20 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
-<th class="colOne" scope="col">Constructor and Description</th>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-">AdaptiveTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-">AdaptiveTrackSelection</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                       int[]&nbsp;tracks,
-                      <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code>&nbsp;</td>
+                      <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-long-long-long-long-float-float-com.google.android.exoplayer2.util.Clock-">AdaptiveTrackSelection</a></span>(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#AdaptiveTrackSelection-com.google.android.exoplayer2.source.TrackGroup-int:A-com.google.android.exoplayer2.upstream.BandwidthMeter-long-long-long-long-float-float-com.google.android.exoplayer2.util.Clock-">AdaptiveTrackSelection</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                       int[]&nbsp;tracks,
                       <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                       long&nbsp;reservedBandwidth,
@@ -221,7 +255,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
                       long&nbsp;minDurationToRetainAfterDiscardMs,
                       float&nbsp;bandwidthFraction,
                       float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
-                      <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code>&nbsp;</td>
+                      <a href="../../../../../com/google/android/exoplayer2/util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code></th>
+<td class="colLast">&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -232,92 +267,105 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colLast" scope="col">Method and Description</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#canSelectFormat-com.google.android.exoplayer2.Format-int-float-long-">canSelectFormat</a></span>(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#canSelectFormat-com.google.android.exoplayer2.Format-int-float-long-">canSelectFormat</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                int&nbsp;trackBitrate,
                float&nbsp;playbackSpeed,
-               long&nbsp;effectiveBitrate)</code>
+               long&nbsp;effectiveBitrate)</code></th>
+<td class="colLast">
 <div class="block">Called when updating the selected track to determine whether a candidate track can be selected.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#disable--">disable</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#disable--">disable</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Disables this track selection.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#enable--">enable</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#enable--">enable</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Enables the track selection.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#evaluateQueueSize-long-java.util.List-">evaluateQueueSize</a></span>(long&nbsp;playbackPositionUs,
-                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#evaluateQueueSize-long-java.util.List-">evaluateQueueSize</a></span>&#8203;(long&nbsp;playbackPositionUs,
+                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
+<td class="colLast">
 <div class="block">Returns the number of chunks that should be retained in the queue.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#experimentalSetBandwidthAllocationCheckpoints-long:A:A-">experimentalSetBandwidthAllocationCheckpoints</a></span>(long[][]&nbsp;allocationCheckpoints)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#experimentalSetBandwidthAllocationCheckpoints-long:A:A-">experimentalSetBandwidthAllocationCheckpoints</a></span>&#8203;(long[][]&nbsp;allocationCheckpoints)</code></th>
+<td class="colLast">
 <div class="block">Sets checkpoints to determine the allocation bandwidth based on the total bandwidth.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected long</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getMinDurationToRetainAfterDiscardUs--">getMinDurationToRetainAfterDiscardUs</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getMinDurationToRetainAfterDiscardUs--">getMinDurationToRetainAfterDiscardUs</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Called from <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a> to determine the minimum duration of buffer
  to retain after discarding chunks.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectedIndex--">getSelectedIndex</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectedIndex--">getSelectedIndex</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the index of the selected track.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectionData--">getSelectionData</a></span>()</code>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectionData--">getSelectionData</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns optional data associated with the current track selection.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectionReason--">getSelectionReason</a></span>()</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#getSelectionReason--">getSelectionReason</a></span>()</code></th>
+<td class="colLast">
 <div class="block">Returns the reason for the current track selection.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#onPlaybackSpeed-float-">onPlaybackSpeed</a></span>(float&nbsp;playbackSpeed)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#onPlaybackSpeed-float-">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
+<td class="colLast">
 <div class="block">Called to notify the selection of the current playback speed.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#shouldEvaluateQueueSize-long-java.util.List-">shouldEvaluateQueueSize</a></span>(long&nbsp;nowMs,
-                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#shouldEvaluateQueueSize-long-java.util.List-">shouldEvaluateQueueSize</a></span>&#8203;(long&nbsp;nowMs,
+                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
+<td class="colLast">
 <div class="block">Called from <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a> to determine whether an evaluation should be
  performed.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></span>(long&nbsp;playbackPositionUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">updateSelectedTrack</a></span>&#8203;(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
                    long&nbsp;availableDurationUs,
-                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
-                   <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</code>
+                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
+                   <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</code></th>
+<td class="colLast">
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</div>
 </td>
 </tr>
@@ -327,14 +375,14 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.trackselection.<a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></h3>
-<code><a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#blacklist-int-long-">blacklist</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#equals-java.lang.Object-">equals</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getFormat-int-">getFormat</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getIndexInTrackGroup-int-">getIndexInTrackGroup</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getSelectedFormat--">getSelectedFormat</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getSelectedIndexInTrackGroup--">getSelectedIndexInTrackGroup</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getTrackGroup--">getTrackGroup</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#hashCode--">hashCode</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#indexOf-com.google.android.exoplayer2.Format-">indexOf</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#indexOf-int-">indexOf</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#isBlacklisted-int-long-">isBlacklisted</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#length--">length</a></code></li>
+<code><a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#blacklist-int-long-">blacklist</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#equals-java.lang.Object-">equals</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getFormat-int-">getFormat</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getIndexInTrackGroup-int-">getIndexInTrackGroup</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getSelectedFormat--">getSelectedFormat</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getSelectedIndexInTrackGroup--">getSelectedIndexInTrackGroup</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#getTrackGroup--">getTrackGroup</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#hashCode--">hashCode</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#indexOf-int-">indexOf</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#indexOf-com.google.android.exoplayer2.Format-">indexOf</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#isBlacklisted-int-long-">isBlacklisted</a>, <a href="../../../../../com/google/android/exoplayer2/trackselection/BaseTrackSelection.html#length--">length</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" target="_top">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.com.google.android.exoplayer2.trackselection.TrackSelection">
@@ -436,7 +484,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <ul class="blockList">
 <li class="blockList">
 <h4>AdaptiveTrackSelection</h4>
-<pre>public&nbsp;AdaptiveTrackSelection(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<pre>public&nbsp;AdaptiveTrackSelection&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                               int[]&nbsp;tracks,
                               <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
 <dl>
@@ -454,7 +502,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <ul class="blockListLast">
 <li class="blockList">
 <h4>AdaptiveTrackSelection</h4>
-<pre>public&nbsp;AdaptiveTrackSelection(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
+<pre>public&nbsp;AdaptiveTrackSelection&#8203;(<a href="../../../../../com/google/android/exoplayer2/source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                               int[]&nbsp;tracks,
                               <a href="../../../../../com/google/android/exoplayer2/upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter,
                               long&nbsp;reservedBandwidth,
@@ -486,7 +534,8 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <dd><code>bufferedFractionToLiveEdgeForQualityIncrease</code> - For live streaming, the fraction of the
      duration from current playback position to the live edge that has to be buffered before the
      selected track can be switched to one of higher quality. This parameter is only applied
-     when the playback position is closer to the live edge than <code>minDurationForQualityIncreaseMs</code>, which would otherwise prevent switching to a higher
+     when the playback position is closer to the live edge than <code>
+     minDurationForQualityIncreaseMs</code>, which would otherwise prevent switching to a higher
      quality from happening.</dd>
 </dl>
 </li>
@@ -505,7 +554,7 @@ extends <a href="../../../../../com/google/android/exoplayer2/trackselection/Bas
 <ul class="blockList">
 <li class="blockList">
 <h4>experimentalSetBandwidthAllocationCheckpoints</h4>
-<pre>public&nbsp;void&nbsp;experimentalSetBandwidthAllocationCheckpoints(long[][]&nbsp;allocationCheckpoints)</pre>
+<pre>public&nbsp;void&nbsp;experimentalSetBandwidthAllocationCheckpoints&#8203;(long[][]&nbsp;allocationCheckpoints)</pre>
 <div class="block">Sets checkpoints to determine the allocation bandwidth based on the total bandwidth.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -562,7 +611,7 @@ public&nbsp;void&nbsp;disable()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>onPlaybackSpeed</h4>
-<pre>public&nbsp;void&nbsp;onPlaybackSpeed(float&nbsp;playbackSpeed)</pre>
+<pre>public&nbsp;void&nbsp;onPlaybackSpeed&#8203;(float&nbsp;playbackSpeed)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#onPlaybackSpeed-float-">TrackSelection</a></code></span></div>
 <div class="block">Called to notify the selection of the current playback speed. The playback speed may affect
  adaptive track selection.</div>
@@ -582,10 +631,10 @@ public&nbsp;void&nbsp;disable()</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>updateSelectedTrack</h4>
-<pre>public&nbsp;void&nbsp;updateSelectedTrack(long&nbsp;playbackPositionUs,
+<pre>public&nbsp;void&nbsp;updateSelectedTrack&#8203;(long&nbsp;playbackPositionUs,
                                 long&nbsp;bufferedDurationUs,
                                 long&nbsp;availableDurationUs,
-                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
+                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
                                 <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#updateSelectedTrack-long-long-long-java.util.List-com.google.android.exoplayer2.source.chunk.MediaChunkIterator:A-">TrackSelection</a></code></span></div>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
@@ -598,7 +647,8 @@ public&nbsp;void&nbsp;disable()</pre>
      starting position in the period minus the duration of any media in previous periods still
      to be played.</dd>
 <dd><code>bufferedDurationUs</code> - The duration of media currently buffered from the current playback
-     position, in microseconds. Note that the next load position can be calculated as <code>(playbackPositionUs + bufferedDurationUs)</code>.</dd>
+     position, in microseconds. Note that the next load position can be calculated as <code>
+     (playbackPositionUs + bufferedDurationUs)</code>.</dd>
 <dd><code>availableDurationUs</code> - The duration of media available for buffering from the current
      playback position, in microseconds, or <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if media can be buffered to the
      end of the current period. Note that if not set to <a href="../../../../../com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the position up to
@@ -642,7 +692,7 @@ public&nbsp;void&nbsp;disable()</pre>
 <li class="blockList">
 <h4>getSelectionData</h4>
 <pre>@Nullable
-public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" target="_top">Object</a>&nbsp;getSelectionData()</pre>
+public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getSelectionData()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#getSelectionData--">TrackSelection</a></code></span></div>
 <div class="block">Returns optional data associated with the current track selection.</div>
 </li>
@@ -653,8 +703,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>evaluateQueueSize</h4>
-<pre>public&nbsp;int&nbsp;evaluateQueueSize(long&nbsp;playbackPositionUs,
-                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<pre>public&nbsp;int&nbsp;evaluateQueueSize&#8203;(long&nbsp;playbackPositionUs,
+                             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelection.html#evaluateQueueSize-long-java.util.List-">TrackSelection</a></code></span></div>
 <div class="block">Returns the number of chunks that should be retained in the queue.
 
@@ -695,7 +745,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>canSelectFormat</h4>
-<pre>protected&nbsp;boolean&nbsp;canSelectFormat(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+<pre>protected&nbsp;boolean&nbsp;canSelectFormat&#8203;(<a href="../../../../../com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                   int&nbsp;trackBitrate,
                                   float&nbsp;playbackSpeed,
                                   long&nbsp;effectiveBitrate)</pre>
@@ -718,8 +768,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>shouldEvaluateQueueSize</h4>
-<pre>protected&nbsp;boolean&nbsp;shouldEvaluateQueueSize(long&nbsp;nowMs,
-                                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<pre>protected&nbsp;boolean&nbsp;shouldEvaluateQueueSize&#8203;(long&nbsp;nowMs,
+                                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../../../../../com/google/android/exoplayer2/source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
 <div class="block">Called from <a href="../../../../../com/google/android/exoplayer2/trackselection/AdaptiveTrackSelection.html#evaluateQueueSize-long-java.util.List-"><code>evaluateQueueSize(long, List)</code></a> to determine whether an evaluation should be
  performed.</div>
 <dl>
@@ -794,6 +844,9 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <div>
 <ul class="subNavList">

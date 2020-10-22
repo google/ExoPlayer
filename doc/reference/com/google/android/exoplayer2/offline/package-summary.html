@@ -3,8 +3,17 @@
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>com.google.android.exoplayer2.offline (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
 <script type="text/javascript"><!--
@@ -16,10 +25,11 @@
     catch(err) {
     }
 //-->
-</script>
+var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
 <div class="topNav"><a name="navbar.top">
 <!--   -->
@@ -50,6 +60,12 @@
 <ul class="navList" id="allclasses_navbar_top">
 <li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
 </ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
 <div>
 <script type="text/javascript"><!--
   allClassesLink = document.getElementById("allclasses_navbar_top");
@@ -61,18 +77,27 @@
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <a name="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;com.google.android.exoplayer2.offline</h1>
 </div>
 <div class="contentContainer">
 <ul class="blockList">
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Interface Summary table, listing interfaces, and an explanation">
+<table class="typeSummary" summary="Interface Summary table, listing interfaces, and an explanation">
 <caption><span>Interface Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Interface</th>
@@ -80,62 +105,62 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.DownloadIdProvider.html" title="interface in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil.DownloadIdProvider</a></th>
 <td class="colLast">
 <div class="block">Provides download IDs during action file upgrade.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a></th>
 <td class="colLast">
 <div class="block">Provides random read-write access to the result set returned by a database query.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></th>
 <td class="colLast">
 <div class="block">Downloads and removes a piece of content.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/Downloader.ProgressListener.html" title="interface in com.google.android.exoplayer2.offline">Downloader.ProgressListener</a></th>
 <td class="colLast">
 <div class="block">Receives progress updates during download operations.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a></th>
 <td class="colLast">
 <div class="block">Creates <a href="../../../../../com/google/android/exoplayer2/offline/Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloaders</code></a> for given <a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequests</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline">DownloadHelper.Callback</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.Callback.html" title="interface in com.google.android.exoplayer2.offline">DownloadHelper.Callback</a></th>
 <td class="colLast">
 <div class="block">A callback to be notified when the <a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadHelper</code></a> is prepared.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></th>
 <td class="colLast">
 <div class="block">An index of <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.Listener.html" title="interface in com.google.android.exoplayer2.offline">DownloadManager.Listener</a></th>
 <td class="colLast">
 <div class="block">Listener for <a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> events.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;</td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;</th>
 <td class="colLast">
 <div class="block">A manifest that can generate copies of itself including only the streams specified by the given
  keys.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></th>
 <td class="colLast">
 <div class="block">A writable index of <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </td>
@@ -144,7 +169,7 @@
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Class Summary table, listing classes, and an explanation">
+<table class="typeSummary" summary="Class Summary table, listing classes, and an explanation">
 <caption><span>Class Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Class</th>
@@ -152,92 +177,92 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html" title="class in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/ActionFileUpgradeUtil.html" title="class in com.google.android.exoplayer2.offline">ActionFileUpgradeUtil</a></th>
 <td class="colLast">
 <div class="block">Utility class for upgrading legacy action files into <a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline"><code>DefaultDownloadIndex</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloaderFactory</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloaderFactory.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloaderFactory</a></th>
 <td class="colLast">
 <div class="block">Default <a href="../../../../../com/google/android/exoplayer2/offline/DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloaderFactory</code></a>, supporting creation of progressive, DASH, HLS and
  SmoothStreaming downloaders.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DefaultDownloadIndex.html" title="class in com.google.android.exoplayer2.offline">DefaultDownloadIndex</a></th>
 <td class="colLast">
 <div class="block">A <a href="../../../../../com/google/android/exoplayer2/offline/DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadIndex</code></a> that uses SQLite to persist <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></th>
 <td class="colLast">
 <div class="block">Represents state of a download.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper</a></th>
 <td class="colLast">
 <div class="block">A helper for initializing and removing downloads.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></th>
 <td class="colLast">
 <div class="block">Manages downloads.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadProgress.html" title="class in com.google.android.exoplayer2.offline">DownloadProgress</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadProgress.html" title="class in com.google.android.exoplayer2.offline">DownloadProgress</a></th>
 <td class="colLast">
 <div class="block">Mutable <a href="../../../../../com/google/android/exoplayer2/offline/Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> progress.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a></th>
 <td class="colLast">
 <div class="block">Defines content to be downloaded.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.Builder.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest.Builder</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.Builder.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest.Builder</a></th>
 <td class="colLast">
 <div class="block">A builder for download requests.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadService.html" title="class in com.google.android.exoplayer2.offline">DownloadService</a></th>
 <td class="colLast">
-<div class="block">A <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" target="_top"><code>Service</code></a> for downloading media.</div>
+<div class="block">A <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink" target="_top"><code>Service</code></a> for downloading media.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="class in com.google.android.exoplayer2.offline">FilteringManifestParser</a>&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;&gt;</td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/FilteringManifestParser.html" title="class in com.google.android.exoplayer2.offline">FilteringManifestParser</a>&lt;T extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;&gt;</th>
 <td class="colLast">
 <div class="block">A manifest parser that includes only the streams identified by the given stream keys.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloader</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/ProgressiveDownloader.html" title="class in com.google.android.exoplayer2.offline">ProgressiveDownloader</a></th>
 <td class="colLast">
 <div class="block">A downloader for progressive media streams.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;M extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;M&gt;&gt;</td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader</a>&lt;M extends <a href="../../../../../com/google/android/exoplayer2/offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;M&gt;&gt;</th>
 <td class="colLast">
 <div class="block">Base class for multi segment stream downloaders.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/SegmentDownloader.Segment.html" title="class in com.google.android.exoplayer2.offline">SegmentDownloader.Segment</a></th>
 <td class="colLast">
 <div class="block">Smallest unit of content to be downloaded.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline">StreamKey</a></th>
 <td class="colLast">
 <div class="block">A key for a subset of media which can be separately loaded (a "stream").</div>
 </td>
@@ -246,7 +271,7 @@
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Exception Summary table, listing exceptions, and an explanation">
+<table class="typeSummary" summary="Exception Summary table, listing exceptions, and an explanation">
 <caption><span>Exception Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Exception</th>
@@ -254,19 +279,19 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadException.html" title="class in com.google.android.exoplayer2.offline">DownloadException</a></th>
 <td class="colLast">
 <div class="block">Thrown on an error during downloading.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper.LiveContentUnsupportedException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadHelper.LiveContentUnsupportedException.html" title="class in com.google.android.exoplayer2.offline">DownloadHelper.LiveContentUnsupportedException</a></th>
 <td class="colLast">
 <div class="block">Thrown at an attempt to download live content.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.UnsupportedRequestException.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest.UnsupportedRequestException</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/DownloadRequest.UnsupportedRequestException.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest.UnsupportedRequestException</a></th>
 <td class="colLast">
 <div class="block">Thrown when the encoded request data belongs to an unsupported request type.</div>
 </td>
@@ -275,7 +300,7 @@
 </table>
 </li>
 <li class="blockList">
-<table class="typeSummary" border="0" cellpadding="3" cellspacing="0" summary="Annotation Types Summary table, listing annotation types, and an explanation">
+<table class="typeSummary" summary="Annotation Types Summary table, listing annotation types, and an explanation">
 <caption><span>Annotation Types Summary</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Annotation Type</th>
@@ -283,13 +308,13 @@
 </tr>
 <tbody>
 <tr class="altColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/Download.FailureReason.html" title="annotation in com.google.android.exoplayer2.offline">Download.FailureReason</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/Download.FailureReason.html" title="annotation in com.google.android.exoplayer2.offline">Download.FailureReason</a></th>
 <td class="colLast">
 <div class="block">Failure reasons.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">Download.State</a></td>
+<th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/offline/Download.State.html" title="annotation in com.google.android.exoplayer2.offline">Download.State</a></th>
 <td class="colLast">
 <div class="block">Download states.</div>
 </td>
@@ -340,6 +365,9 @@
   }
   //-->
 </script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
 </div>
 <a name="skip.navbar.bottom">
 <!--   -->
