@@ -293,7 +293,10 @@ import java.util.List;
       @Nullable Metadata udtaMetadata,
       @Nullable Metadata mdtaMetadata,
       GaplessInfoHolder gaplessInfoHolder,
-      Format.Builder formatBuilder) {
+      Format.Builder formatBuilder,
+      Metadata.Entry... additionalEntries) {
+    Metadata formatMetadata = new Metadata();
+
     if (trackType == C.TRACK_TYPE_AUDIO) {
       if (gaplessInfoHolder.hasGaplessInfo()) {
         formatBuilder
@@ -302,7 +305,7 @@ import java.util.List;
       }
       // We assume all udta metadata is associated with the audio track.
       if (udtaMetadata != null) {
-        formatBuilder.setMetadata(udtaMetadata);
+        formatMetadata = udtaMetadata;
       }
     } else if (trackType == C.TRACK_TYPE_VIDEO && mdtaMetadata != null) {
       // Populate only metadata keys that are known to be specific to video.
@@ -318,8 +321,14 @@ import java.util.List;
         }
       }
       if (!mdtaMetadataEntries.isEmpty()) {
-        formatBuilder.setMetadata(new Metadata(mdtaMetadataEntries));
+        formatMetadata = new Metadata(mdtaMetadataEntries);
       }
+    }
+
+    formatMetadata = formatMetadata.copyWithAppendedEntries(additionalEntries);
+
+    if (formatMetadata.length() > 0) {
+      formatBuilder.setMetadata(formatMetadata);
     }
   }
 
