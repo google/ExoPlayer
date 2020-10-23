@@ -36,7 +36,7 @@
         ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
     *   Switch Guava dependency from `implementation` to `api`
         ([#7905](https://github.com/google/ExoPlayer/issues/7905),
-        ([#7993](https://github.com/google/ExoPlayer/issues/7993)).
+        [#7993](https://github.com/google/ExoPlayer/issues/7993)).
     *   Add 403, 500 and 503 to the list of HTTP status codes that can trigger
         failover to another quality variant during adaptive playbacks.
 *   Data sources:
