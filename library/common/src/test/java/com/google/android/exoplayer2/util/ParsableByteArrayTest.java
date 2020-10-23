@@ -484,6 +484,38 @@ public final class ParsableByteArrayTest {
   }
 
   @Test
+  public void readDelimiterTerminatedString() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r', '*'};
+    // Test normal case.
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+
+    // Test with limit at delimiter.
+    parser = new ParsableByteArray(bytes, 4);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+    // Test with limit before delimiter.
+    parser = new ParsableByteArray(bytes, 3);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(3);
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+  }
+
+  @Test
+  public void readDelimiterTerminatedStringWithoutEndingDelimiter() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r'};
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("bar");
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+  }
+
+  @Test
   public void readSingleLineWithoutEndingTrail() {
     byte[] bytes = new byte[] {
       'f', 'o', 'o'

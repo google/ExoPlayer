@@ -496,11 +496,22 @@ public final class ParsableByteArray {
    */
   @Nullable
   public String readNullTerminatedString() {
+    return readDelimiterTerminatedString('\0');
+  }
+
+  /**
+   * Reads up to the next delimiter byte (or the limit) as UTF-8 characters.
+   *
+   * @return The string not including any terminating delimiter byte, or null if the end of the data
+   *     has already been reached.
+   */
+  @Nullable
+  public String readDelimiterTerminatedString(char delimiter) {
     if (bytesLeft() == 0) {
       return null;
     }
     int stringLimit = position;
-    while (stringLimit < limit && data[stringLimit] != 0) {
+    while (stringLimit < limit && data[stringLimit] != delimiter) {
       stringLimit++;
     }
     String string = Util.fromUtf8Bytes(data, position, stringLimit - position);
