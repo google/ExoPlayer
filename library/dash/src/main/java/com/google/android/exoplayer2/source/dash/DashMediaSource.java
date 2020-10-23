@@ -222,7 +222,7 @@ public final class DashMediaSource extends BaseMediaSource {
     }
 
     /**
-     * Sets the {@link Player#getCurrentLiveOffset() target offset for live streams} that is used if
+     * Sets the target {@link Player#getCurrentLiveOffset() offset for live streams} that is used if
      * no value is defined in the {@link MediaItem} or the manifest.
      *
      * <p>The default value is {@link #DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS}.
