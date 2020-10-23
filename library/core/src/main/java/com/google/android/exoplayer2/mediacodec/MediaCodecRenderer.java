@@ -1067,7 +1067,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
 
-    MediaCodecAdapter codecAdapter = null;
+    @Nullable MediaCodecAdapter codecAdapter = null;
     try {
       codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createCodec:" + codecName);

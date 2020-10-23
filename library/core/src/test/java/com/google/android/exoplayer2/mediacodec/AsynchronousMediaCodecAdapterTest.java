@@ -24,7 +24,6 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.os.HandlerThread;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import org.junit.After;
@@ -38,18 +37,16 @@ import org.robolectric.shadows.ShadowLooper;
 public class AsynchronousMediaCodecAdapterTest {
   private AsynchronousMediaCodecAdapter adapter;
   private MediaCodec codec;
-  private TestHandlerThread callbackThread;
+  private HandlerThread callbackThread;
   private HandlerThread queueingThread;
   private MediaCodec.BufferInfo bufferInfo;
 
   @Before
   public void setUp() throws IOException {
     codec = MediaCodec.createByCodecName("h264");
-    callbackThread = new TestHandlerThread("TestCallbackThread");
+    callbackThread = new HandlerThread("TestCallbackThread");
     queueingThread = new HandlerThread("TestQueueingThread");
-    adapter =
-        new AsynchronousMediaCodecAdapter(
-            codec, /* trackType= */ C.TRACK_TYPE_VIDEO, callbackThread, queueingThread);
+    adapter = new AsynchronousMediaCodecAdapter(codec, callbackThread, queueingThread);
     bufferInfo = new MediaCodec.BufferInfo();
   }
 
@@ -57,8 +54,6 @@ public class AsynchronousMediaCodecAdapterTest {
   public void tearDown() {
     adapter.shutdown();
     codec.release();
-
-    assertThat(callbackThread.hasQuit()).isTrue();
   }
 
   @Test
@@ -85,39 +80,7 @@ public class AsynchronousMediaCodecAdapterTest {
     assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(0);
   }
 
-  @Test
-  public void dequeueInputBufferIndex_withPendingFlush_returnsTryAgainLater() {
-    adapter.configure(
-        createMediaFormat("foo"), /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
-    adapter.start();
 
-    // After adapter.start(), the ShadowMediaCodec offers input buffer 0. We run all currently
-    // enqueued messages and pause the looper so that flush is not completed.
-    ShadowLooper shadowLooper = shadowOf(callbackThread.getLooper());
-    shadowLooper.idle();
-    shadowLooper.pause();
-    adapter.flush();
-
-    assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
-  }
-
-  @Test
-  public void dequeueInputBufferIndex_withFlushCompletedAndInputBuffer_returnsInputBuffer() {
-    adapter.configure(
-        createMediaFormat("foo"), /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
-    adapter.start();
-    // After adapter.start(), the ShadowMediaCodec offers input buffer 0. We advance the looper to
-    // make sure all messages have been propagated to the adapter.
-    ShadowLooper shadowLooper = shadowOf(callbackThread.getLooper());
-    shadowLooper.idle();
-
-    adapter.flush();
-    // Progress the looper to complete flush(): the adapter should call codec.start(), triggering
-    // the ShadowMediaCodec to offer input buffer 0.
-    shadowLooper.idle();
-
-    assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(0);
-  }
 
   @Test
   public void dequeueInputBufferIndex_withMediaCodecError_throwsException() throws Exception {
@@ -128,7 +91,7 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter.start();
 
     // Set an error directly on the adapter (not through the looper).
-    adapter.onError(codec, createCodecException());
+    adapter.onError(createCodecException());
 
     assertThrows(IllegalStateException.class, () -> adapter.dequeueInputBufferIndex());
   }
@@ -193,25 +156,6 @@ public class AsynchronousMediaCodecAdapterTest {
   }
 
   @Test
-  public void dequeueOutputBufferIndex_withPendingFlush_returnsTryAgainLater() {
-    adapter.configure(
-        createMediaFormat("foo"), /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
-    adapter.start();
-    // After start(), the ShadowMediaCodec offers input buffer 0, which is available only if we
-    // progress the adapter's looper.
-    ShadowLooper shadowLooper = shadowOf(callbackThread.getLooper());
-    shadowLooper.idle();
-
-    // Flush enqueues a task in the looper, but we will pause the looper to leave flush()
-    // in an incomplete state.
-    shadowLooper.pause();
-    adapter.flush();
-
-    assertThat(adapter.dequeueOutputBufferIndex(bufferInfo))
-        .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
-  }
-
-  @Test
   public void dequeueOutputBufferIndex_withMediaCodecError_throwsException() throws Exception {
     // Pause the looper so that we interact with the adapter from this thread only.
     adapter.configure(
@@ -220,7 +164,7 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter.start();
 
     // Set an error directly on the adapter.
-    adapter.onError(codec, createCodecException());
+    adapter.onError(createCodecException());
 
     assertThrows(IllegalStateException.class, () -> adapter.dequeueOutputBufferIndex(bufferInfo));
   }
@@ -266,8 +210,8 @@ public class AsynchronousMediaCodecAdapterTest {
     // progress the adapter's looper.
     shadowOf(callbackThread.getLooper()).idle();
 
-    // Add another format directly on the adapter.
-    adapter.onOutputFormatChanged(codec, createMediaFormat("format2"));
+    // Add another format on the adapter.
+    adapter.onOutputFormatChanged(createMediaFormat("format2"));
 
     assertThat(adapter.dequeueOutputBufferIndex(bufferInfo))
         .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
@@ -313,23 +257,5 @@ public class AsynchronousMediaCodecAdapterTest {
             Integer.TYPE, Integer.TYPE, String.class);
     return constructor.newInstance(
         /* errorCode= */ 0, /* actionCode= */ 0, /* detailMessage= */ "error from codec");
-  }
-
-  private static class TestHandlerThread extends HandlerThread {
-    private boolean quit;
-
-    TestHandlerThread(String label) {
-      super(label);
-    }
-
-    public boolean hasQuit() {
-      return quit;
-    }
-
-    @Override
-    public boolean quit() {
-      quit = true;
-      return super.quit();
-    }
   }
 }

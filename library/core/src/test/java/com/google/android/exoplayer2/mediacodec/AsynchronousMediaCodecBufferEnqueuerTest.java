@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -65,7 +64,7 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     enqueuer.shutdown();
     codec.stop();
     codec.release();
-    assertThat(TestHandlerThread.INSTANCES_STARTED.get()).isEqualTo(0);
+    assertThat(!handlerThread.hasStarted() || handlerThread.hasQuit()).isTrue();
   }
 
   @Test
@@ -221,25 +220,31 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
   }
 
   private static class TestHandlerThread extends HandlerThread {
-    private static final AtomicLong INSTANCES_STARTED = new AtomicLong(0);
+    private boolean started;
+    private boolean quit;
 
-    TestHandlerThread(String name) {
-      super(name);
+    TestHandlerThread(String label) {
+      super(label);
+    }
+
+    public boolean hasStarted() {
+      return started;
+    }
+
+    public boolean hasQuit() {
+      return quit;
     }
 
     @Override
     public synchronized void start() {
       super.start();
-      INSTANCES_STARTED.incrementAndGet();
+      started = true;
     }
 
     @Override
     public boolean quit() {
-      boolean quit = super.quit();
-      if (quit) {
-        INSTANCES_STARTED.decrementAndGet();
-      }
-      return quit;
+      quit = true;
+      return super.quit();
     }
   }
 
