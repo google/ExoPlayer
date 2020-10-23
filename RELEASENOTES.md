@@ -18,6 +18,9 @@
         ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
     *   Fix bug where `AnalyticsListener` callbacks can arrive in the wrong
         order ([#8048](https://github.com/google/ExoPlayer/issues/8048)).
+    *   Suppress exceptions from registering/unregistering the stream volume
+        receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
+        ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   UI:
