@@ -7,6 +7,9 @@
         argument ([#8024](https://github.com/google/ExoPlayer/issues/8024)).
     *   Fix bug where streams with highly uneven track durations may get stuck
         in a buffering state
+    *   Switch Guava dependency from `implementation` to `api`
+        ([#7905](https://github.com/google/ExoPlayer/issues/7905),
+        ([#7993](https://github.com/google/ExoPlayer/issues/7993)).
     *   Add 403, 500 and 503 to the list of HTTP status codes that can trigger
         failover to another quality variant during adaptive playbacks.
 *   Data sources:
