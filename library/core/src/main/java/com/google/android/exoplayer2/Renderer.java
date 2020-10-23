@@ -215,9 +215,9 @@ public interface Renderer extends PlayerMessage.Target {
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
   @interface State {}
   /**
-   * The renderer is disabled. A renderer in this state may hold resources that it requires for
-   * rendering (e.g. media decoders), for use if it's subsequently enabled. {@link #reset()} can be
-   * called to force the renderer to release these resources.
+   * The renderer is disabled. A renderer in this state will not proactively acquire resources that
+   * it requires for rendering (e.g., media decoders), but may continue to hold any that it already
+   * has. {@link #reset()} can be called to force the renderer to release such resources.
    */
   int STATE_DISABLED = 0;
   /**

@@ -312,22 +312,6 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   }
 
   /**
-   * Called when a decoder has been created and configured.
-   *
-   * <p>The default implementation is a no-op.
-   *
-   * @param name The name of the decoder that was initialized.
-   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
-   *     finished.
-   * @param initializationDurationMs The time taken to initialize the decoder, in milliseconds.
-   */
-  @CallSuper
-  protected void onDecoderInitialized(
-      String name, long initializedTimestampMs, long initializationDurationMs) {
-    eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
-  }
-
-  /**
    * Flushes the decoder.
    *
    * @throws ExoPlaybackException If an error occurs reinitializing a decoder.
@@ -358,9 +342,10 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     decoderReceivedBuffers = false;
     buffersInCodecCount = 0;
     if (decoder != null) {
-      decoder.release();
-      decoder = null;
       decoderCounters.decoderReleaseCount++;
+      decoder.release();
+      eventDispatcher.decoderReleased(decoder.getName());
+      decoder = null;
     }
     setDecoderDrmSession(null);
   }
@@ -690,7 +675,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       decoder = createDecoder(inputFormat, mediaCrypto);
       setDecoderOutputMode(outputMode);
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
-      onDecoderInitialized(
+      eventDispatcher.decoderInitialized(
           decoder.getName(),
           decoderInitializedTimestamp,
           decoderInitializedTimestamp - decoderInitializingTimestamp);

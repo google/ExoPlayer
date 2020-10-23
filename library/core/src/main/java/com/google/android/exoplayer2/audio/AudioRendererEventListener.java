@@ -88,6 +88,13 @@ public interface AudioRendererEventListener {
   default void onAudioUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
+   * Called when a decoder is released.
+   *
+   * @param decoderName The decoder that was released.
+   */
+  default void onAudioDecoderReleased(String decoderName) {}
+
+  /**
    * Called when the renderer is disabled.
    *
    * @param counters {@link DecoderCounters} that were updated by the renderer.
@@ -181,6 +188,13 @@ public interface AudioRendererEventListener {
             () ->
                 castNonNull(listener)
                     .onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs));
+      }
+    }
+
+    /** Invokes {@link AudioRendererEventListener#onAudioDecoderReleased(String)}. */
+    public void decoderReleased(String decoderName) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onAudioDecoderReleased(decoderName));
       }
     }
 

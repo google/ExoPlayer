@@ -617,6 +617,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
+  protected void onCodecReleased(String name) {
+    eventDispatcher.decoderReleased(name);
+  }
+
+  @Override
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     super.onInputFormatChanged(formatHolder);
     eventDispatcher.inputFormatChanged(formatHolder.format);

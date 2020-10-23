@@ -220,6 +220,12 @@ public class AnalyticsCollector
             listener.onAudioUnderrun(eventTime, bufferSize, bufferSizeMs, elapsedSinceLastFeedMs));
   }
 
+  @Override
+  public final void onAudioDecoderReleased(String decoderName) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    listeners.sendEvent(listener -> listener.onAudioDecoderReleased(eventTime, decoderName));
+  }
+
   @SuppressWarnings("deprecation")
   @Override
   public final void onAudioDisabled(DecoderCounters counters) {
@@ -305,6 +311,12 @@ public class AnalyticsCollector
   public final void onDroppedFrames(int count, long elapsedMs) {
     EventTime eventTime = generatePlayingMediaPeriodEventTime();
     listeners.sendEvent(listener -> listener.onDroppedVideoFrames(eventTime, count, elapsedMs));
+  }
+
+  @Override
+  public final void onVideoDecoderReleased(String decoderName) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    listeners.sendEvent(listener -> listener.onVideoDecoderReleased(eventTime, decoderName));
   }
 
   @SuppressWarnings("deprecation")

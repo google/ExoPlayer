@@ -343,6 +343,11 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
+  public void onAudioDecoderReleased(EventTime eventTime, String decoderName) {
+    logd(eventTime, "audioDecoderReleased", decoderName);
+  }
+
+  @Override
   public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {
     logd(eventTime, "audioDisabled");
   }
@@ -395,6 +400,11 @@ public class EventLogger implements AnalyticsListener {
   @Override
   public void onDroppedVideoFrames(EventTime eventTime, int count, long elapsedMs) {
     logd(eventTime, "droppedFrames", Integer.toString(count));
+  }
+
+  @Override
+  public void onVideoDecoderReleased(EventTime eventTime, String decoderName) {
+    logd(eventTime, "videoDecoderReleased", decoderName);
   }
 
   @Override

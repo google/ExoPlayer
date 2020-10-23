@@ -121,6 +121,13 @@ public interface VideoRendererEventListener {
   default void onRenderedFirstFrame(@Nullable Surface surface) {}
 
   /**
+   * Called when a decoder is released.
+   *
+   * @param decoderName The decoder that was released.
+   */
+  default void onVideoDecoderReleased(String decoderName) {}
+
+  /**
    * Called when the renderer is disabled.
    *
    * @param counters {@link DecoderCounters} that were updated by the renderer.
@@ -208,6 +215,13 @@ public interface VideoRendererEventListener {
     public void renderedFirstFrame(@Nullable Surface surface) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onRenderedFirstFrame(surface));
+      }
+    }
+
+    /** Invokes {@link VideoRendererEventListener#onVideoDecoderReleased(String)}. */
+    public void decoderReleased(String decoderName) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onVideoDecoderReleased(decoderName));
       }
     }
 

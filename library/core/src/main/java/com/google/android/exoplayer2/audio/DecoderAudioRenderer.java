@@ -632,9 +632,10 @@ public abstract class DecoderAudioRenderer<
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     decoderReceivedBuffers = false;
     if (decoder != null) {
-      decoder.release();
-      decoder = null;
       decoderCounters.decoderReleaseCount++;
+      decoder.release();
+      eventDispatcher.decoderReleased(decoder.getName());
+      decoder = null;
     }
     setDecoderDrmSession(null);
   }

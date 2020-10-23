@@ -513,6 +513,14 @@ public interface AnalyticsListener {
       EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
+   * Called when an audio renderer releases a decoder.
+   *
+   * @param eventTime The event time.
+   * @param decoderName The decoder that was released.
+   */
+  default void onAudioDecoderReleased(EventTime eventTime, String decoderName) {}
+
+  /**
    * Called when an audio renderer is disabled.
    *
    * @param eventTime The event time.
@@ -599,6 +607,14 @@ public interface AnalyticsListener {
    *     (whichever was more recent), and not from when the first of the reported drops occurred.
    */
   default void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
+
+  /**
+   * Called when a video renderer releases a decoder.
+   *
+   * @param eventTime The event time.
+   * @param decoderName The decoder that was released.
+   */
+  default void onVideoDecoderReleased(EventTime eventTime, String decoderName) {}
 
   /**
    * Called when a video renderer is disabled.

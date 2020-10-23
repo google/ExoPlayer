@@ -2286,6 +2286,13 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
+    public void onVideoDecoderReleased(String decoderName) {
+      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
+        videoDebugListener.onVideoDecoderReleased(decoderName);
+      }
+    }
+
+    @Override
     public void onVideoDisabled(DecoderCounters counters) {
       for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
         videoDebugListener.onVideoDisabled(counters);
@@ -2348,6 +2355,13 @@ public class SimpleExoPlayer extends BasePlayer
     public void onAudioUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
       for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
         audioDebugListener.onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
+      }
+    }
+
+    @Override
+    public void onAudioDecoderReleased(String decoderName) {
+      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
+        audioDebugListener.onAudioDecoderReleased(decoderName);
       }
     }
 
