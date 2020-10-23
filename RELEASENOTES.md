@@ -1,5 +1,12 @@
 # Release notes
 
+### 2.12.2 (2020-11-??) ###
+
+*   Core library:
+    *   Suppress exceptions from registering/unregistering the stream volume
+        receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
+        ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
+
 ### 2.12.1 (2020-10-23) ###
 
 *   Core library:
@@ -7,6 +14,7 @@
         argument ([#8024](https://github.com/google/ExoPlayer/issues/8024)).
     *   Fix bug where streams with highly uneven track durations may get stuck
         in a buffering state
+        ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
     *   Switch Guava dependency from `implementation` to `api`
         ([#7905](https://github.com/google/ExoPlayer/issues/7905),
         [#7993](https://github.com/google/ExoPlayer/issues/7993)).
@@ -63,9 +71,9 @@
     *   Allow apps to specify a `VideoAdPlayerCallback`
         ([#7944](https://github.com/google/ExoPlayer/issues/7944)).
     *   Accept ad tags via the `AdsMediaSource` constructor and deprecate
-        passing them via the `ImaAdsLoader` constructor/builders. Passing the
-        ad tag via media item playback properties continues to be supported.
-        This is in preparation for supporting ads in playlists
+        passing them via the `ImaAdsLoader` constructor/builders. Passing the ad
+        tag via media item playback properties continues to be supported. This
+        is in preparation for supporting ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Add a way to override ad media MIME types
         ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
@@ -74,6 +82,8 @@
     *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for
         companion ads rendering when targeting API 29
         ([#6432](https://github.com/google/ExoPlayer/issues/6432)).
+*   Metadata retriever:
+    *   Parse Google Photos HEIC motion photos metadata.
 
 ### 2.12.0 (2020-09-11) ###
 
