@@ -21,6 +21,8 @@
     *   Suppress exceptions from registering/unregistering the stream volume
         receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
         ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
+    *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
+        ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
 *   UI:
