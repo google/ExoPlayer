@@ -300,6 +300,27 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
+  public void parseMediaPlaylist_withSkippedSegments_parsesNumberOfSkippedSegments()
+      throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-SERVER-CONTROL:CAN-SKIP-UNTIL=24.0\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXT-X-SKIP:SKIPPED-SEGMENTS=1234\n"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence266.mp4";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.skippedSegmentCount).isEqualTo(1234);
+  }
+
+  @Test
   public void multipleExtXKeysForSingleSegment() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -163,7 +164,7 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   public void addListener(PlaylistEventListener listener) {
-    Assertions.checkNotNull(listener);
+    checkNotNull(listener);
     listeners.add(listener);
   }
 
@@ -390,7 +391,7 @@ public final class DefaultHlsPlaylistTracker
   }
 
   private HlsMediaPlaylist getLatestPlaylistSnapshot(
-      HlsMediaPlaylist oldPlaylist, HlsMediaPlaylist loadedPlaylist) {
+      @Nullable HlsMediaPlaylist oldPlaylist, HlsMediaPlaylist loadedPlaylist) {
     if (!loadedPlaylist.isNewerThan(oldPlaylist)) {
       if (loadedPlaylist.hasEndTag) {
         // If the loaded playlist has an end tag but is not newer than the old playlist then we have
@@ -408,7 +409,7 @@ public final class DefaultHlsPlaylistTracker
   }
 
   private long getLoadedPlaylistStartTimeUs(
-      HlsMediaPlaylist oldPlaylist, HlsMediaPlaylist loadedPlaylist) {
+      @Nullable HlsMediaPlaylist oldPlaylist, HlsMediaPlaylist loadedPlaylist) {
     if (loadedPlaylist.hasProgramDateTime) {
       return loadedPlaylist.startTimeUs;
     }
@@ -430,7 +431,7 @@ public final class DefaultHlsPlaylistTracker
   }
 
   private int getLoadedPlaylistDiscontinuitySequence(
-      HlsMediaPlaylist oldPlaylist, HlsMediaPlaylist loadedPlaylist) {
+      @Nullable HlsMediaPlaylist oldPlaylist, HlsMediaPlaylist loadedPlaylist) {
     if (loadedPlaylist.hasDiscontinuitySequence) {
       return loadedPlaylist.discontinuitySequence;
     }
@@ -464,7 +465,7 @@ public final class DefaultHlsPlaylistTracker
 
     private final Uri playlistUrl;
     private final Loader mediaPlaylistLoader;
-    private final ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable;
+    private final DataSource mediaPlaylistDataSource;
 
     @Nullable private HlsMediaPlaylist playlistSnapshot;
     private long lastSnapshotLoadMs;
@@ -477,12 +478,7 @@ public final class DefaultHlsPlaylistTracker
     public MediaPlaylistBundle(Uri playlistUrl) {
       this.playlistUrl = playlistUrl;
       mediaPlaylistLoader = new Loader("DefaultHlsPlaylistTracker:MediaPlaylist");
-      mediaPlaylistLoadable =
-          new ParsingLoadable<>(
-              dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
-              playlistUrl,
-              C.DATA_TYPE_MANIFEST,
-              mediaPlaylistParser);
+      mediaPlaylistDataSource = dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST);
     }
 
     @Nullable
@@ -533,7 +529,7 @@ public final class DefaultHlsPlaylistTracker
     @Override
     public void onLoadCompleted(
         ParsingLoadable<HlsPlaylist> loadable, long elapsedRealtimeMs, long loadDurationMs) {
-      HlsPlaylist result = loadable.getResult();
+      @Nullable HlsPlaylist result = loadable.getResult();
       LoadEventInfo loadEventInfo =
           new LoadEventInfo(
               loadable.loadTaskId,
@@ -631,6 +627,12 @@ public final class DefaultHlsPlaylistTracker
     // Internal methods.
 
     private void loadPlaylistImmediately() {
+      ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable =
+          new ParsingLoadable<>(
+              mediaPlaylistDataSource,
+              getMediaPlaylistUriForRequest(playlistUrl, playlistSnapshot),
+              C.DATA_TYPE_MANIFEST,
+              mediaPlaylistParser);
       long elapsedRealtime =
           mediaPlaylistLoader.startLoading(
               mediaPlaylistLoadable,
@@ -644,7 +646,11 @@ public final class DefaultHlsPlaylistTracker
 
     private void processLoadedPlaylist(
         HlsMediaPlaylist loadedPlaylist, LoadEventInfo loadEventInfo) {
-      HlsMediaPlaylist oldPlaylist = playlistSnapshot;
+      @Nullable HlsMediaPlaylist oldPlaylist = playlistSnapshot;
+      loadedPlaylist =
+          loadedPlaylist.skippedSegmentCount > 0
+              ? loadedPlaylist.expandSkippedSegments(checkNotNull(playlistSnapshot))
+              : loadedPlaylist;
       long currentTimeMs = SystemClock.elapsedRealtime();
       lastSnapshotLoadMs = currentTimeMs;
       playlistSnapshot = getLatestPlaylistSnapshot(oldPlaylist, loadedPlaylist);
@@ -693,6 +699,18 @@ public final class DefaultHlsPlaylistTracker
       if (playlistUrl.equals(primaryMediaPlaylistUrl) && !playlistSnapshot.hasEndTag) {
         loadPlaylist();
       }
+    }
+
+    private Uri getMediaPlaylistUriForRequest(
+        Uri playlistUri, @Nullable HlsMediaPlaylist currentMediaPlaylist) {
+      if (currentMediaPlaylist == null
+          || currentMediaPlaylist.serverControl.skipUntilUs == C.TIME_UNSET) {
+        return playlistUri;
+      }
+      Uri.Builder uriBuilder = playlistUri.buildUpon();
+      uriBuilder.appendQueryParameter(
+          "_HLS_skip", currentMediaPlaylist.serverControl.canSkipDateRanges ? "v2" : "YES");
+      return uriBuilder.build();
     }
 
     /**

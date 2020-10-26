@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -23,6 +25,7 @@ import com.google.android.exoplayer2.offline.StreamKey;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -275,9 +278,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * The list of segments in the playlist.
    */
   public final List<Segment> segments;
-  /**
-   * The total duration of the playlist in microseconds.
-   */
+  /** The number of skipped segments. */
+  public int skippedSegmentCount;
+  /** The total duration of the playlist in microseconds. */
   public final long durationUs;
   /** The attributes of the #EXT-X-SERVER-CONTROL header. */
   public final ServerControl serverControl;
@@ -317,6 +320,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       boolean hasProgramDateTime,
       @Nullable DrmInitData protectionSchemes,
       List<Segment> segments,
+      int skippedSegmentCount,
       ServerControl serverControl) {
     super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
@@ -331,6 +335,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.hasProgramDateTime = hasProgramDateTime;
     this.protectionSchemes = protectionSchemes;
     this.segments = Collections.unmodifiableList(segments);
+    this.skippedSegmentCount = skippedSegmentCount;
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
       durationUs = last.relativeStartTimeUs + last.durationUs;
@@ -353,7 +358,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param other The playlist to compare.
    * @return Whether this playlist is newer than {@code other}.
    */
-  public boolean isNewerThan(HlsMediaPlaylist other) {
+  public boolean isNewerThan(@Nullable HlsMediaPlaylist other) {
     if (other == null || mediaSequence > other.mediaSequence) {
       return true;
     }
@@ -361,8 +366,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       return false;
     }
     // The media sequences are equal.
-    int segmentCount = segments.size();
-    int otherSegmentCount = other.segments.size();
+    int segmentCount = segments.size() + skippedSegmentCount;
+    int otherSegmentCount = other.segments.size() + other.skippedSegmentCount;
     return segmentCount > otherSegmentCount
         || (segmentCount == otherSegmentCount && hasEndTag && !other.hasEndTag);
   }
@@ -372,6 +377,50 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public long getEndTimeUs() {
     return startTimeUs + durationUs;
+  }
+
+  /**
+   * Merges the skipped segments of the previous playlist and returns a copy with a {@link
+   * #skippedSegmentCount} of 0.
+   *
+   * @param previousPlaylist The previous playlist with a {@link #skippedSegmentCount} of zero.
+   * @return A new playlist with a complete list of segments.
+   */
+  public HlsMediaPlaylist expandSkippedSegments(HlsMediaPlaylist previousPlaylist) {
+    if (skippedSegmentCount == 0) {
+      return this;
+    }
+    checkArgument(previousPlaylist.skippedSegmentCount == 0);
+    List<Segment> mergedSegments = new ArrayList<>();
+    long mediaSequence = this.mediaSequence;
+    int startIndex = (int) (mediaSequence - previousPlaylist.mediaSequence);
+    int endIndex = startIndex + skippedSegmentCount;
+    if (startIndex >= 0 && endIndex <= previousPlaylist.segments.size()) {
+      mergedSegments.addAll(previousPlaylist.segments.subList(startIndex, endIndex));
+    } else {
+      // Adjust the media sequence if the old playlist doesn't contain all of the skipped segments.
+      mediaSequence += skippedSegmentCount;
+    }
+    mergedSegments.addAll(segments);
+    return new HlsMediaPlaylist(
+        playlistType,
+        baseUri,
+        tags,
+        startOffsetUs,
+        startTimeUs,
+        hasDiscontinuitySequence,
+        discontinuitySequence,
+        mediaSequence,
+        version,
+        targetDurationUs,
+        partTargetDurationUs,
+        hasIndependentSegments,
+        hasEndTag,
+        hasProgramDateTime,
+        protectionSchemes,
+        mergedSegments,
+        /* skippedSegmentCount= */ 0,
+        serverControl);
   }
 
   /**
@@ -401,6 +450,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         hasProgramDateTime,
         protectionSchemes,
         segments,
+        skippedSegmentCount,
         serverControl);
   }
 
@@ -429,6 +479,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         hasProgramDateTime,
         protectionSchemes,
         segments,
+        skippedSegmentCount,
         serverControl);
   }
 

@@ -90,6 +90,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_SESSION_KEY = "#EXT-X-SESSION-KEY";
   private static final String TAG_BYTERANGE = "#EXT-X-BYTERANGE";
   private static final String TAG_GAP = "#EXT-X-GAP";
+  private static final String TAG_SKIP = "#EXT-X-SKIP";
 
   private static final String TYPE_AUDIO = "AUDIO";
   private static final String TYPE_VIDEO = "VIDEO";
@@ -135,6 +136,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Pattern.compile("CAN-SKIP-UNTIL=([\\d\\.]+)\\b");
   private static final Pattern REGEX_CAN_SKIP_DATE_RANGES =
       compileBooleanAttrPattern("CAN-SKIP-DATERANGES");
+  private static final Pattern REGEX_SKIPPED_SEGMENTS =
+      Pattern.compile("SKIPPED-SEGMENTS=(\\d+)\\b");
   private static final Pattern REGEX_HOLD_BACK = Pattern.compile("[:|,]HOLD-BACK=([\\d\\.]+)\\b");
   private static final Pattern REGEX_PART_HOLD_BACK =
       Pattern.compile("PART-HOLD-BACK=([\\d\\.]+)\\b");
@@ -609,6 +612,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             /* holdBackUs= */ C.TIME_UNSET,
             /* partHoldBackUs= */ C.TIME_UNSET,
             /* canBlockReload= */ false);
+    int skippedSegmentCount = 0;
 
     DrmInitData playlistProtectionSchemes = null;
     String fullSegmentEncryptionKeyUri = null;
@@ -692,6 +696,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         segmentDurationUs =
             (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
         segmentTitle = parseOptionalStringAttr(line, REGEX_MEDIA_TITLE, "", variableDefinitions);
+      } else if (line.startsWith(TAG_SKIP)) {
+        skippedSegmentCount = parseIntAttr(line, REGEX_SKIPPED_SEGMENTS);
       } else if (line.startsWith(TAG_KEY)) {
         String method = parseStringAttr(line, REGEX_METHOD, variableDefinitions);
         String keyFormat =
@@ -832,6 +838,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         /* hasProgramDateTime= */ playlistStartTimeUs != 0,
         playlistProtectionSchemes,
         segments,
+        skippedSegmentCount,
         serverControl);
   }
 
