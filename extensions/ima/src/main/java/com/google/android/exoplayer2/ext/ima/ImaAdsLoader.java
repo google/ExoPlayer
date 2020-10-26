@@ -1212,11 +1212,24 @@ public final class ImaAdsLoader
     if (imaAdInfo != null) {
       adPlaybackState = adPlaybackState.withSkippedAdGroup(imaAdInfo.adGroupIndex);
       updateAdPlaybackState();
-    } else if (adPlaybackState.adGroupCount == 1 && adPlaybackState.adGroupTimesUs[0] == 0) {
-      // For incompatible VPAID ads with one preroll, content is resumed immediately. In this case
-      // we haven't received ad info (the ad never loaded), but there is only one ad group to skip.
-      adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ 0);
-      updateAdPlaybackState();
+    } else {
+      // Mark any ads for the current/reported player position that haven't loaded as being in the
+      // error state, to force resuming content. This includes VPAID ads that never load.
+      long playerPositionUs;
+      if (player != null) {
+        playerPositionUs = C.msToUs(getContentPeriodPositionMs(player, timeline, period));
+      } else if (!VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(lastContentProgress)) {
+        // Playback is backgrounded so use the last reported content position.
+        playerPositionUs = C.msToUs(lastContentProgress.getCurrentTimeMs());
+      } else {
+        return;
+      }
+      int adGroupIndex =
+          adPlaybackState.getAdGroupIndexForPositionUs(
+              playerPositionUs, C.msToUs(contentDurationMs));
+      if (adGroupIndex != C.INDEX_UNSET) {
+        markAdGroupInErrorStateAndClearPendingContentPosition(adGroupIndex);
+      }
     }
   }
 
