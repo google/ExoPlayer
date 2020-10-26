@@ -6,6 +6,8 @@
     *   Suppress exceptions from registering/unregistering the stream volume
         receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
         ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
+    *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
+        ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
 *   IMA extension:
     *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)).
