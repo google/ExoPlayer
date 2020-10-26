@@ -24,6 +24,7 @@ import android.media.MediaCodecInfo.VideoCapabilities;
 import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -152,11 +153,13 @@ public final class MediaCodecInfo {
         hardwareAccelerated,
         softwareOnly,
         vendor,
-        forceDisableAdaptive,
-        forceSecure);
+        /* adaptive= */ !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities),
+        /* tunneling= */ capabilities != null && isTunneling(capabilities),
+        /* secure= */ forceSecure || (capabilities != null && isSecure(capabilities)));
   }
 
-  private MediaCodecInfo(
+  @VisibleForTesting
+  /* package */ MediaCodecInfo(
       String name,
       String mimeType,
       String codecMimeType,
@@ -164,8 +167,9 @@ public final class MediaCodecInfo {
       boolean hardwareAccelerated,
       boolean softwareOnly,
       boolean vendor,
-      boolean forceDisableAdaptive,
-      boolean forceSecure) {
+      boolean adaptive,
+      boolean tunneling,
+      boolean secure) {
     this.name = Assertions.checkNotNull(name);
     this.mimeType = mimeType;
     this.codecMimeType = codecMimeType;
@@ -173,9 +177,9 @@ public final class MediaCodecInfo {
     this.hardwareAccelerated = hardwareAccelerated;
     this.softwareOnly = softwareOnly;
     this.vendor = vendor;
-    adaptive = !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities);
-    tunneling = capabilities != null && isTunneling(capabilities);
-    secure = forceSecure || (capabilities != null && isSecure(capabilities));
+    this.adaptive = adaptive;
+    this.tunneling = tunneling;
+    this.secure = secure;
     isVideo = MimeTypes.isVideo(mimeType);
   }
 
