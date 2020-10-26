@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_NO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
@@ -42,6 +43,7 @@ import com.google.android.exoplayer2.audio.AudioSink.WriteException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KeepCodecResult;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -328,40 +330,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected @KeepCodecResult int canKeepCodec(
+  @KeepCodecResult
+  protected int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize) {
       return KEEP_CODEC_RESULT_NO;
-    } else if (codecInfo.isSeamlessAdaptationSupported(
-        oldFormat, newFormat, /* isNewFormatComplete= */ true)) {
-      return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
-    } else if (canKeepCodecWithFlush(oldFormat, newFormat)) {
-      return KEEP_CODEC_RESULT_YES_WITH_FLUSH;
-    } else {
-      return KEEP_CODEC_RESULT_NO;
     }
-  }
-
-  /**
-   * Returns whether the codec can be flushed and reused when switching to a new format. Reuse is
-   * generally possible when the codec would be configured in an identical way after the format
-   * change (excluding {@link MediaFormat#KEY_MAX_INPUT_SIZE} and configuration that does not come
-   * from the {@link Format}).
-   *
-   * @param oldFormat The first format.
-   * @param newFormat The second format.
-   * @return Whether the codec can be flushed and reused when switching to a new format.
-   */
-  protected boolean canKeepCodecWithFlush(Format oldFormat, Format newFormat) {
-    // Flush and reuse the codec if the audio format and initialization data matches. For Opus, we
-    // don't flush and reuse the codec because the decoder may discard samples after flushing, which
-    // would result in audio being dropped just after a stream change (see [Internal: b/143450854]).
-    return Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)
-        && oldFormat.channelCount == newFormat.channelCount
-        && oldFormat.sampleRate == newFormat.sampleRate
-        && oldFormat.pcmEncoding == newFormat.pcmEncoding
-        && oldFormat.initializationDataEquals(newFormat)
-        && !MimeTypes.AUDIO_OPUS.equals(oldFormat.sampleMimeType);
+    return codecInfo.canKeepCodec(oldFormat, newFormat);
   }
 
   @Override
@@ -698,8 +673,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return maxInputSize;
     }
     for (Format streamFormat : streamFormats) {
-      if (codecInfo.isSeamlessAdaptationSupported(
-          format, streamFormat, /* isNewFormatComplete= */ false)) {
+      if (codecInfo.canKeepCodec(format, streamFormat) != KEEP_CODEC_RESULT_NO) {
         maxInputSize = max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
       }
     }

@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_NO;
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_YES_WITH_FLUSH;
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 
@@ -43,6 +47,7 @@ import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KeepCodecResult;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
@@ -191,31 +196,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   // Generally there is zero or one pending output stream offset. We track more offsets to allow for
   // pending output streams that have fewer frames than the codec latency.
   private static final int MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT = 10;
-
-  /**
-   * The possible return values for {@link #canKeepCodec(MediaCodec, MediaCodecInfo, Format,
-   * Format)}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    KEEP_CODEC_RESULT_NO,
-    KEEP_CODEC_RESULT_YES_WITH_FLUSH,
-    KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION,
-    KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
-  })
-  protected @interface KeepCodecResult {}
-  /** The codec cannot be kept. */
-  protected static final int KEEP_CODEC_RESULT_NO = 0;
-  /** The codec can be kept, but must be flushed. */
-  protected static final int KEEP_CODEC_RESULT_YES_WITH_FLUSH = 1;
-  /**
-   * The codec can be kept. It does not need to be flushed, but must be reconfigured by prefixing
-   * the next input buffer with the new format's configuration data.
-   */
-  protected static final int KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION = 2;
-  /** The codec can be kept. It does not need to be flushed and no reconfiguration is required. */
-  protected static final int KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION = 3;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1574,7 +1554,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * Determines whether the existing {@link MediaCodec} can be kept for a new {@link Format}, and if
    * it can whether it requires reconfiguration.
    *
-   * <p>The default implementation returns {@link #KEEP_CODEC_RESULT_NO}.
+   * <p>The default implementation returns {@link MediaCodecInfo#KEEP_CODEC_RESULT_NO}.
    *
    * @param codec The existing {@link MediaCodec} instance.
    * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
@@ -1582,7 +1562,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param newFormat The new {@link Format}.
    * @return Whether the instance can be kept, and if it can whether it requires reconfiguration.
    */
-  protected @KeepCodecResult int canKeepCodec(
+  @KeepCodecResult
+  protected int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     return KEEP_CODEC_RESULT_NO;
   }

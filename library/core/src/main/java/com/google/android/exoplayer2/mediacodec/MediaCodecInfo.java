@@ -22,6 +22,7 @@ import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
 import android.util.Pair;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -30,6 +31,9 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** Information about a {@link MediaCodec} for a given mime type. */
 @SuppressWarnings("InlinedApi")
@@ -43,10 +47,32 @@ public final class MediaCodecInfo {
    */
   public static final int MAX_SUPPORTED_INSTANCES_UNKNOWN = -1;
 
+  /** The possible return values for {@link #canKeepCodec(Format, Format)}. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    KEEP_CODEC_RESULT_NO,
+    KEEP_CODEC_RESULT_YES_WITH_FLUSH,
+    KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION,
+    KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
+  })
+  public @interface KeepCodecResult {}
+  /** The codec cannot be kept. */
+  public static final int KEEP_CODEC_RESULT_NO = 0;
+  /** The codec can be kept, but must be flushed. */
+  public static final int KEEP_CODEC_RESULT_YES_WITH_FLUSH = 1;
+  /**
+   * The codec can be kept. It does not need to be flushed, but must be reconfigured by prefixing
+   * the next input buffer with the new format's configuration data.
+   */
+  public static final int KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION = 2;
+  /** The codec can be kept. It does not need to be flushed and no reconfiguration is required. */
+  public static final int KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION = 3;
+
   /**
    * The name of the decoder.
-   * <p>
-   * May be passed to {@link MediaCodec#createByCodecName(String)} to create an instance of the
+   *
+   * <p>May be passed to {@link MediaCodec#createByCodecName(String)} to create an instance of the
    * decoder.
    */
   public final String name;
@@ -300,11 +326,12 @@ public final class MediaCodecInfo {
   }
 
   /**
-   * Returns whether it may be possible to adapt to playing a different format when the codec is
-   * configured to play media in the specified {@code format}. For adaptation to succeed, the codec
-   * must also be configured with appropriate maximum values and {@link
-   * #isSeamlessAdaptationSupported(Format, Format, boolean)} must return {@code true} for the
-   * old/new formats.
+   * Returns whether it may be possible to adapt an instance of this decoder to playing a different
+   * format when the codec is configured to play media in the specified {@code format}.
+   *
+   * <p>For adaptation to succeed, the codec must also be configured with appropriate maximum values
+   * and {@link #isSeamlessAdaptationSupported(Format, Format, boolean)} must return {@code true}
+   * for the old/new formats.
    *
    * @param format The format of media for which the decoder will be configured.
    * @return Whether adaptation may be possible
@@ -319,36 +346,66 @@ public final class MediaCodecInfo {
   }
 
   /**
-   * Returns whether it is possible to adapt the decoder seamlessly from {@code oldFormat} to {@code
-   * newFormat}. If {@code newFormat} may not be completely populated, pass {@code false} for {@code
-   * isNewFormatComplete}.
+   * Returns whether it is possible to adapt an instance of this decoder seamlessly from {@code
+   * oldFormat} to {@code newFormat}. If {@code newFormat} may not be completely populated, pass
+   * {@code false} for {@code isNewFormatComplete}.
+   *
+   * <p>For adaptation to succeed, the codec must also be configured with maximum values that are
+   * compatible with the new format.
    *
    * @param oldFormat The format being decoded.
    * @param newFormat The new format.
    * @param isNewFormatComplete Whether {@code newFormat} is populated with format-specific
    *     metadata.
    * @return Whether it is possible to adapt the decoder seamlessly.
+   * @deprecated Use {@link #canKeepCodec}.
    */
+  @Deprecated
   public boolean isSeamlessAdaptationSupported(
       Format oldFormat, Format newFormat, boolean isNewFormatComplete) {
+    if (!isNewFormatComplete && oldFormat.colorInfo != null && newFormat.colorInfo == null) {
+      newFormat = newFormat.buildUpon().setColorInfo(oldFormat.colorInfo).build();
+    }
+    @KeepCodecResult int keepCodecResult = canKeepCodec(oldFormat, newFormat);
+    return keepCodecResult == KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION
+        || keepCodecResult == KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
+  }
+
+  /**
+   * Returns the extent to which it's possible to adapt an instance of this decoder that's currently
+   * decoding {@code oldFormat} to decode {@code newFormat} instead.
+   *
+   * <p>For adaptation to succeed, the codec must also be configured with maximum values that are
+   * compatible with the new format.
+   *
+   * @param oldFormat The format being decoded.
+   * @param newFormat The new format.
+   * @return The extent to which it's possible to adapt an instance of the decoder.
+   */
+  @KeepCodecResult
+  public int canKeepCodec(Format oldFormat, Format newFormat) {
     if (!Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)) {
-      return false;
+      return KEEP_CODEC_RESULT_NO;
     }
 
     if (isVideo) {
-      return oldFormat.rotationDegrees == newFormat.rotationDegrees
+      if (oldFormat.rotationDegrees == newFormat.rotationDegrees
           && (adaptive
               || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height))
-          && ((!isNewFormatComplete && newFormat.colorInfo == null)
-              || Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo));
+          && Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo)) {
+        return oldFormat.initializationDataEquals(newFormat)
+            ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
+            : KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
+      }
     } else {
       if (oldFormat.channelCount != newFormat.channelCount
-          || oldFormat.sampleRate != newFormat.sampleRate) {
-        return false;
+          || oldFormat.sampleRate != newFormat.sampleRate
+          || oldFormat.pcmEncoding != newFormat.pcmEncoding) {
+        return KEEP_CODEC_RESULT_NO;
       }
 
       // Check whether we're adapting between two xHE-AAC formats, for which adaptation is possible
-      // without reconfiguration.
+      // without reconfiguration or flushing.
       if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
         @Nullable
         Pair<Integer, Integer> oldCodecProfileLevel =
@@ -361,13 +418,21 @@ public final class MediaCodecInfo {
           int newProfile = newCodecProfileLevel.first;
           if (oldProfile == CodecProfileLevel.AACObjectXHE
               && newProfile == CodecProfileLevel.AACObjectXHE) {
-            return true;
+            return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
           }
         }
       }
 
-      return false;
+      // For Opus, we don't flush and reuse the codec because the decoder may discard samples after
+      // flushing, which would result in audio being dropped just after a stream change (see
+      // [Internal: b/143450854]). For other formats, we allow reuse after flushing if the codec
+      // initialization data is unchanged.
+      if (!MimeTypes.AUDIO_OPUS.equals(mimeType) && oldFormat.initializationDataEquals(newFormat)) {
+        return KEEP_CODEC_RESULT_YES_WITH_FLUSH;
+      }
     }
+
+    return KEEP_CODEC_RESULT_NO;
   }
 
   /**

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_NO;
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_YES_WITH_FLUSH;
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
 import static com.google.android.exoplayer2.util.MimeTypes.AUDIO_AAC;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_AV1;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
@@ -64,6 +67,114 @@ public final class MediaCodecInfoTest {
           .build();
 
   @Test
+  public void canKeepCodec_withDifferentMimeType_returnsNo() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
+
+    Format hdAv1Format = FORMAT_H264_HD.buildUpon().setSampleMimeType(VIDEO_AV1).build();
+    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, hdAv1Format)).isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  public void canKeepCodec_withRotation_returnsNo() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
+
+    Format hdRotatedFormat = FORMAT_H264_HD.buildUpon().setRotationDegrees(90).build();
+    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, hdRotatedFormat))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  public void canKeepCodec_withResolutionChange_adaptiveCodec_returnsYesWithReconfiguration() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
+
+    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, FORMAT_H264_4K))
+        .isEqualTo(KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION);
+  }
+
+  @Test
+  public void canKeepCodec_withResolutionChange_nonAdaptiveCodec_returnsNo() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, FORMAT_H264_4K))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  public void canKeepCodec_noResolutionChange_nonAdaptiveCodec_returnsYesWithReconfiguration() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    Format hdVariantFormat =
+        FORMAT_H264_HD.buildUpon().setInitializationData(ImmutableList.of(new byte[] {0})).build();
+    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, hdVariantFormat))
+        .isEqualTo(KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION);
+  }
+
+  @Test
+  public void canKeepCodec_colorInfoOmittedFromNewFormat_returnsNo() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    Format hdrVariantFormat =
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+    assertThat(codecInfo.canKeepCodec(hdrVariantFormat, FORMAT_H264_4K))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  public void canKeepCodec_colorInfoOmittedFromOldFormat_returnsNo() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    Format hdrVariantFormat =
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+    assertThat(codecInfo.canKeepCodec(FORMAT_H264_4K, hdrVariantFormat))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  public void canKeepCodec_colorInfoChange_returnsNo() {
+    MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
+
+    Format hdrVariantFormat1 =
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
+    Format hdrVariantFormat2 =
+        FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT709)).build();
+    assertThat(codecInfo.canKeepCodec(hdrVariantFormat1, hdrVariantFormat2))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canKeepCodec(hdrVariantFormat1, hdrVariantFormat2))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  public void canKeepCodec_audioWithDifferentChannelCounts_returnsNo() {
+    MediaCodecInfo codecInfo = buildAacCodecInfo();
+
+    assertThat(codecInfo.canKeepCodec(FORMAT_AAC_STEREO, FORMAT_AAC_SURROUND))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  public void canKeepCodec_audioWithSameChannelCounts_returnsYesWithFlush() {
+    MediaCodecInfo codecInfo = buildAacCodecInfo();
+
+    Format stereoVariantFormat = FORMAT_AAC_STEREO.buildUpon().setAverageBitrate(100).build();
+    assertThat(codecInfo.canKeepCodec(FORMAT_AAC_STEREO, stereoVariantFormat))
+        .isEqualTo(KEEP_CODEC_RESULT_YES_WITH_FLUSH);
+  }
+
+  @Test
+  public void canKeepCodec_audioWithDifferentInitializationData_returnsNo() {
+    MediaCodecInfo codecInfo = buildAacCodecInfo();
+
+    Format stereoVariantFormat =
+        FORMAT_AAC_STEREO
+            .buildUpon()
+            .setInitializationData(ImmutableList.of(new byte[] {0}))
+            .build();
+    assertThat(codecInfo.canKeepCodec(FORMAT_AAC_STEREO, stereoVariantFormat))
+        .isEqualTo(KEEP_CODEC_RESULT_NO);
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_withDifferentMimeType_returnsFalse() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
@@ -75,6 +186,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_withRotation_returnsFalse() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
@@ -86,6 +198,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_withResolutionChange_adaptiveCodec_returnsTrue() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
@@ -96,6 +209,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_withResolutionChange_nonAdaptiveCodec_returnsFalse() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
@@ -106,6 +220,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_noResolutionChange_nonAdaptiveCodec_returnsTrue() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
@@ -118,6 +233,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_colorInfoOmittedFromCompleteNewFormat_returnsFalse() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
@@ -130,6 +246,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_colorInfoOmittedFromIncompleteNewFormat_returnsTrue() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
@@ -142,6 +259,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_colorInfoOmittedFromOldFormat_returnsFalse() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
@@ -154,6 +272,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_colorInfoChange_returnsFalse() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
@@ -172,6 +291,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_audioWithDifferentChannelCounts_returnsFalse() {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 
@@ -182,6 +302,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_audioWithSameChannelCounts_returnsFalse() {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 
@@ -193,6 +314,7 @@ public final class MediaCodecInfoTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void isSeamlessAdaptationSupported_audioWithDifferentInitializationData_returnsFalse() {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 

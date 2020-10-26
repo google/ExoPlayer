@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_NO;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -49,6 +50,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecDecoderException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KeepCodecResult;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -565,18 +567,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected @KeepCodecResult int canKeepCodec(
+  @KeepCodecResult
+  protected int canKeepCodec(
       MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    if (codecInfo.isSeamlessAdaptationSupported(
-            oldFormat, newFormat, /* isNewFormatComplete= */ true)
-        && newFormat.width <= codecMaxValues.width
-        && newFormat.height <= codecMaxValues.height
-        && getMaxInputSize(codecInfo, newFormat) <= codecMaxValues.inputSize) {
-      return oldFormat.initializationDataEquals(newFormat)
-          ? KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
-          : KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
+    if (newFormat.width > codecMaxValues.width
+        || newFormat.height > codecMaxValues.height
+        || getMaxInputSize(codecInfo, newFormat) > codecMaxValues.inputSize) {
+      return KEEP_CODEC_RESULT_NO;
     }
-    return KEEP_CODEC_RESULT_NO;
+    return codecInfo.canKeepCodec(oldFormat, newFormat);
   }
 
   @CallSuper
@@ -1325,8 +1324,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     boolean haveUnknownDimensions = false;
     for (Format streamFormat : streamFormats) {
-      if (codecInfo.isSeamlessAdaptationSupported(
-          format, streamFormat, /* isNewFormatComplete= */ false)) {
+      if (format.colorInfo != null && streamFormat.colorInfo == null) {
+        // streamFormat likely has incomplete color information. Copy the complete color information
+        // from format to avoid codec re-use being ruled out for only this reason.
+        streamFormat = streamFormat.buildUpon().setColorInfo(format.colorInfo).build();
+      }
+      if (codecInfo.canKeepCodec(format, streamFormat) != KEEP_CODEC_RESULT_NO) {
         haveUnknownDimensions |=
             (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
         maxWidth = max(maxWidth, streamFormat.width);
