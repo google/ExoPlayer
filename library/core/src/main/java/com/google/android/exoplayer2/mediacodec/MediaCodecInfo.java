@@ -327,34 +327,42 @@ public final class MediaCodecInfo {
    */
   public boolean isSeamlessAdaptationSupported(
       Format oldFormat, Format newFormat, boolean isNewFormatComplete) {
+    if (!Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)) {
+      return false;
+    }
+
     if (isVideo) {
-      return Assertions.checkNotNull(oldFormat.sampleMimeType).equals(newFormat.sampleMimeType)
-          && oldFormat.rotationDegrees == newFormat.rotationDegrees
+      return oldFormat.rotationDegrees == newFormat.rotationDegrees
           && (adaptive
               || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height))
           && ((!isNewFormatComplete && newFormat.colorInfo == null)
               || Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo));
     } else {
-      if (!MimeTypes.AUDIO_AAC.equals(mimeType)
-          || !Assertions.checkNotNull(oldFormat.sampleMimeType).equals(newFormat.sampleMimeType)
-          || oldFormat.channelCount != newFormat.channelCount
+      if (oldFormat.channelCount != newFormat.channelCount
           || oldFormat.sampleRate != newFormat.sampleRate) {
         return false;
       }
-      // Check the codec profile levels support adaptation.
-      @Nullable
-      Pair<Integer, Integer> oldCodecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(oldFormat);
-      @Nullable
-      Pair<Integer, Integer> newCodecProfileLevel =
-          MediaCodecUtil.getCodecProfileAndLevel(newFormat);
-      if (oldCodecProfileLevel == null || newCodecProfileLevel == null) {
-        return false;
+
+      // Check whether we're adapting between two xHE-AAC formats, for which adaptation is possible
+      // without reconfiguration.
+      if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
+        @Nullable
+        Pair<Integer, Integer> oldCodecProfileLevel =
+            MediaCodecUtil.getCodecProfileAndLevel(oldFormat);
+        @Nullable
+        Pair<Integer, Integer> newCodecProfileLevel =
+            MediaCodecUtil.getCodecProfileAndLevel(newFormat);
+        if (oldCodecProfileLevel != null && newCodecProfileLevel != null) {
+          int oldProfile = oldCodecProfileLevel.first;
+          int newProfile = newCodecProfileLevel.first;
+          if (oldProfile == CodecProfileLevel.AACObjectXHE
+              && newProfile == CodecProfileLevel.AACObjectXHE) {
+            return true;
+          }
+        }
       }
-      int oldProfile = oldCodecProfileLevel.first;
-      int newProfile = newCodecProfileLevel.first;
-      return oldProfile == CodecProfileLevel.AACObjectXHE
-          && newProfile == CodecProfileLevel.AACObjectXHE;
+
+      return false;
     }
   }
 
