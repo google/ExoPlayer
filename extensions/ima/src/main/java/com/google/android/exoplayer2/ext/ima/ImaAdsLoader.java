@@ -871,6 +871,7 @@ public final class ImaAdsLoader
       if (configuration.applicationAdErrorListener != null) {
         adsLoader.removeAdErrorListener(configuration.applicationAdErrorListener);
       }
+      adsLoader.release();
     }
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
