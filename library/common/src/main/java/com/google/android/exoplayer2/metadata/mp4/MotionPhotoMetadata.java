@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.common.primitives.Longs;
 
 /** Metadata of a motion photo file. */
-public final class MotionPhoto implements Metadata.Entry {
+public final class MotionPhotoMetadata implements Metadata.Entry {
 
   /** The start offset of the photo data, in bytes. */
   public final long photoStartPosition;
@@ -35,7 +35,7 @@ public final class MotionPhoto implements Metadata.Entry {
   public final long videoSize;
 
   /** Creates an instance. */
-  public MotionPhoto(
+  public MotionPhotoMetadata(
       long photoStartPosition, long photoSize, long videoStartPosition, long videoSize) {
     this.photoStartPosition = photoStartPosition;
     this.photoSize = photoSize;
@@ -43,7 +43,7 @@ public final class MotionPhoto implements Metadata.Entry {
     this.videoSize = videoSize;
   }
 
-  private MotionPhoto(Parcel in) {
+  private MotionPhotoMetadata(Parcel in) {
     photoStartPosition = in.readLong();
     photoSize = in.readLong();
     videoStartPosition = in.readLong();
@@ -58,7 +58,7 @@ public final class MotionPhoto implements Metadata.Entry {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    MotionPhoto other = (MotionPhoto) obj;
+    MotionPhotoMetadata other = (MotionPhotoMetadata) obj;
     return photoStartPosition == other.photoStartPosition
         && photoSize == other.photoSize
         && videoStartPosition == other.videoStartPosition
@@ -77,7 +77,7 @@ public final class MotionPhoto implements Metadata.Entry {
 
   @Override
   public String toString() {
-    return "Motion photo: photoStartPosition="
+    return "Motion photo metadata: photoStartPosition="
         + photoStartPosition
         + ", photoSize="
         + photoSize
@@ -102,17 +102,17 @@ public final class MotionPhoto implements Metadata.Entry {
     return 0;
   }
 
-  public static final Parcelable.Creator<MotionPhoto> CREATOR =
-      new Parcelable.Creator<MotionPhoto>() {
+  public static final Parcelable.Creator<MotionPhotoMetadata> CREATOR =
+      new Parcelable.Creator<MotionPhotoMetadata>() {
 
         @Override
-        public MotionPhoto createFromParcel(Parcel in) {
-          return new MotionPhoto(in);
+        public MotionPhotoMetadata createFromParcel(Parcel in) {
+          return new MotionPhotoMetadata(in);
         }
 
         @Override
-        public MotionPhoto[] newArray(int size) {
-          return new MotionPhoto[size];
+        public MotionPhotoMetadata[] newArray(int size) {
+          return new MotionPhotoMetadata[size];
         }
       };
 }

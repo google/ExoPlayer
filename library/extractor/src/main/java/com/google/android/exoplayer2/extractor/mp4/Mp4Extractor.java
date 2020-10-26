@@ -40,7 +40,7 @@ import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.mp4.MotionPhoto;
+import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -78,8 +78,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1;
   /**
-   * Flag to extract {@link MotionPhoto} metadata from HEIC motion photos following the Google
-   * Photos Motion Photo File Format V1.1.
+   * Flag to extract {@link MotionPhotoMetadata} from HEIC motion photos following the Google Photos
+   * Motion Photo File Format V1.1.
    *
    * <p>As playback is not supported for motion photos, this flag should only be used for metadata
    * retrieval use cases.
@@ -147,7 +147,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int firstVideoTrackIndex;
   private long durationUs;
   @FileType private int fileType;
-  @Nullable private MotionPhoto motionPhoto;
+  @Nullable private MotionPhotoMetadata motionPhotoMetadata;
 
   /**
    * Creates a new extractor for unfragmented MP4 streams.
@@ -667,7 +667,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Add image track and prepare media.
       ExtractorOutput extractorOutput = checkNotNull(this.extractorOutput);
       TrackOutput trackOutput = extractorOutput.track(/* id= */ 0, C.TRACK_TYPE_IMAGE);
-      @Nullable Metadata metadata = motionPhoto == null ? null : new Metadata(motionPhoto);
+      @Nullable
+      Metadata metadata = motionPhotoMetadata == null ? null : new Metadata(motionPhotoMetadata);
       trackOutput.format(new Format.Builder().setMetadata(metadata).build());
       extractorOutput.endTracks();
       extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
@@ -704,8 +705,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     if (atomType == Atom.TYPE_mpvd) {
       // The input is an HEIC motion photo following the Google Photos Motion Photo File Format
       // V1.1.
-      motionPhoto =
-          new MotionPhoto(
+      motionPhotoMetadata =
+          new MotionPhotoMetadata(
               /* photoStartPosition= */ 0,
               /* photoSize= */ atomStartPosition,
               /* videoStartPosition= */ atomStartPosition + atomHeaderBytesRead,

@@ -25,7 +25,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.metadata.mp4.MotionPhoto;
+import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -94,8 +94,8 @@ public class MetadataRetrieverTest {
   public void retrieveMetadata_heicMotionPhoto_outputsExpectedMetadata() throws Exception {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample_MP.heic"));
-    MotionPhoto expectedMotionPhoto =
-        new MotionPhoto(
+    MotionPhotoMetadata expectedMotionPhotoMetadata =
+        new MotionPhotoMetadata(
             /* photoStartPosition= */ 0,
             /* photoSize= */ 28_853,
             /* videoStartPosition= */ 28_869,
@@ -107,7 +107,8 @@ public class MetadataRetrieverTest {
     assertThat(trackGroups.length).isEqualTo(1);
     assertThat(trackGroups.get(0).length).isEqualTo(1);
     assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(1);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(0)).isEqualTo(expectedMotionPhoto);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(0))
+        .isEqualTo(expectedMotionPhotoMetadata);
   }
 
   @Test

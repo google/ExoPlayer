@@ -23,25 +23,26 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Test for {@link MotionPhoto}. */
+/** Test for {@link MotionPhotoMetadata}. */
 @RunWith(AndroidJUnit4.class)
-public class MotionPhotoTest {
+public class MotionPhotoMetadataTest {
 
   @Test
   public void parcelable() {
-    MotionPhoto motionPhotoToParcel =
-        new MotionPhoto(
+    MotionPhotoMetadata motionPhotoMetadataToParcel =
+        new MotionPhotoMetadata(
             /* photoStartPosition= */ 0,
             /* photoSize= */ 10,
             /* videoStartPosition= */ 15,
             /* videoSize= */ 35);
 
     Parcel parcel = Parcel.obtain();
-    motionPhotoToParcel.writeToParcel(parcel, /* flags= */ 0);
+    motionPhotoMetadataToParcel.writeToParcel(parcel, /* flags= */ 0);
     parcel.setDataPosition(0);
 
-    MotionPhoto motionPhotoFromParcel = MotionPhoto.CREATOR.createFromParcel(parcel);
-    assertThat(motionPhotoFromParcel).isEqualTo(motionPhotoToParcel);
+    MotionPhotoMetadata motionPhotoMetadataFromParcel =
+        MotionPhotoMetadata.CREATOR.createFromParcel(parcel);
+    assertThat(motionPhotoMetadataFromParcel).isEqualTo(motionPhotoMetadataToParcel);
 
     parcel.recycle();
   }
