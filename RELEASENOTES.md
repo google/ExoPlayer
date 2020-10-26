@@ -6,6 +6,9 @@
     *   Suppress exceptions from registering/unregistering the stream volume
         receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
         ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
+*   IMA extension:
+    *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
+        ([#7344](https://github.com/google/ExoPlayer/issues/7344)).
 
 ### 2.12.1 (2020-10-23) ###
 
