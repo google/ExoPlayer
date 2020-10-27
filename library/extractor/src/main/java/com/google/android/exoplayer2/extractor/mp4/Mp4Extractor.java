@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
+import com.google.android.exoplayer2.metadata.mp4.SefSlowMotion;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -65,17 +66,20 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   /**
    * Flags controlling the behavior of the extractor. Possible flag values are {@link
-   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS} and {@link #FLAG_READ_MOTION_PHOTO_METADATA}.
+   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}, {@link #FLAG_READ_MOTION_PHOTO_METADATA} and {@link
+   * #FLAG_READ_SEF_DATA}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
       flag = true,
-      value = {FLAG_WORKAROUND_IGNORE_EDIT_LISTS, FLAG_READ_MOTION_PHOTO_METADATA})
+      value = {
+        FLAG_WORKAROUND_IGNORE_EDIT_LISTS,
+        FLAG_READ_MOTION_PHOTO_METADATA,
+        FLAG_READ_SEF_DATA
+      })
   public @interface Flags {}
-  /**
-   * Flag to ignore any edit lists in the stream.
-   */
+  /** Flag to ignore any edit lists in the stream. */
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1;
   /**
    * Flag to extract {@link MotionPhotoMetadata} from HEIC motion photos following the Google Photos
@@ -85,16 +89,27 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * retrieval use cases.
    */
   public static final int FLAG_READ_MOTION_PHOTO_METADATA = 1 << 1;
+  /**
+   * Flag to extract {@link SefSlowMotion} metadata from Samsung Extension Format (SEF) slow motion
+   * videos.
+   */
+  public static final int FLAG_READ_SEF_DATA = 1 << 2;
 
   /** Parser states. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({STATE_READING_ATOM_HEADER, STATE_READING_ATOM_PAYLOAD, STATE_READING_SAMPLE})
+  @IntDef({
+    STATE_READING_ATOM_HEADER,
+    STATE_READING_ATOM_PAYLOAD,
+    STATE_READING_SAMPLE,
+    STATE_READING_SEF,
+  })
   private @interface State {}
 
   private static final int STATE_READING_ATOM_HEADER = 0;
   private static final int STATE_READING_ATOM_PAYLOAD = 1;
   private static final int STATE_READING_SAMPLE = 2;
+  private static final int STATE_READING_SEF = 3;
 
   /** Supported file types. */
   @Documented
@@ -127,6 +142,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
 
   private final ParsableByteArray atomHeader;
   private final ArrayDeque<ContainerAtom> containerAtoms;
+  private final SefReader sefReader;
+  private final List<Metadata.Entry> slowMotionMetadataEntries;
 
   @State private int parserState;
   private int atomType;
@@ -153,7 +170,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * Creates a new extractor for unfragmented MP4 streams.
    */
   public Mp4Extractor() {
-    this(0);
+    this(/* flags= */ 0);
   }
 
   /**
@@ -164,6 +181,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   public Mp4Extractor(@Flags int flags) {
     this.flags = flags;
+    parserState =
+        ((flags & FLAG_READ_SEF_DATA) != 0) ? STATE_READING_SEF : STATE_READING_ATOM_HEADER;
+    sefReader = new SefReader();
+    slowMotionMetadataEntries = new ArrayList<>();
     atomHeader = new ParsableByteArray(Atom.LONG_HEADER_SIZE);
     containerAtoms = new ArrayDeque<>();
     nalStartCode = new ParsableByteArray(NalUnitUtil.NAL_START_CODE);
@@ -192,7 +213,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
     if (position == 0) {
-      enterReadingAtomHeaderState();
+      // Reading the SEF data occurs before normal MP4 parsing. Therefore we can not transition to
+      // reading the atom header until that has completed.
+      if (parserState != STATE_READING_SEF) {
+        enterReadingAtomHeaderState();
+      } else {
+        sefReader.reset();
+        slowMotionMetadataEntries.clear();
+      }
     } else if (tracks != null) {
       updateSampleIndices(timeUs);
     }
@@ -219,6 +247,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           break;
         case STATE_READING_SAMPLE:
           return readSample(input, seekPosition);
+        case STATE_READING_SEF:
+          return readSefData(input, seekPosition);
         default:
           throw new IllegalStateException();
       }
@@ -396,6 +426,15 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     return seekRequired && parserState != STATE_READING_SAMPLE;
   }
 
+  @ReadResult
+  private int readSefData(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+    @ReadResult int result = sefReader.read(input, seekPosition, slowMotionMetadataEntries);
+    if (result == RESULT_SEEK && seekPosition.position == 0) {
+      enterReadingAtomHeaderState();
+    }
+    return result;
+  }
+
   private void processAtomEnded(long atomEndPosition) throws ParserException {
     while (!containerAtoms.isEmpty() && containerAtoms.peek().endPosition == atomEndPosition) {
       Atom.ContainerAtom containerAtom = containerAtoms.pop();
@@ -474,8 +513,14 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         float frameRate = trackSampleTable.sampleCount / (trackDurationUs / 1000000f);
         formatBuilder.setFrameRate(frameRate);
       }
+
       MetadataUtil.setFormatMetadata(
-          track.type, udtaMetadata, mdtaMetadata, gaplessInfoHolder, formatBuilder);
+          track.type,
+          udtaMetadata,
+          mdtaMetadata,
+          gaplessInfoHolder,
+          formatBuilder,
+          /* additionalEntries...= */ slowMotionMetadataEntries.toArray(new Metadata.Entry[0]));
       mp4Track.trackOutput.format(formatBuilder.build());
 
       if (track.type == C.TRACK_TYPE_VIDEO && firstVideoTrackIndex == C.INDEX_UNSET) {

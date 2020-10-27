@@ -48,7 +48,7 @@ public final class MetadataRetriever {
    *
    * <p>This is equivalent to using {@link #retrieveMetadata(MediaSourceFactory, MediaItem)} with a
    * {@link DefaultMediaSourceFactory} and a {@link DefaultExtractorsFactory} with {@link
-   * Mp4Extractor#FLAG_READ_MOTION_PHOTO_METADATA} set.
+   * Mp4Extractor#FLAG_READ_MOTION_PHOTO_METADATA} and {@link Mp4Extractor#FLAG_READ_SEF_DATA} set.
    *
    * @param context The {@link Context}.
    * @param mediaItem The {@link MediaItem} whose metadata should be retrieved.
@@ -58,7 +58,8 @@ public final class MetadataRetriever {
       Context context, MediaItem mediaItem) {
     ExtractorsFactory extractorsFactory =
         new DefaultExtractorsFactory()
-            .setMp4ExtractorFlags(Mp4Extractor.FLAG_READ_MOTION_PHOTO_METADATA);
+            .setMp4ExtractorFlags(
+                Mp4Extractor.FLAG_READ_MOTION_PHOTO_METADATA | Mp4Extractor.FLAG_READ_SEF_DATA);
     MediaSourceFactory mediaSourceFactory =
         new DefaultMediaSourceFactory(context, extractorsFactory);
     return retrieveMetadata(mediaSourceFactory, mediaItem);
