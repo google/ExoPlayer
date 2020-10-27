@@ -1119,6 +1119,10 @@ public final class ImaAdsLoader
 
   private void updateAdProgress() {
     VideoProgressUpdate videoProgressUpdate = getAdVideoProgressUpdate();
+    if (configuration.debugModeEnabled) {
+      Log.d(TAG, "Ad progress: " + ImaUtil.getStringForVideoProgressUpdate(videoProgressUpdate));
+    }
+
     AdMediaInfo adMediaInfo = checkNotNull(imaAdMediaInfo);
     for (int i = 0; i < adCallbacks.size(); i++) {
       adCallbacks.get(i).onAdProgress(adMediaInfo, videoProgressUpdate);
@@ -1730,15 +1734,9 @@ public final class ImaAdsLoader
     public VideoProgressUpdate getContentProgress() {
       VideoProgressUpdate videoProgressUpdate = getContentVideoProgressUpdate();
       if (configuration.debugModeEnabled) {
-        if (VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(videoProgressUpdate)) {
-          Log.d(TAG, "Content progress: not ready");
-        } else {
-          Log.d(
-              TAG,
-              Util.formatInvariant(
-                  "Content progress: %.1f of %.1f s",
-                  videoProgressUpdate.getCurrentTime(), videoProgressUpdate.getDuration()));
-        }
+        Log.d(
+            TAG,
+            "Content progress: " + ImaUtil.getStringForVideoProgressUpdate(videoProgressUpdate));
       }
 
       if (waitingForPreloadElapsedRealtimeMs != C.TIME_UNSET) {
