@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.mp4.SefSlowMotion;
+import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.base.Splitter;
 import java.io.IOException;
@@ -184,7 +184,7 @@ import java.util.List;
       DataReference dataReference = dataReferences.get(i);
       if (dataReference.dataType == TYPE_SLOW_MOTION_DATA) {
         scratch.skipBytes(23); // data type (2), data sub info (2), name len (4), name (15).
-        List<SefSlowMotion.Segment> segments = new ArrayList<>();
+        List<SlowMotionData.Segment> segments = new ArrayList<>();
         int dataReferenceEndPosition = totalDataReferenceBytesConsumed + dataReference.size;
         while (scratch.getPosition() < dataReferenceEndPosition) {
           @Nullable String data = scratch.readDelimiterTerminatedString('*');
@@ -197,13 +197,13 @@ import java.util.List;
             int endTimeMs = Integer.parseInt(values.get(1));
             int speedMode = Integer.parseInt(values.get(2));
             int speedDivisor = 1 << (speedMode - 1);
-            segments.add(new SefSlowMotion.Segment(startTimeMs, endTimeMs, speedDivisor));
+            segments.add(new SlowMotionData.Segment(startTimeMs, endTimeMs, speedDivisor));
           } catch (NumberFormatException e) {
             throw new ParserException(e);
           }
         }
         totalDataReferenceBytesConsumed += dataReference.size;
-        slowMotionMetadataEntries.add(new SefSlowMotion(segments));
+        slowMotionMetadataEntries.add(new SlowMotionData(segments));
       }
     }
   }

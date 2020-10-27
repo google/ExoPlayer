@@ -41,7 +41,7 @@ import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.mp4.Atom.ContainerAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
-import com.google.android.exoplayer2.metadata.mp4.SefSlowMotion;
+import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -90,7 +90,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    */
   public static final int FLAG_READ_MOTION_PHOTO_METADATA = 1 << 1;
   /**
-   * Flag to extract {@link SefSlowMotion} metadata from Samsung Extension Format (SEF) slow motion
+   * Flag to extract {@link SlowMotionData} metadata from Samsung Extension Format (SEF) slow motion
    * videos.
    */
   public static final int FLAG_READ_SEF_DATA = 1 << 2;

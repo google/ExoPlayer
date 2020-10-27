@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,52 +19,52 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.metadata.mp4.SefSlowMotion;
+import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link SefSlowMotion} */
+/** Unit test for {@link SlowMotionData} */
 @RunWith(AndroidJUnit4.class)
-public class SefSlowMotionTest {
+public class SlowMotionDataTest {
 
   @Test
   public void parcelable() {
-    List<SefSlowMotion.Segment> segments = new ArrayList<>();
+    List<SlowMotionData.Segment> segments = new ArrayList<>();
     segments.add(
-        new SefSlowMotion.Segment(
+        new SlowMotionData.Segment(
             /* startTimeMs= */ 1000, /* endTimeMs= */ 2000, /* speedDivisor= */ 4));
     segments.add(
-        new SefSlowMotion.Segment(
+        new SlowMotionData.Segment(
             /* startTimeMs= */ 2600, /* endTimeMs= */ 4000, /* speedDivisor= */ 8));
     segments.add(
-        new SefSlowMotion.Segment(
+        new SlowMotionData.Segment(
             /* startTimeMs= */ 8765, /* endTimeMs= */ 12485, /* speedDivisor= */ 16));
 
-    SefSlowMotion sefSlowMotionToParcel = new SefSlowMotion(segments);
+    SlowMotionData slowMotionDataToParcel = new SlowMotionData(segments);
     Parcel parcel = Parcel.obtain();
-    sefSlowMotionToParcel.writeToParcel(parcel, /* flags= */ 0);
+    slowMotionDataToParcel.writeToParcel(parcel, /* flags= */ 0);
     parcel.setDataPosition(0);
 
-    SefSlowMotion sefSlowMotionFromParcel = SefSlowMotion.CREATOR.createFromParcel(parcel);
-    assertThat(sefSlowMotionFromParcel).isEqualTo(sefSlowMotionToParcel);
+    SlowMotionData slowMotionDataFromParcel = SlowMotionData.CREATOR.createFromParcel(parcel);
+    assertThat(slowMotionDataFromParcel).isEqualTo(slowMotionDataToParcel);
 
     parcel.recycle();
   }
 
   @Test
   public void segment_parcelable() {
-    SefSlowMotion.Segment segmentToParcel =
-        new SefSlowMotion.Segment(
+    SlowMotionData.Segment segmentToParcel =
+        new SlowMotionData.Segment(
             /* startTimeMs= */ 1000, /* endTimeMs= */ 2000, /* speedDivisor= */ 4);
 
     Parcel parcel = Parcel.obtain();
     segmentToParcel.writeToParcel(parcel, /* flags= */ 0);
     parcel.setDataPosition(0);
 
-    SefSlowMotion.Segment segmentFromParcel =
-        SefSlowMotion.Segment.CREATOR.createFromParcel(parcel);
+    SlowMotionData.Segment segmentFromParcel =
+        SlowMotionData.Segment.CREATOR.createFromParcel(parcel);
     assertThat(segmentFromParcel).isEqualTo(segmentToParcel);
 
     parcel.recycle();

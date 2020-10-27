@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Holds information about the segments of slow motion playback within a track. */
-public final class SefSlowMotion implements Metadata.Entry {
+public final class SlowMotionData implements Metadata.Entry {
 
   /** Holds information about a single segment of slow motion playback within a track. */
   public static final class Segment implements Parcelable {
@@ -114,13 +114,13 @@ public final class SefSlowMotion implements Metadata.Entry {
   public final List<Segment> segments;
 
   /** Creates an instance with a list of {@link Segment}s. */
-  public SefSlowMotion(List<Segment> segments) {
+  public SlowMotionData(List<Segment> segments) {
     this.segments = segments;
   }
 
   @Override
   public String toString() {
-    return "SefSlowMotion: segments=" + segments;
+    return "SlowMotion: segments=" + segments;
   }
 
   @Override
@@ -131,7 +131,7 @@ public final class SefSlowMotion implements Metadata.Entry {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SefSlowMotion that = (SefSlowMotion) o;
+    SlowMotionData that = (SlowMotionData) o;
     return segments.equals(that.segments);
   }
 
@@ -150,18 +150,18 @@ public final class SefSlowMotion implements Metadata.Entry {
     dest.writeList(segments);
   }
 
-  public static final Creator<SefSlowMotion> CREATOR =
-      new Creator<SefSlowMotion>() {
+  public static final Creator<SlowMotionData> CREATOR =
+      new Creator<SlowMotionData>() {
         @Override
-        public SefSlowMotion createFromParcel(Parcel in) {
+        public SlowMotionData createFromParcel(Parcel in) {
           List<Segment> slowMotionSegments = new ArrayList<>();
           in.readList(slowMotionSegments, Segment.class.getClassLoader());
-          return new SefSlowMotion(slowMotionSegments);
+          return new SlowMotionData(slowMotionSegments);
         }
 
         @Override
-        public SefSlowMotion[] newArray(int size) {
-          return new SefSlowMotion[size];
+        public SlowMotionData[] newArray(int size) {
+          return new SlowMotionData[size];
         }
       };
 }
