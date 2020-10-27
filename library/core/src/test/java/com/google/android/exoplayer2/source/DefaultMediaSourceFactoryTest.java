@@ -246,6 +246,8 @@ public final class DefaultMediaSourceFactoryTest {
     MediaItem mediaItemFromSource = mediaSource.getMediaItem();
 
     assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(C.TIME_UNSET);
+    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(C.TIME_UNSET);
+    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(C.TIME_UNSET);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
@@ -255,6 +257,8 @@ public final class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .setLiveTargetOffsetMs(20)
+            .setLiveMinOffsetMs(2222)
+            .setLiveMaxOffsetMs(4444)
             .setLiveMinSpeed(.1f)
             .setLiveMaxSpeed(2.0f);
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA + "/file.mp4").build();
@@ -263,6 +267,8 @@ public final class DefaultMediaSourceFactoryTest {
     MediaItem mediaItemFromSource = mediaSource.getMediaItem();
 
     assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(20);
+    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(2222);
+    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(4444);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(.1f);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(2.0f);
   }
@@ -272,12 +278,16 @@ public final class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .setLiveTargetOffsetMs(20)
+            .setLiveMinOffsetMs(2222)
+            .setLiveMinOffsetMs(4444)
             .setLiveMinSpeed(.1f)
             .setLiveMaxSpeed(2.0f);
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(URI_MEDIA + "/file.mp4")
             .setLiveTargetOffsetMs(10)
+            .setLiveMinOffsetMs(1111)
+            .setLiveMinOffsetMs(3333)
             .setLiveMinPlaybackSpeed(20.0f)
             .setLiveMaxPlaybackSpeed(20.0f)
             .build();

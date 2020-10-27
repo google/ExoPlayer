@@ -42,7 +42,11 @@ public class DefaultLivePlaybackSpeedControlTest {
         new DefaultLivePlaybackSpeedControl.Builder().build();
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
-            /* targetLiveOffsetMs= */ 42, /* minPlaybackSpeed= */ 1f, /* maxPlaybackSpeed= */ 1f));
+            /* targetLiveOffsetMs= */ 42,
+            /* minLiveOffsetMs= */ 200,
+            /* maxLiveOffsetMs= */ 400,
+            /* minPlaybackSpeed= */ 1f,
+            /* maxPlaybackSpeed= */ 1f));
 
     assertThat(defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs()).isEqualTo(42_000);
   }
@@ -55,7 +59,11 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setTargetLiveOffsetOverrideUs(123_456_789);
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
-            /* targetLiveOffsetMs= */ 42, /* minPlaybackSpeed= */ 1f, /* maxPlaybackSpeed= */ 1f));
+            /* targetLiveOffsetMs= */ 42,
+            /* minLiveOffsetMs= */ 200,
+            /* maxLiveOffsetMs= */ 400,
+            /* minPlaybackSpeed= */ 1f,
+            /* maxPlaybackSpeed= */ 1f));
 
     long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
 
@@ -82,7 +90,11 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setTargetLiveOffsetOverrideUs(123_456_789);
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
-            /* targetLiveOffsetMs= */ 42, /* minPlaybackSpeed= */ 1f, /* maxPlaybackSpeed= */ 1f));
+            /* targetLiveOffsetMs= */ 42,
+            /* minLiveOffsetMs= */ 200,
+            /* maxLiveOffsetMs= */ 400,
+            /* minPlaybackSpeed= */ 1f,
+            /* maxPlaybackSpeed= */ 1f));
     defaultLivePlaybackSpeedControl.setTargetLiveOffsetOverrideUs(C.TIME_UNSET);
 
     long targetLiveOffsetUs = defaultLivePlaybackSpeedControl.getTargetLiveOffsetUs();
@@ -97,6 +109,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -113,6 +127,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -138,6 +154,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -157,6 +175,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -176,6 +196,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -194,6 +216,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -212,6 +236,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ 2f));
 
@@ -230,6 +256,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ 0.2f,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -247,6 +275,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -270,6 +300,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 
@@ -278,6 +310,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
     float adjustedSpeed2 =
@@ -293,6 +327,8 @@ public class DefaultLivePlaybackSpeedControlTest {
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
             /* minPlaybackSpeed= */ C.RATE_UNSET,
             /* maxPlaybackSpeed= */ C.RATE_UNSET));
 

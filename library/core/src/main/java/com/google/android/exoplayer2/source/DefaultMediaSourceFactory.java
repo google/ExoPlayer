@@ -110,6 +110,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Nullable private List<StreamKey> streamKeys;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private long liveTargetOffsetMs;
+  private long liveMinOffsetMs;
+  private long liveMaxOffsetMs;
   private float liveMinSpeed;
   private float liveMaxSpeed;
 
@@ -161,6 +163,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       supportedTypes[i] = mediaSourceFactories.keyAt(i);
     }
     liveTargetOffsetMs = C.TIME_UNSET;
+    liveMinOffsetMs = C.TIME_UNSET;
+    liveMaxOffsetMs = C.TIME_UNSET;
     liveMinSpeed = C.RATE_UNSET;
     liveMaxSpeed = C.RATE_UNSET;
   }
@@ -198,6 +202,30 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    */
   public DefaultMediaSourceFactory setLiveTargetOffsetMs(long liveTargetOffsetMs) {
     this.liveTargetOffsetMs = liveTargetOffsetMs;
+    return this;
+  }
+
+  /**
+   * Sets the minimum offset from the live edge for live streams, in milliseconds.
+   *
+   * @param liveMinOffsetMs The minimum allowed live offset, in milliseconds, or {@link
+   *     C#TIME_UNSET} to use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMinOffsetMs(long liveMinOffsetMs) {
+    this.liveMinOffsetMs = liveMinOffsetMs;
+    return this;
+  }
+
+  /**
+   * Sets the maximum offset from the live edge for live streams, in milliseconds.
+   *
+   * @param liveMaxOffsetMs The maximum allowed live offset, in milliseconds, or {@link
+   *     C#TIME_UNSET} to use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMaxOffsetMs(long liveMaxOffsetMs) {
+    this.liveMaxOffsetMs = liveMaxOffsetMs;
     return this;
   }
 
@@ -294,7 +322,11 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         || (mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
             && liveMinSpeed != C.RATE_UNSET)
         || (mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
-            && liveMaxSpeed != C.RATE_UNSET)) {
+            && liveMaxSpeed != C.RATE_UNSET)
+        || (mediaItem.liveConfiguration.minLiveOffsetMs == C.TIME_UNSET
+            && liveMinOffsetMs != C.TIME_UNSET)
+        || (mediaItem.liveConfiguration.maxLiveOffsetMs == C.TIME_UNSET
+            && liveMaxOffsetMs != C.TIME_UNSET)) {
       mediaItem =
           mediaItem
               .buildUpon()
@@ -310,6 +342,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                   mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
                       ? liveMaxSpeed
                       : mediaItem.liveConfiguration.maxPlaybackSpeed)
+              .setLiveMinOffsetMs(
+                  mediaItem.liveConfiguration.minLiveOffsetMs == C.TIME_UNSET
+                      ? liveMinOffsetMs
+                      : mediaItem.liveConfiguration.minLiveOffsetMs)
+              .setLiveMaxOffsetMs(
+                  mediaItem.liveConfiguration.maxLiveOffsetMs == C.TIME_UNSET
+                      ? liveMaxOffsetMs
+                      : mediaItem.liveConfiguration.maxLiveOffsetMs)
               .build();
     }
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
