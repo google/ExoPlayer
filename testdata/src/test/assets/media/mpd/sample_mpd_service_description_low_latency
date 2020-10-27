@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MPD type="static" duration="1s" mediaPresentationDuration="PT1S">
  <ServiceDescription>
-  <Latency target="20000"/>
+  <Latency min="1000" target="20000" max="30000"/>
   <PlaybackRate min="0.1" max="99"/>
  </ServiceDescription>
  <Period>

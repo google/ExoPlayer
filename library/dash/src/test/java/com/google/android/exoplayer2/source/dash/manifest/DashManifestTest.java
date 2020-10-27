@@ -43,7 +43,11 @@ public class DashManifestTest {
     Representation[][][] representations = newRepresentations(3, 2, 3);
     ServiceDescriptionElement serviceDescriptionElement =
         new ServiceDescriptionElement(
-            /* targetOffsetMs= */ 20, /* minPlaybackSpeed= */ 0.9f, /* maxPlaybackSpeed= */ 1.1f);
+            /* targetOffsetMs= */ 20,
+            /* minOffsetMs= */ 10,
+            /* maxOffsetMs= */ 40,
+            /* minPlaybackSpeed= */ 0.9f,
+            /* maxPlaybackSpeed= */ 1.1f);
     DashManifest sourceManifest =
         newDashManifest(
             10,

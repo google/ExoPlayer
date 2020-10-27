@@ -250,18 +250,23 @@ public class DashManifestParser extends DefaultHandler
   protected ServiceDescriptionElement parseServiceDescription(XmlPullParser xpp)
       throws XmlPullParserException, IOException {
     long targetOffsetMs = C.TIME_UNSET;
+    long minOffsetMs = C.TIME_UNSET;
+    long maxOffsetMs = C.TIME_UNSET;
     float minPlaybackSpeed = C.RATE_UNSET;
     float maxPlaybackSpeed = C.RATE_UNSET;
     do {
       xpp.next();
       if (XmlPullParserUtil.isStartTag(xpp, "Latency")) {
         targetOffsetMs = parseLong(xpp, "target", C.TIME_UNSET);
+        minOffsetMs = parseLong(xpp, "min", C.TIME_UNSET);
+        maxOffsetMs = parseLong(xpp, "max", C.TIME_UNSET);
       } else if (XmlPullParserUtil.isStartTag(xpp, "PlaybackRate")) {
         minPlaybackSpeed = parseFloat(xpp, "min", C.RATE_UNSET);
         maxPlaybackSpeed = parseFloat(xpp, "max", C.RATE_UNSET);
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "ServiceDescription"));
-    return new ServiceDescriptionElement(targetOffsetMs, minPlaybackSpeed, maxPlaybackSpeed);
+    return new ServiceDescriptionElement(
+        targetOffsetMs, minOffsetMs, maxOffsetMs, minPlaybackSpeed, maxPlaybackSpeed);
   }
 
   protected Pair<Period, Long> parsePeriod(
