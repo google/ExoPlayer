@@ -804,7 +804,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
         List<Format> closedCaptionFormats,
         @Nullable TrackOutput playerEmsgTrackOutput) {
       String containerMimeType = representation.format.containerMimeType;
-
       Extractor extractor;
       if (MimeTypes.isText(containerMimeType)) {
         if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
