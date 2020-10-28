@@ -13,6 +13,8 @@
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)).
     *   Improve handling of ad tags with unsupported VPAID ads
         ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
+    *   Fix a bug that caused multiple ads in an ad pod to be skipped when one
+        ad in the ad pod was skipped.
 
 ### 2.12.1 (2020-10-23) ###
 
