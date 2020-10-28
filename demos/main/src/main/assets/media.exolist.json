@@ -497,6 +497,11 @@
         "name": "VMAP midroll at 1765 s",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
         "ad_tag_uri": "https://vastsynthesizer.appspot.com/midroll-large"
+      },
+      {
+        "name": "VMAP midroll ad pod at 5 s with 10 skippable ads",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
+        "ad_tag_uri": "https://vastsynthesizer.appspot.com/midroll-10-skippable-ads"
       }
     ]
   },
