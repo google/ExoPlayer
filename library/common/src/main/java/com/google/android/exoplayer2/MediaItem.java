@@ -749,7 +749,12 @@ public final class MediaItem {
 
     /** A live playback configuration with unset values. */
     public static final LiveConfiguration UNSET =
-        new LiveConfiguration(C.TIME_UNSET, C.TIME_UNSET, C.TIME_UNSET, C.RATE_UNSET, C.RATE_UNSET);
+        new LiveConfiguration(
+            /* targetLiveOffsetMs= */ C.TIME_UNSET,
+            /* minLiveOffsetMs= */ C.TIME_UNSET,
+            /* maxLiveOffsetMs= */ C.TIME_UNSET,
+            /* minPlaybackSpeed= */ C.RATE_UNSET,
+            /* maxPlaybackSpeed= */ C.RATE_UNSET);
 
     /**
      * Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use the media-defined
