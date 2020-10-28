@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.ConditionVariable;
@@ -184,7 +185,9 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
     playerWasPrepared |= playbackState != Player.STATE_IDLE;
     if (playbackState == Player.STATE_ENDED
         || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
-      stopTest();
+      // Post stopTest to ensure all currently pending events (e.g. onIsPlayingChanged or
+      // onPlayerError) are still delivered before the player is released.
+      checkStateNotNull(actionHandler).post(this::stopTest);
     }
   }
 
