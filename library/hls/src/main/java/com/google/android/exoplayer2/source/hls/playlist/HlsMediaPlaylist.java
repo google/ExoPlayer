@@ -22,11 +22,11 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.offline.StreamKey;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /** Represents an HLS media playlist. */
@@ -82,57 +82,16 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
 
   /** Media segment reference. */
   @SuppressWarnings("ComparableType")
-  public static final class Segment implements Comparable<Long> {
+  public static final class Segment extends SegmentBase {
 
-    /**
-     * The url of the segment.
-     */
-    public final String url;
-    /**
-     * The media initialization section for this segment, as defined by #EXT-X-MAP. May be null if
-     * the media playlist does not define a media section for this segment. The same instance is
-     * used for all segments that share an EXT-X-MAP tag.
-     */
-    @Nullable public final Segment initializationSegment;
-    /** The duration of the segment in microseconds, as defined by #EXTINF. */
-    public final long durationUs;
     /** The human readable title of the segment. */
     public final String title;
-    /**
-     * The number of #EXT-X-DISCONTINUITY tags in the playlist before the segment.
-     */
-    public final int relativeDiscontinuitySequence;
-    /**
-     * The start time of the segment in microseconds, relative to the start of the playlist.
-     */
-    public final long relativeStartTimeUs;
-    /**
-     * DRM initialization data for sample decryption, or null if the segment does not use CDM-DRM
-     * protection.
-     */
-    @Nullable public final DrmInitData drmInitData;
-    /**
-     * The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
-     * full segment encryption with identity key.
-     */
-    @Nullable public final String fullSegmentEncryptionKeyUri;
-    /**
-     * The encryption initialization vector as defined by #EXT-X-KEY, or null if the segment is not
-     * encrypted.
-     */
-    @Nullable public final String encryptionIV;
-    /** The segment's byte range offset, as defined by #EXT-X-BYTERANGE. */
-    public final long byteRangeOffset;
-    /**
-     * The segment's byte range length, as defined by #EXT-X-BYTERANGE, or {@link C#LENGTH_UNSET} if
-     * no byte range is specified.
-     */
-    public final long byteRangeLength;
-
-    /** Whether the segment is tagged with #EXT-X-GAP. */
-    public final boolean hasGapTag;
+    /** The parts belonging to this segment. */
+    public final List<Part> parts;
 
     /**
+     * Creates an instance to be used as init segment.
+     *
      * @param uri See {@link #url}.
      * @param byteRangeOffset See {@link #byteRangeOffset}.
      * @param byteRangeLength See {@link #byteRangeLength}.
@@ -157,10 +116,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
           encryptionIV,
           byteRangeOffset,
           byteRangeLength,
-          /* hasGapTag= */ false);
+          /* hasGapTag= */ false,
+          /* parts= */ ImmutableList.of());
     }
 
     /**
+     * Creates an instance.
+     *
      * @param url See {@link #url}.
      * @param initializationSegment See {@link #initializationSegment}.
      * @param title See {@link #title}.
@@ -173,6 +135,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byteRangeOffset See {@link #byteRangeOffset}.
      * @param byteRangeLength See {@link #byteRangeLength}.
      * @param hasGapTag See {@link #hasGapTag}.
+     * @param parts See {@link #parts}.
      */
     public Segment(
         String url,
@@ -186,10 +149,136 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         @Nullable String encryptionIV,
         long byteRangeOffset,
         long byteRangeLength,
+        boolean hasGapTag,
+        List<Part> parts) {
+      super(
+          url,
+          initializationSegment,
+          durationUs,
+          relativeDiscontinuitySequence,
+          relativeStartTimeUs,
+          drmInitData,
+          fullSegmentEncryptionKeyUri,
+          encryptionIV,
+          byteRangeOffset,
+          byteRangeLength,
+          hasGapTag);
+      this.title = title;
+      this.parts = ImmutableList.copyOf(parts);
+    }
+  }
+
+  /** A media part. */
+  public static final class Part extends SegmentBase {
+
+    /** Whether the part is independent. */
+    public final boolean isIndependent;
+
+    /**
+     * Creates an instance.
+     *
+     * @param url See {@link #url}.
+     * @param initializationSegment See {@link #initializationSegment}.
+     * @param durationUs See {@link #durationUs}.
+     * @param relativeDiscontinuitySequence See {@link #relativeDiscontinuitySequence}.
+     * @param relativeStartTimeUs See {@link #relativeStartTimeUs}.
+     * @param drmInitData See {@link #drmInitData}.
+     * @param fullSegmentEncryptionKeyUri See {@link #fullSegmentEncryptionKeyUri}.
+     * @param encryptionIV See {@link #encryptionIV}.
+     * @param byteRangeOffset See {@link #byteRangeOffset}.
+     * @param byteRangeLength See {@link #byteRangeLength}.
+     * @param hasGapTag See {@link #hasGapTag}.
+     * @param isIndependent See {@link #isIndependent}.
+     */
+    public Part(
+        String url,
+        @Nullable Segment initializationSegment,
+        long durationUs,
+        int relativeDiscontinuitySequence,
+        long relativeStartTimeUs,
+        @Nullable DrmInitData drmInitData,
+        @Nullable String fullSegmentEncryptionKeyUri,
+        @Nullable String encryptionIV,
+        long byteRangeOffset,
+        long byteRangeLength,
+        boolean hasGapTag,
+        boolean isIndependent) {
+      super(
+          url,
+          initializationSegment,
+          durationUs,
+          relativeDiscontinuitySequence,
+          relativeStartTimeUs,
+          drmInitData,
+          fullSegmentEncryptionKeyUri,
+          encryptionIV,
+          byteRangeOffset,
+          byteRangeLength,
+          hasGapTag);
+      this.isIndependent = isIndependent;
+    }
+  }
+
+  /** The base for a {@link Segment} or a {@link Part} required for playback. */
+  @SuppressWarnings("ComparableType")
+  public static class SegmentBase implements Comparable<Long> {
+    /** The url of the segment. */
+    public final String url;
+    /**
+     * The media initialization section for this segment, as defined by #EXT-X-MAP. May be null if
+     * the media playlist does not define a media initialization section for this segment. The same
+     * instance is used for all segments that share an EXT-X-MAP tag.
+     */
+    @Nullable public final Segment initializationSegment;
+    /** The duration of the segment in microseconds, as defined by #EXTINF or #EXT-X-PART. */
+    public final long durationUs;
+    /** The number of #EXT-X-DISCONTINUITY tags in the playlist before the segment. */
+    public final int relativeDiscontinuitySequence;
+    /** The start time of the segment in microseconds, relative to the start of the playlist. */
+    public final long relativeStartTimeUs;
+    /**
+     * DRM initialization data for sample decryption, or null if the segment does not use CDM-DRM
+     * protection.
+     */
+    @Nullable public final DrmInitData drmInitData;
+    /**
+     * The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
+     * full segment encryption with identity key.
+     */
+    @Nullable public final String fullSegmentEncryptionKeyUri;
+    /**
+     * The encryption initialization vector as defined by #EXT-X-KEY, or null if the segment is not
+     * encrypted.
+     */
+    @Nullable public final String encryptionIV;
+    /**
+     * The segment's byte range offset, as defined by #EXT-X-BYTERANGE, #EXT-X-PART or
+     * #EXT-X-PRELOAD-HINT.
+     */
+    public final long byteRangeOffset;
+    /**
+     * The segment's byte range length, as defined by #EXT-X-BYTERANGE, #EXT-X-PART or
+     * #EXT-X-PRELOAD-HINT, or {@link C#LENGTH_UNSET} if no byte range is specified or the byte
+     * range is open-ended.
+     */
+    public final long byteRangeLength;
+    /** Whether the segment is marked as a gap. */
+    public final boolean hasGapTag;
+
+    private SegmentBase(
+        String url,
+        @Nullable Segment initializationSegment,
+        long durationUs,
+        int relativeDiscontinuitySequence,
+        long relativeStartTimeUs,
+        @Nullable DrmInitData drmInitData,
+        @Nullable String fullSegmentEncryptionKeyUri,
+        @Nullable String encryptionIV,
+        long byteRangeOffset,
+        long byteRangeLength,
         boolean hasGapTag) {
       this.url = url;
       this.initializationSegment = initializationSegment;
-      this.title = title;
       this.durationUs = durationUs;
       this.relativeDiscontinuitySequence = relativeDiscontinuitySequence;
       this.relativeStartTimeUs = relativeStartTimeUs;
@@ -206,7 +295,6 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       return this.relativeStartTimeUs > relativeStartTimeUs
           ? 1 : (this.relativeStartTimeUs < relativeStartTimeUs ? -1 : 0);
     }
-
   }
 
   /**
@@ -280,6 +368,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public final List<Segment> segments;
   /** The number of skipped segments. */
   public int skippedSegmentCount;
+  /**
+   * The list of parts at the end of the playlist for which the segment is not in the playlist yet.
+   */
+  public final List<Part> trailingParts;
   /** The total duration of the playlist in microseconds. */
   public final long durationUs;
   /** The attributes of the #EXT-X-SERVER-CONTROL header. */
@@ -298,9 +390,11 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param targetDurationUs See {@link #targetDurationUs}.
    * @param hasIndependentSegments See {@link #hasIndependentSegments}.
    * @param hasEndTag See {@link #hasEndTag}.
-   * @param protectionSchemes See {@link #protectionSchemes}.
    * @param hasProgramDateTime See {@link #hasProgramDateTime}.
+   * @param protectionSchemes See {@link #protectionSchemes}.
    * @param segments See {@link #segments}.
+   * @param skippedSegmentCount See {@link #skippedSegmentCount}.
+   * @param trailingParts See {@link #trailingParts}.
    * @param serverControl See {@link #serverControl}
    */
   public HlsMediaPlaylist(
@@ -321,6 +415,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       @Nullable DrmInitData protectionSchemes,
       List<Segment> segments,
       int skippedSegmentCount,
+      List<Part> trailingParts,
       ServerControl serverControl) {
     super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
@@ -334,8 +429,9 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.hasEndTag = hasEndTag;
     this.hasProgramDateTime = hasProgramDateTime;
     this.protectionSchemes = protectionSchemes;
-    this.segments = Collections.unmodifiableList(segments);
+    this.segments = ImmutableList.copyOf(segments);
     this.skippedSegmentCount = skippedSegmentCount;
+    this.trailingParts = ImmutableList.copyOf(trailingParts);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
       durationUs = last.relativeStartTimeUs + last.durationUs;
@@ -420,6 +516,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         protectionSchemes,
         mergedSegments,
         /* skippedSegmentCount= */ 0,
+        trailingParts,
         serverControl);
   }
 
@@ -451,6 +548,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         protectionSchemes,
         segments,
         skippedSegmentCount,
+        trailingParts,
         serverControl);
   }
 
@@ -480,6 +578,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         protectionSchemes,
         segments,
         skippedSegmentCount,
+        trailingParts,
         serverControl);
   }
 
