@@ -1300,12 +1300,17 @@ public final class ImaAdsLoader
       if (adMediaInfo == null) {
         Log.w(TAG, "onEnded without ad media info");
       } else {
-        for (int i = 0; i < adCallbacks.size(); i++) {
-          adCallbacks.get(i).onEnded(adMediaInfo);
+        @Nullable AdInfo adInfo = adInfoByAdMediaInfo.get(adMediaInfo);
+        if (playingAdIndexInAdGroup == C.INDEX_UNSET
+            || (adInfo != null && adInfo.adIndexInAdGroup < playingAdIndexInAdGroup)) {
+          for (int i = 0; i < adCallbacks.size(); i++) {
+            adCallbacks.get(i).onEnded(adMediaInfo);
+          }
+          if (configuration.debugModeEnabled) {
+            Log.d(
+                TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
+          }
         }
-      }
-      if (configuration.debugModeEnabled) {
-        Log.d(TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
       }
     }
     if (!sentContentComplete && !wasPlayingAd && playingAd && imaAdState == IMA_AD_STATE_NONE) {
