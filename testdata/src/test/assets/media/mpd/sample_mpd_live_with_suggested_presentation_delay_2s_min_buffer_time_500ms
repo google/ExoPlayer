@@ -2,9 +2,10 @@
 <MPD
 		type="dynamic"
 		suggestedPresentationDelay="PT2S"
+		minBufferTime="PT0.5S"
 		minimumUpdatePeriod="PT4M"
 		availabilityStartTime="2020-01-01T00:00:00Z"
-		timeShiftBufferDepth="PT6.0S">
+		timeShiftBufferDepth="PT1M">
 	<UTCTiming
 			schemeIdUri="urn:mpeg:dash:utc:direct:2014"
 			value="2020-01-01T01:00:00Z" />

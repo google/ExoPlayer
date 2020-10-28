@@ -55,8 +55,9 @@ public final class DashMediaSourceTest {
 
   private static final String SAMPLE_MPD_LIVE_WITHOUT_LIVE_CONFIGURATION =
       "media/mpd/sample_mpd_live_without_live_configuration";
-  private static final String SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S =
-      "media/mpd/sample_mpd_live_with_suggested_presentation_delay_2s";
+  private static final String
+      SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S_MIN_BUFFER_TIME_500MS =
+          "media/mpd/sample_mpd_live_with_suggested_presentation_delay_2s_min_buffer_time_500ms";
   private static final String SAMPLE_MPD_LIVE_WITH_COMPLETE_SERVICE_DESCRIPTION =
       "media/mpd/sample_mpd_live_with_complete_service_description";
   private static final String SAMPLE_MPD_LIVE_WITH_OFFSET_INSIDE_WINDOW =
@@ -290,6 +291,8 @@ public final class DashMediaSourceTest {
 
     assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs)
         .isEqualTo(DashMediaSource.DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS);
+    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(0L);
+    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(58_000L);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
@@ -306,6 +309,8 @@ public final class DashMediaSourceTest {
     MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
 
     assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(1234L);
+    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(0L);
+    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(58_000L);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
@@ -319,6 +324,8 @@ public final class DashMediaSourceTest {
             .setLiveTargetOffsetMs(876L)
             .setLiveMinPlaybackSpeed(23f)
             .setLiveMaxPlaybackSpeed(42f)
+            .setLiveMinOffsetMs(500L)
+            .setLiveMaxOffsetMs(20_000L)
             .build();
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
@@ -329,47 +336,58 @@ public final class DashMediaSourceTest {
     MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
 
     assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(876L);
+    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(500L);
+    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(20_000L);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
   }
 
   @Test
-  public void prepare_withSuggestedPresentationDelay_usesManifestValue()
+  public void prepare_withSuggestedPresentationDelayAndMinBufferTime_usesManifestValue()
       throws InterruptedException {
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
                 () ->
-                    createSampleMpdDataSource(SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S))
+                    createSampleMpdDataSource(
+                        SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S_MIN_BUFFER_TIME_500MS))
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(MediaItem.fromUri(Uri.EMPTY));
 
     MediaItem mediaItem = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
 
     assertThat(mediaItem.liveConfiguration.targetLiveOffsetMs).isEqualTo(2_000L);
+    assertThat(mediaItem.liveConfiguration.minLiveOffsetMs).isEqualTo(500L);
+    assertThat(mediaItem.liveConfiguration.maxLiveOffsetMs).isEqualTo(58_000L);
     assertThat(mediaItem.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(mediaItem.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
 
   @Test
-  public void prepare_withSuggestedPresentationDelay_withMediaItemLiveProperties_usesMediaItem()
-      throws InterruptedException {
+  public void
+      prepare_withSuggestedPresentationDelayAndMinBufferTime_withMediaItemLiveProperties_usesMediaItem()
+          throws InterruptedException {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setUri(Uri.EMPTY)
             .setLiveTargetOffsetMs(876L)
             .setLiveMinPlaybackSpeed(23f)
             .setLiveMaxPlaybackSpeed(42f)
+            .setLiveMinOffsetMs(200L)
+            .setLiveMaxOffsetMs(999L)
             .build();
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
                 () ->
-                    createSampleMpdDataSource(SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S))
+                    createSampleMpdDataSource(
+                        SAMPLE_MPD_LIVE_WITH_SUGGESTED_PRESENTATION_DELAY_2S_MIN_BUFFER_TIME_500MS))
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(mediaItem);
 
     MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
 
     assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(876L);
+    assertThat(mediaItem.liveConfiguration.minLiveOffsetMs).isEqualTo(200L);
+    assertThat(mediaItem.liveConfiguration.maxLiveOffsetMs).isEqualTo(999L);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
   }
@@ -386,6 +404,8 @@ public final class DashMediaSourceTest {
     MediaItem mediaItem = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
 
     assertThat(mediaItem.liveConfiguration.targetLiveOffsetMs).isEqualTo(4_000L);
+    assertThat(mediaItem.liveConfiguration.minLiveOffsetMs).isEqualTo(2_000L);
+    assertThat(mediaItem.liveConfiguration.maxLiveOffsetMs).isEqualTo(6_000L);
     assertThat(mediaItem.liveConfiguration.minPlaybackSpeed).isEqualTo(0.96f);
     assertThat(mediaItem.liveConfiguration.maxPlaybackSpeed).isEqualTo(1.04f);
   }
@@ -399,6 +419,8 @@ public final class DashMediaSourceTest {
             .setLiveTargetOffsetMs(876L)
             .setLiveMinPlaybackSpeed(23f)
             .setLiveMaxPlaybackSpeed(42f)
+            .setLiveMinOffsetMs(100L)
+            .setLiveMaxOffsetMs(999L)
             .build();
     DashMediaSource mediaSource =
         new DashMediaSource.Factory(
@@ -409,6 +431,8 @@ public final class DashMediaSourceTest {
     MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
 
     assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(876L);
+    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(100L);
+    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(999L);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
   }

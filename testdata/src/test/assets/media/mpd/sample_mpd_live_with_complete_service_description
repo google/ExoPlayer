@@ -9,7 +9,7 @@
 			schemeIdUri="urn:mpeg:dash:utc:direct:2014"
 			value="2020-01-01T01:00:00Z" />
 	<ServiceDescription id="0">
-		<Latency target="4000" />
+		<Latency min="2000" target="4000" max="6000"/>
 		<PlaybackRate max="1.04" min="0.96" />
 	</ServiceDescription>
 	<Period start="PT0.0S">

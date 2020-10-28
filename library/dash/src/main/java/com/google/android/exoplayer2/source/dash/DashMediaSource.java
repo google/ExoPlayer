@@ -427,6 +427,7 @@ public final class DashMediaSource extends BaseMediaSource {
 
   private static final String TAG = "DashMediaSource";
 
+  private final MediaItem originalMediaItem;
   private final boolean sideloadedManifest;
   private final DataSource.Factory manifestDataSourceFactory;
   private final DashChunkSource.Factory chunkSourceFactory;
@@ -451,8 +452,7 @@ public final class DashMediaSource extends BaseMediaSource {
   private IOException manifestFatalError;
   private Handler handler;
 
-  private MediaItem mediaItem;
-  private MediaItem.PlaybackProperties playbackProperties;
+  private MediaItem updatedMediaItem;
   private Uri manifestUri;
   private Uri initialManifestUri;
   private DashManifest manifest;
@@ -476,10 +476,10 @@ public final class DashMediaSource extends BaseMediaSource {
       DrmSessionManager drmSessionManager,
       LoadErrorHandlingPolicy loadErrorHandlingPolicy,
       long fallbackTargetLiveOffsetMs) {
-    this.mediaItem = mediaItem;
-    this.playbackProperties = checkNotNull(mediaItem.playbackProperties);
-    this.manifestUri = playbackProperties.uri;
-    this.initialManifestUri = playbackProperties.uri;
+    this.originalMediaItem = mediaItem;
+    this.updatedMediaItem = mediaItem;
+    this.manifestUri = checkNotNull(mediaItem.playbackProperties).uri;
+    this.initialManifestUri = mediaItem.playbackProperties.uri;
     this.manifest = manifest;
     this.manifestDataSourceFactory = manifestDataSourceFactory;
     this.manifestParser = manifestParser;
@@ -531,12 +531,12 @@ public final class DashMediaSource extends BaseMediaSource {
   @Override
   @Nullable
   public Object getTag() {
-    return playbackProperties.tag;
+    return castNonNull(updatedMediaItem.playbackProperties).tag;
   }
 
   @Override
   public MediaItem getMediaItem() {
-    return mediaItem;
+    return updatedMediaItem;
   }
 
   @Override
@@ -691,9 +691,6 @@ public final class DashMediaSource extends BaseMediaSource {
       }
       staleManifestReloadAttempt = 0;
     }
-
-    mediaItem = mergeLiveConfiguration(mediaItem, fallbackTargetLiveOffsetMs, newManifest);
-    playbackProperties = castNonNull(mediaItem.playbackProperties);
 
     manifest = newManifest;
     manifestLoadPending &= manifest.dynamic;
@@ -939,13 +936,13 @@ public final class DashMediaSource extends BaseMediaSource {
 
     long windowDefaultStartPositionUs = 0;
     if (manifest.dynamic) {
-      ensureTargetLiveOffsetIsInLiveWindow(
+      updateMediaItemLiveConfiguration(
           /* nowPeriodTimeUs= */ currentStartTimeUs + nowUnixTimeUs - C.msToUs(windowStartTimeMs),
           /* windowStartPeriodTimeUs= */ currentStartTimeUs,
           /* windowEndPeriodTimeUs= */ currentEndTimeUs);
       windowDefaultStartPositionUs =
           nowUnixTimeUs
-              - C.msToUs(windowStartTimeMs + mediaItem.liveConfiguration.targetLiveOffsetMs);
+              - C.msToUs(windowStartTimeMs + updatedMediaItem.liveConfiguration.targetLiveOffsetMs);
       long minimumDefaultStartPositionUs =
           min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
       if (windowDefaultStartPositionUs < minimumDefaultStartPositionUs) {
@@ -965,7 +962,7 @@ public final class DashMediaSource extends BaseMediaSource {
             windowDurationUs,
             windowDefaultStartPositionUs,
             manifest,
-            mediaItem);
+            updatedMediaItem);
     refreshSourceInfo(timeline);
 
     if (!sideloadedManifest) {
@@ -999,24 +996,81 @@ public final class DashMediaSource extends BaseMediaSource {
     }
   }
 
-  private void ensureTargetLiveOffsetIsInLiveWindow(
+  private void updateMediaItemLiveConfiguration(
       long nowPeriodTimeUs, long windowStartPeriodTimeUs, long windowEndPeriodTimeUs) {
-    long targetLiveOffsetUs = C.msToUs(mediaItem.liveConfiguration.targetLiveOffsetMs);
-    long minOffsetUs = nowPeriodTimeUs - windowEndPeriodTimeUs;
-    if (targetLiveOffsetUs < minOffsetUs) {
-      targetLiveOffsetUs = minOffsetUs;
+    long maxLiveOffsetMs;
+    if (originalMediaItem.liveConfiguration.maxLiveOffsetMs != C.TIME_UNSET) {
+      maxLiveOffsetMs = originalMediaItem.liveConfiguration.maxLiveOffsetMs;
+    } else if (manifest.serviceDescription != null
+        && manifest.serviceDescription.maxOffsetMs != C.TIME_UNSET) {
+      maxLiveOffsetMs = manifest.serviceDescription.maxOffsetMs;
+    } else {
+      maxLiveOffsetMs = C.usToMs(nowPeriodTimeUs - windowStartPeriodTimeUs);
     }
-    long maxOffsetUs = nowPeriodTimeUs - windowStartPeriodTimeUs;
-    if (targetLiveOffsetUs > maxOffsetUs) {
+    long minLiveOffsetMs;
+    if (originalMediaItem.liveConfiguration.minLiveOffsetMs != C.TIME_UNSET) {
+      minLiveOffsetMs = originalMediaItem.liveConfiguration.minLiveOffsetMs;
+    } else if (manifest.serviceDescription != null
+        && manifest.serviceDescription.minOffsetMs != C.TIME_UNSET) {
+      minLiveOffsetMs = manifest.serviceDescription.minOffsetMs;
+    } else {
+      minLiveOffsetMs = C.usToMs(nowPeriodTimeUs - windowEndPeriodTimeUs);
+      if (minLiveOffsetMs < 0 && maxLiveOffsetMs > 0) {
+        // The current time is in the window, so assume all clocks are synchronized and set the
+        // minimum to a live offset of zero.
+        minLiveOffsetMs = 0;
+      }
+      if (manifest.minBufferTimeMs != C.TIME_UNSET) {
+        minLiveOffsetMs = min(minLiveOffsetMs + manifest.minBufferTimeMs, maxLiveOffsetMs);
+      }
+    }
+    long targetOffsetMs;
+    if (updatedMediaItem.liveConfiguration.targetLiveOffsetMs != C.TIME_UNSET) {
+      // Keep existing target offset even if the media configuration changes.
+      targetOffsetMs = updatedMediaItem.liveConfiguration.targetLiveOffsetMs;
+    } else if (manifest.serviceDescription != null
+        && manifest.serviceDescription.targetOffsetMs != C.TIME_UNSET) {
+      targetOffsetMs = manifest.serviceDescription.targetOffsetMs;
+    } else if (manifest.suggestedPresentationDelayMs != C.TIME_UNSET) {
+      targetOffsetMs = manifest.suggestedPresentationDelayMs;
+    } else {
+      targetOffsetMs = fallbackTargetLiveOffsetMs;
+    }
+    if (targetOffsetMs < minLiveOffsetMs) {
+      targetOffsetMs = minLiveOffsetMs;
+    }
+    if (targetOffsetMs > maxLiveOffsetMs) {
       long windowDurationUs = windowEndPeriodTimeUs - windowStartPeriodTimeUs;
-      targetLiveOffsetUs =
-          maxOffsetUs - min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
+      long liveOffsetAtWindowStartUs = nowPeriodTimeUs - windowStartPeriodTimeUs;
+      long safeDistanceFromWindowStartUs =
+          min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
+      long maxTargetOffsetForSafeDistanceToWindowStartMs =
+          C.usToMs(liveOffsetAtWindowStartUs - safeDistanceFromWindowStartUs);
+      targetOffsetMs =
+          Util.constrainValue(
+              maxTargetOffsetForSafeDistanceToWindowStartMs, minLiveOffsetMs, maxLiveOffsetMs);
     }
-    long targetLiveOffsetMs = C.usToMs(targetLiveOffsetUs);
-    if (mediaItem.liveConfiguration.targetLiveOffsetMs != targetLiveOffsetMs) {
-      mediaItem = mediaItem.buildUpon().setLiveTargetOffsetMs(targetLiveOffsetMs).build();
-      playbackProperties = castNonNull(mediaItem.playbackProperties);
+    float minPlaybackSpeed = C.RATE_UNSET;
+    if (originalMediaItem.liveConfiguration.minPlaybackSpeed != C.RATE_UNSET) {
+      minPlaybackSpeed = originalMediaItem.liveConfiguration.minPlaybackSpeed;
+    } else if (manifest.serviceDescription != null) {
+      minPlaybackSpeed = manifest.serviceDescription.minPlaybackSpeed;
     }
+    float maxPlaybackSpeed = C.RATE_UNSET;
+    if (originalMediaItem.liveConfiguration.maxPlaybackSpeed != C.RATE_UNSET) {
+      maxPlaybackSpeed = originalMediaItem.liveConfiguration.maxPlaybackSpeed;
+    } else if (manifest.serviceDescription != null) {
+      maxPlaybackSpeed = manifest.serviceDescription.maxPlaybackSpeed;
+    }
+    updatedMediaItem =
+        originalMediaItem
+            .buildUpon()
+            .setLiveTargetOffsetMs(targetOffsetMs)
+            .setLiveMinOffsetMs(minLiveOffsetMs)
+            .setLiveMaxOffsetMs(maxLiveOffsetMs)
+            .setLiveMinPlaybackSpeed(minPlaybackSpeed)
+            .setLiveMaxPlaybackSpeed(maxPlaybackSpeed)
+            .build();
   }
 
   private void scheduleManifestRefresh(long delayUntilNextLoadMs) {
@@ -1085,41 +1139,6 @@ public final class DashMediaSource extends BaseMediaSource {
     }
     // Round up to compensate for a potential loss in the us to ms conversion.
     return LongMath.divide(intervalUs, 1000, RoundingMode.CEILING);
-  }
-
-  private static MediaItem mergeLiveConfiguration(
-      MediaItem mediaItem, long fallbackTargetLiveOffsetMs, DashManifest manifest) {
-    // Evaluate live config properties from media item and manifest according to precedence.
-    long liveTargetOffsetMs;
-    if (mediaItem.liveConfiguration.targetLiveOffsetMs != C.TIME_UNSET) {
-      liveTargetOffsetMs = mediaItem.liveConfiguration.targetLiveOffsetMs;
-    } else if (manifest.serviceDescription != null
-        && manifest.serviceDescription.targetOffsetMs != C.TIME_UNSET) {
-      liveTargetOffsetMs = manifest.serviceDescription.targetOffsetMs;
-    } else if (manifest.suggestedPresentationDelayMs != C.TIME_UNSET) {
-      liveTargetOffsetMs = manifest.suggestedPresentationDelayMs;
-    } else {
-      liveTargetOffsetMs = fallbackTargetLiveOffsetMs;
-    }
-    float liveMinPlaybackSpeed = C.RATE_UNSET;
-    if (mediaItem.liveConfiguration.minPlaybackSpeed != C.RATE_UNSET) {
-      liveMinPlaybackSpeed = mediaItem.liveConfiguration.minPlaybackSpeed;
-    } else if (manifest.serviceDescription != null) {
-      liveMinPlaybackSpeed = manifest.serviceDescription.minPlaybackSpeed;
-    }
-    float liveMaxPlaybackSpeed = C.RATE_UNSET;
-    if (mediaItem.liveConfiguration.maxPlaybackSpeed != C.RATE_UNSET) {
-      liveMaxPlaybackSpeed = mediaItem.liveConfiguration.maxPlaybackSpeed;
-    } else if (manifest.serviceDescription != null) {
-      liveMaxPlaybackSpeed = manifest.serviceDescription.maxPlaybackSpeed;
-    }
-    // Update live configuration in the media item.
-    return mediaItem
-        .buildUpon()
-        .setLiveTargetOffsetMs(liveTargetOffsetMs)
-        .setLiveMinPlaybackSpeed(liveMinPlaybackSpeed)
-        .setLiveMaxPlaybackSpeed(liveMaxPlaybackSpeed)
-        .build();
   }
 
   private static final class PeriodSeekInfo {
