@@ -93,11 +93,14 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_BYTERANGE = "#EXT-X-BYTERANGE";
   private static final String TAG_GAP = "#EXT-X-GAP";
   private static final String TAG_SKIP = "#EXT-X-SKIP";
+  private static final String TAG_PRELOAD_HINT = "#EXT-X-PRELOAD-HINT";
 
   private static final String TYPE_AUDIO = "AUDIO";
   private static final String TYPE_VIDEO = "VIDEO";
   private static final String TYPE_SUBTITLES = "SUBTITLES";
   private static final String TYPE_CLOSED_CAPTIONS = "CLOSED-CAPTIONS";
+  private static final String TYPE_PART = "PART";
+  private static final String TYPE_MAP = "MAP";
 
   private static final String METHOD_NONE = "NONE";
   private static final String METHOD_AES_128 = "AES-128";
@@ -157,6 +160,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       + ":(\\d+(?:@\\d+)?)\\b");
   private static final Pattern REGEX_ATTR_BYTERANGE =
       Pattern.compile("BYTERANGE=\"(\\d+(?:@\\d+)?)\\b\"");
+  private static final Pattern REGEX_BYTERANGE_START = Pattern.compile("BYTERANGE-START=(\\d+)\\b");
+  private static final Pattern REGEX_BYTERANGE_LENGTH =
+      Pattern.compile("BYTERANGE-LENGTH=(\\d+)\\b");
   private static final Pattern REGEX_METHOD =
       Pattern.compile(
           "METHOD=("
@@ -178,6 +184,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final Pattern REGEX_IV = Pattern.compile("IV=([^,.*]+)");
   private static final Pattern REGEX_TYPE = Pattern.compile("TYPE=(" + TYPE_AUDIO + "|" + TYPE_VIDEO
       + "|" + TYPE_SUBTITLES + "|" + TYPE_CLOSED_CAPTIONS + ")");
+  private static final Pattern REGEX_PRELOAD_HINT_TYPE =
+      Pattern.compile("TYPE=(" + TYPE_PART + "|" + TYPE_MAP + ")");
   private static final Pattern REGEX_LANGUAGE = Pattern.compile("LANGUAGE=\"(.+?)\"");
   private static final Pattern REGEX_NAME = Pattern.compile("NAME=\"(.+?)\"");
   private static final Pattern REGEX_GROUP_ID = Pattern.compile("GROUP-ID=\"(.+?)\"");
@@ -592,6 +600,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long partTargetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
+    boolean seenPreloadPart = false;
     @Nullable Segment initializationSegment = null;
     HashMap<String, String> variableDefinitions = new HashMap<>();
     HashMap<String, Segment> urlToInferredInitSegment = new HashMap<>();
@@ -760,6 +769,42 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasIndependentSegmentsTag = true;
       } else if (line.equals(TAG_ENDLIST)) {
         hasEndTag = true;
+      } else if (line.startsWith(TAG_PRELOAD_HINT) && !seenPreloadPart) {
+        String type = parseStringAttr(line, REGEX_PRELOAD_HINT_TYPE, variableDefinitions);
+        if (!TYPE_PART.equals(type)) {
+          continue;
+        }
+        String url = parseStringAttr(line, REGEX_URI, variableDefinitions);
+        long byteRangeStart =
+            parseOptionalLongAttr(line, REGEX_BYTERANGE_START, /* defaultValue= */ 0);
+        long byteRangeLength =
+            parseOptionalLongAttr(line, REGEX_BYTERANGE_LENGTH, /* defaultValue= */ C.TIME_UNSET);
+        @Nullable
+        String segmentEncryptionIV =
+            getSegmentEncryptionIV(
+                segmentMediaSequence, fullSegmentEncryptionKeyUri, fullSegmentEncryptionIV);
+        if (cachedDrmInitData == null && !currentSchemeDatas.isEmpty()) {
+          SchemeData[] schemeDatas = currentSchemeDatas.values().toArray(new SchemeData[0]);
+          cachedDrmInitData = new DrmInitData(encryptionScheme, schemeDatas);
+          if (playlistProtectionSchemes == null) {
+            playlistProtectionSchemes = getPlaylistProtectionSchemes(encryptionScheme, schemeDatas);
+          }
+        }
+        parts.add(
+            new Part(
+                url,
+                initializationSegment,
+                /* durationUs= */ 0,
+                relativeDiscontinuitySequence,
+                partStartTimeUs,
+                cachedDrmInitData,
+                fullSegmentEncryptionKeyUri,
+                segmentEncryptionIV,
+                byteRangeStart,
+                byteRangeLength,
+                /* hasGapTag= */ false,
+                /* isIndependent= */ false));
+        seenPreloadPart = true;
       } else if (line.startsWith(TAG_PART)) {
         @Nullable
         String segmentEncryptionIV =
@@ -1025,6 +1070,14 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
 
   private static long parseLongAttr(String line, Pattern pattern) throws ParserException {
     return Long.parseLong(parseStringAttr(line, pattern, Collections.emptyMap()));
+  }
+
+  private static long parseOptionalLongAttr(String line, Pattern pattern, long defaultValue) {
+    Matcher matcher = pattern.matcher(line);
+    if (matcher.find()) {
+      return Long.parseLong(checkNotNull(matcher.group(1)));
+    }
+    return defaultValue;
   }
 
   private static double parseDoubleAttr(String line, Pattern pattern) throws ParserException {
