@@ -34,6 +34,11 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
   public static final String KEY_ANDROID_TEMPORAL_LAYER_COUNT =
       "com.android.video.temporal_layers_count";
 
+  /** Type indicator for a 32-bit floating point value. */
+  public static final int TYPE_INDICATOR_FLOAT = 23;
+  /** Type indicator for a 32-bit integer. */
+  public static final int TYPE_INDICATOR_INT = 67;
+
   /** The metadata key name. */
   public final String key;
   /** The payload. The interpretation of the value depends on {@link #typeIndicator}. */
