@@ -185,6 +185,9 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     int fontFace = parsableByteArray.readUnsignedByte();
     parsableByteArray.skipBytes(1); // font size
     int colorRgba = parsableByteArray.readInt();
+    if (end > cueText.length()) {
+      end = cueText.length();
+    }
     attachFontFace(cueText, fontFace, defaultFontFace, start, end, SPAN_PRIORITY_HIGH);
     attachColor(cueText, colorRgba, defaultColorRgba, start, end, SPAN_PRIORITY_HIGH);
   }
