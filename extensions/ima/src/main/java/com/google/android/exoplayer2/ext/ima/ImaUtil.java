@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.ima;
 
 import android.content.Context;
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
@@ -130,6 +131,9 @@ import java.util.Set;
     }
   }
 
+  public static final int TIMEOUT_UNSET = -1;
+  public static final int BITRATE_UNSET = -1;
+
   /**
    * Returns the IMA {@link FriendlyObstructionPurpose} corresponding to the given {@link
    * OverlayInfo#purpose}.
@@ -201,6 +205,13 @@ import java.util.Set;
     // a single ad, ad group or the whole timeline.
     return adError.getErrorCode() == AdError.AdErrorCode.VAST_LINEAR_ASSET_MISMATCH
         || adError.getErrorCode() == AdError.AdErrorCode.UNKNOWN_ERROR;
+  }
+
+  /** Returns the looper on which all IMA SDK interaction must occur. */
+  public static Looper getImaLooper() {
+    // IMA SDK callbacks occur on the main thread. This method can be used to check that the player
+    // is using the same looper, to ensure all interaction with this class is on the main thread.
+    return Looper.getMainLooper();
   }
 
   /** Returns a human-readable representation of a video progress update. */

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import static com.google.android.exoplayer2.ext.ima.ImaUtil.BITRATE_UNSET;
+import static com.google.android.exoplayer2.ext.ima.ImaUtil.TIMEOUT_UNSET;
+import static com.google.android.exoplayer2.ext.ima.ImaUtil.getImaLooper;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -460,9 +463,6 @@ public final class ImaAdsLoader
   private static final long THRESHOLD_AD_PRELOAD_MS = 4000;
   /** The threshold below which ad cue points are treated as matching, in microseconds. */
   private static final long THRESHOLD_AD_MATCH_US = 1000;
-
-  private static final int TIMEOUT_UNSET = -1;
-  private static final int BITRATE_UNSET = -1;
 
   /** The state of ad playback. */
   @Documented
@@ -1659,12 +1659,6 @@ public final class ImaAdsLoader
         - (timeline.isEmpty()
             ? 0
             : timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs());
-  }
-
-  private static Looper getImaLooper() {
-    // IMA SDK callbacks occur on the main thread. This method can be used to check that the player
-    // is using the same looper, to ensure all interaction with this class is on the main thread.
-    return Looper.getMainLooper();
   }
 
   private static boolean hasMidrollAdGroups(long[] adGroupTimesUs) {
