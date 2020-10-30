@@ -168,7 +168,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
       long minAllowedActualPlayingTimeMs = playingTimeToAssertMs - MAX_PLAYING_TIME_DISCREPANCY_MS;
       long maxAllowedActualPlayingTimeMs = playingTimeToAssertMs + MAX_PLAYING_TIME_DISCREPANCY_MS;
       assertWithMessage(
-              "Total playing time: " + totalPlayingTimeMs + ". Expected: " + playingTimeToAssertMs)
+              "Total playing time: %sms. Expected: %sms", totalPlayingTimeMs, playingTimeToAssertMs)
           .that(
               minAllowedActualPlayingTimeMs <= totalPlayingTimeMs
                   && totalPlayingTimeMs <= maxAllowedActualPlayingTimeMs)
