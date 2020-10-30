@@ -172,6 +172,7 @@ public final class ImaAdsLoaderTest {
   public void builder_overridesPlayerType() {
     when(mockImaSdkSettings.getPlayerType()).thenReturn("test player type");
     setupPlayback(CONTENT_TIMELINE, PREROLL_CUE_POINTS_SECONDS);
+    imaAdsLoader.start(adsLoaderListener, adViewProvider);
 
     verify(mockImaSdkSettings).setPlayerType("google/exo.ext.ima");
   }
