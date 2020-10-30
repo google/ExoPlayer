@@ -487,8 +487,7 @@ public final class ImaAdsLoader
   private final ImaUtil.Configuration configuration;
   private final Context context;
   private final ImaUtil.ImaFactory imaFactory;
-  @Nullable private final Uri adTagUri;
-  @Nullable private final String adsResponse;
+  @Nullable private final DataSpec deprecatedAdTagDataSpec;
   private final ImaSdkSettings imaSdkSettings;
   private final Timeline.Period period;
   private final Handler handler;
@@ -605,8 +604,12 @@ public final class ImaAdsLoader
     this.context = context.getApplicationContext();
     this.configuration = configuration;
     this.imaFactory = imaFactory;
-    this.adTagUri = adTagUri;
-    this.adsResponse = adsResponse;
+    deprecatedAdTagDataSpec =
+        adTagUri != null
+            ? new DataSpec(adTagUri)
+            : adsResponse != null
+                ? new DataSpec(Util.getDataUriForString(adsResponse, "text/xml"))
+                : null;
     @Nullable ImaSdkSettings imaSdkSettings = configuration.imaSdkSettings;
     if (imaSdkSettings == null) {
       imaSdkSettings = imaFactory.createImaSdkSettings();
@@ -701,14 +704,7 @@ public final class ImaAdsLoader
     }
 
     if (EMPTY_AD_TAG_DATA_SPEC.equals(adTagDataSpec)) {
-      // Handle deprecated ways of specifying the ad tag.
-      if (adTagUri != null) {
-        adTagDataSpec = new DataSpec(adTagUri);
-      } else if (adsResponse != null) {
-        adTagDataSpec = new DataSpec(Util.getDataUriForString(adsResponse, "text/xml"));
-      } else {
-        throw new IllegalStateException();
-      }
+      adTagDataSpec = checkNotNull(deprecatedAdTagDataSpec);
     }
 
     AdsRequest request;
