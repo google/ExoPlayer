@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.drm;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -27,6 +28,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCode
 import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,29 +41,35 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
   private static final int MAX_MANUAL_REDIRECTS = 5;
 
   private final HttpDataSource.Factory dataSourceFactory;
-  private final String defaultLicenseUrl;
+  @Nullable private final String defaultLicenseUrl;
   private final boolean forceDefaultLicenseUrl;
   private final Map<String, String> keyRequestProperties;
 
   /**
    * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
-   *     their own license URL.
+   *     their own license URL. May be {@code null} if it's known that all key requests will specify
+   *     their own URLs.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
-  public HttpMediaDrmCallback(String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
+  public HttpMediaDrmCallback(
+      @Nullable String defaultLicenseUrl, HttpDataSource.Factory dataSourceFactory) {
     this(defaultLicenseUrl, /* forceDefaultLicenseUrl= */ false, dataSourceFactory);
   }
 
   /**
    * @param defaultLicenseUrl The default license URL. Used for key requests that do not specify
-   *     their own license URL, or for all key requests if {@code forceDefaultLicenseUrl} is
-   *     set to true.
-   * @param forceDefaultLicenseUrl Whether to use {@code defaultLicenseUrl} for key requests that
-   *     include their own license URL.
+   *     their own license URL, or for all key requests if {@code forceDefaultLicenseUrl} is set to
+   *     true. May be {@code null} if {@code forceDefaultLicenseUrl} is {@code false} and if it's
+   *     known that all key requests will specify their own URLs.
+   * @param forceDefaultLicenseUrl Whether to force use of {@code defaultLicenseUrl} for key
+   *     requests that include their own license URL.
    * @param dataSourceFactory A factory from which to obtain {@link HttpDataSource} instances.
    */
-  public HttpMediaDrmCallback(String defaultLicenseUrl, boolean forceDefaultLicenseUrl,
+  public HttpMediaDrmCallback(
+      @Nullable String defaultLicenseUrl,
+      boolean forceDefaultLicenseUrl,
       HttpDataSource.Factory dataSourceFactory) {
+    Assertions.checkArgument(!(forceDefaultLicenseUrl && TextUtils.isEmpty(defaultLicenseUrl)));
     this.dataSourceFactory = dataSourceFactory;
     this.defaultLicenseUrl = defaultLicenseUrl;
     this.forceDefaultLicenseUrl = forceDefaultLicenseUrl;
@@ -120,6 +128,14 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
     String url = request.getLicenseServerUrl();
     if (forceDefaultLicenseUrl || TextUtils.isEmpty(url)) {
       url = defaultLicenseUrl;
+    }
+    if (TextUtils.isEmpty(url)) {
+      throw new MediaDrmCallbackException(
+          new DataSpec.Builder().setUri(Uri.EMPTY).build(),
+          Uri.EMPTY,
+          /* responseHeaders= */ ImmutableMap.of(),
+          /* bytesLoaded= */ 0,
+          /* cause= */ new IllegalStateException("No license URL"));
     }
     Map<String, String> requestProperties = new HashMap<>();
     // Add standard request properties for supported schemes.
