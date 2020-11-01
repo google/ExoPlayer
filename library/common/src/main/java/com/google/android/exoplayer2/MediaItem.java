@@ -231,7 +231,7 @@ public final class MediaItem {
     }
 
     /**
-     * Sets the optional DRM license server URI. If this URI is set, the {@link
+     * Sets the optional default DRM license server URI. If this URI is set, the {@link
      * DrmConfiguration#uuid} needs to be specified as well.
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM license server URI is used to
@@ -243,7 +243,7 @@ public final class MediaItem {
     }
 
     /**
-     * Sets the optional DRM license server URI. If this URI is set, the {@link
+     * Sets the optional default DRM license server URI. If this URI is set, the {@link
      * DrmConfiguration#uuid} needs to be specified as well.
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM license server URI is used to
@@ -294,8 +294,8 @@ public final class MediaItem {
     }
 
     /**
-     * Sets whether to use the DRM license server URI of the media item for key requests that
-     * include their own DRM license server URI.
+     * Sets whether to force use the default DRM license server URI even if the media specifies its
+     * own DRM license server URI.
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the DRM force default license flag is
      * used to create a {@link PlaybackProperties} object. Otherwise it will be ignored.
@@ -568,8 +568,8 @@ public final class MediaItem {
     public final UUID uuid;
 
     /**
-     * Optional DRM license server {@link Uri}. If {@code null} then the DRM license server must be
-     * specified by the media.
+     * Optional default DRM license server {@link Uri}. If {@code null} then the DRM license server
+     * must be specified by the media.
      */
     @Nullable public final Uri licenseUri;
 
@@ -586,8 +586,8 @@ public final class MediaItem {
     public final boolean playClearContentWithoutKey;
 
     /**
-     * Sets whether to use the DRM license server URI of the media item for key requests that
-     * include their own DRM license server URI.
+     * Whether to force use of {@link #licenseUri} even if the media specifies its own DRM license
+     * server URI.
      */
     public final boolean forceDefaultLicenseUri;
 
@@ -605,6 +605,7 @@ public final class MediaItem {
         boolean playClearContentWithoutKey,
         List<Integer> drmSessionForClearTypes,
         @Nullable byte[] keySetId) {
+      Assertions.checkArgument(!(forceDefaultLicenseUri && licenseUri == null));
       this.uuid = uuid;
       this.licenseUri = licenseUri;
       this.requestHeaders = requestHeaders;
