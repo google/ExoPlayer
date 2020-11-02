@@ -15,6 +15,7 @@
         ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
     *   Fix a bug that caused multiple ads in an ad pod to be skipped when one
         ad in the ad pod was skipped.
+    *   Fix passing an ads response to the `ImaAdsLoader` builder.
 
 ### 2.12.1 (2020-10-23) ###
 

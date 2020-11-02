@@ -705,7 +705,9 @@ public final class ImaAdsLoader
       if (adTagUri != null) {
         adTagDataSpec = new DataSpec(adTagUri);
       } else if (adsResponse != null) {
-        adTagDataSpec = new DataSpec(Util.getDataUriForString(adsResponse, "text/xml"));
+        adTagDataSpec =
+            new DataSpec(
+                Util.getDataUriForString(/* mimeType= */ "text/xml", /* data= */ adsResponse));
       } else {
         throw new IllegalStateException();
       }
