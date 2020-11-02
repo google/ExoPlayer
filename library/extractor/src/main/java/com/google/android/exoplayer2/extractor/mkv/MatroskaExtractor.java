@@ -128,6 +128,8 @@ public class MatroskaExtractor implements Extractor {
   private static final String CODEC_ID_FLAC = "A_FLAC";
   private static final String CODEC_ID_ACM = "A_MS/ACM";
   private static final String CODEC_ID_PCM_INT_LIT = "A_PCM/INT/LIT";
+  private static final String CODEC_ID_PCM_INT_BIG = "A_PCM/INT/BIG";
+  private static final String CODEC_ID_PCM_FLOAT = "A_PCM/FLOAT/IEEE";
   private static final String CODEC_ID_SUBRIP = "S_TEXT/UTF8";
   private static final String CODEC_ID_ASS = "S_TEXT/ASS";
   private static final String CODEC_ID_VOBSUB = "S_VOBSUB";
@@ -1743,36 +1745,43 @@ public class MatroskaExtractor implements Extractor {
   }
 
   private static boolean isCodecSupported(String codecId) {
-    return CODEC_ID_VP8.equals(codecId)
-        || CODEC_ID_VP9.equals(codecId)
-        || CODEC_ID_AV1.equals(codecId)
-        || CODEC_ID_MPEG2.equals(codecId)
-        || CODEC_ID_MPEG4_SP.equals(codecId)
-        || CODEC_ID_MPEG4_ASP.equals(codecId)
-        || CODEC_ID_MPEG4_AP.equals(codecId)
-        || CODEC_ID_H264.equals(codecId)
-        || CODEC_ID_H265.equals(codecId)
-        || CODEC_ID_FOURCC.equals(codecId)
-        || CODEC_ID_THEORA.equals(codecId)
-        || CODEC_ID_OPUS.equals(codecId)
-        || CODEC_ID_VORBIS.equals(codecId)
-        || CODEC_ID_AAC.equals(codecId)
-        || CODEC_ID_MP2.equals(codecId)
-        || CODEC_ID_MP3.equals(codecId)
-        || CODEC_ID_AC3.equals(codecId)
-        || CODEC_ID_E_AC3.equals(codecId)
-        || CODEC_ID_TRUEHD.equals(codecId)
-        || CODEC_ID_DTS.equals(codecId)
-        || CODEC_ID_DTS_EXPRESS.equals(codecId)
-        || CODEC_ID_DTS_LOSSLESS.equals(codecId)
-        || CODEC_ID_FLAC.equals(codecId)
-        || CODEC_ID_ACM.equals(codecId)
-        || CODEC_ID_PCM_INT_LIT.equals(codecId)
-        || CODEC_ID_SUBRIP.equals(codecId)
-        || CODEC_ID_ASS.equals(codecId)
-        || CODEC_ID_VOBSUB.equals(codecId)
-        || CODEC_ID_PGS.equals(codecId)
-        || CODEC_ID_DVBSUB.equals(codecId);
+    switch (codecId) {
+      case CODEC_ID_VP8:
+      case CODEC_ID_VP9:
+      case CODEC_ID_AV1:
+      case CODEC_ID_MPEG2:
+      case CODEC_ID_MPEG4_SP:
+      case CODEC_ID_MPEG4_ASP:
+      case CODEC_ID_MPEG4_AP:
+      case CODEC_ID_H264:
+      case CODEC_ID_H265:
+      case CODEC_ID_FOURCC:
+      case CODEC_ID_THEORA:
+      case CODEC_ID_OPUS:
+      case CODEC_ID_VORBIS:
+      case CODEC_ID_AAC:
+      case CODEC_ID_MP2:
+      case CODEC_ID_MP3:
+      case CODEC_ID_AC3:
+      case CODEC_ID_E_AC3:
+      case CODEC_ID_TRUEHD:
+      case CODEC_ID_DTS:
+      case CODEC_ID_DTS_EXPRESS:
+      case CODEC_ID_DTS_LOSSLESS:
+      case CODEC_ID_FLAC:
+      case CODEC_ID_ACM:
+      case CODEC_ID_PCM_INT_LIT:
+      case CODEC_ID_PCM_INT_BIG:
+      case CODEC_ID_PCM_FLOAT:
+      case CODEC_ID_SUBRIP:
+      case CODEC_ID_ASS:
+      case CODEC_ID_VOBSUB:
+      case CODEC_ID_PGS:
+      case CODEC_ID_DVBSUB:
+        return true;
+      default:
+        return false;
+    }
   }
 
   /**
@@ -2102,8 +2111,44 @@ public class MatroskaExtractor implements Extractor {
           if (pcmEncoding == C.ENCODING_INVALID) {
             pcmEncoding = Format.NO_VALUE;
             mimeType = MimeTypes.AUDIO_UNKNOWN;
-            Log.w(TAG, "Unsupported PCM bit depth: " + audioBitDepth + ". Setting mimeType to "
-                + mimeType);
+            Log.w(
+                TAG,
+                "Unsupported little endian PCM bit depth: "
+                    + audioBitDepth
+                    + ". Setting mimeType to "
+                    + mimeType);
+          }
+          break;
+        case CODEC_ID_PCM_INT_BIG:
+          mimeType = MimeTypes.AUDIO_RAW;
+          if (audioBitDepth == 8) {
+            pcmEncoding = C.ENCODING_PCM_8BIT;
+          } else if (audioBitDepth == 16) {
+            pcmEncoding = C.ENCODING_PCM_16BIT_BIG_ENDIAN;
+          } else {
+            pcmEncoding = Format.NO_VALUE;
+            mimeType = MimeTypes.AUDIO_UNKNOWN;
+            Log.w(
+                TAG,
+                "Unsupported big endian PCM bit depth: "
+                    + audioBitDepth
+                    + ". Setting mimeType to "
+                    + mimeType);
+          }
+          break;
+        case CODEC_ID_PCM_FLOAT:
+          mimeType = MimeTypes.AUDIO_RAW;
+          if (audioBitDepth == 32) {
+            pcmEncoding = C.ENCODING_PCM_FLOAT;
+          } else {
+            pcmEncoding = Format.NO_VALUE;
+            mimeType = MimeTypes.AUDIO_UNKNOWN;
+            Log.w(
+                TAG,
+                "Unsupported floating point PCM bit depth: "
+                    + audioBitDepth
+                    + ". Setting mimeType to "
+                    + mimeType);
           }
           break;
         case CODEC_ID_SUBRIP:

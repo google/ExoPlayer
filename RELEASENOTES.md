@@ -8,6 +8,10 @@
         ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
     *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
         ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
+*   Extractors:
+    *   Matroska: Add support for 32-bit floating point PCM, and 8-bit and
+        16-bit big endian integer PCM
+        ([#8142](https://github.com/google/ExoPlayer/issues/8142)).
 *   IMA extension:
     *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)).
