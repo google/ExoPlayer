@@ -2116,7 +2116,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     updateTrackSelectionPlaybackSpeed(playbackParameters.speed);
     for (Renderer renderer : renderers) {
       if (renderer != null) {
-        renderer.setOperatingRate(playbackParameters.speed);
+        renderer.setPlaybackSpeed(playbackParameters.speed);
       }
     }
   }

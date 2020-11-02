@@ -586,14 +586,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  public void setOperatingRate(float operatingRate) throws ExoPlaybackException {
-    super.setOperatingRate(operatingRate);
+  public void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {
+    super.setPlaybackSpeed(playbackSpeed);
     updateSurfaceFrameRate(/* isNewSurface= */ false);
   }
 
   @Override
   protected float getCodecOperatingRateV23(
-      float operatingRate, Format format, Format[] streamFormats) {
+      float playbackSpeed, Format format, Format[] streamFormats) {
     // Use the highest known stream frame-rate up front, to avoid having to reconfigure the codec
     // should an adaptive switch to that stream occur.
     float maxFrameRate = -1;
@@ -603,7 +603,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxFrameRate = max(maxFrameRate, streamFrameRate);
       }
     }
-    return maxFrameRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxFrameRate * operatingRate);
+    return maxFrameRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxFrameRate * playbackSpeed);
   }
 
   @Override
@@ -1081,7 +1081,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return;
     }
     boolean shouldSetFrameRate = getState() == STATE_STARTED && currentFrameRate != Format.NO_VALUE;
-    float surfaceFrameRate = shouldSetFrameRate ? currentFrameRate * getOperatingRate() : 0;
+    float surfaceFrameRate = shouldSetFrameRate ? currentFrameRate * getPlaybackSpeed() : 0;
     // We always set the frame-rate if we have a new surface, since we have no way of knowing what
     // it might have been set to previously.
     if (this.surfaceFrameRate == surfaceFrameRate && !isNewSurface) {
