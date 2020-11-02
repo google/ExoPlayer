@@ -23,6 +23,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
+import java.util.UUID;
 
 /** A DRM session. */
 public interface DrmSession {
@@ -100,6 +101,9 @@ public interface DrmSession {
    */
   @Nullable
   DrmSessionException getError();
+
+  /** Returns the DRM scheme UUID for this session. */
+  UUID getSchemeUuid();
 
   /**
    * Returns an {@link ExoMediaCrypto} for the open session, or null if called before the session

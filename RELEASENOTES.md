@@ -34,6 +34,9 @@
     *   Matroska: Add support for 32-bit floating point PCM, and 8-bit and
         16-bit big endian integer PCM
         ([#8142](https://github.com/google/ExoPlayer/issues/8142)).
+*   DRM:
+    *   Fix playback failure when switching from PlayReady protected content to
+        Widevine or Clearkey protected content in a playlist.
 *   IMA extension:
     *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)).

@@ -257,6 +257,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
+  public final UUID getSchemeUuid() {
+    return uuid;
+  }
+
+  @Override
   public final @Nullable ExoMediaCrypto getMediaCrypto() {
     return mediaCrypto;
   }

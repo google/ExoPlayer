@@ -16,8 +16,10 @@
 package com.google.android.exoplayer2.drm;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Map;
+import java.util.UUID;
 
 /** A {@link DrmSession} that's in a terminal error state. */
 public final class ErrorStateDrmSession implements DrmSession {
@@ -42,6 +44,11 @@ public final class ErrorStateDrmSession implements DrmSession {
   @Nullable
   public DrmSessionException getError() {
     return error;
+  }
+
+  @Override
+  public final UUID getSchemeUuid() {
+    return C.UUID_NIL;
   }
 
   @Override
