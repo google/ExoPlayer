@@ -603,8 +603,8 @@ public abstract class DecoderAudioRenderer<
       if (mediaCrypto == null) {
         DrmSessionException drmError = decoderDrmSession.getError();
         if (drmError != null) {
-          // Continue for now. We may be able to avoid failure if the session recovers, or if a new
-          // input format causes the session to be replaced before it's used.
+          // Continue for now. We may be able to avoid failure if a new input format causes the
+          // session to be replaced without it having been used.
         } else {
           // The drm session isn't open yet.
           return;
