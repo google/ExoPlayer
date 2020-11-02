@@ -16,6 +16,9 @@
     *   Fix a bug that caused multiple ads in an ad pod to be skipped when one
         ad in the ad pod was skipped.
     *   Fix passing an ads response to the `ImaAdsLoader` builder.
+*   Text
+    *   Allow tx3g subtitles with `styl` boxes with start and/or end offsets
+        that lie outside the length of the cue text.
 
 ### 2.12.1 (2020-10-23) ###
 
