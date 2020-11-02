@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
@@ -42,6 +43,8 @@ import java.util.List;
  * Currently supports parsing of a single text track with embedded styles.
  */
 public final class Tx3gDecoder extends SimpleSubtitleDecoder {
+
+  private static final String TAG = "Tx3gDecoder";
 
   private static final char BOM_UTF16_BE = '\uFEFF';
   private static final char BOM_UTF16_LE = '\uFFFE';
@@ -185,6 +188,16 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     int fontFace = parsableByteArray.readUnsignedByte();
     parsableByteArray.skipBytes(1); // font size
     int colorRgba = parsableByteArray.readInt();
+
+    if (end > cueText.length()) {
+      Log.w(
+          TAG, "Truncating styl end (" + end + ") to cueText.length() (" + cueText.length() + ").");
+      end = cueText.length();
+    }
+    if (start >= end) {
+      Log.w(TAG, "Ignoring styl with start (" + start + ") >= end (" + end + ").");
+      return;
+    }
     attachFontFace(cueText, fontFace, defaultFontFace, start, end, SPAN_PRIORITY_HIGH);
     attachColor(cueText, colorRgba, defaultColorRgba, start, end, SPAN_PRIORITY_HIGH);
   }
