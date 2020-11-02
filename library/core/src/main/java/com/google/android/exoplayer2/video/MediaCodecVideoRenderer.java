@@ -1106,7 +1106,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         frameRate == 0
             ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
             : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
-    surface.setFrameRate(frameRate, compatibility);
+    try {
+      surface.setFrameRate(frameRate, compatibility);
+    } catch (IllegalStateException e) {
+      Log.e(TAG, "Failed to call Surface.setFrameRate", e);
+    }
   }
 
   private boolean shouldUseDummySurface(MediaCodecInfo codecInfo) {
