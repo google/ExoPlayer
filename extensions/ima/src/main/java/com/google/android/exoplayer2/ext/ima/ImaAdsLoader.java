@@ -458,7 +458,8 @@ public final class ImaAdsLoader
         adTagUri != null
             ? new DataSpec(adTagUri)
             : adsResponse != null
-                ? new DataSpec(Util.getDataUriForString(adsResponse, "text/xml"))
+                ? new DataSpec(
+                    Util.getDataUriForString(/* mimeType= */ "text/xml", /* data= */ adsResponse))
                 : null;
     adTagDataSpec = EMPTY_AD_TAG_DATA_SPEC;
     supportedMimeTypes = ImmutableList.of();
