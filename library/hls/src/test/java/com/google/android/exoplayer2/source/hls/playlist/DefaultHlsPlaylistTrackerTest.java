@@ -15,32 +15,28 @@
  */
 package com.google.android.exoplayer2.source.hls.playlist;
 
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.testutil.FakeDataSet;
-import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.upstream.ByteArrayDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okio.Buffer;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,24 +60,51 @@ public class DefaultHlsPlaylistTrackerTest {
       "media/m3u8/live_low_latency_media_can_not_skip";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_NOT_SKIP_NEXT =
       "media/m3u8/live_low_latency_media_can_not_skip_next";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD =
+      "media/m3u8/live_low_latency_media_can_block_reload";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_NEXT =
+      "media/m3u8/live_low_latency_media_can_block_reload_next";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD =
+      "media/m3u8/live_low_latency_media_can_skip_until_and_block_reload";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD_NEXT =
+      "media/m3u8/live_low_latency_media_can_skip_until_and_block_reload_next";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD_NEXT_SKIPPED =
+      "media/m3u8/live_low_latency_media_can_skip_until_and_block_reload_next_skipped";
+
+  private MockWebServer mockWebServer;
+  private int enqueueCounter;
+  private int assertedRequestCounter;
+
+  @Before
+  public void setUp() {
+    mockWebServer = new MockWebServer();
+    enqueueCounter = 0;
+    assertedRequestCounter = 0;
+  }
+
+  @After
+  public void tearDown() throws IOException {
+    assertThat(assertedRequestCounter).isEqualTo(enqueueCounter);
+    mockWebServer.shutdown();
+  }
 
   @Test
-  public void start_playlistCanNotSkip_requestsFullUpdate() throws IOException, TimeoutException {
-
-    Uri masterPlaylistUri = Uri.parse("fake://foo.bar/master.m3u8");
-    Queue<DataSource> dataSourceQueue = new ArrayDeque<>();
-    dataSourceQueue.add(new ByteArrayDataSource(getBytes(SAMPLE_M3U8_LIVE_MASTER)));
-    dataSourceQueue.add(
-        new DataSourceList(
-            new ByteArrayDataSource(getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_NOT_SKIP)),
-            new ByteArrayDataSource(getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_NOT_SKIP_NEXT))));
+  public void start_playlistCanNotSkip_requestsFullUpdate()
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {"master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8"},
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_NOT_SKIP),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_NOT_SKIP_NEXT));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            /* dataSourceFactory= */ dataSourceQueue::remove,
-            masterPlaylistUri,
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
+    assertRequestUrlsCalled(httpUrls);
     HlsMediaPlaylist firstFullPlaylist = mediaPlaylists.get(0);
     assertThat(firstFullPlaylist.mediaSequence).isEqualTo(10);
     assertThat(firstFullPlaylist.segments.get(0).url).isEqualTo("fileSequence10.ts");
@@ -98,22 +121,23 @@ public class DefaultHlsPlaylistTrackerTest {
 
   @Test
   public void start_playlistCanSkip_requestsDeltaUpdateAndExpandsSkippedSegments()
-      throws IOException, TimeoutException {
-    Uri masterPlaylistUri = Uri.parse("fake://foo.bar/master.m3u8");
-    Uri mediaPlaylistUri = Uri.parse("fake://foo.bar/media0/playlist.m3u8");
-    Uri mediaPlaylistSkippedUri = Uri.parse(mediaPlaylistUri + "?_HLS_skip=YES");
-    FakeDataSet fakeDataSet =
-        new FakeDataSet()
-            .setData(masterPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MASTER))
-            .setData(mediaPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL))
-            .setData(mediaPlaylistSkippedUri, getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=YES"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new FakeDataSource.Factory().setFakeDataSet(fakeDataSet),
-            masterPlaylistUri,
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
+    assertRequestUrlsCalled(httpUrls);
     HlsMediaPlaylist initialPlaylistWithAllSegments = mediaPlaylists.get(0);
     assertThat(initialPlaylistWithAllSegments.mediaSequence).isEqualTo(10);
     assertThat(initialPlaylistWithAllSegments.segments).hasSize(6);
@@ -131,24 +155,23 @@ public class DefaultHlsPlaylistTrackerTest {
 
   @Test
   public void start_playlistCanSkip_missingSegments_correctedMediaSequence()
-      throws IOException, TimeoutException {
-    Uri masterPlaylistUri = Uri.parse("fake://foo.bar/master.m3u8");
-    Uri mediaPlaylistUri = Uri.parse("fake://foo.bar/media0/playlist.m3u8");
-    Uri mediaPlaylistSkippedUri = Uri.parse(mediaPlaylistUri + "?_HLS_skip=YES");
-    FakeDataSet fakeDataSet =
-        new FakeDataSet()
-            .setData(masterPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MASTER))
-            .setData(mediaPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL))
-            .setData(
-                mediaPlaylistSkippedUri,
-                getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED_MEDIA_SEQUENCE_NO_OVERLAPPING));
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=YES"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED_MEDIA_SEQUENCE_NO_OVERLAPPING));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new FakeDataSource.Factory().setFakeDataSet(fakeDataSet),
-            masterPlaylistUri,
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
+    assertRequestUrlsCalled(httpUrls);
     HlsMediaPlaylist initialPlaylistWithAllSegments = mediaPlaylists.get(0);
     assertThat(initialPlaylistWithAllSegments.mediaSequence).isEqualTo(10);
     assertThat(initialPlaylistWithAllSegments.segments).hasSize(6);
@@ -160,23 +183,23 @@ public class DefaultHlsPlaylistTrackerTest {
 
   @Test
   public void start_playlistCanSkipDataRanges_requestsDeltaUpdateV2()
-      throws IOException, TimeoutException {
-    Uri masterPlaylistUri = Uri.parse("fake://foo.bar/master.m3u8");
-    Uri mediaPlaylistUri = Uri.parse("fake://foo.bar/media0/playlist.m3u8");
-    // Expect _HLS_skip parameter with value v2.
-    Uri mediaPlaylistSkippedUri = Uri.parse(mediaPlaylistUri + "?_HLS_skip=v2");
-    FakeDataSet fakeDataSet =
-        new FakeDataSet()
-            .setData(masterPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MASTER))
-            .setData(mediaPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_DATERANGES))
-            .setData(mediaPlaylistSkippedUri, getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=v2"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_DATERANGES),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new FakeDataSource.Factory().setFakeDataSet(fakeDataSet),
-            masterPlaylistUri,
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
+    assertRequestUrlsCalled(httpUrls);
     // Finding the media sequence of the second playlist request asserts that the second request has
     // been made with the correct uri parameter appended.
     assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(11);
@@ -184,27 +207,102 @@ public class DefaultHlsPlaylistTrackerTest {
 
   @Test
   public void start_playlistCanSkipAndUriWithParams_preservesOriginalParams()
-      throws IOException, TimeoutException {
-    Uri masterPlaylistUri = Uri.parse("fake://foo.bar/master.m3u8");
-    Uri mediaPlaylistUri = Uri.parse("fake://foo.bar/media0/playlist.m3u8?param1=1&param2=2");
-    // Expect _HLS_skip parameter appended with an ampersand.
-    Uri mediaPlaylistSkippedUri = Uri.parse(mediaPlaylistUri + "&_HLS_skip=YES");
-    FakeDataSet fakeDataSet =
-        new FakeDataSet()
-            .setData(masterPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MASTER_MEDIA_URI_WITH_PARAM))
-            .setData(mediaPlaylistUri, getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL))
-            .setData(mediaPlaylistSkippedUri, getBytes(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8",
+              "/media0/playlist.m3u8?param1=1&param2=2",
+              "/media0/playlist.m3u8?param1=1&param2=2&_HLS_skip=YES"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER_MEDIA_URI_WITH_PARAM),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new FakeDataSource.Factory().setFakeDataSet(fakeDataSet),
-            masterPlaylistUri,
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
+    assertRequestUrlsCalled(httpUrls);
     // Finding the media sequence of the second playlist request asserts that the second request has
     // been made with the original uri parameters preserved and the additional param concatenated
     // correctly.
     assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(11);
+  }
+
+  @Test
+  public void start_playlistCanBlockReload_requestBlockingReloadWithCorrectMediaSequence()
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_msn=14"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_NEXT));
+
+    List<HlsMediaPlaylist> mediaPlaylists =
+        runPlaylistTrackerAndCollectMediaPlaylists(
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            /* awaitedMediaPlaylistCount= */ 2);
+
+    assertRequestUrlsCalled(httpUrls);
+    assertThat(mediaPlaylists.get(0).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(11);
+  }
+
+  @Test
+  public void start_httpBadRequest_forcesFullNonBlockingPlaylistRequest()
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8",
+              "/media0/playlist.m3u8",
+              "/media0/playlist.m3u8?_HLS_skip=YES&_HLS_msn=16",
+              "/media0/playlist.m3u8",
+              "/media0/playlist.m3u8?_HLS_skip=YES&_HLS_msn=17"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD),
+            new MockResponse().setResponseCode(400),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD_NEXT),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD_NEXT_SKIPPED));
+
+    List<HlsMediaPlaylist> mediaPlaylists =
+        runPlaylistTrackerAndCollectMediaPlaylists(
+            /* dataSourceFactory= */ new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            /* awaitedMediaPlaylistCount= */ 3);
+
+    assertRequestUrlsCalled(httpUrls);
+    assertThat(mediaPlaylists.get(0).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(11);
+    assertThat(mediaPlaylists.get(2).mediaSequence).isEqualTo(12);
+  }
+
+  private List<HttpUrl> enqueueWebServerResponses(String[] paths, MockResponse... mockResponses) {
+    assertThat(paths).hasLength(mockResponses.length);
+    for (MockResponse mockResponse : mockResponses) {
+      enqueueCounter++;
+      mockWebServer.enqueue(mockResponse);
+    }
+    List<HttpUrl> urls = new ArrayList<>();
+    for (String path : paths) {
+      urls.add(mockWebServer.url(path));
+    }
+    return urls;
+  }
+
+  private void assertRequestUrlsCalled(List<HttpUrl> httpUrls) throws InterruptedException {
+    for (HttpUrl url : httpUrls) {
+      assertedRequestCounter++;
+      assertThat(url.toString()).endsWith(mockWebServer.takeRequest().getPath());
+    }
   }
 
   private static List<HlsMediaPlaylist> runPlaylistTrackerAndCollectMediaPlaylists(
@@ -227,70 +325,17 @@ public class DefaultHlsPlaylistTrackerTest {
           playlistCounter.addAndGet(1);
         });
 
-    RobolectricUtil.runMainLooperUntil(() -> playlistCounter.get() == awaitedMediaPlaylistCount);
+    RobolectricUtil.runMainLooperUntil(() -> playlistCounter.get() >= awaitedMediaPlaylistCount);
 
     defaultHlsPlaylistTracker.stop();
     return mediaPlaylists;
   }
 
-  private static byte[] getBytes(String filename) throws IOException {
-    return TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), filename);
+  private static MockResponse getMockResponse(String assetFile) throws IOException {
+    return new MockResponse().setResponseCode(200).setBody(new Buffer().write(getBytes(assetFile)));
   }
 
-  private static final class DataSourceList implements DataSource {
-
-    private final DataSource[] dataSources;
-
-    private DataSource delegate;
-    private int index;
-
-    /**
-     * Creates an instance.
-     *
-     * @param dataSources The data sources to delegate to.
-     */
-    public DataSourceList(DataSource... dataSources) {
-      checkArgument(dataSources.length > 0);
-      this.dataSources = dataSources;
-      delegate = dataSources[index++];
-    }
-
-    @Override
-    public void addTransferListener(TransferListener transferListener) {
-      for (DataSource dataSource : dataSources) {
-        dataSource.addTransferListener(transferListener);
-      }
-    }
-
-    @Override
-    public long open(DataSpec dataSpec) throws IOException {
-      checkState(index <= dataSources.length);
-      return delegate.open(dataSpec);
-    }
-
-    @Override
-    public int read(byte[] buffer, int offset, int readLength) throws IOException {
-      return delegate.read(buffer, offset, readLength);
-    }
-
-    @Override
-    @Nullable
-    public Uri getUri() {
-      return delegate.getUri();
-    }
-
-    @Override
-    public Map<String, List<String>> getResponseHeaders() {
-      return delegate.getResponseHeaders();
-    }
-
-    @Override
-    public void close() throws IOException {
-      delegate.close();
-      if (index < dataSources.length) {
-        delegate = dataSources[index];
-      }
-      index++;
-    }
+  private static byte[] getBytes(String filename) throws IOException {
+    return TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), filename);
   }
 }

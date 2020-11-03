@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -216,7 +218,7 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   public void refreshPlaylist(Uri url) {
-    playlistBundles.get(url).loadPlaylist();
+    playlistBundles.get(url).loadPlaylist(url);
   }
 
   @Override
@@ -241,7 +243,6 @@ public final class DefaultHlsPlaylistTracker
     mediaPlaylistParser = playlistParserFactory.createPlaylistParser(masterPlaylist);
     primaryMediaPlaylistUrl = masterPlaylist.variants.get(0).url;
     createBundles(masterPlaylist.mediaPlaylistUrls);
-    MediaPlaylistBundle primaryBundle = playlistBundles.get(primaryMediaPlaylistUrl);
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
             loadable.loadTaskId,
@@ -251,11 +252,12 @@ public final class DefaultHlsPlaylistTracker
             elapsedRealtimeMs,
             loadDurationMs,
             loadable.bytesLoaded());
+    MediaPlaylistBundle primaryBundle = playlistBundles.get(primaryMediaPlaylistUrl);
     if (isMediaPlaylist) {
       // We don't need to load the playlist again. We can use the same result.
       primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result, loadEventInfo);
     } else {
-      primaryBundle.loadPlaylist();
+      primaryBundle.loadPlaylist(primaryMediaPlaylistUrl);
     }
     loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
@@ -320,7 +322,7 @@ public final class DefaultHlsPlaylistTracker
       MediaPlaylistBundle bundle = playlistBundles.get(variants.get(i).url);
       if (currentTimeMs > bundle.excludeUntilMs) {
         primaryMediaPlaylistUrl = bundle.playlistUrl;
-        bundle.loadPlaylist();
+        bundle.loadPlaylist(primaryMediaPlaylistUrl);
         return true;
       }
     }
@@ -336,7 +338,7 @@ public final class DefaultHlsPlaylistTracker
       return;
     }
     primaryMediaPlaylistUrl = url;
-    playlistBundles.get(primaryMediaPlaylistUrl).loadPlaylist();
+    playlistBundles.get(primaryMediaPlaylistUrl).loadPlaylist(url);
   }
 
   /** Returns whether any of the variants in the master playlist have the specified playlist URL. */
@@ -460,8 +462,10 @@ public final class DefaultHlsPlaylistTracker
   }
 
   /** Holds all information related to a specific Media Playlist. */
-  private final class MediaPlaylistBundle
-      implements Loader.Callback<ParsingLoadable<HlsPlaylist>>, Runnable {
+  private final class MediaPlaylistBundle implements Loader.Callback<ParsingLoadable<HlsPlaylist>> {
+
+    private static final String BLOCK_MSN_PARAM = "_HLS_msn";
+    private static final String SKIP_PARAM = "_HLS_skip";
 
     private final Uri playlistUrl;
     private final Loader mediaPlaylistLoader;
@@ -502,7 +506,12 @@ public final class DefaultHlsPlaylistTracker
       mediaPlaylistLoader.release();
     }
 
-    public void loadPlaylist() {
+    /**
+     * Loads the playlist.
+     *
+     * @param requestUri The URI to be used for loading the playlist.
+     */
+    public void loadPlaylist(Uri requestUri) {
       excludeUntilMs = 0;
       if (loadPending || mediaPlaylistLoader.isLoading() || mediaPlaylistLoader.hasFatalError()) {
         // Load already pending, in progress, or a fatal error has been encountered. Do nothing.
@@ -511,9 +520,14 @@ public final class DefaultHlsPlaylistTracker
       long currentTimeMs = SystemClock.elapsedRealtime();
       if (currentTimeMs < earliestNextLoadTimeMs) {
         loadPending = true;
-        playlistRefreshHandler.postDelayed(this, earliestNextLoadTimeMs - currentTimeMs);
+        playlistRefreshHandler.postDelayed(
+            () -> {
+              loadPending = false;
+              loadPlaylistImmediately(requestUri);
+            },
+            earliestNextLoadTimeMs - currentTimeMs);
       } else {
-        loadPlaylistImmediately();
+        loadPlaylistImmediately(requestUri);
       }
     }
 
@@ -585,6 +599,19 @@ public final class DefaultHlsPlaylistTracker
               elapsedRealtimeMs,
               loadDurationMs,
               loadable.bytesLoaded());
+      boolean isBlockingRequest = loadable.getUri().getQueryParameter(BLOCK_MSN_PARAM) != null;
+      if (isBlockingRequest && error instanceof HttpDataSource.InvalidResponseCodeException) {
+        int responseCode = ((HttpDataSource.InvalidResponseCodeException) error).responseCode;
+        if (responseCode == 400 || responseCode == 503) {
+          // Intercept bad request and service unavailable to force a full, non-blocking request
+          // (see RFC 8216, section 6.2.5.2).
+          earliestNextLoadTimeMs = SystemClock.elapsedRealtime();
+          loadPlaylist(/* requestUri= */ playlistUrl);
+          castNonNull(eventDispatcher)
+              .loadError(loadEventInfo, loadable.type, error, /* wasCanceled= */ true);
+          return Loader.DONT_RETRY;
+        }
+      }
       MediaLoadData mediaLoadData = new MediaLoadData(loadable.type);
       LoadErrorInfo loadErrorInfo =
           new LoadErrorInfo(loadEventInfo, mediaLoadData, error, errorCount);
@@ -616,21 +643,13 @@ public final class DefaultHlsPlaylistTracker
       return loadErrorAction;
     }
 
-    // Runnable implementation.
-
-    @Override
-    public void run() {
-      loadPending = false;
-      loadPlaylistImmediately();
-    }
-
     // Internal methods.
 
-    private void loadPlaylistImmediately() {
+    private void loadPlaylistImmediately(Uri playlistRequestUri) {
       ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable =
           new ParsingLoadable<>(
               mediaPlaylistDataSource,
-              getMediaPlaylistUriForRequest(playlistUrl, playlistSnapshot),
+              playlistRequestUri,
               C.DATA_TYPE_MANIFEST,
               mediaPlaylistParser);
       long elapsedRealtime =
@@ -685,31 +704,42 @@ public final class DefaultHlsPlaylistTracker
           }
         }
       }
-      // Do not allow the playlist to load again within the target duration if we obtained a new
-      // snapshot, or half the target duration otherwise.
-      earliestNextLoadTimeMs =
-          currentTimeMs
-              + C.usToMs(
-                  playlistSnapshot != oldPlaylist
-                      ? playlistSnapshot.targetDurationUs
-                      : (playlistSnapshot.targetDurationUs / 2));
+      long durationUntilNextLoadUs = 0L;
+      if (!playlistSnapshot.serverControl.canBlockReload) {
+        // If blocking requests are not supported, do not allow the playlist to load again within
+        // the target duration if we obtained a new snapshot, or half the target duration otherwise.
+        durationUntilNextLoadUs =
+            playlistSnapshot != oldPlaylist
+                ? playlistSnapshot.targetDurationUs
+                : (playlistSnapshot.targetDurationUs / 2);
+      }
+      earliestNextLoadTimeMs = currentTimeMs + C.usToMs(durationUntilNextLoadUs);
       // Schedule a load if this is the primary playlist and it doesn't have an end tag. Else the
       // next load will be scheduled when refreshPlaylist is called, or when this playlist becomes
       // the primary.
       if (playlistUrl.equals(primaryMediaPlaylistUrl) && !playlistSnapshot.hasEndTag) {
-        loadPlaylist();
+        loadPlaylist(getMediaPlaylistUriForReload());
       }
     }
 
-    private Uri getMediaPlaylistUriForRequest(
-        Uri playlistUri, @Nullable HlsMediaPlaylist currentMediaPlaylist) {
-      if (currentMediaPlaylist == null
-          || currentMediaPlaylist.serverControl.skipUntilUs == C.TIME_UNSET) {
-        return playlistUri;
+    private Uri getMediaPlaylistUriForReload() {
+      if (playlistSnapshot == null
+          || (playlistSnapshot.serverControl.skipUntilUs == C.TIME_UNSET
+              && !playlistSnapshot.serverControl.canBlockReload)) {
+        return playlistUrl;
       }
-      Uri.Builder uriBuilder = playlistUri.buildUpon();
-      uriBuilder.appendQueryParameter(
-          "_HLS_skip", currentMediaPlaylist.serverControl.canSkipDateRanges ? "v2" : "YES");
+      Uri.Builder uriBuilder = playlistUrl.buildUpon();
+      if (playlistSnapshot.serverControl.skipUntilUs != C.TIME_UNSET) {
+        uriBuilder.appendQueryParameter(
+            SKIP_PARAM, playlistSnapshot.serverControl.canSkipDateRanges ? "v2" : "YES");
+      }
+      if (playlistSnapshot.serverControl.canBlockReload) {
+        long reloadMediaSequence =
+            playlistSnapshot.mediaSequence
+                + playlistSnapshot.segments.size()
+                + playlistSnapshot.skippedSegmentCount;
+        uriBuilder.appendQueryParameter(BLOCK_MSN_PARAM, String.valueOf(reloadMediaSequence));
+      }
       return uriBuilder.build();
     }
 
