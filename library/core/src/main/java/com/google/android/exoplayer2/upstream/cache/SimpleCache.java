@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.upstream.cache;
 
+import android.os.Build;
 import android.os.ConditionVariable;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -410,14 +412,30 @@ public final class SimpleCache implements Cache {
     Assertions.checkState(cachedContent.isFullyLocked(position, length));
     if (!cacheDir.exists()) {
       // For some reason the cache directory doesn't exist. Make a best effort to create it.
-      cacheDir.mkdirs();
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        try {
+          Files.createDirectories(cacheDir.toPath());
+        } catch (IOException e) {
+          throw new CacheException(e);
+        }
+      } else {
+        cacheDir.mkdirs();
+      }
       removeStaleSpans();
     }
     evictor.onStartFile(this, key, position, length);
     // Randomly distribute files into subdirectories with a uniform distribution.
     File fileDir = new File(cacheDir, Integer.toString(random.nextInt(SUBDIRECTORY_COUNT)));
     if (!fileDir.exists()) {
-      fileDir.mkdir();
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        try {
+          Files.createDirectories(fileDir.toPath());
+        } catch (IOException e) {
+          throw new CacheException(e);
+        }
+      } else {
+        fileDir.mkdir();
+      }
     }
     long lastTouchTimestamp = System.currentTimeMillis();
     return SimpleCacheSpan.getCacheFile(fileDir, cachedContent.id, position, lastTouchTimestamp);
