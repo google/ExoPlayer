@@ -17,7 +17,7 @@
                     <MediaFiles>
                       <MediaFile id="GDFP" delivery="progressive" width="640" height="360" type="video/mp4" bitrate="450" scalable="true" maintainAspectRatio="true">
                         <![CDATA[
-file:///android_asset/mp4/midroll-5s.mp4
+file:///android_asset/media/mp4/midroll-5s.mp4
 ]]>
                       </MediaFile>
                     </MediaFiles>
@@ -48,7 +48,7 @@ file:///android_asset/mp4/midroll-5s.mp4
                     <MediaFiles>
                       <MediaFile id="GDFP" delivery="progressive" width="640" height="360" type="video/mp4" bitrate="450" scalable="true" maintainAspectRatio="true">
                         <![CDATA[
-file:///android_asset/mp4/midroll-5s.mp4
+file:///android_asset/media/mp4/midroll-5s.mp4
 ]]>
                       </MediaFile>
                     </MediaFiles>

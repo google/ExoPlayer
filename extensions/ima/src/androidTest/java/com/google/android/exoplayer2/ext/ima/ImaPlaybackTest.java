@@ -47,8 +47,10 @@ import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,7 +80,7 @@ public final class ImaPlaybackTest {
   @Test
   public void playbackWithPrerollAdTag_playsAdAndContent() throws Exception {
     String adsResponse =
-        TestUtil.getString(/* context= */ testRule.getActivity(), "ad-responses/preroll.xml");
+        TestUtil.getString(/* context= */ testRule.getActivity(), "media/ad-responses/preroll.xml");
     AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT};
     ImaHostedTest hostedTest =
         new ImaHostedTest(Uri.parse(CONTENT_URI_SHORT), adsResponse, expectedAdIds);
@@ -90,7 +92,8 @@ public final class ImaPlaybackTest {
   public void playbackWithMidrolls_playsAdAndContent() throws Exception {
     String adsResponse =
         TestUtil.getString(
-            /* context= */ testRule.getActivity(), "ad-responses/preroll_midroll6s_postroll.xml");
+            /* context= */ testRule.getActivity(),
+            "media/ad-responses/preroll_midroll6s_postroll.xml");
     AdId[] expectedAdIds = new AdId[] {ad(0), CONTENT, ad(1), CONTENT, ad(2), CONTENT};
     ImaHostedTest hostedTest =
         new ImaHostedTest(Uri.parse(CONTENT_URI_SHORT), adsResponse, expectedAdIds);
@@ -102,7 +105,7 @@ public final class ImaPlaybackTest {
   public void playbackWithMidrolls1And7_playsAdsAndContent() throws Exception {
     String adsResponse =
         TestUtil.getString(
-            /* context= */ testRule.getActivity(), "ad-responses/midroll1s_midroll7s.xml");
+            /* context= */ testRule.getActivity(), "media/ad-responses/midroll1s_midroll7s.xml");
     AdId[] expectedAdIds = new AdId[] {CONTENT, ad(0), CONTENT, ad(1), CONTENT};
     ImaHostedTest hostedTest =
         new ImaHostedTest(Uri.parse(CONTENT_URI_SHORT), adsResponse, expectedAdIds);
@@ -114,7 +117,7 @@ public final class ImaPlaybackTest {
   public void playbackWithMidrolls10And20WithSeekTo12_playsAdsAndContent() throws Exception {
     String adsResponse =
         TestUtil.getString(
-            /* context= */ testRule.getActivity(), "ad-responses/midroll10s_midroll20s.xml");
+            /* context= */ testRule.getActivity(), "media/ad-responses/midroll10s_midroll20s.xml");
     AdId[] expectedAdIds = new AdId[] {CONTENT, ad(0), CONTENT, ad(1), CONTENT};
     ImaHostedTest hostedTest =
         new ImaHostedTest(Uri.parse(CONTENT_URI_LONG), adsResponse, expectedAdIds);
@@ -131,7 +134,7 @@ public final class ImaPlaybackTest {
   public void playbackWithMidrolls10And20WithSeekTo18_playsAdsAndContent() throws Exception {
     String adsResponse =
         TestUtil.getString(
-            /* context= */ testRule.getActivity(), "ad-responses/midroll10s_midroll20s.xml");
+            /* context= */ testRule.getActivity(), "media/ad-responses/midroll10s_midroll20s.xml");
     AdId[] expectedAdIds = new AdId[] {CONTENT, ad(0), CONTENT, ad(1), CONTENT};
     ImaHostedTest hostedTest =
         new ImaHostedTest(Uri.parse(CONTENT_URI_LONG), adsResponse, expectedAdIds);
@@ -190,7 +193,7 @@ public final class ImaPlaybackTest {
   private static final class ImaHostedTest extends ExoHostedTest implements EventListener {
 
     private final Uri contentUri;
-    private final String adsResponse;
+    private final DataSpec adTagDataSpec;
     private final List<AdId> expectedAdIds;
     private final List<AdId> seenAdIds;
     private @MonotonicNonNull ImaAdsLoader imaAdsLoader;
@@ -201,7 +204,9 @@ public final class ImaPlaybackTest {
       // duration due to ad playback, so the hosted test shouldn't assert the playing duration.
       super(ImaPlaybackTest.class.getSimpleName(), /* fullPlaybackNoSeeking= */ false);
       this.contentUri = contentUri;
-      this.adsResponse = adsResponse;
+      this.adTagDataSpec =
+          new DataSpec(
+              Util.getDataUriForString(/* mimeType= */ "text/xml", /* data= */ adsResponse));
       this.expectedAdIds = Arrays.asList(expectedAdIds);
       seenAdIds = new ArrayList<>();
     }
@@ -226,7 +231,7 @@ public final class ImaPlaybackTest {
             }
           });
       Context context = host.getApplicationContext();
-      imaAdsLoader = new ImaAdsLoader.Builder(context).buildForAdsResponse(adsResponse);
+      imaAdsLoader = new ImaAdsLoader.Builder(context).build();
       imaAdsLoader.setPlayer(player);
       return player;
     }
@@ -242,7 +247,8 @@ public final class ImaPlaybackTest {
           new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(contentUri));
       return new AdsMediaSource(
           contentMediaSource,
-          dataSourceFactory,
+          adTagDataSpec,
+          new DefaultMediaSourceFactory(dataSourceFactory),
           Assertions.checkNotNull(imaAdsLoader),
           new AdViewProvider() {
 
