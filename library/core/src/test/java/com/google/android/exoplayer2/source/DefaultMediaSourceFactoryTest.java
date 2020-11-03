@@ -204,7 +204,7 @@ public final class DefaultMediaSourceFactoryTest {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_MEDIA).setAdTagUri(adTagUri).build();
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
-            .setAdsLoaderProvider(ignoredAdTagUri -> mock(AdsLoader.class))
+            .setAdsLoaderProvider(ignoredAdsConfiguration -> mock(AdsLoader.class))
             .setAdViewProvider(mock(AdsLoader.AdViewProvider.class));
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);

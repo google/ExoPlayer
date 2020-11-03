@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -74,6 +77,7 @@ public final class MediaItem {
     @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
     @Nullable private Uri adTagUri;
+    @Nullable private Object adsId;
     @Nullable private Object tag;
     @Nullable private MediaMetadata mediaMetadata;
     private long liveTargetOffsetMs;
@@ -112,7 +116,6 @@ public final class MediaItem {
       liveMaxPlaybackSpeed = mediaItem.liveConfiguration.maxPlaybackSpeed;
       @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
       if (playbackProperties != null) {
-        adTagUri = playbackProperties.adTagUri;
         customCacheKey = playbackProperties.customCacheKey;
         mimeType = playbackProperties.mimeType;
         uri = playbackProperties.uri;
@@ -129,6 +132,11 @@ public final class MediaItem {
           drmSessionForClearTypes = drmConfiguration.sessionForClearTypes;
           drmUuid = drmConfiguration.uuid;
           drmKeySetId = drmConfiguration.getKeySetId();
+        }
+        @Nullable AdsConfiguration adsConfiguration = playbackProperties.adsConfiguration;
+        if (adsConfiguration != null) {
+          adTagUri = adsConfiguration.adTagUri;
+          adsId = adsConfiguration.adsId;
         }
       }
     }
@@ -408,24 +416,56 @@ public final class MediaItem {
     }
 
     /**
-     * Sets the optional ad tag URI.
+     * Sets the optional ad tag {@link Uri}.
+     *
+     * <p>All ads media items in the playlist with the same ad tag URI and loader will share the
+     * same ad playback state. To resume ad playback when recreating the playlist on returning from
+     * the background, pass the same ad tag URI.
      *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     *
+     * @param adTagUri The ad tag URI to load.
      */
     public Builder setAdTagUri(@Nullable String adTagUri) {
-      this.adTagUri = adTagUri != null ? Uri.parse(adTagUri) : null;
-      return this;
+      return setAdTagUri(adTagUri != null ? Uri.parse(adTagUri) : null);
     }
 
     /**
      * Sets the optional ad tag {@link Uri}.
      *
+     * <p>All ads media items in the playlist with the same ad tag URI and loader will share the
+     * same ad playback state. To resume ad playback when recreating the playlist on returning from
+     * the background, pass the same ad tag URI.
+     *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     *
+     * @param adTagUri The ad tag URI to load.
      */
     public Builder setAdTagUri(@Nullable Uri adTagUri) {
+      return setAdTagUri(adTagUri, /* adsId= */ adTagUri);
+    }
+
+    /**
+     * Sets the optional ad tag {@link Uri} and ads identifier.
+     *
+     * <p>All ads media items in the playlist with the same ads identifier and loader will share the
+     * same ad playback state.
+     *
+     * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
+     * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     *
+     * @param adTagUri The ad tag URI to load.
+     * @param adsId An opaque identifier for ad playback state associated with this item. Must be
+     *     non-null if {@code adTagUri} is non-null. Ad loading and playback state is shared among
+     *     all media items that have the same ads id (by {@link Object#equals(Object) equality}) and
+     *     ads loader, so it is important to pass the same identifiers when constructing playlist
+     *     items each time the player returns to the foreground.
+     */
+    public Builder setAdTagUri(@Nullable Uri adTagUri, @Nullable Object adsId) {
       this.adTagUri = adTagUri;
+      this.adsId = adsId;
       return this;
     }
 
@@ -517,8 +557,9 @@ public final class MediaItem {
      * Returns a new {@link MediaItem} instance with the current builder values.
      */
     public MediaItem build() {
-      Assertions.checkState(drmLicenseUri == null || drmUuid != null);
+      checkState(drmLicenseUri == null || drmUuid != null);
       @Nullable PlaybackProperties playbackProperties = null;
+      @Nullable Uri uri = this.uri;
       if (uri != null) {
         playbackProperties =
             new PlaybackProperties(
@@ -535,15 +576,15 @@ public final class MediaItem {
                         drmSessionForClearTypes,
                         drmKeySetId)
                     : null,
+                adTagUri != null ? new AdsConfiguration(adTagUri, checkNotNull(adsId)) : null,
                 streamKeys,
                 customCacheKey,
                 subtitles,
-                adTagUri,
                 tag);
         mediaId = mediaId != null ? mediaId : uri.toString();
       }
       return new MediaItem(
-          Assertions.checkNotNull(mediaId),
+          checkNotNull(mediaId),
           new ClippingProperties(
               clipStartPositionMs,
               clipEndPositionMs,
@@ -656,6 +697,47 @@ public final class MediaItem {
     }
   }
 
+  /** Configuration for playing back linear ads with a media item. */
+  public static final class AdsConfiguration {
+
+    public final Uri adTagUri;
+    public final Object adsId;
+
+    /**
+     * Creates an ads configuration with the given ad tag URI and ads identifier.
+     *
+     * @param adTagUri The ad tag URI to load.
+     * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
+     *     and playback state is shared among all media items that have the same ads id (by {@link
+     *     Object#equals(Object) equality}), so it is important to pass the same identifiers when
+     *     constructing playlist items each time the player returns to the foreground.
+     */
+    private AdsConfiguration(Uri adTagUri, Object adsId) {
+      this.adTagUri = adTagUri;
+      this.adsId = adsId;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof AdsConfiguration)) {
+        return false;
+      }
+
+      AdsConfiguration other = (AdsConfiguration) obj;
+      return adTagUri.equals(other.adTagUri) && adsId.equals(other.adsId);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = adTagUri.hashCode();
+      result = 31 * result + adsId.hashCode();
+      return result;
+    }
+  }
+
   /** Properties for local playback. */
   public static final class PlaybackProperties {
 
@@ -673,6 +755,9 @@ public final class MediaItem {
     /** Optional {@link DrmConfiguration} for the media. */
     @Nullable public final DrmConfiguration drmConfiguration;
 
+    /** Optional ads configuration. */
+    @Nullable public final AdsConfiguration adsConfiguration;
+
     /** Optional stream keys by which the manifest is filtered. */
     public final List<StreamKey> streamKeys;
 
@@ -681,9 +766,6 @@ public final class MediaItem {
 
     /** Optional subtitles to be sideloaded. */
     public final List<Subtitle> subtitles;
-
-    /** Optional ad tag {@link Uri}. */
-    @Nullable public final Uri adTagUri;
 
     /**
      * Optional tag for custom attributes. The tag for the media source which will be published in
@@ -696,18 +778,18 @@ public final class MediaItem {
         Uri uri,
         @Nullable String mimeType,
         @Nullable DrmConfiguration drmConfiguration,
+        @Nullable AdsConfiguration adsConfiguration,
         List<StreamKey> streamKeys,
         @Nullable String customCacheKey,
         List<Subtitle> subtitles,
-        @Nullable Uri adTagUri,
         @Nullable Object tag) {
       this.uri = uri;
       this.mimeType = mimeType;
       this.drmConfiguration = drmConfiguration;
+      this.adsConfiguration = adsConfiguration;
       this.streamKeys = streamKeys;
       this.customCacheKey = customCacheKey;
       this.subtitles = subtitles;
-      this.adTagUri = adTagUri;
       this.tag = tag;
     }
 
@@ -724,10 +806,10 @@ public final class MediaItem {
       return uri.equals(other.uri)
           && Util.areEqual(mimeType, other.mimeType)
           && Util.areEqual(drmConfiguration, other.drmConfiguration)
+          && Util.areEqual(adsConfiguration, other.adsConfiguration)
           && streamKeys.equals(other.streamKeys)
           && Util.areEqual(customCacheKey, other.customCacheKey)
           && subtitles.equals(other.subtitles)
-          && Util.areEqual(adTagUri, other.adTagUri)
           && Util.areEqual(tag, other.tag);
     }
 
@@ -736,10 +818,10 @@ public final class MediaItem {
       int result = uri.hashCode();
       result = 31 * result + (mimeType == null ? 0 : mimeType.hashCode());
       result = 31 * result + (drmConfiguration == null ? 0 : drmConfiguration.hashCode());
+      result = 31 * result + (adsConfiguration == null ? 0 : adsConfiguration.hashCode());
       result = 31 * result + streamKeys.hashCode();
       result = 31 * result + (customCacheKey == null ? 0 : customCacheKey.hashCode());
       result = 31 * result + subtitles.hashCode();
-      result = 31 * result + (adTagUri == null ? 0 : adTagUri.hashCode());
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
       return result;
     }
@@ -1004,7 +1086,7 @@ public final class MediaItem {
   /** Identifies the media item. */
   public final String mediaId;
 
-  /** Optional playback properties. Maybe be {@code null} if shared over process boundaries. */
+  /** Optional playback properties. May be {@code null} if shared over process boundaries. */
   @Nullable public final PlaybackProperties playbackProperties;
 
   /** The live playback configuration. */

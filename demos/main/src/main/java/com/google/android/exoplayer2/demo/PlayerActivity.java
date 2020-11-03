@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -102,12 +101,11 @@ public class PlayerActivity extends AppCompatActivity
   private int startWindow;
   private long startPosition;
 
-  // Fields used only for ad playback.
+  // For ad playback only.
 
   private AdsLoader adsLoader;
-  private Uri loadedAdTagUri;
 
-  // Activity lifecycle
+  // Activity lifecycle.
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -355,7 +353,7 @@ public class PlayerActivity extends AppCompatActivity
           return Collections.emptyList();
         }
       }
-      hasAds |= mediaItem.playbackProperties.adTagUri != null;
+      hasAds |= mediaItem.playbackProperties.adsConfiguration != null;
     }
     if (!hasAds) {
       releaseAdsLoader();
@@ -363,15 +361,11 @@ public class PlayerActivity extends AppCompatActivity
     return mediaItems;
   }
 
-  private AdsLoader getAdsLoader(Uri adTagUri) {
+  private AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     if (mediaItems.size() > 1) {
       showToast(R.string.unsupported_ads_in_playlist);
       releaseAdsLoader();
       return null;
-    }
-    if (!adTagUri.equals(loadedAdTagUri)) {
-      releaseAdsLoader();
-      loadedAdTagUri = adTagUri;
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
@@ -401,7 +395,6 @@ public class PlayerActivity extends AppCompatActivity
     if (adsLoader != null) {
       adsLoader.release();
       adsLoader = null;
-      loadedAdTagUri = null;
       playerView.getOverlayFrameLayout().removeAllViews();
     }
   }

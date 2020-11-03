@@ -281,7 +281,20 @@ public class MediaItemTest {
 
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri).build();
 
-    assertThat(mediaItem.playbackProperties.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isEqualTo(adTagUri);
+  }
+
+  @Test
+  public void builderSetAdTagUriAndAdsId_setsAdsConfiguration() {
+    Uri adTagUri = Uri.parse(URI_STRING + "/ad");
+    Object adsId = new Object();
+
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri, adsId).build();
+
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isEqualTo(adsId);
   }
 
   @Test

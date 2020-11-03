@@ -33,9 +33,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -128,7 +126,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private final MediaSourceFactory adMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final AdsLoader.AdViewProvider adViewProvider;
-  @Nullable private final DataSpec adTagDataSpec;
+  private final DataSpec adTagDataSpec;
+  private final Object adsId;
   private final Handler mainHandler;
   private final Timeline.Period period;
 
@@ -140,60 +139,14 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   /**
    * Constructs a new source that inserts ads linearly with the content specified by {@code
-   * contentMediaSource}. Ad media is loaded using {@link ProgressiveMediaSource}.
-   *
-   * @param contentMediaSource The {@link MediaSource} providing the content to play.
-   * @param dataSourceFactory Factory for data sources used to load ad media.
-   * @param adsLoader The loader for ads.
-   * @param adViewProvider Provider of views for the ad UI.
-   * @deprecated Use {@link AdsMediaSource#AdsMediaSource(MediaSource, DataSpec, MediaSourceFactory,
-   *     AdsLoader, AdsLoader.AdViewProvider)} instead.
-   */
-  @Deprecated
-  public AdsMediaSource(
-      MediaSource contentMediaSource,
-      DataSource.Factory dataSourceFactory,
-      AdsLoader adsLoader,
-      AdsLoader.AdViewProvider adViewProvider) {
-    this(
-        contentMediaSource,
-        new ProgressiveMediaSource.Factory(dataSourceFactory),
-        adsLoader,
-        adViewProvider,
-        /* adTagDataSpec= */ null);
-  }
-
-  /**
-   * Constructs a new source that inserts ads linearly with the content specified by {@code
-   * contentMediaSource}.
-   *
-   * @param contentMediaSource The {@link MediaSource} providing the content to play.
-   * @param adMediaSourceFactory Factory for media sources used to load ad media.
-   * @param adsLoader The loader for ads.
-   * @param adViewProvider Provider of views for the ad UI.
-   * @deprecated Use {@link AdsMediaSource#AdsMediaSource(MediaSource, DataSpec, MediaSourceFactory,
-   *     AdsLoader, AdsLoader.AdViewProvider)} instead.
-   */
-  @Deprecated
-  public AdsMediaSource(
-      MediaSource contentMediaSource,
-      MediaSourceFactory adMediaSourceFactory,
-      AdsLoader adsLoader,
-      AdsLoader.AdViewProvider adViewProvider) {
-    this(
-        contentMediaSource,
-        adMediaSourceFactory,
-        adsLoader,
-        adViewProvider,
-        /* adTagDataSpec= */ null);
-  }
-
-  /**
-   * Constructs a new source that inserts ads linearly with the content specified by {@code
    * contentMediaSource}.
    *
    * @param contentMediaSource The {@link MediaSource} providing the content to play.
    * @param adTagDataSpec The data specification of the ad tag to load.
+   * @param adsId An opaque identifier for ad playback state associated with this instance. Ad
+   *     loading and playback state is shared among all playlist items that have the same ads id (by
+   *     {@link Object#equals(Object) equality}), so it is important to pass the same identifiers
+   *     when constructing playlist items each time the player returns to the foreground.
    * @param adMediaSourceFactory Factory for media sources used to load ad media.
    * @param adsLoader The loader for ads.
    * @param adViewProvider Provider of views for the ad UI.
@@ -201,23 +154,16 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   public AdsMediaSource(
       MediaSource contentMediaSource,
       DataSpec adTagDataSpec,
+      Object adsId,
       MediaSourceFactory adMediaSourceFactory,
       AdsLoader adsLoader,
       AdsLoader.AdViewProvider adViewProvider) {
-    this(contentMediaSource, adMediaSourceFactory, adsLoader, adViewProvider, adTagDataSpec);
-  }
-
-  private AdsMediaSource(
-      MediaSource contentMediaSource,
-      MediaSourceFactory adMediaSourceFactory,
-      AdsLoader adsLoader,
-      AdsLoader.AdViewProvider adViewProvider,
-      @Nullable DataSpec adTagDataSpec) {
     this.contentMediaSource = contentMediaSource;
     this.adMediaSourceFactory = adMediaSourceFactory;
     this.adsLoader = adsLoader;
     this.adViewProvider = adViewProvider;
     this.adTagDataSpec = adTagDataSpec;
+    this.adsId = adsId;
     mainHandler = new Handler(Looper.getMainLooper());
     period = new Timeline.Period();
     adMediaSourceHolders = new AdMediaSourceHolder[0][];
@@ -247,12 +193,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     this.componentListener = componentListener;
     prepareChildSource(CHILD_SOURCE_MEDIA_PERIOD_ID, contentMediaSource);
     mainHandler.post(
-        () -> {
-          if (adTagDataSpec != null) {
-            adsLoader.setAdTagDataSpec(adTagDataSpec);
-          }
-          adsLoader.start(componentListener, adViewProvider);
-        });
+        () ->
+            adsLoader.start(
+                /* adsMediaSource= */ this,
+                adTagDataSpec,
+                adsId,
+                adViewProvider,
+                componentListener));
   }
 
   @Override

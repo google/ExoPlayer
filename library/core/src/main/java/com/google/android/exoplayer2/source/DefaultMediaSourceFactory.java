@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.content.Context;
-import android.net.Uri;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -74,27 +73,28 @@ import java.util.List;
  *
  * <h3>Ad support for media items with ad tag URIs</h3>
  *
- * <p>To support media items with {@link MediaItem.PlaybackProperties#adTagUri ad tag URIs}, {@link
- * #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to configure the factory
- * with the required providers.
+ * <p>To support media items with {@link MediaItem.PlaybackProperties#adsConfiguration ads
+ * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
+ * configure the factory with the required providers.
  */
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
    * Provides {@link AdsLoader} instances for media items that have {@link
-   * MediaItem.PlaybackProperties#adTagUri ad tag URIs}.
+   * MediaItem.PlaybackProperties#adsConfiguration ad tag URIs}.
    */
   public interface AdsLoaderProvider {
 
     /**
-     * Returns an {@link AdsLoader} for the given {@link MediaItem.PlaybackProperties#adTagUri ad
-     * tag URI}, or null if no ads loader is available for the given ad tag URI.
+     * Returns an {@link AdsLoader} for the given {@link
+     * MediaItem.PlaybackProperties#adsConfiguration ads configuration}, or {@code null} if no ads
+     * loader is available for the given ads configuration.
      *
      * <p>This method is called each time a {@link MediaSource} is created from a {@link MediaItem}
-     * that defines an {@link MediaItem.PlaybackProperties#adTagUri ad tag URI}.
+     * that defines an {@link MediaItem.PlaybackProperties#adsConfiguration ads configuration}.
      */
     @Nullable
-    AdsLoader getAdsLoader(Uri adTagUri);
+    AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration);
   }
 
   private static final String TAG = "DefaultMediaSourceFactory";
@@ -171,7 +171,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
    * Sets the {@link AdsLoaderProvider} that provides {@link AdsLoader} instances for media items
-   * that have {@link MediaItem.PlaybackProperties#adTagUri ad tag URIs}.
+   * that have {@link MediaItem.PlaybackProperties#adsConfiguration ads configurations}.
    *
    * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
    * @return This factory, for convenience.
@@ -389,8 +389,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
-    @Nullable Uri adTagUri = mediaItem.playbackProperties.adTagUri;
-    if (adTagUri == null) {
+    @Nullable
+    MediaItem.AdsConfiguration adsConfiguration = mediaItem.playbackProperties.adsConfiguration;
+    if (adsConfiguration == null) {
       return mediaSource;
     }
     AdsLoaderProvider adsLoaderProvider = this.adsLoaderProvider;
@@ -402,14 +403,15 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
               + " setAdViewProvider.");
       return mediaSource;
     }
-    @Nullable AdsLoader adsLoader = adsLoaderProvider.getAdsLoader(adTagUri);
+    @Nullable AdsLoader adsLoader = adsLoaderProvider.getAdsLoader(adsConfiguration);
     if (adsLoader == null) {
-      Log.w(TAG, "Playing media without ads. No AdsLoader for provided adTagUri");
+      Log.w(TAG, "Playing media without ads, as no AdsLoader was provided.");
       return mediaSource;
     }
     return new AdsMediaSource(
         mediaSource,
-        new DataSpec(adTagUri),
+        new DataSpec(adsConfiguration.adTagUri),
+        adsConfiguration.adsId,
         /* adMediaSourceFactory= */ this,
         adsLoader,
         adViewProvider);
