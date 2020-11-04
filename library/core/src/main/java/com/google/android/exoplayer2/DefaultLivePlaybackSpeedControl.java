@@ -122,7 +122,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      * @return This builder, for convenience.
      */
     public Builder setMinUpdateIntervalMs(long minUpdateIntervalMs) {
-      Assertions.checkArgument(minUpdateIntervalMs >= 0);
+      Assertions.checkArgument(minUpdateIntervalMs > 0);
       this.minUpdateIntervalMs = minUpdateIntervalMs;
       return this;
     }
@@ -160,8 +160,14 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   private final long minUpdateIntervalMs;
   private final float proportionalControlFactor;
 
-  private LiveConfiguration mediaConfiguration;
+  private long mediaConfigurationTargetLiveOffsetUs;
   private long targetLiveOffsetOverrideUs;
+  private long minTargetLiveOffsetUs;
+  private long maxTargetLiveOffsetUs;
+  private long currentTargetLiveOffsetUs;
+
+  private float maxPlaybackSpeed;
+  private float minPlaybackSpeed;
   private float adjustedPlaybackSpeed;
   private long lastPlaybackSpeedUpdateMs;
 
@@ -174,28 +180,42 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     this.fallbackMaxPlaybackSpeed = fallbackMaxPlaybackSpeed;
     this.minUpdateIntervalMs = minUpdateIntervalMs;
     this.proportionalControlFactor = proportionalControlFactor;
-    mediaConfiguration = LiveConfiguration.UNSET;
+    mediaConfigurationTargetLiveOffsetUs = C.TIME_UNSET;
     targetLiveOffsetOverrideUs = C.TIME_UNSET;
+    minTargetLiveOffsetUs = C.TIME_UNSET;
+    maxTargetLiveOffsetUs = C.TIME_UNSET;
+    minPlaybackSpeed = fallbackMinPlaybackSpeed;
+    maxPlaybackSpeed = fallbackMaxPlaybackSpeed;
     adjustedPlaybackSpeed = 1.0f;
     lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
+    currentTargetLiveOffsetUs = C.TIME_UNSET;
   }
 
   @Override
   public void setLiveConfiguration(LiveConfiguration liveConfiguration) {
-    this.mediaConfiguration = liveConfiguration;
-    lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
+    mediaConfigurationTargetLiveOffsetUs = C.msToUs(liveConfiguration.targetLiveOffsetMs);
+    minTargetLiveOffsetUs = C.msToUs(liveConfiguration.minLiveOffsetMs);
+    maxTargetLiveOffsetUs = C.msToUs(liveConfiguration.maxLiveOffsetMs);
+    minPlaybackSpeed =
+        liveConfiguration.minPlaybackSpeed != C.RATE_UNSET
+            ? liveConfiguration.minPlaybackSpeed
+            : fallbackMinPlaybackSpeed;
+    maxPlaybackSpeed =
+        liveConfiguration.maxPlaybackSpeed != C.RATE_UNSET
+            ? liveConfiguration.maxPlaybackSpeed
+            : fallbackMaxPlaybackSpeed;
+    maybeResetTargetLiveOffsetUs();
   }
 
   @Override
   public void setTargetLiveOffsetOverrideUs(long liveOffsetUs) {
-    this.targetLiveOffsetOverrideUs = liveOffsetUs;
-    lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
+    targetLiveOffsetOverrideUs = liveOffsetUs;
+    maybeResetTargetLiveOffsetUs();
   }
 
   @Override
   public float getAdjustedPlaybackSpeed(long liveOffsetUs) {
-    long targetLiveOffsetUs = getTargetLiveOffsetUs();
-    if (targetLiveOffsetUs == C.TIME_UNSET) {
+    if (mediaConfigurationTargetLiveOffsetUs == C.TIME_UNSET) {
       return 1f;
     }
     if (lastPlaybackSpeedUpdateMs != C.TIME_UNSET
@@ -204,34 +224,40 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     }
     lastPlaybackSpeedUpdateMs = SystemClock.elapsedRealtime();
 
-    long liveOffsetErrorUs = liveOffsetUs - targetLiveOffsetUs;
+    long liveOffsetErrorUs = liveOffsetUs - currentTargetLiveOffsetUs;
     if (Math.abs(liveOffsetErrorUs) < MAXIMUM_LIVE_OFFSET_ERROR_US_FOR_UNIT_SPEED) {
       adjustedPlaybackSpeed = 1f;
     } else {
       float calculatedSpeed = 1f + proportionalControlFactor * liveOffsetErrorUs;
       adjustedPlaybackSpeed =
-          Util.constrainValue(calculatedSpeed, getMinPlaybackSpeed(), getMaxPlaybackSpeed());
+          Util.constrainValue(calculatedSpeed, minPlaybackSpeed, maxPlaybackSpeed);
     }
     return adjustedPlaybackSpeed;
   }
 
   @Override
   public long getTargetLiveOffsetUs() {
-    return targetLiveOffsetOverrideUs != C.TIME_UNSET
-            && mediaConfiguration.targetLiveOffsetMs != C.TIME_UNSET
-        ? targetLiveOffsetOverrideUs
-        : C.msToUs(mediaConfiguration.targetLiveOffsetMs);
+    return currentTargetLiveOffsetUs;
   }
 
-  private float getMinPlaybackSpeed() {
-    return mediaConfiguration.minPlaybackSpeed != C.RATE_UNSET
-        ? mediaConfiguration.minPlaybackSpeed
-        : fallbackMinPlaybackSpeed;
-  }
-
-  private float getMaxPlaybackSpeed() {
-    return mediaConfiguration.maxPlaybackSpeed != C.RATE_UNSET
-        ? mediaConfiguration.maxPlaybackSpeed
-        : fallbackMaxPlaybackSpeed;
+  private void maybeResetTargetLiveOffsetUs() {
+    long idealOffsetUs = C.TIME_UNSET;
+    if (mediaConfigurationTargetLiveOffsetUs != C.TIME_UNSET) {
+      idealOffsetUs =
+          targetLiveOffsetOverrideUs != C.TIME_UNSET
+              ? targetLiveOffsetOverrideUs
+              : mediaConfigurationTargetLiveOffsetUs;
+      if (minTargetLiveOffsetUs != C.TIME_UNSET && idealOffsetUs < minTargetLiveOffsetUs) {
+        idealOffsetUs = minTargetLiveOffsetUs;
+      }
+      if (maxTargetLiveOffsetUs != C.TIME_UNSET && idealOffsetUs > maxTargetLiveOffsetUs) {
+        idealOffsetUs = maxTargetLiveOffsetUs;
+      }
+    }
+    if (currentTargetLiveOffsetUs == idealOffsetUs) {
+      return;
+    }
+    currentTargetLiveOffsetUs = idealOffsetUs;
+    lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
   }
 }
