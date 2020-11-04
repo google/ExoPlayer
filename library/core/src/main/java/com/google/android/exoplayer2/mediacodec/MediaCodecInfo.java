@@ -179,7 +179,10 @@ public final class MediaCodecInfo {
         hardwareAccelerated,
         softwareOnly,
         vendor,
-        /* adaptive= */ !forceDisableAdaptive && capabilities != null && isAdaptive(capabilities),
+        /* adaptive= */ !forceDisableAdaptive
+            && capabilities != null
+            && isAdaptive(capabilities)
+            && !needsDisableAdaptationWorkaround(name),
         /* tunneling= */ capabilities != null && isTunneling(capabilities),
         /* secure= */ forceSecure || (capabilities != null && isSecure(capabilities)));
   }
@@ -651,6 +654,19 @@ public final class MediaCodecInfo {
   @RequiresApi(23)
   private static int getMaxSupportedInstancesV23(CodecCapabilities capabilities) {
     return capabilities.getMaxSupportedInstances();
+  }
+
+  /**
+   * Returns whether the decoder is known to fail when adapting, despite advertising itself as an
+   * adaptive decoder.
+   *
+   * @param name The decoder name.
+   * @return True if the decoder is known to fail when adapting.
+   */
+  private static boolean needsDisableAdaptationWorkaround(String name) {
+    return Util.SDK_INT <= 22
+        && ("ODROID-XU3".equals(Util.MODEL) || "Nexus 10".equals(Util.MODEL))
+        && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
   }
 
   /**

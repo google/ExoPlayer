@@ -312,7 +312,6 @@ public final class MediaCodecUtil {
           boolean hardwareAccelerated = isHardwareAccelerated(codecInfo);
           boolean softwareOnly = isSoftwareOnly(codecInfo);
           boolean vendor = isVendor(codecInfo);
-          boolean forceDisableAdaptive = codecNeedsDisableAdaptationWorkaround(name);
           if ((secureDecodersExplicit && key.secure == secureSupported)
               || (!secureDecodersExplicit && !key.secure)) {
             decoderInfos.add(
@@ -324,7 +323,7 @@ public final class MediaCodecUtil {
                     hardwareAccelerated,
                     softwareOnly,
                     vendor,
-                    forceDisableAdaptive,
+                    /* forceDisableAdaptive= */ false,
                     /* forceSecure= */ false));
           } else if (!secureDecodersExplicit && secureSupported) {
             decoderInfos.add(
@@ -336,7 +335,7 @@ public final class MediaCodecUtil {
                     hardwareAccelerated,
                     softwareOnly,
                     vendor,
-                    forceDisableAdaptive,
+                    /* forceDisableAdaptive= */ false,
                     /* forceSecure= */ true));
             // It only makes sense to have one synthesized secure decoder, return immediately.
             return decoderInfos;
@@ -649,19 +648,6 @@ public final class MediaCodecUtil {
   @RequiresApi(29)
   private static boolean isVendorV29(android.media.MediaCodecInfo codecInfo) {
     return codecInfo.isVendor();
-  }
-
-  /**
-   * Returns whether the decoder is known to fail when adapting, despite advertising itself as an
-   * adaptive decoder.
-   *
-   * @param name The decoder name.
-   * @return True if the decoder is known to fail when adapting.
-   */
-  private static boolean codecNeedsDisableAdaptationWorkaround(String name) {
-    return Util.SDK_INT <= 22
-        && ("ODROID-XU3".equals(Util.MODEL) || "Nexus 10".equals(Util.MODEL))
-        && ("OMX.Exynos.AVC.Decoder".equals(name) || "OMX.Exynos.AVC.Decoder.secure".equals(name));
   }
 
   @Nullable
