@@ -176,6 +176,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
 
     /** Whether the part is independent. */
     public final boolean isIndependent;
+    /** Whether the part is a preloading part. */
+    public final boolean isPreload;
 
     /**
      * Creates an instance.
@@ -192,6 +194,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * @param byteRangeLength See {@link #byteRangeLength}.
      * @param hasGapTag See {@link #hasGapTag}.
      * @param isIndependent See {@link #isIndependent}.
+     * @param isPreload See {@link #isPreload}.
      */
     public Part(
         String url,
@@ -205,7 +208,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         long byteRangeOffset,
         long byteRangeLength,
         boolean hasGapTag,
-        boolean isIndependent) {
+        boolean isIndependent,
+        boolean isPreload) {
       super(
           url,
           initializationSegment,
@@ -219,6 +223,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
           byteRangeLength,
           hasGapTag);
       this.isIndependent = isIndependent;
+      this.isPreload = isPreload;
     }
   }
 
@@ -502,8 +507,13 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     // The media sequences are equal.
     int segmentCount = segments.size() + skippedSegmentCount;
     int otherSegmentCount = other.segments.size() + other.skippedSegmentCount;
-    return segmentCount > otherSegmentCount
-        || (segmentCount == otherSegmentCount && hasEndTag && !other.hasEndTag);
+    if (segmentCount != otherSegmentCount) {
+      return segmentCount > otherSegmentCount;
+    }
+    int partCount = trailingParts.size();
+    int otherPartCount = other.trailingParts.size();
+    return partCount > otherPartCount
+        || (partCount == otherPartCount && hasEndTag && !other.hasEndTag);
   }
 
   /**

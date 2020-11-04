@@ -354,6 +354,7 @@ public class HlsMediaPlaylistParserTest {
     assertThat(firstPart.durationUs).isEqualTo(2_000_000);
     assertThat(firstPart.relativeStartTimeUs).isEqualTo(playlist.segments.get(0).durationUs);
     assertThat(firstPart.isIndependent).isTrue();
+    assertThat(firstPart.isPreload).isFalse();
     assertThat(firstPart.hasGapTag).isTrue();
     assertThat(firstPart.url).isEqualTo("part267.1.ts");
     HlsMediaPlaylist.Part secondPart = playlist.segments.get(1).parts.get(1);
@@ -518,6 +519,7 @@ public class HlsMediaPlaylistParserTest {
     assertThat(preloadPart.byteRangeOffset).isEqualTo(1234);
     assertThat(preloadPart.initializationSegment.url).isEqualTo("map.mp4");
     assertThat(preloadPart.encryptionIV).isEqualTo("0x410C8AC18AA42EFA18B5155484F5FC34");
+    assertThat(preloadPart.isPreload).isTrue();
   }
 
   @Test
@@ -539,6 +541,7 @@ public class HlsMediaPlaylistParserTest {
 
     assertThat(playlist.trailingParts).hasSize(2);
     assertThat(playlist.trailingParts.get(1).url).isEqualTo("filePart267.2.ts");
+    assertThat(playlist.trailingParts.get(1).isPreload).isTrue();
   }
 
   @Test

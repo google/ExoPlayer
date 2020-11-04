@@ -64,6 +64,21 @@ public class DefaultHlsPlaylistTrackerTest {
       "media/m3u8/live_low_latency_media_can_block_reload";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_NEXT =
       "media/m3u8/live_low_latency_media_can_block_reload_next";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY =
+      "media/m3u8/live_low_latency_media_can_block_reload_low_latency";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_NEXT =
+      "media/m3u8/live_low_latency_media_can_block_reload_low_latency_next";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT =
+      "media/m3u8/live_low_latency_media_can_block_reload_low_latency_full_segment";
+  private static final String
+      SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_NEXT =
+          "media/m3u8/live_low_latency_media_can_block_reload_low_latency_full_segment_next";
+  private static final String
+      SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_PRELOAD =
+          "media/m3u8/live_low_latency_media_can_block_reload_low_latency_full_segment_preload";
+  private static final String
+      SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_PRELOAD_NEXT =
+          "media/m3u8/live_low_latency_media_can_block_reload_low_latency_full_segment_preload_next";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD =
       "media/m3u8/live_low_latency_media_can_skip_until_and_block_reload";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD_NEXT =
@@ -256,6 +271,96 @@ public class DefaultHlsPlaylistTrackerTest {
   }
 
   @Test
+  public void
+      start_playlistCanBlockReloadLowLatency_requestBlockingReloadWithCorrectMediaSequenceAndPart()
+          throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8",
+              "/media0/playlist.m3u8",
+              "/media0/playlist.m3u8?_HLS_msn=14&_HLS_part=1"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_NEXT));
+
+    List<HlsMediaPlaylist> mediaPlaylists =
+        runPlaylistTrackerAndCollectMediaPlaylists(
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            /* awaitedMediaPlaylistCount= */ 2);
+
+    assertRequestUrlsCalled(httpUrls);
+    assertThat(mediaPlaylists.get(0).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(0).segments).hasSize(4);
+    assertThat(mediaPlaylists.get(0).trailingParts).hasSize(2);
+    assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(1).segments).hasSize(4);
+    assertThat(mediaPlaylists.get(1).trailingParts).hasSize(3);
+  }
+
+  @Test
+  public void start_playlistCanBlockReloadLowLatencyFullSegment_correctMsnAndPartParams()
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8",
+              "/media0/playlist.m3u8",
+              "/media0/playlist.m3u8?_HLS_msn=14&_HLS_part=0"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_NEXT));
+
+    List<HlsMediaPlaylist> mediaPlaylists =
+        runPlaylistTrackerAndCollectMediaPlaylists(
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            /* awaitedMediaPlaylistCount= */ 2);
+
+    assertRequestUrlsCalled(httpUrls);
+    assertThat(mediaPlaylists.get(0).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(0).segments).hasSize(4);
+    assertThat(mediaPlaylists.get(0).trailingParts).isEmpty();
+    assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(1).segments).hasSize(4);
+    assertThat(mediaPlaylists.get(1).trailingParts).hasSize(1);
+  }
+
+  @Test
+  public void start_playlistCanBlockReloadLowLatencyFullSegmentWithPreloadPart_ignoresPreloadPart()
+      throws IOException, TimeoutException, InterruptedException {
+    List<HttpUrl> httpUrls =
+        enqueueWebServerResponses(
+            new String[] {
+              "/master.m3u8",
+              "/media0/playlist.m3u8",
+              "/media0/playlist.m3u8?_HLS_msn=14&_HLS_part=0"
+            },
+            getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
+            getMockResponse(
+                SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_PRELOAD),
+            getMockResponse(
+                SAMPLE_M3U8_LIVE_MEDIA_CAN_BLOCK_RELOAD_LOW_LATENCY_FULL_SEGMENT_PRELOAD_NEXT));
+
+    List<HlsMediaPlaylist> mediaPlaylists =
+        runPlaylistTrackerAndCollectMediaPlaylists(
+            new DefaultHttpDataSourceFactory(),
+            Uri.parse(mockWebServer.url("/master.m3u8").toString()),
+            /* awaitedMediaPlaylistCount= */ 2);
+
+    assertRequestUrlsCalled(httpUrls);
+    assertThat(mediaPlaylists.get(0).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(0).segments).hasSize(4);
+    assertThat(mediaPlaylists.get(0).trailingParts).hasSize(1);
+    assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(10);
+    assertThat(mediaPlaylists.get(1).segments).hasSize(4);
+    assertThat(mediaPlaylists.get(1).trailingParts).hasSize(2);
+  }
+
+  @Test
   public void start_httpBadRequest_forcesFullNonBlockingPlaylistRequest()
       throws IOException, TimeoutException, InterruptedException {
     List<HttpUrl> httpUrls =
@@ -263,9 +368,9 @@ public class DefaultHlsPlaylistTrackerTest {
             new String[] {
               "/master.m3u8",
               "/media0/playlist.m3u8",
-              "/media0/playlist.m3u8?_HLS_skip=YES&_HLS_msn=16",
+              "/media0/playlist.m3u8?_HLS_msn=16&_HLS_skip=YES",
               "/media0/playlist.m3u8",
-              "/media0/playlist.m3u8?_HLS_skip=YES&_HLS_msn=17"
+              "/media0/playlist.m3u8?_HLS_msn=17&_HLS_skip=YES"
             },
             getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_AND_BLOCK_RELOAD),

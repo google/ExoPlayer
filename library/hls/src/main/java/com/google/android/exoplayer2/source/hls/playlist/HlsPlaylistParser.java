@@ -824,7 +824,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 byteRangeStart,
                 byteRangeLength,
                 /* hasGapTag= */ false,
-                /* isIndependent= */ false);
+                /* isIndependent= */ false,
+                /* isPreload= */ true);
       } else if (line.startsWith(TAG_PART)) {
         @Nullable
         String segmentEncryptionIV =
@@ -869,7 +870,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 partByteRangeOffset,
                 partByteRangeLength,
                 isGap,
-                isIndependent));
+                isIndependent,
+                /* isPreload= */ false));
         partStartTimeUs += partDurationUs;
         if (partByteRangeLength != C.LENGTH_UNSET) {
           partByteRangeOffset += partByteRangeLength;

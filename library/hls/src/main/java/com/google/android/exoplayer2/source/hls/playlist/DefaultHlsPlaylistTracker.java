@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Part;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -40,6 +41,7 @@ import com.google.android.exoplayer2.upstream.Loader.LoadErrorAction;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -465,6 +467,7 @@ public final class DefaultHlsPlaylistTracker
   private final class MediaPlaylistBundle implements Loader.Callback<ParsingLoadable<HlsPlaylist>> {
 
     private static final String BLOCK_MSN_PARAM = "_HLS_msn";
+    private static final String BLOCK_PART_PARAM = "_HLS_part";
     private static final String SKIP_PARAM = "_HLS_skip";
 
     private final Uri playlistUrl;
@@ -729,16 +732,25 @@ public final class DefaultHlsPlaylistTracker
         return playlistUrl;
       }
       Uri.Builder uriBuilder = playlistUrl.buildUpon();
-      if (playlistSnapshot.serverControl.skipUntilUs != C.TIME_UNSET) {
-        uriBuilder.appendQueryParameter(
-            SKIP_PARAM, playlistSnapshot.serverControl.canSkipDateRanges ? "v2" : "YES");
-      }
       if (playlistSnapshot.serverControl.canBlockReload) {
-        long reloadMediaSequence =
+        long targetMediaSequence =
             playlistSnapshot.mediaSequence
                 + playlistSnapshot.segments.size()
                 + playlistSnapshot.skippedSegmentCount;
-        uriBuilder.appendQueryParameter(BLOCK_MSN_PARAM, String.valueOf(reloadMediaSequence));
+        uriBuilder.appendQueryParameter(BLOCK_MSN_PARAM, String.valueOf(targetMediaSequence));
+        if (playlistSnapshot.partTargetDurationUs != C.TIME_UNSET) {
+          List<Part> trailingParts = playlistSnapshot.trailingParts;
+          int targetPartIndex = trailingParts.size();
+          if (!trailingParts.isEmpty() && Iterables.getLast(trailingParts).isPreload) {
+            // Ignore the preload part.
+            targetPartIndex--;
+          }
+          uriBuilder.appendQueryParameter(BLOCK_PART_PARAM, String.valueOf(targetPartIndex));
+        }
+      }
+      if (playlistSnapshot.serverControl.skipUntilUs != C.TIME_UNSET) {
+        uriBuilder.appendQueryParameter(
+            SKIP_PARAM, playlistSnapshot.serverControl.canSkipDateRanges ? "v2" : "YES");
       }
       return uriBuilder.build();
     }
