@@ -189,7 +189,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean released;
   private boolean pauseAtEndOfWindow;
   private boolean pendingPauseAtEndOfPeriod;
-  private boolean rebuffering;
+  private boolean isRebuffering;
   private boolean shouldContinueLoading;
   @Player.RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
@@ -733,7 +733,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfoUpdate.incrementPendingOperationAcks(operationAck ? 1 : 0);
     playbackInfoUpdate.setPlayWhenReadyChangeReason(reason);
     playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
-    rebuffering = false;
+    isRebuffering = false;
     if (!shouldPlayWhenReady()) {
       stopRenderers();
       updatePlaybackPositions();
@@ -811,7 +811,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void startRenderers() throws ExoPlaybackException {
-    rebuffering = false;
+    isRebuffering = false;
     mediaClock.start();
     for (Renderer renderer : renderers) {
       if (isRendererEnabled(renderer)) {
@@ -868,6 +868,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     // Adjust live playback speed to new position.
     if (playbackInfo.playWhenReady
+        && playbackInfo.playbackState == Player.STATE_READY
         && isCurrentPeriodInMovingLiveWindow()
         && playbackInfo.playbackParameters.speed == 1f) {
       float adjustedSpeed =
@@ -960,8 +961,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     } else if (playbackInfo.playbackState == Player.STATE_READY
         && !(enabledRendererCount == 0 ? isTimelineReady() : renderersAllowPlayback)) {
-      rebuffering = shouldPlayWhenReady();
+      isRebuffering = shouldPlayWhenReady();
       setState(Player.STATE_BUFFERING);
+      livePlaybackSpeedControl.notifyRebuffer();
       stopRenderers();
     }
 
@@ -1168,7 +1170,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean forceBufferingState)
       throws ExoPlaybackException {
     stopRenderers();
-    rebuffering = false;
+    isRebuffering = false;
     if (forceBufferingState || playbackInfo.playbackState == Player.STATE_READY) {
       setState(Player.STATE_BUFFERING);
     }
@@ -1311,7 +1313,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean releaseMediaSourceList,
       boolean resetError) {
     handler.removeMessages(MSG_DO_SOME_WORK);
-    rebuffering = false;
+    isRebuffering = false;
     mediaClock.stop();
     rendererPositionUs = 0;
     for (Renderer renderer : renderers) {
@@ -1701,7 +1703,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         || loadControl.shouldStartPlayback(
             getTotalBufferedDurationUs(),
             mediaClock.getPlaybackParameters().speed,
-            rebuffering,
+            isRebuffering,
             targetLiveOffsetUs);
   }
 

@@ -41,6 +41,14 @@ public interface LivePlaybackSpeedControl {
   void setTargetLiveOffsetOverrideUs(long liveOffsetUs);
 
   /**
+   * Notifies the live playback speed control that a rebuffer occurred.
+   *
+   * <p>A rebuffer is defined to be caused by buffer depletion rather than a user action. Hence this
+   * method is not called during initial or when buffering as a result of a seek operation.
+   */
+  void notifyRebuffer();
+
+  /**
    * Returns the adjusted playback speed in order get closer towards the {@link
    * #getTargetLiveOffsetUs() target live offset}.
    *
