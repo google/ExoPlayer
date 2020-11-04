@@ -11,9 +11,9 @@ The minimum Android versions required for core ExoPlayer use cases are:
 | DASH (no DRM) | 4.1 | 16 |
 | DASH (Widevine CENC; "cenc" scheme) | 4.4 | 19 |
 | DASH (Widevine CENC; "cbcs" scheme) | 7.1 | 25 |
-| DASH (ClearKey) | 5.0 | 21 |
+| DASH (ClearKey; "cenc" scheme) | 5.0 | 21 |
 | SmoothStreaming (no DRM) | 4.1 | 16 |
-| SmoothStreaming (PlayReady SL2000) | AndroidTV | AndroidTV |
+| SmoothStreaming (PlayReady SL2000; "cenc" scheme) | AndroidTV | AndroidTV |
 | HLS (no DRM) | 4.1 | 16 |
 | HLS (AES-128 encryption) | 4.1 | 16 |
 | HLS (Widevine CENC; "cenc" scheme) | 4.4 | 19 |

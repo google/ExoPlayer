@@ -10,8 +10,8 @@ with the streaming formats for which they're supported, are:
 |---------|:------------:|:------------:|:---------------------|
 | Widevine "cenc" | 4.4 | 19 | DASH, HLS (FMP4 only) |
 | Widevine "cbcs" | 7.1 | 25 | DASH, HLS (FMP4 only) |
-| ClearKey | 5.0 | 21 | DASH |
-| PlayReady SL2000 | AndroidTV | AndroidTV | DASH, SmoothStreaming, HLS (FMP4 only) |
+| ClearKey "cenc" | 5.0 | 21 | DASH |
+| PlayReady SL2000 "cenc" | AndroidTV | AndroidTV | DASH, SmoothStreaming, HLS (FMP4 only) |
 
 In order to play DRM protected content with ExoPlayer, the UUID of the DRM
 system and the license server URI should be specified

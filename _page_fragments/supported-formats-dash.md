@@ -19,6 +19,6 @@ also be supported (see the
 | **Metadata** |||
 | EMSG metadata | YES | Embedded in FMP4 |
 | **Content protection** |||
-| Widevine | YES | API 19+ ("cenc" scheme) and 25+ ("cbcs" scheme) |
-| PlayReady SL2000 | YES | Android TV only |
-| ClearKey | YES | API 21+ |
+| Widevine | YES | "cenc" scheme: API 19+; "cbcs" scheme: API 25+ |
+| PlayReady SL2000 | YES | Android TV, "cenc" scheme only |
+| ClearKey | YES | API 21+, "cenc" scheme only |
