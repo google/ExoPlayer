@@ -34,12 +34,14 @@ import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry.VariantInf
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Rendition;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Part;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.RenditionReport;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.Iterables;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,6 +96,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   private static final String TAG_GAP = "#EXT-X-GAP";
   private static final String TAG_SKIP = "#EXT-X-SKIP";
   private static final String TAG_PRELOAD_HINT = "#EXT-X-PRELOAD-HINT";
+  private static final String TAG_RENDITION_REPORT = "#EXT-X-RENDITION-REPORT";
 
   private static final String TYPE_AUDIO = "AUDIO";
   private static final String TYPE_VIDEO = "VIDEO";
@@ -155,6 +158,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       + ":([\\d\\.]+)\\b");
   private static final Pattern REGEX_MEDIA_TITLE =
       Pattern.compile(TAG_MEDIA_DURATION + ":[\\d\\.]+\\b,(.+)");
+  private static final Pattern REGEX_LAST_MSN = Pattern.compile("LAST-MSN" + "=(\\d+)\\b");
+  private static final Pattern REGEX_LAST_PART = Pattern.compile("LAST-PART" + "=(\\d+)\\b");
   private static final Pattern REGEX_TIME_OFFSET = Pattern.compile("TIME-OFFSET=(-?[\\d\\.]+)\\b");
   private static final Pattern REGEX_BYTERANGE = Pattern.compile(TAG_BYTERANGE
       + ":(\\d+(?:@\\d+)?)\\b");
@@ -600,12 +605,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     long partTargetDurationUs = C.TIME_UNSET;
     boolean hasIndependentSegmentsTag = masterPlaylist.hasIndependentSegments;
     boolean hasEndTag = false;
-    boolean seenPreloadPart = false;
     @Nullable Segment initializationSegment = null;
     HashMap<String, String> variableDefinitions = new HashMap<>();
     HashMap<String, Segment> urlToInferredInitSegment = new HashMap<>();
     List<Segment> segments = new ArrayList<>();
-    List<Part> parts = new ArrayList<>();
+    List<Part> trailingParts = new ArrayList<>();
+    @Nullable Part preloadPart = null;
+    Map<Uri, RenditionReport> renditionReports = new HashMap<>();
     List<String> tags = new ArrayList<>();
 
     long segmentDurationUs = 0;
@@ -769,7 +775,22 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         hasIndependentSegmentsTag = true;
       } else if (line.equals(TAG_ENDLIST)) {
         hasEndTag = true;
-      } else if (line.startsWith(TAG_PRELOAD_HINT) && !seenPreloadPart) {
+      } else if (line.startsWith(TAG_RENDITION_REPORT)) {
+        long defaultValue = mediaSequence + segments.size() - (trailingParts.isEmpty() ? 1 : 0);
+        long lastMediaSequence = parseOptionalLongAttr(line, REGEX_LAST_MSN, defaultValue);
+        List<Part> lastParts =
+            trailingParts.isEmpty() ? Iterables.getLast(segments).parts : trailingParts;
+        int defaultPartIndex =
+            partTargetDurationUs != C.TIME_UNSET ? lastParts.size() - 1 : C.INDEX_UNSET;
+        int lastPartIndex = parseOptionalIntAttr(line, REGEX_LAST_PART, defaultPartIndex);
+        String uri = parseStringAttr(line, REGEX_URI, variableDefinitions);
+        Uri playlistUri = Uri.parse(UriUtil.resolve(baseUri, uri));
+        renditionReports.put(
+            playlistUri, new RenditionReport(playlistUri, lastMediaSequence, lastPartIndex));
+      } else if (line.startsWith(TAG_PRELOAD_HINT)) {
+        if (preloadPart != null) {
+          continue;
+        }
         String type = parseStringAttr(line, REGEX_PRELOAD_HINT_TYPE, variableDefinitions);
         if (!TYPE_PART.equals(type)) {
           continue;
@@ -790,7 +811,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             playlistProtectionSchemes = getPlaylistProtectionSchemes(encryptionScheme, schemeDatas);
           }
         }
-        parts.add(
+        preloadPart =
             new Part(
                 url,
                 initializationSegment,
@@ -803,8 +824,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 byteRangeStart,
                 byteRangeLength,
                 /* hasGapTag= */ false,
-                /* isIndependent= */ false));
-        seenPreloadPart = true;
+                /* isIndependent= */ false);
       } else if (line.startsWith(TAG_PART)) {
         @Nullable
         String segmentEncryptionIV =
@@ -836,7 +856,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             playlistProtectionSchemes = getPlaylistProtectionSchemes(encryptionScheme, schemeDatas);
           }
         }
-        parts.add(
+        trailingParts.add(
             new Part(
                 url,
                 initializationSegment,
@@ -903,18 +923,22 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 segmentByteRangeOffset,
                 segmentByteRangeLength,
                 hasGapTag,
-                parts));
+                trailingParts));
         segmentStartTimeUs += segmentDurationUs;
         partStartTimeUs = segmentStartTimeUs;
         segmentDurationUs = 0;
         segmentTitle = "";
-        parts = new ArrayList<>();
+        trailingParts = new ArrayList<>();
         if (segmentByteRangeLength != C.LENGTH_UNSET) {
           segmentByteRangeOffset += segmentByteRangeLength;
         }
         segmentByteRangeLength = C.LENGTH_UNSET;
         hasGapTag = false;
       }
+    }
+
+    if (preloadPart != null) {
+      trailingParts.add(preloadPart);
     }
 
     return new HlsMediaPlaylist(
@@ -935,8 +959,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         playlistProtectionSchemes,
         segments,
         skippedSegmentCount,
-        parts,
-        serverControl);
+        trailingParts,
+        serverControl,
+        renditionReports);
   }
 
   private static DrmInitData getPlaylistProtectionSchemes(

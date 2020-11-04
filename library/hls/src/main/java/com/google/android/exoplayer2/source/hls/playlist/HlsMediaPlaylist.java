@@ -17,17 +17,20 @@ package com.google.android.exoplayer2.source.hls.playlist;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
+import android.net.Uri;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** Represents an HLS media playlist. */
 public final class HlsMediaPlaylist extends HlsPlaylist {
@@ -298,6 +301,36 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   }
 
   /**
+   * A rendition report for an alternative rendition defined in another media playlist.
+   *
+   * <p>See RFC 8216, section 4.4.5.1.4.
+   */
+  public static final class RenditionReport {
+    /** The URI of the media playlist of the reported rendition. */
+    public final Uri playlistUri;
+    /** The last media sequence that is in the playlist of the reported rendition. */
+    public final long lastMediaSequence;
+    /**
+     * The last part index that is in the playlist of the reported rendition, or {@link
+     * C#INDEX_UNSET} if the rendition does not contain partial segments.
+     */
+    public final int lastPartIndex;
+
+    /**
+     * Creates a new instance.
+     *
+     * @param playlistUri See {@link #playlistUri}.
+     * @param lastMediaSequence See {@link #lastMediaSequence}.
+     * @param lastPartIndex See {@link #lastPartIndex}.
+     */
+    public RenditionReport(Uri playlistUri, long lastMediaSequence, int lastPartIndex) {
+      this.playlistUri = playlistUri;
+      this.lastMediaSequence = lastMediaSequence;
+      this.lastPartIndex = lastPartIndex;
+    }
+  }
+
+  /**
    * Type of the playlist, as defined by #EXT-X-PLAYLIST-TYPE. One of {@link
    * #PLAYLIST_TYPE_UNKNOWN}, {@link #PLAYLIST_TYPE_VOD} or {@link #PLAYLIST_TYPE_EVENT}.
    */
@@ -372,6 +405,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * The list of parts at the end of the playlist for which the segment is not in the playlist yet.
    */
   public final List<Part> trailingParts;
+  /** The rendition reports of alternative rendition playlists. */
+  public final Map<Uri, RenditionReport> renditionReports;
   /** The total duration of the playlist in microseconds. */
   public final long durationUs;
   /** The attributes of the #EXT-X-SERVER-CONTROL header. */
@@ -396,6 +431,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    * @param skippedSegmentCount See {@link #skippedSegmentCount}.
    * @param trailingParts See {@link #trailingParts}.
    * @param serverControl See {@link #serverControl}
+   * @param renditionReports See {@link #renditionReports}.
    */
   public HlsMediaPlaylist(
       @PlaylistType int playlistType,
@@ -416,7 +452,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       List<Segment> segments,
       int skippedSegmentCount,
       List<Part> trailingParts,
-      ServerControl serverControl) {
+      ServerControl serverControl,
+      Map<Uri, RenditionReport> renditionReports) {
     super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
@@ -432,6 +469,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.segments = ImmutableList.copyOf(segments);
     this.skippedSegmentCount = skippedSegmentCount;
     this.trailingParts = ImmutableList.copyOf(trailingParts);
+    this.renditionReports = ImmutableMap.copyOf(renditionReports);
     if (!segments.isEmpty()) {
       Segment last = segments.get(segments.size() - 1);
       durationUs = last.relativeStartTimeUs + last.durationUs;
@@ -517,7 +555,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         mergedSegments,
         /* skippedSegmentCount= */ 0,
         trailingParts,
-        serverControl);
+        serverControl,
+        renditionReports);
   }
 
   /**
@@ -549,7 +588,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         segments,
         skippedSegmentCount,
         trailingParts,
-        serverControl);
+        serverControl,
+        renditionReports);
   }
 
   /**
@@ -579,7 +619,8 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         segments,
         skippedSegmentCount,
         trailingParts,
-        serverControl);
+        serverControl,
+        renditionReports);
   }
 
 }

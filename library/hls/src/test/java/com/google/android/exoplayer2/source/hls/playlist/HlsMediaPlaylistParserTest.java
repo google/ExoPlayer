@@ -637,6 +637,199 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
+  public void parseMediaPlaylist_withRenditionReportWithoutPartTargetDuration_lastPartIndexUnset()
+      throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-RENDITION-REPORT:URI=\"/rendition0.m3u8\",LAST-MSN=100\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.renditionReports).hasSize(1);
+    HlsMediaPlaylist.RenditionReport report0 =
+        playlist.renditionReports.get(Uri.parse("https://example.com/rendition0.m3u8"));
+    assertThat(report0.lastMediaSequence).isEqualTo(100);
+    assertThat(report0.lastPartIndex).isEqualTo(C.INDEX_UNSET);
+  }
+
+  @Test
+  public void
+      parseMediaPlaylist_withRenditionReportWithoutPartTargetDurationWithoutLastMsn_sameLastMsnAsCurrentPlaylist()
+          throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-RENDITION-REPORT:URI=\"/rendition0.m3u8\"\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.renditionReports).hasSize(1);
+    HlsMediaPlaylist.RenditionReport report0 =
+        playlist.renditionReports.get(Uri.parse("https://example.com/rendition0.m3u8"));
+    assertThat(report0.lastMediaSequence).isEqualTo(266);
+    assertThat(report0.lastPartIndex).isEqualTo(C.INDEX_UNSET);
+  }
+
+  @Test
+  public void parseMediaPlaylist_withRenditionReportLowLatency_parseAllAttributes()
+      throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-PART-INF:PART-TARGET=1\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-RENDITION-REPORT:URI=\"/rendition0.m3u8\",LAST-MSN=100,LAST-PART=2\n"
+            + "#EXT-X-RENDITION-REPORT:"
+            + "URI=\"http://foo.bar/rendition2.m3u8\",LAST-MSN=1000,LAST-PART=3\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.renditionReports).hasSize(2);
+    HlsMediaPlaylist.RenditionReport report0 =
+        playlist.renditionReports.get(Uri.parse("https://example.com/rendition0.m3u8"));
+    assertThat(report0.lastMediaSequence).isEqualTo(100);
+    assertThat(report0.lastPartIndex).isEqualTo(2);
+    HlsMediaPlaylist.RenditionReport report2 =
+        playlist.renditionReports.get(Uri.parse("http://foo.bar/rendition2.m3u8"));
+    assertThat(report2.lastMediaSequence).isEqualTo(1000);
+    assertThat(report2.lastPartIndex).isEqualTo(3);
+  }
+
+  @Test
+  public void
+      parseMediaPlaylist_withRenditionReportLowLatencyWithoutLastMsn_sameMsnAsCurrentPlaylist()
+          throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-PART-INF:PART-TARGET=1\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part267.0.ts\"\n"
+            + "#EXT-X-RENDITION-REPORT:URI=\"/rendition0.m3u8\",LAST-PART=2\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.renditionReports).hasSize(1);
+    HlsMediaPlaylist.RenditionReport report0 =
+        playlist.renditionReports.get(Uri.parse("https://example.com/rendition0.m3u8"));
+    assertThat(report0.lastMediaSequence).isEqualTo(267);
+    assertThat(report0.lastPartIndex).isEqualTo(2);
+  }
+
+  @Test
+  public void
+      parseMediaPlaylist_withRenditionReportLowLatencyWithoutLastPartIndex_sameLastPartIndexAsCurrentPlaylist()
+          throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-PART-INF:PART-TARGET=1\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part267.0.ts\"\n"
+            + "#EXT-X-RENDITION-REPORT:URI=\"/rendition0.m3u8\",LAST-MSN=100\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.renditionReports).hasSize(1);
+    HlsMediaPlaylist.RenditionReport report0 =
+        playlist.renditionReports.get(Uri.parse("https://example.com/rendition0.m3u8"));
+    assertThat(report0.lastMediaSequence).isEqualTo(100);
+    assertThat(report0.lastPartIndex).isEqualTo(0);
+  }
+
+  @Test
+  public void
+      parseMediaPlaylist_withRenditionReportLowLatencyWithoutLastPartIndex_ignoredPreloadPart()
+          throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-PART-INF:PART-TARGET=1\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part267.0.ts\"\n"
+            + "#EXT-X-PRELOAD-HINT:TYPE=PART,URI=\"filePart267.1.ts\"\n"
+            + "#EXT-X-RENDITION-REPORT:URI=\"/rendition0.m3u8\",LAST-MSN=100\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.trailingParts).hasSize(2);
+    assertThat(playlist.renditionReports).hasSize(1);
+    HlsMediaPlaylist.RenditionReport report0 =
+        playlist.renditionReports.get(Uri.parse("https://example.com/rendition0.m3u8"));
+    assertThat(report0.lastMediaSequence).isEqualTo(100);
+    assertThat(report0.lastPartIndex).isEqualTo(0);
+  }
+
+  @Test
+  public void parseMediaPlaylist_withRenditionReportLowLatencyFullSegment_rollingPartIndexUriParam()
+      throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-PART-INF:PART-TARGET=1\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part266.0.ts\"\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part266.1.ts\"\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part266.2.ts\"\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part266.3.ts\"\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-PRELOAD-HINT:TYPE=PART,URI=\"filePart267.0.ts\"\n"
+            + "#EXT-X-RENDITION-REPORT:URI=\"/rendition0.m3u8\"\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.renditionReports).hasSize(1);
+    HlsMediaPlaylist.RenditionReport report0 =
+        playlist.renditionReports.get(Uri.parse("https://example.com/rendition0.m3u8"));
+    assertThat(report0.lastMediaSequence).isEqualTo(266);
+    assertThat(report0.lastPartIndex).isEqualTo(3);
+  }
+
+  @Test
   public void multipleExtXKeysForSingleSegment() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =
