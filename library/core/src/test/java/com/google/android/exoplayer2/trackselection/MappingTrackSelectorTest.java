@@ -131,7 +131,7 @@ public final class MappingTrackSelectorTest {
 
   /**
    * A {@link MappingTrackSelector} that stashes the {@link MappedTrackInfo} passed to {@link
-   * #selectTracks(MappedTrackInfo, int[][][], int[])}.
+   * #selectTracks(MappedTrackInfo, int[][][], int[], MediaPeriodId, Timeline)}.
    */
   private static final class FakeMappingTrackSelector extends MappingTrackSelector {
 
@@ -141,8 +141,9 @@ public final class MappingTrackSelectorTest {
     protected Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
         MappedTrackInfo mappedTrackInfo,
         @Capabilities int[][][] rendererFormatSupports,
-        @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports)
-        throws ExoPlaybackException {
+        @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports,
+        MediaPeriodId mediaPeriodId,
+        Timeline timeline) {
       int rendererCount = mappedTrackInfo.getRendererCount();
       lastMappedTrackInfo = mappedTrackInfo;
       return Pair.create(
@@ -156,7 +157,6 @@ public final class MappingTrackSelectorTest {
         assertThat(rendererTrackGroupArray.get(i)).isEqualTo(expected[i]);
       }
     }
-
   }
 
   /**

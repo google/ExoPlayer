@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.trackselection;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
@@ -57,7 +59,10 @@ public final class FixedTrackSelection extends BaseTrackSelection {
 
     @Override
     public @NullableType TrackSelection[] createTrackSelections(
-        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+        @NullableType Definition[] definitions,
+        BandwidthMeter bandwidthMeter,
+        MediaPeriodId mediaPeriodId,
+        Timeline timeline) {
       return TrackSelectionUtil.createTrackSelectionsForDefinitions(
           definitions,
           definition ->

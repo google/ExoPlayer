@@ -355,7 +355,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
   public final TrackSelectorResult selectTracks(
       RendererCapabilities[] rendererCapabilities,
       TrackGroupArray trackGroups,
-      MediaPeriodId periodId,
+      MediaPeriodId mediaPeriodId,
       Timeline timeline)
       throws ExoPlaybackException {
     // Structures into which data will be written during the selection. The extra item at the end
@@ -431,7 +431,11 @@ public abstract class MappingTrackSelector extends TrackSelector {
 
     Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]> result =
         selectTracks(
-            mappedTrackInfo, rendererFormatSupports, rendererMixedMimeTypeAdaptationSupports);
+            mappedTrackInfo,
+            rendererFormatSupports,
+            rendererMixedMimeTypeAdaptationSupports,
+            mediaPeriodId,
+            timeline);
     return new TrackSelectorResult(result.first, result.second, mappedTrackInfo);
   }
 
@@ -443,6 +447,9 @@ public abstract class MappingTrackSelector extends TrackSelector {
    *     renderer, track group and track (in that order).
    * @param rendererMixedMimeTypeAdaptationSupport The {@link AdaptiveSupport} for mixed MIME type
    *     adaptation for the renderer.
+   * @param mediaPeriodId The {@link MediaPeriodId} of the period for which tracks are to be
+   *     selected.
+   * @param timeline The {@link Timeline} holding the period for which tracks are to be selected.
    * @return A pair consisting of the track selections and configurations for each renderer. A null
    *     configuration indicates the renderer should be disabled, in which case the track selection
    *     will also be null. A track selection may also be null for a non-disabled renderer if {@link
@@ -453,7 +460,9 @@ public abstract class MappingTrackSelector extends TrackSelector {
       selectTracks(
           MappedTrackInfo mappedTrackInfo,
           @Capabilities int[][][] rendererFormatSupports,
-          @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupport)
+          @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupport,
+          MediaPeriodId mediaPeriodId,
+          Timeline timeline)
           throws ExoPlaybackException;
 
   /**

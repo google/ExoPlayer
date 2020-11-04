@@ -25,6 +25,7 @@
         ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
+    *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
 *   UI:
     *   Show overflow button in `StyledPlayerControlView` only when there is not
         enough space.

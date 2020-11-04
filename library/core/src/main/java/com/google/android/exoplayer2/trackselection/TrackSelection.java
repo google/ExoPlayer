@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.trackselection;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
@@ -84,12 +86,18 @@ public interface TrackSelection {
      *
      * @param definitions A {@link Definition} array. May include null values.
      * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
+     * @param mediaPeriodId The {@link MediaPeriodId} of the period for which tracks are to be
+     *     selected.
+     * @param timeline The {@link Timeline} holding the period for which tracks are to be selected.
      * @return The created selections. Must have the same length as {@code definitions} and may
      *     include null values.
      */
     @NullableType
     TrackSelection[] createTrackSelections(
-        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter);
+        @NullableType Definition[] definitions,
+        BandwidthMeter bandwidthMeter,
+        MediaPeriodId mediaPeriodId,
+        Timeline timeline);
   }
 
   /**

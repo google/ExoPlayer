@@ -21,6 +21,8 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
@@ -129,7 +131,10 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     @Override
     public final @NullableType TrackSelection[] createTrackSelections(
-        @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+        @NullableType Definition[] definitions,
+        BandwidthMeter bandwidthMeter,
+        MediaPeriodId mediaPeriodId,
+        Timeline timeline) {
       TrackSelection[] selections = new TrackSelection[definitions.length];
       int totalFixedBandwidth = 0;
       for (int i = 0; i < definitions.length; i++) {

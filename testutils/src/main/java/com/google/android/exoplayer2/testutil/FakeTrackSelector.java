@@ -18,6 +18,8 @@ package com.google.android.exoplayer2.testutil;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -85,7 +87,10 @@ public class FakeTrackSelector extends DefaultTrackSelector {
 
     @Override
     public TrackSelection[] createTrackSelections(
-        TrackSelection.@NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+        TrackSelection.@NullableType Definition[] definitions,
+        BandwidthMeter bandwidthMeter,
+        MediaPeriodId mediaPeriodId,
+        Timeline timeline) {
       TrackSelection[] selections = new TrackSelection[definitions.length];
       for (int i = 0; i < definitions.length; i++) {
         TrackSelection.Definition definition = definitions[i];

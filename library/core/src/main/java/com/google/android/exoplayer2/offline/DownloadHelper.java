@@ -1070,7 +1070,10 @@ public final class DownloadHelper {
 
       @Override
       public @NullableType TrackSelection[] createTrackSelections(
-          @NullableType Definition[] definitions, BandwidthMeter bandwidthMeter) {
+          @NullableType Definition[] definitions,
+          BandwidthMeter bandwidthMeter,
+          MediaPeriodId mediaPeriodId,
+          Timeline timeline) {
         @NullableType TrackSelection[] selections = new TrackSelection[definitions.length];
         for (int i = 0; i < definitions.length; i++) {
           selections[i] =
