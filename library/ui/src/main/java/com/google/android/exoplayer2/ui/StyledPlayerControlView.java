@@ -1920,7 +1920,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private class SettingViewHolder extends RecyclerView.ViewHolder {
+  private final class SettingViewHolder extends RecyclerView.ViewHolder {
     private final TextView mainTextView;
     private final TextView subTextView;
     private final ImageView iconView;
@@ -1930,8 +1930,7 @@ public class StyledPlayerControlView extends FrameLayout {
       mainTextView = itemView.findViewById(R.id.exo_main_text);
       subTextView = itemView.findViewById(R.id.exo_sub_text);
       iconView = itemView.findViewById(R.id.exo_icon);
-      itemView.setOnClickListener(
-          v -> onSettingViewClicked(SettingViewHolder.this.getAdapterPosition()));
+      itemView.setOnClickListener(v -> onSettingViewClicked(getAdapterPosition()));
     }
   }
 
@@ -1969,7 +1968,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private class SubSettingViewHolder extends RecyclerView.ViewHolder {
+  private final class SubSettingViewHolder extends RecyclerView.ViewHolder {
     private final TextView textView;
     private final View checkView;
 
@@ -1977,8 +1976,7 @@ public class StyledPlayerControlView extends FrameLayout {
       super(itemView);
       textView = itemView.findViewById(R.id.exo_text);
       checkView = itemView.findViewById(R.id.exo_check);
-      itemView.setOnClickListener(
-          v -> onSubSettingViewClicked(SubSettingViewHolder.this.getAdapterPosition()));
+      itemView.setOnClickListener(v -> onSubSettingViewClicked(getAdapterPosition()));
     }
   }
 
