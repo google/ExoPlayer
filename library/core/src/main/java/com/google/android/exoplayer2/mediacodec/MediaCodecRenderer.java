@@ -321,6 +321,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean codecNeedsSosFlushWorkaround;
   private boolean codecNeedsEosFlushWorkaround;
   private boolean codecNeedsEosOutputExceptionWorkaround;
+  private boolean codecNeedsEosBufferTimestampWorkaround;
   private boolean codecNeedsMonoChannelCountWorkaround;
   private boolean codecNeedsAdaptationWorkaroundBuffer;
   private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
@@ -898,6 +899,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsSosFlushWorkaround = false;
     codecNeedsEosFlushWorkaround = false;
     codecNeedsEosOutputExceptionWorkaround = false;
+    codecNeedsEosBufferTimestampWorkaround = false;
     codecNeedsMonoChannelCountWorkaround = false;
     codecNeedsEosPropagation = false;
     codecReconfigured = false;
@@ -1089,6 +1091,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsSosFlushWorkaround = codecNeedsSosFlushWorkaround(codecName);
     codecNeedsEosFlushWorkaround = codecNeedsEosFlushWorkaround(codecName);
     codecNeedsEosOutputExceptionWorkaround = codecNeedsEosOutputExceptionWorkaround(codecName);
+    codecNeedsEosBufferTimestampWorkaround = codecNeedsEosBufferTimestampWorkaround(codecName);
     codecNeedsMonoChannelCountWorkaround =
         codecNeedsMonoChannelCountWorkaround(codecName, codecInputFormat);
     codecNeedsEosPropagation =
@@ -1746,6 +1749,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         outputBuffer.position(outputBufferInfo.offset);
         outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
       }
+      if (codecNeedsEosBufferTimestampWorkaround
+          && outputBufferInfo.presentationTimeUs == 0
+          && (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0
+          && largestQueuedPresentationTimeUs != C.TIME_UNSET) {
+        outputBufferInfo.presentationTimeUs = largestQueuedPresentationTimeUs;
+      }
       isDecodeOnlyOutputBuffer = isDecodeOnlyBuffer(outputBufferInfo.presentationTimeUs);
       isLastOutputBuffer =
           lastBufferInStreamPresentationTimeUs == outputBufferInfo.presentationTimeUs;
@@ -1926,18 +1935,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected final void setPendingOutputEndOfStream() {
     pendingOutputEndOfStream = true;
-  }
-
-  /** Returns the largest queued input presentation time, in microseconds. */
-  protected final long getLargestQueuedPresentationTimeUs() {
-    return largestQueuedPresentationTimeUs;
-  }
-
-  /**
-   * Returns the start position of the output {@link SampleStream}, in renderer time microseconds.
-   */
-  protected final long getOutputStreamStartPositionUs() {
-    return outputStreamStartPositionUs;
   }
 
   /**
@@ -2273,6 +2270,23 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
+   * Returns whether the decoder is known to behave incorrectly if flushed prior to having output a
+   * {@link MediaFormat}.
+   *
+   * <p>If true is returned, the renderer will work around the issue by instantiating a new decoder
+   * when this case occurs.
+   *
+   * <p>See [Internal: b/141097367].
+   *
+   * @param name The name of the decoder.
+   * @return True if the decoder is known to behave incorrectly if flushed prior to having output a
+   *     {@link MediaFormat}. False otherwise.
+   */
+  private static boolean codecNeedsSosFlushWorkaround(String name) {
+    return Util.SDK_INT == 29 && "c2.android.aac.decoder".equals(name);
+  }
+
+  /**
    * Returns whether the decoder is known to handle the propagation of the {@link
    * MediaCodec#BUFFER_FLAG_END_OF_STREAM} flag incorrectly on the host device.
    *
@@ -2316,12 +2330,30 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Returns whether the decoder may throw an {@link IllegalStateException} from
-   * {@link MediaCodec#dequeueOutputBuffer(MediaCodec.BufferInfo, long)} or
-   * {@link MediaCodec#releaseOutputBuffer(int, boolean)} after receiving an input
-   * buffer with {@link MediaCodec#BUFFER_FLAG_END_OF_STREAM} set.
-   * <p>
-   * See [Internal: b/17933838].
+   * Returns whether the decoder may output a non-empty buffer with timestamp 0 as the end of stream
+   * buffer.
+   *
+   * <p>See <a href="https://github.com/google/ExoPlayer/issues/5045">GitHub issue #5045</a>.
+   */
+  private static boolean codecNeedsEosBufferTimestampWorkaround(String codecName) {
+    return Util.SDK_INT < 21
+        && "OMX.SEC.mp3.dec".equals(codecName)
+        && "samsung".equals(Util.MANUFACTURER)
+        && (Util.DEVICE.startsWith("baffin")
+            || Util.DEVICE.startsWith("grand")
+            || Util.DEVICE.startsWith("fortuna")
+            || Util.DEVICE.startsWith("gprimelte")
+            || Util.DEVICE.startsWith("j2y18lte")
+            || Util.DEVICE.startsWith("ms01"));
+  }
+
+  /**
+   * Returns whether the decoder may throw an {@link IllegalStateException} from {@link
+   * MediaCodec#dequeueOutputBuffer(MediaCodec.BufferInfo, long)} or {@link
+   * MediaCodec#releaseOutputBuffer(int, boolean)} after receiving an input buffer with {@link
+   * MediaCodec#BUFFER_FLAG_END_OF_STREAM} set.
+   *
+   * <p>See [Internal: b/17933838].
    *
    * @param name The name of the decoder.
    * @return True if the decoder may throw an exception after receiving an end-of-stream buffer.
@@ -2347,22 +2379,5 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private static boolean codecNeedsMonoChannelCountWorkaround(String name, Format format) {
     return Util.SDK_INT <= 18 && format.channelCount == 1
         && "OMX.MTK.AUDIO.DECODER.MP3".equals(name);
-  }
-
-  /**
-   * Returns whether the decoder is known to behave incorrectly if flushed prior to having output a
-   * {@link MediaFormat}.
-   *
-   * <p>If true is returned, the renderer will work around the issue by instantiating a new decoder
-   * when this case occurs.
-   *
-   * <p>See [Internal: b/141097367].
-   *
-   * @param name The name of the decoder.
-   * @return True if the decoder is known to behave incorrectly if flushed prior to having output a
-   *     {@link MediaFormat}. False otherwise.
-   */
-  private static boolean codecNeedsSosFlushWorkaround(String name) {
-    return Util.SDK_INT == 29 && "c2.android.aac.decoder".equals(name);
   }
 }

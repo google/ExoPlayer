@@ -94,7 +94,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   private int codecMaxInputSize;
   private boolean codecNeedsDiscardChannelsWorkaround;
-  private boolean codecNeedsEosBufferTimestampWorkaround;
   /** Codec used for DRM decryption only in passthrough and offload. */
   @Nullable private Format decryptOnlyCodecFormat;
 
@@ -318,7 +317,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       float codecOperatingRate) {
     codecMaxInputSize = getCodecMaxInputSize(codecInfo, format, getStreamFormats());
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
-    codecNeedsEosBufferTimestampWorkaround = codecNeedsEosBufferTimestampWorkaround(codecInfo.name);
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
     codecAdapter.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
@@ -571,13 +569,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       Format format)
       throws ExoPlaybackException {
     checkNotNull(buffer);
-    if (codec != null
-        && codecNeedsEosBufferTimestampWorkaround
-        && bufferPresentationTimeUs == 0
-        && (bufferFlags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0
-        && getLargestQueuedPresentationTimeUs() != C.TIME_UNSET) {
-      bufferPresentationTimeUs = getLargestQueuedPresentationTimeUs();
-    }
 
     if (decryptOnlyCodecFormat != null
         && (bufferFlags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
@@ -780,24 +771,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         && (Util.DEVICE.startsWith("zeroflte")
             || Util.DEVICE.startsWith("herolte")
             || Util.DEVICE.startsWith("heroqlte"));
-  }
-
-  /**
-   * Returns whether the decoder may output a non-empty buffer with timestamp 0 as the end of stream
-   * buffer.
-   *
-   * <p>See <a href="https://github.com/google/ExoPlayer/issues/5045">GitHub issue #5045</a>.
-   */
-  private static boolean codecNeedsEosBufferTimestampWorkaround(String codecName) {
-    return Util.SDK_INT < 21
-        && "OMX.SEC.mp3.dec".equals(codecName)
-        && "samsung".equals(Util.MANUFACTURER)
-        && (Util.DEVICE.startsWith("baffin")
-            || Util.DEVICE.startsWith("grand")
-            || Util.DEVICE.startsWith("fortuna")
-            || Util.DEVICE.startsWith("gprimelte")
-            || Util.DEVICE.startsWith("j2y18lte")
-            || Util.DEVICE.startsWith("ms01"));
   }
 
   private final class AudioSinkListener implements AudioSink.Listener {
