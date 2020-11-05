@@ -683,7 +683,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codec != null
         && codecDrainAction != DRAIN_ACTION_REINITIALIZE
         && getState() != STATE_DISABLED) {
-      updateCodecOperatingRate();
+      updateOperatingRateOrReinitializeCodec(codecInputFormat);
     }
   }
 
@@ -1416,33 +1416,42 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         drainAndReinitializeCodec();
         break;
       case KEEP_CODEC_RESULT_YES_WITH_FLUSH:
-        codecInputFormat = newFormat;
-        updateCodecOperatingRate();
-        if (drainAndUpdateCodecDrmSession) {
-          drainAndUpdateCodecDrmSessionV23();
+        if (updateOperatingRateOrReinitializeCodec(newFormat)) {
+          // Codec re-initialization triggered.
         } else {
-          drainAndFlushCodec();
+          codecInputFormat = newFormat;
+          if (drainAndUpdateCodecDrmSession) {
+            drainAndUpdateCodecDrmSessionV23();
+          } else {
+            drainAndFlushCodec();
+          }
         }
         break;
       case KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION:
-        codecReconfigured = true;
-        codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
-        codecNeedsAdaptationWorkaroundBuffer =
-            codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
-                || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
-                    && newFormat.width == codecInputFormat.width
-                    && newFormat.height == codecInputFormat.height);
-        codecInputFormat = newFormat;
-        updateCodecOperatingRate();
-        if (drainAndUpdateCodecDrmSession) {
-          drainAndUpdateCodecDrmSessionV23();
+        if (updateOperatingRateOrReinitializeCodec(newFormat)) {
+          // Codec re-initialization triggered.
+        } else {
+          codecReconfigured = true;
+          codecReconfigurationState = RECONFIGURATION_STATE_WRITE_PENDING;
+          codecNeedsAdaptationWorkaroundBuffer =
+              codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_ALWAYS
+                  || (codecAdaptationWorkaroundMode == ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION
+                      && newFormat.width == codecInputFormat.width
+                      && newFormat.height == codecInputFormat.height);
+          codecInputFormat = newFormat;
+          if (drainAndUpdateCodecDrmSession) {
+            drainAndUpdateCodecDrmSessionV23();
+          }
         }
         break;
       case KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION:
-        codecInputFormat = newFormat;
-        updateCodecOperatingRate();
-        if (drainAndUpdateCodecDrmSession) {
-          drainAndUpdateCodecDrmSessionV23();
+        if (updateOperatingRateOrReinitializeCodec(newFormat)) {
+          // Codec re-initialization triggered.
+        } else {
+          codecInputFormat = newFormat;
+          if (drainAndUpdateCodecDrmSession) {
+            drainAndUpdateCodecDrmSessionV23();
+          }
         }
         break;
       default:
@@ -1598,23 +1607,30 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Updates the codec operating rate.
+   * Updates the codec operating rate, or triggers codec release and re-initialization if a
+   * previously set operating rate needs to be cleared.
    *
+   * @param format The {@link Format} for which the operating rate should be configured.
    * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
+   * @return Whether codec release and re-initialization was triggered, rather than the existing
+   *     codec being updated.
    */
-  private void updateCodecOperatingRate() throws ExoPlaybackException {
+  private boolean updateOperatingRateOrReinitializeCodec(Format format)
+      throws ExoPlaybackException {
     if (Util.SDK_INT < 23) {
-      return;
+      return false;
     }
 
     float newCodecOperatingRate =
-        getCodecOperatingRateV23(playbackSpeed, codecInputFormat, getStreamFormats());
+        getCodecOperatingRateV23(playbackSpeed, format, getStreamFormats());
     if (codecOperatingRate == newCodecOperatingRate) {
       // No change.
+      return false;
     } else if (newCodecOperatingRate == CODEC_OPERATING_RATE_UNSET) {
       // The only way to clear the operating rate is to instantiate a new codec instance. See
       // [Internal ref: b/111543954].
       drainAndReinitializeCodec();
+      return true;
     } else if (codecOperatingRate != CODEC_OPERATING_RATE_UNSET
         || newCodecOperatingRate > assumedMinimumCodecOperatingRate) {
       // We need to set the operating rate, either because we've set it previously or because it's
@@ -1623,7 +1639,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecParameters.putFloat(MediaFormat.KEY_OPERATING_RATE, newCodecOperatingRate);
       codec.setParameters(codecParameters);
       codecOperatingRate = newCodecOperatingRate;
+      return false;
     }
+
+    return false;
   }
 
   /** Starts draining the codec for flush. */
