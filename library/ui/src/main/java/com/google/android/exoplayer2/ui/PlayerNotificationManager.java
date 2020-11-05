@@ -610,10 +610,12 @@ public class PlayerNotificationManager {
     controlDispatcher = new DefaultControlDispatcher();
     window = new Timeline.Window();
     instanceId = instanceIdCounter++;
-    //noinspection Convert2MethodRef
-    mainHandler =
-        Util.createHandler(
-            Looper.getMainLooper(), msg -> PlayerNotificationManager.this.handleMessage(msg));
+    // This fails the nullness checker because handleMessage() is 'called' while `this` is still
+    // @UnderInitialization. No tasks are scheduled on mainHandler before the constructor completes,
+    // so this is safe and we can suppress the warning.
+    @SuppressWarnings("nullness:methodref.receiver.bound.invalid")
+    Handler mainHandler = Util.createHandler(Looper.getMainLooper(), this::handleMessage);
+    this.mainHandler = mainHandler;
     notificationManager = NotificationManagerCompat.from(context);
     playerListener = new PlayerListener();
     notificationBroadcastReceiver = new NotificationBroadcastReceiver();
