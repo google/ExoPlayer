@@ -4349,7 +4349,8 @@ public final class ExoPlayerTest {
   public void addMediaSource_whilePlayingAd_correctMasking() throws Exception {
     long contentDurationMs = 10_000;
     long adDurationMs = 100_000;
-    AdPlaybackState adPlaybackState = new AdPlaybackState(/* adGroupTimesUs...= */ 0);
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0);
     adPlaybackState = adPlaybackState.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1);
     adPlaybackState =
         adPlaybackState.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.EMPTY);
@@ -4455,7 +4456,8 @@ public final class ExoPlayerTest {
   public void seekTo_whilePlayingAd_correctMasking() throws Exception {
     long contentDurationMs = 10_000;
     long adDurationMs = 4_000;
-    AdPlaybackState adPlaybackState = new AdPlaybackState(/* adGroupTimesUs...= */ 0);
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0);
     adPlaybackState = adPlaybackState.withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1);
     adPlaybackState =
         adPlaybackState.withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.EMPTY);

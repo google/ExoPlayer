@@ -258,7 +258,18 @@ public final class AdPlaybackState {
   public static final int AD_STATE_ERROR = 4;
 
   /** Ad playback state with no ads. */
-  public static final AdPlaybackState NONE = new AdPlaybackState();
+  public static final AdPlaybackState NONE =
+      new AdPlaybackState(
+          /* adsId= */ null,
+          /* adGroupTimesUs= */ new long[0],
+          /* adGroups= */ null,
+          /* adResumePositionUs= */ 0L,
+          /* contentDurationUs= */ C.TIME_UNSET);
+
+  /**
+   * The opaque identifier for ads with which this instance is associated, or {@code null} if unset.
+   */
+  @Nullable public final Object adsId;
 
   /** The number of ad groups. */
   public final int adGroupCount;
@@ -280,29 +291,38 @@ public final class AdPlaybackState {
   /**
    * Creates a new ad playback state with the specified ad group times.
    *
+   * @param adsId The opaque identifier for ads with which this instance is associated.
    * @param adGroupTimesUs The times of ad groups in microseconds, relative to the start of the
    *     {@link com.google.android.exoplayer2.Timeline.Period} they belong to. A final element with
    *     the value {@link C#TIME_END_OF_SOURCE} indicates that there is a postroll ad.
    */
-  public AdPlaybackState(long... adGroupTimesUs) {
-    int count = adGroupTimesUs.length;
-    adGroupCount = count;
-    this.adGroupTimesUs = Arrays.copyOf(adGroupTimesUs, count);
-    this.adGroups = new AdGroup[count];
-    for (int i = 0; i < count; i++) {
-      adGroups[i] = new AdGroup();
-    }
-    adResumePositionUs = 0;
-    contentDurationUs = C.TIME_UNSET;
+  public AdPlaybackState(Object adsId, long... adGroupTimesUs) {
+    this(
+        adsId,
+        adGroupTimesUs,
+        /* adGroups= */ null,
+        /* adResumePositionUs= */ 0,
+        /* contentDurationUs= */ C.TIME_UNSET);
   }
 
   private AdPlaybackState(
-      long[] adGroupTimesUs, AdGroup[] adGroups, long adResumePositionUs, long contentDurationUs) {
-    adGroupCount = adGroups.length;
+      @Nullable Object adsId,
+      long[] adGroupTimesUs,
+      @Nullable AdGroup[] adGroups,
+      long adResumePositionUs,
+      long contentDurationUs) {
+    this.adsId = adsId;
     this.adGroupTimesUs = adGroupTimesUs;
-    this.adGroups = adGroups;
     this.adResumePositionUs = adResumePositionUs;
     this.contentDurationUs = contentDurationUs;
+    adGroupCount = adGroupTimesUs.length;
+    if (adGroups == null) {
+      adGroups = new AdGroup[adGroupCount];
+      for (int i = 0; i < adGroupCount; i++) {
+        adGroups[i] = new AdGroup();
+      }
+    }
+    this.adGroups = adGroups;
   }
 
   /**
@@ -378,7 +398,8 @@ public final class AdPlaybackState {
     }
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = this.adGroups[adGroupIndex].withAdCount(adCount);
-    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /** Returns an instance with the specified ad URI. */
@@ -386,7 +407,8 @@ public final class AdPlaybackState {
   public AdPlaybackState withAdUri(int adGroupIndex, int adIndexInAdGroup, Uri uri) {
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdUri(uri, adIndexInAdGroup);
-    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /** Returns an instance with the specified ad marked as played. */
@@ -394,7 +416,8 @@ public final class AdPlaybackState {
   public AdPlaybackState withPlayedAd(int adGroupIndex, int adIndexInAdGroup) {
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_PLAYED, adIndexInAdGroup);
-    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /** Returns an instance with the specified ad marked as skipped. */
@@ -402,7 +425,8 @@ public final class AdPlaybackState {
   public AdPlaybackState withSkippedAd(int adGroupIndex, int adIndexInAdGroup) {
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_SKIPPED, adIndexInAdGroup);
-    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /** Returns an instance with the specified ad marked as having a load error. */
@@ -410,7 +434,8 @@ public final class AdPlaybackState {
   public AdPlaybackState withAdLoadError(int adGroupIndex, int adIndexInAdGroup) {
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdState(AD_STATE_ERROR, adIndexInAdGroup);
-    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /**
@@ -421,7 +446,8 @@ public final class AdPlaybackState {
   public AdPlaybackState withSkippedAdGroup(int adGroupIndex) {
     AdGroup[] adGroups = Util.nullSafeArrayCopy(this.adGroups, this.adGroups.length);
     adGroups[adGroupIndex] = adGroups[adGroupIndex].withAllAdsSkipped();
-    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /** Returns an instance with the specified ad durations, in microseconds. */
@@ -431,7 +457,8 @@ public final class AdPlaybackState {
     for (int adGroupIndex = 0; adGroupIndex < adGroupCount; adGroupIndex++) {
       adGroups[adGroupIndex] = adGroups[adGroupIndex].withAdDurationsUs(adDurationUs[adGroupIndex]);
     }
-    return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+    return new AdPlaybackState(
+        adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
   }
 
   /**
@@ -443,7 +470,8 @@ public final class AdPlaybackState {
     if (this.adResumePositionUs == adResumePositionUs) {
       return this;
     } else {
-      return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+      return new AdPlaybackState(
+          adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
     }
   }
 
@@ -453,7 +481,8 @@ public final class AdPlaybackState {
     if (this.contentDurationUs == contentDurationUs) {
       return this;
     } else {
-      return new AdPlaybackState(adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
+      return new AdPlaybackState(
+          adsId, adGroupTimesUs, adGroups, adResumePositionUs, contentDurationUs);
     }
   }
 
@@ -466,7 +495,8 @@ public final class AdPlaybackState {
       return false;
     }
     AdPlaybackState that = (AdPlaybackState) o;
-    return adGroupCount == that.adGroupCount
+    return Util.areEqual(adsId, that.adsId)
+        && adGroupCount == that.adGroupCount
         && adResumePositionUs == that.adResumePositionUs
         && contentDurationUs == that.contentDurationUs
         && Arrays.equals(adGroupTimesUs, that.adGroupTimesUs)
@@ -476,6 +506,7 @@ public final class AdPlaybackState {
   @Override
   public int hashCode() {
     int result = adGroupCount;
+    result = 31 * result + (adsId == null ? 0 : adsId.hashCode());
     result = 31 * result + (int) adResumePositionUs;
     result = 31 * result + (int) contentDurationUs;
     result = 31 * result + Arrays.hashCode(adGroupTimesUs);
@@ -486,7 +517,9 @@ public final class AdPlaybackState {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("AdPlaybackState(adResumePositionUs=");
+    sb.append("AdPlaybackState(adsId=");
+    sb.append(adsId);
+    sb.append(", adResumePositionUs=");
     sb.append(adResumePositionUs);
     sb.append(", adGroups=[");
     for (int i = 0; i < adGroups.length; i++) {

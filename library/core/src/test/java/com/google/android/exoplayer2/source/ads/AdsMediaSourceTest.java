@@ -77,7 +77,7 @@ public final class AdsMediaSourceTest {
       CONTENT_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
   private static final AdPlaybackState AD_PLAYBACK_STATE =
-      new AdPlaybackState(/* adGroupTimesUs...= */ 0)
+      new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0)
           .withContentDurationUs(CONTENT_DURATION_US)
           .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
           .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.EMPTY)

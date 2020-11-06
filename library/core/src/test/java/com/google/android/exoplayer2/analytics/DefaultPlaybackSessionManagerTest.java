@@ -419,7 +419,9 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
-                        /* adGroupTimesUs=... */ 2 * C.MICROS_PER_SECOND, 5 * C.MICROS_PER_SECOND)
+                        /* adsId= */ new Object(),
+                        /* adGroupTimesUs=... */ 2 * C.MICROS_PER_SECOND,
+                        5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =
@@ -701,7 +703,8 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                new AdPlaybackState(/* adGroupTimesUs=... */ C.TIME_END_OF_SOURCE)
+                new AdPlaybackState(
+                        /* adsId= */ new Object(), /* adGroupTimesUs=... */ C.TIME_END_OF_SOURCE)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)));
     EventTime adEventTime =
         createEventTime(
@@ -903,7 +906,10 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                new AdPlaybackState(/* adGroupTimesUs=... */ 0, 5 * C.MICROS_PER_SECOND)
+                new AdPlaybackState(
+                        /* adsId= */ new Object(), /* adGroupTimesUs=... */
+                        0,
+                        5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =
@@ -983,7 +989,9 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
-                        /* adGroupTimesUs=... */ 2 * C.MICROS_PER_SECOND, 5 * C.MICROS_PER_SECOND)
+                        /* adsId= */ new Object(), /* adGroupTimesUs=... */
+                        2 * C.MICROS_PER_SECOND,
+                        5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =
@@ -1032,7 +1040,10 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
                 /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
-                new AdPlaybackState(/* adGroupTimesUs=... */ 0, 5 * C.MICROS_PER_SECOND)
+                new AdPlaybackState(
+                        /* adsId= */ new Object(), /* adGroupTimesUs=... */
+                        0,
+                        5 * C.MICROS_PER_SECOND)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                     .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 1)));
     EventTime adEventTime1 =

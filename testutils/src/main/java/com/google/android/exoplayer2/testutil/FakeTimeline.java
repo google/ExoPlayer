@@ -246,7 +246,8 @@ public final class FakeTimeline extends Timeline {
    */
   public static AdPlaybackState createAdPlaybackState(int adsPerAdGroup, long... adGroupTimesUs) {
     int adGroupCount = adGroupTimesUs.length;
-    AdPlaybackState adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ new Object(), adGroupTimesUs);
     long[][] adDurationsUs = new long[adGroupCount][];
     for (int i = 0; i < adGroupCount; i++) {
       adPlaybackState = adPlaybackState.withAdCount(/* adGroupIndex= */ i, adsPerAdGroup);

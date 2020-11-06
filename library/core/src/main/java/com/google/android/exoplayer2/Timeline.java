@@ -519,9 +519,13 @@ public abstract class Timeline {
       return positionInWindowUs;
     }
 
-    /**
-     * Returns the number of ad groups in the period.
-     */
+    /** Returns the opaque identifier for ads played with this period, or {@code null} if unset. */
+    @Nullable
+    public Object getAdsId() {
+      return adPlaybackState.adsId;
+    }
+
+    /** Returns the number of ad groups in the period. */
     public int getAdGroupCount() {
       return adPlaybackState.adGroupCount;
     }

@@ -404,7 +404,8 @@ public final class MediaPeriodQueueTest {
 
   private void setupAdTimeline(long... adGroupTimesUs) {
     adPlaybackState =
-        new AdPlaybackState(adGroupTimesUs).withContentDurationUs(CONTENT_DURATION_US);
+        new AdPlaybackState(/* adsId= */ new Object(), adGroupTimesUs)
+            .withContentDurationUs(CONTENT_DURATION_US);
     SinglePeriodAdTimeline adTimeline =
         new SinglePeriodAdTimeline(CONTENT_TIMELINE, adPlaybackState);
     setupTimeline(adTimeline);
@@ -498,7 +499,8 @@ public final class MediaPeriodQueueTest {
 
   private void updateAdPlaybackStateAndTimeline(long... adGroupTimesUs) {
     adPlaybackState =
-        new AdPlaybackState(adGroupTimesUs).withContentDurationUs(CONTENT_DURATION_US);
+        new AdPlaybackState(/* adsId= */ new Object(), adGroupTimesUs)
+            .withContentDurationUs(CONTENT_DURATION_US);
     updateTimeline();
   }
 

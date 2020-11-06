@@ -36,7 +36,6 @@ import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader.OverlayInfo;
 import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -154,15 +153,14 @@ import java.util.Set;
   }
 
   /**
-   * Returns an initial {@link AdPlaybackState} with ad groups at the provided {@code cuePoints}.
+   * Returns the microsecond ad group timestamps corresponding to the specified cue points.
    *
-   * @param cuePoints The cue points of the ads in seconds.
-   * @return The {@link AdPlaybackState}.
+   * @param cuePoints The cue points of the ads in seconds, provided by the IMA SDK.
+   * @return The corresponding microsecond ad group timestamps.
    */
-  public static AdPlaybackState getInitialAdPlaybackStateForCuePoints(List<Float> cuePoints) {
+  public static long[] getAdGroupTimesUsForCuePoints(List<Float> cuePoints) {
     if (cuePoints.isEmpty()) {
-      // If no cue points are specified, there is a preroll ad.
-      return new AdPlaybackState(/* adGroupTimesUs...= */ 0);
+      return new long[] {0L};
     }
 
     int count = cuePoints.size();
@@ -178,7 +176,7 @@ import java.util.Set;
     }
     // Cue points may be out of order, so sort them.
     Arrays.sort(adGroupTimesUs, 0, adGroupIndex);
-    return new AdPlaybackState(adGroupTimesUs);
+    return adGroupTimesUs;
   }
 
   /** Returns an {@link AdsRequest} based on the specified ad tag {@link DataSpec}. */

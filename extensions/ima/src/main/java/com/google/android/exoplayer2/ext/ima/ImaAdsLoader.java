@@ -417,14 +417,21 @@ public final class ImaAdsLoader
    *
    * @param adTagDataSpec The data specification of the ad tag to load. See class javadoc for
    *     information about compatible ad tag formats.
+   * @param adsId A opaque identifier for the ad playback state across start/stop calls.
    * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI, or {@code
    *     null} if playing audio-only ads.
    */
-  public void requestAds(DataSpec adTagDataSpec, @Nullable ViewGroup adViewGroup) {
+  public void requestAds(DataSpec adTagDataSpec, Object adsId, @Nullable ViewGroup adViewGroup) {
     if (adTagLoader == null) {
       adTagLoader =
           new AdTagLoader(
-              context, configuration, imaFactory, supportedMimeTypes, adTagDataSpec, adViewGroup);
+              context,
+              configuration,
+              imaFactory,
+              supportedMimeTypes,
+              adTagDataSpec,
+              adsId,
+              adViewGroup);
     }
   }
 
@@ -488,7 +495,7 @@ public final class ImaAdsLoader
       return;
     }
     if (adTagLoader == null) {
-      requestAds(adTagDataSpec, adViewProvider.getAdViewGroup());
+      requestAds(adTagDataSpec, adsId, adViewProvider.getAdViewGroup());
     }
     checkNotNull(adTagLoader).start(player, adViewProvider, eventListener);
   }

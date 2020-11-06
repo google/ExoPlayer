@@ -128,6 +128,7 @@ import java.util.Map;
   private final ImaUtil.ImaFactory imaFactory;
   private final List<String> supportedMimeTypes;
   private final DataSpec adTagDataSpec;
+  private final Object adsId;
   private final Timeline.Period period;
   private final Handler handler;
   private final ComponentListener componentListener;
@@ -146,7 +147,6 @@ import java.util.Map;
 
   @Nullable private AdsManager adsManager;
   private boolean isAdsManagerInitialized;
-  private boolean hasAdPlaybackState;
   @Nullable private AdLoadException pendingAdLoadError;
   private Timeline timeline;
   private long contentDurationMs;
@@ -214,6 +214,7 @@ import java.util.Map;
       ImaUtil.ImaFactory imaFactory,
       List<String> supportedMimeTypes,
       DataSpec adTagDataSpec,
+      Object adsId,
       @Nullable ViewGroup adViewGroup) {
     this.configuration = configuration;
     this.imaFactory = imaFactory;
@@ -228,6 +229,7 @@ import java.util.Map;
     imaSdkSettings.setPlayerVersion(IMA_SDK_SETTINGS_PLAYER_VERSION);
     this.supportedMimeTypes = supportedMimeTypes;
     this.adTagDataSpec = adTagDataSpec;
+    this.adsId = adsId;
     period = new Timeline.Period();
     handler = Util.createHandler(getImaLooper(), /* callback= */ null);
     componentListener = new ComponentListener();
@@ -286,14 +288,16 @@ import java.util.Map;
     lastAdProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     lastContentProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     maybeNotifyPendingAdLoadError();
-    if (hasAdPlaybackState) {
+    if (!AdPlaybackState.NONE.equals(adPlaybackState)) {
       // Pass the ad playback state to the player, and resume ads if necessary.
       eventListener.onAdPlaybackState(adPlaybackState);
       if (adsManager != null && imaPausedContent && playWhenReady) {
         adsManager.resume();
       }
     } else if (adsManager != null) {
-      adPlaybackState = ImaUtil.getInitialAdPlaybackStateForCuePoints(adsManager.getAdCuePoints());
+      adPlaybackState =
+          new AdPlaybackState(
+              adsId, ImaUtil.getAdGroupTimesUsForCuePoints(adsManager.getAdCuePoints()));
       updateAdPlaybackState();
     }
     if (adDisplayContainer != null) {
@@ -348,8 +352,7 @@ import java.util.Map;
     stopUpdatingAdProgress();
     imaAdInfo = null;
     pendingAdLoadError = null;
-    adPlaybackState = AdPlaybackState.NONE;
-    hasAdPlaybackState = true;
+    adPlaybackState = new AdPlaybackState(adsId);
     updateAdPlaybackState();
   }
 
@@ -496,7 +499,7 @@ import java.util.Map;
     try {
       request = ImaUtil.getAdsRequestForAdTagDataSpec(imaFactory, adTagDataSpec);
     } catch (IOException e) {
-      hasAdPlaybackState = true;
+      adPlaybackState = new AdPlaybackState(adsId);
       updateAdPlaybackState();
       pendingAdLoadError = AdLoadException.createForAllAds(e);
       maybeNotifyPendingAdLoadError();
@@ -1215,8 +1218,8 @@ import java.util.Map;
         // If a player is attached already, start playback immediately.
         try {
           adPlaybackState =
-              ImaUtil.getInitialAdPlaybackStateForCuePoints(adsManager.getAdCuePoints());
-          hasAdPlaybackState = true;
+              new AdPlaybackState(
+                  adsId, ImaUtil.getAdGroupTimesUsForCuePoints(adsManager.getAdCuePoints()));
           updateAdPlaybackState();
         } catch (RuntimeException e) {
           maybeNotifyInternalError("onAdsManagerLoaded", e);
@@ -1276,8 +1279,7 @@ import java.util.Map;
       if (adsManager == null) {
         // No ads were loaded, so allow playback to start without any ads.
         pendingAdRequestContext = null;
-        adPlaybackState = AdPlaybackState.NONE;
-        hasAdPlaybackState = true;
+        adPlaybackState = new AdPlaybackState(adsId);
         updateAdPlaybackState();
       } else if (ImaUtil.isAdGroupLoadError(error)) {
         try {

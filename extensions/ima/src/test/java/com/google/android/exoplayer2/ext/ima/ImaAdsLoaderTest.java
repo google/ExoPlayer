@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.ima;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static com.google.android.exoplayer2.ext.ima.ImaUtil.getAdGroupTimesUsForCuePoints;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -226,7 +227,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs...= */ 0)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -242,7 +243,7 @@ public final class ImaAdsLoaderTest {
   public void startAndCallbacksAfterRelease() {
     setupPlayback(CONTENT_TIMELINE, PREROLL_CUE_POINTS_SECONDS);
     // Request ads in order to get a reference to the ad event listener.
-    imaAdsLoader.requestAds(TEST_DATA_SPEC, adViewGroup);
+    imaAdsLoader.requestAds(TEST_DATA_SPEC, TEST_ADS_ID, adViewGroup);
     imaAdsLoader.release();
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
@@ -253,7 +254,7 @@ public final class ImaAdsLoaderTest {
     // Note: we can't currently call getContentProgress/getAdProgress as a VerifyError is thrown
     // when using Robolectric and accessing VideoProgressUpdate.VIDEO_TIME_NOT_READY, due to the IMA
     // SDK being proguarded.
-    imaAdsLoader.requestAds(TEST_DATA_SPEC, adViewGroup);
+    imaAdsLoader.requestAds(TEST_DATA_SPEC, TEST_ADS_ID, adViewGroup);
     adEventListener.onAdEvent(getAdEvent(AdEventType.LOADED, mockPrerollSingleAd));
     videoAdPlayer.loadAd(TEST_AD_MEDIA_INFO, mockAdPodInfo);
     adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, mockPrerollSingleAd));
@@ -300,7 +301,7 @@ public final class ImaAdsLoaderTest {
     // Verify that the preroll ad has been marked as played.
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs...= */ 0)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
@@ -324,7 +325,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs...= */ 20_500_000)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 20_500_000)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -372,7 +373,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            new AdPlaybackState(/* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE)
+            new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -400,7 +401,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -425,7 +426,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
@@ -448,7 +449,7 @@ public final class ImaAdsLoaderTest {
     verify(mockAdsRenderingSettings, never()).setPlayAdsAfterTime(anyDouble());
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -473,7 +474,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -499,7 +500,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -527,7 +528,7 @@ public final class ImaAdsLoaderTest {
     verify(mockAdsRenderingSettings, never()).setPlayAdsAfterTime(anyDouble());
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
 
@@ -559,7 +560,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -594,7 +595,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
@@ -629,7 +630,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -659,7 +660,7 @@ public final class ImaAdsLoaderTest {
     verify(mockAdsManager).destroy();
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
                 .withSkippedAdGroup(/* adGroupIndex= */ 1));
@@ -703,7 +704,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
   }
@@ -745,7 +746,7 @@ public final class ImaAdsLoaderTest {
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withSkippedAdGroup(/* adGroupIndex= */ 0));
   }
@@ -835,7 +836,7 @@ public final class ImaAdsLoaderTest {
     setupPlayback(CONTENT_TIMELINE, PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
-    imaAdsLoader.requestAds(TEST_DATA_SPEC, adViewGroup);
+    imaAdsLoader.requestAds(TEST_DATA_SPEC, TEST_ADS_ID, adViewGroup);
     imaAdsLoader.stop(adsMediaSource);
 
     InOrder inOrder = inOrder(mockAdDisplayContainer);
@@ -887,7 +888,7 @@ public final class ImaAdsLoaderTest {
 
     assertThat(adsLoaderListener.adPlaybackState)
         .isEqualTo(
-            ImaUtil.getInitialAdPlaybackStateForCuePoints(cuePoints)
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
                 .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
                 .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
