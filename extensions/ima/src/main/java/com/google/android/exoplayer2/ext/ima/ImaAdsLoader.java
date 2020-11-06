@@ -494,7 +494,7 @@ public final class ImaAdsLoader
   }
 
   @Override
-  public void stop() {
+  public void stop(AdsMediaSource adsMediaSource) {
     if (player != null && adTagLoader != null) {
       adTagLoader.stop();
     }
@@ -508,14 +508,19 @@ public final class ImaAdsLoader
   }
 
   @Override
-  public void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup) {
+  public void handlePrepareComplete(
+      AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup) {
     if (adTagLoader != null) {
       adTagLoader.handlePrepareComplete(adGroupIndex, adIndexInAdGroup);
     }
   }
 
   @Override
-  public void handlePrepareError(int adGroupIndex, int adIndexInAdGroup, IOException exception) {
+  public void handlePrepareError(
+      AdsMediaSource adsMediaSource,
+      int adGroupIndex,
+      int adIndexInAdGroup,
+      IOException exception) {
     if (adTagLoader != null) {
       adTagLoader.handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
     }

@@ -259,7 +259,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     contentTimeline = null;
     adPlaybackState = null;
     adMediaSourceHolders = new AdMediaSourceHolder[0][];
-    mainHandler.post(adsLoader::stop);
+    mainHandler.post(() -> adsLoader.stop(/* adsMediaSource= */ this));
   }
 
   @Override
@@ -385,7 +385,9 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       mainHandler.post(
           () ->
               adsLoader.handlePrepareComplete(
-                  mediaPeriodId.adGroupIndex, mediaPeriodId.adIndexInAdGroup));
+                  /* adsMediaSource= */ AdsMediaSource.this,
+                  mediaPeriodId.adGroupIndex,
+                  mediaPeriodId.adIndexInAdGroup));
     }
 
     @Override
@@ -402,7 +404,10 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       mainHandler.post(
           () ->
               adsLoader.handlePrepareError(
-                  mediaPeriodId.adGroupIndex, mediaPeriodId.adIndexInAdGroup, exception));
+                  /* adsMediaSource= */ AdsMediaSource.this,
+                  mediaPeriodId.adGroupIndex,
+                  mediaPeriodId.adIndexInAdGroup,
+                  exception));
     }
   }
 

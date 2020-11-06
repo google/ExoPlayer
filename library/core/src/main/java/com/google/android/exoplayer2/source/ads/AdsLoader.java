@@ -40,10 +40,10 @@ import java.util.List;
  *
  * <p>{@link #start(AdsMediaSource, DataSpec, Object, AdViewProvider, EventListener)} will be called
  * when an ads media source first initializes, at which point the loader can request ads. If the
- * player enters the background, {@link #stop()} will be called. Loaders should maintain any ad
- * playback state in preparation for a later call to {@link #start(AdsMediaSource, DataSpec, Object,
- * AdViewProvider, EventListener)}. If an ad is playing when the player is detached, update the ad
- * playback state with the current playback position using {@link
+ * player enters the background, {@link #stop(AdsMediaSource)} will be called. Loaders should
+ * maintain any ad playback state in preparation for a later call to {@link #start(AdsMediaSource,
+ * DataSpec, Object, AdViewProvider, EventListener)}. If an ad is playing when the player is
+ * detached, update the ad playback state with the current playback position using {@link
  * AdPlaybackState#withAdResumePositionUs(long)}.
  *
  * <p>If {@link EventListener#onAdPlaybackState(AdPlaybackState)} has been called, the
@@ -218,26 +218,31 @@ public interface AdsLoader {
   /**
    * Stops using the ads loader for playback and deregisters the event listener. Called on the main
    * thread by {@link AdsMediaSource}.
+   *
+   * @param adsMediaSource The ads media source requesting to stop loading/playing ads.
    */
-  void stop();
+  void stop(AdsMediaSource adsMediaSource);
 
   /**
    * Notifies the ads loader that preparation of an ad media period is complete. Called on the main
    * thread by {@link AdsMediaSource}.
    *
+   * @param adsMediaSource The ads media source for which preparation of ad media completed.
    * @param adGroupIndex The index of the ad group.
    * @param adIndexInAdGroup The index of the ad in the ad group.
    */
-  void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup);
+  void handlePrepareComplete(AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup);
 
   /**
    * Notifies the ads loader that the player was not able to prepare media for a given ad.
    * Implementations should update the ad playback state as the specified ad has failed to load.
    * Called on the main thread by {@link AdsMediaSource}.
    *
+   * @param adsMediaSource The ads media source for which preparation of ad media failed.
    * @param adGroupIndex The index of the ad group.
    * @param adIndexInAdGroup The index of the ad in the ad group.
    * @param exception The preparation error.
    */
-  void handlePrepareError(int adGroupIndex, int adIndexInAdGroup, IOException exception);
+  void handlePrepareError(
+      AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup, IOException exception);
 }

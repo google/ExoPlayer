@@ -265,7 +265,7 @@ public final class ImaAdsLoaderTest {
     imaAdsLoader.onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
     adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
     imaAdsLoader.handlePrepareError(
-        /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, new IOException());
+        adsMediaSource, /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, new IOException());
   }
 
   @Test
@@ -836,7 +836,7 @@ public final class ImaAdsLoaderTest {
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
     imaAdsLoader.requestAds(TEST_DATA_SPEC, adViewGroup);
-    imaAdsLoader.stop();
+    imaAdsLoader.stop(adsMediaSource);
 
     InOrder inOrder = inOrder(mockAdDisplayContainer);
     inOrder.verify(mockAdDisplayContainer).registerFriendlyObstruction(mockFriendlyObstruction);

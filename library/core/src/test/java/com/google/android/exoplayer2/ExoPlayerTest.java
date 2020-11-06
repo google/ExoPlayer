@@ -9029,13 +9029,18 @@ public final class ExoPlayerTest {
         AdsLoader.EventListener eventListener) {}
 
     @Override
-    public void stop() {}
+    public void stop(AdsMediaSource adsMediaSource) {}
 
     @Override
-    public void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup) {}
+    public void handlePrepareComplete(
+        AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup) {}
 
     @Override
-    public void handlePrepareError(int adGroupIndex, int adIndexInAdGroup, IOException exception) {}
+    public void handlePrepareError(
+        AdsMediaSource adsMediaSource,
+        int adGroupIndex,
+        int adIndexInAdGroup,
+        IOException exception) {}
   }
 
   private static class FakeAdViewProvider implements AdsLoader.AdViewProvider {
