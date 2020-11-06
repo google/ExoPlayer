@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
 
 /**
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in asynchronous mode,
@@ -120,6 +121,18 @@ import java.lang.annotation.RetentionPolicy;
   @Override
   public MediaFormat getOutputFormat() {
     return asynchronousMediaCodecCallback.getOutputFormat();
+  }
+
+  @Override
+  @Nullable
+  public ByteBuffer getInputBuffer(int index) {
+    return codec.getInputBuffer(index);
+  }
+
+  @Override
+  @Nullable
+  public ByteBuffer getOutputBuffer(int index) {
+    return codec.getOutputBuffer(index);
   }
 
   @Override

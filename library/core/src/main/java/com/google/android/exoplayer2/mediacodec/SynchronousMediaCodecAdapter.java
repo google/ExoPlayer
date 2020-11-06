@@ -16,12 +16,16 @@
 
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
+import com.google.android.exoplayer2.util.Util;
+import java.nio.ByteBuffer;
 
 /**
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in synchronous mode.
@@ -29,6 +33,8 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 /* package */ final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
 
   private final MediaCodec codec;
+  @Nullable private ByteBuffer[] inputByteBuffers;
+  @Nullable private ByteBuffer[] outputByteBuffers;
 
   public SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
     this.codec = mediaCodec;
@@ -46,6 +52,10 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
   @Override
   public void start() {
     codec.start();
+    if (Util.SDK_INT < 21) {
+      inputByteBuffers = codec.getInputBuffers();
+      outputByteBuffers = codec.getOutputBuffers();
+    }
   }
 
   @Override
@@ -55,12 +65,40 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
 
   @Override
   public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
-    return codec.dequeueOutputBuffer(bufferInfo, 0);
+    int index;
+    do {
+      index = codec.dequeueOutputBuffer(bufferInfo, 0);
+      if (index == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED && Util.SDK_INT < 21) {
+        outputByteBuffers = codec.getOutputBuffers();
+      }
+    } while (index == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED);
+
+    return index;
   }
 
   @Override
   public MediaFormat getOutputFormat() {
     return codec.getOutputFormat();
+  }
+
+  @Override
+  @Nullable
+  public ByteBuffer getInputBuffer(int index) {
+    if (Util.SDK_INT >= 21) {
+      return codec.getInputBuffer(index);
+    } else {
+      return castNonNull(inputByteBuffers)[index];
+    }
+  }
+
+  @Override
+  @Nullable
+  public ByteBuffer getOutputBuffer(int index) {
+    if (Util.SDK_INT >= 21) {
+      return codec.getOutputBuffer(index);
+    } else {
+      return castNonNull(outputByteBuffers)[index];
+    }
   }
 
   @Override
@@ -82,7 +120,10 @@ import com.google.android.exoplayer2.decoder.CryptoInfo;
   }
 
   @Override
-  public void shutdown() {}
+  public void shutdown() {
+    inputByteBuffers = null;
+    outputByteBuffers = null;
+  }
 
   @Override
   public MediaCodec getCodec() {

@@ -327,8 +327,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
   private boolean codecNeedsEosPropagation;
   @Nullable private C2Mp3TimestampTracker c2Mp3TimestampTracker;
-  private ByteBuffer[] inputBuffers;
-  private ByteBuffer[] outputBuffers;
   private long codecHotswapDeadlineMs;
   private int inputIndex;
   private int outputIndex;
@@ -909,7 +907,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     codecNeedsEosPropagation = false;
     codecReconfigured = false;
     codecReconfigurationState = RECONFIGURATION_STATE_NONE;
-    resetCodecBuffers();
     mediaCryptoRequiresSecureDecoder = false;
   }
 
@@ -1072,13 +1069,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecAdapter.start();
       TraceUtil.endSection();
       codecInitializedTimestamp = SystemClock.elapsedRealtime();
-      getCodecBuffers(codec);
     } catch (Exception e) {
       if (codecAdapter != null) {
         codecAdapter.shutdown();
       }
       if (codec != null) {
-        resetCodecBuffers();
         codec.release();
       }
       throw e;
@@ -1119,37 +1114,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         || SystemClock.elapsedRealtime() - renderStartTimeMs < renderTimeLimitMs;
   }
 
-  private void getCodecBuffers(MediaCodec codec) {
-    if (Util.SDK_INT < 21) {
-      inputBuffers = codec.getInputBuffers();
-      outputBuffers = codec.getOutputBuffers();
-    }
-  }
-
-  private void resetCodecBuffers() {
-    if (Util.SDK_INT < 21) {
-      inputBuffers = null;
-      outputBuffers = null;
-    }
-  }
-
-  private ByteBuffer getInputBuffer(int inputIndex) {
-    if (Util.SDK_INT >= 21) {
-      return codec.getInputBuffer(inputIndex);
-    } else {
-      return inputBuffers[inputIndex];
-    }
-  }
-
-  @Nullable
-  private ByteBuffer getOutputBuffer(int outputIndex) {
-    if (Util.SDK_INT >= 21) {
-      return codec.getOutputBuffer(outputIndex);
-    } else {
-      return outputBuffers[outputIndex];
-    }
-  }
-
   private boolean hasOutputBuffer() {
     return outputIndex >= 0;
   }
@@ -1188,7 +1152,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (inputIndex < 0) {
         return false;
       }
-      buffer.data = getInputBuffer(inputIndex);
+      buffer.data = codecAdapter.getInputBuffer(inputIndex);
       buffer.clear();
     }
 
@@ -1729,9 +1693,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         if (outputIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED /* (-2) */) {
           processOutputMediaFormatChanged();
           return true;
-        } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED /* (-3) */) {
-          processOutputBuffersChanged();
-          return true;
         }
         /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */
         if (codecNeedsEosPropagation
@@ -1754,7 +1715,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
 
       this.outputIndex = outputIndex;
-      outputBuffer = getOutputBuffer(outputIndex);
+      outputBuffer = codecAdapter.getOutputBuffer(outputIndex);
 
       // The dequeued buffer is a media buffer. Do some initial setup.
       // It will be processed by calling processOutputBuffer (possibly multiple times).
@@ -1844,15 +1805,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
     codecOutputMediaFormat = mediaFormat;
     codecOutputMediaFormatChanged = true;
-  }
-
-  /**
-   * Processes a change in the output buffers.
-   */
-  private void processOutputBuffersChanged() {
-    if (Util.SDK_INT < 21) {
-      outputBuffers = codec.getOutputBuffers();
-    }
   }
 
   /**

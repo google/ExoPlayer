@@ -22,6 +22,7 @@ import android.media.MediaFormat;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
+import java.nio.ByteBuffer;
 
 /**
  * Abstracts {@link MediaCodec} operations.
@@ -76,6 +77,22 @@ public interface MediaCodecAdapter {
    * MediaCodec#INFO_OUTPUT_FORMAT_CHANGED}.
    */
   MediaFormat getOutputFormat();
+
+  /**
+   * Returns a writable ByteBuffer object for a dequeued input buffer index.
+   *
+   * @see MediaCodec#getInputBuffer(int)
+   */
+  @Nullable
+  ByteBuffer getInputBuffer(int index);
+
+  /**
+   * Returns a read-only ByteBuffer for a dequeued output buffer index.
+   *
+   * @see MediaCodec#getOutputBuffer(int)
+   */
+  @Nullable
+  ByteBuffer getOutputBuffer(int index);
 
   /**
    * Submit an input buffer for decoding.
