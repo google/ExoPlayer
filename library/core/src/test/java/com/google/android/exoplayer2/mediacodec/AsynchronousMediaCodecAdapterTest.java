@@ -52,8 +52,7 @@ public class AsynchronousMediaCodecAdapterTest {
 
   @After
   public void tearDown() {
-    adapter.shutdown();
-    codec.release();
+    adapter.release();
   }
 
   @Test
@@ -106,7 +105,7 @@ public class AsynchronousMediaCodecAdapterTest {
     // non-empty adapter.
     shadowOf(callbackThread.getLooper()).idle();
 
-    adapter.shutdown();
+    adapter.release();
 
     assertThat(adapter.dequeueInputBufferIndex()).isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);
   }
@@ -183,7 +182,7 @@ public class AsynchronousMediaCodecAdapterTest {
     adapter.queueInputBuffer(index, 0, 0, 0, 0);
     // Progress the looper so that the ShadowMediaCodec processes the input buffer.
     shadowLooper.idle();
-    adapter.shutdown();
+    adapter.release();
 
     assertThat(adapter.dequeueOutputBufferIndex(bufferInfo))
         .isEqualTo(MediaCodec.INFO_TRY_AGAIN_LATER);

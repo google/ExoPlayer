@@ -719,7 +719,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void releaseCodec() {
     try {
       if (codecAdapter != null) {
-        codecAdapter.shutdown();
+        codecAdapter.release();
       }
       if (codec != null) {
         decoderCounters.decoderReleaseCount++;
@@ -1071,7 +1071,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecInitializedTimestamp = SystemClock.elapsedRealtime();
     } catch (Exception e) {
       if (codecAdapter != null) {
-        codecAdapter.shutdown();
+        codecAdapter.release();
       }
       if (codec != null) {
         codec.release();

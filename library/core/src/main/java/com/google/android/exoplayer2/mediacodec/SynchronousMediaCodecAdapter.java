@@ -21,8 +21,12 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
+import android.os.Bundle;
+import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.Renderer.VideoScalingMode;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -115,12 +119,23 @@ import java.nio.ByteBuffer;
   }
 
   @Override
+  public void releaseOutputBuffer(int index, boolean render) {
+    codec.releaseOutputBuffer(index, render);
+  }
+
+  @Override
+  @RequiresApi(21)
+  public void releaseOutputBuffer(int index, long renderTimeStampNs) {
+    codec.releaseOutputBuffer(index, renderTimeStampNs);
+  }
+
+  @Override
   public void flush() {
     codec.flush();
   }
 
   @Override
-  public void shutdown() {
+  public void release() {
     inputByteBuffers = null;
     outputByteBuffers = null;
   }
@@ -128,5 +143,32 @@ import java.nio.ByteBuffer;
   @Override
   public MediaCodec getCodec() {
     return codec;
+  }
+
+  @Override
+  @RequiresApi(23)
+  public void setOnFrameRenderedListener(OnFrameRenderedListener listener, Handler handler) {
+    codec.setOnFrameRenderedListener(
+        (codec, presentationTimeUs, nanoTime) ->
+            listener.onFrameRendered(
+                SynchronousMediaCodecAdapter.this, presentationTimeUs, nanoTime),
+        handler);
+  }
+
+  @Override
+  @RequiresApi(23)
+  public void setOutputSurface(Surface surface) {
+    codec.setOutputSurface(surface);
+  }
+
+  @Override
+  @RequiresApi(19)
+  public void setParameters(Bundle params) {
+    codec.setParameters(params);
+  }
+
+  @Override
+  public void setVideoScalingMode(@VideoScalingMode int scalingMode) {
+    codec.setVideoScalingMode(scalingMode);
   }
 }
