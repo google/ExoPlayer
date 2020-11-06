@@ -31,7 +31,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
 import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
-import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
@@ -46,6 +45,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -61,8 +61,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * {@link com.google.android.exoplayer2.source.ads.AdsLoader} using the IMA SDK. All methods must be
- * called on the main thread.
+ * {@link AdsLoader} using the IMA SDK. All methods must be called on the main thread.
  *
  * <p>The player instance that will play the loaded ads must be set before playback using {@link
  * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
@@ -83,8 +82,7 @@ import java.util.Set;
  * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">IMA
  * SDK Open Measurement documentation</a> for more information.
  */
-public final class ImaAdsLoader
-    implements Player.EventListener, com.google.android.exoplayer2.source.ads.AdsLoader {
+public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -154,8 +152,8 @@ public final class ImaAdsLoader
 
     /**
      * Sets a listener for ad errors that will be passed to {@link
-     * AdsLoader#addAdErrorListener(AdErrorListener)} and {@link
-     * AdsManager#addAdErrorListener(AdErrorListener)}.
+     * com.google.ads.interactivemedia.v3.api.AdsLoader#addAdErrorListener(AdErrorListener)} and
+     * {@link AdsManager#addAdErrorListener(AdErrorListener)}.
      *
      * @param adErrorListener The ad error listener.
      * @return This builder, for convenience.
@@ -384,11 +382,11 @@ public final class ImaAdsLoader
   }
 
   /**
-   * Returns the underlying {@link AdsLoader} wrapped by this instance, or {@code null} if ads have
-   * not been requested yet.
+   * Returns the underlying {@link com.google.ads.interactivemedia.v3.api.AdsLoader} wrapped by this
+   * instance, or {@code null} if ads have not been requested yet.
    */
   @Nullable
-  public AdsLoader getAdsLoader() {
+  public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
     return adTagLoader != null ? adTagLoader.getAdsLoader() : null;
   }
 
@@ -400,8 +398,8 @@ public final class ImaAdsLoader
    * AdDisplayContainer#registerFriendlyObstruction(FriendlyObstruction)} will be unregistered
    * automatically when the media source detaches from this instance. It is therefore necessary to
    * re-register views each time the ads loader is reused. Alternatively, provide overlay views via
-   * the {@link com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider} when creating the
-   * media source to benefit from automatic registration.
+   * the {@link AdViewProvider} when creating the media source to benefit from automatic
+   * registration.
    */
   @Nullable
   public AdDisplayContainer getAdDisplayContainer() {
@@ -448,7 +446,7 @@ public final class ImaAdsLoader
     }
   }
 
-  // com.google.android.exoplayer2.source.ads.AdsLoader implementation.
+  // AdsLoader implementation.
 
   @Override
   public void setPlayer(@Nullable Player player) {
@@ -576,7 +574,7 @@ public final class ImaAdsLoader
     }
 
     @Override
-    public AdsLoader createAdsLoader(
+    public com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer) {
       return ImaSdkFactory.getInstance()
           .createAdsLoader(context, imaSdkSettings, adDisplayContainer);

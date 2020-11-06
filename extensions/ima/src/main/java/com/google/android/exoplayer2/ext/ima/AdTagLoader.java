@@ -152,6 +152,8 @@ import java.util.Map;
   private long contentDurationMs;
   private AdPlaybackState adPlaybackState;
 
+  private boolean released;
+
   // Fields tracking IMA's state.
 
   /** Whether IMA has sent an ad event to pause content since the last resume content event. */
@@ -300,14 +302,12 @@ import java.util.Map;
               adsId, ImaUtil.getAdGroupTimesUsForCuePoints(adsManager.getAdCuePoints()));
       updateAdPlaybackState();
     }
-    if (adDisplayContainer != null) {
-      for (OverlayInfo overlayInfo : adViewProvider.getAdOverlayInfos()) {
-        adDisplayContainer.registerFriendlyObstruction(
-            imaFactory.createFriendlyObstruction(
-                overlayInfo.view,
-                ImaUtil.getFriendlyObstructionPurpose(overlayInfo.purpose),
-                overlayInfo.reasonDetail));
-      }
+    for (OverlayInfo overlayInfo : adViewProvider.getAdOverlayInfos()) {
+      adDisplayContainer.registerFriendlyObstruction(
+          imaFactory.createFriendlyObstruction(
+              overlayInfo.view,
+              ImaUtil.getFriendlyObstructionPurpose(overlayInfo.purpose),
+              overlayInfo.reasonDetail));
     }
   }
 
@@ -326,9 +326,7 @@ import java.util.Map;
     lastVolumePercent = getPlayerVolumePercent();
     lastAdProgress = getAdVideoProgressUpdate();
     lastContentProgress = getContentVideoProgressUpdate();
-    if (adDisplayContainer != null) {
-      adDisplayContainer.unregisterAllFriendlyObstructions();
-    }
+    adDisplayContainer.unregisterAllFriendlyObstructions();
     player.removeListener(this);
     this.player = null;
     eventListener = null;
@@ -336,16 +334,18 @@ import java.util.Map;
 
   /** Releases all resources used by the ad tag loader. */
   public void release() {
+    if (released) {
+      return;
+    }
+    released = true;
     pendingAdRequestContext = null;
     destroyAdsManager();
-    if (adsLoader != null) {
-      adsLoader.removeAdsLoadedListener(componentListener);
-      adsLoader.removeAdErrorListener(componentListener);
-      if (configuration.applicationAdErrorListener != null) {
-        adsLoader.removeAdErrorListener(configuration.applicationAdErrorListener);
-      }
-      adsLoader.release();
+    adsLoader.removeAdsLoadedListener(componentListener);
+    adsLoader.removeAdErrorListener(componentListener);
+    if (configuration.applicationAdErrorListener != null) {
+      adsLoader.removeAdErrorListener(configuration.applicationAdErrorListener);
     }
+    adsLoader.release();
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
     imaAdMediaInfo = null;
@@ -394,27 +394,15 @@ import java.util.Map;
     }
     checkArgument(timeline.getPeriodCount() == 1);
     this.timeline = timeline;
-    long contentDurationUs = timeline.getPeriod(/* periodIndex= */ 0, period).durationUs;
+    Player player = checkNotNull(this.player);
+    long contentDurationUs = timeline.getPeriod(player.getCurrentPeriodIndex(), period).durationUs;
     contentDurationMs = C.usToMs(contentDurationUs);
-    if (contentDurationUs != C.TIME_UNSET) {
+    if (contentDurationUs != adPlaybackState.contentDurationUs) {
       adPlaybackState = adPlaybackState.withContentDurationUs(contentDurationUs);
-    }
-    @Nullable AdsManager adsManager = this.adsManager;
-    if (!isAdsManagerInitialized && adsManager != null) {
-      isAdsManagerInitialized = true;
-      @Nullable AdsRenderingSettings adsRenderingSettings = setupAdsRendering();
-      if (adsRenderingSettings == null) {
-        // There are no ads to play.
-        destroyAdsManager();
-      } else {
-        adsManager.init(adsRenderingSettings);
-        adsManager.start();
-        if (configuration.debugModeEnabled) {
-          Log.d(TAG, "Initialized with ads rendering settings: " + adsRenderingSettings);
-        }
-      }
       updateAdPlaybackState();
     }
+    long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
+    maybeInitializeAdsManager(contentPositionMs, contentDurationMs);
     handleTimelineOrPositionChanged();
   }
 
@@ -515,12 +503,33 @@ import java.util.Map;
     return adsLoader;
   }
 
+  private void maybeInitializeAdsManager(long contentPositionMs, long contentDurationMs) {
+    @Nullable AdsManager adsManager = this.adsManager;
+    if (!isAdsManagerInitialized && adsManager != null) {
+      isAdsManagerInitialized = true;
+      @Nullable
+      AdsRenderingSettings adsRenderingSettings =
+          setupAdsRendering(contentPositionMs, contentDurationMs);
+      if (adsRenderingSettings == null) {
+        // There are no ads to play.
+        destroyAdsManager();
+      } else {
+        adsManager.init(adsRenderingSettings);
+        adsManager.start();
+        if (configuration.debugModeEnabled) {
+          Log.d(TAG, "Initialized with ads rendering settings: " + adsRenderingSettings);
+        }
+      }
+      updateAdPlaybackState();
+    }
+  }
+
   /**
    * Configures ads rendering for starting playback, returning the settings for the IMA SDK or
    * {@code null} if no ads should play.
    */
   @Nullable
-  private AdsRenderingSettings setupAdsRendering() {
+  private AdsRenderingSettings setupAdsRendering(long contentPositionMs, long contentDurationMs) {
     AdsRenderingSettings adsRenderingSettings = imaFactory.createAdsRenderingSettings();
     adsRenderingSettings.setEnablePreloading(true);
     adsRenderingSettings.setMimeTypes(
@@ -541,7 +550,6 @@ import java.util.Map;
 
     // Skip ads based on the start position as required.
     long[] adGroupTimesUs = adPlaybackState.adGroupTimesUs;
-    long contentPositionMs = getContentPeriodPositionMs(checkNotNull(player), timeline, period);
     int adGroupForPositionIndex =
         adPlaybackState.getAdGroupIndexForPositionUs(
             C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
@@ -957,7 +965,6 @@ import java.util.Map;
       }
       return;
     }
-    checkNotNull(player);
     imaAdState = IMA_AD_STATE_NONE;
     stopUpdatingAdProgress();
     // TODO: Handle the skipped event so the ad can be marked as skipped rather than played.
@@ -1155,10 +1162,12 @@ import java.util.Map;
   private static long getContentPeriodPositionMs(
       Player player, Timeline timeline, Timeline.Period period) {
     long contentWindowPositionMs = player.getContentPosition();
-    return contentWindowPositionMs
-        - (timeline.isEmpty()
-            ? 0
-            : timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs());
+    if (timeline.isEmpty()) {
+      return contentWindowPositionMs;
+    } else {
+      return contentWindowPositionMs
+          - timeline.getPeriod(player.getCurrentPeriodIndex(), period).getPositionInWindowMs();
+    }
   }
 
   private static boolean hasMidrollAdGroups(long[] adGroupTimesUs) {
