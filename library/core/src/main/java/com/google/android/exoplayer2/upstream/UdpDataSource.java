@@ -31,20 +31,15 @@ import java.net.SocketException;
 /** A UDP {@link DataSource}. */
 public final class UdpDataSource extends BaseDataSource {
 
-  /**
-   * Thrown when an error is encountered when trying to read from a {@link UdpDataSource}.
-   */
+  /** Thrown when an error is encountered when trying to read from a {@link UdpDataSource}. */
   public static final class UdpDataSourceException extends IOException {
 
     public UdpDataSourceException(IOException cause) {
       super(cause);
     }
-
   }
 
-  /**
-   * The default maximum datagram packet size, in bytes.
-   */
+  /** The default maximum datagram packet size, in bytes. */
   public static final int DEFAULT_MAX_PACKET_SIZE = 2000;
 
   /** The default socket timeout, in milliseconds. */
@@ -174,5 +169,4 @@ public final class UdpDataSource extends BaseDataSource {
       transferEnded();
     }
   }
-
 }
