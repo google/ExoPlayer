@@ -236,7 +236,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @IntDef({
     DRAIN_ACTION_NONE,
     DRAIN_ACTION_FLUSH,
-    DRAIN_ACTION_UPDATE_DRM_SESSION,
+    DRAIN_ACTION_FLUSH_AND_UPDATE_DRM_SESSION,
     DRAIN_ACTION_REINITIALIZE
   })
   private @interface DrainAction {}
@@ -245,7 +245,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /** The codec should be flushed. */
   private static final int DRAIN_ACTION_FLUSH = 1;
   /** The codec should be flushed and updated to use the pending DRM session. */
-  private static final int DRAIN_ACTION_UPDATE_DRM_SESSION = 2;
+  private static final int DRAIN_ACTION_FLUSH_AND_UPDATE_DRM_SESSION = 2;
   /** The codec should be reinitialized. */
   private static final int DRAIN_ACTION_REINITIALIZE = 3;
 
@@ -839,12 +839,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       releaseCodec();
       return true;
     }
+    flushCodec();
+    return false;
+  }
+
+  /** Flushes the codec. */
+  private void flushCodec() {
     try {
       codecAdapter.flush();
     } finally {
       resetCodecStateForFlush();
     }
-    return false;
   }
 
   /** Resets the renderer internal state after a codec flush. */
@@ -1652,7 +1657,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void drainAndFlushCodec() {
     if (codecReceivedBuffers) {
       codecDrainState = DRAIN_STATE_SIGNAL_END_OF_STREAM;
-      codecDrainAction = DRAIN_ACTION_FLUSH;
+      if (codecNeedsFlushWorkaround || codecNeedsEosFlushWorkaround) {
+        codecDrainAction = DRAIN_ACTION_REINITIALIZE;
+      } else {
+        codecDrainAction = DRAIN_ACTION_FLUSH;
+      }
     }
   }
 
@@ -1666,7 +1675,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void drainAndUpdateCodecDrmSessionV23() throws ExoPlaybackException {
     if (codecReceivedBuffers) {
       codecDrainState = DRAIN_STATE_SIGNAL_END_OF_STREAM;
-      codecDrainAction = DRAIN_ACTION_UPDATE_DRM_SESSION;
+      if (codecNeedsFlushWorkaround || codecNeedsEosFlushWorkaround) {
+        codecDrainAction = DRAIN_ACTION_REINITIALIZE;
+      } else {
+        codecDrainAction = DRAIN_ACTION_FLUSH_AND_UPDATE_DRM_SESSION;
+      }
     } else {
       // Nothing has been queued to the decoder, so we can do the update immediately.
       updateDrmSessionV23();
@@ -1913,13 +1926,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       case DRAIN_ACTION_REINITIALIZE:
         reinitializeCodec();
         break;
-      case DRAIN_ACTION_UPDATE_DRM_SESSION:
-        if (!flushOrReinitializeCodec()) {
-          updateDrmSessionV23();
-        }
+      case DRAIN_ACTION_FLUSH_AND_UPDATE_DRM_SESSION:
+        flushCodec();
+        updateDrmSessionV23();
         break;
       case DRAIN_ACTION_FLUSH:
-        flushOrReinitializeCodec();
+        flushCodec();
         break;
       case DRAIN_ACTION_NONE:
       default:
