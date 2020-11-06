@@ -311,7 +311,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void configureCodec(
       MediaCodecInfo codecInfo,
-      MediaCodecAdapter codecAdapter,
+      MediaCodecAdapter codec,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
@@ -319,7 +319,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     codecNeedsDiscardChannelsWorkaround = codecNeedsDiscardChannelsWorkaround(codecInfo.name);
     MediaFormat mediaFormat =
         getMediaFormat(format, codecInfo.codecMimeType, codecMaxInputSize, codecOperatingRate);
-    codecAdapter.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
+    codec.configure(mediaFormat, /* surface= */ null, crypto, /* flags= */ 0);
     // Store the input MIME type if we're only using the codec for decryption.
     boolean decryptOnlyCodecEnabled =
         MimeTypes.AUDIO_RAW.equals(codecInfo.mimeType)
@@ -330,7 +330,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   @KeepCodecResult
   protected int canKeepCodec(
-      MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+      MediaCodecAdapter codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize) {
       return KEEP_CODEC_RESULT_NO;
     }
@@ -558,7 +558,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected boolean processOutputBuffer(
       long positionUs,
       long elapsedRealtimeUs,
-      @Nullable MediaCodec codec,
+      @Nullable MediaCodecAdapter codec,
       @Nullable ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,

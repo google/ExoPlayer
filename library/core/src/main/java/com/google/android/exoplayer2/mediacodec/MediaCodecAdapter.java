@@ -157,9 +157,6 @@ public interface MediaCodecAdapter {
   /** Releases the adapter and the underlying {@link MediaCodec}. */
   void release();
 
-  /** Returns the {@link MediaCodec} instance of this adapter. */
-  MediaCodec getCodec();
-
   /**
    * Registers a callback to be invoked when an output frame is rendered on the output surface.
    *

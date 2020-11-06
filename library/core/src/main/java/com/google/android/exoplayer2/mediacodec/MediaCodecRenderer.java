@@ -306,8 +306,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean mediaCryptoRequiresSecureDecoder;
   private long renderTimeLimitMs;
   private float playbackSpeed;
-  @Nullable private MediaCodec codec;
-  @Nullable private MediaCodecAdapter codecAdapter;
+  @Nullable private MediaCodecAdapter codec;
   @Nullable private Format codecInputFormat;
   @Nullable private MediaFormat codecOutputMediaFormat;
   private boolean codecOutputMediaFormatChanged;
@@ -464,7 +463,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * Configures a newly created {@link MediaCodec}.
    *
    * @param codecInfo Information about the {@link MediaCodec} being configured.
-   * @param codecAdapter The {@link MediaCodecAdapter} to configure.
+   * @param codec The {@link MediaCodecAdapter} to configure.
    * @param format The {@link Format} for which the codec is being configured.
    * @param crypto For drm protected playbacks, a {@link MediaCrypto} to use for decryption.
    * @param codecOperatingRate The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if
@@ -472,7 +471,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   protected abstract void configureCodec(
       MediaCodecInfo codecInfo,
-      MediaCodecAdapter codecAdapter,
+      MediaCodecAdapter codec,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate);
@@ -608,7 +607,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Nullable
-  protected final MediaCodec getCodec() {
+  protected final MediaCodecAdapter getCodec() {
     return codec;
   }
 
@@ -718,17 +717,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   protected void releaseCodec() {
     try {
-      if (codecAdapter != null) {
-        codecAdapter.release();
-      }
       if (codec != null) {
-        decoderCounters.decoderReleaseCount++;
         codec.release();
+        decoderCounters.decoderReleaseCount++;
         onCodecReleased(codecInfo.name);
       }
     } finally {
       codec = null;
-      codecAdapter = null;
       try {
         if (mediaCrypto != null) {
           mediaCrypto.release();
@@ -844,7 +839,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /** Flushes the codec. */
   private void flushCodec() {
     try {
-      codecAdapter.flush();
+      codec.flush();
     } finally {
       resetCodecStateForFlush();
     }
@@ -1040,7 +1035,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void initCodec(MediaCodecInfo codecInfo, MediaCrypto crypto) throws Exception {
     long codecInitializingTimestamp;
     long codecInitializedTimestamp;
-    MediaCodec codec = null;
+    @Nullable MediaCodecAdapter codecAdapter = null;
     String codecName = codecInfo.name;
 
     float codecOperatingRate =
@@ -1051,11 +1046,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
 
-    @Nullable MediaCodecAdapter codecAdapter = null;
     try {
       codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createCodec:" + codecName);
-      codec = MediaCodec.createByCodecName(codecName);
+      MediaCodec codec = MediaCodec.createByCodecName(codecName);
       if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
         codecAdapter = new AsynchronousMediaCodecAdapter(codec, getTrackType());
       } else {
@@ -1073,14 +1067,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (codecAdapter != null) {
         codecAdapter.release();
       }
-      if (codec != null) {
-        codec.release();
-      }
       throw e;
     }
 
-    this.codec = codec;
-    this.codecAdapter = codecAdapter;
+    this.codec = codecAdapter;
     this.codecInfo = codecInfo;
     this.codecOperatingRate = codecOperatingRate;
     codecInputFormat = inputFormat;
@@ -1148,11 +1138,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (inputIndex < 0) {
-      inputIndex = codecAdapter.dequeueInputBufferIndex();
+      inputIndex = codec.dequeueInputBufferIndex();
       if (inputIndex < 0) {
         return false;
       }
-      buffer.data = codecAdapter.getInputBuffer(inputIndex);
+      buffer.data = codec.getInputBuffer(inputIndex);
       buffer.clear();
     }
 
@@ -1163,7 +1153,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         // Do nothing.
       } else {
         codecReceivedEos = true;
-        codecAdapter.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        codec.queueInputBuffer(inputIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
         resetInputBuffer();
       }
       codecDrainState = DRAIN_STATE_WAIT_END_OF_STREAM;
@@ -1173,7 +1163,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (codecNeedsAdaptationWorkaroundBuffer) {
       codecNeedsAdaptationWorkaroundBuffer = false;
       buffer.data.put(ADAPTATION_WORKAROUND_BUFFER);
-      codecAdapter.queueInputBuffer(inputIndex, 0, ADAPTATION_WORKAROUND_BUFFER.length, 0, 0);
+      codec.queueInputBuffer(inputIndex, 0, ADAPTATION_WORKAROUND_BUFFER.length, 0, 0);
       resetInputBuffer();
       codecReceivedBuffers = true;
       return true;
@@ -1232,7 +1222,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           // Do nothing.
         } else {
           codecReceivedEos = true;
-          codecAdapter.queueInputBuffer(
+          codec.queueInputBuffer(
               inputIndex,
               /* offset= */ 0,
               /* size= */ 0,
@@ -1303,10 +1293,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     onQueueInputBuffer(buffer);
     try {
       if (bufferEncrypted) {
-        codecAdapter.queueSecureInputBuffer(
+        codec.queueSecureInputBuffer(
             inputIndex, /* offset= */ 0, buffer.cryptoInfo, presentationTimeUs, /* flags= */ 0);
       } else {
-        codecAdapter.queueInputBuffer(
+        codec.queueInputBuffer(
             inputIndex, /* offset= */ 0, buffer.data.limit(), presentationTimeUs, /* flags= */ 0);
       }
     } catch (CryptoException e) {
@@ -1525,7 +1515,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * <p>The default implementation returns {@link MediaCodecInfo#KEEP_CODEC_RESULT_NO}.
    *
-   * @param codec The existing {@link MediaCodec} instance.
+   * @param codec The existing {@link MediaCodecAdapter} instance.
    * @param codecInfo A {@link MediaCodecInfo} describing the decoder.
    * @param oldFormat The {@link Format} for which the existing instance is configured.
    * @param newFormat The new {@link Format}.
@@ -1533,7 +1523,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   @KeepCodecResult
   protected int canKeepCodec(
-      MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+      MediaCodecAdapter codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     return KEEP_CODEC_RESULT_NO;
   }
 
@@ -1676,7 +1666,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       int outputIndex;
       if (codecNeedsEosOutputExceptionWorkaround && codecReceivedEos) {
         try {
-          outputIndex = codecAdapter.dequeueOutputBufferIndex(outputBufferInfo);
+          outputIndex = codec.dequeueOutputBufferIndex(outputBufferInfo);
         } catch (IllegalStateException e) {
           processEndOfStream();
           if (outputStreamEnded) {
@@ -1686,7 +1676,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           return false;
         }
       } else {
-        outputIndex = codecAdapter.dequeueOutputBufferIndex(outputBufferInfo);
+        outputIndex = codec.dequeueOutputBufferIndex(outputBufferInfo);
       }
 
       if (outputIndex < 0) {
@@ -1715,7 +1705,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
 
       this.outputIndex = outputIndex;
-      outputBuffer = codecAdapter.getOutputBuffer(outputIndex);
+      outputBuffer = codec.getOutputBuffer(outputIndex);
 
       // The dequeued buffer is a media buffer. Do some initial setup.
       // It will be processed by calling processOutputBuffer (possibly multiple times).
@@ -1791,7 +1781,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   /** Processes a change in the decoder output {@link MediaFormat}. */
   private void processOutputMediaFormatChanged() {
     codecHasOutputMediaFormat = true;
-    MediaFormat mediaFormat = codecAdapter.getOutputFormat();
+    MediaFormat mediaFormat = codec.getOutputFormat();
     if (codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER
         && mediaFormat.getInteger(MediaFormat.KEY_WIDTH) == ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT
         && mediaFormat.getInteger(MediaFormat.KEY_HEIGHT)
@@ -1825,7 +1815,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     iteration of the rendering loop.
    * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
    *     start of the current iteration of the rendering loop.
-   * @param codec The {@link MediaCodec} instance, or null in bypass mode were no codec is used.
+   * @param codec The {@link MediaCodecAdapter} instance, or null in bypass mode were no codec is
+   *     used.
    * @param buffer The output buffer to process, or null if the buffer data is not made available to
    *     the application layer (see {@link MediaCodec#getOutputBuffer(int)}). This {@code buffer}
    *     can only be null for video data. Note that the buffer data can still be rendered in this
@@ -1845,7 +1836,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected abstract boolean processOutputBuffer(
       long positionUs,
       long elapsedRealtimeUs,
-      @Nullable MediaCodec codec,
+      @Nullable MediaCodecAdapter codec,
       @Nullable ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
@@ -1903,8 +1894,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /**
    * Returns the offset that should be subtracted from {@code bufferPresentationTimeUs} in {@link
-   * #processOutputBuffer(long, long, MediaCodec, ByteBuffer, int, int, int, long, boolean, boolean,
-   * Format)} to get the playback position with respect to the media.
+   * #processOutputBuffer(long, long, MediaCodecAdapter, ByteBuffer, int, int, int, long, boolean,
+   * boolean, Format)} to get the playback position with respect to the media.
    */
   protected final long getOutputStreamOffsetUs() {
     return outputStreamOffsetUs;

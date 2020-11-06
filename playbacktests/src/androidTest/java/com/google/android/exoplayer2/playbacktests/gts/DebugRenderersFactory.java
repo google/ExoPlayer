@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.playbacktests.gts;
 import static java.lang.Math.max;
 
 import android.content.Context;
-import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Handler;
@@ -133,7 +132,7 @@ import java.util.ArrayList;
     @Override
     protected void configureCodec(
         MediaCodecInfo codecInfo,
-        MediaCodecAdapter codecAdapter,
+        MediaCodecAdapter codec,
         Format format,
         MediaCrypto crypto,
         float operatingRate) {
@@ -143,7 +142,7 @@ import java.util.ArrayList;
       // dropped frames allowed, this is not desired behavior. Hence we skip (rather than drop)
       // frames up to the current playback position [Internal: b/66494991].
       skipToPositionBeforeRenderingFirstFrame = getState() == Renderer.STATE_STARTED;
-      super.configureCodec(codecInfo, codecAdapter, format, crypto, operatingRate);
+      super.configureCodec(codecInfo, codec, format, crypto, operatingRate);
     }
 
     @Override
@@ -200,7 +199,7 @@ import java.util.ArrayList;
     protected boolean processOutputBuffer(
         long positionUs,
         long elapsedRealtimeUs,
-        @Nullable MediaCodec codec,
+        @Nullable MediaCodecAdapter codec,
         ByteBuffer buffer,
         int bufferIndex,
         int bufferFlags,
@@ -231,7 +230,7 @@ import java.util.ArrayList;
     }
 
     @Override
-    protected void renderOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
+    protected void renderOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
       skipToPositionBeforeRenderingFirstFrame = false;
       super.renderOutputBuffer(codec, index, presentationTimeUs);
     }
@@ -239,7 +238,7 @@ import java.util.ArrayList;
     @RequiresApi(21)
     @Override
     protected void renderOutputBufferV21(
-        MediaCodec codec, int index, long presentationTimeUs, long releaseTimeNs) {
+        MediaCodecAdapter codec, int index, long presentationTimeUs, long releaseTimeNs) {
       skipToPositionBeforeRenderingFirstFrame = false;
       super.renderOutputBufferV21(codec, index, presentationTimeUs, releaseTimeNs);
     }

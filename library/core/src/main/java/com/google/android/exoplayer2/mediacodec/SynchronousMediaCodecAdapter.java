@@ -138,11 +138,7 @@ import java.nio.ByteBuffer;
   public void release() {
     inputByteBuffers = null;
     outputByteBuffers = null;
-  }
-
-  @Override
-  public MediaCodec getCodec() {
-    return codec;
+    codec.release();
   }
 
   @Override

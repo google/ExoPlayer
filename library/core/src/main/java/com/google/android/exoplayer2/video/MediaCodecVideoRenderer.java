@@ -461,7 +461,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       setSurface((Surface) message);
     } else if (messageType == MSG_SET_SCALING_MODE) {
       scalingMode = (Integer) message;
-      MediaCodec codec = getCodec();
+      @Nullable MediaCodecAdapter codec = getCodec();
       if (codec != null) {
         codec.setVideoScalingMode(scalingMode);
       }
@@ -493,7 +493,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       updateSurfaceFrameRate(/* isNewSurface= */ true);
 
       @State int state = getState();
-      MediaCodec codec = getCodec();
+      @Nullable MediaCodecAdapter codec = getCodec();
       if (codec != null) {
         if (Util.SDK_INT >= 23 && surface != null && !codecNeedsSetOutputSurfaceWorkaround) {
           setOutputSurfaceV23(codec, surface);
@@ -537,7 +537,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void configureCodec(
       MediaCodecInfo codecInfo,
-      MediaCodecAdapter codecAdapter,
+      MediaCodecAdapter codec,
       Format format,
       @Nullable MediaCrypto crypto,
       float codecOperatingRate) {
@@ -560,16 +560,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       }
       surface = dummySurface;
     }
-    codecAdapter.configure(mediaFormat, surface, crypto, 0);
+    codec.configure(mediaFormat, surface, crypto, 0);
     if (Util.SDK_INT >= 23 && tunneling) {
-      tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codecAdapter.getCodec());
+      tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
     }
   }
 
   @Override
   @KeepCodecResult
   protected int canKeepCodec(
-      MediaCodec codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+      MediaCodecAdapter codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
     if (newFormat.width > codecMaxValues.width
         || newFormat.height > codecMaxValues.height
         || getMaxInputSize(codecInfo, newFormat) > codecMaxValues.inputSize) {
@@ -651,7 +651,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   protected void onOutputFormatChanged(Format format, @Nullable MediaFormat mediaFormat) {
-    @Nullable MediaCodec codec = getCodec();
+    @Nullable MediaCodecAdapter codec = getCodec();
     if (codec != null) {
       // Must be applied each time the output format changes.
       codec.setVideoScalingMode(scalingMode);
@@ -729,7 +729,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected boolean processOutputBuffer(
       long positionUs,
       long elapsedRealtimeUs,
-      @Nullable MediaCodec codec,
+      @Nullable MediaCodecAdapter codec,
       @Nullable ByteBuffer buffer,
       int bufferIndex,
       int bufferFlags,
@@ -942,7 +942,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param index The index of the output buffer to skip.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
-  protected void skipOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
+  protected void skipOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
     TraceUtil.beginSection("skipVideoBuffer");
     codec.releaseOutputBuffer(index, false);
     TraceUtil.endSection();
@@ -956,7 +956,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param index The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
-  protected void dropOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
+  protected void dropOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
     TraceUtil.beginSection("dropVideoBuffer");
     codec.releaseOutputBuffer(index, false);
     TraceUtil.endSection();
@@ -978,7 +978,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @throws ExoPlaybackException If an error occurs flushing the codec.
    */
   protected boolean maybeDropBuffersToKeyframe(
-      MediaCodec codec,
+      MediaCodecAdapter codec,
       int index,
       long presentationTimeUs,
       long positionUs,
@@ -1037,7 +1037,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    * @param index The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
    */
-  protected void renderOutputBuffer(MediaCodec codec, int index, long presentationTimeUs) {
+  protected void renderOutputBuffer(MediaCodecAdapter codec, int index, long presentationTimeUs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, true);
@@ -1059,7 +1059,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
    */
   @RequiresApi(21)
   protected void renderOutputBufferV21(
-      MediaCodec codec, int index, long presentationTimeUs, long releaseTimeNs) {
+      MediaCodecAdapter codec, int index, long presentationTimeUs, long releaseTimeNs) {
     maybeNotifyVideoSizeChanged();
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, releaseTimeNs);
@@ -1132,7 +1132,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     // OnFrameRenderedListenerV23.onFrameRenderedListener for tunneled playback on API level 23 and
     // above.
     if (Util.SDK_INT >= 23 && tunneling) {
-      MediaCodec codec = getCodec();
+      @Nullable MediaCodecAdapter codec = getCodec();
       // If codec is null then the listener will be instantiated in configureCodec.
       if (codec != null) {
         tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(codec);
@@ -1213,14 +1213,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @RequiresApi(29)
-  private static void setHdr10PlusInfoV29(MediaCodec codec, byte[] hdr10PlusInfo) {
+  private static void setHdr10PlusInfoV29(MediaCodecAdapter codec, byte[] hdr10PlusInfo) {
     Bundle codecParameters = new Bundle();
     codecParameters.putByteArray(MediaCodec.PARAMETER_KEY_HDR10_PLUS_INFO, hdr10PlusInfo);
     codec.setParameters(codecParameters);
   }
 
   @RequiresApi(23)
-  protected void setOutputSurfaceV23(MediaCodec codec, Surface surface) {
+  protected void setOutputSurfaceV23(MediaCodecAdapter codec, Surface surface) {
     codec.setOutputSurface(surface);
   }
 
@@ -1762,19 +1762,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @RequiresApi(23)
   private final class OnFrameRenderedListenerV23
-      implements MediaCodec.OnFrameRenderedListener, Handler.Callback {
+      implements MediaCodecAdapter.OnFrameRenderedListener, Handler.Callback {
 
     private static final int HANDLE_FRAME_RENDERED = 0;
 
     private final Handler handler;
 
-    public OnFrameRenderedListenerV23(MediaCodec codec) {
+    public OnFrameRenderedListenerV23(MediaCodecAdapter codec) {
       handler = Util.createHandlerForCurrentLooper(/* callback= */ this);
       codec.setOnFrameRenderedListener(/* listener= */ this, handler);
     }
 
     @Override
-    public void onFrameRendered(MediaCodec codec, long presentationTimeUs, long nanoTime) {
+    public void onFrameRendered(MediaCodecAdapter codec, long presentationTimeUs, long nanoTime) {
       // Workaround bug in MediaCodec that causes deadlock if you call directly back into the
       // MediaCodec from this listener method.
       // Deadlock occurs because MediaCodec calls this listener method holding a lock,

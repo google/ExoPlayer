@@ -56,6 +56,7 @@ import java.nio.ByteBuffer;
   private final MediaCodec codec;
   private final AsynchronousMediaCodecCallback asynchronousMediaCodecCallback;
   private final AsynchronousMediaCodecBufferEnqueuer bufferEnqueuer;
+  private boolean codecReleased;
   @State private int state;
 
   /**
@@ -162,18 +163,20 @@ import java.nio.ByteBuffer;
 
   @Override
   public void release() {
-    if (state == STATE_STARTED) {
-      bufferEnqueuer.shutdown();
+    try {
+      if (state == STATE_STARTED) {
+        bufferEnqueuer.shutdown();
+      }
+      if (state == STATE_CONFIGURED || state == STATE_STARTED) {
+        asynchronousMediaCodecCallback.shutdown();
+      }
+      state = STATE_SHUT_DOWN;
+    } finally {
+      if (!codecReleased) {
+        codec.release();
+        codecReleased = true;
+      }
     }
-    if (state == STATE_CONFIGURED || state == STATE_STARTED) {
-      asynchronousMediaCodecCallback.shutdown();
-    }
-    state = STATE_SHUT_DOWN;
-  }
-
-  @Override
-  public MediaCodec getCodec() {
-    return codec;
   }
 
   @Override
