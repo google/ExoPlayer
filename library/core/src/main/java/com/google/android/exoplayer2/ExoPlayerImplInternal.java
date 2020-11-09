@@ -872,7 +872,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         && isCurrentPeriodInMovingLiveWindow()
         && playbackInfo.playbackParameters.speed == 1f) {
       float adjustedSpeed =
-          livePlaybackSpeedControl.getAdjustedPlaybackSpeed(getCurrentLiveOffsetUs());
+          livePlaybackSpeedControl.getAdjustedPlaybackSpeed(
+              getCurrentLiveOffsetUs(), getTotalBufferedDurationUs());
       if (mediaClock.getPlaybackParameters().speed != adjustedSpeed) {
         mediaClock.setPlaybackParameters(playbackInfo.playbackParameters.withSpeed(adjustedSpeed));
       }

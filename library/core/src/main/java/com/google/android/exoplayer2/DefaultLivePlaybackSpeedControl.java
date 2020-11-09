@@ -15,6 +15,10 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.common.primitives.Longs.max;
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
+
 import android.os.SystemClock;
 import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 import com.google.android.exoplayer2.util.Assertions;
@@ -36,7 +40,10 @@ import com.google.android.exoplayer2.util.Util;
  *
  * <p>When the player rebuffers, the target live offset {@link
  * Builder#setTargetLiveOffsetIncrementOnRebufferMs(long) is increased} to adjust to the reduced
- * network capabilities.
+ * network capabilities. The live playback speed control also {@link
+ * Builder#setMinPossibleLiveOffsetSmoothingFactor(float) keeps track} of the minimum possible live
+ * offset to decrease the target live offset again if conditions improve. The minimum possible live
+ * offset is derived from the current offset and the duration of buffered media.
  */
 public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedControl {
 
@@ -71,6 +78,12 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   public static final long DEFAULT_TARGET_LIVE_OFFSET_INCREMENT_ON_REBUFFER_MS = 500;
 
   /**
+   * The default smoothing factor when smoothing the minimum possible live offset that can be
+   * achieved during playback.
+   */
+  public static final float DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR = 0.999f;
+
+  /**
    * The maximum difference between the current live offset and the target live offset for which
    * unit speed (1.0f) is used.
    */
@@ -84,6 +97,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     private long minUpdateIntervalMs;
     private float proportionalControlFactorUs;
     private long targetLiveOffsetIncrementOnRebufferUs;
+    private float minPossibleLiveOffsetSmoothingFactor;
 
     /** Creates a builder. */
     public Builder() {
@@ -93,6 +107,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
       proportionalControlFactorUs = DEFAULT_PROPORTIONAL_CONTROL_FACTOR / C.MICROS_PER_SECOND;
       targetLiveOffsetIncrementOnRebufferUs =
           C.msToUs(DEFAULT_TARGET_LIVE_OFFSET_INCREMENT_ON_REBUFFER_MS);
+      minPossibleLiveOffsetSmoothingFactor = DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR;
     }
 
     /**
@@ -173,6 +188,28 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
       return this;
     }
 
+    /**
+     * Sets the smoothing factor when smoothing the minimum possible live offset that can be
+     * achieved during playback.
+     *
+     * <p>The live playback speed control keeps track of the minimum possible live offset achievable
+     * during playback to know whether it can reduce the current target live offset. The minimum
+     * possible live offset is defined as {@code currentLiveOffset - bufferedDuration}. As the
+     * minimum possible live offset is constantly changing, it is smoothed over recent samples by
+     * applying exponential smoothing: {@code smoothedMinPossibleOffset = smoothingFactor x
+     * smoothedMinPossibleOffset + (1-smoothingFactor) x currentMinPossibleOffset}.
+     *
+     * @param minPossibleLiveOffsetSmoothingFactor The smoothing factor. Must be &ge; 0 and &lt; 1.
+     * @return This builder, for convenience.
+     */
+    public Builder setMinPossibleLiveOffsetSmoothingFactor(
+        float minPossibleLiveOffsetSmoothingFactor) {
+      Assertions.checkArgument(
+          minPossibleLiveOffsetSmoothingFactor >= 0 && minPossibleLiveOffsetSmoothingFactor < 1f);
+      this.minPossibleLiveOffsetSmoothingFactor = minPossibleLiveOffsetSmoothingFactor;
+      return this;
+    }
+
     /** Builds an instance. */
     public DefaultLivePlaybackSpeedControl build() {
       return new DefaultLivePlaybackSpeedControl(
@@ -180,7 +217,8 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
           fallbackMaxPlaybackSpeed,
           minUpdateIntervalMs,
           proportionalControlFactorUs,
-          targetLiveOffsetIncrementOnRebufferUs);
+          targetLiveOffsetIncrementOnRebufferUs,
+          minPossibleLiveOffsetSmoothingFactor);
     }
   }
 
@@ -189,6 +227,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   private final long minUpdateIntervalMs;
   private final float proportionalControlFactor;
   private final long targetLiveOffsetRebufferDeltaUs;
+  private final float minPossibleLiveOffsetSmoothingFactor;
 
   private long mediaConfigurationTargetLiveOffsetUs;
   private long targetLiveOffsetOverrideUs;
@@ -202,17 +241,22 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   private float adjustedPlaybackSpeed;
   private long lastPlaybackSpeedUpdateMs;
 
+  private long smoothedMinPossibleLiveOffsetUs;
+  private long smoothedMinPossibleLiveOffsetDeviationUs;
+
   private DefaultLivePlaybackSpeedControl(
       float fallbackMinPlaybackSpeed,
       float fallbackMaxPlaybackSpeed,
       long minUpdateIntervalMs,
       float proportionalControlFactor,
-      long targetLiveOffsetRebufferDeltaUs) {
+      long targetLiveOffsetRebufferDeltaUs,
+      float minPossibleLiveOffsetSmoothingFactor) {
     this.fallbackMinPlaybackSpeed = fallbackMinPlaybackSpeed;
     this.fallbackMaxPlaybackSpeed = fallbackMaxPlaybackSpeed;
     this.minUpdateIntervalMs = minUpdateIntervalMs;
     this.proportionalControlFactor = proportionalControlFactor;
     this.targetLiveOffsetRebufferDeltaUs = targetLiveOffsetRebufferDeltaUs;
+    this.minPossibleLiveOffsetSmoothingFactor = minPossibleLiveOffsetSmoothingFactor;
     mediaConfigurationTargetLiveOffsetUs = C.TIME_UNSET;
     targetLiveOffsetOverrideUs = C.TIME_UNSET;
     minTargetLiveOffsetUs = C.TIME_UNSET;
@@ -223,6 +267,8 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
     idealTargetLiveOffsetUs = C.TIME_UNSET;
     currentTargetLiveOffsetUs = C.TIME_UNSET;
+    smoothedMinPossibleLiveOffsetUs = C.TIME_UNSET;
+    smoothedMinPossibleLiveOffsetDeviationUs = C.TIME_UNSET;
   }
 
   @Override
@@ -261,16 +307,20 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   }
 
   @Override
-  public float getAdjustedPlaybackSpeed(long liveOffsetUs) {
+  public float getAdjustedPlaybackSpeed(long liveOffsetUs, long bufferedDurationUs) {
     if (mediaConfigurationTargetLiveOffsetUs == C.TIME_UNSET) {
       return 1f;
     }
+
+    updateSmoothedMinPossibleLiveOffsetUs(liveOffsetUs, bufferedDurationUs);
+
     if (lastPlaybackSpeedUpdateMs != C.TIME_UNSET
         && SystemClock.elapsedRealtime() - lastPlaybackSpeedUpdateMs < minUpdateIntervalMs) {
       return adjustedPlaybackSpeed;
     }
     lastPlaybackSpeedUpdateMs = SystemClock.elapsedRealtime();
 
+    adjustTargetLiveOffsetUs(liveOffsetUs);
     long liveOffsetErrorUs = liveOffsetUs - currentTargetLiveOffsetUs;
     if (Math.abs(liveOffsetErrorUs) < MAXIMUM_LIVE_OFFSET_ERROR_US_FOR_UNIT_SPEED) {
       adjustedPlaybackSpeed = 1f;
@@ -306,6 +356,67 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     }
     idealTargetLiveOffsetUs = idealOffsetUs;
     currentTargetLiveOffsetUs = idealOffsetUs;
+    smoothedMinPossibleLiveOffsetUs = C.TIME_UNSET;
+    smoothedMinPossibleLiveOffsetDeviationUs = C.TIME_UNSET;
     lastPlaybackSpeedUpdateMs = C.TIME_UNSET;
+  }
+
+  private void updateSmoothedMinPossibleLiveOffsetUs(long liveOffsetUs, long bufferedDurationUs) {
+    long minPossibleLiveOffsetUs = liveOffsetUs - bufferedDurationUs;
+    if (smoothedMinPossibleLiveOffsetUs == C.TIME_UNSET) {
+      smoothedMinPossibleLiveOffsetUs = minPossibleLiveOffsetUs;
+      smoothedMinPossibleLiveOffsetDeviationUs = 0;
+    } else {
+      // Use the maximum here to ensure we keep track of the upper bound of what is safely possible,
+      // not the average.
+      smoothedMinPossibleLiveOffsetUs =
+          max(
+              minPossibleLiveOffsetUs,
+              smooth(
+                  smoothedMinPossibleLiveOffsetUs,
+                  minPossibleLiveOffsetUs,
+                  minPossibleLiveOffsetSmoothingFactor));
+      long minPossibleLiveOffsetDeviationUs =
+          abs(minPossibleLiveOffsetUs - smoothedMinPossibleLiveOffsetUs);
+      smoothedMinPossibleLiveOffsetDeviationUs =
+          smooth(
+              smoothedMinPossibleLiveOffsetDeviationUs,
+              minPossibleLiveOffsetDeviationUs,
+              minPossibleLiveOffsetSmoothingFactor);
+    }
+  }
+
+  private void adjustTargetLiveOffsetUs(long liveOffsetUs) {
+    // Stay in a safe distance (3 standard deviations = >99%) to the minimum possible live offset.
+    long safeOffsetUs =
+        smoothedMinPossibleLiveOffsetUs + 3 * smoothedMinPossibleLiveOffsetDeviationUs;
+    if (currentTargetLiveOffsetUs > safeOffsetUs) {
+      // There is room for decreasing the target offset towards the ideal or safe offset (whichever
+      // is larger). We want to limit the decrease so that the playback speed delta we achieve is
+      // the same as the maximum delta when slowing down towards the target.
+      long minUpdateIntervalUs = C.msToUs(minUpdateIntervalMs);
+      long decrementToOffsetCurrentSpeedUs =
+          (long) ((adjustedPlaybackSpeed - 1f) * minUpdateIntervalUs);
+      long decrementToIncreaseSpeedUs = (long) ((maxPlaybackSpeed - 1f) * minUpdateIntervalUs);
+      long maxDecrementUs = decrementToOffsetCurrentSpeedUs + decrementToIncreaseSpeedUs;
+      currentTargetLiveOffsetUs =
+          max(safeOffsetUs, idealTargetLiveOffsetUs, currentTargetLiveOffsetUs - maxDecrementUs);
+    } else {
+      // We'd like to reach a stable condition where the current live offset stays just below the
+      // safe offset. But don't increase the target offset to more than what would allow us to slow
+      // down gradually from the current offset.
+      long offsetWhenSlowingDownNowUs =
+          liveOffsetUs - (long) (max(0f, adjustedPlaybackSpeed - 1f) / proportionalControlFactor);
+      currentTargetLiveOffsetUs =
+          Util.constrainValue(offsetWhenSlowingDownNowUs, currentTargetLiveOffsetUs, safeOffsetUs);
+      if (maxTargetLiveOffsetUs != C.TIME_UNSET
+          && currentTargetLiveOffsetUs > maxTargetLiveOffsetUs) {
+        currentTargetLiveOffsetUs = maxTargetLiveOffsetUs;
+      }
+    }
+  }
+
+  private static long smooth(long smoothedValue, long newValue, float smoothingFactor) {
+    return (long) (smoothingFactor * smoothedValue + (1f - smoothingFactor) * newValue);
   }
 }

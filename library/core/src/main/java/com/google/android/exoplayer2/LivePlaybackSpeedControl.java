@@ -53,9 +53,10 @@ public interface LivePlaybackSpeedControl {
    * #getTargetLiveOffsetUs() target live offset}.
    *
    * @param liveOffsetUs The current live offset, in microseconds.
+   * @param bufferedDurationUs The duration of media that's currently buffered, in microseconds.
    * @return The adjusted playback speed.
    */
-  float getAdjustedPlaybackSpeed(long liveOffsetUs);
+  float getAdjustedPlaybackSpeed(long liveOffsetUs, long bufferedDurationUs);
 
   /**
    * Returns the current target live offset, in microseconds, or {@link C#TIME_UNSET} if no target
