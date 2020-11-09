@@ -219,6 +219,28 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     assertThrows(IllegalStateException.class, () -> enqueuer.shutdown());
   }
 
+  private static CryptoInfo createCryptoInfo() {
+    CryptoInfo info = new CryptoInfo();
+    int numSubSamples = 5;
+    int[] numBytesOfClearData = new int[] {0, 1, 2, 3};
+    int[] numBytesOfEncryptedData = new int[] {4, 5, 6, 7};
+    byte[] key = new byte[] {0, 1, 2, 3};
+    byte[] iv = new byte[] {4, 5, 6, 7};
+    @C.CryptoMode int mode = C.CRYPTO_MODE_AES_CBC;
+    int encryptedBlocks = 16;
+    int clearBlocks = 8;
+    info.set(
+        numSubSamples,
+        numBytesOfClearData,
+        numBytesOfEncryptedData,
+        key,
+        iv,
+        mode,
+        encryptedBlocks,
+        clearBlocks);
+    return info;
+  }
+
   private static class TestHandlerThread extends HandlerThread {
     private boolean started;
     private boolean quit;
@@ -246,27 +268,5 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
       quit = true;
       return super.quit();
     }
-  }
-
-  private static CryptoInfo createCryptoInfo() {
-    CryptoInfo info = new CryptoInfo();
-    int numSubSamples = 5;
-    int[] numBytesOfClearData = new int[] {0, 1, 2, 3};
-    int[] numBytesOfEncryptedData = new int[] {4, 5, 6, 7};
-    byte[] key = new byte[] {0, 1, 2, 3};
-    byte[] iv = new byte[] {4, 5, 6, 7};
-    @C.CryptoMode int mode = C.CRYPTO_MODE_AES_CBC;
-    int encryptedBlocks = 16;
-    int clearBlocks = 8;
-    info.set(
-        numSubSamples,
-        numBytesOfClearData,
-        numBytesOfEncryptedData,
-        key,
-        iv,
-        mode,
-        encryptedBlocks,
-        clearBlocks);
-    return info;
   }
 }

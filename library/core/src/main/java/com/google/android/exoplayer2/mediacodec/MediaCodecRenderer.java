@@ -348,6 +348,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
   private boolean enableAsynchronousBufferQueueing;
+  private boolean enableSynchronizeCodecInteractionsWithQueueing;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
   private long outputStreamStartPositionUs;
@@ -412,8 +413,22 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the renderer is used.
    */
-  public void experimentalEnableAsynchronousBufferQueueing(boolean enabled) {
+  public void experimentalSetAsynchronousBufferQueueingEnabled(boolean enabled) {
     enableAsynchronousBufferQueueing = enabled;
+  }
+
+  /**
+   * Enable synchronizing codec interactions with asynchronous buffer queueing.
+   *
+   * <p>When enabled, codec interactions will wait until all input buffers pending for asynchronous
+   * queueing are submitted to the {@link MediaCodec} first. This method is effective only if {@link
+   * #experimentalSetAsynchronousBufferQueueingEnabled asynchronous buffer queueing} is enabled.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the renderer is used.
+   */
+  public void experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(boolean enabled) {
+    enableSynchronizeCodecInteractionsWithQueueing = enabled;
   }
 
   @Override
@@ -1051,7 +1066,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       TraceUtil.beginSection("createCodec:" + codecName);
       MediaCodec codec = MediaCodec.createByCodecName(codecName);
       if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
-        codecAdapter = new AsynchronousMediaCodecAdapter(codec, getTrackType());
+        codecAdapter =
+            new AsynchronousMediaCodecAdapter(
+                codec, getTrackType(), enableSynchronizeCodecInteractionsWithQueueing);
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec);
       }

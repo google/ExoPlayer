@@ -46,7 +46,12 @@ public class AsynchronousMediaCodecAdapterTest {
     codec = MediaCodec.createByCodecName("h264");
     callbackThread = new HandlerThread("TestCallbackThread");
     queueingThread = new HandlerThread("TestQueueingThread");
-    adapter = new AsynchronousMediaCodecAdapter(codec, callbackThread, queueingThread);
+    adapter =
+        new AsynchronousMediaCodecAdapter(
+            codec,
+            callbackThread,
+            queueingThread,
+            /* synchronizeCodecInteractionsWithQueueing= */ false);
     bufferInfo = new MediaCodec.BufferInfo();
   }
 
