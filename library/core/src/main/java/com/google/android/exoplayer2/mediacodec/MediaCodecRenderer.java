@@ -348,6 +348,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean waitingForFirstSampleInFormat;
   private boolean pendingOutputEndOfStream;
   private boolean enableAsynchronousBufferQueueing;
+  private boolean forceAsyncQueueingSynchronizationWorkaround;
   private boolean enableSynchronizeCodecInteractionsWithQueueing;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
@@ -415,6 +416,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   public void experimentalSetAsynchronousBufferQueueingEnabled(boolean enabled) {
     enableAsynchronousBufferQueueing = enabled;
+  }
+
+  /**
+   * Enable the asynchronous queueing synchronization workaround.
+   *
+   * <p>When enabled, the queueing threads for {@link MediaCodec} instance will synchronize on a
+   * shared lock when submitting buffers to the respective {@link MediaCodec}.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the renderer is used.
+   */
+  public void experimentalSetForceAsyncQueueingSynchronizationWorkaround(boolean enabled) {
+    this.forceAsyncQueueingSynchronizationWorkaround = enabled;
   }
 
   /**
@@ -1068,7 +1082,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       if (enableAsynchronousBufferQueueing && Util.SDK_INT >= 23) {
         codecAdapter =
             new AsynchronousMediaCodecAdapter(
-                codec, getTrackType(), enableSynchronizeCodecInteractionsWithQueueing);
+                codec,
+                getTrackType(),
+                forceAsyncQueueingSynchronizationWorkaround,
+                enableSynchronizeCodecInteractionsWithQueueing);
       } else {
         codecAdapter = new SynchronousMediaCodecAdapter(codec);
       }

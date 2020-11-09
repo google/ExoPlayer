@@ -72,11 +72,15 @@ import java.nio.ByteBuffer;
    *     {@link MediaCodec}.
    */
   /* package */ AsynchronousMediaCodecAdapter(
-      MediaCodec codec, int trackType, boolean synchronizeCodecInteractionsWithQueueing) {
+      MediaCodec codec,
+      int trackType,
+      boolean forceQueueingSynchronizationWorkaround,
+      boolean synchronizeCodecInteractionsWithQueueing) {
     this(
         codec,
         new HandlerThread(createCallbackThreadLabel(trackType)),
         new HandlerThread(createQueueingThreadLabel(trackType)),
+        forceQueueingSynchronizationWorkaround,
         synchronizeCodecInteractionsWithQueueing);
   }
 
@@ -85,10 +89,13 @@ import java.nio.ByteBuffer;
       MediaCodec codec,
       HandlerThread callbackThread,
       HandlerThread enqueueingThread,
+      boolean forceQueueingSynchronizationWorkaround,
       boolean synchronizeCodecInteractionsWithQueueing) {
     this.codec = codec;
     this.asynchronousMediaCodecCallback = new AsynchronousMediaCodecCallback(callbackThread);
-    this.bufferEnqueuer = new AsynchronousMediaCodecBufferEnqueuer(codec, enqueueingThread);
+    this.bufferEnqueuer =
+        new AsynchronousMediaCodecBufferEnqueuer(
+            codec, enqueueingThread, forceQueueingSynchronizationWorkaround);
     this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
     this.state = STATE_CREATED;
   }

@@ -51,6 +51,7 @@ public class AsynchronousMediaCodecAdapterTest {
             codec,
             callbackThread,
             queueingThread,
+            /* forceQueueingSynchronizationWorkaround= */ false,
             /* synchronizeCodecInteractionsWithQueueing= */ false);
     bufferInfo = new MediaCodec.BufferInfo();
   }

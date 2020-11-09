@@ -68,18 +68,29 @@ class AsynchronousMediaCodecBufferEnqueuer {
    * @param codec The {@link MediaCodec} to submit input buffers to.
    * @param queueingThread The {@link HandlerThread} to use for queueing buffers.
    */
-  public AsynchronousMediaCodecBufferEnqueuer(MediaCodec codec, HandlerThread queueingThread) {
-    this(codec, queueingThread, /* conditionVariable= */ new ConditionVariable());
+  public AsynchronousMediaCodecBufferEnqueuer(
+      MediaCodec codec,
+      HandlerThread queueingThread,
+      boolean forceQueueingSynchronizationWorkaround) {
+    this(
+        codec,
+        queueingThread,
+        forceQueueingSynchronizationWorkaround,
+        /* conditionVariable= */ new ConditionVariable());
   }
 
   @VisibleForTesting
   /* package */ AsynchronousMediaCodecBufferEnqueuer(
-      MediaCodec codec, HandlerThread handlerThread, ConditionVariable conditionVariable) {
+      MediaCodec codec,
+      HandlerThread handlerThread,
+      boolean forceQueueingSynchronizationWorkaround,
+      ConditionVariable conditionVariable) {
     this.codec = codec;
     this.handlerThread = handlerThread;
     this.conditionVariable = conditionVariable;
     pendingRuntimeException = new AtomicReference<>();
-    needsSynchronizationWorkaround = needsSynchronizationWorkaround();
+    needsSynchronizationWorkaround =
+        forceQueueingSynchronizationWorkaround || needsSynchronizationWorkaround();
   }
 
   /**

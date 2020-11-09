@@ -92,6 +92,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
   private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;
   private boolean enableAsyncQueueing;
+  private boolean forceAsyncQueueingSynchronizationWorkaround;
   private boolean enableSynchronizeCodecInteractionsWithQueueing;
   private boolean enableFloatOutput;
   private boolean enableAudioTrackPlaybackParams;
@@ -158,6 +159,24 @@ public class DefaultRenderersFactory implements RenderersFactory {
    */
   public DefaultRenderersFactory experimentalSetAsynchronousBufferQueueingEnabled(boolean enabled) {
     enableAsyncQueueing = enabled;
+    return this;
+  }
+
+  /**
+   * Enable the asynchronous queueing synchronization workaround.
+   *
+   * <p>When enabled, the queueing threads for {@link MediaCodec} instances will synchronize on a
+   * shared lock when submitting buffers to the respective {@link MediaCodec}.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release.
+   *
+   * @param enabled Whether the asynchronous queueing synchronization workaround is enabled by
+   *     default.
+   * @return This factory, for convenience.
+   */
+  public DefaultRenderersFactory experimentalSetForceAsyncQueueingSynchronizationWorkaround(
+      boolean enabled) {
+    this.forceAsyncQueueingSynchronizationWorkaround = enabled;
     return this;
   }
 
@@ -353,6 +372,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
     videoRenderer.experimentalSetAsynchronousBufferQueueingEnabled(enableAsyncQueueing);
+    videoRenderer.experimentalSetForceAsyncQueueingSynchronizationWorkaround(
+        forceAsyncQueueingSynchronizationWorkaround);
     videoRenderer.experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
         enableSynchronizeCodecInteractionsWithQueueing);
     out.add(videoRenderer);
@@ -480,6 +501,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventListener,
             audioSink);
     audioRenderer.experimentalSetAsynchronousBufferQueueingEnabled(enableAsyncQueueing);
+    audioRenderer.experimentalSetForceAsyncQueueingSynchronizationWorkaround(
+        forceAsyncQueueingSynchronizationWorkaround);
     audioRenderer.experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
         enableSynchronizeCodecInteractionsWithQueueing);
     out.add(audioRenderer);
