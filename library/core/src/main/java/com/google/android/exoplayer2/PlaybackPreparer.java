@@ -15,9 +15,11 @@
  */
 package com.google.android.exoplayer2;
 
-/** Called to prepare a playback. */
+/** @deprecated Use {@link ControlDispatcher} instead. */
+@Deprecated
 public interface PlaybackPreparer {
 
-  /** Called to prepare a playback. */
+  /** @deprecated Use {@link ControlDispatcher#dispatchPrepare(Player)} instead. */
+  @Deprecated
   void preparePlayback();
 }

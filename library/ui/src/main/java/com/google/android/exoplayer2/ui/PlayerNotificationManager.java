@@ -682,10 +682,16 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets the {@link PlaybackPreparer}.
-   *
-   * @param playbackPreparer The {@link PlaybackPreparer}.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The manager calls
+   *     {@link ControlDispatcher#dispatchPrepare(Player)} instead of {@link
+   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that this manager
+   *     uses by default, calls {@link Player#prepare()}. If you wish to intercept or customize this
+   *     behaviour, you can provide a custom implementation of {@link
+   *     ControlDispatcher#dispatchPrepare(Player)} and pass it to {@link
+   *     #setControlDispatcher(ControlDispatcher)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
     this.playbackPreparer = playbackPreparer;
   }
@@ -1039,8 +1045,7 @@ public class PlayerNotificationManager {
       @Nullable NotificationCompat.Builder builder,
       boolean ongoing,
       @Nullable Bitmap largeIcon) {
-    if (player.getPlaybackState() == Player.STATE_IDLE
-        && (player.getCurrentTimeline().isEmpty() || playbackPreparer == null)) {
+    if (player.getPlaybackState() == Player.STATE_IDLE && player.getCurrentTimeline().isEmpty()) {
       builderActions = null;
       return null;
     }
@@ -1369,6 +1374,7 @@ public class PlayerNotificationManager {
 
   private class NotificationBroadcastReceiver extends BroadcastReceiver {
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onReceive(Context context, Intent intent) {
       Player player = PlayerNotificationManager.this.player;
@@ -1382,6 +1388,8 @@ public class PlayerNotificationManager {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
           if (playbackPreparer != null) {
             playbackPreparer.preparePlayback();
+          } else {
+            controlDispatcher.dispatchPrepare(player);
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           controlDispatcher.dispatchSeekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
