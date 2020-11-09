@@ -34,7 +34,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -68,7 +67,7 @@ import java.util.List;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
-    implements OnClickListener, PlaybackPreparer, StyledPlayerControlView.VisibilityListener {
+    implements OnClickListener, StyledPlayerControlView.VisibilityListener {
 
   // Saved instance state keys.
 
@@ -250,13 +249,6 @@ public class PlayerActivity extends AppCompatActivity
     }
   }
 
-  // PlaybackPreparer implementation
-
-  @Override
-  public void preparePlayback() {
-    player.prepare();
-  }
-
   // PlayerControlView.VisibilityListener implementation
 
   @Override
@@ -302,7 +294,6 @@ public class PlayerActivity extends AppCompatActivity
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
-      playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
     }
