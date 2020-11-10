@@ -41,15 +41,19 @@ import org.robolectric.annotation.Config;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class TsPlaybackTest {
 
-  // TODO: Add samples with >2 audio channels when supported (sample.ac3, sample_ac3.ts,
-  //       sample.eac3, sample_eac3joc.ec3, sample_eac3joc.ts, sample_eac3.ts).
   @Parameters(name = "{0}")
   public static ImmutableList<String> mediaSamples() {
     return ImmutableList.of(
         "bbb_2500ms.ts",
         "elephants_dream.mpg",
+        "sample.ac3",
+        "sample_ac3.ts",
         "sample.ac4",
         "sample_ac4.ts",
+        "sample.eac3",
+        "sample_eac3.ts",
+        "sample_eac3joc.ec3",
+        "sample_eac3joc.ts",
         "sample.adts",
         "sample_ait.ts",
         "sample_cbs_truncated.adts",
