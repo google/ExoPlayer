@@ -256,7 +256,7 @@ public final class FakeTimeline extends Timeline {
             adPlaybackState.withAdUri(
                 /* adGroupIndex= */ i,
                 /* adIndexInAdGroup= */ j,
-                Uri.parse("https://ad/" + i + "/" + j));
+                Uri.parse("https://example.com/ad/" + i + "/" + j));
       }
       adDurationsUs[i] = new long[adsPerAdGroup];
       Arrays.fill(adDurationsUs[i], AD_DURATION_US);

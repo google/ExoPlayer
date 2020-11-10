@@ -171,7 +171,7 @@ public class HlsMediaSourceTest {
             + "#EXTINF:4.00000,\n"
             + "fileSequence3.ts\n"
             + "#EXT-X-SERVER-CONTROL:CAN-SKIP-UNTIL=24";
-    // The playlist finishes 1 second before the the current time, therefore there's a live edge
+    // The playlist finishes 1 second before the current time, therefore there's a live edge
     // offset of 1 second.
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
@@ -277,7 +277,7 @@ public class HlsMediaSourceTest {
             + "fileSequence0.ts\n"
             + "#EXT-X-PART-INF:PART-TARGET=0.5\n"
             + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3";
-    // The playlist finishes 1 second before the the current time.
+    // The playlist finishes 1 second before the current time.
     SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:05.0+00:00"));
     HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
     MediaItem mediaItem = MediaItem.fromUri(playlistUri);

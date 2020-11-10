@@ -213,7 +213,7 @@ public class FakeDataSet {
       return segments;
     }
 
-    /** Retuns whether unknown length is simulated */
+    /** Returns whether unknown length is simulated */
     public boolean isSimulatingUnknownLength() {
       return simulateUnknownLength;
     }

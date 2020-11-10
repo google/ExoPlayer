@@ -1051,7 +1051,7 @@ public class FragmentedMp4Extractor implements Extractor {
 
   private static int checkNonNegative(int value) throws ParserException {
     if (value < 0) {
-      throw new ParserException("Unexpected negtive value: " + value);
+      throw new ParserException("Unexpected negative value: " + value);
     }
     return value;
   }
@@ -1659,7 +1659,7 @@ public class FragmentedMp4Extractor implements Extractor {
           : fragment.sampleSizeTable[currentSampleIndex];
     }
 
-    /** Returns the {@link C.BufferFlags} corresponding to the the current sample. */
+    /** Returns the {@link C.BufferFlags} corresponding to the current sample. */
     @C.BufferFlags
     public int getCurrentSampleFlags() {
       int flags =

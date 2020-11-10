@@ -341,7 +341,7 @@ public final class DownloadHelper {
    *     streams. This argument is required for adaptive streams and ignored for progressive
    *     streams.
    * @return A {@link DownloadHelper}.
-   * @throws IllegalStateException If the the corresponding module is missing for DASH, HLS or
+   * @throws IllegalStateException If the corresponding module is missing for DASH, HLS or
    *     SmoothStreaming media items.
    * @throws IllegalArgumentException If the {@code dataSourceFactory} is null for adaptive streams.
    */
@@ -370,7 +370,7 @@ public final class DownloadHelper {
    *     streams. This argument is required for adaptive streams and ignored for progressive
    *     streams.
    * @return A {@link DownloadHelper}.
-   * @throws IllegalStateException If the the corresponding module is missing for DASH, HLS or
+   * @throws IllegalStateException If the corresponding module is missing for DASH, HLS or
    *     SmoothStreaming media items.
    * @throws IllegalArgumentException If the {@code dataSourceFactory} is null for adaptive streams.
    */
@@ -401,7 +401,7 @@ public final class DownloadHelper {
    * @param drmSessionManager An optional {@link DrmSessionManager}. Used to help determine which
    *     tracks can be selected.
    * @return A {@link DownloadHelper}.
-   * @throws IllegalStateException If the the corresponding module is missing for DASH, HLS or
+   * @throws IllegalStateException If the corresponding module is missing for DASH, HLS or
    *     SmoothStreaming media items.
    * @throws IllegalArgumentException If the {@code dataSourceFactory} is null for adaptive streams.
    */

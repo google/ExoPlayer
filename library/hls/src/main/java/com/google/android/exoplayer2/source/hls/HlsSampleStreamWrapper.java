@@ -974,7 +974,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @param id The ID of the track.
    * @param type The type of the track, must be one of {@link #MAPPABLE_TYPES}.
-   * @return The the mapped {@link TrackOutput}, or null if it's not been created yet.
+   * @return The mapped {@link TrackOutput}, or null if it's not been created yet.
    */
   @Nullable
   private TrackOutput getMappedTrackOutput(int id, int type) {
