@@ -42,18 +42,21 @@ import org.robolectric.annotation.Config;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class Mp4PlaybackTest {
 
-  // TODO: Add samples with >2 audio channels when supported (sample_ac3_fragmented.mp4,
-  //       sample_ac3.mp4sample_eac3.mp4, sample_eac3_fragmented.mp4, sample_eac3joc.mp4,
-  //       sample_eac3joc_fragmented.mp4).
   @Parameters(name = "{0}")
   public static ImmutableList<String> mediaSamples() {
     return ImmutableList.of(
         "midroll-5s.mp4",
         "postroll-5s.mp4",
         "preroll-5s.mp4",
+        "sample_ac3_fragmented.mp4",
+        "sample_ac3.mp4",
         "sample_ac4_fragmented.mp4",
         "sample_ac4.mp4",
         "sample_android_slow_motion.mp4",
+        "sample_eac3_fragmented.mp4",
+        "sample_eac3.mp4",
+        "sample_eac3joc_fragmented.mp4",
+        "sample_eac3joc.mp4",
         "sample_fragmented.mp4",
         "sample_fragmented_seekable.mp4",
         "sample_fragmented_sei.mp4",
