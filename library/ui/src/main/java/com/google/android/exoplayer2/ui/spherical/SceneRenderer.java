@@ -54,8 +54,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull SurfaceTexture surfaceTexture;
 
   // Used by other threads only
-  private volatile @C.StreamType int defaultStereoMode;
-  private @C.StreamType int lastStereoMode;
+  @C.StereoMode private volatile int defaultStereoMode;
+  @C.StereoMode private int lastStereoMode;
   @Nullable private byte[] lastProjectionData;
 
   // Methods called on any thread.
