@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Rendit
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -142,8 +143,10 @@ public final class DefaultHlsPlaylistTracker
     ParsingLoadable<HlsPlaylist> masterPlaylistLoadable =
         new ParsingLoadable<>(
             dataSourceFactory.createDataSource(C.DATA_TYPE_MANIFEST),
-            initialPlaylistUri,
-            headers,
+            new DataSpec.Builder()
+                .setUri(initialPlaylistUri)
+                .setHttpRequestHeaders(headers)
+                .build(),
             C.DATA_TYPE_MANIFEST,
             playlistParserFactory.createPlaylistParser());
     Assertions.checkState(initialPlaylistLoader == null);
@@ -689,7 +692,6 @@ public final class DefaultHlsPlaylistTracker
           new ParsingLoadable<>(
               mediaPlaylistDataSource,
               playlistRequestUri,
-              playbackProperties.headers,
               C.DATA_TYPE_MANIFEST,
               mediaPlaylistParser);
       long elapsedRealtime =

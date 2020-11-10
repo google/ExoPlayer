@@ -66,8 +66,7 @@ public final class ParsingLoadable<T> implements Loadable {
    */
   public static <T> T load(DataSource dataSource, Parser<? extends T> parser, Uri uri, int type)
       throws IOException {
-    // TODO: What headers should be used here? This is only ever called from a test
-    ParsingLoadable<T> loadable = new ParsingLoadable<>(dataSource, uri, Collections.emptyMap(), type, parser);
+    ParsingLoadable<T> loadable = new ParsingLoadable<>(dataSource, uri, type, parser);
     loadable.load();
     return Assertions.checkNotNull(loadable.getResult());
   }
@@ -108,17 +107,15 @@ public final class ParsingLoadable<T> implements Loadable {
   /**
    * @param dataSource A {@link DataSource} to use when loading the data.
    * @param uri The {@link Uri} from which the object should be loaded.
-   * @param headers Headers to be added when loading the data
    * @param type See {@link #type}.
    * @param parser Parses the object from the response.
    */
-  public ParsingLoadable(DataSource dataSource, Uri uri, Map<String, String> headers, int type,
+  public ParsingLoadable(DataSource dataSource, Uri uri, int type,
       Parser<? extends T> parser) {
     this(
         dataSource,
         new DataSpec.Builder()
             .setUri(uri)
-            .setHttpRequestHeaders(headers)
             .setFlags(DataSpec.FLAG_ALLOW_GZIP)
             .build(),
         type,
