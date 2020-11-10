@@ -188,7 +188,14 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   private static int getVolumeFromManager(AudioManager audioManager, @C.StreamType int streamType) {
-    return audioManager.getStreamVolume(streamType);
+    // AudioManager#getStreamVolume(int) throws an exception on some devices. See
+    // https://github.com/google/ExoPlayer/issues/8191.
+    try {
+      return audioManager.getStreamVolume(streamType);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Could not retrieve stream volume for stream type " + streamType, e);
+      return audioManager.getStreamMaxVolume(streamType);
+    }
   }
 
   private static boolean getMutedFromManager(
@@ -196,7 +203,7 @@ import com.google.android.exoplayer2.util.Util;
     if (Util.SDK_INT >= 23) {
       return audioManager.isStreamMute(streamType);
     } else {
-      return audioManager.getStreamVolume(streamType) == 0;
+      return getVolumeFromManager(audioManager, streamType) == 0;
     }
   }
 

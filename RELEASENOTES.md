@@ -38,6 +38,8 @@
         ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
+    *   Work around `AudioManager` crashes when calling `getStreamVolume`
+        ([#8191](https://github.com/google/ExoPlayer/issues/8191)).
 *   Extractors:
     *   Matroska: Add support for 32-bit floating point PCM, and 8-bit and
         16-bit big endian integer PCM
