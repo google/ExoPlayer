@@ -45,6 +45,8 @@ public final class UdpDataSource extends BaseDataSource {
   /** The default socket timeout, in milliseconds. */
   public static final int DEFAULT_SOCKET_TIMEOUT_MILLIS = 8 * 1000;
 
+  public static final int UDP_PORT_UNSET = -1;
+
   private final int socketTimeoutMillis;
   private final byte[] packetBuffer;
   private final DatagramPacket packet;
@@ -168,5 +170,16 @@ public final class UdpDataSource extends BaseDataSource {
       opened = false;
       transferEnded();
     }
+  }
+
+  /**
+   * Returns the local port number opened for the UDP connection, or {@link #UDP_PORT_UNSET} if no
+   * connection is open
+   */
+  public int getLocalPort() {
+    if (socket == null) {
+      return UDP_PORT_UNSET;
+    }
+    return socket.getLocalPort();
   }
 }
