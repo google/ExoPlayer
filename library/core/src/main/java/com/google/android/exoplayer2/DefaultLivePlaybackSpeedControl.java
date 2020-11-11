@@ -30,8 +30,8 @@ import com.google.android.exoplayer2.util.Util;
  *
  * <p>The control mechanism calculates the adjusted speed as {@code 1.0 + proportionalControlFactor
  * x (currentLiveOffsetSec - targetLiveOffsetSec)}. Unit speed (1.0f) is used, if the {@code
- * currentLiveOffsetSec} is marginally close to {@code targetLiveOffsetSec}, i.e. {@code
- * |currentLiveOffsetSec - targetLiveOffsetSec| <= MAXIMUM_LIVE_OFFSET_ERROR_US_FOR_UNIT_SPEED}.
+ * currentLiveOffsetSec} is closer to {@code targetLiveOffsetSec} than the value set with {@link
+ * Builder#setMaxLiveOffsetErrorMsForUnitSpeed(long)}.
  *
  * <p>The resulting speed is clamped to a minimum and maximum speed defined by the media, the
  * fallback values set with {@link Builder#setFallbackMinPlaybackSpeed(float)} and {@link
@@ -63,13 +63,13 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
    * The default {@link Builder#setMinUpdateIntervalMs(long) minimum interval} between playback
    * speed changes, in milliseconds.
    */
-  public static final long DEFAULT_MIN_UPDATE_INTERVAL_MS = 500;
+  public static final long DEFAULT_MIN_UPDATE_INTERVAL_MS = 1_000;
 
   /**
    * The default {@link Builder#setProportionalControlFactor(float) proportional control factor}
    * used to adjust the playback speed.
    */
-  public static final float DEFAULT_PROPORTIONAL_CONTROL_FACTOR = 0.05f;
+  public static final float DEFAULT_PROPORTIONAL_CONTROL_FACTOR = 0.1f;
 
   /**
    * The default increment applied to the target live offset each time the player is rebuffering, in
@@ -84,10 +84,10 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   public static final float DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR = 0.999f;
 
   /**
-   * The maximum difference between the current live offset and the target live offset for which
-   * unit speed (1.0f) is used.
+   * The default maximum difference between the current live offset and the target live offset, in
+   * milliseconds, for which unit speed (1.0f) is used.
    */
-  public static final long MAXIMUM_LIVE_OFFSET_ERROR_US_FOR_UNIT_SPEED = 5_000;
+  public static final long DEFAULT_MAX_LIVE_OFFSET_ERROR_MS_FOR_UNIT_SPEED = 20;
 
   /** Builder for a {@link DefaultLivePlaybackSpeedControl}. */
   public static final class Builder {
@@ -96,6 +96,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     private float fallbackMaxPlaybackSpeed;
     private long minUpdateIntervalMs;
     private float proportionalControlFactorUs;
+    private long maxLiveOffsetErrorUsForUnitSpeed;
     private long targetLiveOffsetIncrementOnRebufferUs;
     private float minPossibleLiveOffsetSmoothingFactor;
 
@@ -105,6 +106,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
       fallbackMaxPlaybackSpeed = DEFAULT_FALLBACK_MAX_PLAYBACK_SPEED;
       minUpdateIntervalMs = DEFAULT_MIN_UPDATE_INTERVAL_MS;
       proportionalControlFactorUs = DEFAULT_PROPORTIONAL_CONTROL_FACTOR / C.MICROS_PER_SECOND;
+      maxLiveOffsetErrorUsForUnitSpeed = C.msToUs(DEFAULT_MAX_LIVE_OFFSET_ERROR_MS_FOR_UNIT_SPEED);
       targetLiveOffsetIncrementOnRebufferUs =
           C.msToUs(DEFAULT_TARGET_LIVE_OFFSET_INCREMENT_ON_REBUFFER_MS);
       minPossibleLiveOffsetSmoothingFactor = DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR;
@@ -174,6 +176,22 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     }
 
     /**
+     * Sets the maximum difference between the current live offset and the target live offset, in
+     * milliseconds, for which unit speed (1.0f) is used.
+     *
+     * <p>The default is {@link #DEFAULT_MAX_LIVE_OFFSET_ERROR_MS_FOR_UNIT_SPEED}.
+     *
+     * @param maxLiveOffsetErrorMsForUnitSpeed The maximum live offset error for which unit speed is
+     *     used, in milliseconds.
+     * @return This builder, for convenience.
+     */
+    public Builder setMaxLiveOffsetErrorMsForUnitSpeed(long maxLiveOffsetErrorMsForUnitSpeed) {
+      Assertions.checkArgument(maxLiveOffsetErrorMsForUnitSpeed > 0);
+      this.maxLiveOffsetErrorUsForUnitSpeed = C.msToUs(maxLiveOffsetErrorMsForUnitSpeed);
+      return this;
+    }
+
+    /**
      * Sets the increment applied to the target live offset each time the player is rebuffering, in
      * milliseconds.
      *
@@ -217,6 +235,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
           fallbackMaxPlaybackSpeed,
           minUpdateIntervalMs,
           proportionalControlFactorUs,
+          maxLiveOffsetErrorUsForUnitSpeed,
           targetLiveOffsetIncrementOnRebufferUs,
           minPossibleLiveOffsetSmoothingFactor);
     }
@@ -226,6 +245,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
   private final float fallbackMaxPlaybackSpeed;
   private final long minUpdateIntervalMs;
   private final float proportionalControlFactor;
+  private final long maxLiveOffsetErrorUsForUnitSpeed;
   private final long targetLiveOffsetRebufferDeltaUs;
   private final float minPossibleLiveOffsetSmoothingFactor;
 
@@ -249,12 +269,14 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
       float fallbackMaxPlaybackSpeed,
       long minUpdateIntervalMs,
       float proportionalControlFactor,
+      long maxLiveOffsetErrorUsForUnitSpeed,
       long targetLiveOffsetRebufferDeltaUs,
       float minPossibleLiveOffsetSmoothingFactor) {
     this.fallbackMinPlaybackSpeed = fallbackMinPlaybackSpeed;
     this.fallbackMaxPlaybackSpeed = fallbackMaxPlaybackSpeed;
     this.minUpdateIntervalMs = minUpdateIntervalMs;
     this.proportionalControlFactor = proportionalControlFactor;
+    this.maxLiveOffsetErrorUsForUnitSpeed = maxLiveOffsetErrorUsForUnitSpeed;
     this.targetLiveOffsetRebufferDeltaUs = targetLiveOffsetRebufferDeltaUs;
     this.minPossibleLiveOffsetSmoothingFactor = minPossibleLiveOffsetSmoothingFactor;
     mediaConfigurationTargetLiveOffsetUs = C.TIME_UNSET;
@@ -322,7 +344,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
 
     adjustTargetLiveOffsetUs(liveOffsetUs);
     long liveOffsetErrorUs = liveOffsetUs - currentTargetLiveOffsetUs;
-    if (Math.abs(liveOffsetErrorUs) < MAXIMUM_LIVE_OFFSET_ERROR_US_FOR_UNIT_SPEED) {
+    if (Math.abs(liveOffsetErrorUs) < maxLiveOffsetErrorUsForUnitSpeed) {
       adjustedPlaybackSpeed = 1f;
     } else {
       float calculatedSpeed = 1f + proportionalControlFactor * liveOffsetErrorUs;

@@ -512,7 +512,9 @@ public class DefaultLivePlaybackSpeedControlTest {
   @Test
   public void adjustPlaybackSpeed_liveOffsetWithinAcceptableErrorMargin_returnsUnitSpeed() {
     DefaultLivePlaybackSpeedControl defaultLivePlaybackSpeedControl =
-        new DefaultLivePlaybackSpeedControl.Builder().build();
+        new DefaultLivePlaybackSpeedControl.Builder()
+            .setMaxLiveOffsetErrorMsForUnitSpeed(5)
+            .build();
     defaultLivePlaybackSpeedControl.setLiveConfiguration(
         new LiveConfiguration(
             /* targetLiveOffsetMs= */ 2_000,
@@ -523,16 +525,10 @@ public class DefaultLivePlaybackSpeedControlTest {
 
     float adjustedSpeedJustAboveLowerErrorMargin =
         defaultLivePlaybackSpeedControl.getAdjustedPlaybackSpeed(
-            /* liveOffsetUs= */ 2_000_000
-                - DefaultLivePlaybackSpeedControl.MAXIMUM_LIVE_OFFSET_ERROR_US_FOR_UNIT_SPEED
-                + 1,
-            /* bufferedDurationUs= */ 1_000_000);
+            /* liveOffsetUs= */ 2_000_000 - 5_000 + 1, /* bufferedDurationUs= */ 1_000_000);
     float adjustedSpeedJustBelowUpperErrorMargin =
         defaultLivePlaybackSpeedControl.getAdjustedPlaybackSpeed(
-            /* liveOffsetUs= */ 2_000_000
-                + DefaultLivePlaybackSpeedControl.MAXIMUM_LIVE_OFFSET_ERROR_US_FOR_UNIT_SPEED
-                - 1,
-            /* bufferedDurationUs= */ 1_000_000);
+            /* liveOffsetUs= */ 2_000_000 + 5_000 - 1, /* bufferedDurationUs= */ 1_000_000);
 
     assertThat(adjustedSpeedJustAboveLowerErrorMargin).isEqualTo(1f);
     assertThat(adjustedSpeedJustBelowUpperErrorMargin).isEqualTo(1f);
