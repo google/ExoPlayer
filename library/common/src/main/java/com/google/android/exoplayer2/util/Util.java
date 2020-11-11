@@ -1692,7 +1692,6 @@ public final class Util {
         return C.USAGE_ASSISTANCE_SONIFICATION;
       case C.STREAM_TYPE_VOICE_CALL:
         return C.USAGE_VOICE_COMMUNICATION;
-      case C.STREAM_TYPE_USE_DEFAULT:
       case C.STREAM_TYPE_MUSIC:
       default:
         return C.USAGE_MEDIA;
@@ -1713,7 +1712,6 @@ public final class Util {
         return C.CONTENT_TYPE_SONIFICATION;
       case C.STREAM_TYPE_VOICE_CALL:
         return C.CONTENT_TYPE_SPEECH;
-      case C.STREAM_TYPE_USE_DEFAULT:
       case C.STREAM_TYPE_MUSIC:
       default:
         return C.CONTENT_TYPE_MUSIC;
