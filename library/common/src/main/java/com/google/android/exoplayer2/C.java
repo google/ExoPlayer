@@ -253,8 +253,7 @@ public final class C {
   /**
    * Stream types for an {@link android.media.AudioTrack}. One of {@link #STREAM_TYPE_ALARM}, {@link
    * #STREAM_TYPE_DTMF}, {@link #STREAM_TYPE_MUSIC}, {@link #STREAM_TYPE_NOTIFICATION}, {@link
-   * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM}, {@link #STREAM_TYPE_VOICE_CALL} or {@link
-   * #STREAM_TYPE_USE_DEFAULT}.
+   * #STREAM_TYPE_RING}, {@link #STREAM_TYPE_SYSTEM} or {@link #STREAM_TYPE_VOICE_CALL}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -265,8 +264,7 @@ public final class C {
     STREAM_TYPE_NOTIFICATION,
     STREAM_TYPE_RING,
     STREAM_TYPE_SYSTEM,
-    STREAM_TYPE_VOICE_CALL,
-    STREAM_TYPE_USE_DEFAULT
+    STREAM_TYPE_VOICE_CALL
   })
   public @interface StreamType {}
   /**
@@ -297,13 +295,7 @@ public final class C {
    * @see AudioManager#STREAM_VOICE_CALL
    */
   public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
-  /**
-   * @see AudioManager#USE_DEFAULT_STREAM_TYPE
-   */
-  public static final int STREAM_TYPE_USE_DEFAULT = AudioManager.USE_DEFAULT_STREAM_TYPE;
-  /**
-   * The default stream type used by audio renderers.
-   */
+  /** The default stream type used by audio renderers. Equal to {@link #STREAM_TYPE_MUSIC}. */
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
 
   /**
