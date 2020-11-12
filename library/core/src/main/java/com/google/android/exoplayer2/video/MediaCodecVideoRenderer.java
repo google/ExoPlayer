@@ -133,7 +133,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int droppedFrames;
   private int consecutiveDroppedFrameCount;
   private int buffersInCodecCount;
-  private long lastRenderTimeUs;
+  private long lastRenderRealtimeUs;
   private long totalVideoFrameProcessingOffsetUs;
   private int videoFrameProcessingOffsetCount;
 
@@ -411,7 +411,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     super.onStarted();
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
-    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
+    lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     totalVideoFrameProcessingOffsetUs = 0;
     videoFrameProcessingOffsetCount = 0;
     updateSurfaceFrameRate(/* isNewSurface= */ false);
@@ -753,7 +753,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return true;
     }
 
-    long earlyUs = bufferPresentationTimeUs - positionUs;
+    // Note: Use of double rather than float is intentional for accuracy in the calculations below.
+    double playbackSpeed = getPlaybackSpeed();
+    boolean isStarted = getState() == STATE_STARTED;
+    long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+
+    // Calculate how early we are. In other words, the realtime duration that needs to elapse whilst
+    // the renderer is started before the frame should be rendered. A negative value means that
+    // we're already late.
+    long earlyUs = (long) ((bufferPresentationTimeUs - positionUs) / playbackSpeed);
+    if (isStarted) {
+      // Account for the elapsed time since the start of this iteration of the rendering loop.
+      earlyUs -= elapsedRealtimeNowUs - elapsedRealtimeUs;
+    }
+
     if (surface == dummySurface) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
@@ -764,9 +777,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       return false;
     }
 
-    long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
-    long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
-    boolean isStarted = getState() == STATE_STARTED;
+    long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderRealtimeUs;
     boolean shouldRenderFirstFrame =
         !renderedFirstFrameAfterEnable
             ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
@@ -792,11 +803,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (!isStarted || positionUs == initialPositionUs) {
       return false;
     }
-
-    // Fine-grained adjustment of earlyUs based on the elapsed time since the start of the current
-    // iteration of the rendering loop.
-    long elapsedSinceStartOfLoopUs = elapsedRealtimeNowUs - elapsedRealtimeUs;
-    earlyUs -= elapsedSinceStartOfLoopUs;
 
     // Compute the buffer's desired release time in nanoseconds.
     long systemTimeNs = System.nanoTime();
@@ -1042,7 +1048,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, true);
     TraceUtil.endSection();
-    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
+    lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     maybeNotifyRenderedFirstFrame();
@@ -1064,7 +1070,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     TraceUtil.beginSection("releaseOutputBuffer");
     codec.releaseOutputBuffer(index, releaseTimeNs);
     TraceUtil.endSection();
-    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
+    lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     maybeNotifyRenderedFirstFrame();
