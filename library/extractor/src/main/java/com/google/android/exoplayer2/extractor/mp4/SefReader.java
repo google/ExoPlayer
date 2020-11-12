@@ -16,10 +16,8 @@
 package com.google.android.exoplayer2.extractor.mp4;
 
 import static com.google.android.exoplayer2.extractor.Extractor.RESULT_SEEK;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -34,7 +32,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -80,15 +77,20 @@ import java.util.List;
 
   private static final String TAG = "SefReader";
 
-  // Hex representation of `SEFT` (in ASCII). This is the last byte of a file that has Samsung
-  // Extension Format (SEF) data.
+  /**
+   * Hex representation of `SEFT` (in ASCII).
+   *
+   * <p>This is the last 4 bytes of a file that has Samsung Extension Format (SEF) data.
+   */
   private static final int SAMSUNG_TAIL_SIGNATURE = 0x53454654;
-
-  // Start signature (4 bytes), SEF version (4 bytes), SDR count (4 bytes).
+  /** Start signature (4 bytes), SEF version (4 bytes), SDR count (4 bytes). */
   private static final int TAIL_HEADER_LENGTH = 12;
-  // Tail offset (4 bytes), tail signature (4 bytes).
+  /** Tail offset (4 bytes), tail signature (4 bytes). */
   private static final int TAIL_FOOTER_LENGTH = 8;
+
   private static final int LENGTH_OF_ONE_SDR = 12;
+  private static final Splitter COLON_SPLITTER = Splitter.on(':');
+  private static final Splitter ASTERISK_SPLITTER = Splitter.on('*');
 
   private final List<DataReference> dataReferences;
   @State private int readerState;
@@ -145,7 +147,7 @@ import java.util.List;
       return;
     }
 
-    // input.getPosition is at the very end of the tail, so jump forward by sefTailLength, but
+    // input.getPosition is at the very end of the tail, so jump forward by tailLength, but
     // account for the tail header, which needs to be ignored.
     seekPosition.position = input.getPosition() - (tailLength - TAIL_HEADER_LENGTH);
     readerState = STATE_READING_SDRS;
@@ -182,46 +184,66 @@ import java.util.List;
       return;
     }
 
-    Collections.sort(dataReferences, (o1, o2) -> Long.compare(o1.startOffset, o2.startOffset));
     readerState = STATE_READING_SEF_DATA;
     seekPosition.position = dataReferences.get(0).startOffset;
   }
 
   private void readSefData(ExtractorInput input, List<Metadata.Entry> slowMotionMetadataEntries)
       throws IOException {
-    checkNotNull(dataReferences);
-    Splitter splitter = Splitter.on(':');
+    long dataStartOffset = input.getPosition();
     int totalDataLength = (int) (input.getLength() - input.getPosition() - tailLength);
-    ParsableByteArray scratch = new ParsableByteArray(/* limit= */ totalDataLength);
-    input.readFully(scratch.getData(), 0, totalDataLength);
+    ParsableByteArray data = new ParsableByteArray(/* limit= */ totalDataLength);
+    input.readFully(data.getData(), 0, totalDataLength);
 
-    int totalDataReferenceBytesConsumed = 0;
     for (int i = 0; i < dataReferences.size(); i++) {
       DataReference dataReference = dataReferences.get(i);
-      if (dataReference.dataType == TYPE_SLOW_MOTION_DATA) {
-        scratch.skipBytes(23); // data type (2), data sub info (2), name len (4), name (15).
-        List<SlowMotionData.Segment> segments = new ArrayList<>();
-        int dataReferenceEndPosition = totalDataReferenceBytesConsumed + dataReference.size;
-        while (scratch.getPosition() < dataReferenceEndPosition) {
-          @Nullable String data = scratch.readDelimiterTerminatedString('*');
-          List<String> values = splitter.splitToList(checkNotNull(data));
-          if (values.size() != 3) {
-            throw new ParserException();
-          }
-          try {
-            int startTimeMs = Integer.parseInt(values.get(0));
-            int endTimeMs = Integer.parseInt(values.get(1));
-            int speedMode = Integer.parseInt(values.get(2));
-            int speedDivisor = 1 << (speedMode - 1);
-            segments.add(new SlowMotionData.Segment(startTimeMs, endTimeMs, speedDivisor));
-          } catch (NumberFormatException e) {
-            throw new ParserException(e);
-          }
-        }
-        totalDataReferenceBytesConsumed += dataReference.size;
-        slowMotionMetadataEntries.add(new SlowMotionData(segments));
+      int intendedPosition = (int) (dataReference.startOffset - dataStartOffset);
+      data.setPosition(intendedPosition);
+
+      // The data type is derived from the name because the SEF format has inconsistent data type
+      // values.
+      data.skipBytes(4); // data type (2), data sub info (2).
+      int nameLength = data.readLittleEndianInt();
+      String name = data.readString(nameLength);
+      @DataType int dataType = nameToDataType(name);
+
+      int remainingDataLength = dataReference.size - (8 + nameLength);
+      switch (dataType) {
+        case TYPE_SLOW_MOTION_DATA:
+          slowMotionMetadataEntries.add(readSlowMotionData(data, remainingDataLength));
+          break;
+        case TYPE_SUPER_SLOW_MOTION_DATA:
+        case TYPE_SUPER_SLOW_MOTION_BGM:
+        case TYPE_SUPER_SLOW_MOTION_EDIT_DATA:
+        case TYPE_SUPER_SLOW_DEFLICKERING_ON:
+          break;
+        default:
+          throw new IllegalStateException();
       }
     }
+  }
+
+  private static SlowMotionData readSlowMotionData(ParsableByteArray data, int dataLength)
+      throws ParserException {
+    List<SlowMotionData.Segment> segments = new ArrayList<>();
+    String dataString = data.readString(dataLength);
+    List<String> segmentStrings = ASTERISK_SPLITTER.splitToList(dataString);
+    for (int i = 0; i < segmentStrings.size(); i++) {
+      List<String> values = COLON_SPLITTER.splitToList(segmentStrings.get(i));
+      if (values.size() != 3) {
+        throw new ParserException();
+      }
+      try {
+        int startTimeMs = Integer.parseInt(values.get(0));
+        int endTimeMs = Integer.parseInt(values.get(1));
+        int speedMode = Integer.parseInt(values.get(2));
+        int speedDivisor = 1 << (speedMode - 1);
+        segments.add(new SlowMotionData.Segment(startTimeMs, endTimeMs, speedDivisor));
+      } catch (NumberFormatException e) {
+        throw new ParserException(e);
+      }
+    }
+    return new SlowMotionData(segments);
   }
 
   @DataType
