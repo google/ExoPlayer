@@ -63,10 +63,20 @@ import java.util.List;
   /** Supported data types. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_SLOW_MOTION_DATA})
+  @IntDef({
+    TYPE_SLOW_MOTION_DATA,
+    TYPE_SUPER_SLOW_MOTION_DATA,
+    TYPE_SUPER_SLOW_MOTION_BGM,
+    TYPE_SUPER_SLOW_MOTION_EDIT_DATA,
+    TYPE_SUPER_SLOW_DEFLICKERING_ON
+  })
   private @interface DataType {}
 
-  private static final int TYPE_SLOW_MOTION_DATA = 0x0890;
+  private static final int TYPE_SLOW_MOTION_DATA = 0x0890; // 2192
+  private static final int TYPE_SUPER_SLOW_MOTION_DATA = 0x0b00; // 2816
+  private static final int TYPE_SUPER_SLOW_MOTION_BGM = 0x0b01; // 2817
+  private static final int TYPE_SUPER_SLOW_MOTION_EDIT_DATA = 0x0b03; // 2819
+  private static final int TYPE_SUPER_SLOW_DEFLICKERING_ON = 0x0b04; // 2820
 
   private static final String TAG = "SefReader";
 
@@ -150,14 +160,20 @@ import java.util.List;
     for (int i = 0; i < sdrsLength / LENGTH_OF_ONE_SDR; i++) {
       scratch.skipBytes(2); // SDR data sub info flag and reserved bits (2).
       @DataType int dataType = scratch.readLittleEndianShort();
-      if (dataType == TYPE_SLOW_MOTION_DATA) {
-        // The read int is the distance from the tail info to the start of the metadata.
-        // Calculated as an offset from the start by working backwards.
-        long startOffset = streamLength - tailLength - scratch.readLittleEndianInt();
-        int size = scratch.readLittleEndianInt();
-        dataReferences.add(new DataReference(dataType, startOffset, size));
-      } else {
-        scratch.skipBytes(8); // startPosition (4), size (4).
+      switch (dataType) {
+        case TYPE_SLOW_MOTION_DATA:
+        case TYPE_SUPER_SLOW_MOTION_DATA:
+        case TYPE_SUPER_SLOW_MOTION_BGM:
+        case TYPE_SUPER_SLOW_MOTION_EDIT_DATA:
+        case TYPE_SUPER_SLOW_DEFLICKERING_ON:
+          // The read int is the distance from the tail info to the start of the metadata.
+          // Calculated as an offset from the start by working backwards.
+          long startOffset = streamLength - tailLength - scratch.readLittleEndianInt();
+          int size = scratch.readLittleEndianInt();
+          dataReferences.add(new DataReference(dataType, startOffset, size));
+          break;
+        default:
+          scratch.skipBytes(8); // startPosition (4), size (4).
       }
     }
 
@@ -205,6 +221,24 @@ import java.util.List;
         totalDataReferenceBytesConsumed += dataReference.size;
         slowMotionMetadataEntries.add(new SlowMotionData(segments));
       }
+    }
+  }
+
+  @DataType
+  private static int nameToDataType(String name) throws ParserException {
+    switch (name) {
+      case "SlowMotion_Data":
+        return TYPE_SLOW_MOTION_DATA;
+      case "Super_SlowMotion_Data":
+        return TYPE_SUPER_SLOW_MOTION_DATA;
+      case "Super_SlowMotion_BGM":
+        return TYPE_SUPER_SLOW_MOTION_BGM;
+      case "Super_SlowMotion_Edit_Data":
+        return TYPE_SUPER_SLOW_MOTION_EDIT_DATA;
+      case "Super_SlowMotion_Deflickering_On":
+        return TYPE_SUPER_SLOW_DEFLICKERING_ON;
+      default:
+        throw new ParserException("Invalid SEF name");
     }
   }
 
