@@ -797,9 +797,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         }
         String url = parseStringAttr(line, REGEX_URI, variableDefinitions);
         long byteRangeStart =
-            parseOptionalLongAttr(line, REGEX_BYTERANGE_START, /* defaultValue= */ 0);
+            parseOptionalLongAttr(line, REGEX_BYTERANGE_START, /* defaultValue= */ C.LENGTH_UNSET);
         long byteRangeLength =
-            parseOptionalLongAttr(line, REGEX_BYTERANGE_LENGTH, /* defaultValue= */ C.TIME_UNSET);
+            parseOptionalLongAttr(line, REGEX_BYTERANGE_LENGTH, /* defaultValue= */ C.LENGTH_UNSET);
         @Nullable
         String segmentEncryptionIV =
             getSegmentEncryptionIV(
@@ -811,21 +811,24 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             playlistProtectionSchemes = getPlaylistProtectionSchemes(encryptionScheme, schemeDatas);
           }
         }
-        preloadPart =
-            new Part(
-                url,
-                initializationSegment,
-                /* durationUs= */ 0,
-                relativeDiscontinuitySequence,
-                partStartTimeUs,
-                cachedDrmInitData,
-                fullSegmentEncryptionKeyUri,
-                segmentEncryptionIV,
-                byteRangeStart,
-                byteRangeLength,
-                /* hasGapTag= */ false,
-                /* isIndependent= */ false,
-                /* isPreload= */ true);
+        if (byteRangeStart == C.LENGTH_UNSET || byteRangeLength != C.LENGTH_UNSET) {
+          // Skip preload part if it is an unbounded range request.
+          preloadPart =
+              new Part(
+                  url,
+                  initializationSegment,
+                  /* durationUs= */ 0,
+                  relativeDiscontinuitySequence,
+                  partStartTimeUs,
+                  cachedDrmInitData,
+                  fullSegmentEncryptionKeyUri,
+                  segmentEncryptionIV,
+                  byteRangeStart != C.LENGTH_UNSET ? byteRangeStart : 0,
+                  byteRangeLength,
+                  /* hasGapTag= */ false,
+                  /* isIndependent= */ false,
+                  /* isPreload= */ true);
+        }
       } else if (line.startsWith(TAG_PART)) {
         @Nullable
         String segmentEncryptionIV =

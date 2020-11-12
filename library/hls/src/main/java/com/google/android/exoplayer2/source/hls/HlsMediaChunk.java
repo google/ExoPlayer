@@ -59,7 +59,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param format The chunk format.
    * @param startOfPlaylistInPeriodUs The position of the playlist in the period in microseconds.
    * @param mediaPlaylist The media playlist from which this chunk was obtained.
-   * @param segmentIndexInPlaylist The index of the segment in the media playlist.
+   * @param segmentBaseHolder The segment holder.
    * @param playlistUrl The url of the playlist from which this chunk was obtained.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the master playlist.
@@ -79,7 +79,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       Format format,
       long startOfPlaylistInPeriodUs,
       HlsMediaPlaylist mediaPlaylist,
-      int segmentIndexInPlaylist,
+      HlsChunkSource.SegmentBaseHolder segmentBaseHolder,
       Uri playlistUrl,
       @Nullable List<Format> muxedCaptionFormats,
       int trackSelectionReason,
@@ -90,7 +90,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable byte[] mediaSegmentKey,
       @Nullable byte[] initSegmentKey) {
     // Media segment.
-    HlsMediaPlaylist.Segment mediaSegment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
+    HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
     DataSpec dataSpec =
         new DataSpec(
             UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url),
@@ -136,10 +136,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           playlistUrl.equals(previousChunk.playlistUrl) && previousChunk.loadCompleted;
       id3Decoder = previousChunk.id3Decoder;
       scratchId3Data = previousChunk.scratchId3Data;
+      boolean isIndependent = isIndependent(segmentBaseHolder, mediaPlaylist);
       boolean canContinueWithoutSplice =
           isFollowingChunk
-              || (mediaPlaylist.hasIndependentSegments
-                  && segmentStartTimeInPeriodUs >= previousChunk.endTimeUs);
+              || (isIndependent && segmentStartTimeInPeriodUs >= previousChunk.endTimeUs);
       shouldSpliceIn = !canContinueWithoutSplice;
       previousExtractor =
           isFollowingChunk
@@ -152,7 +152,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       scratchId3Data = new ParsableByteArray(Id3Decoder.ID3_HEADER_LENGTH);
       shouldSpliceIn = false;
     }
-
     return new HlsMediaChunk(
         extractorFactory,
         mediaDataSource,
@@ -168,7 +167,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         trackSelectionData,
         segmentStartTimeInPeriodUs,
         segmentEndTimeInPeriodUs,
-        /* chunkMediaSequence= */ mediaPlaylist.mediaSequence + segmentIndexInPlaylist,
+        segmentBaseHolder.mediaSequence,
+        segmentBaseHolder.partIndex,
         discontinuitySequenceNumber,
         mediaSegment.hasGapTag,
         isMasterTimestampSource,
@@ -200,6 +200,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /** Whether samples for this chunk should be spliced into existing samples. */
   public final boolean shouldSpliceIn;
+
+  /** The part index or {@link C#INDEX_UNSET} if the chunk is a full segment */
+  public final int partIndex;
 
   @Nullable private final DataSource initDataSource;
   @Nullable private final DataSpec initDataSpec;
@@ -243,6 +246,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       long startTimeUs,
       long endTimeUs,
       long chunkMediaSequence,
+      int partIndex,
       int discontinuitySequenceNumber,
       boolean hasGapTag,
       boolean isMasterTimestampSource,
@@ -262,6 +266,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         endTimeUs,
         chunkMediaSequence);
     this.mediaSegmentEncrypted = mediaSegmentEncrypted;
+    this.partIndex = partIndex;
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
     this.initDataSource = initDataSource;
@@ -540,5 +545,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return new Aes128DataSource(dataSource, fullSegmentEncryptionKey, encryptionIv);
     }
     return dataSource;
+  }
+
+  private static boolean isIndependent(
+      HlsChunkSource.SegmentBaseHolder segmentBaseHolder, HlsMediaPlaylist mediaPlaylist) {
+    if (segmentBaseHolder.segmentBase instanceof HlsMediaPlaylist.Part) {
+      return ((HlsMediaPlaylist.Part) segmentBaseHolder.segmentBase).isIndependent
+          || (segmentBaseHolder.partIndex == 0 && mediaPlaylist.hasIndependentSegments);
+    }
+    return mediaPlaylist.hasIndependentSegments;
   }
 }

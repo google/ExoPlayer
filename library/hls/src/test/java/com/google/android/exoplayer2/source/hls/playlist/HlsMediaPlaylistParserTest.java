@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.extractor.mp4.PsshAtomUtil;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.Iterables;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -362,6 +363,7 @@ public class HlsMediaPlaylistParserTest {
     assertThat(secondPart.byteRangeOffset).isEqualTo(1234);
     // Assert trailing parts.
     HlsMediaPlaylist.Part thirdPart = playlist.trailingParts.get(0);
+    // Assert tailing parts.
     assertThat(thirdPart.byteRangeLength).isEqualTo(1000);
     assertThat(thirdPart.byteRangeOffset).isEqualTo(1234);
     assertThat(thirdPart.relativeStartTimeUs).isEqualTo(8_000_000);
@@ -542,6 +544,27 @@ public class HlsMediaPlaylistParserTest {
     assertThat(playlist.trailingParts).hasSize(2);
     assertThat(playlist.trailingParts.get(1).url).isEqualTo("filePart267.2.ts");
     assertThat(playlist.trailingParts.get(1).isPreload).isTrue();
+  }
+
+  @Test
+  public void parseMediaPlaylist_withUnboundedPreloadHintTypePart_ignoresPreloadPart()
+      throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-MEDIA-SEQUENCE:266\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part267.1.ts\"\n"
+            + "#EXT-X-PRELOAD-HINT:TYPE=PART,URI=\"filePart267.2.ts,BYTERANGE-START=0\"\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    assertThat(playlist.trailingParts).hasSize(1);
+    assertThat(Iterables.getLast(playlist.trailingParts).url).isEqualTo("part267.1.ts");
+    assertThat(Iterables.getLast(playlist.trailingParts).isPreload).isFalse();
   }
 
   @Test
