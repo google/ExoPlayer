@@ -59,7 +59,7 @@
   <style name="ExoStyledControls"/>
 
   <style name="ExoStyledControls.Button">
-    <item name="android:background">?android:attr/selectableItemBackground</item>
+    <item name="android:background">@drawable/exo_selectable_item_background_borderless</item>
     <item name="android:scaleType">fitXY</item>
     <item name="android:layout_marginLeft">@dimen/exo_icon_horizontal_margin</item>
     <item name="android:layout_marginRight">@dimen/exo_icon_horizontal_margin</item>
@@ -134,6 +134,7 @@
   </style>
 
   <style name="ExoStyledControls.Button.Bottom">
+    <item name="android:background">?android:attr/selectableItemBackground</item>
     <item name="android:gravity">center_horizontal</item>
     <item name="android:layout_width">@dimen/exo_small_icon_width</item>
     <item name="android:layout_height">@dimen/exo_small_icon_height</item>

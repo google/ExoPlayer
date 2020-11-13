@@ -36,6 +36,7 @@
         `LeanbackPlayerAdapter` and use `ControlDispatcher` for dispatching
         prepare instead
         ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
+    *   Switch StyledPlayerView button controls to borderless ripples.
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
     *   Work around `AudioManager` crashes when calling `getStreamVolume`
