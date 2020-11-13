@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -44,6 +45,9 @@ public final class VideoFrameReleaseTimeHelper {
   @Nullable private final WindowManager windowManager;
   @Nullable private final VSyncSampler vsyncSampler;
   @Nullable private final DefaultDisplayListener displayListener;
+
+  private float formatFrameRate;
+  private float playbackSpeed;
 
   private long vsyncDurationNs;
   private long vsyncOffsetNs;
@@ -87,9 +91,11 @@ public final class VideoFrameReleaseTimeHelper {
     }
     vsyncDurationNs = C.TIME_UNSET;
     vsyncOffsetNs = C.TIME_UNSET;
+    formatFrameRate = Format.NO_VALUE;
+    playbackSpeed = 1f;
   }
 
-  /** Enables the helper. Must be called from the playback thread. */
+  /** Enables the helper. */
   @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
   public void enable() {
     haveSync = false;
@@ -102,7 +108,7 @@ public final class VideoFrameReleaseTimeHelper {
     }
   }
 
-  /** Disables the helper. Must be called from the playback thread. */
+  /** Disables the helper. */
   @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
   public void disable() {
     if (windowManager != null) {
@@ -113,12 +119,36 @@ public final class VideoFrameReleaseTimeHelper {
     }
   }
 
+  /** Returns the estimated playback frame rate, or {@link C#RATE_UNSET} if unknown. */
+  public float getPlaybackFrameRate() {
+    return formatFrameRate == Format.NO_VALUE ? C.RATE_UNSET : (formatFrameRate * playbackSpeed);
+  }
+
   /**
-   * Adjusts a frame release timestamp. Must be called from the playback thread.
+   * Sets the player's speed, where 1 is the default rate, 2 is twice the default rate, 0.5 is half
+   * the default rate and so on.
+   *
+   * @param playbackSpeed The player's speed.
+   */
+  public void setPlaybackSpeed(float playbackSpeed) {
+    this.playbackSpeed = playbackSpeed;
+  }
+
+  /**
+   * Sets the format's frame rate in frames per second, or {@link Format#NO_VALUE} if unknown.
+   *
+   * @param formatFrameRate The format's frame rate, or {@link Format#NO_VALUE}.
+   */
+  public void setFormatFrameRate(float formatFrameRate) {
+    this.formatFrameRate = formatFrameRate;
+  }
+
+  /**
+   * Adjusts a frame release timestamp.
    *
    * @param framePresentationTimeUs The frame's presentation time, in microseconds.
-   * @param unadjustedReleaseTimeNs The frame's unadjusted release time, in nanoseconds and in
-   *     the same time base as {@link System#nanoTime()}.
+   * @param unadjustedReleaseTimeNs The frame's unadjusted release time, in nanoseconds and in the
+   *     same time base as {@link System#nanoTime()}.
    * @return The adjusted frame release timestamp, in nanoseconds and in the same time base as
    *     {@link System#nanoTime()}.
    */

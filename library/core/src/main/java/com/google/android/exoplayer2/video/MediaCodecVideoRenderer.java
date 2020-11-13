@@ -141,7 +141,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int currentHeight;
   private int currentUnappliedRotationDegrees;
   private float currentPixelWidthHeightRatio;
-  private float currentFrameRate;
   private int reportedWidth;
   private int reportedHeight;
   private int reportedUnappliedRotationDegrees;
@@ -588,6 +587,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   public void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {
     super.setPlaybackSpeed(playbackSpeed);
+    frameReleaseTimeHelper.setPlaybackSpeed(playbackSpeed);
     updateSurfaceFrameRate(/* isNewSurface= */ false);
   }
 
@@ -690,7 +690,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // On API level 20 and below the decoder does not apply the rotation.
       currentUnappliedRotationDegrees = format.rotationDegrees;
     }
-    currentFrameRate = format.frameRate;
+    frameReleaseTimeHelper.setFormatFrameRate(format.frameRate);
     updateSurfaceFrameRate(/* isNewSurface= */ false);
   }
 
@@ -1079,8 +1079,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (Util.SDK_INT < 30 || surface == null || surface == dummySurface) {
       return;
     }
-    boolean shouldSetFrameRate = getState() == STATE_STARTED && currentFrameRate != Format.NO_VALUE;
-    float surfaceFrameRate = shouldSetFrameRate ? currentFrameRate * getPlaybackSpeed() : 0;
+    float playbackFrameRate = frameReleaseTimeHelper.getPlaybackFrameRate();
+    float surfaceFrameRate =
+        getState() == STATE_STARTED && playbackFrameRate != C.RATE_UNSET ? playbackFrameRate : 0;
     // We always set the frame-rate if we have a new surface, since we have no way of knowing what
     // it might have been set to previously.
     if (this.surfaceFrameRate == surfaceFrameRate && !isNewSurface) {
