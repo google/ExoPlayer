@@ -635,20 +635,43 @@ public class DownloadManagerTest {
   }
 
   @Test
-  public void mergeRequest_completedWithStopReason_becomesStopped() {
-    DownloadRequest downloadRequest = createDownloadRequest(ID1);
+  public void mergeRequest_completedWithStopReason_mergesNewKeyAndBecomesStopped() {
+    StreamKey streamKey1 = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0);
+    StreamKey streamKey2 = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 1);
+
+    DownloadRequest downloadRequest1 = createDownloadRequest(ID1, streamKey1);
     DownloadBuilder downloadBuilder =
-        new DownloadBuilder(downloadRequest)
+        new DownloadBuilder(downloadRequest1)
             .setState(Download.STATE_COMPLETED)
             .setStopReason(/* stopReason= */ 1);
     Download download = downloadBuilder.build();
 
+    DownloadRequest downloadRequest2 = createDownloadRequest(ID1, streamKey2);
     Download mergedDownload =
-        DownloadManager.mergeRequest(download, downloadRequest, download.stopReason, NOW_MS);
+        DownloadManager.mergeRequest(download, downloadRequest2, download.stopReason, NOW_MS);
 
     Download expectedDownload =
-        downloadBuilder.setStartTimeMs(NOW_MS).setState(Download.STATE_STOPPED).build();
+        downloadBuilder
+            .setStreamKeys(streamKey1, streamKey2)
+            .setState(Download.STATE_STOPPED)
+            .build();
     assertEqualIgnoringUpdateTime(mergedDownload, expectedDownload);
+  }
+
+  @Test
+  public void mergeRequest_completed_staysCompleted() {
+    StreamKey streamKey = new StreamKey(/* groupIndex= */ 0, /* trackIndex= */ 0);
+
+    DownloadRequest downloadRequest1 = createDownloadRequest(ID1, streamKey);
+    DownloadBuilder downloadBuilder =
+        new DownloadBuilder(downloadRequest1).setState(Download.STATE_COMPLETED);
+    Download download = downloadBuilder.build();
+
+    DownloadRequest downloadRequest2 = createDownloadRequest(ID1, streamKey);
+    Download mergedDownload =
+        DownloadManager.mergeRequest(download, downloadRequest2, /* stopReason= */ 0, NOW_MS);
+
+    assertEqualIgnoringUpdateTime(mergedDownload, download);
   }
 
   private void setupDownloadManager(int maxParallelDownloads) throws Exception {

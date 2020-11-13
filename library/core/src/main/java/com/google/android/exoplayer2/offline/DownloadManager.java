@@ -666,21 +666,28 @@ public final class DownloadManager {
 
   /* package */ static Download mergeRequest(
       Download download, DownloadRequest request, int stopReason, long nowMs) {
+    DownloadRequest mergedRequest = download.request.copyWithMergedRequest(request);
+
     @Download.State int state = download.state;
     // Treat the merge as creating a new download if we're currently removing the existing one, or
-    // if the existing download is in a terminal state. Else treat the merge as updating the
-    // existing download.
+    // if the existing download has failed. Else treat the merge as updating the existing download.
     long startTimeMs =
-        state == STATE_REMOVING || download.isTerminalState() ? nowMs : download.startTimeMs;
-    if (state == STATE_REMOVING || state == STATE_RESTARTING) {
+        state == STATE_REMOVING || state == STATE_FAILED ? nowMs : download.startTimeMs;
+
+    if (state == STATE_COMPLETED
+        && mergedRequest.streamKeys.size() == download.request.streamKeys.size()) {
+      // A completed download is still completed if no new streams are added.
+      state = STATE_COMPLETED;
+    } else if (state == STATE_REMOVING || state == STATE_RESTARTING) {
       state = STATE_RESTARTING;
     } else if (stopReason != STOP_REASON_NONE) {
       state = STATE_STOPPED;
     } else {
       state = STATE_QUEUED;
     }
+
     return new Download(
-        download.request.copyWithMergedRequest(request),
+        mergedRequest,
         state,
         startTimeMs,
         /* updateTimeMs= */ nowMs,
