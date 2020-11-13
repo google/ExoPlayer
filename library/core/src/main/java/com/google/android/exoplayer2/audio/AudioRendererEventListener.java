@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -61,12 +62,23 @@ public interface AudioRendererEventListener {
   default void onAudioDecoderInitialized(
       String decoderName, long initializedTimestampMs, long initializationDurationMs) {}
 
+  /** @deprecated Use {@link #onAudioInputFormatChanged(Format, DecoderReuseEvaluation)}. */
+  @Deprecated
+  default void onAudioInputFormatChanged(Format format) {}
+
   /**
    * Called when the format of the media being consumed by the renderer changes.
    *
    * @param format The new format.
+   * @param decoderReuseEvaluation The result of the evaluation to determine whether an existing
+   *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
+   *     have a decoder.
    */
-  default void onAudioInputFormatChanged(Format format) {}
+  @SuppressWarnings("deprecation")
+  default void onAudioInputFormatChanged(
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+    onAudioInputFormatChanged(format);
+  }
 
   /**
    * Called when the audio position has increased for the first time since the last pause or
@@ -167,9 +179,11 @@ public interface AudioRendererEventListener {
     }
 
     /** Invokes {@link AudioRendererEventListener#onAudioInputFormatChanged(Format)}. */
-    public void inputFormatChanged(Format format) {
+    public void inputFormatChanged(
+        Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       if (handler != null) {
-        handler.post(() -> castNonNull(listener).onAudioInputFormatChanged(format));
+        handler.post(
+            () -> castNonNull(listener).onAudioInputFormatChanged(format, decoderReuseEvaluation));
       }
     }
 

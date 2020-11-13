@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
@@ -2242,10 +2243,11 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onVideoInputFormatChanged(Format format) {
+    public void onVideoInputFormatChanged(
+        Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       videoFormat = format;
       for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoInputFormatChanged(format);
+        videoDebugListener.onVideoInputFormatChanged(format, decoderReuseEvaluation);
       }
     }
 
@@ -2337,10 +2339,11 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onAudioInputFormatChanged(Format format) {
+    public void onAudioInputFormatChanged(
+        Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       audioFormat = format;
       for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioInputFormatChanged(format);
+        audioDebugListener.onAudioInputFormatChanged(format, decoderReuseEvaluation);
       }
     }
 

@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
@@ -328,7 +329,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onAudioInputFormatChanged(EventTime eventTime, Format format) {
+  public void onAudioInputFormatChanged(
+      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
     logd(eventTime, "audioInputFormat", Format.toLogString(format));
   }
 
@@ -393,7 +395,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onVideoInputFormatChanged(EventTime eventTime, Format format) {
+  public void onVideoInputFormatChanged(
+      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
     logd(eventTime, "videoInputFormat", Format.toLogString(format));
   }
 

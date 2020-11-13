@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
@@ -195,11 +196,12 @@ public class AnalyticsCollector
 
   @SuppressWarnings("deprecation")
   @Override
-  public final void onAudioInputFormatChanged(Format format) {
+  public final void onAudioInputFormatChanged(
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     listeners.sendEvent(
         listener -> {
-          listener.onAudioInputFormatChanged(eventTime, format);
+          listener.onAudioInputFormatChanged(eventTime, format, decoderReuseEvaluation);
           listener.onDecoderInputFormatChanged(eventTime, C.TRACK_TYPE_AUDIO, format);
         });
   }
@@ -298,11 +300,12 @@ public class AnalyticsCollector
 
   @SuppressWarnings("deprecation")
   @Override
-  public final void onVideoInputFormatChanged(Format format) {
+  public final void onVideoInputFormatChanged(
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     listeners.sendEvent(
         listener -> {
-          listener.onVideoInputFormatChanged(eventTime, format);
+          listener.onVideoInputFormatChanged(eventTime, format, decoderReuseEvaluation);
           listener.onDecoderInputFormatChanged(eventTime, C.TRACK_TYPE_VIDEO, format);
         });
   }

@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_DRM_SESSION_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static java.lang.Math.max;
 
 import android.os.Handler;
@@ -34,6 +37,7 @@ import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -97,9 +101,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   private Format inputFormat;
   private Format outputFormat;
+
+  @Nullable
   private Decoder<
           VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
       decoder;
+
   private VideoDecoderInputBuffer inputBuffer;
   private VideoDecoderOutputBuffer outputBuffer;
   @Nullable private Surface surface;
@@ -366,7 +373,24 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
     if (decoder == null) {
       maybeInitDecoder();
-    } else if (sourceDrmSession != decoderDrmSession || !canKeepCodec(oldFormat, inputFormat)) {
+      eventDispatcher.inputFormatChanged(inputFormat, /* decoderReuseEvaluation= */ null);
+      return;
+    }
+
+    DecoderReuseEvaluation evaluation;
+    if (sourceDrmSession != decoderDrmSession) {
+      evaluation =
+          new DecoderReuseEvaluation(
+              decoder.getName(),
+              oldFormat,
+              newFormat,
+              REUSE_RESULT_NO,
+              DISCARD_REASON_DRM_SESSION_CHANGED);
+    } else {
+      evaluation = canReuseDecoder(decoder.getName(), oldFormat, newFormat);
+    }
+
+    if (evaluation.result == REUSE_RESULT_NO) {
       if (decoderReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -376,8 +400,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         maybeInitDecoder();
       }
     }
-
-    eventDispatcher.inputFormatChanged(inputFormat);
+    eventDispatcher.inputFormatChanged(inputFormat, evaluation);
   }
 
   /**
@@ -626,14 +649,18 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   protected abstract void setDecoderOutputMode(@C.VideoOutputMode int outputMode);
 
   /**
-   * Returns whether the existing decoder can be kept for a new format.
+   * Evaluates whether the existing decoder can be reused for a new {@link Format}.
+   *
+   * <p>The default implementation does not allow decoder reuse.
    *
    * @param oldFormat The previous format.
    * @param newFormat The new format.
-   * @return Whether the existing decoder can be kept.
+   * @return The result of the evaluation.
    */
-  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
-    return false;
+  protected DecoderReuseEvaluation canReuseDecoder(
+      String decoderName, Format oldFormat, Format newFormat) {
+    return new DecoderReuseEvaluation(
+        decoderName, oldFormat, newFormat, REUSE_RESULT_NO, DISCARD_REASON_REUSE_NOT_IMPLEMENTED);
   }
 
   // Internal methods.

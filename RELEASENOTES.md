@@ -48,6 +48,12 @@
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.
+*   Analytics:
+    *   Pass a `DecoderReuseEvaluation` to `AnalyticsListener`'s
+        `onVideoInputFormatChanged` and `onAudioInputFormatChanged` methods. The
+        `DecoderReuseEvaluation` indicates whether it was possible to re-use an
+        existing decoder instance for the new format, and if not then the
+        reasons why.
 *   IMA extension:
     *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)).

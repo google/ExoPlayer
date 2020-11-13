@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
@@ -165,12 +166,15 @@ import java.util.ArrayList;
     }
 
     @Override
-    protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
-      super.onInputFormatChanged(formatHolder);
+    @Nullable
+    protected DecoderReuseEvaluation onInputFormatChanged(FormatHolder formatHolder)
+        throws ExoPlaybackException {
+      @Nullable DecoderReuseEvaluation evaluation = super.onInputFormatChanged(formatHolder);
       // Ensure timestamps of buffers queued after this format change are never inserted into the
       // queue of expected output timestamps before those of buffers that have already been queued.
       minimumInsertIndex = startIndex + queueSize;
       inputFormatChanged = true;
+      return evaluation;
     }
 
     @Override

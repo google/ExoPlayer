@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_DRM_SESSION_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static java.lang.Math.max;
 
 import android.media.audiofx.Virtualizer;
@@ -38,6 +41,7 @@ import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.decoder.SimpleOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
@@ -347,14 +351,19 @@ public abstract class DecoderAudioRenderer<
   protected abstract Format getOutputFormat(T decoder);
 
   /**
-   * Returns whether the existing decoder can be kept for a new format.
+   * Evaluates whether the existing decoder can be reused for a new {@link Format}.
    *
+   * <p>The default implementation does not allow decoder reuse.
+   *
+   * @param decoderName The name of the decoder.
    * @param oldFormat The previous format.
    * @param newFormat The new format.
-   * @return Whether the existing decoder can be kept.
+   * @return The result of the evaluation.
    */
-  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
-    return false;
+  protected DecoderReuseEvaluation canReuseDecoder(
+      String decoderName, Format oldFormat, Format newFormat) {
+    return new DecoderReuseEvaluation(
+        decoderName, oldFormat, newFormat, REUSE_RESULT_NO, DISCARD_REASON_REUSE_NOT_IMPLEMENTED);
   }
 
   private boolean drainOutputBuffer()
@@ -655,10 +664,29 @@ public abstract class DecoderAudioRenderer<
     setSourceDrmSession(formatHolder.drmSession);
     Format oldFormat = inputFormat;
     inputFormat = newFormat;
+    encoderDelay = newFormat.encoderDelay;
+    encoderPadding = newFormat.encoderPadding;
 
     if (decoder == null) {
       maybeInitDecoder();
-    } else if (sourceDrmSession != decoderDrmSession || !canKeepCodec(oldFormat, inputFormat)) {
+      eventDispatcher.inputFormatChanged(inputFormat, /* decoderReuseEvaluation= */ null);
+      return;
+    }
+
+    DecoderReuseEvaluation evaluation;
+    if (sourceDrmSession != decoderDrmSession) {
+      evaluation =
+          new DecoderReuseEvaluation(
+              decoder.getName(),
+              oldFormat,
+              newFormat,
+              REUSE_RESULT_NO,
+              DISCARD_REASON_DRM_SESSION_CHANGED);
+    } else {
+      evaluation = canReuseDecoder(decoder.getName(), oldFormat, newFormat);
+    }
+
+    if (evaluation.result == REUSE_RESULT_NO) {
       if (decoderReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -669,10 +697,7 @@ public abstract class DecoderAudioRenderer<
         audioTrackNeedsConfigure = true;
       }
     }
-
-    encoderDelay = inputFormat.encoderDelay;
-    encoderPadding = inputFormat.encoderPadding;
-    eventDispatcher.inputFormatChanged(inputFormat);
+    eventDispatcher.inputFormatChanged(inputFormat, evaluation);
   }
 
   private void onQueueInputBuffer(DecoderInputBuffer buffer) {

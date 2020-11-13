@@ -15,6 +15,20 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_AUDIO_CHANNEL_COUNT_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_AUDIO_ENCODING_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_AUDIO_SAMPLE_RATE_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_INITIALIZATION_DATA_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MIME_TYPE_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_RESOLUTION_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_ROTATION_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_WORKAROUND;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_FLUSH;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_RECONFIGURATION;
+
 import android.graphics.Point;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo.AudioCapabilities;
@@ -22,18 +36,17 @@ import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaCodecInfo.VideoCapabilities;
 import android.util.Pair;
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderReuseResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /** Information about a {@link MediaCodec} for a given mime type. */
 @SuppressWarnings("InlinedApi")
@@ -46,28 +59,6 @@ public final class MediaCodecInfo {
    * number of supported instances is unknown.
    */
   public static final int MAX_SUPPORTED_INSTANCES_UNKNOWN = -1;
-
-  /** The possible return values for {@link #canKeepCodec(Format, Format)}. */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    KEEP_CODEC_RESULT_NO,
-    KEEP_CODEC_RESULT_YES_WITH_FLUSH,
-    KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION,
-    KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION
-  })
-  public @interface KeepCodecResult {}
-  /** The codec cannot be kept. */
-  public static final int KEEP_CODEC_RESULT_NO = 0;
-  /** The codec can be kept, but must be flushed. */
-  public static final int KEEP_CODEC_RESULT_YES_WITH_FLUSH = 1;
-  /**
-   * The codec can be kept. It does not need to be flushed, but must be reconfigured by prefixing
-   * the next input buffer with the new format's configuration data.
-   */
-  public static final int KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION = 2;
-  /** The codec can be kept. It does not need to be flushed and no reconfiguration is required. */
-  public static final int KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION = 3;
 
   /**
    * The name of the decoder.
@@ -361,7 +352,7 @@ public final class MediaCodecInfo {
    * @param isNewFormatComplete Whether {@code newFormat} is populated with format-specific
    *     metadata.
    * @return Whether it is possible to adapt the decoder seamlessly.
-   * @deprecated Use {@link #canKeepCodec}.
+   * @deprecated Use {@link #canReuseCodec}.
    */
   @Deprecated
   public boolean isSeamlessAdaptationSupported(
@@ -369,49 +360,68 @@ public final class MediaCodecInfo {
     if (!isNewFormatComplete && oldFormat.colorInfo != null && newFormat.colorInfo == null) {
       newFormat = newFormat.buildUpon().setColorInfo(oldFormat.colorInfo).build();
     }
-    @KeepCodecResult int keepCodecResult = canKeepCodec(oldFormat, newFormat);
-    return keepCodecResult == KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION
-        || keepCodecResult == KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
+    @DecoderReuseResult int reuseResult = canReuseCodec(oldFormat, newFormat).result;
+    return reuseResult == REUSE_RESULT_YES_WITH_RECONFIGURATION
+        || reuseResult == REUSE_RESULT_YES_WITHOUT_RECONFIGURATION;
   }
 
   /**
-   * Returns the extent to which it's possible to adapt an instance of this decoder that's currently
-   * decoding {@code oldFormat} to decode {@code newFormat} instead.
+   * Evaluates whether it's possible to reuse an instance of this decoder that's currently decoding
+   * {@code oldFormat} to decode {@code newFormat} instead.
    *
    * <p>For adaptation to succeed, the codec must also be configured with maximum values that are
    * compatible with the new format.
    *
    * @param oldFormat The format being decoded.
    * @param newFormat The new format.
-   * @return The extent to which it's possible to adapt an instance of the decoder.
+   * @return The result of the evaluation.
    */
-  @KeepCodecResult
-  public int canKeepCodec(Format oldFormat, Format newFormat) {
+  public DecoderReuseEvaluation canReuseCodec(Format oldFormat, Format newFormat) {
+    @DecoderDiscardReasons int discardReasons = 0;
     if (!Util.areEqual(oldFormat.sampleMimeType, newFormat.sampleMimeType)) {
-      return KEEP_CODEC_RESULT_NO;
+      discardReasons |= DISCARD_REASON_MIME_TYPE_CHANGED;
     }
 
     if (isVideo) {
-      if (oldFormat.rotationDegrees == newFormat.rotationDegrees
-          && (adaptive
-              || (oldFormat.width == newFormat.width && oldFormat.height == newFormat.height))
-          && Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo)) {
-        if (oldFormat.initializationDataEquals(newFormat)) {
-          return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
-        } else if (!needsAdaptationReconfigureWorkaround(name)) {
-          return KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
-        }
+      if (oldFormat.rotationDegrees != newFormat.rotationDegrees) {
+        discardReasons |= DISCARD_REASON_VIDEO_ROTATION_CHANGED;
+      }
+      if (!adaptive
+          && (oldFormat.width != newFormat.width || oldFormat.height != newFormat.height)) {
+        discardReasons |= DISCARD_REASON_VIDEO_RESOLUTION_CHANGED;
+      }
+      if (!Util.areEqual(oldFormat.colorInfo, newFormat.colorInfo)) {
+        discardReasons |= DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED;
+      }
+      if (needsAdaptationReconfigureWorkaround(name)
+          && !oldFormat.initializationDataEquals(newFormat)) {
+        discardReasons |= DISCARD_REASON_WORKAROUND;
+      }
+
+      if (discardReasons == 0) {
+        return new DecoderReuseEvaluation(
+            name,
+            oldFormat,
+            newFormat,
+            oldFormat.initializationDataEquals(newFormat)
+                ? REUSE_RESULT_YES_WITHOUT_RECONFIGURATION
+                : REUSE_RESULT_YES_WITH_RECONFIGURATION,
+            /* discardReasons= */ 0);
       }
     } else {
-      if (oldFormat.channelCount != newFormat.channelCount
-          || oldFormat.sampleRate != newFormat.sampleRate
-          || oldFormat.pcmEncoding != newFormat.pcmEncoding) {
-        return KEEP_CODEC_RESULT_NO;
+      if (oldFormat.channelCount != newFormat.channelCount) {
+        discardReasons |= DISCARD_REASON_AUDIO_CHANNEL_COUNT_CHANGED;
+      }
+      if (oldFormat.sampleRate != newFormat.sampleRate) {
+        discardReasons |= DISCARD_REASON_AUDIO_SAMPLE_RATE_CHANGED;
+      }
+      if (oldFormat.pcmEncoding != newFormat.pcmEncoding) {
+        discardReasons |= DISCARD_REASON_AUDIO_ENCODING_CHANGED;
       }
 
       // Check whether we're adapting between two xHE-AAC formats, for which adaptation is possible
       // without reconfiguration or flushing.
-      if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
+      if (discardReasons == 0 && MimeTypes.AUDIO_AAC.equals(mimeType)) {
         @Nullable
         Pair<Integer, Integer> oldCodecProfileLevel =
             MediaCodecUtil.getCodecProfileAndLevel(oldFormat);
@@ -423,18 +433,30 @@ public final class MediaCodecInfo {
           int newProfile = newCodecProfileLevel.first;
           if (oldProfile == CodecProfileLevel.AACObjectXHE
               && newProfile == CodecProfileLevel.AACObjectXHE) {
-            return KEEP_CODEC_RESULT_YES_WITHOUT_RECONFIGURATION;
+            return new DecoderReuseEvaluation(
+                name,
+                oldFormat,
+                newFormat,
+                REUSE_RESULT_YES_WITHOUT_RECONFIGURATION,
+                /* discardReasons= */ 0);
           }
         }
       }
 
-      if (oldFormat.initializationDataEquals(newFormat)
-          && !needsAdaptationFlushWorkaround(mimeType)) {
-        return KEEP_CODEC_RESULT_YES_WITH_FLUSH;
+      if (!oldFormat.initializationDataEquals(newFormat)) {
+        discardReasons |= DISCARD_REASON_INITIALIZATION_DATA_CHANGED;
+      }
+      if (needsAdaptationFlushWorkaround(mimeType)) {
+        discardReasons |= DISCARD_REASON_WORKAROUND;
+      }
+
+      if (discardReasons == 0) {
+        return new DecoderReuseEvaluation(
+            name, oldFormat, newFormat, REUSE_RESULT_YES_WITH_FLUSH, /* discardReasons= */ 0);
       }
     }
 
-    return KEEP_CODEC_RESULT_NO;
+    return new DecoderReuseEvaluation(name, oldFormat, newFormat, REUSE_RESULT_NO, discardReasons);
   }
 
   /**

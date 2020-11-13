@@ -55,7 +55,7 @@ public class FakeAudioRenderer extends FakeRenderer {
 
   @Override
   protected void onFormatChanged(Format format) {
-    eventDispatcher.inputFormatChanged(format);
+    eventDispatcher.inputFormatChanged(format, /* decoderReuseEvaluation= */ null);
     eventDispatcher.decoderInitialized(
         /* decoderName= */ "fake.audio.decoder",
         /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),

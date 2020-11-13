@@ -15,7 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
-import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_NO;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
@@ -41,9 +42,10 @@ import com.google.android.exoplayer2.audio.AudioRendererEventListener.EventDispa
 import com.google.android.exoplayer2.audio.AudioSink.InitializationException;
 import com.google.android.exoplayer2.audio.AudioSink.WriteException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
-import com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KeepCodecResult;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -328,13 +330,21 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  @KeepCodecResult
-  protected int canKeepCodec(
-      MediaCodecAdapter codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+  protected DecoderReuseEvaluation canReuseCodec(
+      MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+    DecoderReuseEvaluation evaluation = codecInfo.canReuseCodec(oldFormat, newFormat);
+
+    @DecoderDiscardReasons int discardReasons = evaluation.discardReasons;
     if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize) {
-      return KEEP_CODEC_RESULT_NO;
+      discardReasons |= DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
     }
-    return codecInfo.canKeepCodec(oldFormat, newFormat);
+
+    return new DecoderReuseEvaluation(
+        codecInfo.name,
+        oldFormat,
+        newFormat,
+        discardReasons != 0 ? REUSE_RESULT_NO : evaluation.result,
+        discardReasons);
   }
 
   @Override
@@ -370,9 +380,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   @Override
-  protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
-    super.onInputFormatChanged(formatHolder);
-    eventDispatcher.inputFormatChanged(formatHolder.format);
+  @Nullable
+  protected DecoderReuseEvaluation onInputFormatChanged(FormatHolder formatHolder)
+      throws ExoPlaybackException {
+    @Nullable DecoderReuseEvaluation evaluation = super.onInputFormatChanged(formatHolder);
+    eventDispatcher.inputFormatChanged(formatHolder.format, evaluation);
+    return evaluation;
   }
 
   @Override
@@ -664,7 +677,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       return maxInputSize;
     }
     for (Format streamFormat : streamFormats) {
-      if (codecInfo.canKeepCodec(format, streamFormat) != KEEP_CODEC_RESULT_NO) {
+      if (codecInfo.canReuseCodec(format, streamFormat).result != REUSE_RESULT_NO) {
         maxInputSize = max(maxInputSize, getCodecMaxInputSize(codecInfo, streamFormat));
       }
     }

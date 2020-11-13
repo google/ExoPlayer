@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.util.Assertions;
 
 /**
@@ -52,12 +53,23 @@ public interface VideoRendererEventListener {
   default void onVideoDecoderInitialized(
       String decoderName, long initializedTimestampMs, long initializationDurationMs) {}
 
+  /** @deprecated Use {@link #onVideoInputFormatChanged(Format, DecoderReuseEvaluation)}. */
+  @Deprecated
+  default void onVideoInputFormatChanged(Format format) {}
+
   /**
    * Called when the format of the media being consumed by the renderer changes.
    *
    * @param format The new format.
+   * @param decoderReuseEvaluation The result of the evaluation to determine whether an existing
+   *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
+   *     have a decoder.
    */
-  default void onVideoInputFormatChanged(Format format) {}
+  @SuppressWarnings("deprecation")
+  default void onVideoInputFormatChanged(
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+    onVideoInputFormatChanged(format);
+  }
 
   /**
    * Called to report the number of frames dropped by the renderer. Dropped frames are reported
@@ -172,10 +184,15 @@ public interface VideoRendererEventListener {
       }
     }
 
-    /** Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format)}. */
-    public void inputFormatChanged(Format format) {
+    /**
+     * Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format,
+     * DecoderReuseEvaluation)}.
+     */
+    public void inputFormatChanged(
+        Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       if (handler != null) {
-        handler.post(() -> castNonNull(listener).onVideoInputFormatChanged(format));
+        handler.post(
+            () -> castNonNull(listener).onVideoInputFormatChanged(format, decoderReuseEvaluation));
       }
     }
 

@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.video;
 
-import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_NO;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -46,11 +48,12 @@ import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaCodecDecoderException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
-import com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KeepCodecResult;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -566,15 +569,24 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  @KeepCodecResult
-  protected int canKeepCodec(
-      MediaCodecAdapter codec, MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
-    if (newFormat.width > codecMaxValues.width
-        || newFormat.height > codecMaxValues.height
-        || getMaxInputSize(codecInfo, newFormat) > codecMaxValues.inputSize) {
-      return KEEP_CODEC_RESULT_NO;
+  protected DecoderReuseEvaluation canReuseCodec(
+      MediaCodecInfo codecInfo, Format oldFormat, Format newFormat) {
+    DecoderReuseEvaluation evaluation = codecInfo.canReuseCodec(oldFormat, newFormat);
+
+    @DecoderDiscardReasons int discardReasons = evaluation.discardReasons;
+    if (newFormat.width > codecMaxValues.width || newFormat.height > codecMaxValues.height) {
+      discardReasons |= DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED;
     }
-    return codecInfo.canKeepCodec(oldFormat, newFormat);
+    if (getMaxInputSize(codecInfo, newFormat) > codecMaxValues.inputSize) {
+      discardReasons |= DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
+    }
+
+    return new DecoderReuseEvaluation(
+        codecInfo.name,
+        oldFormat,
+        newFormat,
+        discardReasons != 0 ? REUSE_RESULT_NO : evaluation.result,
+        discardReasons);
   }
 
   @CallSuper
@@ -621,9 +633,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
-    super.onInputFormatChanged(formatHolder);
-    eventDispatcher.inputFormatChanged(formatHolder.format);
+  @Nullable
+  protected DecoderReuseEvaluation onInputFormatChanged(FormatHolder formatHolder)
+      throws ExoPlaybackException {
+    @Nullable DecoderReuseEvaluation evaluation = super.onInputFormatChanged(formatHolder);
+    eventDispatcher.inputFormatChanged(formatHolder.format, evaluation);
+    return evaluation;
   }
 
   /**
@@ -1333,7 +1348,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         // from format to avoid codec re-use being ruled out for only this reason.
         streamFormat = streamFormat.buildUpon().setColorInfo(format.colorInfo).build();
       }
-      if (codecInfo.canKeepCodec(format, streamFormat) != KEEP_CODEC_RESULT_NO) {
+      if (codecInfo.canReuseCodec(format, streamFormat).result != REUSE_RESULT_NO) {
         haveUnknownDimensions |=
             (streamFormat.width == Format.NO_VALUE || streamFormat.height == Format.NO_VALUE);
         maxWidth = max(maxWidth, streamFormat.width);

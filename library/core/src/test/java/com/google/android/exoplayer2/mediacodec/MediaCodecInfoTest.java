@@ -15,9 +15,15 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
-import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_NO;
-import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_YES_WITH_FLUSH;
-import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_AUDIO_CHANNEL_COUNT_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_INITIALIZATION_DATA_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_MIME_TYPE_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_RESOLUTION_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_ROTATION_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_FLUSH;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_RECONFIGURATION;
 import static com.google.android.exoplayer2.util.MimeTypes.AUDIO_AAC;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_AV1;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
@@ -26,6 +32,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -71,7 +78,14 @@ public final class MediaCodecInfoTest {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
     Format hdAv1Format = FORMAT_H264_HD.buildUpon().setSampleMimeType(VIDEO_AV1).build();
-    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, hdAv1Format)).isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(FORMAT_H264_HD, hdAv1Format))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_H264_HD,
+                hdAv1Format,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_MIME_TYPE_CHANGED));
   }
 
   @Test
@@ -79,24 +93,42 @@ public final class MediaCodecInfoTest {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
     Format hdRotatedFormat = FORMAT_H264_HD.buildUpon().setRotationDegrees(90).build();
-    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, hdRotatedFormat))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(FORMAT_H264_HD, hdRotatedFormat))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_H264_HD,
+                hdRotatedFormat,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_VIDEO_ROTATION_CHANGED));
   }
 
   @Test
   public void canKeepCodec_withResolutionChange_adaptiveCodec_returnsYesWithReconfiguration() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ true);
 
-    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, FORMAT_H264_4K))
-        .isEqualTo(KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION);
+    assertThat(codecInfo.canReuseCodec(FORMAT_H264_HD, FORMAT_H264_4K))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_H264_HD,
+                FORMAT_H264_4K,
+                REUSE_RESULT_YES_WITH_RECONFIGURATION,
+                /* discardReasons= */ 0));
   }
 
   @Test
   public void canKeepCodec_withResolutionChange_nonAdaptiveCodec_returnsNo() {
     MediaCodecInfo codecInfo = buildH264CodecInfo(/* adaptive= */ false);
 
-    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, FORMAT_H264_4K))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(FORMAT_H264_HD, FORMAT_H264_4K))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_H264_HD,
+                FORMAT_H264_4K,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_VIDEO_RESOLUTION_CHANGED));
   }
 
   @Test
@@ -105,8 +137,14 @@ public final class MediaCodecInfoTest {
 
     Format hdVariantFormat =
         FORMAT_H264_HD.buildUpon().setInitializationData(ImmutableList.of(new byte[] {0})).build();
-    assertThat(codecInfo.canKeepCodec(FORMAT_H264_HD, hdVariantFormat))
-        .isEqualTo(KEEP_CODEC_RESULT_YES_WITH_RECONFIGURATION);
+    assertThat(codecInfo.canReuseCodec(FORMAT_H264_HD, hdVariantFormat))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_H264_HD,
+                hdVariantFormat,
+                REUSE_RESULT_YES_WITH_RECONFIGURATION,
+                /* discardReasons= */ 0));
   }
 
   @Test
@@ -115,8 +153,14 @@ public final class MediaCodecInfoTest {
 
     Format hdrVariantFormat =
         FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
-    assertThat(codecInfo.canKeepCodec(hdrVariantFormat, FORMAT_H264_4K))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(hdrVariantFormat, FORMAT_H264_4K))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                hdrVariantFormat,
+                FORMAT_H264_4K,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED));
   }
 
   @Test
@@ -125,8 +169,14 @@ public final class MediaCodecInfoTest {
 
     Format hdrVariantFormat =
         FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
-    assertThat(codecInfo.canKeepCodec(FORMAT_H264_4K, hdrVariantFormat))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(FORMAT_H264_4K, hdrVariantFormat))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_H264_4K,
+                hdrVariantFormat,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED));
   }
 
   @Test
@@ -137,18 +187,28 @@ public final class MediaCodecInfoTest {
         FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT601)).build();
     Format hdrVariantFormat2 =
         FORMAT_H264_4K.buildUpon().setColorInfo(buildColorInfo(C.COLOR_SPACE_BT709)).build();
-    assertThat(codecInfo.canKeepCodec(hdrVariantFormat1, hdrVariantFormat2))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
-    assertThat(codecInfo.canKeepCodec(hdrVariantFormat1, hdrVariantFormat2))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(hdrVariantFormat1, hdrVariantFormat2))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                hdrVariantFormat1,
+                hdrVariantFormat2,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED));
   }
 
   @Test
   public void canKeepCodec_audioWithDifferentChannelCounts_returnsNo() {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 
-    assertThat(codecInfo.canKeepCodec(FORMAT_AAC_STEREO, FORMAT_AAC_SURROUND))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(FORMAT_AAC_STEREO, FORMAT_AAC_SURROUND))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_AAC_STEREO,
+                FORMAT_AAC_SURROUND,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_AUDIO_CHANNEL_COUNT_CHANGED));
   }
 
   @Test
@@ -156,8 +216,14 @@ public final class MediaCodecInfoTest {
     MediaCodecInfo codecInfo = buildAacCodecInfo();
 
     Format stereoVariantFormat = FORMAT_AAC_STEREO.buildUpon().setAverageBitrate(100).build();
-    assertThat(codecInfo.canKeepCodec(FORMAT_AAC_STEREO, stereoVariantFormat))
-        .isEqualTo(KEEP_CODEC_RESULT_YES_WITH_FLUSH);
+    assertThat(codecInfo.canReuseCodec(FORMAT_AAC_STEREO, stereoVariantFormat))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_AAC_STEREO,
+                stereoVariantFormat,
+                REUSE_RESULT_YES_WITH_FLUSH,
+                /* discardReasons= */ 0));
   }
 
   @Test
@@ -169,8 +235,14 @@ public final class MediaCodecInfoTest {
             .buildUpon()
             .setInitializationData(ImmutableList.of(new byte[] {0}))
             .build();
-    assertThat(codecInfo.canKeepCodec(FORMAT_AAC_STEREO, stereoVariantFormat))
-        .isEqualTo(KEEP_CODEC_RESULT_NO);
+    assertThat(codecInfo.canReuseCodec(FORMAT_AAC_STEREO, stereoVariantFormat))
+        .isEqualTo(
+            new DecoderReuseEvaluation(
+                codecInfo.name,
+                FORMAT_AAC_STEREO,
+                stereoVariantFormat,
+                REUSE_RESULT_NO,
+                DISCARD_REASON_INITIALIZATION_DATA_CHANGED));
   }
 
   @Test
