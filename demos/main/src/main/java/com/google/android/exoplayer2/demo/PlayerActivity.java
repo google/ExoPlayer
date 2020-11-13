@@ -64,6 +64,7 @@ import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
@@ -535,12 +536,20 @@ public class PlayerActivity extends AppCompatActivity
             .setCustomCacheKey(downloadRequest.customCacheKey)
             .setMimeType(downloadRequest.mimeType)
             .setStreamKeys(downloadRequest.streamKeys)
-            .setDrmKeySetId(downloadRequest.keySetId);
+            .setDrmKeySetId(downloadRequest.keySetId)
+            .setDrmLicenseRequestHeaders(getDrmRequestHeaders(item));
+
         mediaItems.add(builder.build());
       } else {
         mediaItems.add(item);
       }
     }
     return mediaItems;
+  }
+
+  @Nullable
+  private static Map<String, String> getDrmRequestHeaders(MediaItem item) {
+    MediaItem.DrmConfiguration drmConfiguration = item.playbackProperties.drmConfiguration;
+    return drmConfiguration != null ? drmConfiguration.requestHeaders : null;
   }
 }
