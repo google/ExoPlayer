@@ -69,6 +69,8 @@ extensions/flac/src/main/jni/flac
 
 # FFmpeg extension
 extensions/ffmpeg/src/main/jni/ffmpeg
+extensions/ffmpeg/.cxx
+extensions/ffmpeg/src/main/jni/include
 
 # Cronet extension
 extensions/cronet/jniLibs/*
