@@ -135,7 +135,7 @@
         is in preparation for supporting ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Add a way to override ad media MIME types
-        ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
+        ([#7961](https://github.com/google/ExoPlayer/issues/7961)).
     *   Fix incorrect truncation of large cue point positions
         ([#8067](https://github.com/google/ExoPlayer/issues/8067)).
     *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for
