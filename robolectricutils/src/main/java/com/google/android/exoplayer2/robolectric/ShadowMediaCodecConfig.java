@@ -73,6 +73,11 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
         MimeTypes.VIDEO_MPEG2,
         ImmutableList.of(mpeg2ProfileLevel),
         ImmutableList.of(MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible));
+    configureCodec(
+        /* codecName= */ "exotest.video.vp9",
+        MimeTypes.VIDEO_VP9,
+        ImmutableList.of(),
+        ImmutableList.of(MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible));
 
     // Audio codecs
     configureCodec("exotest.audio.aac", MimeTypes.AUDIO_AAC);
