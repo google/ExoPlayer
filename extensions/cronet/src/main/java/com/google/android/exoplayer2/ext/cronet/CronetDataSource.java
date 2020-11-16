@@ -506,7 +506,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
-        bytesRemaining = getContentLength(responseInfo);
+        long contentLength = getContentLength(responseInfo);
+        bytesRemaining =
+            contentLength != C.LENGTH_UNSET ? (contentLength - bytesToSkip) : C.LENGTH_UNSET;
       }
     } else {
       // If the response is compressed then the content length will be that of the compressed data
