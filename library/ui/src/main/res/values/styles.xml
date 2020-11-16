@@ -188,6 +188,7 @@
 
   <style name="ExoStyledControls.TimeBar">
     <item name="bar_height">@dimen/exo_styled_progress_bar_height</item>
+    <item name="bar_gravity">bottom</item>
     <item name="touch_target_height">@dimen/exo_styled_progress_touch_target_height</item>
     <item name="scrubber_enabled_size">@dimen/exo_styled_progress_enabled_thumb_size</item>
     <item name="scrubber_dragged_size">@dimen/exo_styled_progress_dragged_thumb_size</item>

@@ -74,6 +74,11 @@
 
   <!-- DefaultTimeBar attributes -->
   <attr name="bar_height" format="dimension"/>
+  <attr name="bar_gravity" format="enum">
+    <enum name="center" value="0"/>
+    <enum name="bottom" value="1"/>
+    <enum name="top" value="2"/>
+  </attr>
   <attr name="touch_target_height" format="dimension"/>
   <attr name="ad_marker_width" format="dimension"/>
   <attr name="scrubber_enabled_size" format="dimension"/>
@@ -154,6 +159,7 @@
     <attr name="animation_enabled"/>
     <!-- DefaultTimeBar attributes -->
     <attr name="bar_height"/>
+    <attr name="bar_gravity"/>
     <attr name="touch_target_height"/>
     <attr name="ad_marker_width"/>
     <attr name="scrubber_enabled_size"/>
@@ -186,6 +192,7 @@
     <attr name="controller_layout_id"/>
     <!-- DefaultTimeBar attributes -->
     <attr name="bar_height"/>
+    <attr name="bar_gravity"/>
     <attr name="touch_target_height"/>
     <attr name="ad_marker_width"/>
     <attr name="scrubber_enabled_size"/>
@@ -217,6 +224,7 @@
     <attr name="animation_enabled"/>
     <!-- DefaultTimeBar attributes -->
     <attr name="bar_height"/>
+    <attr name="bar_gravity"/>
     <attr name="touch_target_height"/>
     <attr name="ad_marker_width"/>
     <attr name="scrubber_enabled_size"/>
@@ -233,6 +241,7 @@
 
   <declare-styleable name="DefaultTimeBar">
     <attr name="bar_height"/>
+    <attr name="bar_gravity"/>
     <attr name="touch_target_height"/>
     <attr name="ad_marker_width"/>
     <attr name="scrubber_enabled_size"/>

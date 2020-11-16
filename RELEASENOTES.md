@@ -36,7 +36,9 @@
         `LeanbackPlayerAdapter` and use `ControlDispatcher` for dispatching
         prepare instead
         ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
-    *   Switch StyledPlayerView button controls to borderless ripples.
+    *   Switch `StyledPlayerControlView` button controls to borderless ripples.
+    *   Add `bar_gravity` attribute into `DefaultTimeBar`.
+    *   Increase seekbar's touch target height in `StyledPlayerControlView`.
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
     *   Work around `AudioManager` crashes when calling `getStreamVolume`
