@@ -490,6 +490,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     loadingFinished = false;
     mediaChunks.clear();
     if (loader.isLoading()) {
+      if (sampleQueuesBuilt) {
+        // Discard as much as we can synchronously.
+        for (SampleQueue sampleQueue : sampleQueues) {
+          sampleQueue.discardToEnd();
+        }
+      }
       loader.cancelLoading();
     } else {
       loader.clearFatalError();
