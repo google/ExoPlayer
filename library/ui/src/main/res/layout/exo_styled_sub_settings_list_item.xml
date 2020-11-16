@@ -19,6 +19,7 @@
     android:minWidth="@dimen/exo_setting_width"
     android:minHeight="@dimen/exo_settings_height"
     android:background="?android:attr/selectableItemBackground"
+    android:layoutDirection="locale"
     android:orientation="horizontal">
 
     <ImageView
@@ -40,5 +41,6 @@
         android:layout_marginRight="4dp"
         android:gravity="center|start"
         android:textColor="@color/exo_white"
+        android:textDirection="locale"
         android:textSize="@dimen/exo_settings_main_text_size"/>
 </LinearLayout>
