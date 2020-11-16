@@ -220,7 +220,7 @@ public final class DefaultHlsPlaylistTracker
 
   @Override
   public void refreshPlaylist(Uri url) {
-    playlistBundles.get(url).loadPlaylist(url);
+    playlistBundles.get(url).loadPlaylist();
   }
 
   @Override
@@ -259,7 +259,7 @@ public final class DefaultHlsPlaylistTracker
       // We don't need to load the playlist again. We can use the same result.
       primaryBundle.processLoadedPlaylist((HlsMediaPlaylist) result, loadEventInfo);
     } else {
-      primaryBundle.loadPlaylist(primaryMediaPlaylistUrl);
+      primaryBundle.loadPlaylist();
     }
     loadErrorHandlingPolicy.onLoadTaskConcluded(loadable.loadTaskId);
     eventDispatcher.loadCompleted(loadEventInfo, C.DATA_TYPE_MANIFEST);
@@ -324,7 +324,7 @@ public final class DefaultHlsPlaylistTracker
       MediaPlaylistBundle bundle = playlistBundles.get(variants.get(i).url);
       if (currentTimeMs > bundle.excludeUntilMs) {
         primaryMediaPlaylistUrl = bundle.playlistUrl;
-        bundle.loadPlaylist(primaryMediaPlaylistUrl);
+        bundle.loadPlaylist();
         return true;
       }
     }
@@ -340,7 +340,7 @@ public final class DefaultHlsPlaylistTracker
       return;
     }
     primaryMediaPlaylistUrl = url;
-    playlistBundles.get(primaryMediaPlaylistUrl).loadPlaylist(url);
+    playlistBundles.get(primaryMediaPlaylistUrl).loadPlaylist();
   }
 
   /** Returns whether any of the variants in the master playlist have the specified playlist URL. */
@@ -480,7 +480,7 @@ public final class DefaultHlsPlaylistTracker
     private long earliestNextLoadTimeMs;
     private long excludeUntilMs;
     private boolean loadPending;
-    private IOException playlistError;
+    @Nullable private IOException playlistError;
 
     public MediaPlaylistBundle(Uri playlistUrl) {
       this.playlistUrl = playlistUrl;
@@ -505,33 +505,8 @@ public final class DefaultHlsPlaylistTracker
           || lastSnapshotLoadMs + snapshotValidityDurationMs > currentTimeMs;
     }
 
-    public void release() {
-      mediaPlaylistLoader.release();
-    }
-
-    /**
-     * Loads the playlist.
-     *
-     * @param requestUri The URI to be used for loading the playlist.
-     */
-    public void loadPlaylist(Uri requestUri) {
-      excludeUntilMs = 0;
-      if (loadPending || mediaPlaylistLoader.isLoading() || mediaPlaylistLoader.hasFatalError()) {
-        // Load already pending, in progress, or a fatal error has been encountered. Do nothing.
-        return;
-      }
-      long currentTimeMs = SystemClock.elapsedRealtime();
-      if (currentTimeMs < earliestNextLoadTimeMs) {
-        loadPending = true;
-        playlistRefreshHandler.postDelayed(
-            () -> {
-              loadPending = false;
-              loadPlaylistImmediately(requestUri);
-            },
-            earliestNextLoadTimeMs - currentTimeMs);
-      } else {
-        loadPlaylistImmediately(requestUri);
-      }
+    public void loadPlaylist() {
+      loadPlaylistInternal(playlistUrl);
     }
 
     public void maybeThrowPlaylistRefreshError() throws IOException {
@@ -539,6 +514,10 @@ public final class DefaultHlsPlaylistTracker
       if (playlistError != null) {
         throw playlistError;
       }
+    }
+
+    public void release() {
+      mediaPlaylistLoader.release();
     }
 
     // Loader.Callback implementation.
@@ -609,7 +588,7 @@ public final class DefaultHlsPlaylistTracker
           // Intercept bad request and service unavailable to force a full, non-blocking request
           // (see RFC 8216, section 6.2.5.2).
           earliestNextLoadTimeMs = SystemClock.elapsedRealtime();
-          loadPlaylist(/* requestUri= */ playlistUrl);
+          loadPlaylist();
           castNonNull(eventDispatcher)
               .loadError(loadEventInfo, loadable.type, error, /* wasCanceled= */ true);
           return Loader.DONT_RETRY;
@@ -647,6 +626,26 @@ public final class DefaultHlsPlaylistTracker
     }
 
     // Internal methods.
+
+    public void loadPlaylistInternal(Uri playlistRequestUri) {
+      excludeUntilMs = 0;
+      if (loadPending || mediaPlaylistLoader.isLoading() || mediaPlaylistLoader.hasFatalError()) {
+        // Load already pending, in progress, or a fatal error has been encountered. Do nothing.
+        return;
+      }
+      long currentTimeMs = SystemClock.elapsedRealtime();
+      if (currentTimeMs < earliestNextLoadTimeMs) {
+        loadPending = true;
+        playlistRefreshHandler.postDelayed(
+            () -> {
+              loadPending = false;
+              loadPlaylistImmediately(playlistRequestUri);
+            },
+            earliestNextLoadTimeMs - currentTimeMs);
+      } else {
+        loadPlaylistImmediately(playlistRequestUri);
+      }
+    }
 
     private void loadPlaylistImmediately(Uri playlistRequestUri) {
       ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable =
@@ -721,7 +720,7 @@ public final class DefaultHlsPlaylistTracker
       // next load will be scheduled when refreshPlaylist is called, or when this playlist becomes
       // the primary.
       if (playlistUrl.equals(primaryMediaPlaylistUrl) && !playlistSnapshot.hasEndTag) {
-        loadPlaylist(getMediaPlaylistUriForReload());
+        loadPlaylistInternal(getMediaPlaylistUriForReload());
       }
     }
 

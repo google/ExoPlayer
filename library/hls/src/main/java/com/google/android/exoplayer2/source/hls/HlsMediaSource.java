@@ -89,6 +89,7 @@ public final class HlsMediaSource extends BaseMediaSource
   public static final int METADATA_TYPE_ID3 = 1;
   /** Type for ESMG metadata in HLS streams. */
   public static final int METADATA_TYPE_EMSG = 3;
+
   /** Factory for {@link HlsMediaSource}s. */
   public static final class Factory implements MediaSourceFactory {
 
