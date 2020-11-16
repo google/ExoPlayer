@@ -234,8 +234,8 @@ import java.util.List;
         throw new ParserException();
       }
       try {
-        int startTimeMs = Integer.parseInt(values.get(0));
-        int endTimeMs = Integer.parseInt(values.get(1));
+        long startTimeMs = Long.parseLong(values.get(0));
+        long endTimeMs = Long.parseLong(values.get(1));
         int speedMode = Integer.parseInt(values.get(2));
         int speedDivisor = 1 << (speedMode - 1);
         segments.add(new SlowMotionData.Segment(startTimeMs, endTimeMs, speedDivisor));

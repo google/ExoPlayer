@@ -31,9 +31,9 @@ public final class SlowMotionData implements Metadata.Entry {
   public static final class Segment implements Parcelable {
 
     /** The start time, in milliseconds, of the track segment that is intended to be slow motion. */
-    public final int startTimeMs;
+    public final long startTimeMs;
     /** The end time, in milliseconds, of the track segment that is intended to be slow motion. */
-    public final int endTimeMs;
+    public final long endTimeMs;
     /**
      * The speed reduction factor.
      *
@@ -49,7 +49,7 @@ public final class SlowMotionData implements Metadata.Entry {
      * @param endTimeMs See {@link #endTimeMs}.
      * @param speedDivisor See {@link #speedDivisor}.
      */
-    public Segment(int startTimeMs, int endTimeMs, int speedDivisor) {
+    public Segment(long startTimeMs, long endTimeMs, int speedDivisor) {
       this.startTimeMs = startTimeMs;
       this.endTimeMs = endTimeMs;
       this.speedDivisor = speedDivisor;
@@ -88,8 +88,8 @@ public final class SlowMotionData implements Metadata.Entry {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-      dest.writeInt(startTimeMs);
-      dest.writeInt(endTimeMs);
+      dest.writeLong(startTimeMs);
+      dest.writeLong(endTimeMs);
       dest.writeInt(speedDivisor);
     }
 
@@ -98,8 +98,8 @@ public final class SlowMotionData implements Metadata.Entry {
 
           @Override
           public Segment createFromParcel(Parcel in) {
-            int startTimeMs = in.readInt();
-            int endTimeMs = in.readInt();
+            long startTimeMs = in.readLong();
+            long endTimeMs = in.readLong();
             int speedDivisor = in.readInt();
             return new Segment(startTimeMs, endTimeMs, speedDivisor);
           }
