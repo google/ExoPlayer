@@ -724,6 +724,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handleMediaSourceListInfoRefreshed(timeline);
   }
 
+  private void notifyTrackSelectionPlayWhenReadyChanged(boolean playWhenReady) {
+    MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
+    while (periodHolder != null) {
+      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
+      for (TrackSelection trackSelection : trackSelections) {
+        if (trackSelection != null) {
+          trackSelection.onPlayWhenReadyChanged(playWhenReady);
+        }
+      }
+      periodHolder = periodHolder.getNext();
+    }
+  }
+
   private void setPlayWhenReadyInternal(
       boolean playWhenReady,
       @PlaybackSuppressionReason int playbackSuppressionReason,
@@ -734,6 +747,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfoUpdate.setPlayWhenReadyChangeReason(reason);
     playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
     isRebuffering = false;
+    notifyTrackSelectionPlayWhenReadyChanged(playWhenReady);
     if (!shouldPlayWhenReady()) {
       stopRenderers();
       updatePlaybackPositions();
@@ -880,6 +894,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
+  private void notifyTrackSelectionRebuffer() {
+    MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
+    while (periodHolder != null) {
+      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
+      for (TrackSelection trackSelection : trackSelections) {
+        if (trackSelection != null) {
+          trackSelection.onRebuffer();
+        }
+      }
+      periodHolder = periodHolder.getNext();
+    }
+  }
+
   private void doSomeWork() throws ExoPlaybackException, IOException {
     long operationStartTimeMs = clock.uptimeMillis();
     updatePeriods();
@@ -964,6 +991,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
         && !(enabledRendererCount == 0 ? isTimelineReady() : renderersAllowPlayback)) {
       isRebuffering = shouldPlayWhenReady();
       setState(Player.STATE_BUFFERING);
+      if (isRebuffering) {
+        notifyTrackSelectionRebuffer();
+      }
       livePlaybackSpeedControl.notifyRebuffer();
       stopRenderers();
     }

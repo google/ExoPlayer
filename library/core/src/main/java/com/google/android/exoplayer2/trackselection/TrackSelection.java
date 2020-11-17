@@ -73,9 +73,7 @@ public interface TrackSelection {
     }
   }
 
-  /**
-   * Factory for {@link TrackSelection} instances.
-   */
+  /** Factory for {@link TrackSelection} instances. */
   interface Factory {
 
     /**
@@ -118,16 +116,12 @@ public interface TrackSelection {
    */
   void disable();
 
-  /**
-   * Returns the {@link TrackGroup} to which the selected tracks belong.
-   */
+  /** Returns the {@link TrackGroup} to which the selected tracks belong. */
   TrackGroup getTrackGroup();
 
   // Static subset of selected tracks.
 
-  /**
-   * Returns the number of tracks in the selection.
-   */
+  /** Returns the number of tracks in the selection. */
   int length();
 
   /**
@@ -168,28 +162,21 @@ public interface TrackSelection {
 
   // Individual selected track.
 
-  /**
-   * Returns the {@link Format} of the individual selected track.
-   */
+  /** Returns the {@link Format} of the individual selected track. */
   Format getSelectedFormat();
 
-  /**
-   * Returns the index in the track group of the individual selected track.
-   */
+  /** Returns the index in the track group of the individual selected track. */
   int getSelectedIndexInTrackGroup();
 
-  /**
-   * Returns the index of the selected track.
-   */
+  /** Returns the index of the selected track. */
   int getSelectedIndex();
 
-  /**
-   * Returns the reason for the current track selection.
-   */
+  /** Returns the reason for the current track selection. */
   int getSelectionReason();
 
   /** Returns optional data associated with the current track selection. */
-  @Nullable Object getSelectionData();
+  @Nullable
+  Object getSelectionData();
 
   // Adaptation.
 
@@ -207,6 +194,22 @@ public interface TrackSelection {
    * <p>This happens when the playback position jumps, e.g., as a result of a seek being performed.
    */
   default void onDiscontinuity() {}
+
+  /**
+   * Called to notify when a rebuffer occurred.
+   *
+   * <p>A rebuffer is defined to be caused by buffer depletion rather than a user action. Hence this
+   * method is not called during initial buffering or when buffering as a result of a seek
+   * operation.
+   */
+  default void onRebuffer() {}
+
+  /**
+   * Called to notify when the playback is paused or resumed.
+   *
+   * @param playWhenReady Whether playback will proceed when ready.
+   */
+  default void onPlayWhenReadyChanged(boolean playWhenReady) {}
 
   /**
    * Updates the selected track for sources that load media in discrete {@link MediaChunk}s.
