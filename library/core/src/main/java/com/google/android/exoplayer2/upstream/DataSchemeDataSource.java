@@ -34,7 +34,11 @@ public final class DataSchemeDataSource extends BaseDataSource {
   public static final String SCHEME_DATA = "data";
 
   @Nullable private DataSpec dataSpec;
-  @Nullable private byte[] data;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  private byte[] data;
+
   private int endPosition;
   private int readPosition;
 

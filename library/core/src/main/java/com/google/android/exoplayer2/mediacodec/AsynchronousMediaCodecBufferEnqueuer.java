@@ -335,6 +335,8 @@ class AsynchronousMediaCodecBufferEnqueuer {
    * @param dst The destination array, which will be reused if it's at least as long as {@code src}.
    * @return The copy, which may be {@code dst} if it was reused.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   private static int[] copy(@Nullable int[] src, @Nullable int[] dst) {
     if (src == null) {
@@ -356,6 +358,8 @@ class AsynchronousMediaCodecBufferEnqueuer {
    * @param dst The destination array, which will be reused if it's at least as long as {@code src}.
    * @return The copy, which may be {@code dst} if it was reused.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   private static byte[] copy(@Nullable byte[] src, @Nullable byte[] dst) {
     if (src == null) {

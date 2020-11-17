@@ -211,6 +211,8 @@ public final class HlsMediaSource extends BaseMediaSource
      * @param playlistTrackerFactory A factory for {@link HlsPlaylistTracker} instances.
      * @return This factory, for convenience.
      */
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     public Factory setPlaylistTrackerFactory(
         @Nullable HlsPlaylistTracker.Factory playlistTrackerFactory) {
       this.playlistTrackerFactory =
@@ -295,6 +297,8 @@ public final class HlsMediaSource extends BaseMediaSource
       return this;
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public Factory setDrmHttpDataSourceFactory(
         @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {

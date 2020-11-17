@@ -138,7 +138,10 @@ public final class MediaParserChunkExtractor implements ChunkExtractor {
   // Internal methods.
 
   private void maybeExecutePendingSeek() {
-    @Nullable MediaParser.SeekMap dummySeekMap = outputConsumerAdapter.getDummySeekMap();
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    MediaParser.SeekMap dummySeekMap = outputConsumerAdapter.getDummySeekMap();
     if (pendingSeekUs != C.TIME_UNSET && dummySeekMap != null) {
       mediaParser.seek(dummySeekMap.getSeekPoints(pendingSeekUs).first);
       pendingSeekUs = C.TIME_UNSET;

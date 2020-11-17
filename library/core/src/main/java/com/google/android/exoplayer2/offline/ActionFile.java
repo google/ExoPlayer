@@ -104,7 +104,10 @@ import java.util.List;
     boolean isRemoveAction = input.readBoolean();
 
     int dataLength = input.readInt();
-    @Nullable byte[] data;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    byte[] data;
     if (dataLength != 0) {
       data = new byte[dataLength];
       input.readFully(data);

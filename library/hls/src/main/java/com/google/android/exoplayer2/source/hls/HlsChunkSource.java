@@ -669,7 +669,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return null;
     }
 
-    @Nullable byte[] encryptionKey = keyCache.remove(keyUri);
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    byte[] encryptionKey = keyCache.remove(keyUri);
     if (encryptionKey != null) {
       // The key was present in the key cache. We re-insert it to prevent it from being evicted by
       // the following key addition. Note that removal of the key is necessary to affect the
@@ -688,6 +691,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         scratchSpace);
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   private static Uri getFullEncryptionKeyUri(
       HlsMediaPlaylist playlist, @Nullable HlsMediaPlaylist.SegmentBase segmentBase) {
@@ -791,6 +796,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     /** Return the result of this chunk, or null if loading is not complete. */
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     @Nullable
     public byte[] getResult() {
       return result;

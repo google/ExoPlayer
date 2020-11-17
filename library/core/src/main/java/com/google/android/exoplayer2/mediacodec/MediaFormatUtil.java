@@ -85,6 +85,8 @@ public final class MediaFormatUtil {
    * @param key The key to set.
    * @param value The byte array that will be wrapped to obtain the value.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   public static void maybeSetByteBuffer(MediaFormat format, String key, @Nullable byte[] value) {
     if (value != null) {
       format.setByteBuffer(key, ByteBuffer.wrap(value));

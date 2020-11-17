@@ -114,6 +114,8 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
    * @param mediaSourceEventDispatcher A dispatcher to notify of {@link MediaSourceEventListener}
    *     events.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   public ChunkSampleStream(
       int primaryTrackType,
       @Nullable int[] embeddedTrackTypes,

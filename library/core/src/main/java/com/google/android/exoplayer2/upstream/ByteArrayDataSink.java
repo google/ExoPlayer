@@ -55,6 +55,8 @@ public final class ByteArrayDataSink implements DataSink {
    * Returns the data written to the sink since the last call to {@link #open(DataSpec)}, or null if
    * {@link #open(DataSpec)} has never been called.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   public byte[] getData() {
     return stream == null ? null : stream.toByteArray();

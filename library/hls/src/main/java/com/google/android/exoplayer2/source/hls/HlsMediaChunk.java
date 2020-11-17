@@ -73,6 +73,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param initSegmentKey The initialization segment decryption key, if fully encrypted. Null
    *     otherwise.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   public static HlsMediaChunk createInstance(
       HlsExtractorFactory extractorFactory,
       DataSource dataSource,
@@ -97,6 +99,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             mediaSegment.byteRangeOffset,
             mediaSegment.byteRangeLength);
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     @Nullable
     byte[] mediaSegmentIv =
         mediaSegmentEncrypted
@@ -111,6 +115,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     @Nullable DataSource initDataSource = null;
     if (initSegment != null) {
       initSegmentEncrypted = initSegmentKey != null;
+      // nullness annotations are not applicable to primitive types
+      @SuppressWarnings("nullness:nullness.on.primitive")
       @Nullable
       byte[] initSegmentIv =
           initSegmentEncrypted
@@ -536,6 +542,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * <p>{@code fullSegmentEncryptionKey} & {@code encryptionIv} can either both be null, or neither.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private static DataSource buildDataSource(
       DataSource dataSource,
       @Nullable byte[] fullSegmentEncryptionKey,
