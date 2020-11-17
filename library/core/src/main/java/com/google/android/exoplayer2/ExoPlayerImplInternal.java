@@ -993,8 +993,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       setState(Player.STATE_BUFFERING);
       if (isRebuffering) {
         notifyTrackSelectionRebuffer();
+        livePlaybackSpeedControl.notifyRebuffer();
       }
-      livePlaybackSpeedControl.notifyRebuffer();
       stopRenderers();
     }
 

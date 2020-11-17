@@ -44,7 +44,8 @@ public interface LivePlaybackSpeedControl {
    * Notifies the live playback speed control that a rebuffer occurred.
    *
    * <p>A rebuffer is defined to be caused by buffer depletion rather than a user action. Hence this
-   * method is not called during initial or when buffering as a result of a seek operation.
+   * method is not called during initial buffering or when buffering as a result of a seek
+   * operation.
    */
   void notifyRebuffer();
 
