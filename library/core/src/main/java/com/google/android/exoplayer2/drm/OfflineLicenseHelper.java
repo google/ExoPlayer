@@ -262,6 +262,8 @@ public final class OfflineLicenseHelper {
     handlerThread.quit();
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private byte[] blockingKeyRequest(
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format)
       throws DrmSessionException {
@@ -277,6 +279,8 @@ public final class OfflineLicenseHelper {
     return Assertions.checkNotNull(keySetId);
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private DrmSession openBlockingKeyRequest(
       @Mode int licenseMode, @Nullable byte[] offlineLicenseKeySetId, Format format) {
     Assertions.checkNotNull(format.drmInitData);

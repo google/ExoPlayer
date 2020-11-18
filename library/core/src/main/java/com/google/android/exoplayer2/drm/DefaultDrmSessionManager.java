@@ -290,7 +290,10 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Nullable private Looper playbackLooper;
   private @MonotonicNonNull Handler sessionReleasingHandler;
   private int mode;
-  @Nullable private byte[] offlineLicenseKeySetId;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  private byte[] offlineLicenseKeySetId;
 
   /* package */ volatile @Nullable MediaDrmHandler mediaDrmHandler;
 
@@ -430,6 +433,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
    * @param mode The mode to be set.
    * @param offlineLicenseKeySetId The key set id of the license to be used with the given mode.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   public void setMode(@Mode int mode, @Nullable byte[] offlineLicenseKeySetId) {
     Assertions.checkState(sessions.isEmpty());
     if (mode == MODE_QUERY || mode == MODE_RELEASE) {
@@ -467,6 +472,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     exoMediaDrm = null;
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   @Nullable
   public DrmSession acquireSession(
@@ -618,6 +625,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     }
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   private DefaultDrmSession createAndAcquireSessionWithRetry(
       @Nullable List<SchemeData> schemeDatas,
       boolean isPlaceholderSession,
@@ -657,6 +666,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
    * <p>If {@link #sessionKeepaliveMs} != {@link C#TIME_UNSET} then acquires it again to allow the
    * manager to keep it alive (passing in {@code eventDispatcher=null}.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   private DefaultDrmSession createAndAcquireSession(
       @Nullable List<SchemeData> schemeDatas,
       boolean isPlaceholderSession,
@@ -817,6 +828,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   private class MediaDrmEventListener implements OnEventListener {
 
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     @Override
     public void onEvent(
         ExoMediaDrm md, @Nullable byte[] sessionId, int event, int extra, @Nullable byte[] data) {

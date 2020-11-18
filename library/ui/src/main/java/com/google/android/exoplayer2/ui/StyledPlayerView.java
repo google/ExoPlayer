@@ -311,7 +311,11 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
 
   @Nullable private Player player;
   private boolean useController;
-  @Nullable private StyledPlayerControlView.VisibilityListener controllerVisibilityListener;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private StyledPlayerControlView.VisibilityListener controllerVisibilityListener;
+
   private boolean useArtwork;
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
@@ -573,7 +577,10 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     @Nullable Player oldPlayer = this.player;
     if (oldPlayer != null) {
       oldPlayer.removeListener(componentListener);
-      @Nullable Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
       if (oldVideoComponent != null) {
         oldVideoComponent.removeVideoListener(componentListener);
         if (surfaceView instanceof TextureView) {
@@ -586,7 +593,10 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
       }
-      @Nullable Player.TextComponent oldTextComponent = oldPlayer.getTextComponent();
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      Player.TextComponent oldTextComponent = oldPlayer.getTextComponent();
       if (oldTextComponent != null) {
         oldTextComponent.removeTextOutput(componentListener);
       }
@@ -602,7 +612,10 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     updateErrorMessage();
     updateForCurrentTrackSelections(/* isNewPlayer= */ true);
     if (player != null) {
-      @Nullable Player.VideoComponent newVideoComponent = player.getVideoComponent();
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      Player.VideoComponent newVideoComponent = player.getVideoComponent();
       if (newVideoComponent != null) {
         if (surfaceView instanceof TextureView) {
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
@@ -616,7 +629,10 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
         }
         newVideoComponent.addVideoListener(componentListener);
       }
-      @Nullable Player.TextComponent newTextComponent = player.getTextComponent();
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      Player.TextComponent newTextComponent = player.getTextComponent();
       if (newTextComponent != null) {
         newTextComponent.addTextOutput(componentListener);
         if (subtitleView != null) {
@@ -950,6 +966,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
    * @param listener The listener to be notified about visibility changes, or null to remove the
    *     current listener.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public void setControllerVisibilityListener(
       @Nullable StyledPlayerControlView.VisibilityListener listener) {
     Assertions.checkStateNotNull(controller);
@@ -971,6 +989,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
    * @param listener The listener to be notified when the fullscreen button is clicked, or null to
    *     remove the current listener and hide the fullscreen button.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public void setControllerOnFullScreenModeChangedListener(
       @Nullable StyledPlayerControlView.OnFullScreenModeChangedListener listener) {
     Assertions.checkStateNotNull(controller);
@@ -1102,6 +1122,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
    * @param extraPlayedAdGroups Whether each ad has been played, or {@code null} to show no extra ad
    *     markers.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   public void setExtraAdGroupMarkers(
       @Nullable long[] extraAdGroupTimesMs, @Nullable boolean[] extraPlayedAdGroups) {
     Assertions.checkStateNotNull(controller);
@@ -1114,6 +1136,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
    * @param listener The listener to be notified about aspect ratios changes of the video content or
    *     the content frame.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public void setAspectRatioListener(
       @Nullable AspectRatioFrameLayout.AspectRatioListener listener) {
     Assertions.checkStateNotNull(contentFrame);

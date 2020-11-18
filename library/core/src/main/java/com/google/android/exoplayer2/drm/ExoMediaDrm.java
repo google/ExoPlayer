@@ -119,6 +119,8 @@ public interface ExoMediaDrm {
      * @param extra A secondary error code.
      * @param data Optional byte array of data that may be associated with the event.
      */
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     void onEvent(
         ExoMediaDrm mediaDrm,
         @Nullable byte[] sessionId,
@@ -294,6 +296,8 @@ public interface ExoMediaDrm {
       throws NotProvisionedException;
 
   /** @see MediaDrm#provideKeyResponse(byte[], byte[]) */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   byte[] provideKeyResponse(byte[] scope, byte[] response)
       throws NotProvisionedException, DeniedByServerException;

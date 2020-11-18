@@ -170,6 +170,8 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
     return new KeyRequest(requestData.toByteArray(), /* licenseServerUrl= */ "");
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   @Override
   public byte[] provideKeyResponse(byte[] scope, byte[] response)
@@ -243,7 +245,10 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Override
   public byte[] getPropertyByteArray(String propertyName) {
     Assertions.checkState(referenceCount > 0);
-    @Nullable byte[] value = byteProperties.get(propertyName);
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    byte[] value = byteProperties.get(propertyName);
     if (value == null) {
       throw new IllegalArgumentException("Unrecognized propertyName: " + propertyName);
     }

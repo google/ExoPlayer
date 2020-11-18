@@ -31,6 +31,8 @@ public interface DrmSessionManager {
   DrmSessionManager DUMMY =
       new DrmSessionManager() {
 
+        // nullness annotations are not applicable to outer types
+        @SuppressWarnings("nullness:nullness.on.outer")
         @Override
         @Nullable
         public DrmSession acquireSession(
@@ -89,6 +91,8 @@ public interface DrmSessionManager {
    * @param format The {@link Format} for which to acquire a {@link DrmSession}.
    * @return The DRM session. May be null if the given {@link Format#drmInitData} is null.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   DrmSession acquireSession(
       Looper playbackLooper,

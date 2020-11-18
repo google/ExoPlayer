@@ -139,7 +139,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private RequestHandler requestHandler;
   @Nullable private ExoMediaCrypto mediaCrypto;
   @Nullable private DrmSessionException lastException;
-  @Nullable private byte[] sessionId;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  private byte[] sessionId;
+
   private byte @MonotonicNonNull [] offlineLicenseKeySetId;
 
   @Nullable private KeyRequest currentKeyRequest;
@@ -164,6 +168,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param loadErrorHandlingPolicy The {@link LoadErrorHandlingPolicy} for key and provisioning
    *     requests.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   public DefaultDrmSession(
       UUID uuid,
       ExoMediaDrm mediaDrm,
@@ -272,12 +278,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return sessionId == null ? null : mediaDrm.queryKeyStatus(sessionId);
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   @Nullable
   public byte[] getOfflineLicenseKeySetId() {
     return offlineLicenseKeySetId;
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     checkState(referenceCount >= 0);
@@ -301,6 +311,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     referenceCountListener.onReferenceCountIncremented(this, referenceCount);
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     checkState(referenceCount > 0);

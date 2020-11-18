@@ -81,7 +81,11 @@ public class FakeMediaSource extends BaseMediaSource {
   private static final int MANIFEST_LOAD_BYTES = 100;
 
   private final TrackGroupArray trackGroupArray;
-  @Nullable private final FakeMediaPeriod.TrackDataFactory trackDataFactory;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private final FakeMediaPeriod.TrackDataFactory trackDataFactory;
+
   private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
   private final DrmSessionManager drmSessionManager;
@@ -121,6 +125,8 @@ public class FakeMediaSource extends BaseMediaSource {
    * null to prevent an immediate source info refresh message when preparing the media source. It
    * can be manually set later using {@link #setNewSourceInfo(Timeline)}.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public FakeMediaSource(
       @Nullable Timeline timeline,
       DrmSessionManager drmSessionManager,
@@ -136,6 +142,8 @@ public class FakeMediaSource extends BaseMediaSource {
    * immediate source info refresh message when preparing the media source. It can be manually set
    * later using {@link #setNewSourceInfo(Timeline)}.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public FakeMediaSource(
       @Nullable Timeline timeline,
       DrmSessionManager drmSessionManager,

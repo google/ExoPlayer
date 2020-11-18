@@ -102,8 +102,10 @@ public interface TimeBar {
    *     groups.
    * @param adGroupCount The number of ad groups.
    */
-  void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups,
-      int adGroupCount);
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  void setAdGroupTimesMs(
+      @Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups, int adGroupCount);
 
   /**
    * Listener for scrubbing events.

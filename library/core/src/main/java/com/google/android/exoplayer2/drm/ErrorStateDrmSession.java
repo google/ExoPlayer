@@ -63,17 +63,23 @@ public final class ErrorStateDrmSession implements DrmSession {
     return null;
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   @Nullable
   public byte[] getOfflineLicenseKeySetId() {
     return null;
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     // Do nothing.
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
     // Do nothing.

@@ -126,7 +126,11 @@ public class FakeSampleStream implements SampleStream {
     }
   }
 
-  @Nullable private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+
   private final Format initialFormat;
   private final List<FakeSampleStreamItem> fakeSampleStreamItems;
   private final DrmSessionManager drmSessionManager;
@@ -153,6 +157,8 @@ public class FakeSampleStream implements SampleStream {
    *     return every time readData is called. This should usually end with {@link
    *     FakeSampleStreamItem#END_OF_STREAM_ITEM}.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public FakeSampleStream(
       @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
