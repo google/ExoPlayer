@@ -153,8 +153,6 @@ public final class HttpMediaDrmCallback implements MediaDrmCallback {
     return executePost(dataSourceFactory, url, request.getData(), requestProperties);
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private static byte[] executePost(
       HttpDataSource.Factory dataSourceFactory,
       String url,

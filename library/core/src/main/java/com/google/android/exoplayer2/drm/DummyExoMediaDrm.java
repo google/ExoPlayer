@@ -68,8 +68,6 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
     throw new IllegalStateException();
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   @Nullable
   public byte[] provideKeyResponse(byte[] scope, byte[] response) {

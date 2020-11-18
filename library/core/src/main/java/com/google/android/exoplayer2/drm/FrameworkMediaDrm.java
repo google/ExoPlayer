@@ -112,8 +112,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     }
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void setOnEventListener(@Nullable ExoMediaDrm.OnEventListener listener) {
     mediaDrm.setOnEventListener(
@@ -129,8 +127,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    * @param listener The listener to receive events, or {@code null} to stop receiving events.
    * @throws UnsupportedOperationException on API levels lower than 23.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   @RequiresApi(23)
   public void setOnKeyStatusChangeListener(
@@ -217,8 +213,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     return new KeyRequest(requestData, licenseServerUrl);
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   @Nullable
   public byte[] provideKeyResponse(byte[] scope, byte[] response)

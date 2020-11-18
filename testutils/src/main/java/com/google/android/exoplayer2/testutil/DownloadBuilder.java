@@ -41,11 +41,7 @@ public final class DownloadBuilder {
   private Uri uri;
   @Nullable private String mimeType;
   private List<StreamKey> streamKeys;
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private byte[] keySetId;
-
+  @Nullable private byte[] keySetId;
   @Nullable private String cacheKey;
   private byte[] customMetadata;
 
@@ -89,8 +85,6 @@ public final class DownloadBuilder {
   }
 
   /** Creates a download builder. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private DownloadBuilder(
       String id,
       Uri uri,

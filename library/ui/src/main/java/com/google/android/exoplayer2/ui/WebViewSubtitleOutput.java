@@ -374,8 +374,6 @@ import java.util.Map;
     }
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   private static String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
     if (alignment == null) {
       return "center";

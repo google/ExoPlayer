@@ -373,11 +373,7 @@ public class PlayerNotificationManager {
   private final int instanceId;
   private final Timeline.Window window;
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
-  @Nullable
-  private NotificationCompat.Builder builder;
-
+  @Nullable private NotificationCompat.Builder builder;
   @Nullable private List<NotificationCompat.Action> builderActions;
   @Nullable private Player player;
   @Nullable private PlaybackPreparer playbackPreparer;
@@ -385,11 +381,7 @@ public class PlayerNotificationManager {
   private boolean isNotificationStarted;
   private int currentNotificationTag;
   @Nullable private NotificationListener notificationListener;
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
-  @Nullable
-  private MediaSessionCompat.Token mediaSessionToken;
-
+  @Nullable private MediaSessionCompat.Token mediaSessionToken;
   private boolean useNavigationActions;
   private boolean useNavigationActionsInCompactView;
   private boolean usePlayPauseActions;
@@ -1047,8 +1039,6 @@ public class PlayerNotificationManager {
    *     NotificationCompat.Builder#build()} to obtain the notification, or {@code null} if no
    *     notification should be displayed.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   protected NotificationCompat.Builder createNotification(
       Player player,
@@ -1064,8 +1054,6 @@ public class PlayerNotificationManager {
     List<NotificationCompat.Action> actions = new ArrayList<>(actionNames.size());
     for (int i = 0; i < actionNames.size(); i++) {
       String actionName = actionNames.get(i);
-      // nullness annotations are not applicable to outer types
-      @SuppressWarnings("nullness:nullness.on.outer")
       @Nullable
       NotificationCompat.Action action =
           playbackActions.containsKey(actionName)

@@ -54,8 +54,6 @@ public final class Dumper {
     return this;
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public Dumper add(String field, @Nullable byte[] value) {
     String string =
         String.format(

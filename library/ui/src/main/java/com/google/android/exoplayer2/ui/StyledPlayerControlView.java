@@ -791,8 +791,6 @@ public class StyledPlayerControlView extends FrameLayout {
    * @param extraPlayedAdGroups Whether each ad has been played. Must be the same length as {@code
    *     extraAdGroupTimesMs}, or {@code null} if {@code extraAdGroupTimesMs} is {@code null}.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public void setExtraAdGroupMarkers(
       @Nullable long[] extraAdGroupTimesMs, @Nullable boolean[] extraPlayedAdGroups) {
     if (extraAdGroupTimesMs == null) {

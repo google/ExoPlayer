@@ -36,8 +36,6 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
     interceptedData = new ArrayList<>();
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {

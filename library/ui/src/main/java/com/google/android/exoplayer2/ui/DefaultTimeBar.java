@@ -222,14 +222,8 @@ public class DefaultTimeBar extends View implements TimeBar {
   private long position;
   private long bufferedPosition;
   private int adGroupCount;
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private long[] adGroupTimesMs;
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private boolean[] playedAdGroups;
+  @Nullable private long[] adGroupTimesMs;
+  @Nullable private boolean[] playedAdGroups;
 
   public DefaultTimeBar(Context context) {
     this(context, null);
@@ -533,11 +527,9 @@ public class DefaultTimeBar extends View implements TimeBar {
         : duration / timeBarWidthDp;
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
-  public void setAdGroupTimesMs(
-      @Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups, int adGroupCount) {
+  public void setAdGroupTimesMs(@Nullable long[] adGroupTimesMs, @Nullable boolean[] playedAdGroups,
+      int adGroupCount) {
     Assertions.checkArgument(adGroupCount == 0
         || (adGroupTimesMs != null && playedAdGroups != null));
     this.adGroupCount = adGroupCount;

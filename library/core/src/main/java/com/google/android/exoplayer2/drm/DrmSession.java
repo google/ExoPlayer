@@ -131,8 +131,6 @@ public interface DrmSession {
    * Returns the key set id of the offline license loaded into this session, or null if there isn't
    * one.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   byte[] getOfflineLicenseKeySetId();
 
@@ -144,8 +142,6 @@ public interface DrmSession {
    * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} used to route
    *     DRM-related events dispatched from this session, or null if no event handling is needed.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   void acquire(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher);
 
   /**
@@ -156,7 +152,5 @@ public interface DrmSession {
    *     the session is released (the same instance (possibly null) that was passed by the caller to
    *     {@link #acquire(DrmSessionEventListener.EventDispatcher)}).
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   void release(@Nullable DrmSessionEventListener.EventDispatcher eventDispatcher);
 }

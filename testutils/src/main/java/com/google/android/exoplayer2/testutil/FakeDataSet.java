@@ -80,11 +80,7 @@ public class FakeDataSet {
     public static final class Segment {
 
       @Nullable public final IOException exception;
-      // nullness annotations are not applicable to primitive types
-      @SuppressWarnings("nullness:nullness.on.primitive")
-      @Nullable
-      public final byte[] data;
-
+      @Nullable public final byte[] data;
       public final int length;
       public final long byteOffset;
       @Nullable public final Runnable action;
@@ -109,8 +105,6 @@ public class FakeDataSet {
         this(null, 0, null, action, previousSegment);
       }
 
-      // nullness annotations are not applicable to primitive types
-      @SuppressWarnings("nullness:nullness.on.primitive")
       private Segment(
           @Nullable byte[] data,
           int length,
