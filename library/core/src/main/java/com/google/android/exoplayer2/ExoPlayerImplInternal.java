@@ -205,6 +205,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   @Nullable private ExoPlaybackException pendingRecoverableError;
 
   private boolean throwWhenStuckBuffering;
+  private long setForegroundModeTimeoutMs;
 
   public ExoPlayerImplInternal(
       Renderer[] renderers,
@@ -233,6 +234,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.seekParameters = seekParameters;
     this.livePlaybackSpeedControl = livePlaybackSpeedControl;
     this.releaseTimeoutMs = releaseTimeoutMs;
+    this.setForegroundModeTimeoutMs = releaseTimeoutMs;
     this.pauseAtEndOfWindow = pauseAtEndOfWindow;
     this.clock = clock;
 
@@ -265,6 +267,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
     internalPlaybackThread.start();
     playbackLooper = internalPlaybackThread.getLooper();
     handler = clock.createHandler(playbackLooper, this);
+  }
+
+  public void experimentalSetForegroundModeTimeoutMs(long setForegroundModeTimeoutMs) {
+    this.setForegroundModeTimeoutMs = setForegroundModeTimeoutMs;
   }
 
   public void experimentalDisableThrowWhenStuckBuffering() {
@@ -393,7 +399,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       handler
           .obtainMessage(MSG_SET_FOREGROUND_MODE, /* foregroundMode */ 0, 0, processedFlag)
           .sendToTarget();
-      waitUninterruptibly(/* condition= */ processedFlag::get, releaseTimeoutMs);
+      waitUninterruptibly(/* condition= */ processedFlag::get, setForegroundModeTimeoutMs);
       return processedFlag.get();
     }
   }

@@ -191,6 +191,20 @@ import java.util.concurrent.TimeoutException;
   }
 
   /**
+   * Set a limit on the time a call to {@link #setForegroundMode} can spend. If a call to {@link
+   * #setForegroundMode} takes more than {@code timeoutMs} milliseconds to complete, the player will
+   * raise an error via {@link Player.EventListener#onPlayerError}.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the player is used.
+   *
+   * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+   */
+  public void experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
+    internalPlayer.experimentalSetForegroundModeTimeoutMs(timeoutMs);
+  }
+
+  /**
    * Configures the player to not throw when it detects it's stuck buffering.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release. It should

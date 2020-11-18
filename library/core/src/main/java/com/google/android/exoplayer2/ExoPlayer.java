@@ -163,6 +163,7 @@ public interface ExoPlayer extends Player {
     private boolean buildCalled;
 
     private boolean throwWhenStuckBuffering;
+    private long setForegroundModeTimeoutMs;
 
     /**
      * Creates a builder with a list of {@link Renderer Renderers}.
@@ -229,6 +230,20 @@ public interface ExoPlayer extends Player {
       clock = Clock.DEFAULT;
       throwWhenStuckBuffering = true;
       releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
+    }
+
+    /**
+     * Set a limit on the time a call to {@link ExoPlayer#setForegroundMode} can spend. If a call to
+     * {@link ExoPlayer#setForegroundMode} takes more than {@code timeoutMs} milliseconds to
+     * complete, the player will raise an error via {@link Player.EventListener#onPlayerError}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
+     * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+     */
+    public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
+      setForegroundModeTimeoutMs = timeoutMs;
+      return this;
     }
 
     /**
@@ -441,6 +456,7 @@ public interface ExoPlayer extends Player {
               clock,
               looper);
 
+      player.experimentalSetForegroundModeTimeoutMs(setForegroundModeTimeoutMs);
       if (!throwWhenStuckBuffering) {
         player.experimentalDisableThrowWhenStuckBuffering();
       }
