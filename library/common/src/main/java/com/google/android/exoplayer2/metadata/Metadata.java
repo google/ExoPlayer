@@ -44,6 +44,8 @@ public final class Metadata implements Parcelable {
      * Returns the bytes of the wrapped metadata in this Entry, or null if it doesn't contain
      * wrapped metadata.
      */
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     @Nullable
     default byte[] getWrappedMetadataBytes() {
       return null;

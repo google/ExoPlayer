@@ -50,7 +50,11 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
   /** YUV planes for YUV mode. */
   @Nullable public ByteBuffer[] yuvPlanes;
 
-  @Nullable public int[] yuvStrides;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  public int[] yuvStrides;
+
   public int colorspace;
 
   /**

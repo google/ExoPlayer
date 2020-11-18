@@ -42,7 +42,11 @@ import java.util.List;
   // LINT.ThenChange(../../../../../../../jni/ffmpeg_jni.cc)
 
   private final String codecName;
-  @Nullable private final byte[] extraData;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  private final byte[] extraData;
+
   private final @C.Encoding int encoding;
   private final int outputBufferSize;
 
@@ -163,6 +167,8 @@ import java.util.List;
    * Returns FFmpeg-compatible codec-specific initialization data ("extra data"), or {@code null} if
    * not required.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private static @Nullable byte[] getExtraData(String mimeType, List<byte[]> initializationData) {
     switch (mimeType) {
       case MimeTypes.AUDIO_AAC:
@@ -209,6 +215,8 @@ import java.util.List;
     return extraData;
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private native long ffmpegInitialize(
       String codecName,
       @Nullable byte[] extraData,
@@ -223,6 +231,8 @@ import java.util.List;
 
   private native int ffmpegGetSampleRate(long context);
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private native long ffmpegReset(long context, @Nullable byte[] extraData);
 
   private native void ffmpegRelease(long context);

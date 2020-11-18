@@ -40,7 +40,11 @@ public final class DataSpec {
     @Nullable private Uri uri;
     private long uriPositionOffset;
     @HttpMethod private int httpMethod;
-    @Nullable private byte[] httpBody;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    private byte[] httpBody;
+
     private Map<String, String> httpRequestHeaders;
     private long position;
     private long length;
@@ -123,6 +127,8 @@ public final class DataSpec {
      * @param httpBody The {@link DataSpec#httpBody}.
      * @return The builder.
      */
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     public Builder setHttpBody(@Nullable byte[] httpBody) {
       this.httpBody = httpBody;
       return this;
@@ -324,7 +330,10 @@ public final class DataSpec {
    * The HTTP request body, null otherwise. If the body is non-null, then {@code httpBody.length}
    * will be non-zero.
    */
-  @Nullable public final byte[] httpBody;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  public final byte[] httpBody;
 
   /**
    * Additional HTTP headers to use when requesting the data.
@@ -529,7 +538,8 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  @SuppressWarnings("deprecation")
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings({"deprecation", "nullness:nullness.on.primitive"})
   @Deprecated
   public DataSpec(
       Uri uri,
@@ -563,7 +573,8 @@ public final class DataSpec {
    * @param key {@link #key}.
    * @param flags {@link #flags}.
    */
-  @SuppressWarnings("deprecation")
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings({"deprecation", "nullness:nullness.on.primitive"})
   @Deprecated
   public DataSpec(
       Uri uri,
@@ -600,6 +611,8 @@ public final class DataSpec {
    * @param flags {@link #flags}.
    * @param httpRequestHeaders {@link #httpRequestHeaders}.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Deprecated
   public DataSpec(
       Uri uri,
@@ -624,7 +637,8 @@ public final class DataSpec {
         /* customData= */ null);
   }
 
-  @SuppressWarnings("deprecation")
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings({"deprecation", "nullness:nullness.on.primitive"})
   private DataSpec(
       Uri uri,
       long uriPositionOffset,

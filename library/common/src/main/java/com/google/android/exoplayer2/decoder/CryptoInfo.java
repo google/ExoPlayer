@@ -32,13 +32,19 @@ public final class CryptoInfo {
    *
    * @see android.media.MediaCodec.CryptoInfo#iv
    */
-  @Nullable public byte[] iv;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  public byte[] iv;
   /**
    * The 16 byte key id.
    *
    * @see android.media.MediaCodec.CryptoInfo#key
    */
-  @Nullable public byte[] key;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  public byte[] key;
   /**
    * The type of encryption that has been applied. Must be one of the {@link C.CryptoMode} values.
    *
@@ -51,14 +57,20 @@ public final class CryptoInfo {
    *
    * @see android.media.MediaCodec.CryptoInfo#numBytesOfClearData
    */
-  @Nullable public int[] numBytesOfClearData;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  public int[] numBytesOfClearData;
   /**
    * The number of trailing encrypted bytes in each sub-sample. If null, all bytes are treated as
    * clear and {@link #numBytesOfClearData} must be specified.
    *
    * @see android.media.MediaCodec.CryptoInfo#numBytesOfEncryptedData
    */
-  @Nullable public int[] numBytesOfEncryptedData;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  public int[] numBytesOfEncryptedData;
   /**
    * The number of subSamples that make up the buffer's contents.
    *

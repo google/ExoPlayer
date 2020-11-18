@@ -170,6 +170,8 @@ public final class PesReader implements TsPayloadReader {
    * @param targetLength The target length of the read.
    * @return Whether the target length has been reached.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private boolean continueRead(
       ParsableByteArray source, @Nullable byte[] target, int targetLength) {
     int bytesToRead = min(source.bytesLeft(), targetLength - bytesRead);

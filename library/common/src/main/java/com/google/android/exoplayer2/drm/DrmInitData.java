@@ -291,7 +291,10 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     /** The mimeType of {@link #data}. */
     public final String mimeType;
     /** The initialization data. May be null for scheme support checks only. */
-    @Nullable public final byte[] data;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    public final byte[] data;
 
     /**
      * @param uuid The {@link UUID} of the DRM scheme, or {@link C#UUID_NIL} if the data is
@@ -299,6 +302,8 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      * @param mimeType See {@link #mimeType}.
      * @param data See {@link #data}.
      */
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     public SchemeData(UUID uuid, String mimeType, @Nullable byte[] data) {
       this(uuid, /* licenseServerUrl= */ null, mimeType, data);
     }
@@ -310,6 +315,8 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      * @param mimeType See {@link #mimeType}.
      * @param data See {@link #data}.
      */
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     public SchemeData(
         UUID uuid, @Nullable String licenseServerUrl, String mimeType, @Nullable byte[] data) {
       this.uuid = Assertions.checkNotNull(uuid);
@@ -358,6 +365,8 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      * @param data The data to include in the copy.
      * @return The new instance.
      */
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     public SchemeData copyWithData(@Nullable byte[] data) {
       return new SchemeData(uuid, licenseServerUrl, mimeType, data);
     }

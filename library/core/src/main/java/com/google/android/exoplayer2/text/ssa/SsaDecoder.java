@@ -180,7 +180,10 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    */
   private static Map<String, SsaStyle> parseStyles(ParsableByteArray data) {
     Map<String, SsaStyle> styles = new LinkedHashMap<>();
-    @Nullable SsaStyle.Format formatInfo = null;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    SsaStyle.Format formatInfo = null;
     @Nullable String currentLine;
     while ((currentLine = data.readLine()) != null
         && (data.bytesLeft() == 0 || data.peekUnsignedByte() != '[')) {
@@ -329,6 +332,8 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
     return cue.build();
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   private static Layout.Alignment toTextAlignment(@SsaStyle.SsaAlignment int alignment) {
     switch (alignment) {

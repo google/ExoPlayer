@@ -101,8 +101,15 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
   @Nullable private final Format primaryTrackManifestFormat;
 
   private ExtractorOutput extractorOutput;
-  @Nullable private MediaParser.SeekMap dummySeekMap;
-  @Nullable private MediaParser.SeekMap lastSeekMap;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private MediaParser.SeekMap dummySeekMap;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private MediaParser.SeekMap lastSeekMap;
+
   @Nullable private String containerMimeType;
   @Nullable private ChunkIndex lastChunkIndex;
   @Nullable private TimestampAdjuster timestampAdjuster;
@@ -194,6 +201,8 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
    * {@link MediaParser.SeekPoint#timeMicros} matches the requested timestamp, and {@link
    * MediaParser.SeekPoint#position} is 0.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   public MediaParser.SeekMap getDummySeekMap() {
     return dummySeekMap;
@@ -316,6 +325,8 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
         scratchDataReaderAdapter, (int) sampleData.getLength(), /* allowEndOfInput= */ true);
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void onSampleCompleted(
       int trackIndex,
@@ -523,6 +534,8 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
     return formatBuilder.build();
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   private static DrmInitData toExoPlayerDrmInitData(
       @Nullable String schemeType, @Nullable android.media.DrmInitData drmInitData) {
@@ -580,6 +593,8 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
   private static ColorInfo getColorInfo(MediaFormat mediaFormat) {
     @Nullable
     ByteBuffer hdrStaticInfoByteBuffer = mediaFormat.getByteBuffer(MediaFormat.KEY_HDR_STATIC_INFO);
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
     @Nullable
     byte[] hdrStaticInfo =
         hdrStaticInfoByteBuffer != null ? getArray(hdrStaticInfoByteBuffer) : null;
@@ -681,7 +696,10 @@ public final class OutputConsumerAdapterV30 implements MediaParser.OutputConsume
 
   private static final class DataReaderAdapter implements DataReader {
 
-    @Nullable public MediaParser.InputReader input;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    public MediaParser.InputReader input;
 
     @Override
     public int read(byte[] target, int offset, int length) throws IOException {

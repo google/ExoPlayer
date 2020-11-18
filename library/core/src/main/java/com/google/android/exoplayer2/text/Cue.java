@@ -565,6 +565,8 @@ public final class Cue {
      *
      * @see Cue#textAlignment
      */
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     public Builder setTextAlignment(@Nullable Layout.Alignment textAlignment) {
       this.textAlignment = textAlignment;
       return this;

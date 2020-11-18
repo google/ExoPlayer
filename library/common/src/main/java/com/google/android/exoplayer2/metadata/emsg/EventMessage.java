@@ -118,6 +118,8 @@ public final class EventMessage implements Metadata.Entry {
     }
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   @Nullable
   public byte[] getWrappedMetadataBytes() {
