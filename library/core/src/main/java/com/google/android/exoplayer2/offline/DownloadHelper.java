@@ -345,8 +345,6 @@ public final class DownloadHelper {
    *     SmoothStreaming media items.
    * @throws IllegalArgumentException If the {@code dataSourceFactory} is null for adaptive streams.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   public static DownloadHelper forMediaItem(
       Context context,
       MediaItem mediaItem,
@@ -376,8 +374,6 @@ public final class DownloadHelper {
    *     SmoothStreaming media items.
    * @throws IllegalArgumentException If the {@code dataSourceFactory} is null for adaptive streams.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   public static DownloadHelper forMediaItem(
       MediaItem mediaItem,
       DefaultTrackSelector.Parameters trackSelectorParameters,
@@ -409,8 +405,6 @@ public final class DownloadHelper {
    *     SmoothStreaming media items.
    * @throws IllegalArgumentException If the {@code dataSourceFactory} is null for adaptive streams.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   public static DownloadHelper forMediaItem(
       MediaItem mediaItem,
       DefaultTrackSelector.Parameters trackSelectorParameters,
@@ -730,8 +724,6 @@ public final class DownloadHelper {
    * @param data Application provided data to store in {@link DownloadRequest#data}.
    * @return The built {@link DownloadRequest}.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public DownloadRequest getDownloadRequest(@Nullable byte[] data) {
     return getDownloadRequest(playbackProperties.uri.toString(), data);
   }
@@ -744,8 +736,6 @@ public final class DownloadHelper {
    * @param data Application provided data to store in {@link DownloadRequest#data}.
    * @return The built {@link DownloadRequest}.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public DownloadRequest getDownloadRequest(String id, @Nullable byte[] data) {
     DownloadRequest.Builder requestBuilder =
         new DownloadRequest.Builder(id, playbackProperties.uri)

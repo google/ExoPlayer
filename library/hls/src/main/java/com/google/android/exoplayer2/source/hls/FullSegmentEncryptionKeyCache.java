@@ -45,8 +45,6 @@ import java.util.Map;
    * Returns the {@code encryptionKey} cached against this {@code uri}, or null if {@code uri} is
    * null or not present in the cache.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   public byte[] get(@Nullable Uri uri) {
     if (uri == null) {
@@ -60,8 +58,6 @@ import java.util.Map;
    *
    * @throws NullPointerException if {@code uri} or {@code encryptionKey} are null.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   public byte[] put(Uri uri, byte[] encryptionKey) {
     return backingMap.put(Assertions.checkNotNull(uri), Assertions.checkNotNull(encryptionKey));
@@ -82,8 +78,6 @@ import java.util.Map;
    *
    * @throws NullPointerException if {@code uri} is null.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   public byte[] remove(Uri uri) {
     return backingMap.remove(Assertions.checkNotNull(uri));

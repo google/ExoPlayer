@@ -334,11 +334,7 @@ public final class Loader implements LoaderErrorThrower {
     private final T loadable;
     private final long startTimeMs;
 
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
-    @Nullable
-    private Loader.Callback<T> callback;
-
+    @Nullable private Loader.Callback<T> callback;
     @Nullable private IOException currentError;
     private int errorCount;
 

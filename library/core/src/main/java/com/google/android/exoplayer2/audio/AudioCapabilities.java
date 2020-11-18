@@ -103,8 +103,6 @@ public final class AudioCapabilities {
    *     supported.
    * @param maxChannelCount The maximum number of audio channels that can be played simultaneously.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public AudioCapabilities(@Nullable int[] supportedEncodings, int maxChannelCount) {
     if (supportedEncodings != null) {
       this.supportedEncodings = Arrays.copyOf(supportedEncodings, supportedEncodings.length);

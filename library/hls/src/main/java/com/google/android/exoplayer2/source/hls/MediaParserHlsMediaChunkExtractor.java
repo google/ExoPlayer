@@ -255,8 +255,6 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
       this.extractorInput = extractorInput;
     }
 
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     @Override
     public int read(@NonNull byte[] buffer, int offset, int readLength) throws IOException {
       int peekedBytes = extractorInput.peek(buffer, offset, readLength);

@@ -50,8 +50,6 @@ public class ForwardingAudioSink implements AudioSink {
     return sink.getCurrentPositionUs(sourceEnded);
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   public void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException {

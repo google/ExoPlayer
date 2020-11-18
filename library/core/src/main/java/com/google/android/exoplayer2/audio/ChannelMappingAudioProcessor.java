@@ -26,14 +26,8 @@ import java.nio.ByteBuffer;
  */
 /* package */ final class ChannelMappingAudioProcessor extends BaseAudioProcessor {
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private int[] pendingOutputChannels;
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private int[] outputChannels;
+  @Nullable private int[] pendingOutputChannels;
+  @Nullable private int[] outputChannels;
 
   /**
    * Resets the channel mapping. After calling this method, call {@link #configure(AudioFormat)} to
@@ -43,8 +37,6 @@ import java.nio.ByteBuffer;
    *     leave the input unchanged.
    * @see AudioSink#configure(com.google.android.exoplayer2.Format, int, int[])
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public void setChannelMap(@Nullable int[] outputChannels) {
     pendingOutputChannels = outputChannels;
   }
@@ -52,10 +44,7 @@ import java.nio.ByteBuffer;
   @Override
   public AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    int[] outputChannels = pendingOutputChannels;
+    @Nullable int[] outputChannels = pendingOutputChannels;
     if (outputChannels == null) {
       return AudioFormat.NOT_SET;
     }

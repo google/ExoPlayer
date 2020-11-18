@@ -45,8 +45,6 @@ public abstract class DataChunk extends Chunk {
    * @param trackSelectionData See {@link #trackSelectionData}.
    * @param data An optional recycled array that can be used as a holder for the data.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public DataChunk(
       DataSource dataSource,
       DataSpec dataSpec,

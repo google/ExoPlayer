@@ -44,16 +44,9 @@ public final class DownloadRequest implements Parcelable {
     private final Uri uri;
     @Nullable private String mimeType;
     @Nullable private List<StreamKey> streamKeys;
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    private byte[] keySetId;
-
+    @Nullable private byte[] keySetId;
     @Nullable private String customCacheKey;
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    private byte[] data;
+    @Nullable private byte[] data;
 
     /** Creates a new instance with the specified id and uri. */
     public Builder(String id, Uri uri) {
@@ -74,8 +67,6 @@ public final class DownloadRequest implements Parcelable {
     }
 
     /** Sets the {@link DownloadRequest#keySetId}. */
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     public Builder setKeySetId(@Nullable byte[] keySetId) {
       this.keySetId = keySetId;
       return this;
@@ -88,8 +79,6 @@ public final class DownloadRequest implements Parcelable {
     }
 
     /** Sets the {@link DownloadRequest#data}. */
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     public Builder setData(@Nullable byte[] data) {
       this.data = data;
       return this;
@@ -120,10 +109,7 @@ public final class DownloadRequest implements Parcelable {
   /** Stream keys to be downloaded. If empty, all streams will be downloaded. */
   public final List<StreamKey> streamKeys;
   /** The key set id of the offline licence if the content is protected with DRM. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  public final byte[] keySetId;
+  @Nullable public final byte[] keySetId;
   /**
    * Custom key for cache indexing, or null. Must be null for DASH, HLS and SmoothStreaming
    * downloads.
@@ -140,8 +126,6 @@ public final class DownloadRequest implements Parcelable {
    * @param customCacheKey See {@link #customCacheKey}.
    * @param data See {@link #data}.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private DownloadRequest(
       String id,
       Uri uri,
@@ -197,8 +181,6 @@ public final class DownloadRequest implements Parcelable {
    * @param keySetId The key set ID of the copy.
    * @return The copy with the specified key set ID.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public DownloadRequest copyWithKeySetId(@Nullable byte[] keySetId) {
     return new DownloadRequest(id, uri, mimeType, streamKeys, keySetId, customCacheKey, data);
   }

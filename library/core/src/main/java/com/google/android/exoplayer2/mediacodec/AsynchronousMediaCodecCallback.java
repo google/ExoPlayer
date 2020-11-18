@@ -59,8 +59,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   private MediaFormat pendingOutputFormat;
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @GuardedBy("lock")
   @Nullable
   private MediaCodec.CodecException mediaCodecException;
@@ -214,8 +212,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void onOutputBufferAvailable(
       @NonNull MediaCodec codec, int index, @NonNull MediaCodec.BufferInfo info) {
@@ -229,8 +225,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void onError(@NonNull MediaCodec codec, @NonNull MediaCodec.CodecException e) {
     synchronized (lock) {

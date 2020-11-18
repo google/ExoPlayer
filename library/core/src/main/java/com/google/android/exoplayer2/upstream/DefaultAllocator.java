@@ -32,11 +32,7 @@ public final class DefaultAllocator implements Allocator {
 
   private final boolean trimOnReset;
   private final int individualAllocationSize;
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private final byte[] initialAllocationBlock;
-
+  @Nullable private final byte[] initialAllocationBlock;
   private final Allocation[] singleAllocationReleaseHolder;
 
   private int targetBufferSize;

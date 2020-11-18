@@ -288,8 +288,6 @@ public interface AudioSink {
    *     is applied the audio data will have {@code outputChannels.length} channels.
    * @throws ConfigurationException If an error occurs configuring the sink.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   void configure(Format inputFormat, int specifiedBufferSize, @Nullable int[] outputChannels)
       throws ConfigurationException;
 

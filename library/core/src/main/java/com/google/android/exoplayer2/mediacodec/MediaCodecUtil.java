@@ -935,10 +935,7 @@ public final class MediaCodecUtil {
 
     private final int codecKind;
 
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
-    @Nullable
-    private android.media.MediaCodecInfo[] mediaCodecInfos;
+    @Nullable private android.media.MediaCodecInfo[] mediaCodecInfos;
 
     public MediaCodecListCompatV21(boolean includeSecure, boolean includeTunneling) {
       codecKind =
