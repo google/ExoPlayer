@@ -52,7 +52,5 @@ public interface Clock {
    *
    * @see Handler#Handler(Looper, Handler.Callback)
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   HandlerWrapper createHandler(Looper looper, @Nullable Handler.Callback callback);
 }

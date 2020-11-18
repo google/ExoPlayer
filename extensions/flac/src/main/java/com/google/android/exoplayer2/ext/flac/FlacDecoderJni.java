@@ -50,11 +50,7 @@ import java.nio.ByteBuffer;
 
   @Nullable private ByteBuffer byteBufferData;
   @Nullable private ExtractorInput extractorInput;
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private byte[] tempBuffer;
-
+  @Nullable private byte[] tempBuffer;
   private boolean endOfExtractorInput;
 
   public FlacDecoderJni() throws FlacDecoderException {
@@ -230,8 +226,6 @@ import java.nio.ByteBuffer;
    * @return The corresponding {@link SeekMap.SeekPoints} obtained from the seek table, or {@code
    *     null} if the stream doesn't have a seek table.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   public SeekMap.SeekPoints getSeekPoints(long timeUs) {
     long[] seekPoints = new long[4];

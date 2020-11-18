@@ -237,8 +237,6 @@ import java.util.List;
       int inputSize,
       SimpleOutputBuffer outputBuffer);
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private native int opusSecureDecode(
       long decoder,
       long timeUs,

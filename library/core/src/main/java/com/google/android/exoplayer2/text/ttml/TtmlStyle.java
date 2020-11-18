@@ -84,11 +84,7 @@ import java.lang.annotation.RetentionPolicy;
   @Nullable private String id;
   @RubyType private int rubyType;
   @RubySpan.Position private int rubyPosition;
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
-  @Nullable
-  private Layout.Alignment textAlign;
-
+  @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
 
   public TtmlStyle() {
@@ -283,15 +279,11 @@ import java.lang.annotation.RetentionPolicy;
     return rubyPosition;
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   public Layout.Alignment getTextAlign() {
     return textAlign;
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   public TtmlStyle setTextAlign(@Nullable Layout.Alignment textAlign) {
     this.textAlign = textAlign;
     return this;

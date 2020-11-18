@@ -100,10 +100,7 @@ public final class AudioAttributes {
   public final @C.AudioUsage int usage;
   public final @C.AudioAllowedCapturePolicy int allowedCapturePolicy;
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
-  @Nullable
-  private android.media.AudioAttributes audioAttributesV21;
+  @Nullable private android.media.AudioAttributes audioAttributesV21;
 
   private AudioAttributes(
       @C.AudioContentType int contentType,

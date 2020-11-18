@@ -625,8 +625,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Draws a pixel data sub-block, as defined by ETSI EN 300 743 7.2.5.1, into a canvas. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private static void paintPixelDataSubBlock(
       byte[] pixelData,
       int[] clutEntries,
@@ -638,18 +636,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     ParsableBitArray data = new ParsableBitArray(pixelData);
     int column = horizontalAddress;
     int line = verticalAddress;
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    byte[] clutMapTable2To4 = null;
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    byte[] clutMapTable2To8 = null;
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    byte[] clutMapTable4To8 = null;
+    @Nullable byte[] clutMapTable2To4 = null;
+    @Nullable byte[] clutMapTable2To8 = null;
+    @Nullable byte[] clutMapTable4To8 = null;
 
     while (data.bitsLeft() != 0) {
       int dataType = data.readBits(8);
@@ -704,8 +693,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Paint a 2-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private static int paint2BitPixelCodeString(
       ParsableBitArray data,
       int[] clutEntries,
@@ -758,8 +745,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Paint a 4-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private static int paint4BitPixelCodeString(
       ParsableBitArray data,
       int[] clutEntries,
@@ -818,8 +803,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /** Paint an 8-bit/pixel code string, as defined by ETSI EN 300 743 7.2.5.2, to a canvas. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private static int paint8BitPixelCodeString(
       ParsableBitArray data,
       int[] clutEntries,

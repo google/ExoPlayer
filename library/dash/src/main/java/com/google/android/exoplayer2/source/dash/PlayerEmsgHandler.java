@@ -236,8 +236,6 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     }
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   private @Nullable Map.Entry<Long, Long> ceilingExpiryEntryForPublishTime(long publishTimeMs) {
     return manifestPublishTimeToExpiryTimeUs.ceilingEntry(publishTimeMs);
   }

@@ -31,10 +31,7 @@ public final class AesCipherDataSink implements DataSink {
 
   private final DataSink wrappedDataSink;
   private final byte[] secretKey;
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private final byte[] scratch;
+  @Nullable private final byte[] scratch;
 
   @Nullable private AesFlushingCipher cipher;
 
@@ -62,8 +59,6 @@ public final class AesCipherDataSink implements DataSink {
    *     cipher calls will be required to complete the operation. If {@code null} then encryption
    *     will overwrite the input {@code data}.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public AesCipherDataSink(byte[] secretKey, DataSink wrappedDataSink, @Nullable byte[] scratch) {
     this.wrappedDataSink = wrappedDataSink;
     this.secretKey = secretKey;

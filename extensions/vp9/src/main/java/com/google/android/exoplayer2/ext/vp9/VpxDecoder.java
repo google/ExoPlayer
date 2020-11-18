@@ -207,8 +207,6 @@ import java.nio.ByteBuffer;
   private native long vpxClose(long context);
   private native long vpxDecode(long context, ByteBuffer encoded, int length);
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private native long vpxSecureDecode(
       long context,
       ByteBuffer encoded,

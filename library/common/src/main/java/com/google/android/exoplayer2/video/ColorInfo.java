@@ -50,10 +50,7 @@ public final class ColorInfo implements Parcelable {
   @C.ColorTransfer public final int colorTransfer;
 
   /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  public final byte[] hdrStaticInfo;
+  @Nullable public final byte[] hdrStaticInfo;
 
   // Lazily initialized hashcode.
   private int hashCode;
@@ -66,8 +63,6 @@ public final class ColorInfo implements Parcelable {
    * @param colorTransfer The color transfer characteristics of the video.
    * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3, or null if none specified.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public ColorInfo(
       @C.ColorSpace int colorSpace,
       @C.ColorRange int colorRange,

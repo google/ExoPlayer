@@ -92,10 +92,7 @@ import com.google.android.exoplayer2.util.Util;
    * Entries are in the range [0, 255], but are stored as long integers for convenience. Null if the
    * table of contents was missing from the header, in which case seeking is not be supported.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  private final long[] tableOfContents;
+  @Nullable private final long[] tableOfContents;
 
   private XingSeeker(long dataStartPosition, int xingFrameSize, long durationUs) {
     this(
@@ -106,8 +103,6 @@ import com.google.android.exoplayer2.util.Util;
         /* tableOfContents= */ null);
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   private XingSeeker(
       long dataStartPosition,
       int xingFrameSize,

@@ -106,10 +106,7 @@ public final class CameraMotionRenderer extends BaseRenderer {
       }
 
       buffer.flip();
-      // nullness annotations are not applicable to primitive types
-      @SuppressWarnings("nullness:nullness.on.primitive")
-      @Nullable
-      float[] rotation = parseMetadata(Util.castNonNull(buffer.data));
+      @Nullable float[] rotation = parseMetadata(Util.castNonNull(buffer.data));
       if (rotation == null) {
         continue;
       }
@@ -128,8 +125,6 @@ public final class CameraMotionRenderer extends BaseRenderer {
     return true;
   }
 
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   private float[] parseMetadata(ByteBuffer data) {
     if (data.remaining() != 16) {

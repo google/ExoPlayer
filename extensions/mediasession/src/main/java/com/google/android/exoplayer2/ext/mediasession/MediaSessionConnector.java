@@ -384,8 +384,6 @@ public final class MediaSessionConnector {
      * @param player The player connected to the media session.
      * @return The custom action to be included in the session playback state or {@code null}.
      */
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
     @Nullable
     PlaybackStateCompat.CustomAction getCustomAction(Player player);
   }
@@ -739,8 +737,6 @@ public final class MediaSessionConnector {
 
     Map<String, CustomActionProvider> currentActions = new HashMap<>();
     for (CustomActionProvider customActionProvider : customActionProviders) {
-      // nullness annotations are not applicable to outer types
-      @SuppressWarnings("nullness:nullness.on.outer")
       @Nullable
       PlaybackStateCompat.CustomAction customAction = customActionProvider.getCustomAction(player);
       if (customAction != null) {

@@ -159,10 +159,7 @@ public final class HlsDownloader extends SegmentDownloader<HlsPlaylist> {
         // Generating an incomplete segment list is allowed. Advance to the next media playlist.
         continue;
       }
-      // nullness annotations are not applicable to outer types
-      @SuppressWarnings("nullness:nullness.on.outer")
-      @Nullable
-      HlsMediaPlaylist.Segment lastInitSegment = null;
+      @Nullable HlsMediaPlaylist.Segment lastInitSegment = null;
       List<HlsMediaPlaylist.Segment> hlsSegments = mediaPlaylist.segments;
       for (int i = 0; i < hlsSegments.size(); i++) {
         HlsMediaPlaylist.Segment segment = hlsSegments.get(i);
