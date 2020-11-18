@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
