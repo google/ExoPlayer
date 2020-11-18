@@ -177,9 +177,18 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   @Nullable
   public static Metadata parseMdtaFromMeta(Atom.ContainerAtom meta) {
-    @Nullable Atom.LeafAtom hdlrAtom = meta.getLeafAtomOfType(Atom.TYPE_hdlr);
-    @Nullable Atom.LeafAtom keysAtom = meta.getLeafAtomOfType(Atom.TYPE_keys);
-    @Nullable Atom.LeafAtom ilstAtom = meta.getLeafAtomOfType(Atom.TYPE_ilst);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom hdlrAtom = meta.getLeafAtomOfType(Atom.TYPE_hdlr);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom keysAtom = meta.getLeafAtomOfType(Atom.TYPE_keys);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom ilstAtom = meta.getLeafAtomOfType(Atom.TYPE_ilst);
     if (hdlrAtom == null
         || keysAtom == null
         || ilstAtom == null
@@ -210,6 +219,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int keyIndex = ilst.readInt() - 1;
       if (keyIndex >= 0 && keyIndex < keyNames.length) {
         String key = keyNames[keyIndex];
+        // nullness annotations are not applicable to outer types
+        @SuppressWarnings("nullness:nullness.on.outer")
         @Nullable
         Metadata.Entry entry =
             MetadataUtil.parseMdtaMetadataEntryFromIlst(ilst, atomPosition + atomSize, key);
@@ -279,10 +290,19 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             mdhdData.second,
             drmInitData,
             isQuickTime);
-    @Nullable long[] editListDurations = null;
-    @Nullable long[] editListMediaTimes = null;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    long[] editListDurations = null;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    long[] editListMediaTimes = null;
     if (!ignoreEditLists) {
-      @Nullable Atom.ContainerAtom edtsAtom = trak.getContainerAtomOfType(Atom.TYPE_edts);
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      Atom.ContainerAtom edtsAtom = trak.getContainerAtomOfType(Atom.TYPE_edts);
       if (edtsAtom != null) {
         @Nullable Pair<long[], long[]> edtsData = parseEdts(edtsAtom);
         if (edtsData != null) {
@@ -310,11 +330,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       Track track, Atom.ContainerAtom stblAtom, GaplessInfoHolder gaplessInfoHolder)
       throws ParserException {
     SampleSizeBox sampleSizeBox;
-    @Nullable Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
     if (stszAtom != null) {
       sampleSizeBox = new StszSampleSizeBox(stszAtom);
     } else {
-      @Nullable Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
       if (stz2Atom == null) {
         throw new ParserException("Track has no sample table size information");
       }
@@ -335,7 +361,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
     // Entries are byte offsets of chunks.
     boolean chunkOffsetsAreLongs = false;
-    @Nullable Atom.LeafAtom chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stco);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom chunkOffsetsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stco);
     if (chunkOffsetsAtom == null) {
       chunkOffsetsAreLongs = true;
       chunkOffsetsAtom = checkNotNull(stblAtom.getLeafAtomOfType(Atom.TYPE_co64));
@@ -346,10 +375,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     // Entries are (number of samples, timestamp delta between those samples).
     ParsableByteArray stts = checkNotNull(stblAtom.getLeafAtomOfType(Atom.TYPE_stts)).data;
     // Entries are the indices of samples that are synchronization samples.
-    @Nullable Atom.LeafAtom stssAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stss);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom stssAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stss);
     @Nullable ParsableByteArray stss = stssAtom != null ? stssAtom.data : null;
     // Entries are (number of samples, timestamp offset).
-    @Nullable Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom cttsAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_ctts);
     @Nullable ParsableByteArray ctts = cttsAtom != null ? cttsAtom.data : null;
 
     // Prepare to read chunk information.
@@ -693,7 +728,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     ilst.skipBytes(Atom.HEADER_SIZE);
     ArrayList<Metadata.Entry> entries = new ArrayList<>();
     while (ilst.getPosition() < limit) {
-      @Nullable Metadata.Entry entry = MetadataUtil.parseIlstElement(ilst);
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      Metadata.Entry entry = MetadataUtil.parseIlstElement(ilst);
       if (entry != null) {
         entries.add(entry);
       }
@@ -996,7 +1034,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     @Nullable List<byte[]> initializationData = null;
     @Nullable String mimeType = null;
     @Nullable String codecs = null;
-    @Nullable byte[] projectionData = null;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    byte[] projectionData = null;
     @C.StereoMode
     int stereoMode = Format.NO_VALUE;
     while (childPosition - position < size) {
@@ -1046,7 +1087,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         Pair<@NullableType String, byte @NullableType []> mimeTypeAndInitializationDataBytes =
             parseEsdsFromParent(parent, childStartPosition);
         mimeType = mimeTypeAndInitializationDataBytes.first;
-        @Nullable byte[] initializationDataBytes = mimeTypeAndInitializationDataBytes.second;
+        // nullness annotations are not applicable to primitive types
+        @SuppressWarnings("nullness:nullness.on.primitive")
+        @Nullable
+        byte[] initializationDataBytes = mimeTypeAndInitializationDataBytes.second;
         if (initializationDataBytes != null) {
           initializationData = ImmutableList.of(initializationDataBytes);
         }
@@ -1123,7 +1167,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    */
   @Nullable
   private static Pair<long[], long[]> parseEdts(Atom.ContainerAtom edtsAtom) {
-    @Nullable Atom.LeafAtom elstAtom = edtsAtom.getLeafAtomOfType(Atom.TYPE_elst);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Atom.LeafAtom elstAtom = edtsAtom.getLeafAtomOfType(Atom.TYPE_elst);
     if (elstAtom == null) {
       return null;
     }
@@ -1273,7 +1320,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           Pair<@NullableType String, byte @NullableType []> mimeTypeAndInitializationData =
               parseEsdsFromParent(parent, esdsAtomPosition);
           mimeType = mimeTypeAndInitializationData.first;
-          @Nullable byte[] initializationDataBytes = mimeTypeAndInitializationData.second;
+          // nullness annotations are not applicable to primitive types
+          @SuppressWarnings("nullness:nullness.on.primitive")
+          @Nullable
+          byte[] initializationDataBytes = mimeTypeAndInitializationData.second;
           if (initializationDataBytes != null) {
             if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
               // Update sampleRate and channelCount from the AudioSpecificConfig initialization
@@ -1528,6 +1578,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /** Parses the proj box from sv3d box, as specified by https://github.com/google/spatial-media. */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   private static byte[] parseProjFromParent(ParsableByteArray parent, int position, int size) {
     int childPosition = position + Atom.HEADER_SIZE;

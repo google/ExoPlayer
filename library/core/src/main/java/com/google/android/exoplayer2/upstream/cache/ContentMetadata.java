@@ -42,6 +42,8 @@ public interface ContentMetadata {
    * @param defaultValue Value to return if the metadata doesn't exist.
    * @return The metadata value.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   byte[] get(String key, @Nullable byte[] defaultValue);
 

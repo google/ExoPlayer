@@ -406,7 +406,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     private final StatsDataSource dataSource;
 
-    @Nullable private byte[] sampleData;
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    private byte[] sampleData;
 
     public SourceLoadable(DataSpec dataSpec, DataSource dataSource) {
       this.loadTaskId = LoadEventInfo.getNewId();

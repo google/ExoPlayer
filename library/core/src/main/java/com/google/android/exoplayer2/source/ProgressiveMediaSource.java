@@ -153,6 +153,8 @@ public final class ProgressiveMediaSource extends BaseMediaSource
       return this;
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public Factory setDrmHttpDataSourceFactory(
         @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {

@@ -253,6 +253,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
@@ -389,6 +391,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Nullable
     MediaItem.AdsConfiguration adsConfiguration = mediaItem.playbackProperties.adsConfiguration;
     if (adsConfiguration == null) {

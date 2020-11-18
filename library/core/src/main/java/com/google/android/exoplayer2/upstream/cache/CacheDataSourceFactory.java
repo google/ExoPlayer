@@ -28,8 +28,15 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
   private final DataSource.Factory upstreamFactory;
   private final DataSource.Factory cacheReadDataSourceFactory;
   @CacheDataSource.Flags private final int flags;
-  @Nullable private final DataSink.Factory cacheWriteDataSinkFactory;
-  @Nullable private final CacheDataSource.EventListener eventListener;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private final DataSink.Factory cacheWriteDataSinkFactory;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private final CacheDataSource.EventListener eventListener;
+
   @Nullable private final CacheKeyFactory cacheKeyFactory;
 
   /**
@@ -60,6 +67,8 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
    * @see CacheDataSource#CacheDataSource(Cache, DataSource, DataSource, DataSink, int,
    *     CacheDataSource.EventListener)
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public CacheDataSourceFactory(
       Cache cache,
       DataSource.Factory upstreamFactory,
@@ -81,6 +90,8 @@ public final class CacheDataSourceFactory implements DataSource.Factory {
    * @see CacheDataSource#CacheDataSource(Cache, DataSource, DataSource, DataSink, int,
    *     CacheDataSource.EventListener, CacheKeyFactory)
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public CacheDataSourceFactory(
       Cache cache,
       DataSource.Factory upstreamFactory,

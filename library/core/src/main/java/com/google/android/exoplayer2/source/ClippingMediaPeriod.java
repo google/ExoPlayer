@@ -39,7 +39,11 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
    */
   public final MediaPeriod mediaPeriod;
 
-  @Nullable private MediaPeriod.Callback callback;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private MediaPeriod.Callback callback;
+
   private @NullableType ClippingSampleStream[] sampleStreams;
   private long pendingInitialDiscontinuityPositionUs;
   /* package */ long startUs;

@@ -34,7 +34,11 @@ import java.util.Map;
 /** A helper to create a {@link DrmSessionManager} from a {@link MediaItem}. */
 public final class MediaSourceDrmHelper {
 
-  @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private HttpDataSource.Factory drmHttpDataSourceFactory;
+
   @Nullable private String userAgent;
 
   /**
@@ -45,6 +49,8 @@ public final class MediaSourceDrmHelper {
    * @param drmHttpDataSourceFactory The HTTP data source factory or {@code null} to use {@link
    *     DefaultHttpDataSourceFactory}.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public void setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
     this.drmHttpDataSourceFactory = drmHttpDataSourceFactory;
@@ -65,6 +71,8 @@ public final class MediaSourceDrmHelper {
   /** Creates a {@link DrmSessionManager} for the given media item. */
   public DrmSessionManager create(MediaItem mediaItem) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Nullable
     MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;
     if (drmConfiguration == null || Util.SDK_INT < 18) {

@@ -57,14 +57,25 @@ public final class CacheDataSource implements DataSource {
 
     private @MonotonicNonNull Cache cache;
     private DataSource.Factory cacheReadDataSourceFactory;
-    @Nullable private DataSink.Factory cacheWriteDataSinkFactory;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    private DataSink.Factory cacheWriteDataSinkFactory;
+
     private CacheKeyFactory cacheKeyFactory;
     private boolean cacheIsReadOnly;
-    @Nullable private DataSource.Factory upstreamDataSourceFactory;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    private DataSource.Factory upstreamDataSourceFactory;
+
     @Nullable private PriorityTaskManager upstreamPriorityTaskManager;
     private int upstreamPriority;
     @CacheDataSource.Flags private int flags;
-    @Nullable private CacheDataSource.EventListener eventListener;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    private CacheDataSource.EventListener eventListener;
 
     public Factory() {
       cacheReadDataSourceFactory = new FileDataSource.Factory();
@@ -117,6 +128,8 @@ public final class CacheDataSource implements DataSource {
      *     DataSinks} for writing data to the cache, or {@code null} to disable writing.
      * @return This factory.
      */
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     public Factory setCacheWriteDataSinkFactory(
         @Nullable DataSink.Factory cacheWriteDataSinkFactory) {
       this.cacheWriteDataSinkFactory = cacheWriteDataSinkFactory;
@@ -153,6 +166,8 @@ public final class CacheDataSource implements DataSource {
      *     cache, or {@code null} to cause failure in the case of a cache miss.
      * @return This factory.
      */
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     public Factory setUpstreamDataSourceFactory(
         @Nullable DataSource.Factory upstreamDataSourceFactory) {
       this.upstreamDataSourceFactory = upstreamDataSourceFactory;

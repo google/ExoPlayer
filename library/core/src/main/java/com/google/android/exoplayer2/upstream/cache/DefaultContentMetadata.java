@@ -63,10 +63,15 @@ public final class DefaultContentMetadata implements ContentMetadata {
     return metadata.entrySet();
   }
 
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   @Override
   @Nullable
   public final byte[] get(String name, @Nullable byte[] defaultValue) {
-    @Nullable byte[] bytes = metadata.get(name);
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    byte[] bytes = metadata.get(name);
     if (bytes != null) {
       return Arrays.copyOf(bytes, bytes.length);
     } else {
@@ -77,7 +82,10 @@ public final class DefaultContentMetadata implements ContentMetadata {
   @Override
   @Nullable
   public final String get(String name, @Nullable String defaultValue) {
-    @Nullable byte[] bytes = metadata.get(name);
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    byte[] bytes = metadata.get(name);
     if (bytes != null) {
       return new String(bytes, Charsets.UTF_8);
     } else {
@@ -87,7 +95,10 @@ public final class DefaultContentMetadata implements ContentMetadata {
 
   @Override
   public final long get(String name, long defaultValue) {
-    @Nullable byte[] bytes = metadata.get(name);
+    // nullness annotations are not applicable to primitive types
+    @SuppressWarnings("nullness:nullness.on.primitive")
+    @Nullable
+    byte[] bytes = metadata.get(name);
     if (bytes != null) {
       return ByteBuffer.wrap(bytes).getLong();
     } else {
@@ -129,7 +140,10 @@ public final class DefaultContentMetadata implements ContentMetadata {
     }
     for (Entry<String, byte[]> entry : first.entrySet()) {
       byte[] value = entry.getValue();
-      @Nullable byte[] otherValue = second.get(entry.getKey());
+      // nullness annotations are not applicable to primitive types
+      @SuppressWarnings("nullness:nullness.on.primitive")
+      @Nullable
+      byte[] otherValue = second.get(entry.getKey());
       if (!Arrays.equals(value, otherValue)) {
         return false;
       }

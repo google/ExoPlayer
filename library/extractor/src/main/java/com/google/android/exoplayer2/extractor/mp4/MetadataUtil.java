@@ -341,6 +341,8 @@ import java.util.List;
    * @param ilst Holds the data to be parsed.
    * @return The parsed element, or null if the element's type was not recognized.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   public static Metadata.Entry parseIlstElement(ParsableByteArray ilst) {
     int position = ilst.getPosition();
