@@ -56,7 +56,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   // Used by other threads only
   @C.StereoMode private volatile int defaultStereoMode;
   @C.StereoMode private int lastStereoMode;
-  @Nullable private byte[] lastProjectionData;
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
+  @Nullable
+  private byte[] lastProjectionData;
 
   // Methods called on any thread.
 
@@ -173,6 +176,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param stereoMode A {@link C.StereoMode} value.
    * @param timeNs When then new projection should be used.
    */
+  // nullness annotations are not applicable to primitive types
+  @SuppressWarnings("nullness:nullness.on.primitive")
   private void setProjection(
       @Nullable byte[] projectionData, @C.StereoMode int stereoMode, long timeNs) {
     byte[] oldProjectionData = lastProjectionData;

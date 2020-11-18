@@ -107,7 +107,11 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     @Nullable private ImaSdkSettings imaSdkSettings;
     @Nullable private AdErrorListener adErrorListener;
     @Nullable private AdEventListener adEventListener;
-    @Nullable private VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    private VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback;
+
     @Nullable private List<String> adMediaMimeTypes;
     @Nullable private Set<UiElement> adUiElements;
     @Nullable private Collection<CompanionAdSlot> companionAdSlots;
@@ -385,6 +389,8 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
    * Returns the underlying {@link com.google.ads.interactivemedia.v3.api.AdsLoader} wrapped by this
    * instance, or {@code null} if ads have not been requested yet.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
     return adTagLoader != null ? adTagLoader.getAdsLoader() : null;

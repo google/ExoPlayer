@@ -410,6 +410,8 @@ import java.util.Set;
 
   // Internal methods to manage child sources.
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   private static MediaSource.MediaPeriodId getMediaPeriodIdForChildMediaPeriodId(
       MediaSourceHolder mediaSourceHolder, MediaSource.MediaPeriodId mediaPeriodId) {
@@ -530,6 +532,8 @@ import java.util.Set;
 
     // MediaSourceEventListener implementation
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onLoadStarted(
         int windowIndex,
@@ -541,6 +545,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onLoadCompleted(
         int windowIndex,
@@ -552,6 +558,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onLoadCanceled(
         int windowIndex,
@@ -563,6 +571,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onLoadError(
         int windowIndex,
@@ -576,6 +586,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onUpstreamDiscarded(
         int windowIndex,
@@ -586,6 +598,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onDownstreamFormatChanged(
         int windowIndex,
@@ -598,6 +612,8 @@ import java.util.Set;
 
     // DrmSessionEventListener implementation
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onDrmSessionAcquired(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
@@ -606,6 +622,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onDrmKeysLoaded(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
@@ -614,6 +632,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onDrmSessionManagerError(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId, Exception error) {
@@ -622,6 +642,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onDrmKeysRestored(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
@@ -630,6 +652,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onDrmKeysRemoved(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
@@ -638,6 +662,8 @@ import java.util.Set;
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Override
     public void onDrmSessionReleased(
         int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
@@ -647,9 +673,14 @@ import java.util.Set;
     }
 
     /** Updates the event dispatcher and returns whether the event should be dispatched. */
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     private boolean maybeUpdateEventDispatcher(
         int childWindowIndex, @Nullable MediaSource.MediaPeriodId childMediaPeriodId) {
-      @Nullable MediaSource.MediaPeriodId mediaPeriodId = null;
+      // nullness annotations are not applicable to outer types
+      @SuppressWarnings("nullness:nullness.on.outer")
+      @Nullable
+      MediaSource.MediaPeriodId mediaPeriodId = null;
       if (childMediaPeriodId != null) {
         mediaPeriodId = getMediaPeriodIdForChildMediaPeriodId(id, childMediaPeriodId);
         if (mediaPeriodId == null) {

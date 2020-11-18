@@ -446,6 +446,8 @@ public final class Util {
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    * @throws IllegalStateException If the current thread doesn't have a {@link Looper}.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public static Handler createHandlerForCurrentLooper(
       @Nullable Handler.@UnknownInitialization Callback callback) {
     return createHandler(Assertions.checkStateNotNull(Looper.myLooper()), callback);
@@ -475,6 +477,8 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public static Handler createHandlerForCurrentOrMainLooper(
       @Nullable Handler.@UnknownInitialization Callback callback) {
     return createHandler(getCurrentOrMainLooper(), callback);
@@ -492,7 +496,12 @@ public final class Util {
    *     callback is required.
    * @return A {@link Handler} with the specified callback on the current {@link Looper} thread.
    */
-  @SuppressWarnings({"nullness:argument.type.incompatible", "nullness:return.type.incompatible"})
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings({
+    "nullness:argument.type.incompatible",
+    "nullness:return.type.incompatible",
+    "nullness:nullness.on.outer"
+  })
   public static Handler createHandler(
       Looper looper, @Nullable Handler.@UnknownInitialization Callback callback) {
     return new Handler(looper, callback);

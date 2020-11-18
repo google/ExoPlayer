@@ -72,7 +72,10 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
 
   @Nullable private SurfaceTexture surfaceTexture;
   @Nullable private Surface surface;
-  @Nullable private Player.VideoComponent videoComponent;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private Player.VideoComponent videoComponent;
 
   /**
    * Creates a new instance. Pass {@code true} for {@code requireSecureContext} if the {@link
@@ -151,6 +154,8 @@ public final class VideoProcessingGLSurfaceView extends GLSurfaceView {
    *
    * @param newVideoComponent The new video component, or {@code null} to detach this view.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public void setVideoComponent(@Nullable Player.VideoComponent newVideoComponent) {
     if (newVideoComponent == videoComponent) {
       return;

@@ -649,7 +649,10 @@ import java.util.Map;
       return lastVolumePercent;
     }
 
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Player.AudioComponent audioComponent = player.getAudioComponent();
     if (audioComponent != null) {
       return (int) (audioComponent.getVolume() * 100);
     }

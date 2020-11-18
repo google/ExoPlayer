@@ -83,6 +83,8 @@ import java.util.List;
     void onPlaybackEnded();
 
     /** Called when the player encounters an error. */
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     void onError(@Nullable androidx.media2.common.MediaItem media2MediaItem);
 
     /** Called when the playlist is changed. */
@@ -138,7 +140,10 @@ import java.util.List;
     controlDispatcher = new DefaultControlDispatcher();
     componentListener = new ComponentListener();
     player.addListener(componentListener);
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Player.AudioComponent audioComponent = player.getAudioComponent();
     if (audioComponent != null) {
       audioComponent.addAudioListener(componentListener);
     }
@@ -295,6 +300,8 @@ import java.util.List;
     return player.getNextWindowIndex();
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   public androidx.media2.common.MediaItem getCurrentMediaItem() {
     int index = getCurrentMediaItemIndex();
@@ -381,7 +388,10 @@ import java.util.List;
   }
 
   public AudioAttributesCompat getAudioAttributes() {
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Player.AudioComponent audioComponent = player.getAudioComponent();
     return Utils.getAudioAttributesCompat(
         audioComponent != null ? audioComponent.getAudioAttributes() : AudioAttributes.DEFAULT);
   }
@@ -404,7 +414,10 @@ import java.util.List;
     handler.removeCallbacks(pollBufferRunnable);
     player.removeListener(componentListener);
 
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Player.AudioComponent audioComponent = player.getAudioComponent();
     if (audioComponent != null) {
       audioComponent.removeAudioListener(componentListener);
     }

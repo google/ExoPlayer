@@ -92,12 +92,24 @@ import java.util.Set;
     @Nullable public final List<String> adMediaMimeTypes;
     @Nullable public final Set<UiElement> adUiElements;
     @Nullable public final Collection<CompanionAdSlot> companionAdSlots;
-    @Nullable public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
-    @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
-    @Nullable public final VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    public final AdEvent.AdEventListener applicationAdEventListener;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    public final VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback;
+
     @Nullable public final ImaSdkSettings imaSdkSettings;
     public final boolean debugModeEnabled;
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     public Configuration(
         long adPreloadTimeoutMs,
         int vastLoadTimeoutMs,

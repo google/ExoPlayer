@@ -71,7 +71,11 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
   private final SceneRenderer scene;
   @Nullable private SurfaceTexture surfaceTexture;
   @Nullable private Surface surface;
-  @Nullable private Player.VideoComponent videoComponent;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private Player.VideoComponent videoComponent;
+
   private boolean useSensorRotation;
   private boolean isStarted;
   private boolean isOrientationListenerRegistered;
@@ -125,6 +129,8 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
   }
 
   /** Sets the {@link Player.VideoComponent} to use. */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   public void setVideoComponent(@Nullable Player.VideoComponent newVideoComponent) {
     if (newVideoComponent == videoComponent) {
       return;

@@ -872,6 +872,8 @@ public final class WebvttCueParser {
       }
     }
 
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
     @Nullable
     private static Layout.Alignment convertTextAlignment(@TextAlignment int textAlignment) {
       switch (textAlignment) {

@@ -1805,6 +1805,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    *     made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   protected TrackSelection.Definition selectVideoTrack(
       TrackGroupArray groups,
@@ -1826,6 +1828,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     return definition;
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   private static TrackSelection.Definition selectAdaptiveVideoTrack(
       TrackGroupArray groups,
@@ -2042,6 +2046,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             || (minVideoBitrate <= format.bitrate && format.bitrate <= maxVideoBitrate));
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   private static TrackSelection.Definition selectFixedVideoTrack(
       TrackGroupArray groups, @Capabilities int[][] formatSupport, Parameters params) {
@@ -2286,6 +2292,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @return The {@link TrackSelection} for the renderer, or null if no selection was made.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   protected TrackSelection.Definition selectOtherTrack(
       int trackType, TrackGroupArray groups, @Capabilities int[][] formatSupport, Parameters params)

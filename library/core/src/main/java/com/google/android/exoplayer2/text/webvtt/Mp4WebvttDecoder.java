@@ -73,7 +73,10 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
 
   private static Cue parseVttCueBox(ParsableByteArray sampleData, int remainingCueBoxBytes)
       throws SubtitleDecoderException {
-    @Nullable Cue.Builder cueBuilder = null;
+    // nullness annotations are not applicable to outer types
+    @SuppressWarnings("nullness:nullness.on.outer")
+    @Nullable
+    Cue.Builder cueBuilder = null;
     @Nullable CharSequence cueText = null;
     while (remainingCueBoxBytes > 0) {
       if (remainingCueBoxBytes < BOX_HEADER_SIZE) {

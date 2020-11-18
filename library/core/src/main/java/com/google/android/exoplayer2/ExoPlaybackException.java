@@ -137,7 +137,10 @@ public final class ExoPlaybackException extends Exception {
    * The {@link MediaSource.MediaPeriodId} of the media associated with this error, or null if
    * undetermined.
    */
-  @Nullable public final MediaSource.MediaPeriodId mediaPeriodId;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  public final MediaSource.MediaPeriodId mediaPeriodId;
 
   /**
    * Whether the error may be recoverable.
@@ -326,6 +329,8 @@ public final class ExoPlaybackException extends Exception {
         isRecoverable);
   }
 
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   private ExoPlaybackException(
       @Nullable String message,
       @Nullable Throwable cause,
@@ -407,6 +412,8 @@ public final class ExoPlaybackException extends Exception {
    * @param mediaPeriodId The {@link MediaSource.MediaPeriodId}.
    * @return The copied exception.
    */
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
   @CheckResult
   /* package */ ExoPlaybackException copyWithMediaPeriodId(
       @Nullable MediaSource.MediaPeriodId mediaPeriodId) {

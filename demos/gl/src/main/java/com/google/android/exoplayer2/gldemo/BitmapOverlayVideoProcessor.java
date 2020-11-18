@@ -52,8 +52,14 @@ import javax.microedition.khronos.opengles.GL10;
   private final Canvas overlayCanvas;
 
   private int program;
-  @Nullable private GlUtil.Attribute[] attributes;
-  @Nullable private GlUtil.Uniform[] uniforms;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private GlUtil.Attribute[] attributes;
+  // nullness annotations are not applicable to outer types
+  @SuppressWarnings("nullness:nullness.on.outer")
+  @Nullable
+  private GlUtil.Uniform[] uniforms;
 
   private float bitmapScaleX;
   private float bitmapScaleY;
