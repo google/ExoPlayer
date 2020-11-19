@@ -325,6 +325,7 @@ public class PlayerActivity extends AppCompatActivity
 
       if (!Util.checkCleartextTrafficPermitted(mediaItem)) {
         showToast(R.string.error_cleartext_not_permitted);
+        finish();
         return Collections.emptyList();
       }
       if (Util.maybeRequestReadExternalStoragePermission(/* activity= */ this, mediaItem)) {
