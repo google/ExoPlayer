@@ -9,6 +9,10 @@
     *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
         ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
 *   UI:
+    *   Fix incorrect color and text alignment of the `StyledPlayerControlView`
+        fast forward and rewind buttons, when used together with the
+        `com.google.android.material` library
+        ([#7898](https://github.com/google/ExoPlayer/issues/7898)).
     *   Add `dispatchPrepare(Player)` to `ControlDispatcher` and implement it in
         `DefaultControlDispatcher`. Deprecate `PlaybackPreparer` and
         `setPlaybackPreparer` in `StyledPlayerView`, `StyledPlayerControlView`,

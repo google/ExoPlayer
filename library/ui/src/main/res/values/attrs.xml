@@ -72,6 +72,9 @@
   <attr name="controller_layout_id" format="reference"/>
   <attr name="animation_enabled" format="boolean"/>
 
+  <!-- Needed for https://github.com/google/ExoPlayer/issues/7898 -->
+  <attr name="backgroundTint" format="color"/>
+
   <!-- DefaultTimeBar attributes -->
   <attr name="bar_height" format="dimension"/>
   <attr name="bar_gravity" format="enum">
