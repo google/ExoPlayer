@@ -8,6 +8,9 @@
         ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
     *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
         ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
+    *   Fix issue that could cause playback to freeze when selecting tracks, if
+        extension audio renderers are being used
+        ([#8203](https://github.com/google/ExoPlayer/issues/8203)).
 *   UI:
     *   Fix incorrect color and text alignment of the `StyledPlayerControlView`
         fast forward and rewind buttons, when used together with the
@@ -121,8 +124,6 @@
     *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for
         companion ads rendering when targeting API 29
         ([#6432](https://github.com/google/ExoPlayer/issues/6432)).
-*   Metadata retriever:
-    *   Parse Google Photos HEIC motion photos metadata.
 
 ### 2.12.0 (2020-09-11) ###
 
