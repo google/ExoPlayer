@@ -385,6 +385,9 @@ import java.util.List;
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_twos = 0x74776f73;
 
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE__m1v = 0x6d317620;
+
   public final int type;
 
   public Atom(int type) {

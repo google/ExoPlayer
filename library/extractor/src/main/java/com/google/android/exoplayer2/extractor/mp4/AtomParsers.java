@@ -869,7 +869,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_dvav
           || childAtomType == Atom.TYPE_dva1
           || childAtomType == Atom.TYPE_dvhe
-          || childAtomType == Atom.TYPE_dvh1) {
+          || childAtomType == Atom.TYPE_dvh1
+          || childAtomType == Atom.TYPE__m1v) {
         parseVideoSampleEntry(stsd, childAtomType, childStartPosition, childAtomSize, trackId,
             rotationDegrees, drmInitData, out, i);
       } else if (childAtomType == Atom.TYPE_mp4a
@@ -1085,6 +1086,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         }
       }
       childPosition += childAtomSize;
+    }
+
+    if (mimeType == null && atomType == Atom.TYPE__m1v) {
+      mimeType = MimeTypes.VIDEO_MPEG;
     }
 
     // If the media type was not recognized, ignore the track.
