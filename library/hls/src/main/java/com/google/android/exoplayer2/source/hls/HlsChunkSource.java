@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -39,7 +40,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -84,7 +84,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       endOfStream = false;
       playlistUrl = null;
     }
-
   }
 
   /**
@@ -223,6 +222,44 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
+   * Checks whether the previous media chunk is a preload chunk that has been removed in the current
+   * playlist.
+   *
+   * @param previous The previous media chunk.
+   * @return True if the previous media chunk has been removed in the current playlist.
+   */
+  public boolean isMediaChunkRemoved(HlsMediaChunk previous) {
+    if (!previous.isPreload) {
+      return false;
+    }
+    Uri playlistUrl = playlistUrls[trackGroup.indexOf(previous.trackFormat)];
+    HlsMediaPlaylist mediaPlaylist =
+        checkNotNull(playlistTracker.getPlaylistSnapshot(playlistUrl, /* isForPlayback= */ false));
+    int segmentIndexInPlaylist = (int) (previous.chunkIndex - mediaPlaylist.mediaSequence);
+    if (segmentIndexInPlaylist < 0) {
+      // The segment of the previous chunk is not in the current playlist anymore.
+      return false;
+    }
+    List<HlsMediaPlaylist.Part> partsInCurrentPlaylist =
+        segmentIndexInPlaylist < mediaPlaylist.segments.size()
+            ? mediaPlaylist.segments.get(segmentIndexInPlaylist).parts
+            : mediaPlaylist.trailingParts;
+    if (previous.partIndex >= partsInCurrentPlaylist.size()) {
+      // In case the part hinted in the previous playlist has been wrongly assigned to the then full
+      // but not yet terminated segment, we discard it regardless whether the URI is different or
+      // not. While this is theoretically possible and unspecified, it appears to be an edge case
+      // which we can avoid with a small inefficiency of discarding in vain. We could allow this
+      // here but, if the chunk is not discarded, it could create unpredictable problems later,
+      // because the media sequence in previous.chunkIndex does not match to the actual media
+      // sequence in the new playlist.
+      return true;
+    }
+    HlsMediaPlaylist.Part publishedPart = partsInCurrentPlaylist.get(previous.partIndex);
+    Uri publishedUri = Uri.parse(UriUtil.resolve(mediaPlaylist.baseUri, publishedPart.url));
+    return !Util.areEqual(publishedUri, previous.dataSpec.uri);
+  }
+
+  /**
    * Returns the next chunk to load.
    *
    * <p>If a chunk is available then {@link HlsChunkHolder#chunk} is set. If the end of the stream
@@ -270,7 +307,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     trackSelection.updateSelectedTrack(
         playbackPositionUs, bufferedDurationUs, timeToLiveEdgeUs, queue, mediaChunkIterators);
     int selectedTrackIndex = trackSelection.getSelectedIndexInTrackGroup();
-
     boolean switchingTrack = oldTrackIndex != selectedTrackIndex;
     Uri selectedPlaylistUrl = playlistUrls[selectedTrackIndex];
     if (!playlistTracker.isSnapshotValid(selectedPlaylistUrl)) {
@@ -284,7 +320,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     HlsMediaPlaylist mediaPlaylist =
         playlistTracker.getPlaylistSnapshot(selectedPlaylistUrl, /* isForPlayback= */ true);
     // playlistTracker snapshot is valid (checked by if() above), so mediaPlaylist must be non-null.
-    Assertions.checkNotNull(mediaPlaylist);
+    checkNotNull(mediaPlaylist);
     independentSegments = mediaPlaylist.hasIndependentSegments;
 
     updateLiveEdgeTimeUs(mediaPlaylist);
@@ -306,7 +342,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           playlistTracker.getPlaylistSnapshot(selectedPlaylistUrl, /* isForPlayback= */ true);
       // playlistTracker snapshot is valid (checked by if() above), so mediaPlaylist must be
       // non-null.
-      Assertions.checkNotNull(mediaPlaylist);
+      checkNotNull(mediaPlaylist);
       startOfPlaylistInPeriodUs =
           mediaPlaylist.startTimeUs - playlistTracker.getInitialStartTimeUs();
       // Get the next segment/part without switching tracks.
@@ -366,7 +402,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (out.chunk != null) {
       return;
     }
-
     out.chunk =
         HlsMediaChunk.createInstance(
             extractorFactory,
@@ -399,7 +434,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     Segment mediaSegment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
     if (nextPartIndex == C.INDEX_UNSET) {
-      return new SegmentBaseHolder(mediaSegment, nextMediaSequence, nextPartIndex);
+      return new SegmentBaseHolder(mediaSegment, nextMediaSequence, /* partIndex= */ C.INDEX_UNSET);
     }
 
     if (nextPartIndex < mediaSegment.parts.size()) {
@@ -417,6 +452,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return new SegmentBaseHolder(
           mediaPlaylist.trailingParts.get(0), nextMediaSequence + 1, /* partIndex= */ 0);
     }
+    // End of stream.
     return null;
   }
 
@@ -430,8 +466,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (chunk instanceof EncryptionKeyChunk) {
       EncryptionKeyChunk encryptionKeyChunk = (EncryptionKeyChunk) chunk;
       scratchSpace = encryptionKeyChunk.getDataHolder();
-      keyCache.put(
-          encryptionKeyChunk.dataSpec.uri, Assertions.checkNotNull(encryptionKeyChunk.getResult()));
+      keyCache.put(encryptionKeyChunk.dataSpec.uri, checkNotNull(encryptionKeyChunk.getResult()));
     }
   }
 
@@ -499,7 +534,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsMediaPlaylist playlist =
           playlistTracker.getPlaylistSnapshot(playlistUrl, /* isForPlayback= */ false);
       // Playlist snapshot is valid (checked by if() above) so playlist must be non-null.
-      Assertions.checkNotNull(playlist);
+      checkNotNull(playlist);
       long startOfPlaylistInPeriodUs =
           playlist.startTimeUs - playlistTracker.getInitialStartTimeUs();
       boolean switchingTrack = trackIndex != oldTrackIndex;
@@ -704,6 +739,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public final HlsMediaPlaylist.SegmentBase segmentBase;
     public final long mediaSequence;
     public final int partIndex;
+    public final boolean isPreload;
 
     /** Creates a new instance. */
     public SegmentBaseHolder(
@@ -711,6 +747,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.segmentBase = segmentBase;
       this.mediaSequence = mediaSequence;
       this.partIndex = partIndex;
+      this.isPreload =
+          segmentBase instanceof HlsMediaPlaylist.Part
+              && ((HlsMediaPlaylist.Part) segmentBase).isPreload;
     }
   }
 

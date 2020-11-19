@@ -504,6 +504,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return true;
   }
 
+  /** Called when the playlist is updated. */
+  public void onPlaylistUpdated() {
+    if (!loadingFinished
+        && loader.isLoading()
+        && !mediaChunks.isEmpty()
+        && chunkSource.isMediaChunkRemoved(Iterables.getLast(mediaChunks))) {
+      loader.cancelLoading();
+    }
+  }
+
   public void release() {
     if (prepared) {
       // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
@@ -672,8 +682,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         /* allowEndOfStream= */ prepared || !chunkQueue.isEmpty(),
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
-    Chunk loadable = nextChunkHolder.chunk;
-    Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;
+    @Nullable Chunk loadable = nextChunkHolder.chunk;
+    @Nullable Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;
     nextChunkHolder.clear();
 
     if (endOfStream) {
@@ -725,6 +735,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loader.cancelLoading();
       }
       return;
+    }
+
+    if (!readOnlyMediaChunks.isEmpty()
+        && chunkSource.isMediaChunkRemoved(Iterables.getLast(readOnlyMediaChunks))) {
+      discardUpstream(mediaChunks.size() - 1);
     }
 
     int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);

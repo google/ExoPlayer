@@ -169,6 +169,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         segmentEndTimeInPeriodUs,
         segmentBaseHolder.mediaSequence,
         segmentBaseHolder.partIndex,
+        segmentBaseHolder.isPreload,
         discontinuitySequenceNumber,
         mediaSegment.hasGapTag,
         isMasterTimestampSource,
@@ -203,6 +204,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /** The part index or {@link C#INDEX_UNSET} if the chunk is a full segment */
   public final int partIndex;
+
+  /** Whether this chunk is a preload chunk. */
+  public final boolean isPreload;
 
   @Nullable private final DataSource initDataSource;
   @Nullable private final DataSpec initDataSpec;
@@ -247,6 +251,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       long endTimeUs,
       long chunkMediaSequence,
       int partIndex,
+      boolean isPreload,
       int discontinuitySequenceNumber,
       boolean hasGapTag,
       boolean isMasterTimestampSource,
@@ -267,6 +272,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         chunkMediaSequence);
     this.mediaSegmentEncrypted = mediaSegmentEncrypted;
     this.partIndex = partIndex;
+    this.isPreload = isPreload;
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
     this.initDataSource = initDataSource;
