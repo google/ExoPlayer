@@ -352,7 +352,6 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
-  private static final int UNDEFINED_POSITION = -1;
 
   private final ComponentListener componentListener;
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
@@ -427,9 +426,8 @@ public class StyledPlayerControlView extends FrameLayout {
   private SettingsAdapter settingsAdapter;
   private SubSettingsAdapter subSettingsAdapter;
   private PopupWindow settingsWindow;
-  private List<String> playbackSpeedTextList;
-  private List<Integer> playbackSpeedMultBy100List;
-  private int customPlaybackSpeedIndex;
+  private String[] playbackSpeedTexts;
+  private int[] playbackSpeedsMultBy100;
   private int selectedPlaybackSpeedIndex;
   private boolean needToHideBars;
   private int settingsWindowMargin;
@@ -653,19 +651,11 @@ public class StyledPlayerControlView extends FrameLayout {
         resources.getDrawable(R.drawable.exo_styled_controls_audiotrack);
     settingsAdapter = new SettingsAdapter(settingTexts, settingIcons);
 
-    playbackSpeedTextList =
-        new ArrayList<>(Arrays.asList(resources.getStringArray(R.array.exo_playback_speeds)));
-    playbackSpeedMultBy100List = new ArrayList<>();
-    int[] speeds = resources.getIntArray(R.array.exo_speed_multiplied_by_100);
-    for (int speed : speeds) {
-      playbackSpeedMultBy100List.add(speed);
-    }
-    selectedPlaybackSpeedIndex = playbackSpeedMultBy100List.indexOf(100);
-    customPlaybackSpeedIndex = UNDEFINED_POSITION;
+    playbackSpeedTexts = resources.getStringArray(R.array.exo_playback_speeds);
+    playbackSpeedsMultBy100 = resources.getIntArray(R.array.exo_speed_multiplied_by_100);
     settingsWindowMargin = resources.getDimensionPixelSize(R.dimen.exo_settings_offset);
 
     subSettingsAdapter = new SubSettingsAdapter();
-    subSettingsAdapter.setCheckPosition(UNDEFINED_POSITION);
     settingsView =
         (RecyclerView)
             LayoutInflater.from(context).inflate(R.layout.exo_styled_settings_list, null);
@@ -1445,25 +1435,18 @@ public class StyledPlayerControlView extends FrameLayout {
     }
     float speed = player.getPlaybackParameters().speed;
     int currentSpeedMultBy100 = Math.round(speed * 100);
-    int indexForCurrentSpeed = playbackSpeedMultBy100List.indexOf(currentSpeedMultBy100);
-    if (indexForCurrentSpeed == UNDEFINED_POSITION) {
-      if (customPlaybackSpeedIndex != UNDEFINED_POSITION) {
-        playbackSpeedMultBy100List.remove(customPlaybackSpeedIndex);
-        playbackSpeedTextList.remove(customPlaybackSpeedIndex);
-        customPlaybackSpeedIndex = UNDEFINED_POSITION;
+    int closestMatchIndex = 0;
+    int closestMatchDifference = Integer.MAX_VALUE;
+    for (int i = 0; i < playbackSpeedsMultBy100.length; i++) {
+      int difference = Math.abs(currentSpeedMultBy100 - playbackSpeedsMultBy100[i]);
+      if (difference < closestMatchDifference) {
+        closestMatchIndex = i;
+        closestMatchDifference = difference;
       }
-      indexForCurrentSpeed =
-          -Collections.binarySearch(playbackSpeedMultBy100List, currentSpeedMultBy100) - 1;
-      String customSpeedText =
-          resources.getString(R.string.exo_controls_custom_playback_speed, speed);
-      playbackSpeedMultBy100List.add(indexForCurrentSpeed, currentSpeedMultBy100);
-      playbackSpeedTextList.add(indexForCurrentSpeed, customSpeedText);
-      customPlaybackSpeedIndex = indexForCurrentSpeed;
     }
-
-    selectedPlaybackSpeedIndex = indexForCurrentSpeed;
+    selectedPlaybackSpeedIndex = closestMatchIndex;
     settingsAdapter.setSubTextAtPosition(
-        SETTINGS_PLAYBACK_SPEED_POSITION, playbackSpeedTextList.get(indexForCurrentSpeed));
+        SETTINGS_PLAYBACK_SPEED_POSITION, playbackSpeedTexts[closestMatchIndex]);
   }
 
   private void updateSettingsWindowSize() {
@@ -1570,8 +1553,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private void onSettingViewClicked(int position) {
     if (position == SETTINGS_PLAYBACK_SPEED_POSITION) {
-      subSettingsAdapter.setTexts(playbackSpeedTextList);
-      subSettingsAdapter.setCheckPosition(selectedPlaybackSpeedIndex);
+      subSettingsAdapter.init(playbackSpeedTexts, selectedPlaybackSpeedIndex);
       selectedMainSettingsPosition = SETTINGS_PLAYBACK_SPEED_POSITION;
       displaySettingsWindow(subSettingsAdapter);
     } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
@@ -1585,7 +1567,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private void onSubSettingViewClicked(int position) {
     if (selectedMainSettingsPosition == SETTINGS_PLAYBACK_SPEED_POSITION) {
       if (position != selectedPlaybackSpeedIndex) {
-        float speed = playbackSpeedMultBy100List.get(position) / 100.0f;
+        float speed = playbackSpeedsMultBy100[position] / 100.0f;
         setPlaybackSpeed(speed);
       }
     }
@@ -1878,6 +1860,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolder> {
+
     private final String[] mainTexts;
     private final String[] subTexts;
     private final Drawable[] iconIds;
@@ -1928,6 +1911,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private final class SettingViewHolder extends RecyclerView.ViewHolder {
+
     private final TextView mainTextView;
     private final TextView subTextView;
     private final ImageView iconView;
@@ -1942,8 +1926,18 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private class SubSettingsAdapter extends RecyclerView.Adapter<SubSettingViewHolder> {
-    @Nullable private List<String> texts;
-    private int checkPosition;
+
+    private String[] texts;
+    private int selectedIndex;
+
+    public SubSettingsAdapter() {
+      texts = new String[0];
+    }
+
+    public void init(String[] texts, int selectedIndex) {
+      this.texts = texts;
+      this.selectedIndex = selectedIndex;
+    }
 
     @Override
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -1955,23 +1949,15 @@ public class StyledPlayerControlView extends FrameLayout {
 
     @Override
     public void onBindViewHolder(SubSettingViewHolder holder, int position) {
-      if (texts != null) {
-        holder.textView.setText(texts.get(position));
+      if (position < texts.length) {
+        holder.textView.setText(texts[position]);
       }
-      holder.checkView.setVisibility(position == checkPosition ? VISIBLE : INVISIBLE);
+      holder.checkView.setVisibility(position == selectedIndex ? VISIBLE : INVISIBLE);
     }
 
     @Override
     public int getItemCount() {
-      return texts != null ? texts.size() : 0;
-    }
-
-    public void setTexts(@Nullable List<String> texts) {
-      this.texts = texts;
-    }
-
-    public void setCheckPosition(int checkPosition) {
-      this.checkPosition = checkPosition;
+      return texts.length;
     }
   }
 
@@ -1988,6 +1974,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private static final class TrackInfo {
+
     public final int rendererIndex;
     public final int groupIndex;
     public final int trackIndex;
@@ -2157,6 +2144,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private abstract class TrackSelectionAdapter
       extends RecyclerView.Adapter<TrackSelectionViewHolder> {
+
     protected List<Integer> rendererIndices;
     protected List<TrackInfo> tracks;
     protected @Nullable MappedTrackInfo mappedTrackInfo;
@@ -2240,6 +2228,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private static class TrackSelectionViewHolder extends RecyclerView.ViewHolder {
+
     public final TextView textView;
     public final View checkView;
 
