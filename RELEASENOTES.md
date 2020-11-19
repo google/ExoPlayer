@@ -29,6 +29,10 @@
 *   UI:
     *   Show overflow button in `StyledPlayerControlView` only when there is not
         enough space.
+    *   Fix incorrect color and text alignment of the `StyledPlayerControlView`
+        fast forward and rewind buttons, when used together with the
+        `com.google.android.material` library
+        ([#7898](https://github.com/google/ExoPlayer/issues/7898)).
     *   Add `dispatchPrepare(Player)` to `ControlDispatcher` and implement it in
         `DefaultControlDispatcher`. Deprecate `PlaybackPreparer` and
         `setPlaybackPreparer` in `StyledPlayerView`, `StyledPlayerControlView`,
