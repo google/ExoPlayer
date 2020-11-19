@@ -73,8 +73,6 @@ public final class CacheWriter {
    *     writer should instantiate its own internal temporary buffer.
    * @param progressListener An optional progress listener.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public CacheWriter(
       CacheDataSource dataSource,
       DataSpec dataSpec,

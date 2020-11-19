@@ -52,10 +52,7 @@ public final class TrackEncryptionBox {
    * If {@link #perSampleIvSize} is 0, holds the default initialization vector as defined in the
    * track encryption box or sample group description box. Null otherwise.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  public final byte[] defaultInitializationVector;
+  @Nullable public final byte[] defaultInitializationVector;
 
   /**
    * @param isEncrypted See {@link #isEncrypted}.
@@ -66,8 +63,6 @@ public final class TrackEncryptionBox {
    * @param defaultClearBlocks See {@link TrackOutput.CryptoData#clearBlocks}.
    * @param defaultInitializationVector See {@link #defaultInitializationVector}.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public TrackEncryptionBox(
       boolean isEncrypted,
       @Nullable String schemeType,

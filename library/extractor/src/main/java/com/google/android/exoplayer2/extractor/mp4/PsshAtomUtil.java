@@ -37,8 +37,6 @@ public final class PsshAtomUtil {
    * @param data The scheme specific data.
    * @return The PSSH atom.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public static byte[] buildPsshAtom(UUID systemId, @Nullable byte[] data) {
     return buildPsshAtom(systemId, null, data);
   }
@@ -51,8 +49,6 @@ public final class PsshAtomUtil {
    * @param data The scheme specific data.
    * @return The PSSH atom.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public static byte[] buildPsshAtom(
       UUID systemId, @Nullable UUID[] keyIds, @Nullable byte[] data) {
     int dataLength = data != null ? data.length : 0;
@@ -136,8 +132,6 @@ public final class PsshAtomUtil {
    * @return The parsed scheme specific data. Null if the input is not a valid PSSH atom, or if the
    *     PSSH atom has an unsupported version, or if the PSSH atom does not match the passed UUID.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Nullable
   public static byte[] parseSchemeSpecificData(byte[] atom, UUID uuid) {
     @Nullable PsshAtom parsedAtom = parsePsshAtom(atom);

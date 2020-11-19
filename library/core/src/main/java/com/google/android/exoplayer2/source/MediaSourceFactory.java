@@ -77,8 +77,6 @@ public interface MediaSourceFactory {
    *     DefaultHttpDataSourceFactory}.
    * @return This factory, for convenience.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   MediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory);
 

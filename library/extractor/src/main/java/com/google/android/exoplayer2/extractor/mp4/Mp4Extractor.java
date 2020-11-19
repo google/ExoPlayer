@@ -464,10 +464,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     @Nullable Metadata udtaMetadata = null;
     boolean isQuickTime = fileType == FILE_TYPE_QUICKTIME;
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
-    @Nullable
-    Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
+    @Nullable Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
       udtaMetadata = AtomParsers.parseUdta(udta, isQuickTime);
       if (udtaMetadata != null) {
@@ -475,10 +472,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       }
     }
     @Nullable Metadata mdtaMetadata = null;
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
-    @Nullable
-    Atom.ContainerAtom meta = moov.getContainerAtomOfType(Atom.TYPE_meta);
+    @Nullable Atom.ContainerAtom meta = moov.getContainerAtomOfType(Atom.TYPE_meta);
     if (meta != null) {
       mdtaMetadata = AtomParsers.parseMdtaFromMeta(meta);
     }

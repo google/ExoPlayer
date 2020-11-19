@@ -153,8 +153,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     enabled. This option is only useful for downgrading from database storage back to legacy
    *     storage.
    */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   public CachedContentIndex(
       @Nullable DatabaseProvider databaseProvider,
       @Nullable File legacyStorageDir,
@@ -519,8 +517,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private boolean changed;
     @Nullable private ReusableBufferedOutputStream bufferedOutputStream;
 
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     public LegacyStorage(File file, @Nullable byte[] secretKey, boolean encrypt) {
       checkState(secretKey != null || !encrypt);
       @Nullable Cipher cipher = null;

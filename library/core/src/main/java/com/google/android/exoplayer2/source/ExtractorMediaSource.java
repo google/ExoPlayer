@@ -172,8 +172,6 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     /**
      * @deprecated Use {@link ProgressiveMediaSource.Factory#setDrmHttpDataSourceFactory} instead.
      */
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
     @Deprecated
     @Override
     public MediaSourceFactory setDrmHttpDataSourceFactory(

@@ -1166,10 +1166,7 @@ public class FragmentedMp4Extractor implements Extractor {
     int perSampleIvSize = sgpd.readUnsignedByte();
     byte[] keyId = new byte[16];
     sgpd.readBytes(keyId, 0, keyId.length);
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    byte[] constantIv = null;
+    @Nullable byte[] constantIv = null;
     if (perSampleIvSize == 0) {
       int constantIvSize = sgpd.readUnsignedByte();
       constantIv = new byte[constantIvSize];
@@ -1417,10 +1414,7 @@ public class FragmentedMp4Extractor implements Extractor {
     @C.BufferFlags int sampleFlags = trackBundle.getCurrentSampleFlags();
 
     // Encryption data.
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
-    @Nullable
-    TrackOutput.CryptoData cryptoData = null;
+    @Nullable TrackOutput.CryptoData cryptoData = null;
     @Nullable TrackEncryptionBox encryptionBox = trackBundle.getEncryptionBoxIfEncrypted();
     if (encryptionBox != null) {
       cryptoData = encryptionBox.cryptoData;
