@@ -65,10 +65,10 @@ import java.util.List;
     /** Called when a seek request has completed. */
     void onSeekCompleted();
 
-    /** Called when the player rebuffers. */
+    /** Called when the player starts buffering. */
     void onBufferingStarted(androidx.media2.common.MediaItem media2MediaItem);
 
-    /** Called when the player becomes ready again after rebuffering. */
+    /** Called when the player becomes ready again after buffering started. */
     void onBufferingEnded(
         androidx.media2.common.MediaItem media2MediaItem, int bufferingPercentage);
 
@@ -118,8 +118,9 @@ import java.util.List;
   private final List<MediaItem> exoPlayerPlaylist;
 
   private ControlDispatcher controlDispatcher;
+  private int sessionPlayerState;
   private boolean prepared;
-  private boolean rebuffering;
+  @Nullable private androidx.media2.common.MediaItem bufferingItem;
   private int currentWindowIndex;
   private boolean ignoreTimelineUpdates;
 
@@ -149,11 +150,14 @@ import java.util.List;
     media2Playlist = new ArrayList<>();
     exoPlayerPlaylist = new ArrayList<>();
     currentWindowIndex = C.INDEX_UNSET;
-
-    prepared = player.getPlaybackState() != Player.STATE_IDLE;
-    rebuffering = player.getPlaybackState() == Player.STATE_BUFFERING;
-
     updatePlaylist(player.getCurrentTimeline());
+
+    sessionPlayerState = evaluateSessionPlayerState();
+    @Player.State int playbackState = player.getPlaybackState();
+    prepared = playbackState != Player.STATE_IDLE;
+    if (playbackState == Player.STATE_BUFFERING) {
+      bufferingItem = getCurrentMediaItem();
+    }
   }
 
   public void setControlDispatcher(ControlDispatcher controlDispatcher) {
@@ -353,7 +357,7 @@ import java.util.List;
   }
 
   /* @SessionPlayer.PlayerState */
-  private int getState() {
+  private int evaluateSessionPlayerState() {
     if (hasError()) {
       return SessionPlayer.PLAYER_STATE_ERROR;
     }
@@ -371,6 +375,63 @@ import java.util.List;
             : SessionPlayer.PLAYER_STATE_PAUSED;
       default:
         throw new IllegalStateException();
+    }
+  }
+
+  private void updateSessionPlayerState() {
+    int newState = evaluateSessionPlayerState();
+    if (sessionPlayerState != newState) {
+      sessionPlayerState = newState;
+      listener.onPlayerStateChanged(newState);
+      if (newState == SessionPlayer.PLAYER_STATE_ERROR) {
+        listener.onError(getCurrentMediaItem());
+      }
+    }
+  }
+
+  private void updateBufferingState(boolean isBuffering) {
+    if (isBuffering) {
+      androidx.media2.common.MediaItem curMediaItem = getCurrentMediaItem();
+      if (prepared && (bufferingItem == null || !bufferingItem.equals(curMediaItem))) {
+        bufferingItem = getCurrentMediaItem();
+        listener.onBufferingStarted(Assertions.checkNotNull(bufferingItem));
+      }
+    } else if (bufferingItem != null) {
+      listener.onBufferingEnded(bufferingItem, player.getBufferedPercentage());
+      bufferingItem = null;
+    }
+  }
+
+  private void handlePlayerStateChanged() {
+    updateSessionPlayerState();
+
+    int playbackState = player.getPlaybackState();
+    handler.removeCallbacks(pollBufferRunnable);
+
+    switch (playbackState) {
+      case Player.STATE_IDLE:
+        prepared = false;
+        updateBufferingState(/* isBuffering= */ false);
+        break;
+      case Player.STATE_BUFFERING:
+        updateBufferingState(/* isBuffering= */ true);
+        postOrRun(handler, pollBufferRunnable);
+        break;
+      case Player.STATE_READY:
+        if (!prepared) {
+          prepared = true;
+          handlePositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+          listener.onPrepared(
+              Assertions.checkNotNull(getCurrentMediaItem()), player.getBufferedPercentage());
+        }
+        updateBufferingState(/* isBuffering= */ false);
+        postOrRun(handler, pollBufferRunnable);
+        break;
+      case Player.STATE_ENDED:
+        listener.onPlaybackEnded();
+        player.setPlayWhenReady(false);
+        updateBufferingState(/* isBuffering= */ false);
+        break;
     }
   }
 
@@ -397,7 +458,7 @@ import java.util.List;
   public void reset() {
     controlDispatcher.dispatchStop(player, /* reset= */ true);
     prepared = false;
-    rebuffering = false;
+    bufferingItem = null;
   }
 
   public void close() {
@@ -433,35 +494,6 @@ import java.util.List;
     return player.getPlayerError() != null;
   }
 
-  private void handlePlayWhenReadyChanged() {
-    listener.onPlayerStateChanged(getState());
-  }
-
-  private void handlePlayerStateChanged(@Player.State int state) {
-    if (state == Player.STATE_READY || state == Player.STATE_BUFFERING) {
-      postOrRun(handler, pollBufferRunnable);
-    } else {
-      handler.removeCallbacks(pollBufferRunnable);
-    }
-
-    switch (state) {
-      case Player.STATE_BUFFERING:
-        maybeNotifyBufferingEvents();
-        break;
-      case Player.STATE_READY:
-        maybeNotifyReadyEvents();
-        break;
-      case Player.STATE_ENDED:
-        maybeNotifyEndedEvents();
-        break;
-      case Player.STATE_IDLE:
-        // Do nothing.
-        break;
-      default:
-        throw new IllegalStateException();
-    }
-  }
-
   private void handlePositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     int currentWindowIndex = getCurrentMediaItemIndex();
     if (this.currentWindowIndex != currentWindowIndex) {
@@ -472,34 +504,6 @@ import java.util.List;
     } else {
       listener.onSeekCompleted();
     }
-  }
-
-  private void handlePlayerError() {
-    listener.onPlayerStateChanged(SessionPlayer.PLAYER_STATE_ERROR);
-    listener.onError(getCurrentMediaItem());
-  }
-
-  private void handleRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-    listener.onRepeatModeChanged(Utils.getRepeatMode(repeatMode));
-  }
-
-  private void handleShuffleMode(boolean shuffleModeEnabled) {
-    listener.onShuffleModeChanged(Utils.getShuffleMode(shuffleModeEnabled));
-  }
-
-  private void handlePlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    listener.onPlaybackSpeedChanged(playbackParameters.speed);
-  }
-
-  private void handleTimelineChanged(Timeline timeline) {
-    if (ignoreTimelineUpdates) {
-      return;
-    }
-    if (!isExoPlayerMediaItemsChanged(timeline)) {
-      return;
-    }
-    updatePlaylist(timeline);
-    listener.onPlaylistChanged();
   }
 
   // Check whether Timeline is changed by media item changes or not
@@ -541,49 +545,12 @@ import java.util.List;
     }
   }
 
-  private void handleAudioAttributesChanged(AudioAttributes audioAttributes) {
-    listener.onAudioAttributesChanged(Utils.getAudioAttributesCompat(audioAttributes));
-  }
-
   private void updateBufferingAndScheduleNextPollBuffer() {
     androidx.media2.common.MediaItem media2MediaItem =
         Assertions.checkNotNull(getCurrentMediaItem());
     listener.onBufferingUpdate(media2MediaItem, player.getBufferedPercentage());
     handler.removeCallbacks(pollBufferRunnable);
     handler.postDelayed(pollBufferRunnable, POLL_BUFFER_INTERVAL_MS);
-  }
-
-  private void maybeNotifyBufferingEvents() {
-    androidx.media2.common.MediaItem media2MediaItem =
-        Assertions.checkNotNull(getCurrentMediaItem());
-    if (prepared && !rebuffering) {
-      rebuffering = true;
-      listener.onBufferingStarted(media2MediaItem);
-    }
-  }
-
-  private void maybeNotifyReadyEvents() {
-    androidx.media2.common.MediaItem media2MediaItem =
-        Assertions.checkNotNull(getCurrentMediaItem());
-    boolean prepareComplete = !prepared;
-    if (prepareComplete) {
-      prepared = true;
-      handlePositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
-      listener.onPlayerStateChanged(SessionPlayer.PLAYER_STATE_PAUSED);
-      listener.onPrepared(media2MediaItem, player.getBufferedPercentage());
-    }
-    if (rebuffering) {
-      rebuffering = false;
-      listener.onBufferingEnded(media2MediaItem, player.getBufferedPercentage());
-    }
-  }
-
-  private void maybeNotifyEndedEvents() {
-    if (player.getPlayWhenReady()) {
-      listener.onPlayerStateChanged(SessionPlayer.PLAYER_STATE_PAUSED);
-      listener.onPlaybackEnded();
-      player.setPlayWhenReady(false);
-    }
   }
 
   private void releaseMediaItem(androidx.media2.common.MediaItem media2MediaItem) {
@@ -602,12 +569,12 @@ import java.util.List;
 
     @Override
     public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-      handlePlayWhenReadyChanged();
+      updateSessionPlayerState();
     }
 
     @Override
     public void onPlaybackStateChanged(@Player.State int state) {
-      handlePlayerStateChanged(state);
+      handlePlayerStateChanged();
     }
 
     @Override
@@ -617,34 +584,41 @@ import java.util.List;
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-      handlePlayerError();
+      updateSessionPlayerState();
     }
 
     @Override
     public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-      handleRepeatModeChanged(repeatMode);
+      listener.onRepeatModeChanged(Utils.getRepeatMode(repeatMode));
     }
 
     @Override
     public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      handleShuffleMode(shuffleModeEnabled);
+      listener.onShuffleModeChanged(Utils.getShuffleMode(shuffleModeEnabled));
     }
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      handlePlaybackParametersChanged(playbackParameters);
+      listener.onPlaybackSpeedChanged(playbackParameters.speed);
     }
 
     @Override
     public void onTimelineChanged(Timeline timeline, int reason) {
-      handleTimelineChanged(timeline);
+      if (ignoreTimelineUpdates) {
+        return;
+      }
+      if (!isExoPlayerMediaItemsChanged(timeline)) {
+        return;
+      }
+      updatePlaylist(timeline);
+      listener.onPlaylistChanged();
     }
 
     // AudioListener implementation.
 
     @Override
     public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
-      handleAudioAttributesChanged(audioAttributes);
+      listener.onAudioAttributesChanged(Utils.getAudioAttributesCompat(audioAttributes));
     }
   }
 

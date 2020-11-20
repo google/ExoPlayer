@@ -826,7 +826,6 @@ public class SessionPlayerConnectorTest {
             }
           }
         });
-    sessionPlayerConnector.setPlaylist(playlistToSessionPlayer, /* metadata= */ null);
     InstrumentationRegistry.getInstrumentation()
         .runOnMainSync(() -> playerTestRule.getSimpleExoPlayer().setMediaItems(exoMediaItems));
     assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
