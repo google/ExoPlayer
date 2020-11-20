@@ -98,20 +98,20 @@ public class DownloadTracker {
   }
 
   public boolean isDownloaded(MediaItem mediaItem) {
-    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
+    @Nullable Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
     return download != null && download.state != Download.STATE_FAILED;
   }
 
   @Nullable
   public DownloadRequest getDownloadRequest(Uri uri) {
-    Download download = downloads.get(uri);
+    @Nullable Download download = downloads.get(uri);
     return download != null && download.state != Download.STATE_FAILED ? download.request : null;
   }
 
   public void toggleDownload(
       FragmentManager fragmentManager, MediaItem mediaItem, RenderersFactory renderersFactory) {
-    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
-    if (download != null) {
+    @Nullable Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
+    if (download != null && download.state != Download.STATE_FAILED) {
       DownloadService.sendRemoveDownload(
           context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
     } else {
