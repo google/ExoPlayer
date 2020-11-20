@@ -48,7 +48,6 @@
         `LeanbackPlayerAdapter` and use `ControlDispatcher` for dispatching
         prepare instead
         ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
-    *   Switch `StyledPlayerControlView` button controls to borderless ripples.
     *   Add `bar_gravity` attribute into `DefaultTimeBar`.
     *   Increase seekbar's touch target height in `StyledPlayerControlView`.
     *   Update Styled Player settings dialogs to respect RTL.
