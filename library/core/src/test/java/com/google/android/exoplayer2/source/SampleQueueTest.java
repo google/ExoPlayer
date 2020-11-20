@@ -862,6 +862,53 @@ public final class SampleQueueTest {
   }
 
   @Test
+  public void discardTo_withDuplicateTimestamps_discardsOnlyToFirstMatch() {
+    writeTestData(
+        DATA,
+        SAMPLE_SIZES,
+        SAMPLE_OFFSETS,
+        /* sampleTimestamps= */ new long[] {0, 1000, 1000, 1000, 2000, 2000, 2000, 2000},
+        SAMPLE_FORMATS,
+        /* sampleFlags= */ new int[] {
+          BUFFER_FLAG_KEY_FRAME,
+          0,
+          BUFFER_FLAG_KEY_FRAME,
+          BUFFER_FLAG_KEY_FRAME,
+          0,
+          0,
+          BUFFER_FLAG_KEY_FRAME,
+          BUFFER_FLAG_KEY_FRAME
+        });
+
+    // Discard to first keyframe exactly matching the specified time.
+    sampleQueue.discardTo(
+        /* timeUs= */ 1000, /* toKeyframe= */ true, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(2);
+
+    // Do nothing when trying again.
+    sampleQueue.discardTo(
+        /* timeUs= */ 1000, /* toKeyframe= */ true, /* stopAtReadPosition= */ false);
+    sampleQueue.discardTo(
+        /* timeUs= */ 1000, /* toKeyframe= */ false, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(2);
+
+    // Discard to first frame exactly matching the specified time.
+    sampleQueue.discardTo(
+        /* timeUs= */ 2000, /* toKeyframe= */ false, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(4);
+
+    // Do nothing when trying again.
+    sampleQueue.discardTo(
+        /* timeUs= */ 2000, /* toKeyframe= */ false, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(4);
+
+    // Discard to first keyframe at same timestamp.
+    sampleQueue.discardTo(
+        /* timeUs= */ 2000, /* toKeyframe= */ true, /* stopAtReadPosition= */ false);
+    assertThat(sampleQueue.getFirstIndex()).isEqualTo(6);
+  }
+
+  @Test
   public void discardToDontStopAtReadPosition() {
     writeTestData();
     // Shouldn't discard anything.
