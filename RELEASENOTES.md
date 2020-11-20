@@ -80,6 +80,9 @@
         that lie outside the length of the cue text.
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
+*   Media2 extention:
+    *   Notify onBufferingEnded when the state of origin player becomes
+        STATE_IDLE or STATE_ENDED.
 
 ### 2.12.1 (2020-10-23) ###
 
