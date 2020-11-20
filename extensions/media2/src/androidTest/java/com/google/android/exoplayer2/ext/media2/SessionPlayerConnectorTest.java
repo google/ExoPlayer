@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.common.SessionPlayer.PLAYER_STATE_PAUSED;
 import static androidx.media2.common.SessionPlayer.PLAYER_STATE_PLAYING;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_INFO_SKIPPED;
@@ -60,6 +61,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
@@ -762,16 +764,40 @@ public class SessionPlayerConnectorTest {
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
   public void setPlaylist_setsPlaylistAndCurrentMediaItem() throws Exception {
     List<MediaItem> playlist = TestUtils.createPlaylist(10);
-    CountDownLatch onCurrentMediaItemChangedLatch = new CountDownLatch(1);
-    sessionPlayerConnector.registerPlayerCallback(
-        executor, new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedLatch));
+    PlayerCallbackForPlaylist callback = new PlayerCallbackForPlaylist(playlist, 1);
+    sessionPlayerConnector.registerPlayerCallback(executor, callback);
 
     assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, null));
-    assertThat(onCurrentMediaItemChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS))
-        .isTrue();
+    assertThat(callback.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
 
     assertThat(sessionPlayerConnector.getPlaylist()).isEqualTo(playlist);
     assertThat(sessionPlayerConnector.getCurrentMediaItem()).isEqualTo(playlist.get(0));
+  }
+
+  @Test
+  @LargeTest
+  @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+  public void setPlaylistAndRemoveAllPlaylistItem_playerStateBecomesIdle() throws Exception {
+    List<MediaItem> playlist = new ArrayList<>();
+    playlist.add(TestUtils.createMediaItem(R.raw.video_1));
+    PlayerCallbackForPlaylist callback =
+        new PlayerCallbackForPlaylist(playlist, 2) {
+          @Override
+          public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+            countDown();
+          }
+        };
+    sessionPlayerConnector.registerPlayerCallback(executor, callback);
+
+    assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, null));
+    assertPlayerResultSuccess(sessionPlayerConnector.prepare());
+    assertThat(callback.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
+    assertThat(sessionPlayerConnector.getPlayerState()).isEqualTo(PLAYER_STATE_PAUSED);
+
+    callback.resetLatch(1);
+    assertPlayerResultSuccess(sessionPlayerConnector.removePlaylistItem(0));
+    assertThat(callback.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
+    assertThat(sessionPlayerConnector.getPlayerState()).isEqualTo(PLAYER_STATE_IDLE);
   }
 
   @Test
@@ -958,14 +984,12 @@ public class SessionPlayerConnectorTest {
     int listSize = 2;
     List<MediaItem> playlist = TestUtils.createPlaylist(listSize);
 
-    CountDownLatch onCurrentMediaItemChangedLatch = new CountDownLatch(1);
-    sessionPlayerConnector.registerPlayerCallback(
-        executor, new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedLatch));
+    PlayerCallbackForPlaylist callback = new PlayerCallbackForPlaylist(playlist, 1);
+    sessionPlayerConnector.registerPlayerCallback(executor, callback);
 
     assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, null));
     assertThat(sessionPlayerConnector.getCurrentMediaItemIndex()).isEqualTo(0);
-    assertThat(onCurrentMediaItemChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS))
-        .isTrue();
+    assertThat(callback.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isTrue();
   }
 
   @Test
@@ -1193,16 +1217,15 @@ public class SessionPlayerConnectorTest {
     int listSize = playlist.size();
 
     // Any value more than list size + 1, to see repeat mode with the recorded video.
-    CountDownLatch onCurrentMediaItemChangedLatch = new CountDownLatch(listSize + 2);
     CopyOnWriteArrayList<MediaItem> currentMediaItemChanges = new CopyOnWriteArrayList<>();
     PlayerCallbackForPlaylist callback =
-        new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedLatch) {
+        new PlayerCallbackForPlaylist(playlist, listSize + 2) {
           @Override
           public void onCurrentMediaItemChanged(
               @NonNull SessionPlayer player, @NonNull MediaItem item) {
             super.onCurrentMediaItemChanged(player, item);
             currentMediaItemChanges.add(item);
-            onCurrentMediaItemChangedLatch.countDown();
+            countDown();
           }
 
           @Override
@@ -1223,7 +1246,7 @@ public class SessionPlayerConnectorTest {
     assertWithMessage(
             "Current media item didn't change as expected. Actual changes were %s",
             currentMediaItemChanges)
-        .that(onCurrentMediaItemChangedLatch.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
+        .that(callback.await(PLAYBACK_COMPLETED_WAIT_TIME_MS, MILLISECONDS))
         .isTrue();
 
     int expectedMediaItemIndex = 0;
@@ -1285,15 +1308,27 @@ public class SessionPlayerConnectorTest {
     private List<MediaItem> playlist;
     private CountDownLatch onCurrentMediaItemChangedLatch;
 
-    PlayerCallbackForPlaylist(List<MediaItem> playlist, CountDownLatch latch) {
+    PlayerCallbackForPlaylist(List<MediaItem> playlist, int count) {
       this.playlist = playlist;
-      onCurrentMediaItemChangedLatch = latch;
+      onCurrentMediaItemChangedLatch = new CountDownLatch(count);
     }
 
     @Override
     public void onCurrentMediaItemChanged(@NonNull SessionPlayer player, @NonNull MediaItem item) {
       int currentIndex = playlist.indexOf(item);
       assertThat(sessionPlayerConnector.getCurrentMediaItemIndex()).isEqualTo(currentIndex);
+      onCurrentMediaItemChangedLatch.countDown();
+    }
+
+    public void resetLatch(int count) {
+      onCurrentMediaItemChangedLatch = new CountDownLatch(count);
+    }
+
+    public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
+      return onCurrentMediaItemChangedLatch.await(timeout, unit);
+    }
+
+    public void countDown() {
       onCurrentMediaItemChangedLatch.countDown();
     }
   }

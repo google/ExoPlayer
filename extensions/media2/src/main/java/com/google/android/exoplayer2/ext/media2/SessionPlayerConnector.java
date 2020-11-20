@@ -559,12 +559,16 @@ public final class SessionPlayerConnector extends SessionPlayer {
     }
   }
 
+  // TODO: Remove this suppress warnings and call onCurrentMediaItemChanged with a null item
+  // once AndroidX media2 1.2.0 is released
+  @SuppressWarnings("nullness:argument.type.incompatible")
   private void handlePlaylistChangedOnHandler() {
     List<MediaItem> currentPlaylist = player.getPlaylist();
     MediaMetadata playlistMetadata = player.getPlaylistMetadata();
 
     MediaItem currentMediaItem = player.getCurrentMediaItem();
-    boolean notifyCurrentMediaItem = !ObjectsCompat.equals(this.currentMediaItem, currentMediaItem);
+    boolean notifyCurrentMediaItem =
+        !ObjectsCompat.equals(this.currentMediaItem, currentMediaItem) && currentMediaItem != null;
     this.currentMediaItem = currentMediaItem;
 
     long currentPosition = getCurrentPosition();
@@ -573,9 +577,6 @@ public final class SessionPlayerConnector extends SessionPlayer {
           callback.onPlaylistChanged(
               SessionPlayerConnector.this, currentPlaylist, playlistMetadata);
           if (notifyCurrentMediaItem) {
-            Assertions.checkNotNull(
-                currentMediaItem, "PlaylistManager#currentMediaItem() cannot be changed to null");
-
             callback.onCurrentMediaItemChanged(SessionPlayerConnector.this, currentMediaItem);
 
             // Workaround for MediaSession's issue that current media item change isn't propagated
