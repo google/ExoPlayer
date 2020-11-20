@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.android.exoplayer2.e2etest;
 
-import android.graphics.SurfaceTexture;
-import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -61,7 +58,6 @@ public final class MkaPlaybackTest {
         new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext())
             .setClock(new AutoAdvancingFakeClock())
             .build();
-    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, mediaCodecConfig);
 
     player.setMediaItem(MediaItem.fromUri("asset:///media/mka/" + inputFile));
