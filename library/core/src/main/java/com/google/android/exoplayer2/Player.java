@@ -644,13 +644,15 @@ public interface Player {
      * <p>Listeners should prefer this method over individual callbacks in the following cases:
      *
      * <ul>
-     *   <li>They intend to use multiple state values together (e.g. using {@link
-     *       #getCurrentWindowIndex()} to query in {@link #getCurrentTimeline()}).
-     *   <li>The same logic should be triggered for multiple events (e.g. when updating a UI for
+     *   <li>They intend to trigger the same logic for multiple events (e.g. when updating a UI for
      *       both {@link #onPlaybackStateChanged(int)} and {@link #onPlayWhenReadyChanged(boolean,
      *       int)}).
      *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
      *       {@link Player#seekTo(long)} after a {@link #onMediaItemTransition(MediaItem, int)}).
+     *   <li>They intend to use multiple state values together or in combination with {@link Player}
+     *       getter methods. For example using {@link #getCurrentWindowIndex()} with the {@code
+     *       timeline} provided in {@link #onTimelineChanged(Timeline, int)} is only safe from
+     *       within this method.
      *   <li>They are interested in events that logically happened together (e.g {@link
      *       #onPlaybackStateChanged(int)} to {@link #STATE_BUFFERING} because of {@link
      *       #onMediaItemTransition(MediaItem, int)}).
