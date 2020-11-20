@@ -207,6 +207,9 @@ import java.util.List;
   }
 
   public boolean removePlaylistItem(@IntRange(from = 0) int index) {
+    if (player.getMediaItemCount() <= index) {
+      return false;
+    }
     player.removeMediaItem(index);
     return true;
   }
@@ -374,7 +377,9 @@ import java.util.List;
       case Player.STATE_IDLE:
         return SessionPlayer.PLAYER_STATE_IDLE;
       case Player.STATE_ENDED:
-        return SessionPlayer.PLAYER_STATE_PAUSED;
+        return player.getCurrentMediaItem() == null
+            ? SessionPlayer.PLAYER_STATE_IDLE
+            : SessionPlayer.PLAYER_STATE_PAUSED;
       case Player.STATE_BUFFERING:
       case Player.STATE_READY:
         return playWhenReady
@@ -435,7 +440,9 @@ import java.util.List;
         postOrRun(handler, pollBufferRunnable);
         break;
       case Player.STATE_ENDED:
-        listener.onPlaybackEnded();
+        if (player.getCurrentMediaItem() != null) {
+          listener.onPlaybackEnded();
+        }
         player.setPlayWhenReady(false);
         updateBufferingState(/* isBuffering= */ false);
         break;
