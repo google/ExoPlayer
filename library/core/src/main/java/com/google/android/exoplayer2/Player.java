@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.util.MutableFlags;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -421,8 +422,13 @@ public interface Player {
   }
 
   /**
-   * Listener of changes in player state. All methods have no-op default implementations to allow
-   * selective overrides.
+   * Listener of changes in player state.
+   *
+   * <p>All methods have no-op default implementations to allow selective overrides.
+   *
+   * <p>Listeners can choose to implement individual events (e.g. {@link
+   * #onIsPlayingChanged(boolean)}) or {@link #onEvents(Player, Events)}, which is called after one
+   * or more events occurred together.
    */
   interface EventListener {
 
@@ -621,12 +627,41 @@ public interface Player {
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
     default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
+
     /**
      * Called when the player has started or finished sleeping for offload.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
     default void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {}
+
+    /**
+     * Called when one or more player states changed.
+     *
+     * <p>State changes and events that happen within one {@link Looper} message queue iteration are
+     * reported together and only after all individual callbacks were triggered.
+     *
+     * <p>Listeners should prefer this method over individual callbacks in the following cases:
+     *
+     * <ul>
+     *   <li>They intend to use multiple state values together (e.g. using {@link
+     *       #getCurrentWindowIndex()} to query in {@link #getCurrentTimeline()}).
+     *   <li>The same logic should be triggered for multiple events (e.g. when updating a UI for
+     *       both {@link #onPlaybackStateChanged(int)} and {@link #onPlayWhenReadyChanged(boolean,
+     *       int)}).
+     *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
+     *       {@link Player#seekTo(long)} after a {@link #onMediaItemTransition(MediaItem, int)}).
+     *   <li>They are interested in events that logically happened together (e.g {@link
+     *       #onPlaybackStateChanged(int)} to {@link #STATE_BUFFERING} because of {@link
+     *       #onMediaItemTransition(MediaItem, int)}).
+     * </ul>
+     *
+     * @param player The {@link Player} whose state changed. Use the getters to obtain the latest
+     *     states.
+     * @param events The {@link Events} that happened in this iteration, indicating which player
+     *     states changed.
+     */
+    default void onEvents(Player player, Events events) {}
   }
 
   /**
@@ -660,6 +695,37 @@ public interface Player {
     @Deprecated
     public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
+    }
+  }
+
+  /** A set of {@link EventFlags}. */
+  final class Events extends MutableFlags {
+    /**
+     * Returns whether the given event occurred.
+     *
+     * @param event The {@link EventFlags event}.
+     * @return Whether the event occurred.
+     */
+    @Override
+    public boolean contains(@EventFlags int event) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.contains(event);
+    }
+
+    /**
+     * Returns the {@link EventFlags event} at the given index.
+     *
+     * <p>Although index-based access is possible, it doesn't imply a particular order of these
+     * events.
+     *
+     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
+     * @return The {@link EventFlags event} at the given index.
+     */
+    @Override
+    @EventFlags
+    public int get(int index) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.get(index);
     }
   }
 
@@ -802,7 +868,11 @@ public interface Player {
   /** Timeline changed as a result of a dynamic update introduced by the played media. */
   int TIMELINE_CHANGE_REASON_SOURCE_UPDATE = 1;
 
-  /** Reasons for media item transitions. */
+  /**
+   * Reasons for media item transitions. One of {@link #MEDIA_ITEM_TRANSITION_REASON_REPEAT}, {@link
+   * #MEDIA_ITEM_TRANSITION_REASON_AUTO}, {@link #MEDIA_ITEM_TRANSITION_REASON_SEEK} or {@link
+   * #MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED}.
+   */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
@@ -824,6 +894,59 @@ public interface Player {
    * after being empty.
    */
   int MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED = 3;
+
+  /**
+   * Events that can be reported via {@link EventListener#onEvents(Player, Events)}.
+   *
+   * <p>One of the {@link Player}{@code .EVENT_*} flags.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    EVENT_TIMELINE_CHANGED,
+    EVENT_MEDIA_ITEM_TRANSITION,
+    EVENT_TRACKS_CHANGED,
+    EVENT_STATIC_METADATA_CHANGED,
+    EVENT_IS_LOADING_CHANGED,
+    EVENT_PLAYBACK_STATE_CHANGED,
+    EVENT_PLAY_WHEN_READY_CHANGED,
+    EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+    EVENT_IS_PLAYING_CHANGED,
+    EVENT_REPEAT_MODE_CHANGED,
+    EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+    EVENT_PLAYER_ERROR,
+    EVENT_POSITION_DISCONTINUITY,
+    EVENT_PLAYBACK_PARAMETERS_CHANGED
+  })
+  @interface EventFlags {}
+  /** {@link #getCurrentTimeline()} changed. */
+  int EVENT_TIMELINE_CHANGED = 0;
+  /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */
+  int EVENT_MEDIA_ITEM_TRANSITION = 1;
+  /** {@link #getCurrentTrackGroups()} or {@link #getCurrentTrackSelections()} changed. */
+  int EVENT_TRACKS_CHANGED = 2;
+  /** {@link #getCurrentStaticMetadata()} changed. */
+  int EVENT_STATIC_METADATA_CHANGED = 3;
+  /** {@link #isLoading()} ()} changed. */
+  int EVENT_IS_LOADING_CHANGED = 4;
+  /** {@link #getPlaybackState()} changed. */
+  int EVENT_PLAYBACK_STATE_CHANGED = 5;
+  /** {@link #getPlayWhenReady()} changed. */
+  int EVENT_PLAY_WHEN_READY_CHANGED = 6;
+  /** {@link #getPlaybackSuppressionReason()} changed. */
+  int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED = 7;
+  /** {@link #isPlaying()} changed. */
+  int EVENT_IS_PLAYING_CHANGED = 8;
+  /** {@link #getRepeatMode()} changed. */
+  int EVENT_REPEAT_MODE_CHANGED = 9;
+  /** {@link #getShuffleModeEnabled()} changed. */
+  int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = 10;
+  /** {@link #getPlayerError()} changed. */
+  int EVENT_PLAYER_ERROR = 11;
+  /** A position discontinuity occurred. See {@link EventListener#onPositionDiscontinuity(int)}. */
+  int EVENT_POSITION_DISCONTINUITY = 12;
+  /** {@link #getPlaybackParameters()} changed. */
+  int EVENT_PLAYBACK_PARAMETERS_CHANGED = 13;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable

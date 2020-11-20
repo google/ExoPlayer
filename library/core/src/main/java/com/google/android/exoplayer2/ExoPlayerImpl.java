@@ -73,7 +73,7 @@ import java.util.concurrent.TimeoutException;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
   private final Handler internalPlayerHandler;
-  private final ListenerSet<Player.EventListener> listeners;
+  private final ListenerSet<Player.EventListener, Player.Events> listeners;
   private final Timeline.Period period;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
   private final boolean useLazyPreparation;
@@ -121,6 +121,8 @@ import java.util.concurrent.TimeoutException;
    * @param clock The {@link Clock}.
    * @param applicationLooper The {@link Looper} that must be used for all calls to the player and
    *     which is used to call listeners on.
+   * @param wrappingPlayer The {@link Player} wrapping this one if applicable. This player instance
+   *     should be used for all externally visible callbacks.
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(
@@ -136,7 +138,8 @@ import java.util.concurrent.TimeoutException;
       long releaseTimeoutMs,
       boolean pauseAtEndOfMediaItems,
       Clock clock,
-      Looper applicationLooper) {
+      Looper applicationLooper,
+      @Nullable Player wrappingPlayer) {
     Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
     checkState(renderers.length > 0);
@@ -150,7 +153,12 @@ import java.util.concurrent.TimeoutException;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.applicationLooper = applicationLooper;
     repeatMode = Player.REPEAT_MODE_OFF;
-    listeners = new ListenerSet<>();
+    Player playerForListeners = wrappingPlayer != null ? wrappingPlayer : this;
+    listeners =
+        new ListenerSet<>(
+            applicationLooper,
+            Player.Events::new,
+            (listener, eventFlags) -> listener.onEvents(playerForListeners, eventFlags));
     mediaSourceHolderSnapshots = new ArrayList<>();
     shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
     emptyTrackSelectorResult =
@@ -166,7 +174,7 @@ import java.util.concurrent.TimeoutException;
             playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
     playbackInfo = PlaybackInfo.createDummy(emptyTrackSelectorResult);
     if (analyticsCollector != null) {
-      analyticsCollector.setPlayer(this);
+      analyticsCollector.setPlayer(playerForListeners, applicationLooper);
       addListener(analyticsCollector);
       bandwidthMeter.addEventListener(new Handler(applicationLooper), analyticsCollector);
     }
@@ -565,7 +573,8 @@ import java.util.concurrent.TimeoutException;
     if (this.repeatMode != repeatMode) {
       this.repeatMode = repeatMode;
       internalPlayer.setRepeatMode(repeatMode);
-      listeners.sendEvent(listener -> listener.onRepeatModeChanged(repeatMode));
+      listeners.sendEvent(
+          Player.EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
     }
   }
 
@@ -579,7 +588,9 @@ import java.util.concurrent.TimeoutException;
     if (this.shuffleModeEnabled != shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
       internalPlayer.setShuffleModeEnabled(shuffleModeEnabled);
-      listeners.sendEvent(listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
+      listeners.sendEvent(
+          Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
     }
   }
 
@@ -729,6 +740,7 @@ import java.util.concurrent.TimeoutException;
         + ExoPlayerLibraryInfo.registeredModules() + "]");
     if (!internalPlayer.release()) {
       listeners.sendEvent(
+          Player.EVENT_PLAYER_ERROR,
           listener ->
               listener.onPlayerError(
                   ExoPlaybackException.createForTimeout(
@@ -974,10 +986,12 @@ import java.util.concurrent.TimeoutException;
     int mediaItemTransitionReason = mediaItemTransitionInfo.second;
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
+          Player.EVENT_TIMELINE_CHANGED,
           listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
     }
     if (positionDiscontinuity) {
       listeners.queueEvent(
+          Player.EVENT_POSITION_DISCONTINUITY,
           listener -> listener.onPositionDiscontinuity(positionDiscontinuityReason));
     }
     if (mediaItemTransitioned) {
@@ -991,39 +1005,49 @@ import java.util.concurrent.TimeoutException;
         mediaItem = null;
       }
       listeners.queueEvent(
+          Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener -> listener.onMediaItemTransition(mediaItem, mediaItemTransitionReason));
     }
     if (previousPlaybackInfo.playbackError != newPlaybackInfo.playbackError
         && newPlaybackInfo.playbackError != null) {
-      listeners.queueEvent(listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
+      listeners.queueEvent(
+          Player.EVENT_PLAYER_ERROR,
+          listener -> listener.onPlayerError(newPlaybackInfo.playbackError));
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
       listeners.queueEvent(
+          Player.EVENT_TRACKS_CHANGED,
           listener ->
               listener.onTracksChanged(
                   newPlaybackInfo.trackGroups, newPlaybackInfo.trackSelectorResult.selections));
     }
     if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       listeners.queueEvent(
+          Player.EVENT_STATIC_METADATA_CHANGED,
           listener -> listener.onStaticMetadataChanged(newPlaybackInfo.staticMetadata));
     }
     if (previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading) {
-      listeners.queueEvent(listener -> listener.onIsLoadingChanged(newPlaybackInfo.isLoading));
+      listeners.queueEvent(
+          Player.EVENT_IS_LOADING_CHANGED,
+          listener -> listener.onIsLoadingChanged(newPlaybackInfo.isLoading));
     }
     if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState
         || previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
       listeners.queueEvent(
+          /* eventFlag= */ C.INDEX_UNSET,
           listener ->
               listener.onPlayerStateChanged(
                   newPlaybackInfo.playWhenReady, newPlaybackInfo.playbackState));
     }
     if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState) {
       listeners.queueEvent(
+          Player.EVENT_PLAYBACK_STATE_CHANGED,
           listener -> listener.onPlaybackStateChanged(newPlaybackInfo.playbackState));
     }
     if (previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {
       listeners.queueEvent(
+          Player.EVENT_PLAY_WHEN_READY_CHANGED,
           listener ->
               listener.onPlayWhenReadyChanged(
                   newPlaybackInfo.playWhenReady, playWhenReadyChangeReason));
@@ -1031,28 +1055,34 @@ import java.util.concurrent.TimeoutException;
     if (previousPlaybackInfo.playbackSuppressionReason
         != newPlaybackInfo.playbackSuppressionReason) {
       listeners.queueEvent(
+          Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
           listener ->
               listener.onPlaybackSuppressionReasonChanged(
                   newPlaybackInfo.playbackSuppressionReason));
     }
     if (isPlaying(previousPlaybackInfo) != isPlaying(newPlaybackInfo)) {
-      listeners.queueEvent(listener -> listener.onIsPlayingChanged(isPlaying(newPlaybackInfo)));
+      listeners.queueEvent(
+          Player.EVENT_IS_PLAYING_CHANGED,
+          listener -> listener.onIsPlayingChanged(isPlaying(newPlaybackInfo)));
     }
     if (!previousPlaybackInfo.playbackParameters.equals(newPlaybackInfo.playbackParameters)) {
       listeners.queueEvent(
+          Player.EVENT_PLAYBACK_PARAMETERS_CHANGED,
           listener -> listener.onPlaybackParametersChanged(newPlaybackInfo.playbackParameters));
     }
     if (seekProcessed) {
-      listeners.queueEvent(EventListener::onSeekProcessed);
+      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
     }
     if (previousPlaybackInfo.offloadSchedulingEnabled != newPlaybackInfo.offloadSchedulingEnabled) {
       listeners.queueEvent(
+          /* eventFlag= */ C.INDEX_UNSET,
           listener ->
               listener.onExperimentalOffloadSchedulingEnabledChanged(
                   newPlaybackInfo.offloadSchedulingEnabled));
     }
     if (previousPlaybackInfo.sleepingForOffload != newPlaybackInfo.sleepingForOffload) {
       listeners.queueEvent(
+          /* eventFlag= */ C.INDEX_UNSET,
           listener ->
               listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload));
     }

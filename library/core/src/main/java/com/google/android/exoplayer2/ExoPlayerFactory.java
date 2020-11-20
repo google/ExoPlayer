@@ -260,6 +260,7 @@ public final class ExoPlayerFactory {
         ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS,
         /* pauseAtEndOfMediaItems= */ false,
         Clock.DEFAULT,
-        applicationLooper);
+        applicationLooper,
+        /* wrappingPlayer= */ null);
   }
 }

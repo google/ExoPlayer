@@ -701,7 +701,8 @@ public class SimpleExoPlayer extends BasePlayer
             builder.releaseTimeoutMs,
             builder.pauseAtEndOfMediaItems,
             builder.clock,
-            builder.looper);
+            builder.looper,
+            /* wrappingPlayer= */ this);
     player.addListener(componentListener);
     videoDebugListeners.add(analyticsCollector);
     videoListeners.add(analyticsCollector);

@@ -28,9 +28,11 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -57,6 +59,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.id3.BinaryFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
@@ -110,6 +113,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import java.io.IOException;
@@ -132,6 +136,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.robolectric.shadows.ShadowAudioManager;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link ExoPlayer}. */
 @RunWith(AndroidJUnit4.class)
@@ -8843,6 +8848,96 @@ public final class ExoPlayerTest {
     assertThat(liveOffsetAtEnd).isIn(Range.closed(11_900L, 12_100L));
   }
 
+  @Test
+  public void onStateChangedFlags_correspondToListenerCalls() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    Format formatWithStaticMetadata =
+        new Format.Builder()
+            .setSampleMimeType(MimeTypes.VIDEO_H264)
+            .setMetadata(new Metadata(new BinaryFrame(/* id= */ "", /* data= */ new byte[0])))
+            .build();
+
+    // Set multiple values together.
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), formatWithStaticMetadata));
+    player.seekTo(2_000);
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f));
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener).onTimelineChanged(any(), anyInt());
+    verify(listener).onMediaItemTransition(any(), anyInt());
+    verify(listener).onPositionDiscontinuity(anyInt());
+    verify(listener).onPlaybackParametersChanged(any());
+    ArgumentCaptor<Player.Events> eventCaptor = ArgumentCaptor.forClass(Player.Events.class);
+    verify(listener).onEvents(eq(player), eventCaptor.capture());
+    Player.Events events = eventCaptor.getValue();
+    assertThat(events.contains(Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
+    assertThat(events.contains(Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(events.contains(Player.EVENT_PLAYBACK_PARAMETERS_CHANGED)).isTrue();
+
+    // Set values recursively.
+    player.addListener(
+        new EventListener() {
+          @Override
+          public void onRepeatModeChanged(int repeatMode) {
+            player.setShuffleModeEnabled(true);
+          }
+        });
+    player.setRepeatMode(Player.REPEAT_MODE_ONE);
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener).onRepeatModeChanged(anyInt());
+    verify(listener).onShuffleModeEnabledChanged(anyBoolean());
+    verify(listener, times(2)).onEvents(eq(player), eventCaptor.capture());
+    events = Iterables.getLast(eventCaptor.getAllValues());
+    assertThat(events.contains(Player.EVENT_REPEAT_MODE_CHANGED)).isTrue();
+    assertThat(events.contains(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)).isTrue();
+
+    // Ensure all other events are called (even though we can't control how exactly they are
+    // combined together in onStateChanged calls).
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    player.play();
+    player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
+    ShadowLooper.runMainLooperToNextTask();
+
+    // Verify that all callbacks have been called at least once.
+    verify(listener, atLeastOnce()).onTimelineChanged(any(), anyInt());
+    verify(listener, atLeastOnce()).onMediaItemTransition(any(), anyInt());
+    verify(listener, atLeastOnce()).onPositionDiscontinuity(anyInt());
+    verify(listener, atLeastOnce()).onPlaybackParametersChanged(any());
+    verify(listener, atLeastOnce()).onRepeatModeChanged(anyInt());
+    verify(listener, atLeastOnce()).onShuffleModeEnabledChanged(anyBoolean());
+    verify(listener, atLeastOnce()).onPlaybackStateChanged(anyInt());
+    verify(listener, atLeastOnce()).onIsLoadingChanged(anyBoolean());
+    verify(listener, atLeastOnce()).onTracksChanged(any(), any());
+    verify(listener, atLeastOnce()).onStaticMetadataChanged(any());
+    verify(listener, atLeastOnce()).onPlayWhenReadyChanged(anyBoolean(), anyInt());
+    verify(listener, atLeastOnce()).onIsPlayingChanged(anyBoolean());
+    verify(listener, atLeastOnce()).onPlayerError(any());
+
+    // Verify all the same events have been recorded with onStateChanged.
+    verify(listener, atLeastOnce()).onEvents(eq(player), eventCaptor.capture());
+    List<Player.Events> allEvents = eventCaptor.getAllValues();
+    assertThat(containsEvent(allEvents, Player.EVENT_TIMELINE_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_MEDIA_ITEM_TRANSITION)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_POSITION_DISCONTINUITY)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_PLAYBACK_PARAMETERS_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_REPEAT_MODE_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_PLAYBACK_STATE_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_IS_LOADING_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_TRACKS_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_STATIC_METADATA_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_PLAY_WHEN_READY_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_IS_PLAYING_CHANGED)).isTrue();
+    assertThat(containsEvent(allEvents, Player.EVENT_PLAYER_ERROR)).isTrue();
+  }
+
   // Internal methods.
 
   private static ActionSchedule.Builder addSurfaceSwitch(ActionSchedule.Builder builder) {
@@ -8868,6 +8963,16 @@ public final class ExoPlayerTest {
   private static void deliverBroadcast(Intent intent) {
     ApplicationProvider.getApplicationContext().sendBroadcast(intent);
     shadowOf(Looper.getMainLooper()).idle();
+  }
+
+  private static boolean containsEvent(
+      List<Player.Events> eventsList, @Player.EventFlags int event) {
+    for (Player.Events events : eventsList) {
+      if (events.contains(event)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Internal classes.

@@ -26,6 +26,11 @@
     *   Fix issue that could cause playback to freeze when selecting tracks, if
         extension audio renderers are being used
         ([#8203](https://github.com/google/ExoPlayer/issues/8203)).
+    *   Add `onEvents` callback to `Player.EventListener` and
+        `AnalyticsListener` to notify when all simultaneous state changes have
+        been handled and the values reported through callbacks are again
+        completely consistent with the values obtained from the `Player`
+        getters.
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.

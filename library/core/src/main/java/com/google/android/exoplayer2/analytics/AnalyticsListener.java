@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import android.os.Looper;
 import android.view.Surface;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -37,8 +39,12 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.MutableFlags;
 import com.google.common.base.Objects;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
@@ -48,8 +54,214 @@ import java.util.List;
  * time at the time of the event.
  *
  * <p>All methods have no-op default implementations to allow selective overrides.
+ *
+ * <p>Listeners can choose to implement individual events (e.g. {@link
+ * #onIsPlayingChanged(EventTime, boolean)}) or {@link #onEvents(Player, Events)}, which is called
+ * after one or more events occurred together.
  */
 public interface AnalyticsListener {
+
+  /** A set of {@link EventFlags}. */
+  final class Events extends MutableFlags {
+    /**
+     * Returns whether the given event occurred.
+     *
+     * @param event The {@link EventFlags event}.
+     * @return Whether the event occurred.
+     */
+    @Override
+    public boolean contains(@EventFlags int event) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.contains(event);
+    }
+
+    /**
+     * Returns the {@link EventFlags event} at the given index.
+     *
+     * <p>Although index-based access is possible, it doesn't imply a particular order of these
+     * events.
+     *
+     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
+     * @return The {@link EventFlags event} at the given index.
+     */
+    @Override
+    @EventFlags
+    public int get(int index) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.get(index);
+    }
+  }
+
+  /**
+   * Events that can be reported via {@link #onEvents(Player, Events)}.
+   *
+   * <p>One of the {@link AnalyticsListener}{@code .EVENT_*} flags.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    EVENT_TIMELINE_CHANGED,
+    EVENT_MEDIA_ITEM_TRANSITION,
+    EVENT_TRACKS_CHANGED,
+    EVENT_STATIC_METADATA_CHANGED,
+    EVENT_IS_LOADING_CHANGED,
+    EVENT_PLAYBACK_STATE_CHANGED,
+    EVENT_PLAY_WHEN_READY_CHANGED,
+    EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+    EVENT_IS_PLAYING_CHANGED,
+    EVENT_REPEAT_MODE_CHANGED,
+    EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+    EVENT_PLAYER_ERROR,
+    EVENT_POSITION_DISCONTINUITY,
+    EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_LOAD_STARTED,
+    EVENT_LOAD_COMPLETED,
+    EVENT_LOAD_CANCELED,
+    EVENT_LOAD_ERROR,
+    EVENT_DOWNSTREAM_FORMAT_CHANGED,
+    EVENT_UPSTREAM_DISCARDED,
+    EVENT_BANDWIDTH_ESTIMATE,
+    EVENT_METADATA,
+    EVENT_AUDIO_ENABLED,
+    EVENT_AUDIO_DECODER_INITIALIZED,
+    EVENT_AUDIO_INPUT_FORMAT_CHANGED,
+    EVENT_AUDIO_POSITION_ADVANCING,
+    EVENT_AUDIO_UNDERRUN,
+    EVENT_AUDIO_DECODER_RELEASED,
+    EVENT_AUDIO_DISABLED,
+    EVENT_AUDIO_SESSION_ID,
+    EVENT_AUDIO_ATTRIBUTES_CHANGED,
+    EVENT_SKIP_SILENCE_ENABLED_CHANGED,
+    EVENT_AUDIO_SINK_ERROR,
+    EVENT_VOLUME_CHANGED,
+    EVENT_VIDEO_ENABLED,
+    EVENT_VIDEO_DECODER_INITIALIZED,
+    EVENT_VIDEO_INPUT_FORMAT_CHANGED,
+    EVENT_DROPPED_VIDEO_FRAMES,
+    EVENT_VIDEO_DECODER_RELEASED,
+    EVENT_VIDEO_DISABLED,
+    EVENT_VIDEO_FRAME_PROCESSING_OFFSET,
+    EVENT_RENDERED_FIRST_FRAME,
+    EVENT_VIDEO_SIZE_CHANGED,
+    EVENT_SURFACE_SIZE_CHANGED,
+    EVENT_DRM_SESSION_ACQUIRED,
+    EVENT_DRM_KEYS_LOADED,
+    EVENT_DRM_SESSION_MANAGER_ERROR,
+    EVENT_DRM_KEYS_RESTORED,
+    EVENT_DRM_KEYS_REMOVED,
+    EVENT_DRM_SESSION_RELEASED
+  })
+  @interface EventFlags {}
+  /** {@link Player#getCurrentTimeline()} changed. */
+  int EVENT_TIMELINE_CHANGED = Player.EVENT_TIMELINE_CHANGED;
+  /**
+   * {@link Player#getCurrentMediaItem()} changed or the player started repeating the current item.
+   */
+  int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
+  /**
+   * {@link Player#getCurrentTrackGroups()} or {@link Player#getCurrentTrackSelections()} changed.
+   */
+  int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
+  /** {@link Player#getCurrentStaticMetadata()} changed. */
+  int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
+  /** {@link Player#isLoading()} ()} changed. */
+  int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
+  /** {@link Player#getPlaybackState()} changed. */
+  int EVENT_PLAYBACK_STATE_CHANGED = Player.EVENT_PLAYBACK_STATE_CHANGED;
+  /** {@link Player#getPlayWhenReady()} changed. */
+  int EVENT_PLAY_WHEN_READY_CHANGED = Player.EVENT_PLAY_WHEN_READY_CHANGED;
+  /** {@link Player#getPlaybackSuppressionReason()} changed. */
+  int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED = Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED;
+  /** {@link Player#isPlaying()} changed. */
+  int EVENT_IS_PLAYING_CHANGED = Player.EVENT_IS_PLAYING_CHANGED;
+  /** {@link Player#getRepeatMode()} changed. */
+  int EVENT_REPEAT_MODE_CHANGED = Player.EVENT_REPEAT_MODE_CHANGED;
+  /** {@link Player#getShuffleModeEnabled()} changed. */
+  int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
+  /** {@link Player#getPlayerError()} changed. */
+  int EVENT_PLAYER_ERROR = Player.EVENT_PLAYER_ERROR;
+  /**
+   * A position discontinuity occurred. See {@link
+   * Player.EventListener#onPositionDiscontinuity(int)}.
+   */
+  int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
+  /** {@link Player#getPlaybackParameters()} changed. */
+  int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** A source started loading data. */
+  int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
+  /** A source started completed loading data. */
+  int EVENT_LOAD_COMPLETED = 1001;
+  /** A source canceled loading data. */
+  int EVENT_LOAD_CANCELED = 1002;
+  /** A source had a non-fatal error loading data. */
+  int EVENT_LOAD_ERROR = 1003;
+  /** The downstream format sent to renderers changed. */
+  int EVENT_DOWNSTREAM_FORMAT_CHANGED = 1004;
+  /** Data was removed from the end of the media buffer. */
+  int EVENT_UPSTREAM_DISCARDED = 1005;
+  /** The bandwidth estimate has been updated. */
+  int EVENT_BANDWIDTH_ESTIMATE = 1006;
+  /** Metadata associated with the current playback time was reported. */
+  int EVENT_METADATA = 1007;
+  /** An audio renderer was enabled. */
+  int EVENT_AUDIO_ENABLED = 1008;
+  /** An audio renderer created a decoder. */
+  int EVENT_AUDIO_DECODER_INITIALIZED = 1009;
+  /** The format consumed by an audio renderer changed. */
+  int EVENT_AUDIO_INPUT_FORMAT_CHANGED = 1010;
+  /** The audio position has increased for the first time since the last pause or position reset. */
+  int EVENT_AUDIO_POSITION_ADVANCING = 1011;
+  /** An audio underrun occurred. */
+  int EVENT_AUDIO_UNDERRUN = 1012;
+  /** An audio renderer released a decoder. */
+  int EVENT_AUDIO_DECODER_RELEASED = 1013;
+  /** An audio renderer was disabled. */
+  int EVENT_AUDIO_DISABLED = 1014;
+  /** An audio session id was set. */
+  int EVENT_AUDIO_SESSION_ID = 1015;
+  /** Audio attributes changed. */
+  int EVENT_AUDIO_ATTRIBUTES_CHANGED = 1016;
+  /** Skipping silences was enabled or disabled in the audio stream. */
+  int EVENT_SKIP_SILENCE_ENABLED_CHANGED = 1017;
+  /** The audio sink encountered a non-fatal error. */
+  int EVENT_AUDIO_SINK_ERROR = 1018;
+  /** The volume changed. */
+  int EVENT_VOLUME_CHANGED = 1019;
+  /** A video renderer was enabled. */
+  int EVENT_VIDEO_ENABLED = 1020;
+  /** A video renderer created a decoder. */
+  int EVENT_VIDEO_DECODER_INITIALIZED = 1021;
+  /** The format consumed by a video renderer changed. */
+  int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 1022;
+  /** Video frames have been dropped. */
+  int EVENT_DROPPED_VIDEO_FRAMES = 1023;
+  /** A video renderer released a decoder. */
+  int EVENT_VIDEO_DECODER_RELEASED = 1024;
+  /** A video renderer was disabled. */
+  int EVENT_VIDEO_DISABLED = 1025;
+  /** Video frame processing offset data has been reported. */
+  int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 1026;
+  /**
+   * The first frame has been rendered since setting the surface, since the renderer was reset or
+   * since the stream changed.
+   */
+  int EVENT_RENDERED_FIRST_FRAME = 1027;
+  /** The video size changed. */
+  int EVENT_VIDEO_SIZE_CHANGED = 1028;
+  /** The surface size changed. */
+  int EVENT_SURFACE_SIZE_CHANGED = 1029;
+  /** A DRM session has been acquired. */
+  int EVENT_DRM_SESSION_ACQUIRED = 1030;
+  /** DRM keys were loaded. */
+  int EVENT_DRM_KEYS_LOADED = 1031;
+  /** A non-fatal DRM session manager error occurred. */
+  int EVENT_DRM_SESSION_MANAGER_ERROR = 1032;
+  /** DRM keys were restored. */
+  int EVENT_DRM_KEYS_RESTORED = 1033;
+  /** DRM keys were removed. */
+  int EVENT_DRM_KEYS_REMOVED = 1034;
+  /** A DRM session has been released. */
+  int EVENT_DRM_SESSION_RELEASED = 1035;
 
   /** Time information of an event. */
   final class EventTime {
@@ -753,4 +965,31 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    */
   default void onDrmSessionReleased(EventTime eventTime) {}
+
+  /**
+   * Called after one or more events occurred.
+   *
+   * <p>State changes and events that happen within one {@link Looper} message queue iteration are
+   * reported together and only after all individual callbacks were triggered.
+   *
+   * <p>Listeners should prefer this method over individual callbacks in the following cases:
+   *
+   * <ul>
+   *   <li>They intend to use multiple state values together (e.g. using {@link
+   *       Player#getCurrentWindowIndex()} to query in {@link Player#getCurrentTimeline()}).
+   *   <li>The same logic should be triggered for multiple events (e.g. when updating a UI for both
+   *       {@link #onPlaybackStateChanged(EventTime, int)} and {@link
+   *       #onPlayWhenReadyChanged(EventTime, boolean, int)}).
+   *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
+   *       {@link Player#seekTo(long)} after a {@link
+   *       AnalyticsListener#onMediaItemTransition(EventTime, MediaItem, int)}).
+   *   <li>They are interested in events that logically happened together (e.g {@link
+   *       #onPlaybackStateChanged(EventTime, int)} to {@link Player#STATE_BUFFERING} because of
+   *       {@link #onMediaItemTransition(EventTime, MediaItem, int)}).
+   * </ul>
+   *
+   * @param player The {@link Player}.
+   * @param events The {@link Events} that occurred in this iteration.
+   */
+  default void onEvents(Player player, Events events) {}
 }

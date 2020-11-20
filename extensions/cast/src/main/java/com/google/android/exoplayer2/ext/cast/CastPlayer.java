@@ -96,7 +96,7 @@ public final class CastPlayer extends BasePlayer {
   private final SeekResultCallback seekResultCallback;
 
   // Listeners and notification.
-  private final ListenerSet<Player.EventListener> listeners;
+  private final ListenerSet<Player.EventListener, Player.Events> listeners;
   @Nullable private SessionAvailabilityListener sessionAvailabilityListener;
 
   // Internal state.
@@ -135,7 +135,11 @@ public final class CastPlayer extends BasePlayer {
     period = new Timeline.Period();
     statusListener = new StatusListener();
     seekResultCallback = new SeekResultCallback();
-    listeners = new ListenerSet<>();
+    listeners =
+        new ListenerSet<>(
+            Looper.getMainLooper(),
+            Player.Events::new,
+            (listener, eventFlags) -> listener.onEvents(/* player= */ this, eventFlags));
 
     playWhenReady = new StateHolder<>(false);
     repeatMode = new StateHolder<>(REPEAT_MODE_OFF);
@@ -445,9 +449,11 @@ public final class CastPlayer extends BasePlayer {
       pendingSeekCount++;
       pendingSeekWindowIndex = windowIndex;
       pendingSeekPositionMs = positionMs;
-      listeners.queueEvent(listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
+      listeners.queueEvent(
+          Player.EVENT_POSITION_DISCONTINUITY,
+          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
     } else if (pendingSeekCount == 0) {
-      listeners.queueEvent(EventListener::onSeekProcessed);
+      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
     }
     listeners.flushEvents();
   }
@@ -647,7 +653,8 @@ public final class CastPlayer extends BasePlayer {
     updatePlayerStateAndNotifyIfChanged(/* resultCallback= */ null);
     boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
     if (wasPlaying != isPlaying) {
-      listeners.queueEvent(listener -> listener.onIsPlayingChanged(isPlaying));
+      listeners.queueEvent(
+          Player.EVENT_IS_PLAYING_CHANGED, listener -> listener.onIsPlayingChanged(isPlaying));
     }
     updateRepeatModeAndNotifyIfChanged(/* resultCallback= */ null);
     updateTimelineAndNotifyIfChanged();
@@ -664,10 +671,12 @@ public final class CastPlayer extends BasePlayer {
     if (this.currentWindowIndex != currentWindowIndex && pendingSeekCount == 0) {
       this.currentWindowIndex = currentWindowIndex;
       listeners.queueEvent(
+          Player.EVENT_POSITION_DISCONTINUITY,
           listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION));
     }
     if (updateTracksAndSelectionsAndNotifyIfChanged()) {
       listeners.queueEvent(
+          Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksChanged(currentTrackGroups, currentTrackSelection));
     }
     listeners.flushEvents();
@@ -710,6 +719,7 @@ public final class CastPlayer extends BasePlayer {
       // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
       //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
       listeners.queueEvent(
+          Player.EVENT_TIMELINE_CHANGED,
           listener ->
               listener.onTimelineChanged(
                   currentTimeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
@@ -831,7 +841,8 @@ public final class CastPlayer extends BasePlayer {
   private void setRepeatModeAndNotifyIfChanged(@Player.RepeatMode int repeatMode) {
     if (this.repeatMode.value != repeatMode) {
       this.repeatMode.value = repeatMode;
-      listeners.queueEvent(listener -> listener.onRepeatModeChanged(repeatMode));
+      listeners.queueEvent(
+          Player.EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
     }
   }
 
@@ -846,15 +857,18 @@ public final class CastPlayer extends BasePlayer {
       this.playbackState = playbackState;
       this.playWhenReady.value = playWhenReady;
       listeners.queueEvent(
-          listener -> {
-            listener.onPlayerStateChanged(playWhenReady, playbackState);
-            if (playbackStateChanged) {
-              listener.onPlaybackStateChanged(playbackState);
-            }
-            if (playWhenReadyChanged) {
-              listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason);
-            }
-          });
+          /* eventFlag= */ C.INDEX_UNSET,
+          listener -> listener.onPlayerStateChanged(playWhenReady, playbackState));
+      if (playbackStateChanged) {
+        listeners.queueEvent(
+            Player.EVENT_PLAYBACK_STATE_CHANGED,
+            listener -> listener.onPlaybackStateChanged(playbackState));
+      }
+      if (playWhenReadyChanged) {
+        listeners.queueEvent(
+            Player.EVENT_PLAY_WHEN_READY_CHANGED,
+            listener -> listener.onPlayWhenReadyChanged(playWhenReady, playWhenReadyChangeReason));
+      }
     }
   }
 
@@ -1072,7 +1086,7 @@ public final class CastPlayer extends BasePlayer {
       if (--pendingSeekCount == 0) {
         pendingSeekWindowIndex = C.INDEX_UNSET;
         pendingSeekPositionMs = C.TIME_UNSET;
-        listeners.sendEvent(EventListener::onSeekProcessed);
+        listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
       }
     }
   }
