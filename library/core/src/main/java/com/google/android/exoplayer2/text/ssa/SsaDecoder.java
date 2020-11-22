@@ -210,8 +210,11 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   private void parseEventBody(ParsableByteArray data, List<List<Cue>> cues, List<Long> cueTimesUs) {
     @Nullable
     SsaDialogueFormat format = haveInitializationData ? dialogueFormatFromInitializationData : null;
-    @Nullable String currentLine;
-    while ((currentLine = data.readLine()) != null) {
+    String fullData = data.readNullTerminatedString();
+    String[] lines = fullData.split("\r|\n");
+    for (String currentLine : lines) {
+      if (currentLine.length() == 0) // ignore empty string between /r and /n
+        continue;
       if (currentLine.startsWith(FORMAT_LINE_PREFIX)) {
         format = SsaDialogueFormat.fromFormatLine(currentLine);
       } else if (currentLine.startsWith(DIALOGUE_LINE_PREFIX)) {
