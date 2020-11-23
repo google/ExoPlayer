@@ -436,7 +436,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.configure(audioSinkInputFormat, /* specifiedBufferSize= */ 0, channelMap);
     } catch (AudioSink.ConfigurationException e) {
-      throw createRendererException(e, format);
+      throw createRendererException(e, e.format);
     }
   }
 

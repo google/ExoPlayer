@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -305,6 +306,18 @@ public final class DefaultAudioSinkTest {
     defaultAudioSink.experimentalFlushWithoutAudioTrackRelease();
     assertThat(defaultAudioSink.getCurrentPositionUs(/* sourceEnded= */ false))
         .isEqualTo(CURRENT_POSITION_NOT_SET);
+  }
+
+  @Test
+  public void configure_throwsConfigurationException_withInvalidInput() {
+    Format format = new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).build();
+    AudioSink.ConfigurationException thrown =
+        Assert.assertThrows(
+            AudioSink.ConfigurationException.class,
+            () ->
+                defaultAudioSink.configure(
+                    format, /* specifiedBufferSize= */ 0, /* outputChannels= */ null));
+    assertThat(thrown.format).isEqualTo(format);
   }
 
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {

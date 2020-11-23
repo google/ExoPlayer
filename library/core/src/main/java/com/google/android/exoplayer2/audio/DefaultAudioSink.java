@@ -535,7 +535,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputFormat = nextFormat;
           }
         } catch (UnhandledAudioFormatException e) {
-          throw new ConfigurationException(e);
+          throw new ConfigurationException(e, inputFormat);
         }
       }
 
@@ -562,7 +562,8 @@ public final class DefaultAudioSink implements AudioSink {
         Pair<Integer, Integer> encodingAndChannelConfig =
             getEncodingAndChannelConfigForPassthrough(inputFormat, audioCapabilities);
         if (encodingAndChannelConfig == null) {
-          throw new ConfigurationException("Unable to configure passthrough for: " + inputFormat);
+          throw new ConfigurationException(
+              "Unable to configure passthrough for: " + inputFormat, inputFormat);
         }
         outputEncoding = encodingAndChannelConfig.first;
         outputChannelConfig = encodingAndChannelConfig.second;
@@ -571,11 +572,12 @@ public final class DefaultAudioSink implements AudioSink {
 
     if (outputEncoding == C.ENCODING_INVALID) {
       throw new ConfigurationException(
-          "Invalid output encoding (mode=" + outputMode + ") for: " + inputFormat);
+          "Invalid output encoding (mode=" + outputMode + ") for: " + inputFormat, inputFormat);
     }
     if (outputChannelConfig == AudioFormat.CHANNEL_INVALID) {
       throw new ConfigurationException(
-          "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat);
+          "Invalid output channel config (mode=" + outputMode + ") for: " + inputFormat,
+          inputFormat);
     }
 
     offloadDisabledUntilNextConfiguration = false;

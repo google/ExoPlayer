@@ -300,8 +300,10 @@ public abstract class DecoderAudioRenderer<
         while (drainOutputBuffer()) {}
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
-      } catch (DecoderException | AudioSink.ConfigurationException e) {
+      } catch (DecoderException e) {
         throw createRendererException(e, inputFormat);
+      } catch (AudioSink.ConfigurationException e) {
+        throw createRendererException(e, e.format);
       } catch (AudioSink.InitializationException e) {
         throw createRendererException(e, inputFormat, e.isRecoverable);
       } catch (AudioSink.WriteException e) {

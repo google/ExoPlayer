@@ -144,20 +144,20 @@ public interface AudioSink {
    */
   final class ConfigurationException extends Exception {
 
-    /**
-     * Creates a new configuration exception with the specified {@code cause} and no message.
-     */
-    public ConfigurationException(Throwable cause) {
+    /** Input {@link Format} of the sink when the configuration failure occurs. */
+    public final Format format;
+
+    /** Creates a new configuration exception with the specified {@code cause} and no message. */
+    public ConfigurationException(Throwable cause, Format format) {
       super(cause);
+      this.format = format;
     }
 
-    /**
-     * Creates a new configuration exception with the specified {@code message} and no cause.
-     */
-    public ConfigurationException(String message) {
+    /** Creates a new configuration exception with the specified {@code message} and no cause. */
+    public ConfigurationException(String message, Format format) {
       super(message);
+      this.format = format;
     }
-
   }
 
   /** Thrown when a failure occurs initializing the sink. */

@@ -236,7 +236,7 @@ public class MediaCodecAudioRendererTest {
             if (!format.equals(AUDIO_AAC)) {
               setPendingPlaybackException(
                   ExoPlaybackException.createForRenderer(
-                      new AudioSink.ConfigurationException("Test"),
+                      new AudioSink.ConfigurationException("Test", format),
                       "rendererName",
                       /* rendererIndex= */ 0,
                       format,
