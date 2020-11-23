@@ -57,6 +57,21 @@ public class MutableFlags {
     return flags.get(flag);
   }
 
+  /**
+   * Returns whether the set contains at least one of the given flags.
+   *
+   * @param flags The flags.
+   * @return Whether the set contains at least one of the flags.
+   */
+  public boolean containsAny(int... flags) {
+    for (int flag : flags) {
+      if (contains(flag)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /** Returns the number of flags in this set. */
   public int size() {
     return flags.size();

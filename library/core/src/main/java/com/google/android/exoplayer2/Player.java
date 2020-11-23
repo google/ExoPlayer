@@ -757,6 +757,18 @@ public interface Player {
     }
 
     /**
+     * Returns whether any of the given events occurred.
+     *
+     * @param events The {@link EventFlags events}.
+     * @return Whether any of the events occurred.
+     */
+    @Override
+    public boolean containsAny(@EventFlags int... events) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.containsAny(events);
+    }
+
+    /**
      * Returns the {@link EventFlags event} at the given index.
      *
      * <p>Although index-based access is possible, it doesn't imply a particular order of these

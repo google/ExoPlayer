@@ -15,6 +15,14 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_POSITION_DISCONTINUITY;
+import static com.google.android.exoplayer2.Player.EVENT_REPEAT_MODE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -38,6 +46,7 @@ import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -1336,45 +1345,30 @@ public class PlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void onPlaybackStateChanged(@Player.State int playbackState) {
-      updatePlayPauseButton();
-      updateProgress();
-    }
-
-    @Override
-    public void onPlayWhenReadyChanged(
-        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
-      updatePlayPauseButton();
-      updateProgress();
-    }
-
-    @Override
-    public void onIsPlayingChanged(boolean isPlaying) {
-      updateProgress();
-    }
-
-    @Override
-    public void onRepeatModeChanged(int repeatMode) {
-      updateRepeatModeButton();
-      updateNavigation();
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      updateShuffleButton();
-      updateNavigation();
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-      updateNavigation();
-      updateTimeline();
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
-      updateNavigation();
-      updateTimeline();
+    public void onEvents(Player player, Events events) {
+      if (events.containsAny(EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED)) {
+        updatePlayPauseButton();
+      }
+      if (events.containsAny(
+          EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
+        updateProgress();
+      }
+      if (events.contains(EVENT_REPEAT_MODE_CHANGED)) {
+        updateRepeatModeButton();
+      }
+      if (events.contains(EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+        updateShuffleButton();
+      }
+      if (events.containsAny(
+          EVENT_REPEAT_MODE_CHANGED,
+          EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          EVENT_POSITION_DISCONTINUITY,
+          EVENT_TIMELINE_CHANGED)) {
+        updateNavigation();
+      }
+      if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {
+        updateTimeline();
+      }
     }
 
     @Override
