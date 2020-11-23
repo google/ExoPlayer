@@ -440,6 +440,9 @@ public interface Player {
      * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
      * {@link #onPositionDiscontinuity(int)}.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
@@ -482,6 +485,9 @@ public interface Player {
      * <p>Note that this callback is also called when the playlist becomes non-empty or empty as a
      * consequence of a playlist change.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param mediaItem The {@link MediaItem}. May be null if the playlist becomes empty.
      * @param reason The reason for the transition.
      */
@@ -490,6 +496,9 @@ public interface Player {
 
     /**
      * Called when the available or selected tracks change.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param trackGroups The available tracks. Never null, but may be of length zero.
      * @param trackSelections The track selections for each renderer. Never null and always of
@@ -510,12 +519,18 @@ public interface Player {
      * Formats, rather than being timed (or dynamic) metadata, which is represented within a
      * metadata track.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param metadataList The static metadata.
      */
     default void onStaticMetadataChanged(List<Metadata> metadataList) {}
 
     /**
      * Called when the player starts or stops loading the source.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param isLoading Whether the source is currently being loaded.
      */
@@ -538,12 +553,18 @@ public interface Player {
     /**
      * Called when the value returned from {@link #getPlaybackState()} changes.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param state The new playback {@link State state}.
      */
     default void onPlaybackStateChanged(@State int state) {}
 
     /**
      * Called when the value returned from {@link #getPlayWhenReady()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param playWhenReady Whether playback will proceed when ready.
      * @param reason The {@link PlayWhenReadyChangeReason reason} for the change.
@@ -554,6 +575,9 @@ public interface Player {
     /**
      * Called when the value returned from {@link #getPlaybackSuppressionReason()} changes.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param playbackSuppressionReason The current {@link PlaybackSuppressionReason}.
      */
     default void onPlaybackSuppressionReasonChanged(
@@ -562,6 +586,9 @@ public interface Player {
     /**
      * Called when the value of {@link #isPlaying()} changes.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param isPlaying Whether the player is playing.
      */
     default void onIsPlayingChanged(boolean isPlaying) {}
@@ -569,12 +596,18 @@ public interface Player {
     /**
      * Called when the value of {@link #getRepeatMode()} changes.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param repeatMode The {@link RepeatMode} used for playback.
      */
     default void onRepeatModeChanged(@RepeatMode int repeatMode) {}
 
     /**
      * Called when the value of {@link #getShuffleModeEnabled()} changes.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param shuffleModeEnabled Whether shuffling of windows is enabled.
      */
@@ -584,6 +617,9 @@ public interface Player {
      * Called when an error occurs. The playback state will transition to {@link #STATE_IDLE}
      * immediately after this method is called. The player instance can still be used, and {@link
      * #release()} must still be called on the player should it no longer be required.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param error The error.
      */
@@ -599,6 +635,9 @@ public interface Player {
      * <p>When a position discontinuity occurs as a result of a change to the timeline this method
      * is <em>not</em> called. {@link #onTimelineChanged(Timeline, int)} is called in this case.
      *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
     default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
@@ -608,6 +647,9 @@ public interface Player {
      * a call to {@link #setPlaybackParameters(PlaybackParameters)}, or the player itself may change
      * them (for example, if audio playback switches to passthrough or offload mode, where speed
      * adjustment is no longer possible).
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param playbackParameters The playback parameters.
      */
