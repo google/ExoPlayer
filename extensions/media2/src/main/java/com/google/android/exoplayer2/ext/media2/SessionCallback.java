@@ -349,6 +349,7 @@ import java.util.concurrent.TimeoutException;
     }
 
     @Override
+    @SuppressWarnings("nullness:override.param.invalid")
     public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
       currentMediaItemBuffered = isBufferedState(player.getBufferingState());
       updateAllowedCommands();
