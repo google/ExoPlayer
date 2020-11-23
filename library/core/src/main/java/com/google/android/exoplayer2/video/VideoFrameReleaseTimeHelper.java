@@ -29,10 +29,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.util.Util;
 
 /**
- * Makes a best effort to adjust frame release timestamps for a smoother visual result.
+ * Makes a best effort to adjust frame release timestamps for a video {@link Renderer} in order to
+ * achieve a smoother visual result.
  */
 public final class VideoFrameReleaseTimeHelper {
 
@@ -48,18 +50,20 @@ public final class VideoFrameReleaseTimeHelper {
 
   private float formatFrameRate;
   private float playbackSpeed;
+  private long nextFramePresentationTimeUs;
 
   private long vsyncDurationNs;
   private long vsyncOffsetNs;
-
-  private long lastFramePresentationTimeUs;
-  private long adjustedLastFrameTimeNs;
-  private long pendingAdjustedFrameTimeNs;
 
   private boolean haveSync;
   private long syncUnadjustedReleaseTimeNs;
   private long syncFramePresentationTimeNs;
   private long frameCount;
+
+  private long pendingLastAdjustedFrameIndex;
+  private long pendingLastAdjustedFramePresentationTimeNs;
+  private long lastAdjustedFrameIndex;
+  private long lastAdjustedFramePresentationTimeNs;
 
   /**
    * Constructs an instance that smooths frame release timestamps but does not align them with
@@ -95,9 +99,9 @@ public final class VideoFrameReleaseTimeHelper {
     playbackSpeed = 1f;
   }
 
-  /** Enables the helper. */
+  /** Called when the renderer is enabled. */
   @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
-  public void enable() {
+  public void onEnabled() {
     haveSync = false;
     if (windowManager != null) {
       vsyncSampler.addObserver();
@@ -108,9 +112,9 @@ public final class VideoFrameReleaseTimeHelper {
     }
   }
 
-  /** Disables the helper. */
+  /** Called when the renderer is disabled. */
   @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
-  public void disable() {
+  public void onDisabled() {
     if (windowManager != null) {
       if (displayListener != null) {
         displayListener.unregister();
@@ -119,52 +123,74 @@ public final class VideoFrameReleaseTimeHelper {
     }
   }
 
+  /** Called when the renderer is started. */
+  public void onStarted() {
+    haveSync = false;
+  }
+
+  /** Called when the renderer's position is reset. */
+  public void onPositionReset() {
+    haveSync = false;
+  }
+
+  /**
+   * Called when the renderer's playback speed changes, where 1 is the default rate, 2 is twice the
+   * default rate, 0.5 is half the default rate and so on.
+   *
+   * @param playbackSpeed The player's speed.
+   */
+  public void onPlaybackSpeed(float playbackSpeed) {
+    this.playbackSpeed = playbackSpeed;
+  }
+
+  /**
+   * Called when the renderer's output format changes.
+   *
+   * @param formatFrameRate The format's frame rate, or {@link Format#NO_VALUE} if unknown.
+   */
+  public void onFormatChanged(float formatFrameRate) {
+    this.formatFrameRate = formatFrameRate;
+  }
+
+  /**
+   * Called by the renderer for each frame, prior to it being skipped, dropped or rendered.
+   *
+   * @param framePresentationTimeUs The frame presentation timestamp, in microseconds.
+   */
+  public void onNextFrame(long framePresentationTimeUs) {
+    lastAdjustedFrameIndex = pendingLastAdjustedFrameIndex;
+    lastAdjustedFramePresentationTimeNs = pendingLastAdjustedFramePresentationTimeNs;
+    nextFramePresentationTimeUs = framePresentationTimeUs;
+    frameCount++;
+  }
+
   /** Returns the estimated playback frame rate, or {@link C#RATE_UNSET} if unknown. */
   public float getPlaybackFrameRate() {
     return formatFrameRate == Format.NO_VALUE ? C.RATE_UNSET : (formatFrameRate * playbackSpeed);
   }
 
   /**
-   * Sets the player's speed, where 1 is the default rate, 2 is twice the default rate, 0.5 is half
-   * the default rate and so on.
+   * Adjusts the release timestamp for the next frame. This is the frame whose presentation
+   * timestamp was most recently passed to {@link #onNextFrame}.
    *
-   * @param playbackSpeed The player's speed.
-   */
-  public void setPlaybackSpeed(float playbackSpeed) {
-    this.playbackSpeed = playbackSpeed;
-  }
-
-  /**
-   * Sets the format's frame rate in frames per second, or {@link Format#NO_VALUE} if unknown.
+   * <p>This method may be called any number of times for each frame, including zero times (for
+   * skipped frames, or when rendering the first frame prior to playback starting), or more than
+   * once (if the caller wishes to give the helper the opportunity to refine a release time closer
+   * to when the frame needs to be released).
    *
-   * @param formatFrameRate The format's frame rate, or {@link Format#NO_VALUE}.
-   */
-  public void setFormatFrameRate(float formatFrameRate) {
-    this.formatFrameRate = formatFrameRate;
-  }
-
-  /**
-   * Adjusts a frame release timestamp.
-   *
-   * @param framePresentationTimeUs The frame's presentation time, in microseconds.
    * @param unadjustedReleaseTimeNs The frame's unadjusted release time, in nanoseconds and in the
    *     same time base as {@link System#nanoTime()}.
    * @return The adjusted frame release timestamp, in nanoseconds and in the same time base as
    *     {@link System#nanoTime()}.
    */
-  public long adjustReleaseTime(long framePresentationTimeUs, long unadjustedReleaseTimeNs) {
-    long framePresentationTimeNs = framePresentationTimeUs * 1000;
+  public long adjustReleaseTime(long unadjustedReleaseTimeNs) {
+    long framePresentationTimeNs = nextFramePresentationTimeUs * 1000;
 
     // Until we know better, the adjustment will be a no-op.
-    long adjustedFrameTimeNs = framePresentationTimeNs;
+    long adjustedFramePresentationTimeNs = framePresentationTimeNs;
     long adjustedReleaseTimeNs = unadjustedReleaseTimeNs;
 
     if (haveSync) {
-      // See if we've advanced to the next frame.
-      if (framePresentationTimeUs != lastFramePresentationTimeUs) {
-        frameCount++;
-        adjustedLastFrameTimeNs = pendingAdjustedFrameTimeNs;
-      }
       if (frameCount >= MIN_FRAMES_FOR_ADJUSTMENT) {
         // We're synced and have waited the required number of frames to apply an adjustment.
         // Calculate the average frame time across all the frames we've seen since the last sync.
@@ -173,14 +199,18 @@ public final class VideoFrameReleaseTimeHelper {
         long averageFrameDurationNs = (framePresentationTimeNs - syncFramePresentationTimeNs)
             / frameCount;
         // Project the adjusted frame time forward using the average.
-        long candidateAdjustedFrameTimeNs = adjustedLastFrameTimeNs + averageFrameDurationNs;
+        long candidateAdjustedFramePresentationTimeNs =
+            lastAdjustedFramePresentationTimeNs
+                + averageFrameDurationNs * (frameCount - lastAdjustedFrameIndex);
 
-        if (isDriftTooLarge(candidateAdjustedFrameTimeNs, unadjustedReleaseTimeNs)) {
+        if (isDriftTooLarge(candidateAdjustedFramePresentationTimeNs, unadjustedReleaseTimeNs)) {
           haveSync = false;
         } else {
-          adjustedFrameTimeNs = candidateAdjustedFrameTimeNs;
-          adjustedReleaseTimeNs = syncUnadjustedReleaseTimeNs + adjustedFrameTimeNs
-              - syncFramePresentationTimeNs;
+          adjustedFramePresentationTimeNs = candidateAdjustedFramePresentationTimeNs;
+          adjustedReleaseTimeNs =
+              syncUnadjustedReleaseTimeNs
+                  + adjustedFramePresentationTimeNs
+                  - syncFramePresentationTimeNs;
         }
       } else {
         // We're synced but haven't waited the required number of frames to apply an adjustment.
@@ -199,8 +229,8 @@ public final class VideoFrameReleaseTimeHelper {
       haveSync = true;
     }
 
-    lastFramePresentationTimeUs = framePresentationTimeUs;
-    pendingAdjustedFrameTimeNs = adjustedFrameTimeNs;
+    pendingLastAdjustedFrameIndex = frameCount;
+    pendingLastAdjustedFramePresentationTimeNs = adjustedFramePresentationTimeNs;
 
     if (vsyncSampler == null || vsyncDurationNs == C.TIME_UNSET) {
       return adjustedReleaseTimeNs;
@@ -386,5 +416,4 @@ public final class VideoFrameReleaseTimeHelper {
     }
 
   }
-
 }

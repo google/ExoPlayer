@@ -136,6 +136,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private int droppedFrames;
   private int consecutiveDroppedFrameCount;
   private int buffersInCodecCount;
+  private long lastBufferPresentationTimeUs;
   private long lastRenderRealtimeUs;
   private long totalVideoFrameProcessingOffsetUs;
   private int videoFrameProcessingOffsetCount;
@@ -367,7 +368,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       releaseCodec();
     }
     eventDispatcher.enabled(decoderCounters);
-    frameReleaseTimeHelper.enable();
+    frameReleaseTimeHelper.onEnabled();
     mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
     renderedFirstFrameAfterEnable = false;
   }
@@ -376,6 +377,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
     clearRenderedFirstFrame();
+    frameReleaseTimeHelper.onPositionReset();
+    lastBufferPresentationTimeUs = C.TIME_UNSET;
     initialPositionUs = C.TIME_UNSET;
     consecutiveDroppedFrameCount = 0;
     if (joining) {
@@ -416,6 +419,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     totalVideoFrameProcessingOffsetUs = 0;
     videoFrameProcessingOffsetCount = 0;
+    frameReleaseTimeHelper.onStarted();
     updateSurfaceFrameRate(/* isNewSurface= */ false);
   }
 
@@ -433,7 +437,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     haveReportedFirstFrameRenderedForCurrentSurface = false;
-    frameReleaseTimeHelper.disable();
+    frameReleaseTimeHelper.onDisabled();
     tunnelingOnFrameRenderedListener = null;
     try {
       super.onDisabled();
@@ -599,7 +603,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   public void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {
     super.setPlaybackSpeed(playbackSpeed);
-    frameReleaseTimeHelper.setPlaybackSpeed(playbackSpeed);
+    frameReleaseTimeHelper.onPlaybackSpeed(playbackSpeed);
     updateSurfaceFrameRate(/* isNewSurface= */ false);
   }
 
@@ -705,7 +709,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // On API level 20 and below the decoder does not apply the rotation.
       currentUnappliedRotationDegrees = format.rotationDegrees;
     }
-    frameReleaseTimeHelper.setFormatFrameRate(format.frameRate);
+    frameReleaseTimeHelper.onFormatChanged(format.frameRate);
     updateSurfaceFrameRate(/* isNewSurface= */ false);
   }
 
@@ -758,6 +762,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     if (initialPositionUs == C.TIME_UNSET) {
       initialPositionUs = positionUs;
+    }
+
+    if (bufferPresentationTimeUs != lastBufferPresentationTimeUs) {
+      frameReleaseTimeHelper.onNextFrame(bufferPresentationTimeUs);
+      this.lastBufferPresentationTimeUs = bufferPresentationTimeUs;
     }
 
     long outputStreamOffsetUs = getOutputStreamOffsetUs();
@@ -824,8 +833,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
 
     // Apply a timestamp adjustment, if there is one.
-    long adjustedReleaseTimeNs = frameReleaseTimeHelper.adjustReleaseTime(
-        bufferPresentationTimeUs, unadjustedFrameReleaseTimeNs);
+    long adjustedReleaseTimeNs =
+        frameReleaseTimeHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
     boolean treatDroppedBuffersAsSkipped = joiningDeadlineMs != C.TIME_UNSET;
