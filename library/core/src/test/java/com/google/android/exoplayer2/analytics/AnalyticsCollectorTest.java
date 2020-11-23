@@ -28,11 +28,19 @@ import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DR
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DRM_SESSION_RELEASED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DROPPED_VIDEO_FRAMES;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_IS_LOADING_CHANGED;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_IS_PLAYING_CHANGED;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_CANCELED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_COMPLETED;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_ERROR;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_STARTED;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_MEDIA_ITEM_TRANSITION;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYBACK_STATE_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAYER_ERROR;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAY_WHEN_READY_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_POSITION_DISCONTINUITY;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_RENDERED_FIRST_FRAME;
+import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_STATIC_METADATA_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_TRACKS_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_VIDEO_DECODER_INITIALIZED;
@@ -45,11 +53,18 @@ import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSample
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import android.os.Looper;
+import android.util.SparseArray;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -57,6 +72,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
@@ -72,6 +88,7 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallbackException;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
@@ -89,9 +106,11 @@ import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
+import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -103,8 +122,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Integration test for {@link AnalyticsCollector}. */
 @RunWith(AndroidJUnit4.class)
@@ -1599,6 +1620,264 @@ public final class AnalyticsCollectorTest {
 
     populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_PLAYER_ERROR)).containsExactly(period1);
+  }
+
+  @Test
+  public void onEvents_isReportedWithCorrectEventTimes() throws Exception {
+    SimpleExoPlayer player =
+        new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+    AnalyticsListener listener = mock(AnalyticsListener.class);
+    Format[] formats =
+        new Format[] {
+          new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build(),
+          new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).build()
+        };
+    player.addAnalyticsListener(listener);
+
+    // Trigger some simultaneous events.
+    player.setMediaSource(new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), formats));
+    player.seekTo(2_000);
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f));
+    ShadowLooper.runMainLooperToNextTask();
+
+    // Move to another item and fail with a third one to trigger events with different EventTimes.
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    player.addMediaSource(new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), formats));
+    player.play();
+    TestPlayerRunHelper.runUntilPositionDiscontinuity(
+        player, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+    player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
+    ShadowLooper.runMainLooperToNextTask();
+    player.release();
+
+    // Verify that expected individual callbacks have been called and capture EventTimes.
+    ArgumentCaptor<AnalyticsListener.EventTime> individualTimelineChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onTimelineChanged(individualTimelineChangedEventTimes.capture(), anyInt());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualMediaItemTransitionEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onMediaItemTransition(individualMediaItemTransitionEventTimes.capture(), any(), anyInt());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualPositionDiscontinuityEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onPositionDiscontinuity(individualPositionDiscontinuityEventTimes.capture(), anyInt());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualPlaybackStateChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onPlaybackStateChanged(individualPlaybackStateChangedEventTimes.capture(), anyInt());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualIsLoadingChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onIsLoadingChanged(individualIsLoadingChangedEventTimes.capture(), anyBoolean());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualTracksChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onTracksChanged(individualTracksChangedEventTimes.capture(), any(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualPlayWhenReadyChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onPlayWhenReadyChanged(
+            individualPlayWhenReadyChangedEventTimes.capture(), anyBoolean(), anyInt());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualIsPlayingChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onIsPlayingChanged(individualIsPlayingChangedEventTimes.capture(), anyBoolean());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualPlayerErrorEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce()).onPlayerError(individualPlayerErrorEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualPlaybackParametersChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onPlaybackParametersChanged(
+            individualPlaybackParametersChangedEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualLoadStartedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onLoadStarted(individualLoadStartedEventTimes.capture(), any(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualLoadCompletedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onLoadCompleted(individualLoadCompletedEventTimes.capture(), any(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualLoadErrorEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onLoadError(individualLoadErrorEventTimes.capture(), any(), any(), any(), anyBoolean());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualVideoEnabledEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoEnabled(individualVideoEnabledEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualAudioEnabledEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onAudioEnabled(individualAudioEnabledEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualStaticMetadataChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onStaticMetadataChanged(individualStaticMetadataChangedEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualDownstreamFormatChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onDownstreamFormatChanged(individualDownstreamFormatChangedEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualVideoInputFormatChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoInputFormatChanged(
+            individualVideoInputFormatChangedEventTimes.capture(), any(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualAudioInputFormatChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onAudioInputFormatChanged(
+            individualAudioInputFormatChangedEventTimes.capture(), any(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualVideoDecoderInitializedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoDecoderInitialized(
+            individualVideoDecoderInitializedEventTimes.capture(), any(), anyLong());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualAudioDecoderInitializedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onAudioDecoderInitialized(
+            individualAudioDecoderInitializedEventTimes.capture(), any(), anyLong());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualVideoDisabledEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoDisabled(individualVideoDisabledEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualAudioDisabledEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onAudioDisabled(individualAudioDisabledEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualRenderedFirstFrameEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onRenderedFirstFrame(individualRenderedFirstFrameEventTimes.capture(), any());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualVideoSizeChangedEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoSizeChanged(
+            individualVideoSizeChangedEventTimes.capture(),
+            anyInt(),
+            anyInt(),
+            anyInt(),
+            anyFloat());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualAudioPositionAdvancingEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onAudioPositionAdvancing(individualAudioPositionAdvancingEventTimes.capture(), anyLong());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualVideoProcessingOffsetEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onVideoFrameProcessingOffset(
+            individualVideoProcessingOffsetEventTimes.capture(), anyLong(), anyInt());
+    ArgumentCaptor<AnalyticsListener.EventTime> individualDroppedFramesEventTimes =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(listener, atLeastOnce())
+        .onDroppedVideoFrames(individualDroppedFramesEventTimes.capture(), anyInt(), anyLong());
+
+    // Verify the EventTimes reported with onEvents are a non-empty subset of the individual
+    // callback EventTimes. We can only assert they are a non-empty subset because there may be
+    // multiple events of the same type arriving in the same message queue iteration.
+    ArgumentCaptor<AnalyticsListener.Events> eventsCaptor =
+        ArgumentCaptor.forClass(AnalyticsListener.Events.class);
+    verify(listener, atLeastOnce()).onEvents(eq(player), eventsCaptor.capture());
+    SparseArray<List<AnalyticsListener.EventTime>> onEventsEventTimes = new SparseArray<>();
+    for (AnalyticsListener.Events events : eventsCaptor.getAllValues()) {
+      for (int i = 0; i < events.size(); i++) {
+        @AnalyticsListener.EventFlags int event = events.get(i);
+        if (onEventsEventTimes.get(event) == null) {
+          onEventsEventTimes.put(event, new ArrayList<>());
+        }
+        onEventsEventTimes.get(event).add(events.getEventTime(event));
+      }
+    }
+    // SparseArray.get returns null if the key doesn't exist, thus verifying the sets are non-empty.
+    assertThat(individualTimelineChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_TIMELINE_CHANGED))
+        .inOrder();
+    assertThat(individualMediaItemTransitionEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_MEDIA_ITEM_TRANSITION))
+        .inOrder();
+    assertThat(individualPositionDiscontinuityEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_POSITION_DISCONTINUITY))
+        .inOrder();
+    assertThat(individualPlaybackStateChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_PLAYBACK_STATE_CHANGED))
+        .inOrder();
+    assertThat(individualIsLoadingChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_IS_LOADING_CHANGED))
+        .inOrder();
+    assertThat(individualTracksChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_TRACKS_CHANGED))
+        .inOrder();
+    assertThat(individualPlayWhenReadyChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_PLAY_WHEN_READY_CHANGED))
+        .inOrder();
+    assertThat(individualIsPlayingChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_IS_PLAYING_CHANGED))
+        .inOrder();
+    assertThat(individualPlayerErrorEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_PLAYER_ERROR))
+        .inOrder();
+    assertThat(individualPlaybackParametersChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_PLAYBACK_PARAMETERS_CHANGED))
+        .inOrder();
+    assertThat(individualLoadStartedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_LOAD_STARTED))
+        .inOrder();
+    assertThat(individualLoadCompletedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_LOAD_COMPLETED))
+        .inOrder();
+    assertThat(individualLoadErrorEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_LOAD_ERROR))
+        .inOrder();
+    assertThat(individualVideoEnabledEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_VIDEO_ENABLED))
+        .inOrder();
+    assertThat(individualAudioEnabledEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_AUDIO_ENABLED))
+        .inOrder();
+    assertThat(individualStaticMetadataChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_STATIC_METADATA_CHANGED))
+        .inOrder();
+    assertThat(individualDownstreamFormatChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_DOWNSTREAM_FORMAT_CHANGED))
+        .inOrder();
+    assertThat(individualVideoInputFormatChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
+        .inOrder();
+    assertThat(individualAudioInputFormatChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_AUDIO_INPUT_FORMAT_CHANGED))
+        .inOrder();
+    assertThat(individualVideoDecoderInitializedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_VIDEO_DECODER_INITIALIZED))
+        .inOrder();
+    assertThat(individualAudioDecoderInitializedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_AUDIO_DECODER_INITIALIZED))
+        .inOrder();
+    assertThat(individualVideoDisabledEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_VIDEO_DISABLED))
+        .inOrder();
+    assertThat(individualAudioDisabledEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_AUDIO_DISABLED))
+        .inOrder();
+    assertThat(individualRenderedFirstFrameEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_RENDERED_FIRST_FRAME))
+        .inOrder();
+    assertThat(individualVideoSizeChangedEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_VIDEO_SIZE_CHANGED))
+        .inOrder();
+    assertThat(individualAudioPositionAdvancingEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_AUDIO_POSITION_ADVANCING))
+        .inOrder();
+    assertThat(individualVideoProcessingOffsetEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_VIDEO_FRAME_PROCESSING_OFFSET))
+        .inOrder();
+    assertThat(individualDroppedFramesEventTimes.getAllValues())
+        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_DROPPED_VIDEO_FRAMES))
+        .inOrder();
   }
 
   private void populateEventIds(Timeline timeline) {

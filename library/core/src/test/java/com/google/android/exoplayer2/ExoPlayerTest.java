@@ -8849,7 +8849,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void onStateChangedFlags_correspondToListenerCalls() throws Exception {
+  public void onEvents_correspondToListenerCalls() throws Exception {
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     EventListener listener = mock(EventListener.class);
     player.addListener(listener);
@@ -8897,13 +8897,14 @@ public final class ExoPlayerTest {
     assertThat(events.contains(Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED)).isTrue();
 
     // Ensure all other events are called (even though we can't control how exactly they are
-    // combined together in onStateChanged calls).
+    // combined together in onEvents calls).
     player.prepare();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
     player.play();
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
     ShadowLooper.runMainLooperToNextTask();
+    player.release();
 
     // Verify that all callbacks have been called at least once.
     verify(listener, atLeastOnce()).onTimelineChanged(any(), anyInt());
@@ -8920,7 +8921,7 @@ public final class ExoPlayerTest {
     verify(listener, atLeastOnce()).onIsPlayingChanged(anyBoolean());
     verify(listener, atLeastOnce()).onPlayerError(any());
 
-    // Verify all the same events have been recorded with onStateChanged.
+    // Verify all the same events have been recorded with onEvents.
     verify(listener, atLeastOnce()).onEvents(eq(player), eventCaptor.capture());
     List<Player.Events> allEvents = eventCaptor.getAllValues();
     assertThat(containsEvent(allEvents, Player.EVENT_TIMELINE_CHANGED)).isTrue();
