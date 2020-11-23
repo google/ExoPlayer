@@ -526,8 +526,8 @@ public final class ParsableByteArray {
    * Reads a line of text.
    *
    * <p>A line is considered to be terminated by any one of a carriage return ('\r'), a line feed
-   * ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). The system's default
-   * charset (UTF-8) is used. This method discards leading UTF-8 byte order marks, if present.
+   * ('\n'), or a carriage return followed immediately by a line feed ('\r\n'). The UTF-8 charset is
+   * used. This method discards leading UTF-8 byte order marks, if present.
    *
    * @return The line not including any line-termination characters, or null if the end of the data
    *     has already been reached.
