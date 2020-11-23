@@ -112,8 +112,11 @@ public final class DefaultAudioSink implements AudioSink {
     boolean applySkipSilenceEnabled(boolean skipSilenceEnabled);
 
     /**
-     * Scales the specified playout duration to take into account speedup due to audio processing,
-     * returning an input media duration, in arbitrary units.
+     * Returns the media duration corresponding to the specified playout duration, taking speed
+     * adjustment due to audio processing into account.
+     *
+     * @param playoutDuration The playout duration to scale.
+     * @return The corresponding media duration, in the same units as {@code duration}.
      */
     long getMediaDuration(long playoutDuration);
 
@@ -172,9 +175,9 @@ public final class DefaultAudioSink implements AudioSink {
 
     @Override
     public PlaybackParameters applyPlaybackParameters(PlaybackParameters playbackParameters) {
-      float speed = sonicAudioProcessor.setSpeed(playbackParameters.speed);
-      float pitch = sonicAudioProcessor.setPitch(playbackParameters.pitch);
-      return new PlaybackParameters(speed, pitch);
+      sonicAudioProcessor.setSpeed(playbackParameters.speed);
+      sonicAudioProcessor.setPitch(playbackParameters.pitch);
+      return playbackParameters;
     }
 
     @Override
@@ -185,7 +188,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     @Override
     public long getMediaDuration(long playoutDuration) {
-      return sonicAudioProcessor.scaleDurationForSpeedup(playoutDuration);
+      return sonicAudioProcessor.getMediaDuration(playoutDuration);
     }
 
     @Override

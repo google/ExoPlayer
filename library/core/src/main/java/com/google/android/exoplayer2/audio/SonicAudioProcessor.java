@@ -36,10 +36,10 @@ public final class SonicAudioProcessor implements AudioProcessor {
   private static final float CLOSE_THRESHOLD = 0.0001f;
 
   /**
-   * The minimum number of output bytes at which the speedup is calculated using the input/output
-   * byte counts, rather than using the current playback parameters speed.
+   * The minimum number of output bytes required for duration scaling to be calculated using the
+   * input and output byte counts, rather than using the current playback speed.
    */
-  private static final int MIN_BYTES_FOR_SPEEDUP_CALCULATION = 1024;
+  private static final int MIN_BYTES_FOR_DURATION_SCALING_CALCULATION = 1024;
 
   private int pendingOutputSampleRate;
   private float speed;
@@ -74,35 +74,31 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   /**
-   * Sets the playback speed. This method may only be called after draining data through the
+   * Sets the target playback speed. This method may only be called after draining data through the
    * processor. The value returned by {@link #isActive()} may change, and the processor must be
    * {@link #flush() flushed} before queueing more data.
    *
-   * @param speed The requested new playback speed.
-   * @return The actual new playback speed.
+   * @param speed The target playback speed.
    */
-  public float setSpeed(float speed) {
+  public void setSpeed(float speed) {
     if (this.speed != speed) {
       this.speed = speed;
       pendingSonicRecreation = true;
     }
-    return speed;
   }
 
   /**
-   * Sets the playback pitch. This method may only be called after draining data through the
+   * Sets the target playback pitch. This method may only be called after draining data through the
    * processor. The value returned by {@link #isActive()} may change, and the processor must be
    * {@link #flush() flushed} before queueing more data.
    *
-   * @param pitch The requested new pitch.
-   * @return The actual new pitch.
+   * @param pitch The target pitch.
    */
-  public float setPitch(float pitch) {
+  public void setPitch(float pitch) {
     if (this.pitch != pitch) {
       this.pitch = pitch;
       pendingSonicRecreation = true;
     }
-    return pitch;
   }
 
   /**
@@ -118,23 +114,22 @@ public final class SonicAudioProcessor implements AudioProcessor {
   }
 
   /**
-   * Returns the specified duration scaled to take into account the speedup factor of this instance,
-   * in the same units as {@code duration}.
+   * Returns the media duration corresponding to the specified playout duration, taking speed
+   * adjustment into account.
    *
-   * @param duration The duration to scale taking into account speedup.
-   * @return The specified duration scaled to take into account speedup, in the same units as
-   *     {@code duration}.
+   * @param playoutDuration The playout duration to scale.
+   * @return The corresponding media duration, in the same units as {@code duration}.
    */
-  public long scaleDurationForSpeedup(long duration) {
-    if (outputBytes >= MIN_BYTES_FOR_SPEEDUP_CALCULATION) {
+  public long getMediaDuration(long playoutDuration) {
+    if (outputBytes >= MIN_BYTES_FOR_DURATION_SCALING_CALCULATION) {
       return outputAudioFormat.sampleRate == inputAudioFormat.sampleRate
-          ? Util.scaleLargeTimestamp(duration, inputBytes, outputBytes)
+          ? Util.scaleLargeTimestamp(playoutDuration, inputBytes, outputBytes)
           : Util.scaleLargeTimestamp(
-              duration,
+              playoutDuration,
               inputBytes * outputAudioFormat.sampleRate,
               outputBytes * inputAudioFormat.sampleRate);
     } else {
-      return (long) ((double) speed * duration);
+      return (long) ((double) speed * playoutDuration);
     }
   }
 
