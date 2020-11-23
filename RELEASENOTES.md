@@ -88,6 +88,8 @@
     *   Notify onBufferingEnded when the state of origin player becomes
         STATE_IDLE or STATE_ENDED.
     *   Allow to remove all playlist items that makes the player reset.
+*   IMA extension:
+    *   Set the overlay language based on the device locale by default.
 
 ### 2.12.1 (2020-10-23) ###
 
