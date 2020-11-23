@@ -53,10 +53,7 @@ public class DefaultMediaItemConverter implements MediaItemConverter {
       UriMediaItem uriMediaItem = (UriMediaItem) media2MediaItem;
       uri = uriMediaItem.getUri();
     }
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
-    @Nullable
-    androidx.media2.common.MediaMetadata metadata = media2MediaItem.getMetadata();
+    @Nullable androidx.media2.common.MediaMetadata metadata = media2MediaItem.getMetadata();
     if (metadata != null) {
       @Nullable String uriString = metadata.getString(METADATA_KEY_MEDIA_URI);
       mediaId = metadata.getString(METADATA_KEY_MEDIA_ID);

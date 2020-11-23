@@ -149,11 +149,7 @@ public final class Format implements Parcelable {
     private float frameRate;
     private int rotationDegrees;
     private float pixelWidthHeightRatio;
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    private byte[] projectionData;
-
+    @Nullable private byte[] projectionData;
     @C.StereoMode private int stereoMode;
     @Nullable private ColorInfo colorInfo;
 
@@ -482,8 +478,6 @@ public final class Format implements Parcelable {
      * @param projectionData The {@link Format#projectionData}.
      * @return The builder.
      */
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     public Builder setProjectionData(@Nullable byte[] projectionData) {
       this.projectionData = projectionData;
       return this;
@@ -723,10 +717,7 @@ public final class Format implements Parcelable {
   /** The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable. */
   public final float pixelWidthHeightRatio;
   /** The projection data for 360/VR video, or null if not applicable. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
-  @Nullable
-  public final byte[] projectionData;
+  @Nullable public final byte[] projectionData;
   /**
    * The stereo layout for 360/3D/VR video, or {@link #NO_VALUE} if not applicable. Valid stereo
    * modes are {@link C#STEREO_MODE_MONO}, {@link C#STEREO_MODE_TOP_BOTTOM}, {@link
@@ -872,8 +863,6 @@ public final class Format implements Parcelable {
   }
 
   /** @deprecated Use {@link Format.Builder}. */
-  // nullness annotations are not applicable to primitive types
-  @SuppressWarnings("nullness:nullness.on.primitive")
   @Deprecated
   public static Format createVideoSampleFormat(
       @Nullable String id,

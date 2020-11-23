@@ -538,10 +538,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     private final float bandwidthFraction;
     private final long reservedBandwidth;
 
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    private long[][] allocationCheckpoints;
+    @Nullable private long[][] allocationCheckpoints;
 
     /* package */ DefaultBandwidthProvider(
         BandwidthMeter bandwidthMeter, float bandwidthFraction, long reservedBandwidth) {

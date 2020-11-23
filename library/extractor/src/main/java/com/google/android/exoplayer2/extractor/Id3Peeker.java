@@ -44,8 +44,6 @@ public final class Id3Peeker {
    *     present in the input.
    * @throws IOException If an error occurred peeking from the input.
    */
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Nullable
   public Metadata peekId3Data(
       ExtractorInput input, @Nullable Id3Decoder.FramePredicate id3FramePredicate)

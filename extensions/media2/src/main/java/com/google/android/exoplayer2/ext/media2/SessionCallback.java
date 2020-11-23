@@ -105,8 +105,6 @@ import java.util.concurrent.TimeoutException;
     return allowedCommandProvider.getAllowedCommands(session, controllerInfo, baseAllowedCommands);
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public void onPostConnect(
       @NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
@@ -176,8 +174,6 @@ import java.util.concurrent.TimeoutException;
     return SessionResult.RESULT_ERROR_NOT_SUPPORTED;
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public int onSkipBackward(
       @NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {
@@ -187,8 +183,6 @@ import java.util.concurrent.TimeoutException;
     return SessionResult.RESULT_ERROR_NOT_SUPPORTED;
   }
 
-  // nullness annotations are not applicable to outer types
-  @SuppressWarnings("nullness:nullness.on.outer")
   @Override
   public int onSkipForward(
       @NonNull MediaSession session, @NonNull MediaSession.ControllerInfo controller) {

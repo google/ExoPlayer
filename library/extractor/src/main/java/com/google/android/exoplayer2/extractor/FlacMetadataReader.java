@@ -63,8 +63,6 @@ public final class FlacMetadataReader {
   @Nullable
   public static Metadata peekId3Metadata(ExtractorInput input, boolean parseData)
       throws IOException {
-    // nullness annotations are not applicable to outer types
-    @SuppressWarnings("nullness:nullness.on.outer")
     @Nullable
     Id3Decoder.FramePredicate id3FramePredicate = parseData ? null : Id3Decoder.NO_FRAMES_PREDICATE;
     @Nullable Metadata id3Metadata = new Id3Peeker().peekId3Data(input, id3FramePredicate);

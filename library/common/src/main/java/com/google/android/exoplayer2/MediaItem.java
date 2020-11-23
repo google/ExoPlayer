@@ -72,11 +72,7 @@ public final class MediaItem {
     private boolean drmPlayClearContentWithoutKey;
     private boolean drmForceDefaultLicenseUri;
     private List<Integer> drmSessionForClearTypes;
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    private byte[] drmKeySetId;
-
+    @Nullable private byte[] drmKeySetId;
     private List<StreamKey> streamKeys;
     @Nullable private String customCacheKey;
     private List<Subtitle> subtitles;
@@ -370,8 +366,6 @@ public final class MediaItem {
      *
      * <p>If no valid DRM configuration is specified, the key set ID is ignored.
      */
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     public Builder setDrmKeySetId(@Nullable byte[] keySetId) {
       this.drmKeySetId = keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
       return this;
@@ -641,13 +635,8 @@ public final class MediaItem {
     /** The types of clear tracks for which to use a DRM session. */
     public final List<Integer> sessionForClearTypes;
 
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
-    @Nullable
-    private final byte[] keySetId;
+    @Nullable private final byte[] keySetId;
 
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     private DrmConfiguration(
         UUID uuid,
         @Nullable Uri licenseUri,
@@ -669,8 +658,6 @@ public final class MediaItem {
     }
 
     /** Returns the key set ID of the offline license. */
-    // nullness annotations are not applicable to primitive types
-    @SuppressWarnings("nullness:nullness.on.primitive")
     @Nullable
     public byte[] getKeySetId() {
       return keySetId != null ? Arrays.copyOf(keySetId, keySetId.length) : null;
