@@ -42,6 +42,7 @@
     *   Fix a bug that caused multiple ads in an ad pod to be skipped when one
         ad in the ad pod was skipped.
     *   Fix passing an ads response to the `ImaAdsLoader` builder.
+    *   Set the overlay language based on the device locale by default.
 *   Cronet extension:
     *   Fix handling of HTTP status code 200 when making unbounded length range
         requests ([#8090](https://github.com/google/ExoPlayer/issues/8090)).
