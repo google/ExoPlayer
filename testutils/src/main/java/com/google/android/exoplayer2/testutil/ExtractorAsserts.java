@@ -61,6 +61,25 @@ public final class ExtractorAsserts {
         new Object[] {new SimulationConfig(false, false, false, false)});
   }
 
+  /**
+   * Returns a list of arrays containing {@link SimulationConfig} objects to exercise different
+   * extractor paths in which the input is not sniffed.
+   *
+   * <p>This is intended to be used from tests using {@code ParameterizedRobolectricTestRunner} or
+   * {@code org.junit.runners.Parameterized}.
+   */
+  public static List<Object[]> configsNoSniffing() {
+    return Arrays.asList(
+        new Object[] {new SimulationConfig(false, false, false, false)},
+        new Object[] {new SimulationConfig(false, false, false, true)},
+        new Object[] {new SimulationConfig(false, false, true, false)},
+        new Object[] {new SimulationConfig(false, false, true, true)},
+        new Object[] {new SimulationConfig(false, true, false, false)},
+        new Object[] {new SimulationConfig(false, true, false, true)},
+        new Object[] {new SimulationConfig(false, true, true, false)},
+        new Object[] {new SimulationConfig(false, true, true, true)});
+  }
+
   /** A config of different environments to simulate and extractor behaviours to test. */
   public static class SimulationConfig {
 
