@@ -40,7 +40,6 @@ import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PL
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_PLAY_WHEN_READY_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_POSITION_DISCONTINUITY;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_RENDERED_FIRST_FRAME;
-import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_STATIC_METADATA_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_TIMELINE_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_TRACKS_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_VIDEO_DECODER_INITIALIZED;
@@ -1714,10 +1713,6 @@ public final class AnalyticsCollectorTest {
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
         .onAudioEnabled(individualAudioEnabledEventTimes.capture(), any());
-    ArgumentCaptor<AnalyticsListener.EventTime> individualStaticMetadataChangedEventTimes =
-        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
-    verify(listener, atLeastOnce())
-        .onStaticMetadataChanged(individualStaticMetadataChangedEventTimes.capture(), any());
     ArgumentCaptor<AnalyticsListener.EventTime> individualDownstreamFormatChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
@@ -1838,9 +1833,6 @@ public final class AnalyticsCollectorTest {
         .inOrder();
     assertThat(individualAudioEnabledEventTimes.getAllValues())
         .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_AUDIO_ENABLED))
-        .inOrder();
-    assertThat(individualStaticMetadataChangedEventTimes.getAllValues())
-        .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_STATIC_METADATA_CHANGED))
         .inOrder();
     assertThat(individualDownstreamFormatChangedEventTimes.getAllValues())
         .containsAtLeastElementsIn(onEventsEventTimes.get(EVENT_DOWNSTREAM_FORMAT_CHANGED))

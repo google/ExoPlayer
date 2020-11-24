@@ -8260,8 +8260,6 @@ public final class ExoPlayerTest {
     Format videoFormat =
         new Format.Builder()
             .setSampleMimeType(MimeTypes.VIDEO_H264)
-            .setWidth(1920)
-            .setHeight(720)
             .setMetadata(
                 new Metadata(
                     new TextInformationFrame(
@@ -8269,11 +8267,9 @@ public final class ExoPlayerTest {
                         /* description= */ "Video",
                         /* value= */ "Video track name")))
             .build();
-
     Format audioFormat =
         new Format.Builder()
             .setSampleMimeType(MimeTypes.AUDIO_AAC)
-            .setSampleRate(44_000)
             .setMetadata(
                 new Metadata(
                     new TextInformationFrame(
@@ -8281,9 +8277,7 @@ public final class ExoPlayerTest {
                         /* description= */ "Audio",
                         /* value= */ "Audio track name")))
             .build();
-
     EventListener eventListener = mock(EventListener.class);
-
     Timeline fakeTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -8295,12 +8289,36 @@ public final class ExoPlayerTest {
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_ENDED);
+    List<Metadata> metadata = player.getCurrentStaticMetadata();
+    player.release();
 
-    assertThat(player.getCurrentStaticMetadata())
-        .containsExactly(videoFormat.metadata, audioFormat.metadata)
-        .inOrder();
+    assertThat(metadata).containsExactly(videoFormat.metadata, audioFormat.metadata).inOrder();
     verify(eventListener)
         .onStaticMetadataChanged(ImmutableList.of(videoFormat.metadata, audioFormat.metadata));
+  }
+
+  @Test
+  public void staticMetadata_callbackIsNotCalledWhenMetadataEmptyAndGetterReturnsEmptyList()
+      throws Exception {
+    Format videoFormat = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build();
+    Format audioFormat = new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).build();
+    EventListener eventListener = mock(EventListener.class);
+    Timeline fakeTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* isSeekable= */ true, /* isDynamic= */ false, /* durationUs= */ 100000));
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+
+    player.setMediaSource(new FakeMediaSource(fakeTimeline, videoFormat, audioFormat));
+    player.addListener(eventListener);
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    List<Metadata> metadata = player.getCurrentStaticMetadata();
+    player.release();
+
+    assertThat(metadata).isEmpty();
+    verify(eventListener, never()).onStaticMetadataChanged(any());
   }
 
   @Test

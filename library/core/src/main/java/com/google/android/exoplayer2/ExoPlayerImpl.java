@@ -1259,7 +1259,7 @@ import java.util.concurrent.TimeoutException;
               /* totalBufferedDurationUs= */ 0,
               TrackGroupArray.EMPTY,
               emptyTrackSelectorResult,
-              ImmutableList.of());
+              /* staticMetadata= */ ImmutableList.of());
       playbackInfo = playbackInfo.copyWithLoadingMediaPeriodId(dummyMediaPeriodId);
       playbackInfo.bufferedPositionUs = playbackInfo.positionUs;
       return playbackInfo;

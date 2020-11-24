@@ -604,7 +604,7 @@ public interface AnalyticsListener {
    * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances, where
    * the elements correspond to the current track selections (as returned by {@link
    * #onTracksChanged(EventTime, TrackGroupArray, TrackSelectionArray)}, or an empty list if there
-   * are no track selections or the implementation does not support metadata.
+   * are no track selections or the selected tracks contain no static metadata.
    *
    * <p>The metadata is considered static in the sense that it comes from the tracks' declared
    * Formats, rather than being timed (or dynamic) metadata, which is represented within a metadata
