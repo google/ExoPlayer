@@ -195,7 +195,7 @@ public final class AudioCapabilitiesReceiver {
 
             @Override
             public void onRouteSelected(MediaRouter router, RouteInfo route) {
-              if (route.getDeviceType() == 3) {
+              if (route.getDeviceType() == RouteInfo.DEVICE_TYPE_BLUETOOTH) {
                 AudioCapabilities.setExternalPcmOnlySoundset(true);
                 onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, null));
               }
@@ -203,7 +203,7 @@ public final class AudioCapabilitiesReceiver {
 
             @Override
             public void onRouteUnselected(MediaRouter router, RouteInfo route, int reason) {
-              if (route.getDeviceType() == 3) {
+              if (route.getDeviceType() == RouteInfo.DEVICE_TYPE_BLUETOOTH) {
                 AudioCapabilities.setExternalPcmOnlySoundset(false);
                 onNewAudioCapabilities(AudioCapabilities.getCapabilities(context, stickyIntent));
               }
