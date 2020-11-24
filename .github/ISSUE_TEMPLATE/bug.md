@@ -13,7 +13,7 @@ Before filing a bug:
 - Consult our developer website, which can be found at https://exoplayer.dev/.
   It provides detailed information about supported formats and devices.
 - Learn how to create useful log output by using the EventLogger:
-  https://exoplayer.dev/listening-to-player-events.html#using-eventlogger
+  https://exoplayer.dev/debug-logging.html
 - Rule out issues in your own code. A good way to do this is to try and
   reproduce the issue in the ExoPlayer demo app. Information about the ExoPlayer
   demo app can be found here:
