@@ -21,7 +21,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.content.Context;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import androidx.annotation.NonNull;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.session.MediaSession;
@@ -57,7 +56,7 @@ public class MediaSessionUtilTest {
         playerTestRule.getExecutor(),
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+          public void onPlayerStateChanged(SessionPlayer player, int playerState) {
             if (playerState == SessionPlayer.PLAYER_STATE_PLAYING) {
               latch.countDown();
             }

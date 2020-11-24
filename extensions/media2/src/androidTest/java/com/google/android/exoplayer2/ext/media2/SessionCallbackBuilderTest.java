@@ -24,7 +24,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.media2.common.MediaItem;
@@ -41,9 +40,6 @@ import androidx.media2.session.SessionResult;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.media2.test.R;
 import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import java.util.ArrayList;
@@ -60,9 +56,6 @@ import org.junit.runner.RunWith;
 /** Tests {@link SessionCallbackBuilder}. */
 @RunWith(AndroidJUnit4.class)
 public class SessionCallbackBuilderTest {
-  @Rule
-  public final ActivityTestRule<MediaStubActivity> activityRule =
-      new ActivityTestRule<>(MediaStubActivity.class);
 
   @Rule public final PlayerTestRule playerTestRule = new PlayerTestRule();
 
@@ -80,16 +73,6 @@ public class SessionCallbackBuilderTest {
     context = ApplicationProvider.getApplicationContext();
     executor = playerTestRule.getExecutor();
     sessionPlayerConnector = playerTestRule.getSessionPlayerConnector();
-
-    // Sets the surface to the player for manual check.
-    InstrumentationRegistry.getInstrumentation()
-        .runOnMainSync(
-            () -> {
-              SimpleExoPlayer exoPlayer = playerTestRule.getSimpleExoPlayer();
-              exoPlayer
-                  .getVideoComponent()
-                  .setVideoSurfaceHolder(activityRule.getActivity().getSurfaceHolder());
-            });
   }
 
   @Test
@@ -469,8 +452,7 @@ public class SessionCallbackBuilderTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onCurrentMediaItemChanged(
-              @NonNull SessionPlayer player, @NonNull MediaItem item) {
+          public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
             MediaMetadata metadata = item.getMetadata();
             assertThat(metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID))
                 .isEqualTo(testMediaUri.toString());
@@ -613,15 +595,14 @@ public class SessionCallbackBuilderTest {
         new MediaController.ControllerCallback() {
           @Override
           public void onAllowedCommandsChanged(
-              @NonNull MediaController controller, @NonNull SessionCommandGroup commands) {
+              MediaController controller, SessionCommandGroup commands) {
             if (onAllowedCommandsChangedListener != null) {
               onAllowedCommandsChangedListener.onAllowedCommandsChanged(controller, commands);
             }
           }
 
           @Override
-          public void onConnected(
-              @NonNull MediaController controller, @NonNull SessionCommandGroup allowedCommands) {
+          public void onConnected(MediaController controller, SessionCommandGroup allowedCommands) {
             if (onConnectedListener != null) {
               onConnectedListener.onConnected(controller, allowedCommands);
             }
