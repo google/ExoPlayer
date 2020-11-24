@@ -317,23 +317,23 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
 
     // Make sure to retain the very same media item instance, if no value needs to be overridden.
-    if ((mediaItem.liveConfiguration.targetLiveOffsetMs == C.TIME_UNSET
+    if ((mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
             && liveTargetOffsetMs != C.TIME_UNSET)
         || (mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
             && liveMinSpeed != C.RATE_UNSET)
         || (mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
             && liveMaxSpeed != C.RATE_UNSET)
-        || (mediaItem.liveConfiguration.minLiveOffsetMs == C.TIME_UNSET
+        || (mediaItem.liveConfiguration.minOffsetMs == C.TIME_UNSET
             && liveMinOffsetMs != C.TIME_UNSET)
-        || (mediaItem.liveConfiguration.maxLiveOffsetMs == C.TIME_UNSET
+        || (mediaItem.liveConfiguration.maxOffsetMs == C.TIME_UNSET
             && liveMaxOffsetMs != C.TIME_UNSET)) {
       mediaItem =
           mediaItem
               .buildUpon()
               .setLiveTargetOffsetMs(
-                  mediaItem.liveConfiguration.targetLiveOffsetMs == C.TIME_UNSET
+                  mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
                       ? liveTargetOffsetMs
-                      : mediaItem.liveConfiguration.targetLiveOffsetMs)
+                      : mediaItem.liveConfiguration.targetOffsetMs)
               .setLiveMinPlaybackSpeed(
                   mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
                       ? liveMinSpeed
@@ -343,13 +343,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                       ? liveMaxSpeed
                       : mediaItem.liveConfiguration.maxPlaybackSpeed)
               .setLiveMinOffsetMs(
-                  mediaItem.liveConfiguration.minLiveOffsetMs == C.TIME_UNSET
+                  mediaItem.liveConfiguration.minOffsetMs == C.TIME_UNSET
                       ? liveMinOffsetMs
-                      : mediaItem.liveConfiguration.minLiveOffsetMs)
+                      : mediaItem.liveConfiguration.minOffsetMs)
               .setLiveMaxOffsetMs(
-                  mediaItem.liveConfiguration.maxLiveOffsetMs == C.TIME_UNSET
+                  mediaItem.liveConfiguration.maxOffsetMs == C.TIME_UNSET
                       ? liveMaxOffsetMs
-                      : mediaItem.liveConfiguration.maxLiveOffsetMs)
+                      : mediaItem.liveConfiguration.maxOffsetMs)
               .build();
     }
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);

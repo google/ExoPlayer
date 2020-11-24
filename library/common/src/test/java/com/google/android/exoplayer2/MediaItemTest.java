@@ -312,7 +312,7 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveTargetOffsetMs(10_000).build();
 
-    assertThat(mediaItem.liveConfiguration.targetLiveOffsetMs).isEqualTo(10_000);
+    assertThat(mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(10_000);
   }
 
   @Test
@@ -336,7 +336,7 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveMinOffsetMs(1234).build();
 
-    assertThat(mediaItem.liveConfiguration.minLiveOffsetMs).isEqualTo(1234);
+    assertThat(mediaItem.liveConfiguration.minOffsetMs).isEqualTo(1234);
   }
 
   @Test
@@ -344,7 +344,7 @@ public class MediaItemTest {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setLiveMaxOffsetMs(1234).build();
 
-    assertThat(mediaItem.liveConfiguration.maxLiveOffsetMs).isEqualTo(1234);
+    assertThat(mediaItem.liveConfiguration.maxOffsetMs).isEqualTo(1234);
   }
 
   @Test

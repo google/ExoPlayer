@@ -306,7 +306,7 @@ public final class DashMediaSource extends BaseMediaSource {
       }
       boolean hasUri = mediaItem.playbackProperties != null;
       boolean hasTag = hasUri && mediaItem.playbackProperties.tag != null;
-      boolean hasTargetLiveOffset = mediaItem.liveConfiguration.targetLiveOffsetMs != C.TIME_UNSET;
+      boolean hasTargetLiveOffset = mediaItem.liveConfiguration.targetOffsetMs != C.TIME_UNSET;
       mediaItem =
           mediaItem
               .buildUpon()
@@ -315,7 +315,7 @@ public final class DashMediaSource extends BaseMediaSource {
               .setTag(hasTag ? mediaItem.playbackProperties.tag : tag)
               .setLiveTargetOffsetMs(
                   hasTargetLiveOffset
-                      ? mediaItem.liveConfiguration.targetLiveOffsetMs
+                      ? mediaItem.liveConfiguration.targetOffsetMs
                       : targetLiveOffsetOverrideMs)
               .setStreamKeys(streamKeys)
               .build();
@@ -370,7 +370,7 @@ public final class DashMediaSource extends BaseMediaSource {
       boolean needsStreamKeys =
           mediaItem.playbackProperties.streamKeys.isEmpty() && !streamKeys.isEmpty();
       boolean needsTargetLiveOffset =
-          mediaItem.liveConfiguration.targetLiveOffsetMs == C.TIME_UNSET
+          mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
               && targetLiveOffsetOverrideMs != C.TIME_UNSET;
       if (needsTag || needsStreamKeys || needsTargetLiveOffset) {
         MediaItem.Builder builder = mediaItem.buildUpon();
@@ -942,7 +942,7 @@ public final class DashMediaSource extends BaseMediaSource {
           /* windowEndPeriodTimeUs= */ currentEndTimeUs);
       windowDefaultStartPositionUs =
           nowUnixTimeUs
-              - C.msToUs(windowStartTimeMs + updatedMediaItem.liveConfiguration.targetLiveOffsetMs);
+              - C.msToUs(windowStartTimeMs + updatedMediaItem.liveConfiguration.targetOffsetMs);
       long minimumDefaultStartPositionUs =
           min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
       if (windowDefaultStartPositionUs < minimumDefaultStartPositionUs) {
@@ -999,8 +999,8 @@ public final class DashMediaSource extends BaseMediaSource {
   private void updateMediaItemLiveConfiguration(
       long nowPeriodTimeUs, long windowStartPeriodTimeUs, long windowEndPeriodTimeUs) {
     long maxLiveOffsetMs;
-    if (originalMediaItem.liveConfiguration.maxLiveOffsetMs != C.TIME_UNSET) {
-      maxLiveOffsetMs = originalMediaItem.liveConfiguration.maxLiveOffsetMs;
+    if (originalMediaItem.liveConfiguration.maxOffsetMs != C.TIME_UNSET) {
+      maxLiveOffsetMs = originalMediaItem.liveConfiguration.maxOffsetMs;
     } else if (manifest.serviceDescription != null
         && manifest.serviceDescription.maxOffsetMs != C.TIME_UNSET) {
       maxLiveOffsetMs = manifest.serviceDescription.maxOffsetMs;
@@ -1008,8 +1008,8 @@ public final class DashMediaSource extends BaseMediaSource {
       maxLiveOffsetMs = C.usToMs(nowPeriodTimeUs - windowStartPeriodTimeUs);
     }
     long minLiveOffsetMs;
-    if (originalMediaItem.liveConfiguration.minLiveOffsetMs != C.TIME_UNSET) {
-      minLiveOffsetMs = originalMediaItem.liveConfiguration.minLiveOffsetMs;
+    if (originalMediaItem.liveConfiguration.minOffsetMs != C.TIME_UNSET) {
+      minLiveOffsetMs = originalMediaItem.liveConfiguration.minOffsetMs;
     } else if (manifest.serviceDescription != null
         && manifest.serviceDescription.minOffsetMs != C.TIME_UNSET) {
       minLiveOffsetMs = manifest.serviceDescription.minOffsetMs;
@@ -1025,9 +1025,9 @@ public final class DashMediaSource extends BaseMediaSource {
       }
     }
     long targetOffsetMs;
-    if (updatedMediaItem.liveConfiguration.targetLiveOffsetMs != C.TIME_UNSET) {
+    if (updatedMediaItem.liveConfiguration.targetOffsetMs != C.TIME_UNSET) {
       // Keep existing target offset even if the media configuration changes.
-      targetOffsetMs = updatedMediaItem.liveConfiguration.targetLiveOffsetMs;
+      targetOffsetMs = updatedMediaItem.liveConfiguration.targetOffsetMs;
     } else if (manifest.serviceDescription != null
         && manifest.serviceDescription.targetOffsetMs != C.TIME_UNSET) {
       targetOffsetMs = manifest.serviceDescription.targetOffsetMs;

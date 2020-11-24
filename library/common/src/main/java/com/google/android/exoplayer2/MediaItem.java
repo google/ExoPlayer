@@ -109,9 +109,9 @@ public final class MediaItem {
       clipStartsAtKeyFrame = mediaItem.clippingProperties.startsAtKeyFrame;
       mediaId = mediaItem.mediaId;
       mediaMetadata = mediaItem.mediaMetadata;
-      liveTargetOffsetMs = mediaItem.liveConfiguration.targetLiveOffsetMs;
-      liveMinOffsetMs = mediaItem.liveConfiguration.minLiveOffsetMs;
-      liveMaxOffsetMs = mediaItem.liveConfiguration.maxLiveOffsetMs;
+      liveTargetOffsetMs = mediaItem.liveConfiguration.targetOffsetMs;
+      liveMinOffsetMs = mediaItem.liveConfiguration.minOffsetMs;
+      liveMaxOffsetMs = mediaItem.liveConfiguration.maxOffsetMs;
       liveMinPlaybackSpeed = mediaItem.liveConfiguration.minPlaybackSpeed;
       liveMaxPlaybackSpeed = mediaItem.liveConfiguration.maxPlaybackSpeed;
       @Nullable PlaybackProperties playbackProperties = mediaItem.playbackProperties;
@@ -474,8 +474,8 @@ public final class MediaItem {
      *
      * <p>See {@code Player#getCurrentLiveOffset()}.
      *
-     * @param liveTargetOffsetMs The target live offset, in milliseconds, or {@link C#TIME_UNSET} to
-     *     use the media-defined default.
+     * @param liveTargetOffsetMs The target offset, in milliseconds, or {@link C#TIME_UNSET} to use
+     *     the media-defined default.
      */
     public Builder setLiveTargetOffsetMs(long liveTargetOffsetMs) {
       this.liveTargetOffsetMs = liveTargetOffsetMs;
@@ -487,8 +487,8 @@ public final class MediaItem {
      *
      * <p>See {@code Player#getCurrentLiveOffset()}.
      *
-     * @param liveMinOffsetMs The minimum allowed live offset, in milliseconds, or {@link
-     *     C#TIME_UNSET} to use the media-defined default.
+     * @param liveMinOffsetMs The minimum allowed offset, in milliseconds, or {@link C#TIME_UNSET}
+     *     to use the media-defined default.
      */
     public Builder setLiveMinOffsetMs(long liveMinOffsetMs) {
       this.liveMinOffsetMs = liveMinOffsetMs;
@@ -500,8 +500,8 @@ public final class MediaItem {
      *
      * <p>See {@code Player#getCurrentLiveOffset()}.
      *
-     * @param liveMaxOffsetMs The maximum allowed live offset, in milliseconds, or {@link
-     *     C#TIME_UNSET} to use the media-defined default.
+     * @param liveMaxOffsetMs The maximum allowed offset, in milliseconds, or {@link C#TIME_UNSET}
+     *     to use the media-defined default.
      */
     public Builder setLiveMaxOffsetMs(long liveMaxOffsetMs) {
       this.liveMaxOffsetMs = liveMaxOffsetMs;
@@ -840,22 +840,22 @@ public final class MediaItem {
             /* maxPlaybackSpeed= */ C.RATE_UNSET);
 
     /**
-     * Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use the media-defined
-     * default.
-     */
-    public final long targetLiveOffsetMs;
-
-    /**
-     * The minimum allowed live offset, in milliseconds, or {@link C#TIME_UNSET} to use the
+     * Target offset from the live edge, in milliseconds, or {@link C#TIME_UNSET} to use the
      * media-defined default.
      */
-    public final long minLiveOffsetMs;
+    public final long targetOffsetMs;
 
     /**
-     * The maximum allowed live offset, in milliseconds, or {@link C#TIME_UNSET} to use the
-     * media-defined default.
+     * The minimum allowed offset from the live edge, in milliseconds, or {@link C#TIME_UNSET} to
+     * use the media-defined default.
      */
-    public final long maxLiveOffsetMs;
+    public final long minOffsetMs;
+
+    /**
+     * The maximum allowed offset from the live edge, in milliseconds, or {@link C#TIME_UNSET} to
+     * use the media-defined default.
+     */
+    public final long maxOffsetMs;
 
     /** Minimum playback speed, or {@link C#RATE_UNSET} to use the media-defined default. */
     public final float minPlaybackSpeed;
@@ -866,26 +866,26 @@ public final class MediaItem {
     /**
      * Creates a live playback configuration.
      *
-     * @param targetLiveOffsetMs Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use
-     *     the media-defined default.
-     * @param minLiveOffsetMs The minimum allowed live offset, in milliseconds, or {@link
-     *     C#TIME_UNSET} to use the media-defined default.
-     * @param maxLiveOffsetMs The maximum allowed live offset, in milliseconds, or {@link
-     *     C#TIME_UNSET} to use the media-defined default.
+     * @param targetOffsetMs Target live offset, in milliseconds, or {@link C#TIME_UNSET} to use the
+     *     media-defined default.
+     * @param minOffsetMs The minimum allowed live offset, in milliseconds, or {@link C#TIME_UNSET}
+     *     to use the media-defined default.
+     * @param maxOffsetMs The maximum allowed live offset, in milliseconds, or {@link C#TIME_UNSET}
+     *     to use the media-defined default.
      * @param minPlaybackSpeed Minimum playback speed, or {@link C#RATE_UNSET} to use the
      *     media-defined default.
      * @param maxPlaybackSpeed Maximum playback speed, or {@link C#RATE_UNSET} to use the
      *     media-defined default.
      */
     public LiveConfiguration(
-        long targetLiveOffsetMs,
-        long minLiveOffsetMs,
-        long maxLiveOffsetMs,
+        long targetOffsetMs,
+        long minOffsetMs,
+        long maxOffsetMs,
         float minPlaybackSpeed,
         float maxPlaybackSpeed) {
-      this.targetLiveOffsetMs = targetLiveOffsetMs;
-      this.minLiveOffsetMs = minLiveOffsetMs;
-      this.maxLiveOffsetMs = maxLiveOffsetMs;
+      this.targetOffsetMs = targetOffsetMs;
+      this.minOffsetMs = minOffsetMs;
+      this.maxOffsetMs = maxOffsetMs;
       this.minPlaybackSpeed = minPlaybackSpeed;
       this.maxPlaybackSpeed = maxPlaybackSpeed;
     }
@@ -900,18 +900,18 @@ public final class MediaItem {
       }
       LiveConfiguration other = (LiveConfiguration) obj;
 
-      return targetLiveOffsetMs == other.targetLiveOffsetMs
-          && minLiveOffsetMs == other.minLiveOffsetMs
-          && maxLiveOffsetMs == other.maxLiveOffsetMs
+      return targetOffsetMs == other.targetOffsetMs
+          && minOffsetMs == other.minOffsetMs
+          && maxOffsetMs == other.maxOffsetMs
           && minPlaybackSpeed == other.minPlaybackSpeed
           && maxPlaybackSpeed == other.maxPlaybackSpeed;
     }
 
     @Override
     public int hashCode() {
-      int result = (int) (targetLiveOffsetMs ^ (targetLiveOffsetMs >>> 32));
-      result = 31 * result + (int) (minLiveOffsetMs ^ (minLiveOffsetMs >>> 32));
-      result = 31 * result + (int) (maxLiveOffsetMs ^ (maxLiveOffsetMs >>> 32));
+      int result = (int) (targetOffsetMs ^ (targetOffsetMs >>> 32));
+      result = 31 * result + (int) (minOffsetMs ^ (minOffsetMs >>> 32));
+      result = 31 * result + (int) (maxOffsetMs ^ (maxOffsetMs >>> 32));
       result = 31 * result + (minPlaybackSpeed != 0 ? Float.floatToIntBits(minPlaybackSpeed) : 0);
       result = 31 * result + (maxPlaybackSpeed != 0 ? Float.floatToIntBits(maxPlaybackSpeed) : 0);
       return result;

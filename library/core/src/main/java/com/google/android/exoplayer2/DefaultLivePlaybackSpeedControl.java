@@ -295,9 +295,9 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
 
   @Override
   public void setLiveConfiguration(LiveConfiguration liveConfiguration) {
-    mediaConfigurationTargetLiveOffsetUs = C.msToUs(liveConfiguration.targetLiveOffsetMs);
-    minTargetLiveOffsetUs = C.msToUs(liveConfiguration.minLiveOffsetMs);
-    maxTargetLiveOffsetUs = C.msToUs(liveConfiguration.maxLiveOffsetMs);
+    mediaConfigurationTargetLiveOffsetUs = C.msToUs(liveConfiguration.targetOffsetMs);
+    minTargetLiveOffsetUs = C.msToUs(liveConfiguration.minOffsetMs);
+    maxTargetLiveOffsetUs = C.msToUs(liveConfiguration.maxOffsetMs);
     minPlaybackSpeed =
         liveConfiguration.minPlaybackSpeed != C.RATE_UNSET
             ? liveConfiguration.minPlaybackSpeed

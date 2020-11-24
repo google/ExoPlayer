@@ -515,8 +515,8 @@ public final class HlsMediaSource extends BaseMediaSource
     if (playlistTracker.isLive()) {
       long liveEdgeOffsetUs = getLiveEdgeOffsetUs(playlist);
       long targetLiveOffsetUs =
-          mediaItem.liveConfiguration.targetLiveOffsetMs != C.TIME_UNSET
-              ? C.msToUs(mediaItem.liveConfiguration.targetLiveOffsetMs)
+          mediaItem.liveConfiguration.targetOffsetMs != C.TIME_UNSET
+              ? C.msToUs(mediaItem.liveConfiguration.targetOffsetMs)
               : getTargetLiveOffsetUs(playlist, liveEdgeOffsetUs);
       // Ensure target live offset is within the live window and greater than the live edge offset.
       targetLiveOffsetUs =
@@ -583,7 +583,7 @@ public final class HlsMediaSource extends BaseMediaSource
     long minStartPositionUs =
         playlist.durationUs
             + liveEdgeOffsetUs
-            - C.msToUs(mediaItem.liveConfiguration.targetLiveOffsetMs);
+            - C.msToUs(mediaItem.liveConfiguration.targetOffsetMs);
     while (segmentIndex > 0
         && segments.get(segmentIndex).relativeStartTimeUs > minStartPositionUs) {
       segmentIndex--;
@@ -593,7 +593,7 @@ public final class HlsMediaSource extends BaseMediaSource
 
   private void maybeUpdateMediaItem(long targetLiveOffsetUs) {
     long targetLiveOffsetMs = C.usToMs(targetLiveOffsetUs);
-    if (targetLiveOffsetMs != mediaItem.liveConfiguration.targetLiveOffsetMs) {
+    if (targetLiveOffsetMs != mediaItem.liveConfiguration.targetOffsetMs) {
       mediaItem = mediaItem.buildUpon().setLiveTargetOffsetMs(targetLiveOffsetMs).build();
     }
   }

@@ -245,9 +245,9 @@ public final class DefaultMediaSourceFactoryTest {
 
     MediaItem mediaItemFromSource = mediaSource.getMediaItem();
 
-    assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(C.TIME_UNSET);
-    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(C.TIME_UNSET);
-    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(C.TIME_UNSET);
+    assertThat(mediaItemFromSource.liveConfiguration.targetOffsetMs).isEqualTo(C.TIME_UNSET);
+    assertThat(mediaItemFromSource.liveConfiguration.minOffsetMs).isEqualTo(C.TIME_UNSET);
+    assertThat(mediaItemFromSource.liveConfiguration.maxOffsetMs).isEqualTo(C.TIME_UNSET);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
@@ -266,9 +266,9 @@ public final class DefaultMediaSourceFactoryTest {
 
     MediaItem mediaItemFromSource = mediaSource.getMediaItem();
 
-    assertThat(mediaItemFromSource.liveConfiguration.targetLiveOffsetMs).isEqualTo(20);
-    assertThat(mediaItemFromSource.liveConfiguration.minLiveOffsetMs).isEqualTo(2222);
-    assertThat(mediaItemFromSource.liveConfiguration.maxLiveOffsetMs).isEqualTo(4444);
+    assertThat(mediaItemFromSource.liveConfiguration.targetOffsetMs).isEqualTo(20);
+    assertThat(mediaItemFromSource.liveConfiguration.minOffsetMs).isEqualTo(2222);
+    assertThat(mediaItemFromSource.liveConfiguration.maxOffsetMs).isEqualTo(4444);
     assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(.1f);
     assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(2.0f);
   }
