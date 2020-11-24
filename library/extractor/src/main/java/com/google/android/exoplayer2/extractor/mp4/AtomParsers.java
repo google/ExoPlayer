@@ -853,6 +853,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       if (childAtomType == Atom.TYPE_avc1
           || childAtomType == Atom.TYPE_avc3
           || childAtomType == Atom.TYPE_encv
+          || childAtomType == Atom.TYPE_m1v_
           || childAtomType == Atom.TYPE_mp4v
           || childAtomType == Atom.TYPE_hvc1
           || childAtomType == Atom.TYPE_hev1
@@ -993,8 +994,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     //   drmInitData = null;
     // }
 
-    @Nullable List<byte[]> initializationData = null;
     @Nullable String mimeType = null;
+    if (atomType == Atom.TYPE_m1v_) {
+      mimeType = MimeTypes.VIDEO_MPEG;
+    }
+
+    @Nullable List<byte[]> initializationData = null;
     @Nullable String codecs = null;
     @Nullable byte[] projectionData = null;
     @C.StereoMode

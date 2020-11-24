@@ -59,6 +59,8 @@
     *   Matroska: Add support for 32-bit floating point PCM, and 8-bit and
         16-bit big endian integer PCM
         ([#8142](https://github.com/google/ExoPlayer/issues/8142)).
+    *   MP4: Add support for mpeg1 video box
+        ([#8257](https://github.com/google/ExoPlayer/issues/8257)).
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.
