@@ -47,7 +47,6 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Looper;
 import android.view.Surface;
-import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -65,7 +64,6 @@ import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
@@ -77,8 +75,6 @@ import com.google.android.exoplayer2.source.SilenceMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.testutil.Action;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
@@ -106,7 +102,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.Loader;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -5572,124 +5567,6 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void setMediaSources_secondAdMediaSource_throws() throws Exception {
-    AdsMediaSource adsMediaSource =
-        new AdsMediaSource(
-            new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1)),
-            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
-            /* adsId= */ new Object(),
-            new DefaultMediaSourceFactory(context),
-            new FakeAdsLoader(),
-            new FakeAdViewProvider());
-    Exception[] exception = {null};
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    try {
-                      player.setMediaSource(adsMediaSource);
-                      player.addMediaSource(adsMediaSource);
-                    } catch (Exception e) {
-                      exception[0] = e;
-                    }
-                    player.prepare();
-                  }
-                })
-            .build();
-
-    new ExoPlayerTestRunner.Builder(context)
-        .setActionSchedule(actionSchedule)
-        .build()
-        .start(/* doPrepare= */ false)
-        .blockUntilActionScheduleFinished(TIMEOUT_MS)
-        .blockUntilEnded(TIMEOUT_MS);
-
-    assertThat(exception[0]).isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
-  public void setMediaSources_multipleMediaSourcesWithAd_throws() throws Exception {
-    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1));
-    AdsMediaSource adsMediaSource =
-        new AdsMediaSource(
-            mediaSource,
-            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
-            /* adsId= */ new Object(),
-            new DefaultMediaSourceFactory(context),
-            new FakeAdsLoader(),
-            new FakeAdViewProvider());
-    final Exception[] exception = {null};
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    try {
-                      List<MediaSource> sources = new ArrayList<>();
-                      sources.add(mediaSource);
-                      sources.add(adsMediaSource);
-                      player.setMediaSources(sources);
-                    } catch (Exception e) {
-                      exception[0] = e;
-                    }
-                    player.prepare();
-                  }
-                })
-            .build();
-
-    new ExoPlayerTestRunner.Builder(context)
-        .setActionSchedule(actionSchedule)
-        .build()
-        .start(/* doPrepare= */ false)
-        .blockUntilActionScheduleFinished(TIMEOUT_MS)
-        .blockUntilEnded(TIMEOUT_MS);
-
-    assertThat(exception[0]).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  public void setMediaSources_addingMediaSourcesWithAdToNonEmptyPlaylist_throws() throws Exception {
-    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1));
-    AdsMediaSource adsMediaSource =
-        new AdsMediaSource(
-            mediaSource,
-            /* adTagDataSpec= */ new DataSpec(Uri.EMPTY),
-            /* adsId= */ new Object(),
-            new DefaultMediaSourceFactory(context),
-            new FakeAdsLoader(),
-            new FakeAdViewProvider());
-    final Exception[] exception = {null};
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    try {
-                      player.addMediaSource(adsMediaSource);
-                    } catch (Exception e) {
-                      exception[0] = e;
-                    }
-                  }
-                })
-            .build();
-
-    new ExoPlayerTestRunner.Builder(context)
-        .setMediaSources(mediaSource)
-        .setActionSchedule(actionSchedule)
-        .build()
-        .start()
-        .blockUntilActionScheduleFinished(TIMEOUT_MS)
-        .blockUntilEnded(TIMEOUT_MS);
-
-    assertThat(exception[0]).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
   public void setMediaSources_empty_whenEmpty_correctMaskingWindowIndex() throws Exception {
     Timeline secondTimeline = new FakeTimeline(/* windowCount= */ 1);
     MediaSource secondMediaSource = new FakeMediaSource(secondTimeline);
@@ -9114,53 +8991,6 @@ public final class ExoPlayerTest {
         IOException error,
         int errorCount) {
       return Loader.RETRY;
-    }
-  }
-
-  private static class FakeAdsLoader implements AdsLoader {
-
-    @Override
-    public void setPlayer(@Nullable Player player) {}
-
-    @Override
-    public void release() {}
-
-    @Override
-    public void setSupportedContentTypes(int... contentTypes) {}
-
-    @Override
-    public void start(
-        AdsMediaSource adsMediaSource,
-        DataSpec adTagDataSpec,
-        Object adsId,
-        AdViewProvider adViewProvider,
-        AdsLoader.EventListener eventListener) {}
-
-    @Override
-    public void stop(AdsMediaSource adsMediaSource) {}
-
-    @Override
-    public void handlePrepareComplete(
-        AdsMediaSource adsMediaSource, int adGroupIndex, int adIndexInAdGroup) {}
-
-    @Override
-    public void handlePrepareError(
-        AdsMediaSource adsMediaSource,
-        int adGroupIndex,
-        int adIndexInAdGroup,
-        IOException exception) {}
-  }
-
-  private static class FakeAdViewProvider implements AdsLoader.AdViewProvider {
-
-    @Override
-    public ViewGroup getAdViewGroup() {
-      return null;
-    }
-
-    @Override
-    public ImmutableList<AdsLoader.OverlayInfo> getAdOverlayInfos() {
-      return ImmutableList.of();
     }
   }
 

@@ -355,11 +355,6 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
-    if (mediaItems.size() > 1) {
-      showToast(R.string.unsupported_ads_in_playlist);
-      releaseAdsLoader();
-      return null;
-    }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
       adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();

@@ -69,6 +69,8 @@
         existing decoder instance for the new format, and if not then the
         reasons why.
 *   IMA extension:
+    *   Add support for playback of ads in playlists
+        ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)).
     *   Improve handling of ad tags with unsupported VPAID ads
@@ -76,6 +78,7 @@
     *   Fix a bug that caused multiple ads in an ad pod to be skipped when one
         ad in the ad pod was skipped.
     *   Fix passing an ads response to the `ImaAdsLoader` builder.
+    *   Set the overlay language based on the device locale by default.
 *   Cronet extension:
     *   Fix handling of HTTP status code 200 when making unbounded length range
         requests ([#8090](https://github.com/google/ExoPlayer/issues/8090)).
@@ -88,8 +91,6 @@
     *   Notify onBufferingEnded when the state of origin player becomes
         STATE_IDLE or STATE_ENDED.
     *   Allow to remove all playlist items that makes the player reset.
-*   IMA extension:
-    *   Set the overlay language based on the device locale by default.
 
 ### 2.12.1 (2020-10-23) ###
 

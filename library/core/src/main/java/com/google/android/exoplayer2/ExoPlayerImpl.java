@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -92,7 +91,6 @@ import java.util.concurrent.TimeoutException;
   private SeekParameters seekParameters;
   private ShuffleOrder shuffleOrder;
   private boolean pauseAtEndOfMediaItems;
-  private boolean hasAdsMediaSource;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -435,7 +433,6 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void addMediaSources(int index, List<MediaSource> mediaSources) {
     Assertions.checkArgument(index >= 0);
-    validateMediaSources(mediaSources, /* mediaSourceReplacement= */ false);
     Timeline oldTimeline = getCurrentTimeline();
     pendingOperationAcks++;
     List<MediaSourceList.MediaSourceHolder> holders = addMediaSourceHolders(index, mediaSources);
@@ -1140,7 +1137,6 @@ import java.util.concurrent.TimeoutException;
       int startWindowIndex,
       long startPositionMs,
       boolean resetToDefaultPosition) {
-    validateMediaSources(mediaSources, /* mediaSourceReplacement= */ true);
     int currentWindowIndex = getCurrentWindowIndexInternal();
     long currentPositionMs = getCurrentPosition();
     pendingOperationAcks++;
@@ -1239,39 +1235,6 @@ import java.util.concurrent.TimeoutException;
       mediaSourceHolderSnapshots.remove(i);
     }
     shuffleOrder = shuffleOrder.cloneAndRemove(fromIndex, toIndexExclusive);
-    if (mediaSourceHolderSnapshots.isEmpty()) {
-      hasAdsMediaSource = false;
-    }
-  }
-
-  /**
-   * Validates media sources before any modification of the existing list of media sources is made.
-   * This way we can throw an exception before changing the state of the player in case of a
-   * validation failure.
-   *
-   * @param mediaSources The media sources to set or add.
-   * @param mediaSourceReplacement Whether the given media sources will replace existing ones.
-   */
-  private void validateMediaSources(
-      List<MediaSource> mediaSources, boolean mediaSourceReplacement) {
-    if (hasAdsMediaSource && !mediaSourceReplacement && !mediaSources.isEmpty()) {
-      // Adding media sources to an ads media source is not allowed
-      // (see https://github.com/google/ExoPlayer/issues/3750).
-      throw new IllegalStateException();
-    }
-    int sizeAfterModification =
-        mediaSources.size() + (mediaSourceReplacement ? 0 : mediaSourceHolderSnapshots.size());
-    for (int i = 0; i < mediaSources.size(); i++) {
-      MediaSource mediaSource = checkNotNull(mediaSources.get(i));
-      if (mediaSource instanceof AdsMediaSource) {
-        if (sizeAfterModification > 1) {
-          // Ads media sources only allowed with a single source
-          // (see https://github.com/google/ExoPlayer/issues/3750).
-          throw new IllegalArgumentException();
-        }
-        hasAdsMediaSource = true;
-      }
-    }
   }
 
   private Timeline createMaskingTimeline() {
