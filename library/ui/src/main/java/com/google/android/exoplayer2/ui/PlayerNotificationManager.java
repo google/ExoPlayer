@@ -65,7 +65,7 @@ import java.util.Map;
 
 /**
  * Starts, updates and cancels a media style notification reflecting the player state. The actions
- * displayed and the drawables used can both be customized, as described below.
+ * included in the notification can be customized along with their drawables, as described below.
  *
  * <p>The notification is cancelled when {@code null} is passed to {@link #setPlayer(Player)} or
  * when the notification is dismissed by the user.
@@ -75,42 +75,54 @@ import java.util.Map;
  *
  * <h3>Action customization</h3>
  *
- * Playback actions can be displayed or omitted as follows:
+ * Playback actions can be included or omitted as follows:
  *
  * <ul>
- *   <li><b>{@code useNavigationActions}</b> - Sets whether the previous and next actions are
- *       displayed.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseNavigationActions(boolean)}
- *         <li>Default: {@code true}
- *       </ul>
- *   <li><b>{@code useNavigationActionsInCompactView}</b> - Sets whether the previous and next
- *       actions are displayed in compact view (including the lock screen notification).
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseNavigationActionsInCompactView(boolean)}
- *         <li>Default: {@code false}
- *       </ul>
- *   <li><b>{@code usePlayPauseActions}</b> - Sets whether the play and pause actions are displayed.
+ *   <li><b>{@code usePlayPauseActions}</b> - Sets whether the play and pause actions are used.
  *       <ul>
  *         <li>Corresponding setter: {@link #setUsePlayPauseActions(boolean)}
  *         <li>Default: {@code true}
  *       </ul>
- *   <li><b>{@code useStopAction}</b> - Sets whether the stop action is displayed.
- *       <ul>
- *         <li>Corresponding setter: {@link #setUseStopAction(boolean)}
- *         <li>Default: {@code false}
- *       </ul>
  *   <li><b>{@code rewindIncrementMs}</b> - Sets the rewind increment. If set to zero the rewind
- *       action is not displayed.
+ *       action is not used.
  *       <ul>
  *         <li>Corresponding setter: {@link #setControlDispatcher(ControlDispatcher)}
  *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_REWIND_MS} (5000)
  *       </ul>
  *   <li><b>{@code fastForwardIncrementMs}</b> - Sets the fast forward increment. If set to zero the
- *       fast forward action is not displayed.
+ *       fast forward action is not used.
  *       <ul>
  *         <li>Corresponding setter: {@link #setControlDispatcher(ControlDispatcher)}
  *         <li>Default: {@link DefaultControlDispatcher#DEFAULT_FAST_FORWARD_MS} (15000)
+ *       </ul>
+ *   <li><b>{@code usePreviousAction}</b> - Whether the previous action is used.
+ *       <ul>
+ *         <li>Corresponding setter: {@link #setUsePreviousAction(boolean)}
+ *         <li>Default: {@code true}
+ *       </ul>
+ *   <li><b>{@code usePreviousActionInCompactView}</b> - If {@code usePreviousAction} is {@code
+ *       true}, sets whether the previous action is also used in compact view (including the lock
+ *       screen notification). Else does nothing.
+ *       <ul>
+ *         <li>Corresponding setter: {@link #setUsePreviousActionInCompactView(boolean)}
+ *         <li>Default: {@code false}
+ *       </ul>
+ *   <li><b>{@code useNextAction}</b> - Whether the next action is used.
+ *       <ul>
+ *         <li>Corresponding setter: {@link #setUseNextAction(boolean)}
+ *         <li>Default: {@code true}
+ *       </ul>
+ *   <li><b>{@code useNextActionInCompactView}</b> - If {@code useNextAction} is {@code true}, sets
+ *       whether the next action is also used in compact view (including the lock screen
+ *       notification). Else does nothing.
+ *       <ul>
+ *         <li>Corresponding setter: {@link #setUseNextActionInCompactView(boolean)}
+ *         <li>Default: {@code false}
+ *       </ul>
+ *   <li><b>{@code useStopAction}</b> - Sets whether the stop action is used.
+ *       <ul>
+ *         <li>Corresponding setter: {@link #setUseStopAction(boolean)}
+ *         <li>Default: {@code false}
  *       </ul>
  * </ul>
  *
@@ -390,8 +402,10 @@ public class PlayerNotificationManager {
   private int currentNotificationTag;
   @Nullable private NotificationListener notificationListener;
   @Nullable private MediaSessionCompat.Token mediaSessionToken;
-  private boolean useNavigationActions;
-  private boolean useNavigationActionsInCompactView;
+  private boolean usePreviousAction;
+  private boolean useNextAction;
+  private boolean usePreviousActionInCompactView;
+  private boolean useNextActionInCompactView;
   private boolean usePlayPauseActions;
   private boolean useStopAction;
   private int badgeIconType;
@@ -628,7 +642,8 @@ public class PlayerNotificationManager {
     playerListener = new PlayerListener();
     notificationBroadcastReceiver = new NotificationBroadcastReceiver();
     intentFilter = new IntentFilter();
-    useNavigationActions = true;
+    usePreviousAction = true;
+    useNextAction = true;
     usePlayPauseActions = true;
     colorized = true;
     useChronometer = true;
@@ -758,32 +773,83 @@ public class PlayerNotificationManager {
   }
 
   /**
-   * Sets whether the navigation actions should be used.
+   * Sets whether the next action should be used.
    *
-   * @param useNavigationActions Whether to use navigation actions or not.
+   * @param useNextAction Whether to use the next action.
    */
-  public final void setUseNavigationActions(boolean useNavigationActions) {
-    if (this.useNavigationActions != useNavigationActions) {
-      this.useNavigationActions = useNavigationActions;
+  public void setUseNextAction(boolean useNextAction) {
+    if (this.useNextAction != useNextAction) {
+      this.useNextAction = useNextAction;
       invalidate();
     }
   }
 
   /**
-   * Sets whether navigation actions should be displayed in compact view.
+   * Sets whether the previous action should be used.
    *
-   * <p>If {@link #useNavigationActions} is set to {@code false} navigation actions are displayed
-   * neither in compact nor in full view mode of the notification.
-   *
-   * @param useNavigationActionsInCompactView Whether the navigation actions should be displayed in
-   *     compact view.
+   * @param usePreviousAction Whether to use the previous action.
    */
-  public final void setUseNavigationActionsInCompactView(
-      boolean useNavigationActionsInCompactView) {
-    if (this.useNavigationActionsInCompactView != useNavigationActionsInCompactView) {
-      this.useNavigationActionsInCompactView = useNavigationActionsInCompactView;
+  public void setUsePreviousAction(boolean usePreviousAction) {
+    if (this.usePreviousAction != usePreviousAction) {
+      this.usePreviousAction = usePreviousAction;
       invalidate();
     }
+  }
+
+  /**
+   * Sets whether the navigation actions should be used.
+   *
+   * @param useNavigationActions Whether to use navigation actions.
+   * @deprecated Use {@link #setUseNextAction(boolean)} and {@link #setUsePreviousAction(boolean)}.
+   */
+  @Deprecated
+  public final void setUseNavigationActions(boolean useNavigationActions) {
+    setUseNextAction(useNavigationActions);
+    setUsePreviousAction(useNavigationActions);
+  }
+
+  /**
+   * If {@link #setUseNextAction useNextAction} is {@code true}, sets whether the next action should
+   * also be used in compact view. Has no effect if {@link #setUseNextAction useNextAction} is
+   * {@code false}.
+   *
+   * @param useNextActionInCompactView Whether to use the next action in compact view.
+   */
+  public void setUseNextActionInCompactView(boolean useNextActionInCompactView) {
+    if (this.useNextActionInCompactView != useNextActionInCompactView) {
+      this.useNextActionInCompactView = useNextActionInCompactView;
+      invalidate();
+    }
+  }
+
+  /**
+   * If {@link #setUsePreviousAction usePreviousAction} is {@code true}, sets whether the previous
+   * action should also be used in compact view. Has no effect if {@link #setUsePreviousAction
+   * usePreviousAction} is {@code false}.
+   *
+   * @param usePreviousActionInCompactView Whether to use the previous action in compact view.
+   */
+  public void setUsePreviousActionInCompactView(boolean usePreviousActionInCompactView) {
+    if (this.usePreviousActionInCompactView != usePreviousActionInCompactView) {
+      this.usePreviousActionInCompactView = usePreviousActionInCompactView;
+      invalidate();
+    }
+  }
+
+  /**
+   * If {@link #setUseNavigationActions useNavigationActions} is {@code true}, sets whether
+   * navigation actions should also be used in compact view. Has no effect if {@link
+   * #setUseNavigationActions useNavigationActions} is {@code false}.
+   *
+   * @param useNavigationActionsInCompactView Whether to use navigation actions in compact view.
+   * @deprecated Use {@link #setUseNextActionInCompactView(boolean)} and {@link
+   *     #setUsePreviousActionInCompactView(boolean)} instead.
+   */
+  @Deprecated
+  public final void setUseNavigationActionsInCompactView(
+      boolean useNavigationActionsInCompactView) {
+    setUseNextActionInCompactView(useNavigationActionsInCompactView);
+    setUsePreviousActionInCompactView(useNavigationActionsInCompactView);
   }
 
   /**
@@ -1168,7 +1234,7 @@ public class PlayerNotificationManager {
     }
 
     List<String> stringActions = new ArrayList<>();
-    if (useNavigationActions && enablePrevious) {
+    if (usePreviousAction && enablePrevious) {
       stringActions.add(ACTION_PREVIOUS);
     }
     if (enableRewind) {
@@ -1184,7 +1250,7 @@ public class PlayerNotificationManager {
     if (enableFastForward) {
       stringActions.add(ACTION_FAST_FORWARD);
     }
-    if (useNavigationActions && enableNext) {
+    if (useNextAction && enableNext) {
       stringActions.add(ACTION_NEXT);
     }
     if (customActionReceiver != null) {
@@ -1209,15 +1275,14 @@ public class PlayerNotificationManager {
   protected int[] getActionIndicesForCompactView(List<String> actionNames, Player player) {
     int pauseActionIndex = actionNames.indexOf(ACTION_PAUSE);
     int playActionIndex = actionNames.indexOf(ACTION_PLAY);
-    int skipPreviousActionIndex =
-        useNavigationActionsInCompactView ? actionNames.indexOf(ACTION_PREVIOUS) : -1;
-    int skipNextActionIndex =
-        useNavigationActionsInCompactView ? actionNames.indexOf(ACTION_NEXT) : -1;
+    int previousActionIndex =
+        usePreviousActionInCompactView ? actionNames.indexOf(ACTION_PREVIOUS) : -1;
+    int nextActionIndex = useNextActionInCompactView ? actionNames.indexOf(ACTION_NEXT) : -1;
 
     int[] actionIndices = new int[3];
     int actionCounter = 0;
-    if (skipPreviousActionIndex != -1) {
-      actionIndices[actionCounter++] = skipPreviousActionIndex;
+    if (previousActionIndex != -1) {
+      actionIndices[actionCounter++] = previousActionIndex;
     }
     boolean shouldShowPauseButton = shouldShowPauseButton(player);
     if (pauseActionIndex != -1 && shouldShowPauseButton) {
@@ -1225,8 +1290,8 @@ public class PlayerNotificationManager {
     } else if (playActionIndex != -1 && !shouldShowPauseButton) {
       actionIndices[actionCounter++] = playActionIndex;
     }
-    if (skipNextActionIndex != -1) {
-      actionIndices[actionCounter++] = skipNextActionIndex;
+    if (nextActionIndex != -1) {
+      actionIndices[actionCounter++] = nextActionIndex;
     }
     return Arrays.copyOf(actionIndices, actionCounter);
   }

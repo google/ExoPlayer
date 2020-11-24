@@ -51,6 +51,8 @@
     *   Add `bar_gravity` attribute into `DefaultTimeBar`.
     *   Increase seekbar's touch target height in `StyledPlayerControlView`.
     *   Update Styled Player settings dialogs to respect RTL.
+    *   Support enabling the previous and next actions individually in
+        `PlayerNotificationManager`.
 *   Audio:
     *   Retry playback after some types of `AudioTrack` error.
     *   Work around `AudioManager` crashes when calling `getStreamVolume`
