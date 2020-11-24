@@ -437,9 +437,9 @@ public final class SessionPlayerConnector extends SessionPlayer {
         /* defaultValueWhenException= */ END_OF_PLAYLIST);
   }
 
-  // TODO(b/147706139): Call super.close() after updating media2-common to 1.1.0
-  @SuppressWarnings("MissingSuperCall")
+  // TODO(internal b/160846312): Call super.close() once we depend on media2 1.1.0.
   @Override
+  @SuppressWarnings("MissingSuperCall")
   public void close() {
     synchronized (stateLock) {
       if (closed) {
@@ -559,8 +559,8 @@ public final class SessionPlayerConnector extends SessionPlayer {
     }
   }
 
-  // TODO: Remove this suppress warnings and call onCurrentMediaItemChanged with a null item
-  // once AndroidX media2 1.2.0 is released
+  // TODO(internal b/160846312): Remove this suppress warnings and call onCurrentMediaItemChanged
+  // with a null item once we depend on media2 1.2.0.
   @SuppressWarnings("nullness:argument.type.incompatible")
   private void handlePlaylistChangedOnHandler() {
     List<MediaItem> currentPlaylist = player.getPlaylist();
@@ -581,7 +581,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
             // Workaround for MediaSession's issue that current media item change isn't propagated
             // to the legacy controllers.
-            // TODO(b/160846312): Remove this workaround with media2 1.1.0-stable.
+            // TODO(internal b/160846312): Remove workaround once we depend on media2 1.1.0.
             callback.onSeekCompleted(SessionPlayerConnector.this, currentPosition);
           }
         });
@@ -600,7 +600,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
           // Workaround for MediaSession's issue that current media item change isn't propagated
           // to the legacy controllers.
-          // TODO(b/160846312): Remove this workaround with media2 1.1.0-stable.
+          // TODO(internal b/160846312): Remove workaround once we depend on media2 1.1.0.
           callback.onSeekCompleted(SessionPlayerConnector.this, currentPosition);
         });
   }
@@ -725,7 +725,7 @@ public final class SessionPlayerConnector extends SessionPlayer {
 
             // Workaround for MediaSession's issue that current media item change isn't propagated
             // to the legacy controllers.
-            // TODO(b/160846312): Remove this workaround with media2 1.1.0-stable.
+            // TODO(internal b/160846312): Remove workaround once we depend on media2 1.1.0.
             callback.onSeekCompleted(SessionPlayerConnector.this, currentPosition);
           });
     }

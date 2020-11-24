@@ -23,7 +23,7 @@ import androidx.media2.session.MediaSession;
 public final class MediaSessionUtil {
 
   /** Gets the {@link MediaSessionCompat.Token} from the {@link MediaSession}. */
-  // TODO(b/152764014): Deprecate this API when MediaSession#getSessionCompatToken() is released.
+  // TODO(internal b/160846312): Remove lint/warning suppression once we depend on media2 1.1.0.
   public static MediaSessionCompat.Token getSessionCompatToken(MediaSession mediaSession) {
     @SuppressLint("RestrictedApi")
     @SuppressWarnings("RestrictTo")
