@@ -95,7 +95,7 @@
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
 *   FFMPEG extension:
-    *   Link the ffmpeg library statically, saving 350KB in binary size on
+    *   Link the FFMPEG library statically, saving 350KB in binary size on
         average.
 *   Media2 extension:
     *   Notify onBufferingEnded when the state of origin player becomes
