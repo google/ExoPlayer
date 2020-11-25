@@ -1243,6 +1243,7 @@ public final class ImaAdsLoader
   private void handlePlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     if (playingAd && imaAdState == IMA_AD_STATE_PLAYING) {
       if (!bufferingAd && playbackState == Player.STATE_BUFFERING) {
+        bufferingAd = true;
         AdMediaInfo adMediaInfo = checkNotNull(imaAdMediaInfo);
         for (int i = 0; i < adCallbacks.size(); i++) {
           adCallbacks.get(i).onBuffering(adMediaInfo);
