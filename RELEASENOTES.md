@@ -94,6 +94,9 @@
         that lie outside the length of the cue text.
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
+*   FFMPEG extension:
+    *   Link the ffmpeg library statically, saving 350KB in binary size on
+        average.
 *   Media2 extension:
     *   Notify onBufferingEnded when the state of origin player becomes
         STATE_IDLE or STATE_ENDED.
