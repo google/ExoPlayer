@@ -242,6 +242,11 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       responseBody = Assertions.checkNotNull(response.body());
       responseByteStream = responseBody.byteStream();
     } catch (IOException e) {
+      @Nullable String message = e.getMessage();
+      if (message != null
+          && Util.toLowerInvariant(message).matches("cleartext communication.*not permitted.*")) {
+        throw new CleartextNotPermittedException(e, dataSpec);
+      }
       throw new HttpDataSourceException(
           "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
     }

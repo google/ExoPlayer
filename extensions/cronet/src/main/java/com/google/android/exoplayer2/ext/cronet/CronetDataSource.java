@@ -443,8 +443,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     transferInitializing(dataSpec);
     try {
       boolean connectionOpened = blockUntilConnectTimeout();
-      if (exception != null) {
-        throw new OpenException(exception, dataSpec, getStatus(urlRequest));
+      @Nullable IOException connectionOpenException = exception;
+      if (connectionOpenException != null) {
+        @Nullable String message = connectionOpenException.getMessage();
+        if (message != null
+            && Util.toLowerInvariant(message).contains("err_cleartext_not_permitted")) {
+          throw new CleartextNotPermittedException(connectionOpenException, dataSpec);
+        }
+        throw new OpenException(connectionOpenException, dataSpec, getStatus(urlRequest));
       } else if (!connectionOpened) {
         // The timeout was reached before the connection was opened.
         throw new OpenException(new SocketTimeoutException(), dataSpec, getStatus(urlRequest));
