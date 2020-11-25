@@ -81,6 +81,9 @@
         ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
     *   Fix a bug that caused multiple ads in an ad pod to be skipped when one
         ad in the ad pod was skipped.
+    *   Fix a bug that caused ad progress not to be updated if the player
+        resumed after buffering during an ad
+        ([#8239](https://github.com/google/ExoPlayer/issues/8239)).
     *   Fix passing an ads response to the `ImaAdsLoader` builder.
     *   Set the overlay language based on the device locale by default.
 *   Cronet extension:
