@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorInput.SimulatedIOExce
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -48,17 +49,17 @@ public final class ExtractorAsserts {
    * <p>This is intended to be used from tests using {@code ParameterizedRobolectricTestRunner} or
    * {@code org.junit.runners.Parameterized}.
    */
-  public static List<Object[]> configs() {
-    return Arrays.asList(
-        new Object[] {new SimulationConfig(true, false, false, false)},
-        new Object[] {new SimulationConfig(true, false, false, true)},
-        new Object[] {new SimulationConfig(true, false, true, false)},
-        new Object[] {new SimulationConfig(true, false, true, true)},
-        new Object[] {new SimulationConfig(true, true, false, false)},
-        new Object[] {new SimulationConfig(true, true, false, true)},
-        new Object[] {new SimulationConfig(true, true, true, false)},
-        new Object[] {new SimulationConfig(true, true, true, true)},
-        new Object[] {new SimulationConfig(false, false, false, false)});
+  public static ImmutableList<SimulationConfig> configs() {
+    return ImmutableList.of(
+        new SimulationConfig(true, false, false, false),
+        new SimulationConfig(true, false, false, true),
+        new SimulationConfig(true, false, true, false),
+        new SimulationConfig(true, false, true, true),
+        new SimulationConfig(true, true, false, false),
+        new SimulationConfig(true, true, false, true),
+        new SimulationConfig(true, true, true, false),
+        new SimulationConfig(true, true, true, true),
+        new SimulationConfig(false, false, false, false));
   }
 
   /**

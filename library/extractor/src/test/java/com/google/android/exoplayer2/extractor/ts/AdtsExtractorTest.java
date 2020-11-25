@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.extractor.ts;
 
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts.AssertionConfig;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -29,7 +29,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 public final class AdtsExtractorTest {
 
   @Parameters(name = "{0}")
-  public static List<Object[]> params() {
+  public static ImmutableList<ExtractorAsserts.SimulationConfig> params() {
     return ExtractorAsserts.configs();
   }
 

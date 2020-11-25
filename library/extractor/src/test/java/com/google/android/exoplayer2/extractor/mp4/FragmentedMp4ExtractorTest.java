@@ -33,7 +33,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 public final class FragmentedMp4ExtractorTest {
 
   @Parameters(name = "{0}")
-  public static List<Object[]> params() {
+  public static ImmutableList<ExtractorAsserts.SimulationConfig> params() {
     return ExtractorAsserts.configs();
   }
 
