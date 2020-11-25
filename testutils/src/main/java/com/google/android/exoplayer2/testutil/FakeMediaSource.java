@@ -92,6 +92,11 @@ public class FakeMediaSource extends BaseMediaSource {
   @Nullable private Handler sourceInfoRefreshHandler;
   @Nullable private TransferListener transferListener;
 
+  /** Creates a {@link FakeMediaSource} with a default {@link FakeTimeline}. */
+  public FakeMediaSource() {
+    this(new FakeTimeline());
+  }
+
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
    * {@link TrackGroupArray} using the given {@link Format}s. The provided {@link Timeline} may be

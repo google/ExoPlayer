@@ -160,7 +160,7 @@ public final class AnalyticsCollectorTest {
       ExoPlayerTestRunner.VIDEO_FORMAT.buildUpon().setDrmInitData(DRM_DATA_1).build();
 
   private static final int TIMEOUT_MS = 10_000;
-  private static final Timeline SINGLE_PERIOD_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+  private static final Timeline SINGLE_PERIOD_TIMELINE = new FakeTimeline();
   private static final EventWindowAndPeriodId WINDOW_0 =
       new EventWindowAndPeriodId(/* windowIndex= */ 0, /* mediaPeriodId= */ null);
   private static final EventWindowAndPeriodId WINDOW_1 =
@@ -1520,11 +1520,9 @@ public final class AnalyticsCollectorTest {
   public void onPlayerError_thrownDuringRendererEnableAtPeriodTransition_isReportedForNewPeriod()
       throws Exception {
     FakeMediaSource source0 =
-        new FakeMediaSource(
-            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT);
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT);
     FakeMediaSource source1 =
-        new FakeMediaSource(
-            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.AUDIO_FORMAT);
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.AUDIO_FORMAT);
     RenderersFactory renderersFactory =
         (eventHandler, videoListener, audioListener, textOutput, metadataOutput) ->
             new Renderer[] {
@@ -1554,11 +1552,9 @@ public final class AnalyticsCollectorTest {
   public void onPlayerError_thrownDuringRenderAtPeriodTransition_isReportedForNewPeriod()
       throws Exception {
     FakeMediaSource source0 =
-        new FakeMediaSource(
-            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.VIDEO_FORMAT);
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT);
     FakeMediaSource source1 =
-        new FakeMediaSource(
-            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.AUDIO_FORMAT);
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.AUDIO_FORMAT);
     RenderersFactory renderersFactory =
         (eventHandler, videoListener, audioListener, textOutput, metadataOutput) ->
             new Renderer[] {
@@ -1589,8 +1585,7 @@ public final class AnalyticsCollectorTest {
       onPlayerError_thrownDuringRendererReplaceStreamAtPeriodTransition_isReportedForNewPeriod()
           throws Exception {
     FakeMediaSource source =
-        new FakeMediaSource(
-            new FakeTimeline(/* windowCount= */ 1), ExoPlayerTestRunner.AUDIO_FORMAT);
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.AUDIO_FORMAT);
     RenderersFactory renderersFactory =
         (eventHandler, videoListener, audioListener, textOutput, metadataOutput) ->
             new Renderer[] {
@@ -1634,7 +1629,7 @@ public final class AnalyticsCollectorTest {
     player.addAnalyticsListener(listener);
 
     // Trigger some simultaneous events.
-    player.setMediaSource(new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), formats));
+    player.setMediaSource(new FakeMediaSource(new FakeTimeline(), formats));
     player.seekTo(2_000);
     player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f));
     ShadowLooper.runMainLooperToNextTask();
@@ -1642,7 +1637,7 @@ public final class AnalyticsCollectorTest {
     // Move to another item and fail with a third one to trigger events with different EventTimes.
     player.prepare();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
-    player.addMediaSource(new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1), formats));
+    player.addMediaSource(new FakeMediaSource(new FakeTimeline(), formats));
     player.play();
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
         player, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);

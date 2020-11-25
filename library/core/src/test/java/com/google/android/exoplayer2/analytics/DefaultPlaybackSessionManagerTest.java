@@ -61,7 +61,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void updateSessions_withoutMediaPeriodId_createsNewSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     EventTime eventTime = createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId */ null);
 
     sessionManager.updateSessions(eventTime);
@@ -73,7 +73,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void updateSessions_withMediaPeriodId_createsNewSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -92,7 +92,7 @@ public final class DefaultPlaybackSessionManagerTest {
   @Test
   public void
       updateSessions_ofSameWindow_withMediaPeriodId_afterWithoutMediaPeriodId_doesNotCreateNewSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -113,7 +113,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void updateSessions_ofSameWindow_withAd_afterWithoutMediaPeriodId_createsNewSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0),
@@ -141,7 +141,7 @@ public final class DefaultPlaybackSessionManagerTest {
   @Test
   public void
       updateSessions_ofSameWindow_withoutMediaPeriodId_afterMediaPeriodId_doesNotCreateNewSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -310,7 +310,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void updateSessions_ofSameWindow_withNewWindowSequenceNumber_createsNewSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId1 =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -339,7 +339,7 @@ public final class DefaultPlaybackSessionManagerTest {
   @Test
   public void
       updateSessions_withoutMediaPeriodId_andPreviouslyCreatedSessions_doesNotCreateNewSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId1 =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -372,7 +372,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void updateSessions_afterSessionForMediaPeriodId_withSameMediaPeriodId_returnsSameValue() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -390,7 +390,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void updateSessions_withoutMediaPeriodId_afterSessionForMediaPeriodId_returnsSameValue() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -474,7 +474,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void getSessionForMediaPeriodId_returnsValue_butDoesNotCreateSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -488,7 +488,7 @@ public final class DefaultPlaybackSessionManagerTest {
   public void belongsToSession_withSameWindowIndex_returnsTrue() {
     EventTime eventTime =
         createEventTime(Timeline.EMPTY, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     EventTime eventTimeWithTimeline =
         createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
     MediaPeriodId mediaPeriodId =
@@ -532,7 +532,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void belongsToSession_withOtherWindowSequenceNumber_returnsFalse() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     MediaPeriodId mediaPeriodId1 =
         new MediaPeriodId(
             timeline.getUidOfPeriod(/* periodIndex= */ 0), /* windowSequenceNumber= */ 0);
@@ -592,7 +592,7 @@ public final class DefaultPlaybackSessionManagerTest {
         createEventTime(Timeline.EMPTY, /* windowIndex= */ 1, /* mediaPeriodId= */ null);
     sessionManager.updateSessions(eventTime1);
     sessionManager.updateSessions(eventTime2);
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     EventTime newTimelineEventTime =
         createEventTime(timeline, /* windowIndex= */ 0, /* mediaPeriodId= */ null);
 
@@ -827,7 +827,7 @@ public final class DefaultPlaybackSessionManagerTest {
 
   @Test
   public void positionDiscontinuity_toSameWindow_withoutMediaPeriodId_doesNotFinishSession() {
-    Timeline timeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline timeline = new FakeTimeline();
     EventTime eventTime1 =
         createEventTime(
             timeline,

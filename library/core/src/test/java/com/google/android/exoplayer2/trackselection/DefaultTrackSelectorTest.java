@@ -110,7 +110,7 @@ public final class DefaultTrackSelectorTest {
   private static final TrackSelection[] TRACK_SELECTIONS_WITH_NO_SAMPLE_RENDERER =
       new TrackSelection[] {new FixedTrackSelection(VIDEO_TRACK_GROUP, 0), null};
 
-  private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+  private static final Timeline TIMELINE = new FakeTimeline();
 
   private static MediaPeriodId periodId;
 

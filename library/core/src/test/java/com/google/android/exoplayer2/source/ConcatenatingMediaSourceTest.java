@@ -854,7 +854,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void duplicateNestedMediaSources() throws IOException, InterruptedException {
-    Timeline childTimeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline childTimeline = new FakeTimeline();
     FakeMediaSource childSource = new FakeMediaSource(childTimeline);
     ConcatenatingMediaSource nestedConcatenation = new ConcatenatingMediaSource();
 

@@ -50,7 +50,7 @@ public final class PlaybackStatsListenerTest {
           /* currentMediaPeriodId= */ null,
           /* currentPlaybackPositionMs= */ 0,
           /* totalBufferedDurationMs= */ 0);
-  private static final Timeline TEST_TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+  private static final Timeline TEST_TIMELINE = new FakeTimeline();
   private static final MediaSource.MediaPeriodId TEST_MEDIA_PERIOD_ID =
       new MediaSource.MediaPeriodId(
           TEST_TIMELINE.getPeriod(/* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)

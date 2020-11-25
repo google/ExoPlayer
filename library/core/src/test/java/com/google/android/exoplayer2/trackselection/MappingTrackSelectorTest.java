@@ -52,7 +52,7 @@ public final class MappingTrackSelectorTest {
   private static final TrackGroup AUDIO_TRACK_GROUP = buildTrackGroup(MimeTypes.AUDIO_AAC);
   private static final TrackGroup METADATA_TRACK_GROUP = buildTrackGroup(MimeTypes.APPLICATION_ID3);
 
-  private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+  private static final Timeline TIMELINE = new FakeTimeline();
 
   private static MediaPeriodId periodId;
 
