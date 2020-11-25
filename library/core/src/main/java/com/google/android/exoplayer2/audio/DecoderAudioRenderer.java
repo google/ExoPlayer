@@ -305,7 +305,7 @@ public abstract class DecoderAudioRenderer<
       } catch (AudioSink.ConfigurationException e) {
         throw createRendererException(e, e.format);
       } catch (AudioSink.InitializationException e) {
-        throw createRendererException(e, inputFormat, e.isRecoverable);
+        throw createRendererException(e, e.format, e.isRecoverable);
       } catch (AudioSink.WriteException e) {
         throw createRendererException(e, inputFormat, e.isRecoverable);
       }

@@ -1960,6 +1960,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputSampleRate,
             outputChannelConfig,
             bufferSize,
+            inputFormat,
             /* isRecoverable= */ outputModeIsOffload(),
             e);
       }
@@ -1977,6 +1978,7 @@ public final class DefaultAudioSink implements AudioSink {
             outputSampleRate,
             outputChannelConfig,
             bufferSize,
+            inputFormat,
             /* isRecoverable= */ outputModeIsOffload(),
             /* audioTrackException= */ null);
       }
