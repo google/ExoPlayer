@@ -1408,7 +1408,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // We have an existing codec that we may need to reconfigure, re-initialize, or release to
     // switch to bypass. If the existing codec instance is kept then its operating rate and DRM
     // session may need to be updated.
-    MediaCodecAdapter oldCodec = codec;
+
+    // Copy the current codec and codecInfo to local variables so they remain accessible if the
+    // member variables are updated during the logic below.
+    MediaCodecAdapter codec = this.codec;
+    MediaCodecInfo codecInfo = this.codecInfo;
+
     Format oldFormat = codecInputFormat;
     if (drmNeedsCodecReinitialization(codecInfo, newFormat, codecDrmSession, sourceDrmSession)) {
       drainAndReinitializeCodec();
@@ -1474,7 +1479,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (evaluation.result != REUSE_RESULT_NO
-        && (codec != oldCodec || codecDrainAction == DRAIN_ACTION_REINITIALIZE)) {
+        && (this.codec != codec || codecDrainAction == DRAIN_ACTION_REINITIALIZE)) {
       // Initial evaluation indicated reuse was possible, but codec re-initialization was triggered.
       // The reasons are indicated by overridingDiscardReasons.
       return new DecoderReuseEvaluation(
