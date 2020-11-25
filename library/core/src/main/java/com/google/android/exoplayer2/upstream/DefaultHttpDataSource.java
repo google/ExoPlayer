@@ -306,6 +306,11 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     try {
       connection = makeConnection(dataSpec);
     } catch (IOException e) {
+      @Nullable String message = e.getMessage();
+      if (message != null
+          && Util.toLowerInvariant(message).matches("cleartext http traffic.*not permitted.*")) {
+        throw new CleartextNotPermittedException(e, dataSpec);
+      }
       throw new HttpDataSourceException(
           "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
