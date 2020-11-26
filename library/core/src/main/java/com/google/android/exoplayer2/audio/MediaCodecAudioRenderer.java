@@ -629,9 +629,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
-      @Nullable Format outputFormat = getOutputFormat();
-      throw createRendererException(
-          e, outputFormat != null ? outputFormat : getInputFormat(), e.isRecoverable);
+      throw createRendererException(e, e.format, e.isRecoverable);
     }
   }
 

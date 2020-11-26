@@ -214,12 +214,21 @@ public interface AudioSink {
     public final int errorCode;
     /** If the exception can be recovered by recreating the sink. */
     public final boolean isRecoverable;
+    /** The input {@link Format} of the sink when the error occurs. */
+    public final Format format;
 
-    /** @param errorCode The error value returned from the sink implementation. */
-    public WriteException(int errorCode, boolean isRecoverable) {
+    /**
+     * Creates an instance.
+     *
+     * @param errorCode The error value returned from the sink implementation.
+     * @param format The input format of the sink when the error occurs.
+     * @param isRecoverable Whether the exception can be recovered by recreating the sink.
+     */
+    public WriteException(int errorCode, Format format, boolean isRecoverable) {
       super("AudioTrack write failed: " + errorCode);
       this.isRecoverable = isRecoverable;
       this.errorCode = errorCode;
+      this.format = format;
     }
 
   }

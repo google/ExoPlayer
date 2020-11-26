@@ -952,7 +952,7 @@ public final class DefaultAudioSink implements AudioSink {
       if (isRecoverable) {
         maybeDisableOffload();
       }
-      WriteException e = new WriteException(error, isRecoverable);
+      WriteException e = new WriteException(error, configuration.inputFormat, isRecoverable);
       if (listener != null) {
         listener.onAudioSinkError(e);
       }

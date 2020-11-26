@@ -310,7 +310,9 @@ public class MediaCodecAudioRendererTest {
     verify(audioSink, atLeastOnce()).setListener(listenerCaptor.capture());
     AudioSink.Listener audioSinkListener = listenerCaptor.getValue();
 
-    Exception error = new AudioSink.WriteException(/* errorCode= */ 1, /* isRecoverable= */ true);
+    Exception error =
+        new AudioSink.WriteException(
+            /* errorCode= */ 1, new Format.Builder().build(), /* isRecoverable= */ true);
     audioSinkListener.onAudioSinkError(error);
 
     shadowOf(Looper.getMainLooper()).idle();

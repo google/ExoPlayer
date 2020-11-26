@@ -261,7 +261,7 @@ public abstract class DecoderAudioRenderer<
       try {
         audioSink.playToEndOfStream();
       } catch (AudioSink.WriteException e) {
-        throw createRendererException(e, inputFormat, e.isRecoverable);
+        throw createRendererException(e, e.format, e.isRecoverable);
       }
       return;
     }
@@ -307,7 +307,7 @@ public abstract class DecoderAudioRenderer<
       } catch (AudioSink.InitializationException e) {
         throw createRendererException(e, e.format, e.isRecoverable);
       } catch (AudioSink.WriteException e) {
-        throw createRendererException(e, inputFormat, e.isRecoverable);
+        throw createRendererException(e, e.format, e.isRecoverable);
       }
       decoderCounters.ensureUpdated();
     }
@@ -395,7 +395,7 @@ public abstract class DecoderAudioRenderer<
         try {
           processEndOfStream();
         } catch (AudioSink.WriteException e) {
-          throw createRendererException(e, getOutputFormat(decoder), e.isRecoverable);
+          throw createRendererException(e, e.format, e.isRecoverable);
         }
       }
       return false;
