@@ -275,6 +275,15 @@ public class AnalyticsCollector
         });
   }
 
+  @Override
+  public void onAudioSinkError(Exception audioSinkError) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AUDIO_SINK_ERROR,
+        listener -> listener.onAudioSinkError(eventTime, audioSinkError));
+  }
+
   // AudioListener implementation.
 
   @Override
@@ -302,15 +311,6 @@ public class AnalyticsCollector
         eventTime,
         AnalyticsListener.EVENT_SKIP_SILENCE_ENABLED_CHANGED,
         listener -> listener.onSkipSilenceEnabledChanged(eventTime, skipSilenceEnabled));
-  }
-
-  @Override
-  public void onAudioSinkError(Exception audioSinkError) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_AUDIO_SINK_ERROR,
-        listener -> listener.onAudioSinkError(eventTime, audioSinkError));
   }
 
   @Override
