@@ -1407,21 +1407,33 @@ public final class DefaultAudioSink implements AudioSink {
       mediaPositionParameters = mediaPositionParametersCheckpoints.remove();
     }
 
-    long playoutDurationSinceLastCheckpoint =
+    long playoutDurationSinceLastCheckpointUs =
         positionUs - mediaPositionParameters.audioTrackPositionUs;
-    if (!mediaPositionParameters.playbackParameters.equals(PlaybackParameters.DEFAULT)) {
-      if (mediaPositionParametersCheckpoints.isEmpty()) {
-        playoutDurationSinceLastCheckpoint =
-            audioProcessorChain.getMediaDuration(playoutDurationSinceLastCheckpoint);
-      } else {
-        // Playing data at a previous playback speed, so fall back to multiplying by the speed.
-        playoutDurationSinceLastCheckpoint =
-            Util.getMediaDurationForPlayoutDuration(
-                playoutDurationSinceLastCheckpoint,
-                mediaPositionParameters.playbackParameters.speed);
-      }
+    if (mediaPositionParameters.playbackParameters.equals(PlaybackParameters.DEFAULT)) {
+      return mediaPositionParameters.mediaTimeUs + playoutDurationSinceLastCheckpointUs;
+    } else if (mediaPositionParametersCheckpoints.isEmpty()) {
+      long mediaDurationSinceLastCheckpointUs =
+          audioProcessorChain.getMediaDuration(playoutDurationSinceLastCheckpointUs);
+      return mediaPositionParameters.mediaTimeUs + mediaDurationSinceLastCheckpointUs;
+    } else {
+      // The processor chain has been configured with new parameters, but we're still playing audio
+      // that was processed using previous parameters. We can't scale the playout duration using the
+      // processor chain in this case, so we fall back to scaling using the previous parameters'
+      // target speed instead. Since the processor chain may not have achieved the target speed
+      // precisely, we scale the duration to the next checkpoint (which will always be small) rather
+      // than the duration from the previous checkpoint (which may be arbitrarily large). This
+      // limits the amount of error that can be introduced due to a difference between the target
+      // and actual speeds.
+      MediaPositionParameters nextMediaPositionParameters =
+          mediaPositionParametersCheckpoints.getFirst();
+      long playoutDurationUntilNextCheckpointUs =
+          nextMediaPositionParameters.audioTrackPositionUs - positionUs;
+      long mediaDurationUntilNextCheckpointUs =
+          Util.getMediaDurationForPlayoutDuration(
+              playoutDurationUntilNextCheckpointUs,
+              mediaPositionParameters.playbackParameters.speed);
+      return nextMediaPositionParameters.mediaTimeUs - mediaDurationUntilNextCheckpointUs;
     }
-    return mediaPositionParameters.mediaTimeUs + playoutDurationSinceLastCheckpoint;
   }
 
   private long applySkipping(long positionUs) {
