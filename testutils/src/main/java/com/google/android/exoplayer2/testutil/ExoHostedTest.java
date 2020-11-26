@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.ConditionVariable;
@@ -71,7 +71,6 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   private @MonotonicNonNull DefaultTrackSelector trackSelector;
   private @MonotonicNonNull Surface surface;
   private @MonotonicNonNull ExoPlaybackException playerError;
-  private boolean playerWasPrepared;
 
   private long totalPlayingTimeMs;
   private long lastPlayingStartTimeMs;
@@ -181,30 +180,24 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
   // AnalyticsListener
 
   @Override
-  public final void onPlaybackStateChanged(EventTime eventTime, @Player.State int playbackState) {
-    playerWasPrepared |= playbackState != Player.STATE_IDLE;
-    if (playbackState == Player.STATE_ENDED
-        || (playbackState == Player.STATE_IDLE && playerWasPrepared)) {
-      // Post stopTest to ensure all currently pending events (e.g. onIsPlayingChanged or
-      // onPlayerError) are still delivered before the player is released.
-      checkStateNotNull(actionHandler).post(this::stopTest);
+  public void onEvents(Player player, Events events) {
+    if (events.contains(EVENT_IS_PLAYING_CHANGED)) {
+      if (player.isPlaying()) {
+        lastPlayingStartTimeMs = SystemClock.elapsedRealtime();
+      } else {
+        totalPlayingTimeMs += SystemClock.elapsedRealtime() - lastPlayingStartTimeMs;
+      }
     }
-  }
-
-  @Override
-  public void onIsPlayingChanged(EventTime eventTime, boolean playing) {
-    if (playing) {
-      lastPlayingStartTimeMs = SystemClock.elapsedRealtime();
-    } else {
-      totalPlayingTimeMs += SystemClock.elapsedRealtime() - lastPlayingStartTimeMs;
+    if (events.contains(EVENT_PLAYER_ERROR)) {
+      playerError = checkNotNull(player.getPlayerError());
+      onPlayerErrorInternal(playerError);
     }
-  }
-
-  @Override
-  public final void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
-    playerWasPrepared = true;
-    playerError = error;
-    onPlayerErrorInternal(error);
+    if (events.contains(EVENT_PLAYBACK_STATE_CHANGED)) {
+      @Player.State int playbackState = player.getPlaybackState();
+      if (playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE) {
+        stopTest();
+      }
+    }
   }
 
   @Override
