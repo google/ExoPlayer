@@ -508,6 +508,10 @@ public final class Util {
    *     run. {@code false} otherwise.
    */
   public static boolean postOrRun(Handler handler, Runnable runnable) {
+    Looper looper = handler.getLooper();
+    if (!looper.getThread().isAlive()) {
+      return false;
+    }
     if (handler.getLooper() == Looper.myLooper()) {
       runnable.run();
       return true;
