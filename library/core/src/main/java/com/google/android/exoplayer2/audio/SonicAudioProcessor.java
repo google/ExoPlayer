@@ -15,10 +15,11 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -117,16 +118,21 @@ public final class SonicAudioProcessor implements AudioProcessor {
    * Returns the media duration corresponding to the specified playout duration, taking speed
    * adjustment into account.
    *
+   * <p>The scaling performed by this method will use the actual playback speed achieved by the
+   * audio processor, on average, since it was last flushed. This may differ very slightly from the
+   * target playback speed.
+   *
    * @param playoutDuration The playout duration to scale.
    * @return The corresponding media duration, in the same units as {@code duration}.
    */
   public long getMediaDuration(long playoutDuration) {
     if (outputBytes >= MIN_BYTES_FOR_DURATION_SCALING_CALCULATION) {
+      long processedInputBytes = inputBytes - checkNotNull(sonic).getPendingInputBytes();
       return outputAudioFormat.sampleRate == inputAudioFormat.sampleRate
-          ? Util.scaleLargeTimestamp(playoutDuration, inputBytes, outputBytes)
+          ? Util.scaleLargeTimestamp(playoutDuration, processedInputBytes, outputBytes)
           : Util.scaleLargeTimestamp(
               playoutDuration,
-              inputBytes * outputAudioFormat.sampleRate,
+              processedInputBytes * outputAudioFormat.sampleRate,
               outputBytes * inputAudioFormat.sampleRate);
     } else {
       return (long) ((double) speed * playoutDuration);
@@ -159,7 +165,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
-    Sonic sonic = Assertions.checkNotNull(this.sonic);
+    Sonic sonic = checkNotNull(this.sonic);
     if (inputBuffer.hasRemaining()) {
       ShortBuffer shortBuffer = inputBuffer.asShortBuffer();
       int inputSize = inputBuffer.remaining();
