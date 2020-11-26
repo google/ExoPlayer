@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.opus;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
+
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
@@ -30,7 +33,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /** Opus decoder. */
-/* package */ final class OpusDecoder
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+public final class OpusDecoder
     extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, OpusDecoderException> {
 
   private static final int NO_ERROR = 0;

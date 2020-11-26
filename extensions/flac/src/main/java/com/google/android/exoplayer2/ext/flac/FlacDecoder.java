@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.ext.flac;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
+
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
@@ -27,11 +30,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-/**
- * Flac decoder.
- */
-/* package */ final class FlacDecoder extends
-    SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FlacDecoderException> {
+/** Flac decoder. */
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+public final class FlacDecoder
+    extends SimpleDecoder<DecoderInputBuffer, SimpleOutputBuffer, FlacDecoderException> {
 
   private final FlacStreamMetadata streamMetadata;
   private final FlacDecoderJni decoderJni;
