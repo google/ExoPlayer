@@ -115,6 +115,10 @@ public final class DefaultAudioSink implements AudioSink {
      * Returns the media duration corresponding to the specified playout duration, taking speed
      * adjustment due to audio processing into account.
      *
+     * <p>The scaling performed by this method will use the actual playback speed achieved by the
+     * audio processor chain, on average, since it was last flushed. This may differ very slightly
+     * from the target playback speed.
+     *
      * @param playoutDuration The playout duration to scale.
      * @return The corresponding media duration, in the same units as {@code duration}.
      */

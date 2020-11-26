@@ -84,6 +84,14 @@ import java.util.Arrays;
   }
 
   /**
+   * Returns the number of bytes that have been input, but will not be processed until more input
+   * data is provided.
+   */
+  public int getPendingInputBytes() {
+    return inputFrameCount * channelCount * BYTES_PER_SAMPLE;
+  }
+
+  /**
    * Queues remaining data from {@code buffer}, and advances its position by the number of bytes
    * consumed.
    *
