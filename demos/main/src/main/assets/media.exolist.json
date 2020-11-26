@@ -1,31 +1,117 @@
 [
   {
-    "name": "YouTube DASH",
+    "name": "Clear DASH",
     "samples": [
       {
-        "name": "Google Glass H264 (MP4)",
-        "uri": "https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0",
-        "extension": "mpd"
+        "name": "HD (MP4, H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
       },
       {
-        "name": "Google Play H264 (MP4)",
-        "uri": "https://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29.84308FF04844498CE6FBCE4731507882B8307798&key=ik0",
-        "extension": "mpd"
+        "name": "UHD (MP4, H264)",
+        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_uhd.mpd"
       },
       {
-        "name": "Google Glass VP9 (WebM)",
-        "uri": "https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=249B04F79E984D7F86B4D8DB48AE6FAF41C17AB3.7B9F0EC0505E1566E59B8E488E9419F253DDF413&key=ik0",
-        "extension": "mpd"
+        "name": "HD (MP4, H265)",
+        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears.mpd"
       },
       {
-        "name": "Google Play VP9 (WebM)",
-        "uri": "https://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,webm2_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=B1C2A74783AC1CC4865EB312D7DD2D48230CC9FD.BD153B9882175F1F94BFE5141A5482313EA38E8D&key=ik0",
-        "extension": "mpd"
+        "name": "UHD (MP4, H265)",
+        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_uhd.mpd"
+      },
+      {
+        "name": "HD (WebM, VP9)",
+        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears.mpd"
+      },
+      {
+        "name": "UHD (WebM, VP9)",
+        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_uhd.mpd"
       }
     ]
   },
   {
-    "name": "Widevine GTS policy tests",
+    "name": "Widevine DASH (MP4, H264)",
+    "samples": [
+      {
+        "name": "HD (cenc)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "UHD (cenc)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_uhd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "HD (cbcs)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "UHD (cbcs)",
+        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_uhd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "Secure -> Clear -> Secure (cenc)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/widevine/tears_enc_clear_enc.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
+        "drm_session_for_clear_content": true
+      }
+    ]
+  },
+  {
+    "name": "Widevine DASH (WebM, VP9)",
+    "samples": [
+      {
+        "name": "HD (cenc, full-sample)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "UHD (cenc, full-sample)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_uhd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "HD (cenc, sub-sample)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "UHD (cenc, sub-sample)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears_uhd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      }
+    ]
+  },
+  {
+    "name": "Widevine DASH (MP4, H265)",
+    "samples": [
+      {
+        "name": "HD (cenc)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      },
+      {
+        "name": "UHD (cenc)",
+        "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_uhd.mpd",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+      }
+    ]
+  },
+  {
+    "name": "Widevine DASH (policy tests)",
     "samples": [
       {
         "name": "SW secure crypto (L3)",
@@ -102,143 +188,27 @@
     ]
   },
   {
-    "name": "Widevine DASH H264 (MP4)",
+    "name": "60fps DASH",
     "samples": [
       {
-        "name": "Clear",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
+        "name": "HD (MP4, H264, Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-1080/manifest.mpd"
       },
       {
-        "name": "Clear UHD",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_uhd.mpd"
+        "name": "4K (MP4, H264, Clear)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-2160/manifest.mpd"
       },
       {
-        "name": "Secure (cenc)",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd",
+        "name": "HD (MP4, H264, Widevine cenc)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-1080/manifest.mpd",
         "drm_scheme": "widevine",
         "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
       },
       {
-        "name": "Secure UHD (cenc)",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_uhd.mpd",
+        "name": "4K (MP4, H264, Widevine cenc)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-2160/manifest.mpd",
         "drm_scheme": "widevine",
         "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure (cbcs)",
-        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure UHD (cbcs)",
-        "uri": "https://storage.googleapis.com/wvmedia/cbcs/h264/tears/tears_aes_cbcs_uhd.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure -> Clear -> Secure (cenc)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/widevine/tears_enc_clear_enc.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test",
-        "drm_session_for_clear_content": true
-      }
-    ]
-  },
-  {
-    "name": "Widevine DASH VP9 (WebM)",
-    "samples": [
-      {
-        "name": "Clear",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears.mpd"
-      },
-      {
-        "name": "Clear UHD",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/vp9/tears/tears_uhd.mpd"
-      },
-      {
-        "name": "Secure (full-sample)",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure UHD (full-sample)",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/tears/tears_uhd.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure (sub-sample)",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure UHD (sub-sample)",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/vp9/subsample/24fps/tears/tears_uhd.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      }
-    ]
-  },
-  {
-    "name": "Widevine DASH H265 (MP4)",
-    "samples": [
-      {
-        "name": "Clear",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears.mpd"
-      },
-      {
-        "name": "Clear UHD",
-        "uri": "https://storage.googleapis.com/wvmedia/clear/hevc/tears/tears_uhd.mpd"
-      },
-      {
-        "name": "Secure",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      },
-      {
-        "name": "Secure UHD",
-        "uri": "https://storage.googleapis.com/wvmedia/cenc/hevc/tears/tears_uhd.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-      }
-    ]
-  },
-  {
-    "name": "Widevine AV1 (WebM)",
-    "samples": [
-      {
-        "name": "Clear",
-        "uri": "https://storage.googleapis.com/wvmedia/2019/clear/av1/24/webm/llama_av1_480p_400.webm"
-      },
-      {
-        "name": "Secure L3",
-        "uri": "https://storage.googleapis.com/wvmedia/2019/cenc/av1/24/webm/llama_av1_480p_400.webm",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO&provider=widevine_test"
-      },
-      {
-        "name": "Secure L1",
-        "uri": "https://storage.googleapis.com/wvmedia/2019/cenc/av1/24/webm/llama_av1_480p_400.webm",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_ALL&provider=widevine_test"
-      }
-    ]
-  },
-  {
-    "name": "SmoothStreaming",
-    "samples": [
-      {
-        "name": "Super speed",
-        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism/Manifest"
-      },
-      {
-        "name": "Super speed (PlayReady)",
-        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism/Manifest",
-        "drm_scheme": "playready"
       }
     ]
   },
@@ -246,11 +216,11 @@
     "name": "HLS",
     "samples": [
       {
-        "name": "Apple 4x3 basic stream",
+        "name": "Apple 4x3 basic stream (TS)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
       },
       {
-        "name": "Apple 16x9 basic stream",
+        "name": "Apple 16x9 basic stream (TS)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"
       },
       {
@@ -262,146 +232,26 @@
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8"
       },
       {
-        "name": "Apple TS media playlist",
+        "name": "Apple media playlist (TS)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8"
       },
       {
-        "name": "Apple AAC media playlist",
+        "name": "Apple media playlist (AAC)",
         "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear0/prog_index.m3u8"
       }
     ]
   },
   {
-    "name": "Misc",
+    "name": "SmoothStreaming",
     "samples": [
       {
-        "name": "Dizzy (MP4)",
-        "uri": "https://html5demos.com/assets/dizzy.mp4"
+        "name": "Super speed (MP4, H264, Clear)",
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264/SuperSpeedway_720.ism/Manifest"
       },
       {
-        "name": "Apple 10s (AAC)",
-        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear0/fileSequence0.aac"
-      },
-      {
-        "name": "Apple 10s (TS)",
-        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/fileSequence0.ts"
-      },
-      {
-        "name": "Android screens (MKV)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
-      },
-      {
-        "name": "Screens 360p video (WebM,VP9)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-vp9-360.webm"
-      },
-      {
-        "name": "Screens 480p video (FMP4,H264)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4"
-      },
-      {
-        "name": "Screens 1080p video (FMP4,H264)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-137.mp4"
-      },
-      {
-        "name": "Screens audio (FMP4)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
-      },
-      {
-        "name": "Google Play (MP3)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-0/play.mp3"
-      },
-      {
-        "name": "Google Play (Ogg/Vorbis)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg"
-      },
-      {
-        "name": "Google Play (FLAC)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/flac/play.flac"
-      },
-      {
-        "name": "Big Buck Bunny video (FLV)",
-        "uri": "https://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
-      },
-      {
-        "name": "Big Buck Bunny 480p video (MP4,AV1)",
-        "uri": "https://storage.googleapis.com/downloads.webmproject.org/av1/exoplayer/bbb-av1-480p.mp4"
-      },
-      {
-        "name": "One hour frame counter (MP4)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4"
-      }
-    ]
-  },
-  {
-    "name": "Playlists",
-    "samples": [
-      {
-        "name": "Cats -> Dogs",
-        "playlist": [
-          {
-            "uri": "https://html5demos.com/assets/dizzy.mp4"
-          },
-          {
-            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
-          }
-        ]
-      },
-      {
-        "name": "Audio -> Video -> Audio",
-        "playlist": [
-          {
-            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
-          },
-          {
-            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
-          },
-          {
-            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
-          }
-        ]
-      },
-      {
-        "name": "Clear -> Enc -> Clear -> Enc -> Enc",
-        "playlist": [
-          {
-            "uri": "https://html5demos.com/assets/dizzy.mp4"
-          },
-          {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
-            "drm_scheme": "widevine",
-            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-          },
-          {
-            "uri": "https://html5demos.com/assets/dizzy.mp4"
-          },
-          {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
-            "drm_scheme": "widevine",
-            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-          },
-          {
-            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
-            "drm_scheme": "widevine",
-            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-          }
-        ]
-      },
-      {
-        "name": "Manual ad insertion",
-        "playlist": [
-          {
-            "uri": "https://html5demos.com/assets/dizzy.mp4",
-            "clip_end_position_ms": 10000
-          },
-          {
-            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
-            "clip_end_position_ms": 5000
-          },
-          {
-            "uri": "https://html5demos.com/assets/dizzy.mp4",
-            "clip_start_position_ms": 10000
-          }
-        ]
+        "name": "Super speed (MP4, H264, PlayReady)",
+        "uri": "https://playready.directtaps.net/smoothstreaming/SSWSS720H264PR/SuperSpeedway_720.ism/Manifest",
+        "drm_scheme": "playready"
       }
     ]
   },
@@ -523,71 +373,201 @@
     ]
   },
   {
+    "name": "Playlists",
+    "samples": [
+      {
+        "name": "Cats -> Dogs",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          }
+        ]
+      },
+      {
+        "name": "Audio -> Video -> Audio",
+        "playlist": [
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Clear -> Enc -> Clear -> Enc -> Enc",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+          },
+          {
+            "uri": "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears_sd.mpd",
+            "drm_scheme": "widevine",
+            "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+          }
+        ]
+      },
+      {
+        "name": "Manual ad insertion",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4",
+            "clip_end_position_ms": 10000
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4",
+            "clip_end_position_ms": 5000
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4",
+            "clip_start_position_ms": 10000
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "AV1",
+    "samples": [
+      {
+        "name": "SD (WebM, Clear)",
+        "uri": "https://storage.googleapis.com/wvmedia/2019/clear/av1/24/webm/llama_av1_480p_400.webm"
+      },
+      {
+        "name": "SD (WebM, Widevine cenc, L3)",
+        "uri": "https://storage.googleapis.com/wvmedia/2019/cenc/av1/24/webm/llama_av1_480p_400.webm",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_SW_SECURE_CRYPTO&provider=widevine_test"
+      },
+      {
+        "name": "SD (WebM, Widevine cenc, L1)",
+        "uri": "https://storage.googleapis.com/wvmedia/2019/cenc/av1/24/webm/llama_av1_480p_400.webm",
+        "drm_scheme": "widevine",
+        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?video_id=GTS_HW_SECURE_ALL&provider=widevine_test"
+      }
+    ]
+  },
+  {
     "name": "Subtitles",
     "samples": [
       {
-        "name": "TTML",
+        "name": "TTML positioning",
         "uri": "https://html5demos.com/assets/dizzy.mp4",
         "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/netflix_ttml_sample.xml",
         "subtitle_mime_type": "application/ttml+xml",
         "subtitle_language": "en"
       },
       {
-        "name": "WebVTT line positioning",
-        "uri": "https://html5demos.com/assets/dizzy.mp4",
-        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/webvtt/numeric-lines.vtt",
-        "subtitle_mime_type": "text/vtt",
-        "subtitle_language": "en"
-      },
-      {
-        "name": "SSA/ASS position & alignment",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
-        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ssa/test-subs-position.ass",
-        "subtitle_mime_type": "text/x-ssa",
-        "subtitle_language": "en"
-      },
-      {
-        "name": "MPEG-4 Timed Text (tx3g, mov_text)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"
-      },
-      {
-        "name": "Japanese features (vertical + rubies) [TTML]",
+        "name": "TTML Japanese features",
         "uri": "https://html5demos.com/assets/dizzy.mp4",
         "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ttml/japanese-ttml.xml",
         "subtitle_mime_type": "application/ttml+xml",
         "subtitle_language": "ja"
       },
       {
-        "name": "Japanese features (vertical + rubies) [WebVTT]",
+        "name": "WebVTT positioning",
+        "uri": "https://html5demos.com/assets/dizzy.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/webvtt/numeric-lines.vtt",
+        "subtitle_mime_type": "text/vtt",
+        "subtitle_language": "en"
+      },
+      {
+        "name": "WebVTT Japanese features",
         "uri": "https://html5demos.com/assets/dizzy.mp4",
         "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/webvtt/japanese.vtt",
         "subtitle_mime_type": "text/vtt",
         "subtitle_language": "ja"
+      },
+      {
+        "name": "SubStation Alpha positioning",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
+        "subtitle_uri": "https://storage.googleapis.com/exoplayer-test-media-1/ssa/test-subs-position.ass",
+        "subtitle_mime_type": "text/x-ssa",
+        "subtitle_language": "en"
+      },
+      {
+        "name": "MPEG-4 Timed Text",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"
       }
     ]
   },
   {
-    "name": "60fps",
+    "name": "Misc",
     "samples": [
       {
-        "name": "Big Buck Bunny (DASH,H264,1080p,Clear)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-1080/manifest.mpd"
+        "name": "Dizzy (MP4)",
+        "uri": "https://html5demos.com/assets/dizzy.mp4"
       },
       {
-        "name": "Big Buck Bunny (DASH,H264,4K,Clear)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-clear-2160/manifest.mpd"
+        "name": "Apple 10s (AAC)",
+        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear0/fileSequence0.aac"
       },
       {
-        "name": "Big Buck Bunny (DASH,H264,1080p,Widevine)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-1080/manifest.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "name": "Apple 10s (TS)",
+        "uri": "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear1/fileSequence0.ts"
       },
       {
-        "name": "Big Buck Bunny (DASH,H264,4K,Widevine)",
-        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/60fps/bbb-wv-2160/manifest.mpd",
-        "drm_scheme": "widevine",
-        "drm_license_uri": "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        "name": "Android screens (MKV)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+      },
+      {
+        "name": "Screens 360p (WebM, VP9)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-vp9-360.webm"
+      },
+      {
+        "name": "Screens 480p (FMP4, H264)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4"
+      },
+      {
+        "name": "Screens 1080p (FMP4, H264)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-137.mp4"
+      },
+      {
+        "name": "Screens audio (FMP4)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
+      },
+      {
+        "name": "Google Play (MP3)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-0/play.mp3"
+      },
+      {
+        "name": "Google Play (Ogg, Vorbis)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/ogg/play.ogg"
+      },
+      {
+        "name": "Google Play (Flac)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/flac/play.flac"
+      },
+      {
+        "name": "Big Buck Bunny video (FLV)",
+        "uri": "https://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0"
+      },
+      {
+        "name": "Big Buck Bunny 480p (MP4, AV1)",
+        "uri": "https://storage.googleapis.com/downloads.webmproject.org/av1/exoplayer/bbb-av1-480p.mp4"
+      },
+      {
+        "name": "One hour frame counter (MP4)",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/frame-counter-one-hour.mp4"
       }
     ]
   }
