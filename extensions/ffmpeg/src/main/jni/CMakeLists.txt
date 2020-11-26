@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.7.1 FATAL_ERROR)
 # Enable C++11 features.
 set(CMAKE_CXX_STANDARD 11)
 
-project(libffmpeg_jni C CXX)
+project(libffmpegJNI C CXX)
 
 set(ffmpeg_location "${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg")
 set(ffmpeg_binaries "${ffmpeg_location}/android-libs/${ANDROID_ABI}")
@@ -24,11 +24,11 @@ endforeach()
 include_directories(${ffmpeg_location})
 find_library(android_log_lib log)
 
-add_library(ffmpeg_jni
+add_library(ffmpegJNI
             SHARED
             ffmpeg_jni.cc)
 
-target_link_libraries(ffmpeg_jni
+target_link_libraries(ffmpegJNI
                       PRIVATE android
                       PRIVATE swresample
                       PRIVATE avcodec

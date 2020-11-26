@@ -34,7 +34,7 @@ public final class FfmpegLibrary {
 
   private static final String TAG = "FfmpegLibrary";
 
-  private static final LibraryLoader LOADER = new LibraryLoader("ffmpeg_jni");
+  private static final LibraryLoader LOADER = new LibraryLoader("ffmpegJNI");
 
   private static @MonotonicNonNull String version;
   private static int inputBufferPaddingSize = C.LENGTH_UNSET;
