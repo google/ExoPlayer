@@ -1082,6 +1082,23 @@ public final class C {
   /** Indicates the track is intended for trick play. */
   public static final int ROLE_FLAG_TRICK_PLAY = 1 << 14;
 
+  // TODO(b/172315872) Move usage back to Player.RepeatMode when Player is moved in common.
+  /**
+   * Repeat modes for playback. One of {@link #REPEAT_MODE_OFF}, {@link #REPEAT_MODE_ONE} or {@link
+   * #REPEAT_MODE_ALL}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
+  static @interface RepeatMode {}
+
+  /** Normal playback without repetition. */
+  /* package */ static final int REPEAT_MODE_OFF = 0;
+  /** "Repeat One" mode to repeat the currently playing window infinitely. */
+  /* package */ static final int REPEAT_MODE_ONE = 1;
+  /** "Repeat All" mode to repeat the entire timeline infinitely. */
+  /* package */ static final int REPEAT_MODE_ALL = 2;
+
   /**
    * Converts a time in microseconds to the corresponding time in milliseconds, preserving
    * {@link #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.

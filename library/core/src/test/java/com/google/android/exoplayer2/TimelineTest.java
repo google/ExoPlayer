@@ -39,13 +39,12 @@ public class TimelineTest {
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(1, 111));
     TimelineAsserts.assertWindowTags(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 1);
-    TimelineAsserts.assertPreviousWindowIndices(
-        timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
-    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0);
-    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
-    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
-    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0);
-    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, C.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, C.REPEAT_MODE_ONE, false, 0);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, C.REPEAT_MODE_ALL, false, 0);
+    TimelineAsserts.assertNextWindowIndices(timeline, C.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(timeline, C.REPEAT_MODE_ONE, false, 0);
+    TimelineAsserts.assertNextWindowIndices(timeline, C.REPEAT_MODE_ALL, false, 0);
   }
 
   @Test
@@ -53,13 +52,12 @@ public class TimelineTest {
     Timeline timeline = new FakeTimeline(new TimelineWindowDefinition(5, 111));
     TimelineAsserts.assertWindowTags(timeline, 111);
     TimelineAsserts.assertPeriodCounts(timeline, 5);
-    TimelineAsserts.assertPreviousWindowIndices(
-        timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
-    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0);
-    TimelineAsserts.assertPreviousWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
-    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
-    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ONE, false, 0);
-    TimelineAsserts.assertNextWindowIndices(timeline, Player.REPEAT_MODE_ALL, false, 0);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, C.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, C.REPEAT_MODE_ONE, false, 0);
+    TimelineAsserts.assertPreviousWindowIndices(timeline, C.REPEAT_MODE_ALL, false, 0);
+    TimelineAsserts.assertNextWindowIndices(timeline, C.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
+    TimelineAsserts.assertNextWindowIndices(timeline, C.REPEAT_MODE_ONE, false, 0);
+    TimelineAsserts.assertNextWindowIndices(timeline, C.REPEAT_MODE_ALL, false, 0);
   }
 
   @Test

@@ -733,15 +733,15 @@ public abstract class Timeline {
    * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return The index of the next window, or {@link C#INDEX_UNSET} if this is the last window.
    */
-  public int getNextWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-      boolean shuffleModeEnabled) {
+  public int getNextWindowIndex(
+      int windowIndex, @C.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
-      case Player.REPEAT_MODE_OFF:
+      case C.REPEAT_MODE_OFF:
         return windowIndex == getLastWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
             : windowIndex + 1;
-      case Player.REPEAT_MODE_ONE:
+      case C.REPEAT_MODE_ONE:
         return windowIndex;
-      case Player.REPEAT_MODE_ALL:
+      case C.REPEAT_MODE_ALL:
         return windowIndex == getLastWindowIndex(shuffleModeEnabled)
             ? getFirstWindowIndex(shuffleModeEnabled) : windowIndex + 1;
       default:
@@ -758,15 +758,15 @@ public abstract class Timeline {
    * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return The index of the previous window, or {@link C#INDEX_UNSET} if this is the first window.
    */
-  public int getPreviousWindowIndex(int windowIndex, @Player.RepeatMode int repeatMode,
-      boolean shuffleModeEnabled) {
+  public int getPreviousWindowIndex(
+      int windowIndex, @C.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
-      case Player.REPEAT_MODE_OFF:
+      case C.REPEAT_MODE_OFF:
         return windowIndex == getFirstWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
             : windowIndex - 1;
-      case Player.REPEAT_MODE_ONE:
+      case C.REPEAT_MODE_ONE:
         return windowIndex;
-      case Player.REPEAT_MODE_ALL:
+      case C.REPEAT_MODE_ALL:
         return windowIndex == getFirstWindowIndex(shuffleModeEnabled)
             ? getLastWindowIndex(shuffleModeEnabled) : windowIndex - 1;
       default:
@@ -843,8 +843,12 @@ public abstract class Timeline {
    * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return The index of the next period, or {@link C#INDEX_UNSET} if this is the last period.
    */
-  public final int getNextPeriodIndex(int periodIndex, Period period, Window window,
-      @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+  public final int getNextPeriodIndex(
+      int periodIndex,
+      Period period,
+      Window window,
+      @C.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
     int windowIndex = getPeriod(periodIndex, period).windowIndex;
     if (getWindow(windowIndex, window).lastPeriodIndex == periodIndex) {
       int nextWindowIndex = getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled);
@@ -857,8 +861,8 @@ public abstract class Timeline {
   }
 
   /**
-   * Returns whether the given period is the last period of the timeline depending on the
-   * {@code repeatMode} and whether shuffling is enabled.
+   * Returns whether the given period is the last period of the timeline depending on the {@code
+   * repeatMode} and whether shuffling is enabled.
    *
    * @param periodIndex A period index.
    * @param period A {@link Period} to be used internally. Must not be null.
@@ -867,8 +871,12 @@ public abstract class Timeline {
    * @param shuffleModeEnabled Whether shuffling is enabled.
    * @return Whether the period of the given index is the last period of the timeline.
    */
-  public final boolean isLastPeriod(int periodIndex, Period period, Window window,
-      @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+  public final boolean isLastPeriod(
+      int periodIndex,
+      Period period,
+      Window window,
+      @C.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
     return getNextPeriodIndex(periodIndex, period, window, repeatMode, shuffleModeEnabled)
         == C.INDEX_UNSET;
   }
