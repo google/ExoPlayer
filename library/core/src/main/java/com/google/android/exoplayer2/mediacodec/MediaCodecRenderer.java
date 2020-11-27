@@ -631,16 +631,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Nullable
-  protected Format getInputFormat() {
-    return inputFormat;
-  }
-
-  @Nullable
-  protected final Format getOutputFormat() {
-    return outputFormat;
-  }
-
-  @Nullable
   protected final MediaCodecAdapter getCodec() {
     return codec;
   }
