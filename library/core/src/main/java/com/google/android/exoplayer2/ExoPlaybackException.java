@@ -20,7 +20,7 @@ import android.text.TextUtils;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.RendererCapabilities.FormatSupport;
+import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -121,7 +121,7 @@ public final class ExoPlaybackException extends Exception {
   /**
    * If {@link #type} is {@link #TYPE_RENDERER}, this is the level of {@link FormatSupport} of the
    * renderer for {@link #rendererFormat}. If {@link #rendererFormat} is null, this is {@link
-   * RendererCapabilities#FORMAT_HANDLED}.
+   * C#FORMAT_HANDLED}.
    */
   @FormatSupport public final int rendererFormatSupport;
 
@@ -214,7 +214,7 @@ public final class ExoPlaybackException extends Exception {
         rendererName,
         rendererIndex,
         rendererFormat,
-        rendererFormat == null ? RendererCapabilities.FORMAT_HANDLED : rendererFormatSupport,
+        rendererFormat == null ? C.FORMAT_HANDLED : rendererFormatSupport,
         TIMEOUT_OPERATION_UNDEFINED,
         isRecoverable);
   }
@@ -265,7 +265,7 @@ public final class ExoPlaybackException extends Exception {
         /* rendererName= */ null,
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
-        /* rendererFormatSupport= */ RendererCapabilities.FORMAT_HANDLED,
+        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
         timeoutOperation,
         /* isRecoverable= */ false);
   }
@@ -278,7 +278,7 @@ public final class ExoPlaybackException extends Exception {
         /* rendererName= */ null,
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
-        /* rendererFormatSupport= */ RendererCapabilities.FORMAT_HANDLED,
+        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
         TIMEOUT_OPERATION_UNDEFINED,
         /* isRecoverable= */ false);
   }
@@ -291,7 +291,7 @@ public final class ExoPlaybackException extends Exception {
         /* rendererName= */ null,
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
-        /* rendererFormatSupport= */ RendererCapabilities.FORMAT_HANDLED,
+        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
         /* timeoutOperation= */ TIMEOUT_OPERATION_UNDEFINED,
         /* isRecoverable= */ false);
   }
@@ -446,7 +446,7 @@ public final class ExoPlaybackException extends Exception {
                 + ", format="
                 + rendererFormat
                 + ", format_supported="
-                + RendererCapabilities.getFormatSupportString(rendererFormatSupport);
+                + C.getFormatSupportString(rendererFormatSupport);
         break;
       case TYPE_REMOTE:
         message = "Remote error";

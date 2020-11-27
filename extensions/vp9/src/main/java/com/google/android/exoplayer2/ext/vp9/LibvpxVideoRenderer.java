@@ -127,15 +127,16 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
   @Capabilities
   public final int supportsFormat(Format format) {
     if (!VpxLibrary.isAvailable() || !MimeTypes.VIDEO_VP9.equalsIgnoreCase(format.sampleMimeType)) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
     boolean drmIsSupported =
         format.exoMediaCryptoType == null
             || VpxLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
     if (!drmIsSupported) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
-    return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);
+    return RendererCapabilities.create(
+        C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);
   }
 
   @Override

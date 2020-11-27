@@ -130,12 +130,13 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
   public final int supportsFormat(Format format) {
     if (!MimeTypes.VIDEO_AV1.equalsIgnoreCase(format.sampleMimeType)
         || !Gav1Library.isAvailable()) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
     if (format.exoMediaCryptoType != null) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
-    return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);
+    return RendererCapabilities.create(
+        C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED);
   }
 
   @Override

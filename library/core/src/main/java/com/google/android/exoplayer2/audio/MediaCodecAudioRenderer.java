@@ -232,7 +232,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format)
       throws DecoderQueryException {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
     @TunnelingSupport
     int tunnelingSupport = Util.SDK_INT >= 21 ? TUNNELING_SUPPORTED : TUNNELING_NOT_SUPPORTED;
@@ -243,25 +243,25 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     if (supportsFormatDrm
         && audioSink.supportsFormat(format)
         && (!formatHasDrm || MediaCodecUtil.getDecryptOnlyDecoderInfo() != null)) {
-      return RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
+      return RendererCapabilities.create(C.FORMAT_HANDLED, ADAPTIVE_NOT_SEAMLESS, tunnelingSupport);
     }
     // If the input is PCM then it will be passed directly to the sink. Hence the sink must support
     // the input format directly.
     if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType) && !audioSink.supportsFormat(format)) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     // For all other input formats, we expect the decoder to output 16-bit PCM.
     if (!audioSink.supportsFormat(
         Util.getPcmFormat(C.ENCODING_PCM_16BIT, format.channelCount, format.sampleRate))) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     List<MediaCodecInfo> decoderInfos =
         getDecoderInfos(mediaCodecSelector, format, /* requiresSecureDecoder= */ false);
     if (decoderInfos.isEmpty()) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     if (!supportsFormatDrm) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
     // Check capabilities for the first decoder in the list, which takes priority.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
@@ -271,8 +271,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         isFormatSupported && decoderInfo.isSeamlessAdaptationSupported(format)
             ? ADAPTIVE_SEAMLESS
             : ADAPTIVE_NOT_SEAMLESS;
-    @FormatSupport
-    int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
+    @C.FormatSupport
+    int formatSupport = isFormatSupported ? C.FORMAT_HANDLED : C.FORMAT_EXCEEDS_CAPABILITIES;
     return RendererCapabilities.create(formatSupport, adaptiveSupport, tunnelingSupport);
   }
 

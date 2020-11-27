@@ -25,6 +25,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
@@ -32,7 +33,6 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
-import com.google.android.exoplayer2.RendererCapabilities.FormatSupport;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -2405,21 +2405,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
   /**
    * Returns true if the {@link FormatSupport} in the given {@link Capabilities} is {@link
-   * RendererCapabilities#FORMAT_HANDLED} or if {@code allowExceedsCapabilities} is set and the
-   * format support is {@link RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES}.
+   * C#FORMAT_HANDLED} or if {@code allowExceedsCapabilities} is set and the format support is
+   * {@link C#FORMAT_EXCEEDS_CAPABILITIES}.
    *
    * @param formatSupport {@link Capabilities}.
    * @param allowExceedsCapabilities Whether to return true if {@link FormatSupport} is {@link
-   *     RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES}.
-   * @return True if {@link FormatSupport} is {@link RendererCapabilities#FORMAT_HANDLED}, or if
-   *     {@code allowExceedsCapabilities} is set and the format support is {@link
-   *     RendererCapabilities#FORMAT_EXCEEDS_CAPABILITIES}.
+   *     C#FORMAT_EXCEEDS_CAPABILITIES}.
+   * @return True if {@link FormatSupport} is {@link C#FORMAT_HANDLED}, or if {@code
+   *     allowExceedsCapabilities} is set and the format support is {@link
+   *     C#FORMAT_EXCEEDS_CAPABILITIES}.
    */
   protected static boolean isSupported(
       @Capabilities int formatSupport, boolean allowExceedsCapabilities) {
     @FormatSupport int maskedSupport = RendererCapabilities.getFormatSupport(formatSupport);
-    return maskedSupport == RendererCapabilities.FORMAT_HANDLED || (allowExceedsCapabilities
-        && maskedSupport == RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES);
+    return maskedSupport == C.FORMAT_HANDLED
+        || (allowExceedsCapabilities && maskedSupport == C.FORMAT_EXCEEDS_CAPABILITIES);
   }
 
   /**

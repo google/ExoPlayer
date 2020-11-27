@@ -458,8 +458,7 @@ import java.util.List;
     }
 
     private static boolean isFormatHandled(int formatSupport) {
-      return RendererCapabilities.getFormatSupport(formatSupport)
-          == RendererCapabilities.FORMAT_HANDLED;
+      return RendererCapabilities.getFormatSupport(formatSupport) == C.FORMAT_HANDLED;
     }
 
   }

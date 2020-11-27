@@ -240,7 +240,7 @@ public class MediaCodecAudioRendererTest {
                       "rendererName",
                       /* rendererIndex= */ 0,
                       format,
-                      FORMAT_HANDLED));
+                      C.FORMAT_HANDLED));
             }
           }
         };

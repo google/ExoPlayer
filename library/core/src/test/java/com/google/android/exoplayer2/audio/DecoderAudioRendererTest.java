@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.C.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
-import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_SUPPORTED;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
@@ -68,7 +68,7 @@ public class DecoderAudioRendererTest {
           }
 
           @Override
-          @FormatSupport
+          @C.FormatSupport
           protected int supportsFormatInternal(Format format) {
             return FORMAT_HANDLED;
           }

@@ -15,10 +15,10 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
+import static com.google.android.exoplayer2.C.FORMAT_EXCEEDS_CAPABILITIES;
+import static com.google.android.exoplayer2.C.FORMAT_HANDLED;
+import static com.google.android.exoplayer2.C.FORMAT_UNSUPPORTED_SUBTYPE;
 import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
-import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES;
-import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
-import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.common.truth.Truth.assertThat;
@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -1538,9 +1537,9 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
-   * A {@link RendererCapabilities} that advertises support for all formats of a given type using
-   * a provided support value. For any format that does not have the given track type,
-   * {@link #supportsFormat(Format)} will return {@link #FORMAT_UNSUPPORTED_TYPE}.
+   * A {@link RendererCapabilities} that advertises support for all formats of a given type using a
+   * provided support value. For any format that does not have the given track type, {@link
+   * #supportsFormat(Format)} will return {@link C#FORMAT_UNSUPPORTED_TYPE}.
    */
   private static final class FakeRendererCapabilities implements RendererCapabilities {
 
@@ -1589,7 +1588,7 @@ public final class DefaultTrackSelectorTest {
     public int supportsFormat(Format format) {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
           ? supportValue
-          : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+          : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override
@@ -1615,8 +1614,8 @@ public final class DefaultTrackSelectorTest {
      *
      * @param trackType the track type to be returned for {@link #getTrackType()}
      * @param formatToCapability a map of (format id, support level) that will be used to return
-     * support level for any given format. For any format that's not in the map,
-     * {@link #supportsFormat(Format)} will return {@link #FORMAT_UNSUPPORTED_TYPE}.
+     *     support level for any given format. For any format that's not in the map, {@link
+     *     #supportsFormat(Format)} will return {@link C#FORMAT_UNSUPPORTED_TYPE}.
      */
     FakeMappedRendererCapabilities(int trackType, Map<String, Integer> formatToCapability) {
       this.trackType = trackType;
@@ -1638,7 +1637,7 @@ public final class DefaultTrackSelectorTest {
     public int supportsFormat(Format format) {
       return format.id != null && formatToCapability.containsKey(format.id)
           ? formatToCapability.get(format.id)
-          : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+          : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override

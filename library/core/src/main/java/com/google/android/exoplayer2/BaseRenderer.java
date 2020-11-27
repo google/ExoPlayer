@@ -354,7 +354,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final ExoPlaybackException createRendererException(
       Exception cause, @Nullable Format format, boolean isRecoverable) {
-    @FormatSupport int formatSupport = RendererCapabilities.FORMAT_HANDLED;
+    @C.FormatSupport int formatSupport = C.FORMAT_HANDLED;
     if (format != null && !throwRendererExceptionIsExecuting) {
       // Prevent recursive re-entry from subclass supportsFormat implementations.
       throwRendererExceptionIsExecuting = true;

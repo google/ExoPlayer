@@ -107,7 +107,7 @@ public class MediaCodecVideoRendererTest {
           @Override
           @Capabilities
           protected int supportsFormat(MediaCodecSelector mediaCodecSelector, Format format) {
-            return RendererCapabilities.create(FORMAT_HANDLED);
+            return RendererCapabilities.create(C.FORMAT_HANDLED);
           }
 
           @Override

@@ -24,6 +24,7 @@ import android.media.MediaFormat;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -1100,8 +1101,63 @@ public final class C {
   /* package */ static final int REPEAT_MODE_ALL = 2;
 
   /**
-   * Converts a time in microseconds to the corresponding time in milliseconds, preserving
-   * {@link #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
+   * Level of renderer support for a format. One of {@link #FORMAT_HANDLED}, {@link
+   * #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM}, {@link
+   * #FORMAT_UNSUPPORTED_SUBTYPE} or {@link #FORMAT_UNSUPPORTED_TYPE}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FORMAT_HANDLED,
+    FORMAT_EXCEEDS_CAPABILITIES,
+    FORMAT_UNSUPPORTED_DRM,
+    FORMAT_UNSUPPORTED_SUBTYPE,
+    FORMAT_UNSUPPORTED_TYPE
+  })
+  public static @interface FormatSupport {}
+  // TODO(b/172315872) Renderer was a link. Link to equivalent concept or remove @code.
+  /** The {@code Renderer} is capable of rendering the format. */
+  public static final int FORMAT_HANDLED = 0b100;
+  /**
+   * The {@code Renderer} is capable of rendering formats with the same MIME type, but the
+   * properties of the format exceed the renderer's capabilities. There is a chance the renderer
+   * will be able to play the format in practice because some renderers report their capabilities
+   * conservatively, but the expected outcome is that playback will fail.
+   *
+   * <p>Example: The {@code Renderer} is capable of rendering H264 and the format's MIME type is
+   * {@code MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
+   * by the underlying H264 decoder.
+   */
+  public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b011;
+  /**
+   * The {@code Renderer} is capable of rendering formats with the same MIME type, but is not
+   * capable of rendering the format because the format's drm protection is not supported.
+   *
+   * <p>Example: The {@code Renderer} is capable of rendering H264 and the format's MIME type is
+   * {@link MimeTypes#VIDEO_H264}, but the format indicates PlayReady drm protection whereas the
+   * renderer only supports Widevine.
+   */
+  public static final int FORMAT_UNSUPPORTED_DRM = 0b010;
+  /**
+   * The {@code Renderer} is a general purpose renderer for formats of the same top-level type, but
+   * is not capable of rendering the format or any other format with the same MIME type because the
+   * sub-type is not supported.
+   *
+   * <p>Example: The {@code Renderer} is a general purpose audio renderer and the format's MIME type
+   * matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
+   */
+  public static final int FORMAT_UNSUPPORTED_SUBTYPE = 0b001;
+  /**
+   * The {@code Renderer} is not capable of rendering the format, either because it does not support
+   * the format's top-level type, or because it's a specialized renderer for a different MIME type.
+   *
+   * <p>Example: The {@code Renderer} is a general purpose video renderer, but the format has an
+   * audio MIME type.
+   */
+  public static final int FORMAT_UNSUPPORTED_TYPE = 0b000;
+  /**
+   * Converts a time in microseconds to the corresponding time in milliseconds, preserving {@link
+   * #TIME_UNSET} and {@link #TIME_END_OF_SOURCE} values.
    *
    * @param timeUs The time in microseconds.
    * @return The corresponding time in milliseconds.
@@ -1134,4 +1190,26 @@ public final class C {
     return audioManager == null ? AudioManager.ERROR : audioManager.generateAudioSessionId();
   }
 
+  /**
+   * Returns string representation of a {@link FormatSupport} flag.
+   *
+   * @param formatSupport A {@link FormatSupport} flag.
+   * @return A string representation of the flag.
+   */
+  public static String getFormatSupportString(@FormatSupport int formatSupport) {
+    switch (formatSupport) {
+      case FORMAT_HANDLED:
+        return "YES";
+      case FORMAT_EXCEEDS_CAPABILITIES:
+        return "NO_EXCEEDS_CAPABILITIES";
+      case FORMAT_UNSUPPORTED_DRM:
+        return "NO_UNSUPPORTED_DRM";
+      case FORMAT_UNSUPPORTED_SUBTYPE:
+        return "NO_UNSUPPORTED_TYPE";
+      case FORMAT_UNSUPPORTED_TYPE:
+        return "NO";
+      default:
+        throw new IllegalStateException();
+    }
+  }
 }

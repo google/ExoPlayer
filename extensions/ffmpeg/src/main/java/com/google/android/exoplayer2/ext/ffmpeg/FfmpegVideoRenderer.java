@@ -74,7 +74,7 @@ public final class FfmpegVideoRenderer extends DecoderVideoRenderer {
   @RendererCapabilities.Capabilities
   public final int supportsFormat(Format format) {
     // TODO: Remove this line and uncomment the implementation below.
-    return FORMAT_UNSUPPORTED_TYPE;
+    return C.FORMAT_UNSUPPORTED_TYPE;
     /*
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable() || !MimeTypes.isVideo(mimeType)) {

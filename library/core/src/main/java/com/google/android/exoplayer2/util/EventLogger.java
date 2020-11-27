@@ -239,7 +239,7 @@ public class EventLogger implements AnalyticsListener {
           for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
             String status = getTrackStatusString(trackSelection, trackGroup, trackIndex);
             String formatSupport =
-                RendererCapabilities.getFormatSupportString(
+                C.getFormatSupportString(
                     mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex));
             logd(
                 "      "
@@ -277,9 +277,7 @@ public class EventLogger implements AnalyticsListener {
         TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);
         for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
           String status = getTrackStatusString(false);
-          String formatSupport =
-              RendererCapabilities.getFormatSupportString(
-                  RendererCapabilities.FORMAT_UNSUPPORTED_TYPE);
+          String formatSupport = C.getFormatSupportString(C.FORMAT_UNSUPPORTED_TYPE);
           logd(
               "      "
                   + status

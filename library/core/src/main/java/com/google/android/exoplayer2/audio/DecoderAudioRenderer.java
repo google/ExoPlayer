@@ -215,10 +215,10 @@ public abstract class DecoderAudioRenderer<
   @Capabilities
   public final int supportsFormat(Format format) {
     if (!MimeTypes.isAudio(format.sampleMimeType)) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
-    @FormatSupport int formatSupport = supportsFormatInternal(format);
-    if (formatSupport <= FORMAT_UNSUPPORTED_DRM) {
+    @C.FormatSupport int formatSupport = supportsFormatInternal(format);
+    if (formatSupport <= C.FORMAT_UNSUPPORTED_DRM) {
       return RendererCapabilities.create(formatSupport);
     }
     @TunnelingSupport
@@ -227,12 +227,12 @@ public abstract class DecoderAudioRenderer<
   }
 
   /**
-   * Returns the {@link FormatSupport} for the given {@link Format}.
+   * Returns the {@link C.FormatSupport} for the given {@link Format}.
    *
    * @param format The format, which has an audio {@link Format#sampleMimeType}.
-   * @return The {@link FormatSupport} for this {@link Format}.
+   * @return The {@link C.FormatSupport} for this {@link Format}.
    */
-  @FormatSupport
+  @C.FormatSupport
   protected abstract int supportsFormatInternal(Format format);
 
   /**

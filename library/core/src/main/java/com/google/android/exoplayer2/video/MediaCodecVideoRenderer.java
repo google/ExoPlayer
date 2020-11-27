@@ -260,7 +260,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       throws DecoderQueryException {
     String mimeType = format.sampleMimeType;
     if (!MimeTypes.isVideo(mimeType)) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
     @Nullable DrmInitData drmInitData = format.drmInitData;
     // Assume encrypted content requires secure decoders.
@@ -281,10 +281,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
               /* requiresTunnelingDecoder= */ false);
     }
     if (decoderInfos.isEmpty()) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_SUBTYPE);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
     }
     if (!supportsFormatDrm(format)) {
-      return RendererCapabilities.create(FORMAT_UNSUPPORTED_DRM);
+      return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_DRM);
     }
     // Check capabilities for the first decoder in the list, which takes priority.
     MediaCodecInfo decoderInfo = decoderInfos.get(0);
@@ -310,8 +310,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         }
       }
     }
-    @FormatSupport
-    int formatSupport = isFormatSupported ? FORMAT_HANDLED : FORMAT_EXCEEDS_CAPABILITIES;
+    @C.FormatSupport
+    int formatSupport = isFormatSupported ? C.FORMAT_HANDLED : C.FORMAT_EXCEEDS_CAPABILITIES;
     return RendererCapabilities.create(formatSupport, adaptiveSupport, tunnelingSupport);
   }
 

@@ -89,7 +89,7 @@ public final class DecoderVideoRendererTest {
           @Override
           @Capabilities
           public int supportsFormat(Format format) {
-            return RendererCapabilities.create(FORMAT_HANDLED);
+            return RendererCapabilities.create(C.FORMAT_HANDLED);
           }
 
           @Override

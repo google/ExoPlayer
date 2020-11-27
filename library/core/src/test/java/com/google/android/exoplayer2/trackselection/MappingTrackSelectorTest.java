@@ -184,8 +184,9 @@ public final class MappingTrackSelectorTest {
     @Capabilities
     public int supportsFormat(Format format) throws ExoPlaybackException {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
-          ? RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
-          : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+          ? RendererCapabilities.create(
+              C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
+          : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override

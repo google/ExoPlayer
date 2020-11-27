@@ -168,7 +168,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   @Override
   @Capabilities
   public int supportsFormat(Format format) throws ExoPlaybackException {
-    return RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+    return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override

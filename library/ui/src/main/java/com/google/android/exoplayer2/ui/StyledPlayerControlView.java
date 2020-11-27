@@ -56,7 +56,6 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
-import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -1307,7 +1306,7 @@ public class StyledPlayerControlView extends FrameLayout {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         Format format = trackGroup.getFormat(trackIndex);
         if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
-            == RendererCapabilities.FORMAT_HANDLED) {
+            == C.FORMAT_HANDLED) {
           boolean trackIsSelected =
               trackSelection != null && trackSelection.indexOf(format) != C.INDEX_UNSET;
           tracks.add(

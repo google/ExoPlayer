@@ -91,19 +91,19 @@ public final class FfmpegAudioRenderer extends DecoderAudioRenderer<FfmpegAudioD
   }
 
   @Override
-  @FormatSupport
+  @C.FormatSupport
   protected int supportsFormatInternal(Format format) {
     String mimeType = Assertions.checkNotNull(format.sampleMimeType);
     if (!FfmpegLibrary.isAvailable() || !MimeTypes.isAudio(mimeType)) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return C.FORMAT_UNSUPPORTED_TYPE;
     } else if (!FfmpegLibrary.supportsFormat(mimeType)
         || (!sinkSupportsFormat(format, C.ENCODING_PCM_16BIT)
             && !sinkSupportsFormat(format, C.ENCODING_PCM_FLOAT))) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return C.FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (format.exoMediaCryptoType != null) {
-      return FORMAT_UNSUPPORTED_DRM;
+      return C.FORMAT_UNSUPPORTED_DRM;
     } else {
-      return FORMAT_HANDLED;
+      return C.FORMAT_HANDLED;
     }
   }
 
