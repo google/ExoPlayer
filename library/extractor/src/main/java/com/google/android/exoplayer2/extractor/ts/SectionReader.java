@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
+import java.util.Arrays;
 
 /**
  * Reads section data packets and feeds the whole sections to a given {@link SectionPayloadReader}.
@@ -91,10 +92,13 @@ public final class SectionReader implements TsPayloadReader {
           }
         }
         int headerBytesToRead = min(data.bytesLeft(), SECTION_HEADER_LENGTH - bytesRead);
+        // sectionData is guaranteed to have enough space because it's initialized with a 32-element
+        // backing array and headerBytesToRead is at most 3.
         data.readBytes(sectionData.getData(), bytesRead, headerBytesToRead);
         bytesRead += headerBytesToRead;
         if (bytesRead == SECTION_HEADER_LENGTH) {
-          sectionData.reset(SECTION_HEADER_LENGTH);
+          sectionData.setPosition(0);
+          sectionData.setLimit(SECTION_HEADER_LENGTH);
           sectionData.skipBytes(1); // Skip table id (8).
           int secondHeaderByte = sectionData.readUnsignedByte();
           int thirdHeaderByte = sectionData.readUnsignedByte();
@@ -104,13 +108,17 @@ public final class SectionReader implements TsPayloadReader {
           if (sectionData.capacity() < totalSectionLength) {
             // Ensure there is enough space to keep the whole section.
             byte[] bytes = sectionData.getData();
-            sectionData.reset(min(MAX_SECTION_LENGTH, max(totalSectionLength, bytes.length * 2)));
-            System.arraycopy(bytes, 0, sectionData.getData(), 0, SECTION_HEADER_LENGTH);
+            int limit = min(MAX_SECTION_LENGTH, max(totalSectionLength, bytes.length * 2));
+            if (limit > bytes.length) {
+              bytes = Arrays.copyOf(sectionData.getData(), limit);
+            }
+            sectionData.reset(bytes, limit);
           }
         }
       } else {
         // Reading the body.
         int bodyBytesToRead = min(data.bytesLeft(), totalSectionLength - bytesRead);
+        // sectionData has been sized large enough for totalSectionLength when reading the header.
         data.readBytes(sectionData.getData(), bytesRead, bodyBytesToRead);
         bytesRead += bodyBytesToRead;
         if (bytesRead == totalSectionLength) {
@@ -121,11 +129,12 @@ public final class SectionReader implements TsPayloadReader {
               waitingForPayloadStart = true;
               return;
             }
-            sectionData.reset(totalSectionLength - 4); // Exclude the CRC_32 field.
+            sectionData.setLimit(totalSectionLength - 4); // Exclude the CRC_32 field.
           } else {
             // This is a private section with private defined syntax.
-            sectionData.reset(totalSectionLength);
+            sectionData.setLimit(totalSectionLength);
           }
+          sectionData.setPosition(0);
           reader.consume(sectionData);
           bytesRead = 0;
         }

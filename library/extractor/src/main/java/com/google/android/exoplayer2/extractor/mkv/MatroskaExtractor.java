@@ -1575,7 +1575,8 @@ public class MatroskaExtractor implements Extractor {
       System.arraycopy(samplePrefix, 0, subtitleSample.getData(), 0, samplePrefix.length);
     }
     input.readFully(subtitleSample.getData(), samplePrefix.length, size);
-    subtitleSample.reset(sizeWithPrefix);
+    subtitleSample.setPosition(0);
+    subtitleSample.setLimit(sizeWithPrefix);
     // Defer writing the data to the track output. We need to modify the sample data by setting
     // the correct end timecode, which we might not have yet.
   }

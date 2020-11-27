@@ -68,8 +68,8 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Resets the position to zero and the limit to the specified value. If the limit exceeds the
-   * capacity, {@code data} is replaced with a new array of sufficient size.
+   * Resets the position to zero and the limit to the specified value. This might replace or wipe
+   * the {@link #getData() underlying array}, potentially invalidating any local references.
    *
    * @param limit The limit to set.
    */

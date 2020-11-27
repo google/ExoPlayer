@@ -177,7 +177,8 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
         }
         bitmapWidth = buffer.readUnsignedShort();
         bitmapHeight = buffer.readUnsignedShort();
-        bitmapData.reset(totalLength - 4);
+        bitmapData.setPosition(0);
+        bitmapData.setLimit(totalLength - 4);
         sectionLength -= 7;
       }
 

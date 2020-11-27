@@ -473,12 +473,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private long peekId3PrivTimestamp(ExtractorInput input) throws IOException {
     input.resetPeekPosition();
     try {
+      scratchId3Data.reset(Id3Decoder.ID3_HEADER_LENGTH);
       input.peekFully(scratchId3Data.getData(), 0, Id3Decoder.ID3_HEADER_LENGTH);
     } catch (EOFException e) {
       // The input isn't long enough for there to be any ID3 data.
       return C.TIME_UNSET;
     }
-    scratchId3Data.reset(Id3Decoder.ID3_HEADER_LENGTH);
     int id = scratchId3Data.readUnsignedInt24();
     if (id != Id3Decoder.ID3_TAG) {
       return C.TIME_UNSET;
@@ -504,7 +504,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         if (PRIV_TIMESTAMP_FRAME_OWNER.equals(privFrame.owner)) {
           System.arraycopy(
               privFrame.privateData, 0, scratchId3Data.getData(), 0, 8 /* timestamp size */);
-          scratchId3Data.reset(8);
+          scratchId3Data.setPosition(0);
+          scratchId3Data.setLimit(8);
           // The top 31 bits should be zeros, but explicitly zero them to wrap in the case that the
           // streaming provider forgot. See: https://github.com/google/ExoPlayer/pull/3495.
           return scratchId3Data.readLong() & 0x1FFFFFFFFL;
