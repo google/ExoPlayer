@@ -46,8 +46,8 @@ import java.util.Arrays;
 
     private ItemData() {
       this(
-          /* durationUs= */ C.TIME_UNSET, /* defaultPositionUs */
-          C.TIME_UNSET,
+          /* durationUs= */ C.TIME_UNSET,
+          /* defaultPositionUs= */ C.TIME_UNSET,
           /* isLive= */ false);
     }
 

@@ -90,7 +90,7 @@ public final class HlsMediaPeriodTest {
                   .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
               mock(Allocator.class),
               mock(CompositeSequenceableLoaderFactory.class),
-              /* allowChunklessPreparation =*/ true,
+              /* allowChunklessPreparation= */ true,
               HlsMediaSource.METADATA_TYPE_ID3,
               /* useSessionKeys= */ false);
         };

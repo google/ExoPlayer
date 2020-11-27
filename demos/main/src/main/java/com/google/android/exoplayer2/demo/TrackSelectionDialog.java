@@ -94,7 +94,7 @@ public final class TrackSelectionDialog extends DialogFragment {
         /* titleId= */ R.string.track_selection_title,
         mappedTrackInfo,
         /* initialParameters = */ parameters,
-        /* allowAdaptiveSelections =*/ true,
+        /* allowAdaptiveSelections= */ true,
         /* allowMultipleOverrides= */ false,
         /* onClickListener= */ (dialog, which) -> {
           DefaultTrackSelector.ParametersBuilder builder = parameters.buildUpon();

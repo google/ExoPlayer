@@ -3138,7 +3138,7 @@ public final class ExoPlayerTest {
     Timeline timeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
-                /* periodCount =*/ 2,
+                /* periodCount= */ 2,
                 /* id= */ new Object(),
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
@@ -8760,7 +8760,7 @@ public final class ExoPlayerTest {
 
   // Internal classes.
 
-  /* {@link FakeRenderer} that can sleep and be woken-up. */
+  /** {@link FakeRenderer} that can sleep and be woken-up. */
   private static class FakeSleepRenderer extends FakeRenderer {
     private static final long WAKEUP_DEADLINE_MS = 60 * C.MICROS_PER_SECOND;
     private final AtomicBoolean sleepOnNextRender;

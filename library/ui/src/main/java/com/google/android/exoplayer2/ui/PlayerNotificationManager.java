@@ -571,7 +571,7 @@ public class PlayerNotificationManager {
         notificationId,
         mediaDescriptionAdapter,
         notificationListener,
-        /* customActionReceiver*/ null);
+        /* customActionReceiver= */ null);
   }
 
   /**
@@ -599,7 +599,7 @@ public class PlayerNotificationManager {
         channelId,
         notificationId,
         mediaDescriptionAdapter,
-        /* notificationListener */ null,
+        /* notificationListener= */ null,
         customActionReceiver);
   }
 

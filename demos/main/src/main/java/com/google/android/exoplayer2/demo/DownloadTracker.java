@@ -332,7 +332,7 @@ public class DownloadTracker {
               /* titleId= */ R.string.exo_download_description,
               mappedTrackInfo,
               trackSelectorParameters,
-              /* allowAdaptiveSelections =*/ false,
+              /* allowAdaptiveSelections= */ false,
               /* allowMultipleOverrides= */ true,
               /* onClickListener= */ this,
               /* onDismissListener= */ this);

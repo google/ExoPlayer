@@ -137,8 +137,7 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     Arrays.sort(this.schemeDatas, this);
   }
 
-  /* package */
-  DrmInitData(Parcel in) {
+  /* package */ DrmInitData(Parcel in) {
     schemeType = in.readString();
     schemeDatas = Util.castNonNull(in.createTypedArray(SchemeData.CREATOR));
     schemeDataCount = schemeDatas.length;

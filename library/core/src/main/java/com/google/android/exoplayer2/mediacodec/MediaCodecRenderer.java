@@ -1756,7 +1756,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           processOutputMediaFormatChanged();
           return true;
         }
-        /* MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value */
+        // MediaCodec.INFO_TRY_AGAIN_LATER (-1) or unknown negative return value.
         if (codecNeedsEosPropagation
             && (inputStreamEnded || codecDrainState == DRAIN_STATE_WAIT_END_OF_STREAM)) {
           processEndOfStream();

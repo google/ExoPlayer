@@ -643,7 +643,7 @@ public class SimpleCacheTest {
         .isEqualTo(10);
   }
 
-  /* Tests https://github.com/google/ExoPlayer/issues/3260 case. */
+  // Regression test for https://github.com/google/ExoPlayer/issues/3260.
   @Test
   public void exceptionDuringIndexStore_doesNotPreventEviction() throws Exception {
     CachedContentIndex contentIndex =

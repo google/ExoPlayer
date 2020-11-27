@@ -417,7 +417,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* id= */ 0,
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
-                /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
                         /* adsId= */ new Object(),
                         /* adGroupTimesUs=... */ 2 * C.MICROS_PER_SECOND,
@@ -702,7 +702,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* id= */ 0,
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
-                /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
                         /* adsId= */ new Object(), /* adGroupTimesUs=... */ C.TIME_END_OF_SOURCE)
                     .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)));
@@ -905,7 +905,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* id= */ 0,
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
-                /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
                         /* adsId= */ new Object(), /* adGroupTimesUs=... */
                         0,
@@ -987,7 +987,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* id= */ 0,
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
-                /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
                         /* adsId= */ new Object(), /* adGroupTimesUs=... */
                         2 * C.MICROS_PER_SECOND,
@@ -1039,7 +1039,7 @@ public final class DefaultPlaybackSessionManagerTest {
                 /* id= */ 0,
                 /* isSeekable= */ true,
                 /* isDynamic= */ false,
-                /* durationUs =*/ 10 * C.MICROS_PER_SECOND,
+                /* durationUs= */ 10 * C.MICROS_PER_SECOND,
                 new AdPlaybackState(
                         /* adsId= */ new Object(), /* adGroupTimesUs=... */
                         0,

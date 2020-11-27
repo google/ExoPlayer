@@ -1088,8 +1088,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.rendererDisabledFlags = rendererDisabledFlags;
     }
 
-    /* package */
-    Parameters(Parcel in) {
+    /* package */ Parameters(Parcel in) {
       super(in);
       // Video
       this.maxVideoWidth = in.readInt();

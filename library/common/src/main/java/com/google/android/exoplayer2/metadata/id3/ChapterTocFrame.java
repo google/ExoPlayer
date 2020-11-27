@@ -45,8 +45,7 @@ public final class ChapterTocFrame extends Id3Frame {
     this.subFrames = subFrames;
   }
 
-  /* package */
-  ChapterTocFrame(Parcel in) {
+  /* package */ ChapterTocFrame(Parcel in) {
     super(ID);
     this.elementId = castNonNull(in.readString());
     this.isRoot = in.readByte() != 0;
