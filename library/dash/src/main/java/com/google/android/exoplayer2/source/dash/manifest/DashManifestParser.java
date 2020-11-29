@@ -249,7 +249,10 @@ public class DashManifestParser extends DefaultHandler
           seenFirstBaseUrl = true;
         }
       } else if (XmlPullParserUtil.isStartTag(xpp, "AdaptationSet")) {
-        adaptationSets.add(parseAdaptationSet(xpp, baseUrl, segmentBase, durationMs));
+        @Nullable AdaptationSet adaptationSet = parseAdaptationSet(xpp, baseUrl, segmentBase, durationMs);
+        if (adaptationSet != null) {
+          adaptationSets.add(adaptationSet);
+        }
       } else if (XmlPullParserUtil.isStartTag(xpp, "EventStream")) {
         eventStreams.add(parseEventStream(xpp));
       } else if (XmlPullParserUtil.isStartTag(xpp, "SegmentBase")) {
@@ -280,6 +283,7 @@ public class DashManifestParser extends DefaultHandler
 
   // AdaptationSet parsing.
 
+  @Nullable
   protected AdaptationSet parseAdaptationSet(
       XmlPullParser xpp, String baseUrl, @Nullable SegmentBase segmentBase, long periodDurationMs)
       throws XmlPullParserException, IOException {
@@ -394,6 +398,7 @@ public class DashManifestParser extends DefaultHandler
         supplementalProperties);
   }
 
+  @Nullable
   protected AdaptationSet buildAdaptationSet(
       int id,
       int contentType,
@@ -401,7 +406,7 @@ public class DashManifestParser extends DefaultHandler
       List<Descriptor> accessibilityDescriptors,
       List<Descriptor> essentialProperties,
       List<Descriptor> supplementalProperties) {
-    return new AdaptationSet(
+    return representations.isEmpty() ? null : new AdaptationSet(
         id,
         contentType,
         representations,
