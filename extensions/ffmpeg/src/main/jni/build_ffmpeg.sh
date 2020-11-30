@@ -52,7 +52,7 @@ cd "${FFMPEG_EXT_PATH}/jni/ffmpeg"
     --nm="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-nm" \
     --ar="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-ar" \
     --ranlib="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-ranlib" \
-    --strip="${TOOLCHAIN_PREFIX}/armv7a-linux-androideabi-strip" \
+    --strip="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-strip" \
     --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
     --extra-ldflags="-Wl,--fix-cortex-a8" \
     ${COMMON_OPTIONS}
