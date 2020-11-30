@@ -169,7 +169,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         segmentEndTimeInPeriodUs,
         segmentBaseHolder.mediaSequence,
         segmentBaseHolder.partIndex,
-        segmentBaseHolder.isPreload,
+        /* isPublished= */ !segmentBaseHolder.isPreload,
         discontinuitySequenceNumber,
         mediaSegment.hasGapTag,
         isMasterTimestampSource,
@@ -205,9 +205,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   /** The part index or {@link C#INDEX_UNSET} if the chunk is a full segment */
   public final int partIndex;
 
-  /** Whether this chunk is a preload chunk. */
-  public final boolean isPreload;
-
   @Nullable private final DataSource initDataSource;
   @Nullable private final DataSpec initDataSpec;
   @Nullable private final HlsMediaChunkExtractor previousExtractor;
@@ -233,6 +230,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private boolean loadCompleted;
   private ImmutableList<Integer> sampleQueueFirstSampleIndices;
   private boolean extractorInvalidated;
+  private boolean isPublished;
 
   private HlsMediaChunk(
       HlsExtractorFactory extractorFactory,
@@ -251,7 +249,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       long endTimeUs,
       long chunkMediaSequence,
       int partIndex,
-      boolean isPreload,
+      boolean isPublished,
       int discontinuitySequenceNumber,
       boolean hasGapTag,
       boolean isMasterTimestampSource,
@@ -272,7 +270,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         chunkMediaSequence);
     this.mediaSegmentEncrypted = mediaSegmentEncrypted;
     this.partIndex = partIndex;
-    this.isPreload = isPreload;
+    this.isPublished = isPublished;
     this.discontinuitySequenceNumber = discontinuitySequenceNumber;
     this.initDataSpec = initDataSpec;
     this.initDataSource = initDataSource;
@@ -354,6 +352,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       loadCompleted = !loadCanceled;
     }
+  }
+
+  /**
+   * Whether the chunk is a published chunk as opposed to a preload hint that may change when the
+   * playlist updates.
+   */
+  public boolean isPublished() {
+    return isPublished;
+  }
+
+  /**
+   * Sets the publish flag of the media chunk to indicate that it is not based on a part that is a
+   * preload hint in the playlist.
+   */
+  public void publish() {
+    isPublished = true;
   }
 
   // Internal methods.

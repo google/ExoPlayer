@@ -21,6 +21,7 @@ import static java.lang.Math.max;
 import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Pair;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -47,6 +48,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,6 +88,29 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       playlistUrl = null;
     }
   }
+
+  /**
+   * Chunk publication state. One of {@link #CHUNK_PUBLICATION_STATE_PRELOAD}, {@link
+   * #CHUNK_PUBLICATION_STATE_PUBLISHED}, {@link #CHUNK_PUBLICATION_STATE_REMOVED}.
+   */
+  @IntDef({
+    CHUNK_PUBLICATION_STATE_PRELOAD,
+    CHUNK_PUBLICATION_STATE_PUBLISHED,
+    CHUNK_PUBLICATION_STATE_REMOVED
+  })
+  @Retention(RetentionPolicy.SOURCE)
+  @interface ChunkPublicationState {}
+
+  /** Indicates that the chunk is based on a preload hint. */
+  public static final int CHUNK_PUBLICATION_STATE_PRELOAD = 0;
+  /** Indicates that the chunk is definitely published. */
+  public static final int CHUNK_PUBLICATION_STATE_PUBLISHED = 1;
+  /**
+   * Indicates that the chunk has been removed from the playlist.
+   *
+   * <p>See RFC 8216, Section 6.2.6 also.
+   */
+  public static final int CHUNK_PUBLICATION_STATE_REMOVED = 2;
 
   /**
    * The maximum number of keys that the key cache can hold. This value must be 2 or greater in
@@ -222,29 +248,32 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Checks whether the previous media chunk is a preload chunk that has been removed in the current
-   * playlist.
+   * Returns the publication state of the given chunk.
    *
-   * @param previous The previous media chunk.
-   * @return True if the previous media chunk has been removed in the current playlist.
+   * @param mediaChunk The media chunk for which to evaluate the publication state.
+   * @return Whether the media chunk is {@link #CHUNK_PUBLICATION_STATE_PRELOAD a preload chunk},
+   *     has been {@link #CHUNK_PUBLICATION_STATE_REMOVED removed} or is definitely {@link
+   *     #CHUNK_PUBLICATION_STATE_PUBLISHED published}.
    */
-  public boolean isMediaChunkRemoved(HlsMediaChunk previous) {
-    if (!previous.isPreload) {
-      return false;
+  @ChunkPublicationState
+  public int getChunkPublicationState(HlsMediaChunk mediaChunk) {
+    if (mediaChunk.partIndex == C.INDEX_UNSET) {
+      // Chunks based on full segments can't be removed and are always published.
+      return CHUNK_PUBLICATION_STATE_PUBLISHED;
     }
-    Uri playlistUrl = playlistUrls[trackGroup.indexOf(previous.trackFormat)];
+    Uri playlistUrl = playlistUrls[trackGroup.indexOf(mediaChunk.trackFormat)];
     HlsMediaPlaylist mediaPlaylist =
         checkNotNull(playlistTracker.getPlaylistSnapshot(playlistUrl, /* isForPlayback= */ false));
-    int segmentIndexInPlaylist = (int) (previous.chunkIndex - mediaPlaylist.mediaSequence);
+    int segmentIndexInPlaylist = (int) (mediaChunk.chunkIndex - mediaPlaylist.mediaSequence);
     if (segmentIndexInPlaylist < 0) {
-      // The segment of the previous chunk is not in the current playlist anymore.
-      return false;
+      // The parent segment of the previous chunk is not in the current playlist anymore.
+      return CHUNK_PUBLICATION_STATE_PUBLISHED;
     }
     List<HlsMediaPlaylist.Part> partsInCurrentPlaylist =
         segmentIndexInPlaylist < mediaPlaylist.segments.size()
             ? mediaPlaylist.segments.get(segmentIndexInPlaylist).parts
             : mediaPlaylist.trailingParts;
-    if (previous.partIndex >= partsInCurrentPlaylist.size()) {
+    if (mediaChunk.partIndex >= partsInCurrentPlaylist.size()) {
       // In case the part hinted in the previous playlist has been wrongly assigned to the then full
       // but not yet terminated segment, we discard it regardless whether the URI is different or
       // not. While this is theoretically possible and unspecified, it appears to be an edge case
@@ -252,11 +281,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // here but, if the chunk is not discarded, it could create unpredictable problems later,
       // because the media sequence in previous.chunkIndex does not match to the actual media
       // sequence in the new playlist.
-      return true;
+      return CHUNK_PUBLICATION_STATE_REMOVED;
     }
-    HlsMediaPlaylist.Part publishedPart = partsInCurrentPlaylist.get(previous.partIndex);
-    Uri publishedUri = Uri.parse(UriUtil.resolve(mediaPlaylist.baseUri, publishedPart.url));
-    return !Util.areEqual(publishedUri, previous.dataSpec.uri);
+    HlsMediaPlaylist.Part newPart = partsInCurrentPlaylist.get(mediaChunk.partIndex);
+    if (newPart.isPreload) {
+      // The playlist did not change and the part in the new playlist is still a preload hint.
+      return CHUNK_PUBLICATION_STATE_PRELOAD;
+    }
+    Uri newUri = Uri.parse(UriUtil.resolve(mediaPlaylist.baseUri, newPart.url));
+    return Util.areEqual(newUri, mediaChunk.dataSpec.uri)
+        ? CHUNK_PUBLICATION_STATE_PUBLISHED
+        : CHUNK_PUBLICATION_STATE_REMOVED;
   }
 
   /**
