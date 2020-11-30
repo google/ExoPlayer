@@ -292,17 +292,11 @@ import java.util.List;
       int trackType,
       @Nullable Metadata udtaMetadata,
       @Nullable Metadata mdtaMetadata,
-      GaplessInfoHolder gaplessInfoHolder,
       Format.Builder formatBuilder,
       Metadata.Entry... additionalEntries) {
     Metadata formatMetadata = new Metadata();
 
     if (trackType == C.TRACK_TYPE_AUDIO) {
-      if (gaplessInfoHolder.hasGaplessInfo()) {
-        formatBuilder
-            .setEncoderDelay(gaplessInfoHolder.encoderDelay)
-            .setEncoderPadding(gaplessInfoHolder.encoderPadding);
-      }
       // We assume all udta metadata is associated with the audio track.
       if (udtaMetadata != null) {
         formatMetadata = udtaMetadata;
@@ -329,6 +323,18 @@ import java.util.List;
 
     if (formatMetadata.length() > 0) {
       formatBuilder.setMetadata(formatMetadata);
+    }
+  }
+
+  /**
+   * Updates a {@link Format.Builder} to include audio gapless information from the provided source.
+   */
+  public static void setFormatGaplessInfo(
+      int trackType, GaplessInfoHolder gaplessInfoHolder, Format.Builder formatBuilder) {
+    if (trackType == C.TRACK_TYPE_AUDIO && gaplessInfoHolder.hasGaplessInfo()) {
+      formatBuilder
+          .setEncoderDelay(gaplessInfoHolder.encoderDelay)
+          .setEncoderPadding(gaplessInfoHolder.encoderPadding);
     }
   }
 

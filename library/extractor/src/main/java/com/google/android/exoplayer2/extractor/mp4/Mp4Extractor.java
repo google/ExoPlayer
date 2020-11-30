@@ -514,11 +514,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         formatBuilder.setFrameRate(frameRate);
       }
 
+      MetadataUtil.setFormatGaplessInfo(track.type, gaplessInfoHolder, formatBuilder);
       MetadataUtil.setFormatMetadata(
           track.type,
           udtaMetadata,
           mdtaMetadata,
-          gaplessInfoHolder,
           formatBuilder,
           /* additionalEntries...= */ slowMotionMetadataEntries.toArray(new Metadata.Entry[0]));
       mp4Track.trackOutput.format(formatBuilder.build());
