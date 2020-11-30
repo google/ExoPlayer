@@ -1,6 +1,6 @@
 # Release notes
 
-### 2.12.2 (2020-11-??) ###
+### 2.12.2 (2020-12-01) ###
 
 *   Core library:
     *   Suppress exceptions from registering/unregistering the stream volume
@@ -23,9 +23,9 @@
         `LeanbackPlayerAdapter` and use `ControlDispatcher` for dispatching
         prepare instead
         ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
-    *   Add `bar_gravity` attribute into `DefaultTimeBar`.
     *   Increase seekbar's touch target height in `StyledPlayerControlView`.
-    *   Update Styled Player settings dialogs to respect RTL.
+    *   Update `StyledPlayerControlView` menu items to behave correctly for
+        right-to-left languages.
     *   Support enabling the previous and next actions individually in
         `PlayerNotificationManager`.
 *   Audio:
