@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
-import java.util.Arrays;
 
 /**
  * Reads section data packets and feeds the whole sections to a given {@link SectionPayloadReader}.
@@ -107,12 +106,9 @@ public final class SectionReader implements TsPayloadReader {
               (((secondHeaderByte & 0x0F) << 8) | thirdHeaderByte) + SECTION_HEADER_LENGTH;
           if (sectionData.capacity() < totalSectionLength) {
             // Ensure there is enough space to keep the whole section.
-            byte[] bytes = sectionData.getData();
-            int limit = min(MAX_SECTION_LENGTH, max(totalSectionLength, bytes.length * 2));
-            if (limit > bytes.length) {
-              bytes = Arrays.copyOf(sectionData.getData(), limit);
-            }
-            sectionData.reset(bytes, limit);
+            int limit =
+                min(MAX_SECTION_LENGTH, max(totalSectionLength, sectionData.capacity() * 2));
+            sectionData.ensureCapacity(limit);
           }
         }
       } else {

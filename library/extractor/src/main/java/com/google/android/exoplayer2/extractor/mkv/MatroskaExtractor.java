@@ -1341,9 +1341,7 @@ public class MatroskaExtractor implements Extractor {
       return;
     }
     if (scratch.capacity() < requiredLength) {
-      scratch.reset(
-          Arrays.copyOf(scratch.getData(), max(scratch.getData().length * 2, requiredLength)),
-          scratch.limit());
+      scratch.ensureCapacity(max(scratch.capacity() * 2, requiredLength));
     }
     input.readFully(scratch.getData(), scratch.limit(), requiredLength - scratch.limit());
     scratch.setLimit(requiredLength);

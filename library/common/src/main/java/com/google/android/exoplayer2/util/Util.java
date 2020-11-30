@@ -2214,9 +2214,8 @@ public final class Util {
     if (input.bytesLeft() <= 0) {
       return false;
     }
-    byte[] outputData = output.getData();
-    if (outputData.length < input.bytesLeft()) {
-      outputData = new byte[2 * input.bytesLeft()];
+    if (output.capacity() < input.bytesLeft()) {
+      output.ensureCapacity(2 * input.bytesLeft());
     }
     if (inflater == null) {
       inflater = new Inflater();
@@ -2225,16 +2224,17 @@ public final class Util {
     try {
       int outputSize = 0;
       while (true) {
-        outputSize += inflater.inflate(outputData, outputSize, outputData.length - outputSize);
+        outputSize +=
+            inflater.inflate(output.getData(), outputSize, output.capacity() - outputSize);
         if (inflater.finished()) {
-          output.reset(outputData, outputSize);
+          output.setLimit(outputSize);
           return true;
         }
         if (inflater.needsDictionary() || inflater.needsInput()) {
           return false;
         }
-        if (outputSize == outputData.length) {
-          outputData = Arrays.copyOf(outputData, outputData.length * 2);
+        if (outputSize == output.capacity()) {
+          output.ensureCapacity(output.capacity() * 2);
         }
       }
     } catch (DataFormatException e) {
