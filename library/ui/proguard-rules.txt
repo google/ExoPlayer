@@ -11,6 +11,7 @@
   public androidx.appcompat.app.AlertDialog$Builder setNegativeButton(int, android.content.DialogInterface$OnClickListener);
   public androidx.appcompat.app.AlertDialog create();
 }
+# Equivalent methods needed when the library is de-jetified.
 -dontnote android.support.v7.app.AlertDialog.Builder
 -keepclassmembers class android.support.v7.app.AlertDialog$Builder {
   <init>(android.content.Context, int);
