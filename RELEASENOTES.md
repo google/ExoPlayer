@@ -18,14 +18,6 @@
         ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
     *   Fix bug where `AnalyticsListener` callbacks can arrive in the wrong
         order ([#8048](https://github.com/google/ExoPlayer/issues/8048)).
-    *   Suppress exceptions from registering/unregistering the stream volume
-        receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
-        ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
-    *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
-        ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
-    *   Fix issue that could cause playback to freeze when selecting tracks, if
-        extension audio renderers are being used
-        ([#8203](https://github.com/google/ExoPlayer/issues/8203)).
     *   Add `onEvents` callback to `Player.EventListener` and
         `AnalyticsListener` to notify when all simultaneous state changes have
         been handled and the values reported through callbacks are again
@@ -37,32 +29,6 @@
 *   UI:
     *   Show overflow button in `StyledPlayerControlView` only when there is not
         enough space.
-    *   Fix incorrect color and text alignment of the `StyledPlayerControlView`
-        fast forward and rewind buttons, when used together with the
-        `com.google.android.material` library
-        ([#7898](https://github.com/google/ExoPlayer/issues/7898)).
-    *   Add `dispatchPrepare(Player)` to `ControlDispatcher` and implement it in
-        `DefaultControlDispatcher`. Deprecate `PlaybackPreparer` and
-        `setPlaybackPreparer` in `StyledPlayerView`, `StyledPlayerControlView`,
-        `PlayerView`, `PlayerControlView`, `PlayerNotificationManager` and
-        `LeanbackPlayerAdapter` and use `ControlDispatcher` for dispatching
-        prepare instead
-        ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
-    *   Add `bar_gravity` attribute into `DefaultTimeBar`.
-    *   Increase seekbar's touch target height in `StyledPlayerControlView`.
-    *   Update Styled Player settings dialogs to respect RTL.
-    *   Support enabling the previous and next actions individually in
-        `PlayerNotificationManager`.
-*   Audio:
-    *   Retry playback after some types of `AudioTrack` error.
-    *   Work around `AudioManager` crashes when calling `getStreamVolume`
-        ([#8191](https://github.com/google/ExoPlayer/issues/8191)).
-*   Extractors:
-    *   Matroska: Add support for 32-bit floating point PCM, and 8-bit and
-        16-bit big endian integer PCM
-        ([#8142](https://github.com/google/ExoPlayer/issues/8142)).
-    *   MP4: Add support for mpeg1 video box
-        ([#8257](https://github.com/google/ExoPlayer/issues/8257)).
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.
@@ -75,6 +41,51 @@
 *   IMA extension:
     *   Add support for playback of ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
+*   Metadata retriever:
+    *   Parse Google Photos HEIC motion photos metadata.
+*   FFMPEG extension:
+    *   Link the FFMPEG library statically, saving 350KB in binary size on
+        average.
+
+### 2.12.2 (2020-12-01) ###
+
+*   Core library:
+    *   Suppress exceptions from registering and unregistering the stream volume
+        receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
+        ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
+    *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
+        ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
+    *   Fix issue that could cause playback to freeze when selecting tracks, if
+        extension audio renderers are being used
+        ([#8203](https://github.com/google/ExoPlayer/issues/8203)).
+*   UI:
+    *   Fix incorrect color and text alignment of the `StyledPlayerControlView`
+        fast forward and rewind buttons, when used together with the
+        `com.google.android.material` library
+        ([#7898](https://github.com/google/ExoPlayer/issues/7898)).
+    *   Add `dispatchPrepare(Player)` to `ControlDispatcher` and implement it in
+        `DefaultControlDispatcher`. Deprecate `PlaybackPreparer` and
+        `setPlaybackPreparer` in `StyledPlayerView`, `StyledPlayerControlView`,
+        `PlayerView`, `PlayerControlView`, `PlayerNotificationManager` and
+        `LeanbackPlayerAdapter` and use `ControlDispatcher` for dispatching
+        prepare instead
+        ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
+    *   Increase seekbar's touch target height in `StyledPlayerControlView`.
+    *   Update `StyledPlayerControlView` menu items to behave correctly for
+        right-to-left languages.
+    *   Support enabling the previous and next actions individually in
+        `PlayerNotificationManager`.
+*   Audio:
+    *   Retry playback after some types of `AudioTrack` error.
+    *   Work around `AudioManager` crashes when calling `getStreamVolume`
+        ([#8191](https://github.com/google/ExoPlayer/issues/8191)).
+*   Extractors:
+    *   Matroska: Add support for 32-bit floating point PCM, and 8-bit and
+        16-bit big endian integer PCM
+        ([#8142](https://github.com/google/ExoPlayer/issues/8142)).
+    *   MP4: Add support for mpeg1 video box
+        ([#8257](https://github.com/google/ExoPlayer/issues/8257)).
+*   IMA extension:
     *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)).
     *   Improve handling of ad tags with unsupported VPAID ads
@@ -92,11 +103,6 @@
 *   Text
     *   Allow tx3g subtitles with `styl` boxes with start and/or end offsets
         that lie outside the length of the cue text.
-*   Metadata retriever:
-    *   Parse Google Photos HEIC motion photos metadata.
-*   FFMPEG extension:
-    *   Link the FFMPEG library statically, saving 350KB in binary size on
-        average.
 *   Media2 extension:
     *   Notify onBufferingEnded when the state of origin player becomes
         STATE_IDLE or STATE_ENDED.
