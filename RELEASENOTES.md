@@ -53,8 +53,8 @@
 
 *   Core library:
     *   Suppress exceptions from registering and unregistering the stream volume
-        receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
-        ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
+        receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087),
+        [#8106](https://github.com/google/ExoPlayer/issues/8106)).
     *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
         ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
     *   Fix issue that could cause playback to freeze when selecting tracks, if
@@ -107,7 +107,7 @@
         that lie outside the length of the cue text.
 *   Media2 extension:
     *   Notify onBufferingEnded when the state of origin player becomes
-        STATE_IDLE or STATE_ENDED.
+        `STATE_IDLE` or `STATE_ENDED`.
     *   Allow to remove all playlist items that makes the player reset.
 
 ### 2.12.1 (2020-10-23) ###
