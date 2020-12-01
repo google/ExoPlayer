@@ -113,8 +113,15 @@ public final class DefaultAudioSink implements AudioSink {
     boolean applySkipSilenceEnabled(boolean skipSilenceEnabled);
 
     /**
-     * Scales the specified playout duration to take into account speedup due to audio processing,
-     * returning an input media duration, in arbitrary units.
+     * Returns the media duration corresponding to the specified playout duration, taking speed
+     * adjustment due to audio processing into account.
+     *
+     * <p>The scaling performed by this method will use the actual playback speed achieved by the
+     * audio processor chain, on average, since it was last flushed. This may differ very slightly
+     * from the target playback speed.
+     *
+     * @param playoutDuration The playout duration to scale.
+     * @return The corresponding media duration, in the same units as {@code duration}.
      */
     long getMediaDuration(long playoutDuration);
 
@@ -173,9 +180,9 @@ public final class DefaultAudioSink implements AudioSink {
 
     @Override
     public PlaybackParameters applyPlaybackParameters(PlaybackParameters playbackParameters) {
-      float speed = sonicAudioProcessor.setSpeed(playbackParameters.speed);
-      float pitch = sonicAudioProcessor.setPitch(playbackParameters.pitch);
-      return new PlaybackParameters(speed, pitch);
+      sonicAudioProcessor.setSpeed(playbackParameters.speed);
+      sonicAudioProcessor.setPitch(playbackParameters.pitch);
+      return playbackParameters;
     }
 
     @Override
@@ -186,7 +193,7 @@ public final class DefaultAudioSink implements AudioSink {
 
     @Override
     public long getMediaDuration(long playoutDuration) {
-      return sonicAudioProcessor.scaleDurationForSpeedup(playoutDuration);
+      return sonicAudioProcessor.getMediaDuration(playoutDuration);
     }
 
     @Override
@@ -1369,21 +1376,33 @@ public final class DefaultAudioSink implements AudioSink {
       mediaPositionParameters = mediaPositionParametersCheckpoints.remove();
     }
 
-    long playoutDurationSinceLastCheckpoint =
+    long playoutDurationSinceLastCheckpointUs =
         positionUs - mediaPositionParameters.audioTrackPositionUs;
-    if (!mediaPositionParameters.playbackParameters.equals(PlaybackParameters.DEFAULT)) {
-      if (mediaPositionParametersCheckpoints.isEmpty()) {
-        playoutDurationSinceLastCheckpoint =
-            audioProcessorChain.getMediaDuration(playoutDurationSinceLastCheckpoint);
-      } else {
-        // Playing data at a previous playback speed, so fall back to multiplying by the speed.
-        playoutDurationSinceLastCheckpoint =
-            Util.getMediaDurationForPlayoutDuration(
-                playoutDurationSinceLastCheckpoint,
-                mediaPositionParameters.playbackParameters.speed);
-      }
+    if (mediaPositionParameters.playbackParameters.equals(PlaybackParameters.DEFAULT)) {
+      return mediaPositionParameters.mediaTimeUs + playoutDurationSinceLastCheckpointUs;
+    } else if (mediaPositionParametersCheckpoints.isEmpty()) {
+      long mediaDurationSinceLastCheckpointUs =
+          audioProcessorChain.getMediaDuration(playoutDurationSinceLastCheckpointUs);
+      return mediaPositionParameters.mediaTimeUs + mediaDurationSinceLastCheckpointUs;
+    } else {
+      // The processor chain has been configured with new parameters, but we're still playing audio
+      // that was processed using previous parameters. We can't scale the playout duration using the
+      // processor chain in this case, so we fall back to scaling using the previous parameters'
+      // target speed instead. Since the processor chain may not have achieved the target speed
+      // precisely, we scale the duration to the next checkpoint (which will always be small) rather
+      // than the duration from the previous checkpoint (which may be arbitrarily large). This
+      // limits the amount of error that can be introduced due to a difference between the target
+      // and actual speeds.
+      MediaPositionParameters nextMediaPositionParameters =
+          mediaPositionParametersCheckpoints.getFirst();
+      long playoutDurationUntilNextCheckpointUs =
+          nextMediaPositionParameters.audioTrackPositionUs - positionUs;
+      long mediaDurationUntilNextCheckpointUs =
+          Util.getMediaDurationForPlayoutDuration(
+              playoutDurationUntilNextCheckpointUs,
+              mediaPositionParameters.playbackParameters.speed);
+      return nextMediaPositionParameters.mediaTimeUs - mediaDurationUntilNextCheckpointUs;
     }
-    return mediaPositionParameters.mediaTimeUs + playoutDurationSinceLastCheckpoint;
   }
 
   private long applySkipping(long positionUs) {

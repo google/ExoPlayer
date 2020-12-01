@@ -19,6 +19,7 @@ import static java.lang.Math.min;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.upstream.HttpDataSource.CleartextNotPermittedException;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.upstream.Loader.UnexpectedLoaderException;
 import java.io.FileNotFoundException;
@@ -86,14 +87,16 @@ public class DefaultLoadErrorHandlingPolicy implements LoadErrorHandlingPolicy {
 
   /**
    * Retries for any exception that is not a subclass of {@link ParserException}, {@link
-   * FileNotFoundException} or {@link UnexpectedLoaderException}. The retry delay is calculated as
-   * {@code Math.min((errorCount - 1) * 1000, 5000)}.
+   * FileNotFoundException}, {@link CleartextNotPermittedException} or {@link
+   * UnexpectedLoaderException}. The retry delay is calculated as {@code Math.min((errorCount - 1) *
+   * 1000, 5000)}.
    */
   @Override
   public long getRetryDelayMsFor(LoadErrorInfo loadErrorInfo) {
     IOException exception = loadErrorInfo.exception;
     return exception instanceof ParserException
             || exception instanceof FileNotFoundException
+            || exception instanceof CleartextNotPermittedException
             || exception instanceof UnexpectedLoaderException
         ? C.TIME_UNSET
         : min((loadErrorInfo.errorCount - 1) * 1000, 5000);

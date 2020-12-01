@@ -1485,6 +1485,18 @@ public final class Util {
         + ") " + ExoPlayerLibraryInfo.VERSION_SLASHY;
   }
 
+  /** Returns the number of codec strings in {@code codecs} whose type matches {@code trackType}. */
+  public static int getCodecCountOfType(@Nullable String codecs, int trackType) {
+    String[] codecArray = splitCodecs(codecs);
+    int count = 0;
+    for (String codec : codecArray) {
+      if (trackType == MimeTypes.getTrackTypeOfCodec(codec)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   /**
    * Returns a copy of {@code codecs} without the codecs whose track type doesn't match {@code
    * trackType}.
@@ -1677,7 +1689,6 @@ public final class Util {
         return C.USAGE_ASSISTANCE_SONIFICATION;
       case C.STREAM_TYPE_VOICE_CALL:
         return C.USAGE_VOICE_COMMUNICATION;
-      case C.STREAM_TYPE_USE_DEFAULT:
       case C.STREAM_TYPE_MUSIC:
       default:
         return C.USAGE_MEDIA;
@@ -1698,7 +1709,6 @@ public final class Util {
         return C.CONTENT_TYPE_SONIFICATION;
       case C.STREAM_TYPE_VOICE_CALL:
         return C.CONTENT_TYPE_SPEECH;
-      case C.STREAM_TYPE_USE_DEFAULT:
       case C.STREAM_TYPE_MUSIC:
       default:
         return C.CONTENT_TYPE_MUSIC;

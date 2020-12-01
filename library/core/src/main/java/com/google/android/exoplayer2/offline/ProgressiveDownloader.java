@@ -38,6 +38,7 @@ public final class ProgressiveDownloader implements Downloader {
   private final Executor executor;
   private final DataSpec dataSpec;
   private final CacheDataSource dataSource;
+  private final CacheWriter cacheWriter;
   @Nullable private final PriorityTaskManager priorityTaskManager;
 
   @Nullable private ProgressListener progressListener;
@@ -101,6 +102,15 @@ public final class ProgressiveDownloader implements Downloader {
             .setFlags(DataSpec.FLAG_ALLOW_CACHE_FRAGMENTATION)
             .build();
     dataSource = cacheDataSourceFactory.createDataSourceForDownloading();
+    @SuppressWarnings("methodref.receiver.bound.invalid")
+    CacheWriter.ProgressListener progressListener = this::onProgress;
+    cacheWriter =
+        new CacheWriter(
+            dataSource,
+            dataSpec,
+            /* allowShortContent= */ false,
+            /* temporaryBuffer= */ null,
+            progressListener);
     priorityTaskManager = cacheDataSourceFactory.getUpstreamPriorityTaskManager();
   }
 
@@ -108,28 +118,19 @@ public final class ProgressiveDownloader implements Downloader {
   public void download(@Nullable ProgressListener progressListener)
       throws IOException, InterruptedException {
     this.progressListener = progressListener;
-    if (downloadRunnable == null) {
-      CacheWriter cacheWriter =
-          new CacheWriter(
-              dataSource,
-              dataSpec,
-              /* allowShortContent= */ false,
-              /* temporaryBuffer= */ null,
-              this::onProgress);
-      downloadRunnable =
-          new RunnableFutureTask<Void, IOException>() {
-            @Override
-            protected Void doWork() throws IOException {
-              cacheWriter.cache();
-              return null;
-            }
+    downloadRunnable =
+        new RunnableFutureTask<Void, IOException>() {
+          @Override
+          protected Void doWork() throws IOException {
+            cacheWriter.cache();
+            return null;
+          }
 
-            @Override
-            protected void cancelWork() {
-              cacheWriter.cancel();
-            }
-          };
-    }
+          @Override
+          protected void cancelWork() {
+            cacheWriter.cancel();
+          }
+        };
 
     if (priorityTaskManager != null) {
       priorityTaskManager.add(C.PRIORITY_DOWNLOAD);

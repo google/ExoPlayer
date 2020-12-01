@@ -19,6 +19,7 @@
     android:minWidth="@dimen/exo_setting_width"
     android:minHeight="@dimen/exo_settings_height"
     android:background="?android:attr/selectableItemBackground"
+    android:layoutDirection="locale"
     android:orientation="horizontal">
 
     <ImageView
@@ -38,6 +39,7 @@
         android:paddingEnd="4dp"
         android:paddingRight="4dp"
         android:gravity="center|start"
+        android:layoutDirection="locale"
         android:orientation="vertical">
 
         <TextView
@@ -45,6 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/exo_white"
+            android:textDirection="locale"
             android:textSize="@dimen/exo_settings_main_text_size"/>
 
         <TextView
@@ -52,6 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/exo_white_opacity_70"
+            android:textDirection="locale"
             android:textSize="@dimen/exo_settings_sub_text_size"/>
     </LinearLayout>
 </LinearLayout>

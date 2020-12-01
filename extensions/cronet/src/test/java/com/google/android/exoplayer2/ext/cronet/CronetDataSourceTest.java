@@ -534,7 +534,8 @@ public final class CronetDataSourceTest {
     testUrlResponseInfo = createUrlResponseInfo(206); // Server supports range requests.
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
-    dataSourceUnderTest.open(testDataSpec);
+    long length = dataSourceUnderTest.open(testDataSpec);
+    assertThat(length).isEqualTo(5000);
 
     byte[] returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
@@ -551,7 +552,26 @@ public final class CronetDataSourceTest {
     testUrlResponseInfo = createUrlResponseInfo(200); // Server does not support range requests.
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
-    dataSourceUnderTest.open(testDataSpec);
+    long length = dataSourceUnderTest.open(testDataSpec);
+    assertThat(length).isEqualTo(5000);
+
+    byte[] returnedBuffer = new byte[16];
+    int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
+    assertThat(bytesRead).isEqualTo(16);
+    assertThat(returnedBuffer).isEqualTo(buildTestDataArray(1000, 16));
+    verify(mockTransferListener)
+        .onBytesTransferred(dataSourceUnderTest, testDataSpec, /* isNetwork= */ true, 16);
+  }
+
+  @Test
+  public void unboundedRangeRequestWith200Response() throws HttpDataSourceException {
+    mockResponseStartSuccess();
+    mockReadSuccess(0, (int) TEST_CONTENT_LENGTH);
+    testUrlResponseInfo = createUrlResponseInfo(200); // Server does not support range requests.
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, C.LENGTH_UNSET);
+
+    long length = dataSourceUnderTest.open(testDataSpec);
+    assertThat(length).isEqualTo(TEST_CONTENT_LENGTH - 1000);
 
     byte[] returnedBuffer = new byte[16];
     int bytesRead = dataSourceUnderTest.read(returnedBuffer, 0, 16);
@@ -777,7 +797,8 @@ public final class CronetDataSourceTest {
     testUrlResponseInfo = createUrlResponseInfo(206); // Server supports range requests.
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
-    dataSourceUnderTest.open(testDataSpec);
+    long length = dataSourceUnderTest.open(testDataSpec);
+    assertThat(length).isEqualTo(5000);
 
     ByteBuffer returnedBuffer = ByteBuffer.allocateDirect(16);
     int bytesRead = dataSourceUnderTest.read(returnedBuffer);
@@ -796,7 +817,8 @@ public final class CronetDataSourceTest {
     testUrlResponseInfo = createUrlResponseInfo(200); // Server does not support range requests.
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
 
-    dataSourceUnderTest.open(testDataSpec);
+    long length = dataSourceUnderTest.open(testDataSpec);
+    assertThat(length).isEqualTo(5000);
 
     ByteBuffer returnedBuffer = ByteBuffer.allocateDirect(16);
     int bytesRead = dataSourceUnderTest.read(returnedBuffer);

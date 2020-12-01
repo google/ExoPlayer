@@ -315,6 +315,11 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
       mediaChunks.clear();
       nextNotifyPrimaryFormatMediaChunkIndex = 0;
       if (loader.isLoading()) {
+        // Discard as much as we can synchronously.
+        primarySampleQueue.discardToEnd();
+        for (SampleQueue embeddedSampleQueue : embeddedSampleQueues) {
+          embeddedSampleQueue.discardToEnd();
+        }
         loader.cancelLoading();
       } else {
         loader.clearFatalError();

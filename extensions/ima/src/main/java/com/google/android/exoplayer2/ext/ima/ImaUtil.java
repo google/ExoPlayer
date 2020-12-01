@@ -33,6 +33,7 @@ import com.google.ads.interactivemedia.v3.api.FriendlyObstructionPurpose;
 import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
+import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader.OverlayInfo;
@@ -200,6 +201,17 @@ import java.util.Set;
     // a single ad, ad group or the whole timeline.
     return adError.getErrorCode() == AdError.AdErrorCode.VAST_LINEAR_ASSET_MISMATCH
         || adError.getErrorCode() == AdError.AdErrorCode.UNKNOWN_ERROR;
+  }
+
+  /** Returns a human-readable representation of a video progress update. */
+  public static String getStringForVideoProgressUpdate(VideoProgressUpdate videoProgressUpdate) {
+    if (VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(videoProgressUpdate)) {
+      return "not ready";
+    } else {
+      return Util.formatInvariant(
+          "%d ms of %d ms",
+          videoProgressUpdate.getCurrentTimeMs(), videoProgressUpdate.getDurationMs());
+    }
   }
 
   private ImaUtil() {}

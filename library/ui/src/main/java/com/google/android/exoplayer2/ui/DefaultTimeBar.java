@@ -152,6 +152,15 @@ public class DefaultTimeBar extends View implements TimeBar {
   /** Default color for played ad markers. */
   public static final int DEFAULT_PLAYED_AD_MARKER_COLOR = 0x33FFFF00;
 
+  // LINT.IfChange
+  /** Vertical gravity for progress bar to be located at the center in the view. */
+  public static final int BAR_GRAVITY_CENTER = 0;
+  /** Vertical gravity for progress bar to be located at the bottom in the view. */
+  public static final int BAR_GRAVITY_BOTTOM = 1;
+  /** Vertical gravity for progress bar to be located at the top in the view. */
+  public static final int BAR_GRAVITY_TOP = 2;
+  // LINT.ThenChange(../../../../../../../../../ui/src/main/res/values/attrs.xml)
+
   /** The threshold in dps above the bar at which touch events trigger fine scrub mode. */
   private static final int FINE_SCRUB_Y_THRESHOLD_DP = -50;
   /** The ratio by which times are reduced in fine scrub mode. */
@@ -186,6 +195,7 @@ public class DefaultTimeBar extends View implements TimeBar {
   @Nullable private final Drawable scrubberDrawable;
   private final int barHeight;
   private final int touchTargetHeight;
+  private final int barGravity;
   private final int adMarkerWidth;
   private final int scrubberEnabledSize;
   private final int scrubberDisabledSize;
@@ -286,6 +296,7 @@ public class DefaultTimeBar extends View implements TimeBar {
             defaultBarHeight);
         touchTargetHeight = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_touch_target_height,
             defaultTouchTargetHeight);
+        barGravity = a.getInt(R.styleable.DefaultTimeBar_bar_gravity, BAR_GRAVITY_CENTER);
         adMarkerWidth = a.getDimensionPixelSize(R.styleable.DefaultTimeBar_ad_marker_width,
             defaultAdMarkerWidth);
         scrubberEnabledSize = a.getDimensionPixelSize(
@@ -318,6 +329,7 @@ public class DefaultTimeBar extends View implements TimeBar {
     } else {
       barHeight = defaultBarHeight;
       touchTargetHeight = defaultTouchTargetHeight;
+      barGravity = BAR_GRAVITY_CENTER;
       adMarkerWidth = defaultAdMarkerWidth;
       scrubberEnabledSize = defaultScrubberEnabledSize;
       scrubberDisabledSize = defaultScrubberDisabledSize;
@@ -659,7 +671,14 @@ public class DefaultTimeBar extends View implements TimeBar {
     int barY = (height - touchTargetHeight) / 2;
     int seekLeft = getPaddingLeft();
     int seekRight = width - getPaddingRight();
-    int progressY = barY + (touchTargetHeight - barHeight) / 2;
+    int progressY;
+    if (barGravity == BAR_GRAVITY_BOTTOM) {
+      progressY = barY + touchTargetHeight - (getPaddingBottom() + scrubberPadding + barHeight / 2);
+    } else if (barGravity == BAR_GRAVITY_TOP) {
+      progressY = barY + getPaddingTop() + scrubberPadding - barHeight / 2;
+    } else {
+      progressY = barY + (touchTargetHeight - barHeight) / 2;
+    }
     seekBounds.set(seekLeft, barY, seekRight, barY + touchTargetHeight);
     progressBar.set(seekBounds.left + scrubberPadding, progressY,
         seekBounds.right - scrubberPadding, progressY + barHeight);

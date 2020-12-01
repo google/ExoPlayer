@@ -1,5 +1,66 @@
 # Release notes
 
+### 2.12.2 (2020-12-01) ###
+
+*   Core library:
+    *   Suppress exceptions from registering/unregistering the stream volume
+        receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
+        ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
+    *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
+        ([#8103](https://github.com/google/ExoPlayer/issues/8103)).
+    *   Fix issue that could cause playback to freeze when selecting tracks, if
+        extension audio renderers are being used
+        ([#8203](https://github.com/google/ExoPlayer/issues/8203)).
+*   UI:
+    *   Fix incorrect color and text alignment of the `StyledPlayerControlView`
+        fast forward and rewind buttons, when used together with the
+        `com.google.android.material` library
+        ([#7898](https://github.com/google/ExoPlayer/issues/7898)).
+    *   Add `dispatchPrepare(Player)` to `ControlDispatcher` and implement it in
+        `DefaultControlDispatcher`. Deprecate `PlaybackPreparer` and
+        `setPlaybackPreparer` in `StyledPlayerView`, `StyledPlayerControlView`,
+        `PlayerView`, `PlayerControlView`, `PlayerNotificationManager` and
+        `LeanbackPlayerAdapter` and use `ControlDispatcher` for dispatching
+        prepare instead
+        ([#7882](https://github.com/google/ExoPlayer/issues/7882)).
+    *   Increase seekbar's touch target height in `StyledPlayerControlView`.
+    *   Update `StyledPlayerControlView` menu items to behave correctly for
+        right-to-left languages.
+    *   Support enabling the previous and next actions individually in
+        `PlayerNotificationManager`.
+*   Audio:
+    *   Retry playback after some types of `AudioTrack` error.
+    *   Work around `AudioManager` crashes when calling `getStreamVolume`
+        ([#8191](https://github.com/google/ExoPlayer/issues/8191)).
+*   Extractors:
+    *   Matroska: Add support for 32-bit floating point PCM, and 8-bit and
+        16-bit big endian integer PCM
+        ([#8142](https://github.com/google/ExoPlayer/issues/8142)).
+    *   MP4: Add support for mpeg1 video box
+        ([#8257](https://github.com/google/ExoPlayer/issues/8257)).
+*   IMA extension:
+    *   Upgrade IMA SDK dependency to 3.21.0, and release the `AdsLoader`
+        ([#7344](https://github.com/google/ExoPlayer/issues/7344)).
+    *   Improve handling of ad tags with unsupported VPAID ads
+        ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
+    *   Fix a bug that caused multiple ads in an ad pod to be skipped when one
+        ad in the ad pod was skipped.
+    *   Fix a bug that caused ad progress not to be updated if the player
+        resumed after buffering during an ad
+        ([#8239](https://github.com/google/ExoPlayer/issues/8239)).
+    *   Fix passing an ads response to the `ImaAdsLoader` builder.
+    *   Set the overlay language based on the device locale by default.
+*   Cronet extension:
+    *   Fix handling of HTTP status code 200 when making unbounded length range
+        requests ([#8090](https://github.com/google/ExoPlayer/issues/8090)).
+*   Text
+    *   Allow tx3g subtitles with `styl` boxes with start and/or end offsets
+        that lie outside the length of the cue text.
+*   Media2 extension:
+    *   Notify onBufferingEnded when the state of origin player becomes
+        STATE_IDLE or STATE_ENDED.
+    *   Allow to remove all playlist items that makes the player reset.
+
 ### 2.12.1 (2020-10-23) ###
 
 *   Core library:
@@ -7,6 +68,7 @@
         argument ([#8024](https://github.com/google/ExoPlayer/issues/8024)).
     *   Fix bug where streams with highly uneven track durations may get stuck
         in a buffering state
+        ([#7943](https://github.com/google/ExoPlayer/issues/7943)).
     *   Switch Guava dependency from `implementation` to `api`
         ([#7905](https://github.com/google/ExoPlayer/issues/7905),
         [#7993](https://github.com/google/ExoPlayer/issues/7993)).
@@ -54,6 +116,9 @@
         ([#7992](https://github.com/google/ExoPlayer/issues/7992)).
     *   FLV: Make files seekable by using the key frame index
         ([#7378](https://github.com/google/ExoPlayer/issues/7378)).
+*   Downloads: Fix issue retrying progressive downloads, which could also result
+    in a crash in `DownloadManager.InternalHandler.onContentLengthChanged`
+    ([#8078](https://github.com/google/ExoPlayer/issues/8078).
 *   HLS: Fix crash affecting chunkful preparation of master playlists that start
     with an I-FRAME only variant
     ([#8025](https://github.com/google/ExoPlayer/issues/8025)).
@@ -63,12 +128,12 @@
     *   Allow apps to specify a `VideoAdPlayerCallback`
         ([#7944](https://github.com/google/ExoPlayer/issues/7944)).
     *   Accept ad tags via the `AdsMediaSource` constructor and deprecate
-        passing them via the `ImaAdsLoader` constructor/builders. Passing the
-        ad tag via media item playback properties continues to be supported.
-        This is in preparation for supporting ads in playlists
+        passing them via the `ImaAdsLoader` constructor/builders. Passing the ad
+        tag via media item playback properties continues to be supported. This
+        is in preparation for supporting ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Add a way to override ad media MIME types
-        ([#7961)(https://github.com/google/ExoPlayer/issues/7961)).
+        ([#7961](https://github.com/google/ExoPlayer/issues/7961)).
     *   Fix incorrect truncation of large cue point positions
         ([#8067](https://github.com/google/ExoPlayer/issues/8067)).
     *   Upgrade IMA SDK dependency to 3.20.1. This brings in a fix for

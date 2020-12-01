@@ -21,7 +21,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Handler;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
 /** A manager that wraps {@link AudioManager} to control/listen audio stream volume. */
@@ -37,6 +39,8 @@ import com.google.android.exoplayer2.util.Util;
     void onStreamVolumeChanged(int streamVolume, boolean streamMuted);
   }
 
+  private static final String TAG = "StreamVolumeManager";
+
   // TODO(b/151280453): Replace the hidden intent action with an official one.
   // Copied from AudioManager#VOLUME_CHANGED_ACTION
   private static final String VOLUME_CHANGED_ACTION = "android.media.VOLUME_CHANGED_ACTION";
@@ -48,12 +52,11 @@ import com.google.android.exoplayer2.util.Util;
   private final Handler eventHandler;
   private final Listener listener;
   private final AudioManager audioManager;
-  private final VolumeChangeReceiver receiver;
 
+  @Nullable private VolumeChangeReceiver receiver;
   @C.StreamType private int streamType;
   private int volume;
   private boolean muted;
-  private boolean released;
 
   /** Creates a manager. */
   public StreamVolumeManager(Context context, Handler eventHandler, Listener listener) {
@@ -68,9 +71,14 @@ import com.google.android.exoplayer2.util.Util;
     volume = getVolumeFromManager(audioManager, streamType);
     muted = getMutedFromManager(audioManager, streamType);
 
-    receiver = new VolumeChangeReceiver();
+    VolumeChangeReceiver receiver = new VolumeChangeReceiver();
     IntentFilter filter = new IntentFilter(VOLUME_CHANGED_ACTION);
-    applicationContext.registerReceiver(receiver, filter);
+    try {
+      applicationContext.registerReceiver(receiver, filter);
+      this.receiver = receiver;
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Error registering stream volume receiver", e);
+    }
   }
 
   /** Sets the audio stream type. */
@@ -159,11 +167,14 @@ import com.google.android.exoplayer2.util.Util;
 
   /** Releases the manager. It must be called when the manager is no longer required. */
   public void release() {
-    if (released) {
-      return;
+    if (receiver != null) {
+      try {
+        applicationContext.unregisterReceiver(receiver);
+      } catch (RuntimeException e) {
+        Log.w(TAG, "Error unregistering stream volume receiver", e);
+      }
+      receiver = null;
     }
-    applicationContext.unregisterReceiver(receiver);
-    released = true;
   }
 
   private void updateVolumeAndNotifyIfChanged() {
@@ -177,7 +188,14 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   private static int getVolumeFromManager(AudioManager audioManager, @C.StreamType int streamType) {
-    return audioManager.getStreamVolume(streamType);
+    // AudioManager#getStreamVolume(int) throws an exception on some devices. See
+    // https://github.com/google/ExoPlayer/issues/8191.
+    try {
+      return audioManager.getStreamVolume(streamType);
+    } catch (RuntimeException e) {
+      Log.w(TAG, "Could not retrieve stream volume for stream type " + streamType, e);
+      return audioManager.getStreamMaxVolume(streamType);
+    }
   }
 
   private static boolean getMutedFromManager(
@@ -185,7 +203,7 @@ import com.google.android.exoplayer2.util.Util;
     if (Util.SDK_INT >= 23) {
       return audioManager.isStreamMute(streamType);
     } else {
-      return audioManager.getStreamVolume(streamType) == 0;
+      return getVolumeFromManager(audioManager, streamType) == 0;
     }
   }
 

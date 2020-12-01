@@ -490,6 +490,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     loadingFinished = false;
     mediaChunks.clear();
     if (loader.isLoading()) {
+      if (sampleQueuesBuilt) {
+        // Discard as much as we can synchronously.
+        for (SampleQueue sampleQueue : sampleQueues) {
+          sampleQueue.discardToEnd();
+        }
+      }
       loader.cancelLoading();
     } else {
       loader.clearFatalError();
@@ -1390,7 +1396,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /**
    * Derives a track sample format from the corresponding format in the master playlist, and a
-   * sample format that may have been obtained from a chunk belonging to a different track.
+   * sample format that may have been obtained from a chunk belonging to a different track in the
+   * same track group.
    *
    * @param playlistFormat The format information obtained from the master playlist.
    * @param sampleFormat The format information obtained from the samples.
@@ -1405,8 +1412,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     int sampleTrackType = MimeTypes.getTrackType(sampleFormat.sampleMimeType);
-    @Nullable String codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
-    @Nullable String sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+    @Nullable String sampleMimeType;
+    @Nullable String codecs;
+    if (Util.getCodecCountOfType(playlistFormat.codecs, sampleTrackType) == 1) {
+      // We can unequivocally map this track to a playlist variant because only one codec string
+      // matches this track's type.
+      codecs = Util.getCodecsOfType(playlistFormat.codecs, sampleTrackType);
+      sampleMimeType = MimeTypes.getMediaMimeType(codecs);
+    } else {
+      // The variant assigns more than one codec string to this track. We choose whichever codec
+      // string matches the sample mime type. This can happen when different languages are encoded
+      // using different codecs.
+      codecs =
+          MimeTypes.getCodecsCorrespondingToMimeType(
+              playlistFormat.codecs, sampleFormat.sampleMimeType);
+      sampleMimeType = sampleFormat.sampleMimeType;
+    }
 
     Format.Builder formatBuilder =
         sampleFormat

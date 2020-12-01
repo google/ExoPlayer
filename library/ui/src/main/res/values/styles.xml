@@ -93,12 +93,19 @@
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
+    <!-- Needed for https://github.com/google/ExoPlayer/issues/7898 -->
+    <item name="backgroundTint">@android:color/white</item>
+    <item name="android:insetBottom">0dp</item>
   </style>
+
   <style name="ExoStyledControls.Button.Center.RewWithAmount">
     <item name="android:background">@drawable/exo_ripple_rew</item>
     <item name="android:gravity">center|bottom</item>
     <item name="android:paddingBottom">@dimen/exo_icon_padding_bottom</item>
     <item name="android:textAppearance">@style/ExoStyledControls.ButtonText</item>
+    <!-- Needed for https://github.com/google/ExoPlayer/issues/7898 -->
+    <item name="backgroundTint">@android:color/white</item>
+    <item name="android:insetBottom">0dp</item>
   </style>
 
   <style name="ExoStyledControls.ButtonText">
@@ -187,6 +194,7 @@
 
   <style name="ExoStyledControls.TimeBar">
     <item name="bar_height">@dimen/exo_styled_progress_bar_height</item>
+    <item name="bar_gravity">bottom</item>
     <item name="touch_target_height">@dimen/exo_styled_progress_touch_target_height</item>
     <item name="scrubber_enabled_size">@dimen/exo_styled_progress_enabled_thumb_size</item>
     <item name="scrubber_dragged_size">@dimen/exo_styled_progress_dragged_thumb_size</item>

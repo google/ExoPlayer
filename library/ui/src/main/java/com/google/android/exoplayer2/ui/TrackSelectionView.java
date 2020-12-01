@@ -289,10 +289,10 @@ public class TrackSelectionView extends LinearLayout {
             (CheckedTextView) inflater.inflate(trackViewLayoutId, this, false);
         trackView.setBackgroundResource(selectableItemBackgroundResourceId);
         trackView.setText(trackNameProvider.getTrackName(trackInfos[trackIndex].format));
+        trackView.setTag(trackInfos[trackIndex]);
         if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
             == RendererCapabilities.FORMAT_HANDLED) {
           trackView.setFocusable(true);
-          trackView.setTag(trackInfos[trackIndex]);
           trackView.setOnClickListener(componentListener);
         } else {
           trackView.setFocusable(false);

@@ -894,6 +894,11 @@ public class SampleQueue implements TrackOutput {
       if (!keyframe || (flags[searchIndex] & C.BUFFER_FLAG_KEY_FRAME) != 0) {
         // We've found a suitable sample.
         sampleCountToTarget = i;
+        if (timesUs[searchIndex] == timeUs) {
+          // Stop the search if we found a sample at the specified time to avoid returning a later
+          // sample with the same exactly matching timestamp.
+          break;
+        }
       }
       searchIndex++;
       if (searchIndex == capacity) {

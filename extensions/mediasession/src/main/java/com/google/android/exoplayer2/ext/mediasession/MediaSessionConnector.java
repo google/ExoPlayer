@@ -1147,6 +1147,8 @@ public final class MediaSessionConnector {
         if (player.getPlaybackState() == Player.STATE_IDLE) {
           if (playbackPreparer != null) {
             playbackPreparer.onPrepare(/* playWhenReady= */ true);
+          } else {
+            controlDispatcher.dispatchPrepare(player);
           }
         } else if (player.getPlaybackState() == Player.STATE_ENDED) {
           seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);

@@ -199,10 +199,10 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       // Sometimes AAC and H264 streams are declared in TS chunks even though they don't really
       // exist. If we know from the codec attribute that they don't exist, then we can
       // explicitly ignore them even if they're declared.
-      if (!MimeTypes.AUDIO_AAC.equals(MimeTypes.getAudioMediaMimeType(codecs))) {
+      if (!MimeTypes.containsCodecsCorrespondingToMimeType(codecs, MimeTypes.AUDIO_AAC)) {
         payloadReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_AAC_STREAM;
       }
-      if (!MimeTypes.VIDEO_H264.equals(MimeTypes.getVideoMediaMimeType(codecs))) {
+      if (!MimeTypes.containsCodecsCorrespondingToMimeType(codecs, MimeTypes.VIDEO_H264)) {
         payloadReaderFactoryFlags |= DefaultTsPayloadReaderFactory.FLAG_IGNORE_H264_STREAM;
       }
     }

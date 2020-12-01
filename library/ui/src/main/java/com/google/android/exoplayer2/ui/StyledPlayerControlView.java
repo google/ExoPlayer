@@ -834,11 +834,15 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
-   * Sets the {@link PlaybackPreparer}.
-   *
-   * @param playbackPreparer The {@link PlaybackPreparer}, or null to remove the current playback
-   *     preparer.
+   * @deprecated Use {@link #setControlDispatcher(ControlDispatcher)} instead. The view calls {@link
+   *     ControlDispatcher#dispatchPrepare(Player)} instead of {@link
+   *     PlaybackPreparer#preparePlayback()}. The {@link DefaultControlDispatcher} that the view
+   *     uses by default, calls {@link Player#prepare()}. If you wish to customize this behaviour,
+   *     you can provide a custom implementation of {@link
+   *     ControlDispatcher#dispatchPrepare(Player)}.
    */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
     this.playbackPreparer = playbackPreparer;
   }
@@ -1698,11 +1702,14 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private void dispatchPlay(Player player) {
     @State int state = player.getPlaybackState();
     if (state == Player.STATE_IDLE) {
       if (playbackPreparer != null) {
         playbackPreparer.preparePlayback();
+      } else {
+        controlDispatcher.dispatchPrepare(player);
       }
     } else if (state == Player.STATE_ENDED) {
       seekTo(player, player.getCurrentWindowIndex(), C.TIME_UNSET);
@@ -1920,7 +1927,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private class SettingViewHolder extends RecyclerView.ViewHolder {
+  private final class SettingViewHolder extends RecyclerView.ViewHolder {
     private final TextView mainTextView;
     private final TextView subTextView;
     private final ImageView iconView;
@@ -1930,8 +1937,7 @@ public class StyledPlayerControlView extends FrameLayout {
       mainTextView = itemView.findViewById(R.id.exo_main_text);
       subTextView = itemView.findViewById(R.id.exo_sub_text);
       iconView = itemView.findViewById(R.id.exo_icon);
-      itemView.setOnClickListener(
-          v -> onSettingViewClicked(SettingViewHolder.this.getAdapterPosition()));
+      itemView.setOnClickListener(v -> onSettingViewClicked(getAdapterPosition()));
     }
   }
 
@@ -1969,7 +1975,7 @@ public class StyledPlayerControlView extends FrameLayout {
     }
   }
 
-  private class SubSettingViewHolder extends RecyclerView.ViewHolder {
+  private final class SubSettingViewHolder extends RecyclerView.ViewHolder {
     private final TextView textView;
     private final View checkView;
 
@@ -1977,8 +1983,7 @@ public class StyledPlayerControlView extends FrameLayout {
       super(itemView);
       textView = itemView.findViewById(R.id.exo_text);
       checkView = itemView.findViewById(R.id.exo_check);
-      itemView.setOnClickListener(
-          v -> onSubSettingViewClicked(SubSettingViewHolder.this.getAdapterPosition()));
+      itemView.setOnClickListener(v -> onSubSettingViewClicked(getAdapterPosition()));
     }
   }
 

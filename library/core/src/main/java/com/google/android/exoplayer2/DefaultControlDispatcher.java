@@ -53,6 +53,12 @@ public class DefaultControlDispatcher implements ControlDispatcher {
   }
 
   @Override
+  public boolean dispatchPrepare(Player player) {
+    player.prepare();
+    return true;
+  }
+
+  @Override
   public boolean dispatchSetPlayWhenReady(Player player, boolean playWhenReady) {
     player.setPlayWhenReady(playWhenReady);
     return true;

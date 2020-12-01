@@ -97,6 +97,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private long currentPositionUs;
   private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
+  private boolean audioSinkNeedsReset;
 
   private boolean experimentalKeepAudioTrackOnSeek;
 
@@ -507,6 +508,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected void onDisabled() {
+    audioSinkNeedsReset = true;
     try {
       audioSink.flush();
     } finally {
@@ -523,7 +525,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     try {
       super.onReset();
     } finally {
-      audioSink.reset();
+      if (audioSinkNeedsReset) {
+        audioSinkNeedsReset = false;
+        audioSink.reset();
+      }
     }
   }
 

@@ -27,6 +27,14 @@ import com.google.android.exoplayer2.Player.RepeatMode;
 public interface ControlDispatcher {
 
   /**
+   * Dispatches a {@link Player#prepare()} operation.
+   *
+   * @param player The {@link Player} to which the operation should be dispatched.
+   * @return True if the operation was dispatched. False if suppressed.
+   */
+  boolean dispatchPrepare(Player player);
+
+  /**
    * Dispatches a {@link Player#setPlayWhenReady(boolean)} operation.
    *
    * @param player The {@link Player} to which the operation should be dispatched.

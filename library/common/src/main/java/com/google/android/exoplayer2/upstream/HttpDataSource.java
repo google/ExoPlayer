@@ -271,7 +271,24 @@ public interface HttpDataSource extends DataSource {
       this.dataSpec = dataSpec;
       this.type = type;
     }
+  }
 
+  /**
+   * Thrown when cleartext HTTP traffic is not permitted. For more information including how to
+   * enable cleartext traffic, see the <a
+   * href="https://exoplayer.dev/issues/cleartext-not-permitted">corresponding troubleshooting
+   * topic</a>.
+   */
+  final class CleartextNotPermittedException extends HttpDataSourceException {
+
+    public CleartextNotPermittedException(IOException cause, DataSpec dataSpec) {
+      super(
+          "Cleartext HTTP traffic not permitted. See"
+              + " https://exoplayer.dev/issues/cleartext-not-permitted",
+          cause,
+          dataSpec,
+          TYPE_OPEN);
+    }
   }
 
   /**
@@ -285,7 +302,6 @@ public interface HttpDataSource extends DataSource {
       super("Invalid content type: " + contentType, dataSpec, TYPE_OPEN);
       this.contentType = contentType;
     }
-
   }
 
   /**

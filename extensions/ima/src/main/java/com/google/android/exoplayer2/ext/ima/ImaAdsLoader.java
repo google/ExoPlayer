@@ -82,6 +82,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -705,7 +706,9 @@ public final class ImaAdsLoader
       if (adTagUri != null) {
         adTagDataSpec = new DataSpec(adTagUri);
       } else if (adsResponse != null) {
-        adTagDataSpec = new DataSpec(Util.getDataUriForString(adsResponse, "text/xml"));
+        adTagDataSpec =
+            new DataSpec(
+                Util.getDataUriForString(/* mimeType= */ "text/xml", /* data= */ adsResponse));
       } else {
         throw new IllegalStateException();
       }
@@ -871,6 +874,7 @@ public final class ImaAdsLoader
       if (configuration.applicationAdErrorListener != null) {
         adsLoader.removeAdErrorListener(configuration.applicationAdErrorListener);
       }
+      adsLoader.release();
     }
     imaPausedContent = false;
     imaAdState = IMA_AD_STATE_NONE;
@@ -1118,6 +1122,10 @@ public final class ImaAdsLoader
 
   private void updateAdProgress() {
     VideoProgressUpdate videoProgressUpdate = getAdVideoProgressUpdate();
+    if (configuration.debugModeEnabled) {
+      Log.d(TAG, "Ad progress: " + ImaUtil.getStringForVideoProgressUpdate(videoProgressUpdate));
+    }
+
     AdMediaInfo adMediaInfo = checkNotNull(imaAdMediaInfo);
     for (int i = 0; i < adCallbacks.size(); i++) {
       adCallbacks.get(i).onAdProgress(adMediaInfo, videoProgressUpdate);
@@ -1211,17 +1219,31 @@ public final class ImaAdsLoader
     if (imaAdInfo != null) {
       adPlaybackState = adPlaybackState.withSkippedAdGroup(imaAdInfo.adGroupIndex);
       updateAdPlaybackState();
-    } else if (adPlaybackState.adGroupCount == 1 && adPlaybackState.adGroupTimesUs[0] == 0) {
-      // For incompatible VPAID ads with one preroll, content is resumed immediately. In this case
-      // we haven't received ad info (the ad never loaded), but there is only one ad group to skip.
-      adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ 0);
-      updateAdPlaybackState();
+    } else {
+      // Mark any ads for the current/reported player position that haven't loaded as being in the
+      // error state, to force resuming content. This includes VPAID ads that never load.
+      long playerPositionUs;
+      if (player != null) {
+        playerPositionUs = C.msToUs(getContentPeriodPositionMs(player, timeline, period));
+      } else if (!VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(lastContentProgress)) {
+        // Playback is backgrounded so use the last reported content position.
+        playerPositionUs = C.msToUs(lastContentProgress.getCurrentTimeMs());
+      } else {
+        return;
+      }
+      int adGroupIndex =
+          adPlaybackState.getAdGroupIndexForPositionUs(
+              playerPositionUs, C.msToUs(contentDurationMs));
+      if (adGroupIndex != C.INDEX_UNSET) {
+        markAdGroupInErrorStateAndClearPendingContentPosition(adGroupIndex);
+      }
     }
   }
 
   private void handlePlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
     if (playingAd && imaAdState == IMA_AD_STATE_PLAYING) {
       if (!bufferingAd && playbackState == Player.STATE_BUFFERING) {
+        bufferingAd = true;
         AdMediaInfo adMediaInfo = checkNotNull(imaAdMediaInfo);
         for (int i = 0; i < adCallbacks.size(); i++) {
           adCallbacks.get(i).onBuffering(adMediaInfo);
@@ -1282,12 +1304,17 @@ public final class ImaAdsLoader
       if (adMediaInfo == null) {
         Log.w(TAG, "onEnded without ad media info");
       } else {
-        for (int i = 0; i < adCallbacks.size(); i++) {
-          adCallbacks.get(i).onEnded(adMediaInfo);
+        @Nullable AdInfo adInfo = adInfoByAdMediaInfo.get(adMediaInfo);
+        if (playingAdIndexInAdGroup == C.INDEX_UNSET
+            || (adInfo != null && adInfo.adIndexInAdGroup < playingAdIndexInAdGroup)) {
+          for (int i = 0; i < adCallbacks.size(); i++) {
+            adCallbacks.get(i).onEnded(adMediaInfo);
+          }
+          if (configuration.debugModeEnabled) {
+            Log.d(
+                TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
+          }
         }
-      }
-      if (configuration.debugModeEnabled) {
-        Log.d(TAG, "VideoAdPlayerCallback.onEnded in onTimelineChanged/onPositionDiscontinuity");
       }
     }
     if (!sentContentComplete && !wasPlayingAd && playingAd && imaAdState == IMA_AD_STATE_NONE) {
@@ -1716,15 +1743,9 @@ public final class ImaAdsLoader
     public VideoProgressUpdate getContentProgress() {
       VideoProgressUpdate videoProgressUpdate = getContentVideoProgressUpdate();
       if (configuration.debugModeEnabled) {
-        if (VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(videoProgressUpdate)) {
-          Log.d(TAG, "Content progress: not ready");
-        } else {
-          Log.d(
-              TAG,
-              Util.formatInvariant(
-                  "Content progress: %.1f of %.1f s",
-                  videoProgressUpdate.getCurrentTime(), videoProgressUpdate.getDuration()));
-        }
+        Log.d(
+            TAG,
+            "Content progress: " + ImaUtil.getStringForVideoProgressUpdate(videoProgressUpdate));
       }
 
       if (waitingForPreloadElapsedRealtimeMs != C.TIME_UNSET) {
@@ -1893,7 +1914,9 @@ public final class ImaAdsLoader
   private static final class DefaultImaFactory implements ImaUtil.ImaFactory {
     @Override
     public ImaSdkSettings createImaSdkSettings() {
-      return ImaSdkFactory.getInstance().createImaSdkSettings();
+      ImaSdkSettings settings = ImaSdkFactory.getInstance().createImaSdkSettings();
+      settings.setLanguage(getImaLanguageCodeForDefaultLocale());
+      return settings;
     }
 
     @Override
@@ -1933,6 +1956,18 @@ public final class ImaAdsLoader
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer) {
       return ImaSdkFactory.getInstance()
           .createAdsLoader(context, imaSdkSettings, adDisplayContainer);
+    }
+
+    /**
+     * Returns a language code that's suitable for passing to {@link ImaSdkSettings#setLanguage} and
+     * corresponds to the device's {@link Locale#getDefault() default Locale}. IMA will fall back to
+     * its default language code ("en") if the value returned is unsupported.
+     */
+    // TODO: It may be possible to define a better mapping onto IMA's supported language codes. See:
+    // https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/localization.
+    // [Internal ref: b/174042000] will help if implemented.
+    private static String getImaLanguageCodeForDefaultLocale() {
+      return Util.splitAtFirst(Util.getSystemLanguageCodes()[0], "-")[0];
     }
   }
 }

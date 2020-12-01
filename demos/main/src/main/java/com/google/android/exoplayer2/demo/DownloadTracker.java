@@ -98,20 +98,20 @@ public class DownloadTracker {
   }
 
   public boolean isDownloaded(MediaItem mediaItem) {
-    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
+    @Nullable Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
     return download != null && download.state != Download.STATE_FAILED;
   }
 
   @Nullable
   public DownloadRequest getDownloadRequest(Uri uri) {
-    Download download = downloads.get(uri);
+    @Nullable Download download = downloads.get(uri);
     return download != null && download.state != Download.STATE_FAILED ? download.request : null;
   }
 
   public void toggleDownload(
       FragmentManager fragmentManager, MediaItem mediaItem, RenderersFactory renderersFactory) {
-    Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
-    if (download != null) {
+    @Nullable Download download = downloads.get(checkNotNull(mediaItem.playbackProperties).uri);
+    if (download != null && download.state != Download.STATE_FAILED) {
       DownloadService.sendRemoveDownload(
           context, DemoDownloadService.class, download.request.id, /* foreground= */ false);
     } else {
@@ -223,7 +223,7 @@ public class DownloadTracker {
       widevineOfflineLicenseFetchTask =
           new WidevineOfflineLicenseFetchTask(
               format,
-              mediaItem.playbackProperties.drmConfiguration.licenseUri,
+              mediaItem.playbackProperties.drmConfiguration,
               httpDataSourceFactory,
               /* dialogHelper= */ this,
               helper);
@@ -373,7 +373,7 @@ public class DownloadTracker {
   private static final class WidevineOfflineLicenseFetchTask extends AsyncTask<Void, Void, Void> {
 
     private final Format format;
-    private final Uri licenseUri;
+    private final MediaItem.DrmConfiguration drmConfiguration;
     private final HttpDataSource.Factory httpDataSourceFactory;
     private final StartDownloadDialogHelper dialogHelper;
     private final DownloadHelper downloadHelper;
@@ -383,12 +383,12 @@ public class DownloadTracker {
 
     public WidevineOfflineLicenseFetchTask(
         Format format,
-        Uri licenseUri,
+        MediaItem.DrmConfiguration drmConfiguration,
         HttpDataSource.Factory httpDataSourceFactory,
         StartDownloadDialogHelper dialogHelper,
         DownloadHelper downloadHelper) {
       this.format = format;
-      this.licenseUri = licenseUri;
+      this.drmConfiguration = drmConfiguration;
       this.httpDataSourceFactory = httpDataSourceFactory;
       this.dialogHelper = dialogHelper;
       this.downloadHelper = downloadHelper;
@@ -398,8 +398,10 @@ public class DownloadTracker {
     protected Void doInBackground(Void... voids) {
       OfflineLicenseHelper offlineLicenseHelper =
           OfflineLicenseHelper.newWidevineInstance(
-              licenseUri.toString(),
+              drmConfiguration.licenseUri.toString(),
+              drmConfiguration.forceDefaultLicenseUri,
               httpDataSourceFactory,
+              drmConfiguration.requestHeaders,
               new DrmSessionEventListener.EventDispatcher());
       try {
         keySetId = offlineLicenseHelper.downloadLicense(format);
