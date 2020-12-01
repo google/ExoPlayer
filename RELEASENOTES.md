@@ -41,6 +41,8 @@
 *   IMA extension:
     *   Add support for playback of ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
+    *   Fix a condition where playback can get stuck before an empty ad
+        ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
 *   FFMPEG extension:
