@@ -224,6 +224,11 @@ public class FakeClock implements Clock {
     }
 
     @Override
+    public boolean sendEmptyMessageDelayed(int what, int delayMs) {
+      return addHandlerMessageAtTime(this, what, uptimeMillis() + delayMs);
+    }
+
+    @Override
     public boolean sendEmptyMessageAtTime(int what, long uptimeMs) {
       return addHandlerMessageAtTime(this, what, uptimeMs);
     }

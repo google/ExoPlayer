@@ -22,17 +22,18 @@ import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.SystemClock;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,11 +42,15 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class MetadataRetrieverTest {
 
+  private static final long TEST_TIMEOUT_SEC = 10;
+
   private Context context;
+  private AutoAdvancingFakeClock clock;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
+    clock = new AutoAdvancingFakeClock();
   }
 
   @Test
@@ -53,8 +58,9 @@ public class MetadataRetrieverTest {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample.mp4"));
 
-    ListenableFuture<TrackGroupArray> trackGroupsFuture = retrieveMetadata(context, mediaItem);
-    TrackGroupArray trackGroups = waitAndGetTrackGroups(trackGroupsFuture);
+    ListenableFuture<TrackGroupArray> trackGroupsFuture =
+        retrieveMetadata(context, mediaItem, clock);
+    TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(2);
     // Video group.
@@ -72,10 +78,12 @@ public class MetadataRetrieverTest {
     MediaItem mediaItem2 =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp3/bear-id3.mp3"));
 
-    ListenableFuture<TrackGroupArray> trackGroupsFuture1 = retrieveMetadata(context, mediaItem1);
-    ListenableFuture<TrackGroupArray> trackGroupsFuture2 = retrieveMetadata(context, mediaItem2);
-    TrackGroupArray trackGroups1 = waitAndGetTrackGroups(trackGroupsFuture1);
-    TrackGroupArray trackGroups2 = waitAndGetTrackGroups(trackGroupsFuture2);
+    ListenableFuture<TrackGroupArray> trackGroupsFuture1 =
+        retrieveMetadata(context, mediaItem1, clock);
+    ListenableFuture<TrackGroupArray> trackGroupsFuture2 =
+        retrieveMetadata(context, mediaItem2, clock);
+    TrackGroupArray trackGroups1 = trackGroupsFuture1.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
+    TrackGroupArray trackGroups2 = trackGroupsFuture2.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     // First track group.
     assertThat(trackGroups1.length).isEqualTo(2);
@@ -104,8 +112,9 @@ public class MetadataRetrieverTest {
             /* videoStartPosition= */ 28_869,
             /* videoSize= */ 28_803);
 
-    ListenableFuture<TrackGroupArray> trackGroupsFuture = retrieveMetadata(context, mediaItem);
-    TrackGroupArray trackGroups = waitAndGetTrackGroups(trackGroupsFuture);
+    ListenableFuture<TrackGroupArray> trackGroupsFuture =
+        retrieveMetadata(context, mediaItem, clock);
+    TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(1);
     assertThat(trackGroups.get(0).length).isEqualTo(1);
@@ -119,8 +128,9 @@ public class MetadataRetrieverTest {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample_still_photo.heic"));
 
-    ListenableFuture<TrackGroupArray> trackGroupsFuture = retrieveMetadata(context, mediaItem);
-    TrackGroupArray trackGroups = waitAndGetTrackGroups(trackGroupsFuture);
+    ListenableFuture<TrackGroupArray> trackGroupsFuture =
+        retrieveMetadata(context, mediaItem, clock);
+    TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(1);
     assertThat(trackGroups.get(0).length).isEqualTo(1);
@@ -140,15 +150,14 @@ public class MetadataRetrieverTest {
             /* startTimeMs= */ 1255, /* endTimeMs= */ 1970, /* speedDivisor= */ 8));
     SlowMotionData expectedSlowMotionData = new SlowMotionData(segments);
 
-    ListenableFuture<TrackGroupArray> trackGroupsFuture = retrieveMetadata(context, mediaItem);
-    TrackGroupArray trackGroups = waitAndGetTrackGroups(trackGroupsFuture);
+    ListenableFuture<TrackGroupArray> trackGroupsFuture =
+        retrieveMetadata(context, mediaItem, clock);
+    TrackGroupArray trackGroups = trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS);
 
     assertThat(trackGroups.length).isEqualTo(2); // Video and audio
-
     // Audio
     assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(1);
     assertThat(trackGroups.get(0).getFormat(0).metadata.get(0)).isEqualTo(expectedSlowMotionData);
-
     // Video
     assertThat(trackGroups.get(1).getFormat(0).metadata.length())
         .isEqualTo(3); // 2 Mdta entries and 1 slow motion entry.
@@ -160,21 +169,10 @@ public class MetadataRetrieverTest {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/does_not_exist"));
 
-    ListenableFuture<TrackGroupArray> trackGroupsFuture = retrieveMetadata(context, mediaItem);
+    ListenableFuture<TrackGroupArray> trackGroupsFuture =
+        retrieveMetadata(context, mediaItem, clock);
 
-    assertThrows(ExecutionException.class, () -> waitAndGetTrackGroups(trackGroupsFuture));
-  }
-
-  private static TrackGroupArray waitAndGetTrackGroups(
-      ListenableFuture<TrackGroupArray> trackGroupsFuture)
-      throws InterruptedException, ExecutionException {
-    while (!trackGroupsFuture.isDone()) {
-      // TODO: update once [Internal: b/168084145] is implemented.
-      // Advance SystemClock so that messages that are sent with a delay to the MetadataRetriever
-      // looper are received.
-      SystemClock.setCurrentTimeMillis(SystemClock.uptimeMillis() + 100);
-      Thread.sleep(/* millis= */ 100);
-    }
-    return trackGroupsFuture.get();
+    assertThrows(
+        ExecutionException.class, () -> trackGroupsFuture.get(TEST_TIMEOUT_SEC, TimeUnit.SECONDS));
   }
 }

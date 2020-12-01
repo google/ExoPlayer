@@ -44,6 +44,9 @@ public interface HandlerWrapper {
   /** @see Handler#sendEmptyMessage(int) */
   boolean sendEmptyMessage(int what);
 
+  /** @see Handler#sendEmptyMessageDelayed(int, long) */
+  boolean sendEmptyMessageDelayed(int what, int delayMs);
+
   /** @see Handler#sendEmptyMessageAtTime(int, long) */
   boolean sendEmptyMessageAtTime(int what, long uptimeMs);
 

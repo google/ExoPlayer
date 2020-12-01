@@ -59,6 +59,11 @@ import androidx.annotation.Nullable;
   }
 
   @Override
+  public boolean sendEmptyMessageDelayed(int what, int delayMs) {
+    return handler.sendEmptyMessageDelayed(what, delayMs);
+  }
+
+  @Override
   public boolean sendEmptyMessageAtTime(int what, long uptimeMs) {
     return handler.sendEmptyMessageAtTime(what, uptimeMs);
   }
