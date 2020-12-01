@@ -118,10 +118,14 @@ application's main thread is used. In all cases the `Looper` of the thread from
 which the player must be accessed can be queried using
 `Player.getApplicationLooper`.
 
-If you see "Player is accessed on the wrong thread" warnings, some code in your
-app is accessing a `SimpleExoPlayer` instance on the wrong thread (the logged
-stack trace shows you where!). This is not safe and may result in unexpected or
-obscure errors.
+If you see `IllegalStateException` being thrown with the message "Player is
+accessed on the wrong thread", then some code in your app is accessing a
+`SimpleExoPlayer` instance on the wrong thread (the exception's stack trace
+shows you where). You can temporarily opt out from these exceptions being thrown
+by calling `SimpleExoPlayer.setThrowsWhenUsingWrongThread(false)`, in which case
+the issue will be logged as a warning instead. Using this opt out is not safe
+and may result in unexpected or obscure errors. It will be removed in ExoPlayer
+2.14.
 {:.info}
 
 For more information about ExoPlayer's treading model, see the
@@ -203,10 +207,15 @@ to provide `MediaSource` instances directly to the player using
 ## Controlling the player ##
 
 Once the player has been prepared, playback can be controlled by calling methods
-on the player. For example `play` and `pause` start and pause playback, the
-various `seekTo` methods seek within the media,`setRepeatMode` controls if and
-how media is looped, `setShuffleModeEnabled` controls playlist shuffling, and
-`setPlaybackParameters` adjusts playback speed and pitch.
+on the player. Some of the most commonly used methods are listed below.
+
+* `play` and `pause` start and pause playback.
+* `seekTo` allows seeking within the media.
+* `hasPrevious`, `hasNext`, `previous` and `next` allow navigating through the
+  playlist.
+* `setRepeatMode` controls if and how media is looped.
+* `setShuffleModeEnabled` controls playlist shuffling.
+* `setPlaybackParameters` adjusts playback speed and audio pitch.
 
 If the player is bound to a `PlayerView` or `PlayerControlView`, then user
 interaction with these components will cause corresponding methods on the player

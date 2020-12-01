@@ -27,18 +27,21 @@ redirect_from:
 
 #### Fixing "Cleartext HTTP traffic not permitted" errors ####
 
-This error will occur if your app requests cleartext traffic (e.g., `http://`
-rather than `https://`) when its Network Security Configuration does not permit
-it. If your app targets Android 9 (API level 28) or later, cleartext traffic is
-disabled by the default configuration.
+This error will occur if your app requests cleartext HTTP traffic (i.e.,
+`http://` rather than `https://`) when its Network Security Configuration does
+not permit it. If your app targets Android 9 (API level 28) or later, cleartext
+HTTP traffic is disabled by the default configuration.
 
-If your app needs to work with cleartext traffic (e.g., to stream media over
-`http://`) then you need to use a Network Security Configuration that permits
-it. Please see Android's
+If your app needs to work with cleartext HTTP traffic then you need to use a
+Network Security Configuration that permits it. Please see Android's
 [network security documentation](https://developer.android.com/training/articles/security-config.html)
-for details. To enable all cleartext traffic, you can simply add
+for details. To enable all cleartext HTTP traffic, you can simply add
 `android:usesCleartextTraffic="true"` to the `application` element of your app's
 `AndroidManifest.xml`.
+
+The ExoPlayer demo app uses the default Network Security Configuration, and so
+does not allow cleartext HTTP traffic. You can enable it using the instructions
+above.
 
 #### Fixing "SSLHandshakeException" and "CertPathValidatorException" errors ####
 
@@ -313,7 +316,7 @@ is the official way to play YouTube videos on Android.
 [Why does ExoPlayer support my content but the Cast extension doesn't?]: #why-does-exoplayer-support-my-content-but-the-cast-extension-doesnt
 [Why does content fail to play, but no error is surfaced?]: #why-does-content-fail-to-play-but-no-error-is-surfaced
 [How can I get a decoding extension to load and be used for playback?]: #how-can-i-get-a-decoding-extension-to-load-and-be-used-for-playback
-[Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-yt-videos-with-exoplayer
+[Can I play YouTube videos directly with ExoPlayer?]: #can-i-play-youtube-videos-directly-with-exoplayer
 
 
 [Supported formats]: {{ site.baseurl }}/supported-formats.html
@@ -351,4 +354,4 @@ is the official way to play YouTube videos on Android.
 [enabling extension decoders]: {{ site.base_url }}/demo-application.html#enabling-extension-decoders
 [`DefaultRenderersFactory`]: {{ site.exo_sdk }}/DefaultRenderersFactory.html
 [`LibraryLoader`]: {{ site.exo_sdk }}/util/LibraryLoader.html
-[`EventLogger`]: {{ site.baseurl }}/listening-to-player-events.html#using-eventlogger
+[`EventLogger`]: {{ site.baseurl }}/debug-logging.html

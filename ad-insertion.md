@@ -68,7 +68,7 @@ described below.
 
 The [ExoPlayer IMA extension][] provides `ImaAdsLoader`, making it easy to
 integrate client-side ad insertion into your app. It wraps the functionality of
-the [client-side IMA SDK][] to support playback of VAST/VMAP ad tags. For
+the [client-side IMA SDK][] to support insertion of VAST/VMAP ads. For
 instructions on how to use the extension, including how to handle backgrounding
 and resuming playback, please see the [README][].
 
@@ -84,7 +84,9 @@ show additional views on top of the player while an ad is playing (e.g., a 'more
 info' link and a skip button, if applicable).
 
 Since advertisers expect a consistent experience across apps, the IMA SDK does
-not allow customization of the views that it shows while an ad is playing.
+not allow customization of the views that it shows while an ad is playing. It is
+therefore not possible to remove or reposition the skip button, change the
+fonts, or make other customizations to the visual appearance of these views.
 {:.info}
 
 The IMA SDK may report whether ads are obscured by application provided views
@@ -104,6 +106,13 @@ Some ad tags contain additional companion ads that can be shown in 'slots' in an
 app UI. These slots can be passed via
 `ImaAdsLoader.Builder.setCompanionAdSlots(slots)`. For more information see
 [Adding Companion Ads][].
+
+#### Standalone ads ####
+
+The IMA SDK is designed for inserting ads into media content, not for playing
+standalone ads by themselves. Hence playback of standalone ads is not supported
+by the IMA extension. We recommend using the [Google Mobile Ads SDK][] instead
+for this use case.
 
 ### Using a third-party ads SDK ###
 
@@ -172,3 +181,4 @@ provide any integration with the DAI part of the IMA SDK.
 [playlist support]: {{ site.baseurl }}/playlists.html
 [incorporating ads into a playlist]: https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming/incorporating_ads_into_a_playlist
 [supported formats]: {{ site.baseurl }}/supported-formats.html
+[Google Mobile Ads SDK]: https://developers.google.com/admob/android/quick-start

@@ -161,7 +161,7 @@ You can also remove all downloaded data with
 
 A download will only progress if four conditions are met:
 
-* The download doesn't have a stop reason (see below).
+* The download doesn't have a stop reason.
 * Downloads aren't paused.
 * The requirements for downloads to progress are met. Requirements can specify
   constraints on the allowed network types, as well as whether the device should
@@ -201,8 +201,14 @@ of why each download is stopped. Setting and clearing the stop reason for all
 downloads works the same way as setting and clearing the stop reason for a
 single download, except that `contentId` should be set to `null`.
 
+Setting a stop reason does not remove a download. The partial download will be
+retained, and clearing the stop reason will cause the download to continue.
+{:.info}
+
 When a download has a non-zero stop reason, it will be in the
-`Download.STATE_STOPPED` state.
+`Download.STATE_STOPPED` state. Stop reasons are persisted in the
+`DownloadIndex`, and so are retained if the application process is killed and
+later restarted.
 
 #### Pausing and resuming all downloads ####
 
@@ -223,7 +229,9 @@ DownloadService.sendResumeDownloads(
 ~~~
 {: .language-java}
 
-When a download is paused, it will be in the `Download.STATE_QUEUED` state.
+When downloads are paused, they will be in the `Download.STATE_QUEUED` state.
+Unlike [setting stop reasons][], this approach does not persist any state
+changes. It only affects the runtime state of the `DownloadManager`.
 
 #### Setting the requirements for downloads to progress ####
 
@@ -406,3 +414,4 @@ a track that was not downloaded. Ensure you've set the stream keys correctly.
 [`Requirements`]: {{ site.exo_sdk }}/scheduler/Requirements.html
 [further down this page]: #downloading-and-playing-adaptive-streams
 [above]: #creating-a-downloadmanager
+[setting stop reasons]: #setting-and-clearing-download-stop-reasons

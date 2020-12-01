@@ -172,5 +172,5 @@ simpleExoPlayer.setShuffleModeEnabled(/* shuffleModeEnabled= */ true);
 ~~~
 {: .language-java}
 
-If the repeat mode of the player is set to `Player.REPEAT_MODE_ALL`, the custom
-shuffle order is played in an endless loop.
+If the repeat mode of the player is set to `REPEAT_MODE_ALL`, the custom shuffle
+order is played in an endless loop.

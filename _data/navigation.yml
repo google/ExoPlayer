@@ -25,7 +25,7 @@ en:
     children:
       - title:  Hello world
         url:    hello-world.html
-      - title:  Listening to player events
+      - title:  Player events
         url:    listening-to-player-events.html
       - title:  Playlists
         url:    playlists.html
@@ -41,6 +41,8 @@ en:
         url:    downloading-media.html
       - title:  Ad insertion
         url:    ad-insertion.html
+      - title:  Debug logging
+        url:    debug-logging.html
   - title:      Media types
     children:
       - title:  DASH
