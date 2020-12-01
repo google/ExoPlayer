@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import androidx.annotation.Nullable;
@@ -25,12 +27,13 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Media period that wraps a media source and defers calling its {@link
- * MediaSource#createPeriod(MediaPeriodId, Allocator, long)} method until {@link
- * #createPeriod(MediaPeriodId)} has been called. This is useful if you need to return a media
- * period immediately but the media source that should create it is not yet prepared.
+ * Media period that defers calling {@link MediaSource#createPeriod(MediaPeriodId, Allocator, long)}
+ * on a given source until {@link #createPeriod(MediaPeriodId)} has been called. This is useful if
+ * you need to return a media period immediately but the media source that should create it is not
+ * yet available or prepared.
  */
 public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
@@ -46,33 +49,32 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     void onPrepareError(MediaPeriodId mediaPeriodId, IOException exception);
   }
 
-  /** The {@link MediaSource} which will create the actual media period. */
-  public final MediaSource mediaSource;
   /** The {@link MediaPeriodId} used to create the masking media period. */
   public final MediaPeriodId id;
 
+  private final long preparePositionUs;
   private final Allocator allocator;
 
-  @Nullable private MediaPeriod mediaPeriod;
+  /** The {@link MediaSource} that will create the underlying media period. */
+  private @MonotonicNonNull MediaSource mediaSource;
+
+  private @MonotonicNonNull MediaPeriod mediaPeriod;
   @Nullable private Callback callback;
-  private long preparePositionUs;
   @Nullable private PrepareListener listener;
   private boolean notifiedPrepareError;
   private long preparePositionOverrideUs;
 
   /**
-   * Creates a new masking media period.
+   * Creates a new masking media period. The media source must be set via {@link
+   * #setMediaSource(MediaSource)} before preparation can start.
    *
-   * @param mediaSource The media source to wrap.
    * @param id The identifier used to create the masking media period.
    * @param allocator The allocator used to create the media period.
    * @param preparePositionUs The expected start position, in microseconds.
    */
-  public MaskingMediaPeriod(
-      MediaSource mediaSource, MediaPeriodId id, Allocator allocator, long preparePositionUs) {
+  public MaskingMediaPeriod(MediaPeriodId id, Allocator allocator, long preparePositionUs) {
     this.id = id;
     this.allocator = allocator;
-    this.mediaSource = mediaSource;
     this.preparePositionUs = preparePositionUs;
     preparePositionOverrideUs = C.TIME_UNSET;
   }
@@ -108,6 +110,12 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     return preparePositionOverrideUs;
   }
 
+  /** Sets the {@link MediaSource} that will create the underlying media period. */
+  public void setMediaSource(MediaSource mediaSource) {
+    checkState(this.mediaSource == null);
+    this.mediaSource = mediaSource;
+  }
+
   /**
    * Calls {@link MediaSource#createPeriod(MediaPeriodId, Allocator, long)} on the wrapped source
    * then prepares it if {@link #prepare(Callback, long)} has been called. Call {@link
@@ -117,18 +125,16 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
    */
   public void createPeriod(MediaPeriodId id) {
     long preparePositionUs = getPreparePositionWithOverride(this.preparePositionUs);
-    mediaPeriod = mediaSource.createPeriod(id, allocator, preparePositionUs);
+    mediaPeriod = checkNotNull(mediaSource).createPeriod(id, allocator, preparePositionUs);
     if (callback != null) {
-      mediaPeriod.prepare(this, preparePositionUs);
+      mediaPeriod.prepare(/* callback= */ this, preparePositionUs);
     }
   }
 
-  /**
-   * Releases the period.
-   */
+  /** Releases the period. */
   public void releasePeriod() {
     if (mediaPeriod != null) {
-      mediaSource.releasePeriod(mediaPeriod);
+      checkNotNull(mediaSource).releasePeriod(mediaPeriod);
     }
   }
 
@@ -136,7 +142,8 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   public void prepare(Callback callback, long preparePositionUs) {
     this.callback = callback;
     if (mediaPeriod != null) {
-      mediaPeriod.prepare(this, getPreparePositionWithOverride(this.preparePositionUs));
+      mediaPeriod.prepare(
+          /* callback= */ this, getPreparePositionWithOverride(this.preparePositionUs));
     }
   }
 
@@ -145,10 +152,10 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
     try {
       if (mediaPeriod != null) {
         mediaPeriod.maybeThrowPrepareError();
-      } else {
+      } else if (mediaSource != null) {
         mediaSource.maybeThrowSourceInfoRefreshError();
       }
-    } catch (final IOException e) {
+    } catch (IOException e) {
       if (listener == null) {
         throw e;
       }

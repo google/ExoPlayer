@@ -1,9 +1,15 @@
 # Release notes
 
+### 2.12.3 (???-??-??) ###
+
+*   IMA extension:
+    *   Fix a condition where playback can get stuck before an empty ad
+        ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
+
 ### 2.12.2 (2020-12-01) ###
 
 *   Core library:
-    *   Suppress exceptions from registering/unregistering the stream volume
+    *   Suppress exceptions from registering and unregistering the stream volume
         receiver ([#8087](https://github.com/google/ExoPlayer/issues/8087)),
         ([#8106](https://github.com/google/ExoPlayer/issues/8106)).
     *   Suppress ProGuard warnings caused by Guava's compile-only dependencies
