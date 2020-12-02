@@ -29,6 +29,8 @@
 *   UI:
     *   Show overflow button in `StyledPlayerControlView` only when there is not
         enough space.
+    *   Update StyledPlayer's control overlay scrim from 30% opacity to 60%
+        opacity for Accessibility requirements.
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.

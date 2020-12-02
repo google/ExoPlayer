@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="@color/exo_black_opacity_30"/>
+        android:background="@color/exo_black_opacity_60"/>
 
     <include android:id="@+id/exo_embedded_transport_controls"
         android:layout_width="wrap_content"
