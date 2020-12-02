@@ -26,7 +26,7 @@ import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.Renderer.VideoScalingMode;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
@@ -164,7 +164,7 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public void setVideoScalingMode(@VideoScalingMode int scalingMode) {
+  public void setVideoScalingMode(@C.VideoScalingMode int scalingMode) {
     codec.setVideoScalingMode(scalingMode);
   }
 }

@@ -24,7 +24,7 @@ import android.os.Handler;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import com.google.android.exoplayer2.Renderer.VideoScalingMode;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import java.nio.ByteBuffer;
 
@@ -187,5 +187,5 @@ public interface MediaCodecAdapter {
    *
    * @see MediaCodec#setVideoScalingMode(int)
    */
-  void setVideoScalingMode(@VideoScalingMode int scalingMode);
+  void setVideoScalingMode(@C.VideoScalingMode int scalingMode);
 }

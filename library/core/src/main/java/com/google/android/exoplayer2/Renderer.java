@@ -114,7 +114,7 @@ public interface Renderer extends PlayerMessage.Target {
   /**
    * The type of a message that can be passed to a {@link MediaCodec}-based video renderer via
    * {@link ExoPlayer#createMessage(Target)}. The message payload should be one of the integer
-   * scaling modes in {@link VideoScalingMode}.
+   * scaling modes in {@link C.VideoScalingMode}.
    *
    * <p>Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
    * owned by a {@link android.view.SurfaceView}.
@@ -180,12 +180,9 @@ public interface Renderer extends PlayerMessage.Target {
   @SuppressWarnings("deprecation")
   int MSG_CUSTOM_BASE = C.MSG_CUSTOM_BASE;
 
-  /**
-   * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
-   * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
-   */
+  /** @deprecated Use {@link C.VideoScalingMode}. */
   // VIDEO_SCALING_MODE_DEFAULT is an intentionally duplicated constant.
-  @SuppressWarnings("UniqueConstants")
+  @SuppressWarnings({"UniqueConstants", "Deprecation"})
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
@@ -194,17 +191,16 @@ public interface Renderer extends PlayerMessage.Target {
         VIDEO_SCALING_MODE_SCALE_TO_FIT,
         VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
       })
+  @Deprecated
   @interface VideoScalingMode {}
-  /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
-  @SuppressWarnings("deprecation")
-  int VIDEO_SCALING_MODE_SCALE_TO_FIT = C.VIDEO_SCALING_MODE_SCALE_TO_FIT;
-  /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
-  @SuppressWarnings("deprecation")
+  /** @deprecated Use {@link C#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
+  @Deprecated int VIDEO_SCALING_MODE_SCALE_TO_FIT = C.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+  /** @deprecated Use {@link C#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
+  @Deprecated
   int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
       C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
-  /** A default video scaling mode for {@link MediaCodec}-based renderers. */
-  @SuppressWarnings("deprecation")
-  int VIDEO_SCALING_MODE_DEFAULT = C.VIDEO_SCALING_MODE_DEFAULT;
+  /** @deprecated Use {@code C.VIDEO_SCALING_MODE_DEFAULT}. */
+  @Deprecated int VIDEO_SCALING_MODE_DEFAULT = C.VIDEO_SCALING_MODE_DEFAULT;
 
   /**
    * The renderer states. One of {@link #STATE_DISABLED}, {@link #STATE_ENABLED} or {@link

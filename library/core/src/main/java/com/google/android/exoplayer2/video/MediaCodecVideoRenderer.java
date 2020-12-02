@@ -79,7 +79,7 @@ import java.util.List;
  *   <li>Message with type {@link #MSG_SET_SURFACE} to set the output surface. The message payload
  *       should be the target {@link Surface}, or null.
  *   <li>Message with type {@link #MSG_SET_SCALING_MODE} to set the video scaling mode. The message
- *       payload should be one of the integer scaling modes in {@link VideoScalingMode}. Note that
+ *       payload should be one of the integer scaling modes in {@link C.VideoScalingMode}. Note that
  *       the scaling mode only applies if the {@link Surface} targeted by this renderer is owned by
  *       a {@link android.view.SurfaceView}.
  *   <li>Message with type {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER} to set a listener for
@@ -126,7 +126,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private float surfaceFrameRate;
   @Nullable private Surface dummySurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
-  @VideoScalingMode private int scalingMode;
+  @C.VideoScalingMode private int scalingMode;
   private boolean renderedFirstFrameAfterReset;
   private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
   private boolean renderedFirstFrameAfterEnable;
@@ -245,7 +245,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentWidth = Format.NO_VALUE;
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
-    scalingMode = VIDEO_SCALING_MODE_DEFAULT;
+    scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
     clearReportedVideoSize();
   }
 

@@ -112,7 +112,7 @@ public class SimpleExoPlayer extends BasePlayer
     @C.WakeMode private int wakeMode;
     private boolean handleAudioBecomingNoisy;
     private boolean skipSilenceEnabled;
-    @Renderer.VideoScalingMode private int videoScalingMode;
+    @C.VideoScalingMode private int videoScalingMode;
     private boolean useLazyPreparation;
     private SeekParameters seekParameters;
     private LivePlaybackSpeedControl livePlaybackSpeedControl;
@@ -149,7 +149,7 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@link C.WakeMode}: {@link C#WAKE_MODE_NONE}
      *   <li>{@code handleAudioBecomingNoisy}: {@code true}
      *   <li>{@code skipSilenceEnabled}: {@code false}
-     *   <li>{@link Renderer.VideoScalingMode}: {@link Renderer#VIDEO_SCALING_MODE_DEFAULT}
+     *   <li>{@link C.VideoScalingMode}: {@link C#VIDEO_SCALING_MODE_DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
      *   <li>{@link SeekParameters}: {@link SeekParameters#DEFAULT}
      *   <li>{@code releaseTimeoutMs}: {@link ExoPlayer#DEFAULT_RELEASE_TIMEOUT_MS}
@@ -246,7 +246,7 @@ public class SimpleExoPlayer extends BasePlayer
       looper = Util.getCurrentOrMainLooper();
       audioAttributes = AudioAttributes.DEFAULT;
       wakeMode = C.WAKE_MODE_NONE;
-      videoScalingMode = Renderer.VIDEO_SCALING_MODE_DEFAULT;
+      videoScalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
       useLazyPreparation = true;
       seekParameters = SeekParameters.DEFAULT;
       livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
@@ -424,17 +424,17 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
-     * Sets the {@link Renderer.VideoScalingMode} that will be used by the player.
+     * Sets the {@link C.VideoScalingMode} that will be used by the player.
      *
      * <p>Note that the scaling mode only applies if a {@link MediaCodec}-based video {@link
      * Renderer} is enabled and if the output surface is owned by a {@link
      * android.view.SurfaceView}.
      *
-     * @param videoScalingMode A {@link Renderer.VideoScalingMode}.
+     * @param videoScalingMode A {@link C.VideoScalingMode}.
      * @return This builder.
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
-    public Builder setVideoScalingMode(@Renderer.VideoScalingMode int videoScalingMode) {
+    public Builder setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
       Assertions.checkState(!buildCalled);
       this.videoScalingMode = videoScalingMode;
       return this;
@@ -609,7 +609,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer;
   @Nullable private Surface surface;
   private boolean ownsSurface;
-  @Renderer.VideoScalingMode private int videoScalingMode;
+  @C.VideoScalingMode private int videoScalingMode;
   @Nullable private SurfaceHolder surfaceHolder;
   @Nullable private TextureView textureView;
   private int surfaceWidth;
@@ -780,17 +780,17 @@ public class SimpleExoPlayer extends BasePlayer
    * <p>Note that the scaling mode only applies if a {@link MediaCodec}-based video {@link Renderer}
    * is enabled and if the output surface is owned by a {@link android.view.SurfaceView}.
    *
-   * @param videoScalingMode The {@link Renderer.VideoScalingMode}.
+   * @param videoScalingMode The {@link C.VideoScalingMode}.
    */
   @Override
-  public void setVideoScalingMode(@Renderer.VideoScalingMode int videoScalingMode) {
+  public void setVideoScalingMode(@C.VideoScalingMode int videoScalingMode) {
     verifyApplicationThread();
     this.videoScalingMode = videoScalingMode;
     sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
   }
 
   @Override
-  @Renderer.VideoScalingMode
+  @C.VideoScalingMode
   public int getVideoScalingMode() {
     return videoScalingMode;
   }

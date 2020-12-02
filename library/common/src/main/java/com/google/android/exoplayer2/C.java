@@ -557,24 +557,21 @@ public final class C {
   //     ../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
   // )
 
-  /** @deprecated Use {@code Renderer.VideoScalingMode}. */
-  @SuppressWarnings("deprecation")
+  /**
+   * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
+   * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
+   */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(value = {VIDEO_SCALING_MODE_SCALE_TO_FIT, VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING})
-  @Deprecated
   public @interface VideoScalingMode {}
-  /** @deprecated Use {@code Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
-  @Deprecated
+  /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
-  /** @deprecated Use {@code Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
-  @Deprecated
+  /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
-  /** @deprecated Use {@code Renderer.VIDEO_SCALING_MODE_DEFAULT}. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
+  /** A default video scaling mode for {@link MediaCodec}-based renderers. */
   public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
   /**
