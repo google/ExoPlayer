@@ -707,9 +707,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return responseInfo;
   }
 
-  // Internal methods.
-
-  private UrlRequest.Builder buildRequestBuilder(DataSpec dataSpec) throws IOException {
+  protected UrlRequest.Builder buildRequestBuilder(DataSpec dataSpec) throws IOException {
     UrlRequest.Builder requestBuilder =
         cronetEngine
             .newUrlRequestBuilder(dataSpec.uri.toString(), urlRequestCallback, executor)
@@ -758,6 +756,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
     return requestBuilder;
   }
+
+  // Internal methods.
 
   private boolean blockUntilConnectTimeout() throws InterruptedException {
     long now = clock.elapsedRealtime();
