@@ -767,10 +767,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       return;
     }
 
-    if (!readOnlyMediaChunks.isEmpty()
-        && chunkSource.getChunkPublicationState(Iterables.getLast(readOnlyMediaChunks))
+    int newQueueSize = readOnlyMediaChunks.size();
+    while (newQueueSize > 0
+        && chunkSource.getChunkPublicationState(readOnlyMediaChunks.get(newQueueSize - 1))
             == CHUNK_PUBLICATION_STATE_REMOVED) {
-      discardUpstream(mediaChunks.size() - 1);
+      newQueueSize--;
+    }
+    if (newQueueSize < readOnlyMediaChunks.size()) {
+      discardUpstream(newQueueSize);
     }
 
     int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
