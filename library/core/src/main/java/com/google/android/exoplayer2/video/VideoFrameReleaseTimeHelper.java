@@ -62,7 +62,7 @@ public final class VideoFrameReleaseTimeHelper {
   @Nullable private final DefaultDisplayListener displayListener;
 
   private float formatFrameRate;
-  private float playbackSpeed;
+  private double playbackSpeed;
   private long nextFramePresentationTimeUs;
 
   private long vsyncDurationNs;
@@ -152,8 +152,9 @@ public final class VideoFrameReleaseTimeHelper {
    *
    * @param playbackSpeed The player's speed.
    */
-  public void onPlaybackSpeed(float playbackSpeed) {
+  public void onPlaybackSpeed(double playbackSpeed) {
     this.playbackSpeed = playbackSpeed;
+    haveSync = false;
   }
 
   /**
@@ -179,7 +180,9 @@ public final class VideoFrameReleaseTimeHelper {
 
   /** Returns the estimated playback frame rate, or {@link C#RATE_UNSET} if unknown. */
   public float getPlaybackFrameRate() {
-    return formatFrameRate == Format.NO_VALUE ? C.RATE_UNSET : (formatFrameRate * playbackSpeed);
+    return formatFrameRate == Format.NO_VALUE
+        ? C.RATE_UNSET
+        : (float) (formatFrameRate * playbackSpeed);
   }
 
   /**
@@ -213,7 +216,8 @@ public final class VideoFrameReleaseTimeHelper {
         // Project the adjusted frame time forward using the average.
         long candidateAdjustedReleaseTimeNs =
             lastAdjustedReleaseTimeNs
-                + averageFrameDurationNs * (frameCount - lastAdjustedFrameIndex);
+                + getPlayoutDuration(
+                    averageFrameDurationNs * (frameCount - lastAdjustedFrameIndex));
 
         if (adjustmentAllowed(releaseTimeNs, candidateAdjustedReleaseTimeNs)) {
           adjustedReleaseTimeNs = candidateAdjustedReleaseTimeNs;
@@ -224,7 +228,8 @@ public final class VideoFrameReleaseTimeHelper {
         // We're synced but haven't waited the required number of frames to apply an adjustment.
         // Check for drift between the proposed and projected frame release timestamps.
         long projectedReleaseTimeNs =
-            syncReleaseTimeNs + (framePresentationTimeNs - syncFramePresentationTimeNs);
+            syncReleaseTimeNs
+                + getPlayoutDuration(framePresentationTimeNs - syncFramePresentationTimeNs);
         if (!adjustmentAllowed(releaseTimeNs, projectedReleaseTimeNs)) {
           haveSync = false;
         }
@@ -273,6 +278,10 @@ public final class VideoFrameReleaseTimeHelper {
       vsyncDurationNs = C.TIME_UNSET;
       vsyncOffsetNs = C.TIME_UNSET;
     }
+  }
+
+  private long getPlayoutDuration(long mediaDuration) {
+    return (long) (mediaDuration / playbackSpeed);
   }
 
   private static boolean adjustmentAllowed(
