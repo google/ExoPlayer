@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.upstream.DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -92,10 +94,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     // Media segment.
     HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
     DataSpec dataSpec =
-        new DataSpec(
-            UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url),
-            mediaSegment.byteRangeOffset,
-            mediaSegment.byteRangeLength);
+        new DataSpec.Builder()
+            .setUri(UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url))
+            .setPosition(mediaSegment.byteRangeOffset)
+            .setLength(mediaSegment.byteRangeLength)
+            .setFlags(segmentBaseHolder.isPreload ? FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED : 0)
+            .build();
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
     @Nullable
     byte[] mediaSegmentIv =
