@@ -165,32 +165,20 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueInput(ByteBuffer inputBuffer) {
+    if (!inputBuffer.hasRemaining()) {
+      return;
+    }
     Sonic sonic = checkNotNull(this.sonic);
-    if (inputBuffer.hasRemaining()) {
-      ShortBuffer shortBuffer = inputBuffer.asShortBuffer();
-      int inputSize = inputBuffer.remaining();
-      inputBytes += inputSize;
-      sonic.queueInput(shortBuffer);
-      inputBuffer.position(inputBuffer.position() + inputSize);
-    }
-    int outputSize = sonic.getOutputSize();
-    if (outputSize > 0) {
-      if (buffer.capacity() < outputSize) {
-        buffer = ByteBuffer.allocateDirect(outputSize).order(ByteOrder.nativeOrder());
-        shortBuffer = buffer.asShortBuffer();
-      } else {
-        buffer.clear();
-        shortBuffer.clear();
-      }
-      sonic.getOutput(shortBuffer);
-      outputBytes += outputSize;
-      buffer.limit(outputSize);
-      outputBuffer = buffer;
-    }
+    ShortBuffer shortBuffer = inputBuffer.asShortBuffer();
+    int inputSize = inputBuffer.remaining();
+    inputBytes += inputSize;
+    sonic.queueInput(shortBuffer);
+    inputBuffer.position(inputBuffer.position() + inputSize);
   }
 
   @Override
   public void queueEndOfStream() {
+    // TODO(internal b/174554082): assert sonic is non-null here and in getOutput.
     if (sonic != null) {
       sonic.queueEndOfStream();
     }
@@ -199,6 +187,23 @@ public final class SonicAudioProcessor implements AudioProcessor {
 
   @Override
   public ByteBuffer getOutput() {
+    @Nullable Sonic sonic = this.sonic;
+    if (sonic != null) {
+      int outputSize = sonic.getOutputSize();
+      if (outputSize > 0) {
+        if (buffer.capacity() < outputSize) {
+          buffer = ByteBuffer.allocateDirect(outputSize).order(ByteOrder.nativeOrder());
+          shortBuffer = buffer.asShortBuffer();
+        } else {
+          buffer.clear();
+          shortBuffer.clear();
+        }
+        sonic.getOutput(shortBuffer);
+        outputBytes += outputSize;
+        buffer.limit(outputSize);
+        outputBuffer = buffer;
+      }
+    }
     ByteBuffer outputBuffer = this.outputBuffer;
     this.outputBuffer = EMPTY_BUFFER;
     return outputBuffer;

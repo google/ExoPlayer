@@ -885,7 +885,9 @@ public final class DefaultAudioSink implements AudioSink {
         writeBuffer(input, avSyncPresentationTimeUs);
       } else {
         AudioProcessor audioProcessor = activeAudioProcessors[index];
-        audioProcessor.queueInput(input);
+        if (index > drainingAudioProcessorIndex) {
+          audioProcessor.queueInput(input);
+        }
         ByteBuffer output = audioProcessor.getOutput();
         outputBuffers[index] = output;
         if (output.hasRemaining()) {
