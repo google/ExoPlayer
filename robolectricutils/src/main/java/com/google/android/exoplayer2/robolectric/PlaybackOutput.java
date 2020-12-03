@@ -52,7 +52,7 @@ public final class PlaybackOutput implements Dumper.Dumpable {
     // player.getCurrentPosition() inside onMetadata/Cues will likely be non-deterministic
     // because renderer-thread != playback-thread.
     player.addMetadataOutput(metadatas::add);
-    player.addTextOutput(subtitles::add);
+    // TODO(internal b/174661563): Output subtitle data when it's not flaky.
   }
 
   /**

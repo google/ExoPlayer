@@ -63,17 +63,3 @@ MediaCodec (video/avc):
   buffers[28] = length 476, hash A0423645
   buffers[29] = length 486, hash DDF32CBB
   buffers[30] = length 0, hash 1
-TextOutput:
-  Subtitle[0]:
-    Cues = []
-  Subtitle[1]:
-    Cue[0]:
-      text = This is the first subtitle.
-      textAlignment = ALIGN_CENTER
-      line = 0.95
-      lineType = 0
-      lineAnchor = 2
-      position = 0.5
-      positionAnchor = 1
-  Subtitle[2]:
-    Cues = []
