@@ -29,6 +29,7 @@ import android.annotation.SuppressLint;
 import android.media.MediaFormat;
 import android.media.MediaParser;
 import android.media.MediaParser.OutputConsumer;
+import android.media.MediaParser.SeekPoint;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -209,6 +210,11 @@ public final class MediaParserHlsMediaChunkExtractor implements HlsMediaChunkExt
         overrideInBandCaptionDeclarations,
         muxedCaptionMediaFormats,
         /* leadingBytesToSkip= */ 0);
+  }
+
+  @Override
+  public void onTruncatedSegmentParsed() {
+    mediaParser.seek(SeekPoint.START);
   }
 
   // Allow constants that are not part of the public MediaParser API.
