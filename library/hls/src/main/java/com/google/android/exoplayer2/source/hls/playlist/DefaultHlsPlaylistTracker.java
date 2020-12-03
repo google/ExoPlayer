@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.source.hls.HlsDataSourceFactory;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist.Variant;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Part;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.RenditionReport;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -186,7 +187,7 @@ public final class DefaultHlsPlaylistTracker
   @Override
   @Nullable
   public HlsMediaPlaylist getPlaylistSnapshot(Uri url, boolean isForPlayback) {
-    HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
+    @Nullable HlsMediaPlaylist snapshot = playlistBundles.get(url).getPlaylistSnapshot();
     if (snapshot != null && isForPlayback) {
       maybeSetPrimaryUrl(url);
     }
@@ -321,10 +322,10 @@ public final class DefaultHlsPlaylistTracker
     int variantsSize = variants.size();
     long currentTimeMs = SystemClock.elapsedRealtime();
     for (int i = 0; i < variantsSize; i++) {
-      MediaPlaylistBundle bundle = playlistBundles.get(variants.get(i).url);
+      MediaPlaylistBundle bundle = checkNotNull(playlistBundles.get(variants.get(i).url));
       if (currentTimeMs > bundle.excludeUntilMs) {
         primaryMediaPlaylistUrl = bundle.playlistUrl;
-        bundle.loadPlaylist();
+        bundle.loadPlaylistInternal(getRequestUriForPrimaryChange(primaryMediaPlaylistUrl));
         return true;
       }
     }
@@ -340,7 +341,29 @@ public final class DefaultHlsPlaylistTracker
       return;
     }
     primaryMediaPlaylistUrl = url;
-    playlistBundles.get(primaryMediaPlaylistUrl).loadPlaylist();
+    playlistBundles
+        .get(primaryMediaPlaylistUrl)
+        .loadPlaylistInternal(getRequestUriForPrimaryChange(url));
+  }
+
+  private Uri getRequestUriForPrimaryChange(Uri newPrimaryPlaylistUri) {
+    if (primaryMediaPlaylistSnapshot != null
+        && primaryMediaPlaylistSnapshot.serverControl.canBlockReload) {
+      @Nullable
+      RenditionReport renditionReport =
+          primaryMediaPlaylistSnapshot.renditionReports.get(newPrimaryPlaylistUri);
+      if (renditionReport != null) {
+        Uri.Builder uriBuilder = newPrimaryPlaylistUri.buildUpon();
+        uriBuilder.appendQueryParameter(
+            MediaPlaylistBundle.BLOCK_MSN_PARAM, String.valueOf(renditionReport.lastMediaSequence));
+        if (renditionReport.lastPartIndex != C.INDEX_UNSET) {
+          uriBuilder.appendQueryParameter(
+              MediaPlaylistBundle.BLOCK_PART_PARAM, String.valueOf(renditionReport.lastPartIndex));
+        }
+        return uriBuilder.build();
+      }
+    }
+    return newPrimaryPlaylistUri;
   }
 
   /** Returns whether any of the variants in the master playlist have the specified playlist URL. */
@@ -627,7 +650,7 @@ public final class DefaultHlsPlaylistTracker
 
     // Internal methods.
 
-    public void loadPlaylistInternal(Uri playlistRequestUri) {
+    private void loadPlaylistInternal(Uri playlistRequestUri) {
       excludeUntilMs = 0;
       if (loadPending || mediaPlaylistLoader.isLoading() || mediaPlaylistLoader.hasFatalError()) {
         // Load already pending, in progress, or a fatal error has been encountered. Do nothing.
