@@ -5,6 +5,9 @@
 *   IMA extension:
     *   Fix a condition where playback can get stuck before an empty ad
         ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
+*   Text:
+    *   Gracefully handle null-terminated subtitle content in Matroska
+        containers.
 
 ### 2.12.2 (2020-12-01) ###
 
