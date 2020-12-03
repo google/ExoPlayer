@@ -204,7 +204,7 @@ import java.util.concurrent.TimeoutException;
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the player is used.
    *
-   * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+   * @param timeoutMs The time limit in milliseconds.
    */
   public void experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
     internalPlayer.experimentalSetForegroundModeTimeoutMs(timeoutMs);
