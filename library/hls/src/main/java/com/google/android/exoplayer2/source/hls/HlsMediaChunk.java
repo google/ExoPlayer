@@ -403,6 +403,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
       try {
         while (!loadCanceled && extractor.read(input)) {}
+      } catch (EOFException e) {
+        if ((trackFormat.roleFlags & C.ROLE_FLAG_TRICK_PLAY) != 0) {
+          // See onTruncatedSegmentParsed's javadoc for more info on why we are swallowing the EOF
+          // exception for trick play tracks.
+          extractor.onTruncatedSegmentParsed();
+        } else {
+          throw e;
+        }
       } finally {
         nextLoadPosition = (int) (input.getPosition() - dataSpec.position);
       }

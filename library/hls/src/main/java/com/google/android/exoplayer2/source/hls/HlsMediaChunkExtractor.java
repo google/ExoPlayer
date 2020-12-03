@@ -59,4 +59,15 @@ public interface HlsMediaChunkExtractor {
    * instances that are not {@link #isReusable() reusable}.
    */
   HlsMediaChunkExtractor recreate();
+
+  /**
+   * Resets the sample parsing state.
+   *
+   * <p>Resetting the parsing state allows support for Fragmented MP4 EXT-X-I-FRAME-STREAM-INF
+   * segments. EXT-X-I-FRAME-STREAM-INF segments are truncated to include only a leading key frame.
+   * After parsing said keyframe, an extractor may reach an unexpected end of file. By resetting its
+   * state, we can continue feeding samples from the following segments to the extractor. See <a
+   * href="https://github.com/google/ExoPlayer/issues/7512">#7512</a> for context.
+   */
+  void onTruncatedSegmentParsed();
 }
