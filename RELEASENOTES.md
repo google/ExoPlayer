@@ -47,9 +47,12 @@
         ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
-*   FFMPEG extension:
-    *   Link the FFMPEG library statically, saving 350KB in binary size on
+*   FFmpeg extension:
+    *   Link the FFmpeg library statically, saving 350KB in binary size on
         average.
+*   Text:
+    *   Gracefully handle null-terminated subtitle content in Matroska
+        containers.
 
 ### 2.12.2 (2020-12-01) ###
 
