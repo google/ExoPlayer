@@ -30,6 +30,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -37,6 +38,8 @@ import com.google.android.exoplayer2.util.Util;
  * achieve a smoother visual result.
  */
 public final class VideoFrameReleaseTimeHelper {
+
+  private static final String TAG = "VideoFrameReleaseTimeHelper";
 
   /** The period between sampling display VSYNC timestamps, in milliseconds. */
   private static final long VSYNC_SAMPLE_UPDATE_PERIOD_MS = 500;
@@ -260,12 +263,15 @@ public final class VideoFrameReleaseTimeHelper {
   }
 
   private void updateDefaultDisplayRefreshRateParams() {
-    // Note: If we fail to update the parameters, we leave them set to their previous values.
     Display defaultDisplay = windowManager.getDefaultDisplay();
     if (defaultDisplay != null) {
       double defaultDisplayRefreshRate = defaultDisplay.getRefreshRate();
       vsyncDurationNs = (long) (C.NANOS_PER_SECOND / defaultDisplayRefreshRate);
       vsyncOffsetNs = (vsyncDurationNs * VSYNC_OFFSET_PERCENTAGE) / 100;
+    } else {
+      Log.w(TAG, "Unable to query display refresh rate");
+      vsyncDurationNs = C.TIME_UNSET;
+      vsyncOffsetNs = C.TIME_UNSET;
     }
   }
 
