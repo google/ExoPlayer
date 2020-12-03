@@ -271,6 +271,7 @@ track 3:
   format 0:
     id = 3
     sampleMimeType = application/x-subrip
+    selectionFlags = 1
     language = en
     label = Subs Label
   sample 0:
