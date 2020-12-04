@@ -31,8 +31,6 @@ import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
-import java.util.ArrayList;
-import java.util.List;
 
 /** Utilities for handling metadata in MP4. */
 /* package */ final class MetadataUtil {
@@ -290,32 +288,34 @@ import java.util.List;
   /** Updates a {@link Format.Builder} to include metadata from the provided sources. */
   public static void setFormatMetadata(
       int trackType,
-      @Nullable Metadata udtaMetadata,
+      @Nullable Metadata udtaMetaMetadata,
       @Nullable Metadata mdtaMetadata,
+      @Nullable Metadata smtaMetadata,
       Format.Builder formatBuilder,
       Metadata.Entry... additionalEntries) {
     Metadata formatMetadata = new Metadata();
 
     if (trackType == C.TRACK_TYPE_AUDIO) {
-      // We assume all udta metadata is associated with the audio track.
-      if (udtaMetadata != null) {
-        formatMetadata = udtaMetadata;
+      // We assume all meta metadata in the udta box is associated with the audio track.
+      if (udtaMetaMetadata != null) {
+        formatMetadata = udtaMetaMetadata;
       }
-    } else if (trackType == C.TRACK_TYPE_VIDEO && mdtaMetadata != null) {
+    } else if (trackType == C.TRACK_TYPE_VIDEO) {
       // Populate only metadata keys that are known to be specific to video.
-      List<MdtaMetadataEntry> mdtaMetadataEntries = new ArrayList<>();
-      for (int i = 0; i < mdtaMetadata.length(); i++) {
-        Metadata.Entry entry = mdtaMetadata.get(i);
-        if (entry instanceof MdtaMetadataEntry) {
-          MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-          if (MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)
-              || MdtaMetadataEntry.KEY_ANDROID_TEMPORAL_LAYER_COUNT.equals(mdtaMetadataEntry.key)) {
-            mdtaMetadataEntries.add(mdtaMetadataEntry);
+      if (mdtaMetadata != null) {
+        for (int i = 0; i < mdtaMetadata.length(); i++) {
+          Metadata.Entry entry = mdtaMetadata.get(i);
+          if (entry instanceof MdtaMetadataEntry) {
+            MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
+            if (MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)) {
+              formatMetadata = new Metadata(mdtaMetadataEntry);
+              break;
+            }
           }
         }
       }
-      if (!mdtaMetadataEntries.isEmpty()) {
-        formatMetadata = new Metadata(mdtaMetadataEntries);
+      if (smtaMetadata != null) {
+        formatMetadata = formatMetadata.copyWithAppendedEntriesFrom(smtaMetadata);
       }
     }
 

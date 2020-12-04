@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
@@ -145,28 +146,30 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *
    * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
-   * @return Parsed metadata, or null.
+   * @return A {@link Pair} containing the metadata from the meta child atom as first value (if
+   *     any), and the metadata from the smta child atom as second value (if any).
    */
-  @Nullable
-  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
-    if (isQuickTime) {
-      // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
-      // decode one.
-      return null;
-    }
+  public static Pair<@NullableType Metadata, @NullableType Metadata> parseUdta(
+      Atom.LeafAtom udtaAtom, boolean isQuickTime) {
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
+    @Nullable Metadata metaMetadata = null;
+    @Nullable Metadata smtaMetadata = null;
     while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
       int atomPosition = udtaData.getPosition();
       int atomSize = udtaData.readInt();
       int atomType = udtaData.readInt();
-      if (atomType == Atom.TYPE_meta) {
+      // Meta boxes are regular boxes rather than full boxes in QuickTime. Ignore them for now.
+      if (atomType == Atom.TYPE_meta && !isQuickTime) {
         udtaData.setPosition(atomPosition);
-        return parseUdtaMeta(udtaData, atomPosition + atomSize);
+        metaMetadata = parseUdtaMeta(udtaData, atomPosition + atomSize);
+      } else if (atomType == Atom.TYPE_smta) {
+        udtaData.setPosition(atomPosition);
+        smtaMetadata = parseSmta(udtaData, atomPosition + atomSize);
       }
       udtaData.setPosition(atomPosition + atomSize);
     }
-    return null;
+    return Pair.create(metaMetadata, smtaMetadata);
   }
 
   /**
@@ -699,6 +702,38 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
     }
     return entries.isEmpty() ? null : new Metadata(entries);
+  }
+
+  /**
+   * Parses metadata from a Samsung smta atom.
+   *
+   * <p>See [Internal: b/150138465#comment76].
+   */
+  @Nullable
+  private static Metadata parseSmta(ParsableByteArray smta, int limit) {
+    smta.skipBytes(Atom.FULL_HEADER_SIZE);
+    while (smta.getPosition() < limit) {
+      int atomPosition = smta.getPosition();
+      int atomSize = smta.readInt();
+      int atomType = smta.readInt();
+      if (atomType == Atom.TYPE_saut) {
+        smta.skipBytes(5); // author (4), reserved = 0 (1).
+        int recordingMode = smta.readUnsignedByte();
+        float captureFrameRate;
+        if (recordingMode == 12) {
+          captureFrameRate = 240;
+        } else if (recordingMode == 13) {
+          captureFrameRate = 120;
+        } else {
+          captureFrameRate = C.RATE_UNSET;
+        }
+        smta.skipBytes(1); // reserved = 1 (1).
+        int svcTemporalLayerCount = smta.readUnsignedByte();
+        return new Metadata(new SmtaMetadataEntry(captureFrameRate, svcTemporalLayerCount));
+      }
+      smta.setPosition(atomPosition + atomSize);
+    }
+    return null;
   }
 
   /**
