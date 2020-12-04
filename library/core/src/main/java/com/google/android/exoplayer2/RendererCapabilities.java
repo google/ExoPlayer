@@ -42,15 +42,15 @@ public interface RendererCapabilities {
   /** A mask to apply to {@link Capabilities} to obtain the {@link C.FormatSupport} only. */
   int FORMAT_SUPPORT_MASK = 0b111;
   /** @deprecated Use {@link C#FORMAT_HANDLED} instead. */
-  @Deprecated int FORMAT_HANDLED = 0b100;
+  @Deprecated int FORMAT_HANDLED = C.FORMAT_HANDLED;
   /** @deprecated Use {@link C#FORMAT_EXCEEDS_CAPABILITIES} instead. */
-  @Deprecated int FORMAT_EXCEEDS_CAPABILITIES = 0b011;
+  @Deprecated int FORMAT_EXCEEDS_CAPABILITIES = C.FORMAT_EXCEEDS_CAPABILITIES;
   /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_DRM} instead. */
-  @Deprecated int FORMAT_UNSUPPORTED_DRM = 0b010;
+  @Deprecated int FORMAT_UNSUPPORTED_DRM = C.FORMAT_UNSUPPORTED_DRM;
   /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_SUBTYPE} instead. */
-  @Deprecated int FORMAT_UNSUPPORTED_SUBTYPE = 0b001;
+  @Deprecated int FORMAT_UNSUPPORTED_SUBTYPE = C.FORMAT_UNSUPPORTED_SUBTYPE;
   /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_TYPE} instead. */
-  @Deprecated int FORMAT_UNSUPPORTED_TYPE = 0b000;
+  @Deprecated int FORMAT_UNSUPPORTED_TYPE = C.FORMAT_UNSUPPORTED_TYPE;
 
   /**
    * Level of renderer support for adaptive format switches. One of {@link #ADAPTIVE_SEAMLESS},
