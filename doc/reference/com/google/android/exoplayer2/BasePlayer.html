@@ -327,16 +327,16 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BasePlayer.html#getNextWindowIndex--">getNextWindowIndex</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the index of the next timeline window to be played, which may depend on the current
- repeat mode and whether shuffle mode is enabled.</div>
+<div class="block">Returns the index of the window that will be played if <a href="../../../../com/google/android/exoplayer2/Player.html#next--"><code>Player.next()</code></a> is called, which may
+ depend on the current repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BasePlayer.html#getPreviousWindowIndex--">getPreviousWindowIndex</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the index of the previous timeline window to be played, which may depend on the current
- repeat mode and whether shuffle mode is enabled.</div>
+<div class="block">Returns the index of the window that will be played if <a href="../../../../com/google/android/exoplayer2/Player.html#previous--"><code>Player.previous()</code></a> is called, which may
+ depend on the current repeat mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
@@ -397,8 +397,8 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BasePlayer.html#next--">next</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Seeks to the default position of the next window in the timeline, which may depend on the
- current repeat mode and whether shuffle mode is enabled.</div>
+<div class="block">Seeks to the default position of the next window, which may depend on the current repeat mode
+ and whether shuffle mode is enabled.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
@@ -419,8 +419,8 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/BasePlayer.html#previous--">previous</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Seeks to the default position of the previous window in the timeline, which may depend on the
- current repeat mode and whether shuffle mode is enabled.</div>
+<div class="block">Seeks to the default position of the previous window, which may depend on the current repeat
+ mode and whether shuffle mode is enabled.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
@@ -822,7 +822,11 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <pre>public final&nbsp;boolean&nbsp;hasPrevious()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#hasPrevious--">Player</a></code></span></div>
 <div class="block">Returns whether a previous window exists, which may depend on the current repeat mode and
- whether shuffle mode is enabled.</div>
+ whether shuffle mode is enabled.
+
+ <p>Note: When the repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
+ the current repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
+ details.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#hasPrevious--">hasPrevious</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -837,9 +841,13 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <h4>previous</h4>
 <pre>public final&nbsp;void&nbsp;previous()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#previous--">Player</a></code></span></div>
-<div class="block">Seeks to the default position of the previous window in the timeline, which may depend on the
- current repeat mode and whether shuffle mode is enabled. Does nothing if <a href="../../../../com/google/android/exoplayer2/Player.html#hasPrevious--"><code>Player.hasPrevious()</code></a>
- is <code>false</code>.</div>
+<div class="block">Seeks to the default position of the previous window, which may depend on the current repeat
+ mode and whether shuffle mode is enabled. Does nothing if <a href="../../../../com/google/android/exoplayer2/Player.html#hasPrevious--"><code>Player.hasPrevious()</code></a> is <code>
+ false</code>.
+
+ <p>Note: When the repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
+ the current repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
+ details.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#previous--">previous</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -855,7 +863,11 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <pre>public final&nbsp;boolean&nbsp;hasNext()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#hasNext--">Player</a></code></span></div>
 <div class="block">Returns whether a next window exists, which may depend on the current repeat mode and whether
- shuffle mode is enabled.</div>
+ shuffle mode is enabled.
+
+ <p>Note: When the repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
+ the current repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
+ details.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#hasNext--">hasNext</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -870,9 +882,12 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <h4>next</h4>
 <pre>public final&nbsp;void&nbsp;next()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#next--">Player</a></code></span></div>
-<div class="block">Seeks to the default position of the next window in the timeline, which may depend on the
- current repeat mode and whether shuffle mode is enabled. Does nothing if <a href="../../../../com/google/android/exoplayer2/Player.html#hasNext--"><code>Player.hasNext()</code></a> is
- <code>false</code>.</div>
+<div class="block">Seeks to the default position of the next window, which may depend on the current repeat mode
+ and whether shuffle mode is enabled. Does nothing if <a href="../../../../com/google/android/exoplayer2/Player.html#hasNext--"><code>Player.hasNext()</code></a> is <code>false</code>.
+
+ <p>Note: When the repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
+ the current repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
+ details.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#next--">next</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -910,10 +925,12 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <h4>getNextWindowIndex</h4>
 <pre>public final&nbsp;int&nbsp;getNextWindowIndex()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#getNextWindowIndex--">Player</a></code></span></div>
-<div class="block">Returns the index of the next timeline window to be played, which may depend on the current
- repeat mode and whether shuffle mode is enabled. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the window
- currently being played is the last window or if the <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>current
- timeline</code></a> is empty.</div>
+<div class="block">Returns the index of the window that will be played if <a href="../../../../com/google/android/exoplayer2/Player.html#next--"><code>Player.next()</code></a> is called, which may
+ depend on the current repeat mode and whether shuffle mode is enabled. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if <a href="../../../../com/google/android/exoplayer2/Player.html#hasNext--"><code>Player.hasNext()</code></a> is <code>false</code>.
+
+ <p>Note: When the repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
+ the current repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
+ details.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#getNextWindowIndex--">getNextWindowIndex</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -928,10 +945,12 @@ implements <a href="../../../../com/google/android/exoplayer2/Player.html" title
 <h4>getPreviousWindowIndex</h4>
 <pre>public final&nbsp;int&nbsp;getPreviousWindowIndex()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html#getPreviousWindowIndex--">Player</a></code></span></div>
-<div class="block">Returns the index of the previous timeline window to be played, which may depend on the current
- repeat mode and whether shuffle mode is enabled. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the window
- currently being played is the first window or if the <a href="../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--"><code>current
- timeline</code></a> is empty.</div>
+<div class="block">Returns the index of the window that will be played if <a href="../../../../com/google/android/exoplayer2/Player.html#previous--"><code>Player.previous()</code></a> is called, which may
+ depend on the current repeat mode and whether shuffle mode is enabled. Returns <a href="../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if <a href="../../../../com/google/android/exoplayer2/Player.html#hasPrevious--"><code>Player.hasPrevious()</code></a> is <code>false</code>.
+
+ <p>Note: When the repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a>, this method behaves the same as when
+ the current repeat mode is <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_OFF"><code>Player.REPEAT_MODE_OFF</code></a>. See <a href="../../../../com/google/android/exoplayer2/Player.html#REPEAT_MODE_ONE"><code>Player.REPEAT_MODE_ONE</code></a> for more
+ details.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../com/google/android/exoplayer2/Player.html#getPreviousWindowIndex--">getPreviousWindowIndex</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>

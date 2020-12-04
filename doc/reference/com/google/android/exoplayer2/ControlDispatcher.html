@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -167,19 +167,26 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-">dispatchPrepare</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
+<td class="colLast">
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> operation.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrevious-com.google.android.exoplayer2.Player-">dispatchPrevious</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#previous--"><code>Player.previous()</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchRewind-com.google.android.exoplayer2.Player-">dispatchRewind</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Dispatches a rewind operation.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSeekTo-com.google.android.exoplayer2.Player-int-long-">dispatchSeekTo</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
               int&nbsp;windowIndex,
@@ -188,7 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#seekTo-int-long-"><code>Player.seekTo(int, long)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetPlayWhenReady-com.google.android.exoplayer2.Player-boolean-">dispatchSetPlayWhenReady</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                         boolean&nbsp;playWhenReady)</code></th>
@@ -196,7 +203,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setPlayWhenReady-boolean-"><code>Player.setPlayWhenReady(boolean)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetRepeatMode-com.google.android.exoplayer2.Player-int-">dispatchSetRepeatMode</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                      int&nbsp;repeatMode)</code></th>
@@ -204,7 +211,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setRepeatMode-int-"><code>Player.setRepeatMode(int)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchSetShuffleModeEnabled-com.google.android.exoplayer2.Player-boolean-">dispatchSetShuffleModeEnabled</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              boolean&nbsp;shuffleModeEnabled)</code></th>
@@ -212,7 +219,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#setShuffleModeEnabled-boolean-"><code>Player.setShuffleModeEnabled(boolean)</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchStop-com.google.android.exoplayer2.Player-boolean-">dispatchStop</a></span>&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
             boolean&nbsp;reset)</code></th>
@@ -220,14 +227,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#stop--"><code>Player.stop()</code></a> operation.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isFastForwardEnabled--">isFastForwardEnabled</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns <code>true</code> if fast forward is enabled, <code>false</code> otherwise.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/ControlDispatcher.html#isRewindEnabled--">isRewindEnabled</a></span>()</code></th>
 <td class="colLast">
@@ -249,6 +256,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="dispatchPrepare-com.google.android.exoplayer2.Player-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>dispatchPrepare</h4>
+<pre>boolean&nbsp;dispatchPrepare&#8203;(<a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="block">Dispatches a <a href="../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a> operation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>player</code> - The <a href="../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to which the operation should be dispatched.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the operation was dispatched. False if suppressed.</dd>
+</dl>
+</li>
+</ul>
 <a name="dispatchSetPlayWhenReady-com.google.android.exoplayer2.Player-boolean-">
 <!--   -->
 </a>

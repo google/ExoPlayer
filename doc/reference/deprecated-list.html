@@ -116,24 +116,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">com.google.android.exoplayer2.PlaybackPreparer</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a> instead.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/SimpleExoPlayer.VideoListener.html" title="interface in com.google.android.exoplayer2">com.google.android.exoplayer2.SimpleExoPlayer.VideoListener</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/video/VideoListener.html" title="interface in com.google.android.exoplayer2.video"><code>VideoListener</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/AdaptiveMediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/ExtractorMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.ExtractorMediaSource.EventListener</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/source/SingleSampleMediaSource.EventListener.html" title="interface in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.SingleSampleMediaSource.EventListener</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a>.</div>
@@ -623,171 +629,186 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ext/leanback/LeanbackPlayerAdapter.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">com.google.android.exoplayer2.ext.leanback.LeanbackPlayerAdapter.setPlaybackPreparer&#8203;(PlaybackPreparer)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ext/leanback/LeanbackPlayerAdapter.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>LeanbackPlayerAdapter.setControlDispatcher(ControlDispatcher)</code></a> instead. The adapter calls
+     <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the adapter
+     uses by default, calls <a href="com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
+     you can provide a custom implementation of <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setFastForwardIncrementMs-int-">com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.setFastForwardIncrementMs&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>MediaSessionConnector.setControlDispatcher(ControlDispatcher)</code></a> with <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher(long, long)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setRewindIncrementMs-int-">com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.setRewindIncrementMs&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ext/mediasession/MediaSessionConnector.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>MediaSessionConnector.setControlDispatcher(ControlDispatcher)</code></a> with <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher(long, long)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithBitrate-int-">com.google.android.exoplayer2.Format.copyWithBitrate&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setAverageBitrate-int-"><code>Format.Builder.setAverageBitrate(int)</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setPeakBitrate-int-"><code>Format.Builder.setPeakBitrate(int)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithDrmInitData-com.google.android.exoplayer2.drm.DrmInitData-">com.google.android.exoplayer2.Format.copyWithDrmInitData&#8203;(DrmInitData)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setDrmInitData-com.google.android.exoplayer2.drm.DrmInitData-"><code>Format.Builder.setDrmInitData(DrmInitData)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithFrameRate-float-">com.google.android.exoplayer2.Format.copyWithFrameRate&#8203;(float)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setFrameRate-float-"><code>Format.Builder.setFrameRate(float)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithGaplessInfo-int-int-">com.google.android.exoplayer2.Format.copyWithGaplessInfo&#8203;(int, int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a>, <a href="com/google/android/exoplayer2/Format.Builder.html#setEncoderDelay-int-"><code>Format.Builder.setEncoderDelay(int)</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setEncoderPadding-int-"><code>Format.Builder.setEncoderPadding(int)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithLabel-java.lang.String-">com.google.android.exoplayer2.Format.copyWithLabel&#8203;(String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setLabel-java.lang.String-"><code>Format.Builder.setLabel(String)</code></a> .</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithManifestFormatInfo-com.google.android.exoplayer2.Format-">com.google.android.exoplayer2.Format.copyWithManifestFormatInfo&#8203;(Format)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#withManifestFormatInfo-com.google.android.exoplayer2.Format-"><code>Format.withManifestFormatInfo(Format)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithMaxInputSize-int-">com.google.android.exoplayer2.Format.copyWithMaxInputSize&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setMaxInputSize-int-"><code>Format.Builder.setMaxInputSize(int)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithMetadata-com.google.android.exoplayer2.metadata.Metadata-">com.google.android.exoplayer2.Format.copyWithMetadata&#8203;(Metadata)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setMetadata-com.google.android.exoplayer2.metadata.Metadata-"><code>Format.Builder.setMetadata(Metadata)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithSubsampleOffsetUs-long-">com.google.android.exoplayer2.Format.copyWithSubsampleOffsetUs&#8203;(long)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setSubsampleOffsetUs-long-"><code>Format.Builder.setSubsampleOffsetUs(long)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#copyWithVideoSize-int-int-">com.google.android.exoplayer2.Format.copyWithVideoSize&#8203;(int, int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.html#buildUpon--"><code>Format.buildUpon()</code></a>, <a href="com/google/android/exoplayer2/Format.Builder.html#setWidth-int-"><code>Format.Builder.setWidth(int)</code></a> and <a href="com/google/android/exoplayer2/Format.Builder.html#setHeight-int-"><code>Format.Builder.setHeight(int)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createAudioContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-com.google.android.exoplayer2.metadata.Metadata-int-int-int-java.util.List-int-int-java.lang.String-">com.google.android.exoplayer2.Format.createAudioContainerFormat&#8203;(String, String, String, String, String, Metadata, int, int, int, List&lt;byte[]&gt;, int, int, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createAudioSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-java.util.List-com.google.android.exoplayer2.drm.DrmInitData-int-java.lang.String-">com.google.android.exoplayer2.Format.createAudioSampleFormat&#8203;(String, String, String, int, int, int, int, List&lt;byte[]&gt;, DrmInitData, int, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-">com.google.android.exoplayer2.Format.createContainerFormat&#8203;(String, String, String, String, String, int, int, int, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createImageSampleFormat-java.lang.String-java.lang.String-int-java.util.List-java.lang.String-">com.google.android.exoplayer2.Format.createImageSampleFormat&#8203;(String, String, int, List&lt;byte[]&gt;, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createSampleFormat-java.lang.String-java.lang.String-">com.google.android.exoplayer2.Format.createSampleFormat&#8203;(String, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createTextContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-int-int-int-java.lang.String-">com.google.android.exoplayer2.Format.createTextContainerFormat&#8203;(String, String, String, String, String, int, int, int, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createTextSampleFormat-java.lang.String-java.lang.String-int-java.lang.String-">com.google.android.exoplayer2.Format.createTextSampleFormat&#8203;(String, String, int, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createVideoContainerFormat-java.lang.String-java.lang.String-java.lang.String-java.lang.String-java.lang.String-com.google.android.exoplayer2.metadata.Metadata-int-int-int-float-java.util.List-int-int-">com.google.android.exoplayer2.Format.createVideoContainerFormat&#8203;(String, String, String, String, String, Metadata, int, int, int, float, List&lt;byte[]&gt;, int, int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/Format.html#createVideoSampleFormat-java.lang.String-java.lang.String-java.lang.String-int-int-int-int-float-java.util.List-com.google.android.exoplayer2.drm.DrmInitData-">com.google.android.exoplayer2.Format.createVideoSampleFormat&#8203;(String, String, String, int, int, int, int, float, List&lt;byte[]&gt;, DrmInitData)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/Format.Builder.html" title="class in com.google.android.exoplayer2"><code>Format.Builder</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forDash-android.content.Context-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.RenderersFactory-">com.google.android.exoplayer2.offline.DownloadHelper.forDash&#8203;(Context, Uri, DataSource.Factory, RenderersFactory)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forMediaItem-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.upstream.DataSource.Factory-"><code>DownloadHelper.forMediaItem(MediaItem, Parameters, RenderersFactory,
      DataSource.Factory)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forHls-android.content.Context-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.RenderersFactory-">com.google.android.exoplayer2.offline.DownloadHelper.forHls&#8203;(Context, Uri, DataSource.Factory, RenderersFactory)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forMediaItem-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.upstream.DataSource.Factory-"><code>DownloadHelper.forMediaItem(MediaItem, Parameters, RenderersFactory,
      DataSource.Factory)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forProgressive-android.content.Context-android.net.Uri-">com.google.android.exoplayer2.offline.DownloadHelper.forProgressive&#8203;(Context, Uri)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forMediaItem-android.content.Context-com.google.android.exoplayer2.MediaItem-"><code>DownloadHelper.forMediaItem(Context, MediaItem)</code></a></div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forSmoothStreaming-android.net.Uri-com.google.android.exoplayer2.upstream.DataSource.Factory-com.google.android.exoplayer2.RenderersFactory-">com.google.android.exoplayer2.offline.DownloadHelper.forSmoothStreaming&#8203;(Uri, DataSource.Factory, RenderersFactory)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/offline/DownloadHelper.html#forMediaItem-com.google.android.exoplayer2.MediaItem-com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters-com.google.android.exoplayer2.RenderersFactory-com.google.android.exoplayer2.upstream.DataSource.Factory-"><code>DownloadHelper.forMediaItem(MediaItem, Parameters, RenderersFactory,
      DataSource.Factory)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/offline/DownloadService.html#onDownloadChanged-com.google.android.exoplayer2.offline.Download-">com.google.android.exoplayer2.offline.DownloadService.onDownloadChanged&#8203;(Download)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Some state change events may not be delivered to this method. Instead, use <a href="com/google/android/exoplayer2/offline/DownloadManager.html#addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-"><code>DownloadManager.addListener(DownloadManager.Listener)</code></a> to register a listener directly to
      the <a href="com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> that you return through <a href="com/google/android/exoplayer2/offline/DownloadService.html#getDownloadManager--"><code>DownloadService.getDownloadManager()</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/offline/DownloadService.html#onDownloadRemoved-com.google.android.exoplayer2.offline.Download-">com.google.android.exoplayer2.offline.DownloadService.onDownloadRemoved&#8203;(Download)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Some download removal events may not be delivered to this method. Instead, use
      <a href="com/google/android/exoplayer2/offline/DownloadManager.html#addListener-com.google.android.exoplayer2.offline.DownloadManager.Listener-"><code>DownloadManager.addListener(DownloadManager.Listener)</code></a> to register a listener
      directly to the <a href="com/google/android/exoplayer2/offline/DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> that you return through <a href="com/google/android/exoplayer2/offline/DownloadService.html#getDownloadManager--"><code>DownloadService.getDownloadManager()</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--">com.google.android.exoplayer2.PlaybackPreparer.preparePlayback()</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -1267,46 +1288,75 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerControlView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">com.google.android.exoplayer2.ui.PlayerControlView.setPlaybackPreparer&#8203;(PlaybackPreparer)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerControlView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerControlView.setControlDispatcher(ControlDispatcher)</code></a> instead. The view calls <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the view
+     uses by default, calls <a href="com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
+     you can provide a custom implementation of <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerControlView.html#setRewindIncrementMs-int-">com.google.android.exoplayer2.ui.PlayerControlView.setRewindIncrementMs&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerControlView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerControlView.setControlDispatcher(ControlDispatcher)</code></a> with <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-">com.google.android.exoplayer2.ui.PlayerNotificationManager.createWithNotificationChannel&#8203;(Context, String, int, int, PlayerNotificationManager.MediaDescriptionAdapter)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#createWithNotificationChannel-android.content.Context-java.lang.String-int-int-int-com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescriptionAdapter-"><code>PlayerNotificationManager.createWithNotificationChannel(Context, String, int, int, int,
      MediaDescriptionAdapter)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-">com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener.onNotificationCancelled&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationCancelled-int-boolean-"><code>PlayerNotificationManager.NotificationListener.onNotificationCancelled(int, boolean)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationStarted-int-android.app.Notification-">com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener.onNotificationStarted&#8203;(int, Notification)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.NotificationListener.html#onNotificationPosted-int-android.app.Notification-boolean-"><code>PlayerNotificationManager.NotificationListener.onNotificationPosted(int, Notification, boolean)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setFastForwardIncrementMs-long-">com.google.android.exoplayer2.ui.PlayerNotificationManager.setFastForwardIncrementMs&#8203;(long)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerNotificationManager.setControlDispatcher(ControlDispatcher)</code></a> with <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setNotificationListener-com.google.android.exoplayer2.ui.PlayerNotificationManager.NotificationListener-">com.google.android.exoplayer2.ui.PlayerNotificationManager.setNotificationListener&#8203;(PlayerNotificationManager.NotificationListener)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Pass the notification listener to the constructor instead.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">com.google.android.exoplayer2.ui.PlayerNotificationManager.setPlaybackPreparer&#8203;(PlaybackPreparer)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerNotificationManager.setControlDispatcher(ControlDispatcher)</code></a> instead. The manager calls
+     <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that this manager
+     uses by default, calls <a href="com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to intercept or customize this
+     behaviour, you can provide a custom implementation of <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> and pass it to <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerNotificationManager.setControlDispatcher(ControlDispatcher)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setRewindIncrementMs-long-">com.google.android.exoplayer2.ui.PlayerNotificationManager.setRewindIncrementMs&#8203;(long)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerNotificationManager.setControlDispatcher(ControlDispatcher)</code></a> with <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-">com.google.android.exoplayer2.ui.PlayerNotificationManager.setUseNavigationActions&#8203;(boolean)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-"><code>PlayerNotificationManager.setUseNextAction(boolean)</code></a> and <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-"><code>PlayerNotificationManager.setUsePreviousAction(boolean)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActionsInCompactView-boolean-">com.google.android.exoplayer2.ui.PlayerNotificationManager.setUseNavigationActionsInCompactView&#8203;(boolean)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextActionInCompactView-boolean-"><code>PlayerNotificationManager.setUseNextActionInCompactView(boolean)</code></a> and <a href="com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousActionInCompactView-boolean-"><code>PlayerNotificationManager.setUsePreviousActionInCompactView(boolean)</code></a> instead.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -1322,66 +1372,90 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">com.google.android.exoplayer2.ui.PlayerView.setPlaybackPreparer&#8203;(PlaybackPreparer)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerView.setControlDispatcher(ControlDispatcher)</code></a> instead. The view calls <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the view
+     uses by default, calls <a href="com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
+     you can provide a custom implementation of <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerView.html#setRewindIncrementMs-int-">com.google.android.exoplayer2.ui.PlayerView.setRewindIncrementMs&#8203;(int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>PlayerView.setControlDispatcher(ControlDispatcher)</code></a> with <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html#DefaultControlDispatcher-long-long-"><code>DefaultControlDispatcher(long, long)</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/PlayerView.html#setShowBuffering-boolean-">com.google.android.exoplayer2.ui.PlayerView.setShowBuffering&#8203;(boolean)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/PlayerView.html#setShowBuffering-int-"><code>PlayerView.setShowBuffering(int)</code></a></div>
 </td>
 </tr>
+<tr class="rowColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">com.google.android.exoplayer2.ui.StyledPlayerControlView.setPlaybackPreparer&#8203;(PlaybackPreparer)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>StyledPlayerControlView.setControlDispatcher(ControlDispatcher)</code></a> instead. The view calls <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the view
+     uses by default, calls <a href="com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
+     you can provide a custom implementation of <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
+</td>
+</tr>
 <tr class="altColor">
+<th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/ui/StyledPlayerView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">com.google.android.exoplayer2.ui.StyledPlayerView.setPlaybackPreparer&#8203;(PlaybackPreparer)</a></th>
+<td class="colLast">
+<div class="deprecationComment">Use <a href="com/google/android/exoplayer2/ui/StyledPlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>StyledPlayerView.setControlDispatcher(ControlDispatcher)</code></a> instead. The view calls <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the view
+     uses by default, calls <a href="com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
+     you can provide a custom implementation of <a href="com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#clearAllDefaultRequestProperties--">com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory.clearAllDefaultRequestProperties()</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#getDefaultRequestProperties--"><code>HttpDataSource.BaseFactory.getDefaultRequestProperties()</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#clearDefaultRequestProperty-java.lang.String-">com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory.clearDefaultRequestProperty&#8203;(String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#getDefaultRequestProperties--"><code>HttpDataSource.BaseFactory.getDefaultRequestProperties()</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#setDefaultRequestProperty-java.lang.String-java.lang.String-">com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory.setDefaultRequestProperty&#8203;(String, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/HttpDataSource.BaseFactory.html#getDefaultRequestProperties--"><code>HttpDataSource.BaseFactory.getDefaultRequestProperties()</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html#clearAllDefaultRequestProperties--">com.google.android.exoplayer2.upstream.HttpDataSource.Factory.clearAllDefaultRequestProperties()</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html#getDefaultRequestProperties--"><code>HttpDataSource.Factory.getDefaultRequestProperties()</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html#clearDefaultRequestProperty-java.lang.String-">com.google.android.exoplayer2.upstream.HttpDataSource.Factory.clearDefaultRequestProperty&#8203;(String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html#getDefaultRequestProperties--"><code>HttpDataSource.Factory.getDefaultRequestProperties()</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html#setDefaultRequestProperty-java.lang.String-java.lang.String-">com.google.android.exoplayer2.upstream.HttpDataSource.Factory.setDefaultRequestProperty&#8203;(String, String)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/upstream/HttpDataSource.Factory.html#getDefaultRequestProperties--"><code>HttpDataSource.Factory.getDefaultRequestProperties()</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-int-long-java.io.IOException-int-">com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.getBlacklistDurationMsFor&#8203;(int, long, IOException, int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Implement <a href="com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getBlacklistDurationMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-"><code>LoadErrorHandlingPolicy.getBlacklistDurationMsFor(LoadErrorInfo)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-int-long-java.io.IOException-int-">com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.getRetryDelayMsFor&#8203;(int, long, IOException, int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Implement <a href="com/google/android/exoplayer2/upstream/LoadErrorHandlingPolicy.html#getRetryDelayMsFor-com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo-"><code>LoadErrorHandlingPolicy.getRetryDelayMsFor(LoadErrorInfo)</code></a> instead.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colDeprecatedItemName" scope="row"><a href="com/google/android/exoplayer2/util/NotificationUtil.html#createNotificationChannel-android.content.Context-java.lang.String-int-int-">com.google.android.exoplayer2.util.NotificationUtil.createNotificationChannel&#8203;(Context, String, int, int)</a></th>
 <td class="colLast">
 <div class="deprecationComment">Use <a href="com/google/android/exoplayer2/util/NotificationUtil.html#createNotificationChannel-android.content.Context-java.lang.String-int-int-int-"><code>NotificationUtil.createNotificationChannel(Context, String, int, int, int)</code></a>.</div>

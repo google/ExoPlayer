@@ -160,15 +160,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#forceDefaultLicenseUri">forceDefaultLicenseUri</a></span></code></th>
 <td class="colLast">
-<div class="block">Sets whether to use the DRM license server URI of the media item for key requests that
- include their own DRM license server URI.</div>
+<div class="block">Whether to force use of <a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#licenseUri"><code>licenseUri</code></a> even if the media specifies its own DRM license
+ server URI.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#licenseUri">licenseUri</a></span></code></th>
 <td class="colLast">
-<div class="block">Optional DRM license server <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
+<div class="block">Optional default DRM license server <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -280,8 +280,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>licenseUri</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> licenseUri</pre>
-<div class="block">Optional DRM license server <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>. If <code>null</code> then the DRM license server must be
- specified by the media.</div>
+<div class="block">Optional default DRM license server <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>. If <code>null</code> then the DRM license server
+ must be specified by the media.</div>
 </li>
 </ul>
 <a name="requestHeaders">
@@ -322,8 +322,8 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <li class="blockList">
 <h4>forceDefaultLicenseUri</h4>
 <pre>public final&nbsp;boolean forceDefaultLicenseUri</pre>
-<div class="block">Sets whether to use the DRM license server URI of the media item for key requests that
- include their own DRM license server URI.</div>
+<div class="block">Whether to force use of <a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#licenseUri"><code>licenseUri</code></a> even if the media specifies its own DRM license
+ server URI.</div>
 </li>
 </ul>
 <a name="sessionForClearTypes">

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9};
+var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -574,13 +574,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>static boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#containsCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">containsCodecsCorrespondingToMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the given <code>codecs</code> string contains a codec which corresponds to the given
+ <code>mimeType</code>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getAudioMediaMimeType-java.lang.String-">getAudioMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
 <td class="colLast">
 <div class="block">Returns the first audio MIME type derived from an RFC 6381 codecs string.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">getCodecsCorrespondingToMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
+<td class="colLast">
+<div class="block">Returns a subsequence of <code>codecs</code> containing the codec strings that correspond to the
+ given <code>mimeType</code>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getEncoding-java.lang.String-java.lang.String-">getEncoding</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
@@ -590,7 +608,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  be determined.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getMediaMimeType-java.lang.String-">getMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
 <td class="colLast">
@@ -598,7 +616,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  not be determined.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getMimeTypeFromMp4ObjectType-int-">getMimeTypeFromMp4ObjectType</a></span>&#8203;(int&nbsp;objectType)</code></th>
 <td class="colLast">
@@ -606,14 +624,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  and https://mp4ra.org/#/object_types.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getTextMediaMimeType-java.lang.String-">getTextMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
 <td class="colLast">
 <div class="block">Returns the first text MIME type derived from an RFC 6381 codecs string.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getTrackType-java.lang.String-">getTrackType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
@@ -621,35 +639,35 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  <a href="../../../../../com/google/android/exoplayer2/C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> if it could not be determined.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getTrackTypeOfCodec-java.lang.String-">getTrackTypeOfCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codec)</code></th>
 <td class="colLast">
 <div class="block">Equivalent to <code>getTrackType(getMediaMimeType(codec))</code>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#getVideoMediaMimeType-java.lang.String-">getVideoMediaMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs)</code></th>
 <td class="colLast">
 <div class="block">Returns the first video MIME type derived from an RFC 6381 codecs string.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isAudio-java.lang.String-">isAudio</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given string is an audio MIME type.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isMatroska-java.lang.String-">isMatroska</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given <code>mimeType</code> is a Matroska MIME type, including WebM.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isText-java.lang.String-">isText</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
@@ -657,21 +675,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  &quot;application&quot; as their base type.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#isVideo-java.lang.String-">isVideo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the given string is a video MIME type.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#normalizeMimeType-java.lang.String-">normalizeMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
 <div class="block">Normalizes the MIME type provided so that equivalent MIME types are uniquely represented.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/MimeTypes.html#registerCustomMimeType-java.lang.String-java.lang.String-int-">registerCustomMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecPrefix,
@@ -1829,6 +1847,52 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 <dd><code>codecs</code> - An RFC 6381 codecs string.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The first derived video MIME type, or <code>null</code>.</dd>
+</dl>
+</li>
+</ul>
+<a name="containsCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>containsCodecsCorrespondingToMimeType</h4>
+<pre>public static&nbsp;boolean&nbsp;containsCodecsCorrespondingToMimeType&#8203;(@Nullable
+                                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns whether the given <code>codecs</code> string contains a codec which corresponds to the given
+ <code>mimeType</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>codecs</code> - An RFC 6381 codecs string.</dd>
+<dd><code>mimeType</code> - A MIME type to look for.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the given <code>codecs</code> string contains a codec which corresponds to the given
+     <code>mimeType</code>.</dd>
+</dl>
+</li>
+</ul>
+<a name="getCodecsCorrespondingToMimeType-java.lang.String-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCodecsCorrespondingToMimeType</h4>
+<pre>@Nullable
+public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getCodecsCorrespondingToMimeType&#8203;(@Nullable
+                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
+                                                      @Nullable
+                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="block">Returns a subsequence of <code>codecs</code> containing the codec strings that correspond to the
+ given <code>mimeType</code>. Returns null if <code>mimeType</code> is null, <code>codecs</code> is null, or
+ <code>codecs</code> does not contain a codec that corresponds to <code>mimeType</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>codecs</code> - An RFC 6381 codecs string.</dd>
+<dd><code>mimeType</code> - A MIME type to look for.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A subsequence of <code>codecs</code> containing the codec strings that correspond to the
+     given <code>mimeType</code>. Returns null if <code>mimeType</code> is null, <code>codecs</code> is null,
+     or <code>codecs</code> does not contain a codec that corresponds to <code>mimeType</code>.</dd>
 </dl>
 </li>
 </ul>

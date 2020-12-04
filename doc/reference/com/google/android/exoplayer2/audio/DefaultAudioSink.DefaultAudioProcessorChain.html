@@ -220,8 +220,8 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAu
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.DefaultAudioProcessorChain.html#getMediaDuration-long-">getMediaDuration</a></span>&#8203;(long&nbsp;playoutDuration)</code></th>
 <td class="colLast">
-<div class="block">Scales the specified playout duration to take into account speedup due to audio processing,
- returning an input media duration, in arbitrary units.</div>
+<div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
+ adjustment due to audio processing into account.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -352,11 +352,19 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/DefaultAu
 <h4>getMediaDuration</h4>
 <pre>public&nbsp;long&nbsp;getMediaDuration&#8203;(long&nbsp;playoutDuration)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html#getMediaDuration-long-">DefaultAudioSink.AudioProcessorChain</a></code></span></div>
-<div class="block">Scales the specified playout duration to take into account speedup due to audio processing,
- returning an input media duration, in arbitrary units.</div>
+<div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
+ adjustment due to audio processing into account.
+
+ <p>The scaling performed by this method will use the actual playback speed achieved by the
+ audio processor chain, on average, since it was last flushed. This may differ very slightly
+ from the target playback speed.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html#getMediaDuration-long-">getMediaDuration</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/audio/DefaultAudioSink.AudioProcessorChain.html" title="interface in com.google.android.exoplayer2.audio">DefaultAudioSink.AudioProcessorChain</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>playoutDuration</code> - The playout duration to scale.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The corresponding media duration, in the same units as <code>duration</code>.</dd>
 </dl>
 </li>
 </ul>

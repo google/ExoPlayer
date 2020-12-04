@@ -248,8 +248,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html#setDrmForceDefaultLicenseUri-boolean-">setDrmForceDefaultLicenseUri</a></span>&#8203;(boolean&nbsp;forceDefaultLicenseUri)</code></th>
 <td class="colLast">
-<div class="block">Sets whether to use the DRM license server URI of the media item for key requests that
- include their own DRM license server URI.</div>
+<div class="block">Sets whether to force use the default DRM license server URI even if the media specifies its
+ own DRM license server URI.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
@@ -270,14 +270,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html#setDrmLicenseUri-android.net.Uri-">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional DRM license server URI.</div>
+<div class="block">Sets the optional default DRM license server URI.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html#setDrmLicenseUri-java.lang.String-">setDrmLicenseUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</code></th>
 <td class="colLast">
-<div class="block">Sets the optional DRM license server URI.</div>
+<div class="block">Sets the optional default DRM license server URI.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
@@ -541,7 +541,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setDrmLicenseUri</h4>
 <pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
                                           <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;licenseUri)</pre>
-<div class="block">Sets the optional DRM license server URI. If this URI is set, the <a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
+<div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
 
  <p>If <a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html#setUri-java.lang.String-"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM license server URI is used to
  create a <a href="../../../../com/google/android/exoplayer2/MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
@@ -555,7 +555,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setDrmLicenseUri</h4>
 <pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmLicenseUri&#8203;(@Nullable
                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;licenseUri)</pre>
-<div class="block">Sets the optional DRM license server URI. If this URI is set, the <a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
+<div class="block">Sets the optional default DRM license server URI. If this URI is set, the <a href="../../../../com/google/android/exoplayer2/MediaItem.DrmConfiguration.html#uuid"><code>MediaItem.DrmConfiguration.uuid</code></a> needs to be specified as well.
 
  <p>If <a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html#setUri-java.lang.String-"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM license server URI is used to
  create a <a href="../../../../com/google/android/exoplayer2/MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>
@@ -610,8 +610,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setDrmForceDefaultLicenseUri</h4>
 <pre>public&nbsp;<a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;setDrmForceDefaultLicenseUri&#8203;(boolean&nbsp;forceDefaultLicenseUri)</pre>
-<div class="block">Sets whether to use the DRM license server URI of the media item for key requests that
- include their own DRM license server URI.
+<div class="block">Sets whether to force use the default DRM license server URI even if the media specifies its
+ own DRM license server URI.
 
  <p>If <a href="../../../../com/google/android/exoplayer2/MediaItem.Builder.html#setUri-java.lang.String-"><code>setUri(java.lang.String)</code></a> is passed a non-null <code>uri</code>, the DRM force default license flag is
  used to create a <a href="../../../../com/google/android/exoplayer2/MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2"><code>MediaItem.PlaybackProperties</code></a> object. Otherwise it will be ignored.</div>

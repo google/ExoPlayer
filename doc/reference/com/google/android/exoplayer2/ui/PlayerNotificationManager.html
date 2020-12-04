@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":9,"i2":9,"i3":41,"i4":41,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":42,"i17":10,"i18":10,"i19":10,"i20":42,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
+var methods = {"i0":10,"i1":9,"i2":9,"i3":41,"i4":41,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":42,"i17":42,"i18":10,"i19":10,"i20":42,"i21":10,"i22":10,"i23":42,"i24":42,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -133,7 +133,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public class <span class="typeNameLabel">PlayerNotificationManager</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
 <div class="block">Starts, updates and cancels a media style notification reflecting the player state. The actions
- displayed and the drawables used can both be customized, as described below.
+ included in the notification can be customized along with their drawables, as described below.
 
  <p>The notification is cancelled when <code>null</code> is passed to <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlayer-com.google.android.exoplayer2.Player-"><code>setPlayer(Player)</code></a> or
  when the notification is dismissed by the user.
@@ -143,42 +143,54 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 
  <h3>Action customization</h3>
 
- Playback actions can be displayed or omitted as follows:
+ Playback actions can be included or omitted as follows:
 
  <ul>
-   <li><b><code>useNavigationActions</code></b> - Sets whether the previous and next actions are
-       displayed.
-       <ul>
-         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-"><code>setUseNavigationActions(boolean)</code></a>
-         <li>Default: <code>true</code>
-       </ul>
-   <li><b><code>useNavigationActionsInCompactView</code></b> - Sets whether the previous and next
-       actions are displayed in compact view (including the lock screen notification).
-       <ul>
-         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActionsInCompactView-boolean-"><code>setUseNavigationActionsInCompactView(boolean)</code></a>
-         <li>Default: <code>false</code>
-       </ul>
-   <li><b><code>usePlayPauseActions</code></b> - Sets whether the play and pause actions are displayed.
+   <li><b><code>usePlayPauseActions</code></b> - Sets whether the play and pause actions are used.
        <ul>
          <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePlayPauseActions-boolean-"><code>setUsePlayPauseActions(boolean)</code></a>
          <li>Default: <code>true</code>
        </ul>
-   <li><b><code>useStopAction</code></b> - Sets whether the stop action is displayed.
-       <ul>
-         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseStopAction-boolean-"><code>setUseStopAction(boolean)</code></a>
-         <li>Default: <code>false</code>
-       </ul>
    <li><b><code>rewindIncrementMs</code></b> - Sets the rewind increment. If set to zero the rewind
-       action is not displayed.
+       action is not used.
        <ul>
          <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a>
          <li>Default: <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DEFAULT_REWIND_MS"><code>DefaultControlDispatcher.DEFAULT_REWIND_MS</code></a> (5000)
        </ul>
    <li><b><code>fastForwardIncrementMs</code></b> - Sets the fast forward increment. If set to zero the
-       fast forward action is not displayed.
+       fast forward action is not used.
        <ul>
          <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a>
          <li>Default: <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html#DEFAULT_FAST_FORWARD_MS"><code>DefaultControlDispatcher.DEFAULT_FAST_FORWARD_MS</code></a> (15000)
+       </ul>
+   <li><b><code>usePreviousAction</code></b> - Whether the previous action is used.
+       <ul>
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-"><code>setUsePreviousAction(boolean)</code></a>
+         <li>Default: <code>true</code>
+       </ul>
+   <li><b><code>usePreviousActionInCompactView</code></b> - If <code>usePreviousAction</code> is <code>
+       true</code>, sets whether the previous action is also used in compact view (including the lock
+       screen notification). Else does nothing.
+       <ul>
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousActionInCompactView-boolean-"><code>setUsePreviousActionInCompactView(boolean)</code></a>
+         <li>Default: <code>false</code>
+       </ul>
+   <li><b><code>useNextAction</code></b> - Whether the next action is used.
+       <ul>
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-"><code>setUseNextAction(boolean)</code></a>
+         <li>Default: <code>true</code>
+       </ul>
+   <li><b><code>useNextActionInCompactView</code></b> - If <code>useNextAction</code> is <code>true</code>, sets
+       whether the next action is also used in compact view (including the lock screen
+       notification). Else does nothing.
+       <ul>
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextActionInCompactView-boolean-"><code>setUseNextActionInCompactView(boolean)</code></a>
+         <li>Default: <code>false</code>
+       </ul>
+   <li><b><code>useStopAction</code></b> - Sets whether the stop action is used.
+       <ul>
+         <li>Corresponding setter: <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseStopAction-boolean-"><code>setUseStopAction(boolean)</code></a>
+         <li>Default: <code>false</code>
        </ul>
  </ul>
 
@@ -566,7 +578,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
@@ -610,31 +624,65 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-">setUseNavigationActions</a></span>&#8203;(boolean&nbsp;useNavigationActions)</code></th>
 <td class="colLast">
-<div class="block">Sets whether the navigation actions should be used.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-"><code>setUseNextAction(boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-"><code>setUsePreviousAction(boolean)</code></a>.</div>
+</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActionsInCompactView-boolean-">setUseNavigationActionsInCompactView</a></span>&#8203;(boolean&nbsp;useNavigationActionsInCompactView)</code></th>
 <td class="colLast">
-<div class="block">Sets whether navigation actions should be displayed in compact view.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextActionInCompactView-boolean-"><code>setUseNextActionInCompactView(boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousActionInCompactView-boolean-"><code>setUsePreviousActionInCompactView(boolean)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-">setUseNextAction</a></span>&#8203;(boolean&nbsp;useNextAction)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the next action should be used.</div>
+</td>
+</tr>
+<tr id="i26" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextActionInCompactView-boolean-">setUseNextActionInCompactView</a></span>&#8203;(boolean&nbsp;useNextActionInCompactView)</code></th>
+<td class="colLast">
+<div class="block">If <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-"><code>useNextAction</code></a> is <code>true</code>, sets whether the next action should
+ also be used in compact view.</div>
+</td>
+</tr>
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePlayPauseActions-boolean-">setUsePlayPauseActions</a></span>&#8203;(boolean&nbsp;usePlayPauseActions)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the play and pause actions should be used.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i28" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-">setUsePreviousAction</a></span>&#8203;(boolean&nbsp;usePreviousAction)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the previous action should be used.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousActionInCompactView-boolean-">setUsePreviousActionInCompactView</a></span>&#8203;(boolean&nbsp;usePreviousActionInCompactView)</code></th>
+<td class="colLast">
+<div class="block">If <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-"><code>usePreviousAction</code></a> is <code>true</code>, sets whether the previous
+ action should also be used in compact view.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseStopAction-boolean-">setUseStopAction</a></span>&#8203;(boolean&nbsp;useStopAction)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the stop action should be used.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setVisibility-int-">setVisibility</a></span>&#8203;(int&nbsp;visibility)</code></th>
 <td class="colLast">
@@ -1032,13 +1080,15 @@ public static&nbsp;<a href="../../../../../com/google/android/exoplayer2/ui/Play
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackPreparer</h4>
-<pre>public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
                                 <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackPreparer</code> - The <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> instead. The manager calls
+     <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that this manager
+     uses by default, calls <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to intercept or customize this
+     behaviour, you can provide a custom implementation of <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> and pass it to <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a name="setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">
@@ -1103,17 +1153,80 @@ public final&nbsp;void&nbsp;setRewindIncrementMs&#8203;(long&nbsp;rewindMs)</pre
 </div>
 </li>
 </ul>
+<a name="setUseNextAction-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseNextAction</h4>
+<pre>public&nbsp;void&nbsp;setUseNextAction&#8203;(boolean&nbsp;useNextAction)</pre>
+<div class="block">Sets whether the next action should be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useNextAction</code> - Whether to use the next action.</dd>
+</dl>
+</li>
+</ul>
+<a name="setUsePreviousAction-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUsePreviousAction</h4>
+<pre>public&nbsp;void&nbsp;setUsePreviousAction&#8203;(boolean&nbsp;usePreviousAction)</pre>
+<div class="block">Sets whether the previous action should be used.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>usePreviousAction</code> - Whether to use the previous action.</dd>
+</dl>
+</li>
+</ul>
 <a name="setUseNavigationActions-boolean-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setUseNavigationActions</h4>
-<pre>public final&nbsp;void&nbsp;setUseNavigationActions&#8203;(boolean&nbsp;useNavigationActions)</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;void&nbsp;setUseNavigationActions&#8203;(boolean&nbsp;useNavigationActions)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-"><code>setUseNextAction(boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-"><code>setUsePreviousAction(boolean)</code></a>.</div>
+</div>
 <div class="block">Sets whether the navigation actions should be used.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>useNavigationActions</code> - Whether to use navigation actions or not.</dd>
+<dd><code>useNavigationActions</code> - Whether to use navigation actions.</dd>
+</dl>
+</li>
+</ul>
+<a name="setUseNextActionInCompactView-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUseNextActionInCompactView</h4>
+<pre>public&nbsp;void&nbsp;setUseNextActionInCompactView&#8203;(boolean&nbsp;useNextActionInCompactView)</pre>
+<div class="block">If <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-"><code>useNextAction</code></a> is <code>true</code>, sets whether the next action should
+ also be used in compact view. Has no effect if <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextAction-boolean-"><code>useNextAction</code></a> is
+ <code>false</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useNextActionInCompactView</code> - Whether to use the next action in compact view.</dd>
+</dl>
+</li>
+</ul>
+<a name="setUsePreviousActionInCompactView-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setUsePreviousActionInCompactView</h4>
+<pre>public&nbsp;void&nbsp;setUsePreviousActionInCompactView&#8203;(boolean&nbsp;usePreviousActionInCompactView)</pre>
+<div class="block">If <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-"><code>usePreviousAction</code></a> is <code>true</code>, sets whether the previous
+ action should also be used in compact view. Has no effect if <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousAction-boolean-"><code>usePreviousAction</code></a> is <code>false</code>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>usePreviousActionInCompactView</code> - Whether to use the previous action in compact view.</dd>
 </dl>
 </li>
 </ul>
@@ -1123,15 +1236,16 @@ public final&nbsp;void&nbsp;setRewindIncrementMs&#8203;(long&nbsp;rewindMs)</pre
 <ul class="blockList">
 <li class="blockList">
 <h4>setUseNavigationActionsInCompactView</h4>
-<pre>public final&nbsp;void&nbsp;setUseNavigationActionsInCompactView&#8203;(boolean&nbsp;useNavigationActionsInCompactView)</pre>
-<div class="block">Sets whether navigation actions should be displayed in compact view.
-
- <p>If <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#useNavigationActions"><code>useNavigationActions</code></a> is set to <code>false</code> navigation actions are displayed
- neither in compact nor in full view mode of the notification.</div>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final&nbsp;void&nbsp;setUseNavigationActionsInCompactView&#8203;(boolean&nbsp;useNavigationActionsInCompactView)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNextActionInCompactView-boolean-"><code>setUseNextActionInCompactView(boolean)</code></a> and <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUsePreviousActionInCompactView-boolean-"><code>setUsePreviousActionInCompactView(boolean)</code></a> instead.</div>
+</div>
+<div class="block">If <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-"><code>useNavigationActions</code></a> is <code>true</code>, sets whether
+ navigation actions should also be used in compact view. Has no effect if <a href="../../../../../com/google/android/exoplayer2/ui/PlayerNotificationManager.html#setUseNavigationActions-boolean-"><code>useNavigationActions</code></a> is <code>false</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>useNavigationActionsInCompactView</code> - Whether the navigation actions should be displayed in
-     compact view.</dd>
+<dd><code>useNavigationActionsInCompactView</code> - Whether to use navigation actions in compact view.</dd>
 </dl>
 </li>
 </ul>

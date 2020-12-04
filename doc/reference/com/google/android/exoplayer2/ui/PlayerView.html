@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":42,"i32":10,"i33":10,"i34":10,"i35":42,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":42,"i42":42,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":42,"i32":10,"i33":10,"i34":10,"i35":42,"i36":10,"i37":42,"i38":10,"i39":10,"i40":10,"i41":42,"i42":42,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -752,7 +752,9 @@ implements <a href="../../../../../com/google/android/exoplayer2/source/ads/AdsL
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i38" class="altColor">
@@ -1538,14 +1540,14 @@ public&nbsp;void&nbsp;setShowBuffering&#8203;(boolean&nbsp;showBuffering)</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>setPlaybackPreparer</h4>
-<pre>public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
                                 <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
-<div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>playbackPreparer</code> - The <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2"><code>PlaybackPreparer</code></a>, or null to remove the current playback
-     preparer.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="../../../../../com/google/android/exoplayer2/ui/PlayerView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-"><code>setControlDispatcher(ControlDispatcher)</code></a> instead. The view calls <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a> instead of <a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html#preparePlayback--"><code>PlaybackPreparer.preparePlayback()</code></a>. The <a href="../../../../../com/google/android/exoplayer2/DefaultControlDispatcher.html" title="class in com.google.android.exoplayer2"><code>DefaultControlDispatcher</code></a> that the view
+     uses by default, calls <a href="../../../../../com/google/android/exoplayer2/Player.html#prepare--"><code>Player.prepare()</code></a>. If you wish to customize this behaviour,
+     you can provide a custom implementation of <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html#dispatchPrepare-com.google.android.exoplayer2.Player-"><code>ControlDispatcher.dispatchPrepare(Player)</code></a>.</div>
+</div>
 </li>
 </ul>
 <a name="setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">

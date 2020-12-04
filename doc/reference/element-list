@@ -41,6 +41,7 @@ com.google.android.exoplayer2.metadata.icy
 com.google.android.exoplayer2.metadata.id3
 com.google.android.exoplayer2.metadata.scte35
 com.google.android.exoplayer2.offline
+com.google.android.exoplayer2.robolectric
 com.google.android.exoplayer2.scheduler
 com.google.android.exoplayer2.source
 com.google.android.exoplayer2.source.ads

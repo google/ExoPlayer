@@ -238,20 +238,28 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#getMediaDuration-long-">getMediaDuration</a></span>&#8203;(long&nbsp;playoutDuration)</code></th>
+<td class="colLast">
+<div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
+ adjustment into account.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#getOutput--">getOutput</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a buffer containing processed output data between its position and limit.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#isActive--">isActive</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns whether the processor is configured and will process input buffers.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#isEnded--">isEnded</a></span>()</code></th>
 <td class="colLast">
@@ -259,33 +267,25 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
  has been <a href="../../../../../com/google/android/exoplayer2/audio/AudioProcessor.html#flush--"><code>AudioProcessor.flush()</code></a>ed and more input has been queued.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#queueEndOfStream--">queueEndOfStream</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Queues an end of stream signal.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#queueInput-java.nio.ByteBuffer-">queueInput</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
 <div class="block">Queues audio data between the position and limit of the input <code>buffer</code> for processing.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#reset--">reset</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Resets the processor to its unconfigured state, releasing any resources.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#scaleDurationForSpeedup-long-">scaleDurationForSpeedup</a></span>&#8203;(long&nbsp;duration)</code></th>
-<td class="colLast">
-<div class="block">Returns the specified duration scaled to take into account the speedup factor of this instance,
- in the same units as <code>duration</code>.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -296,17 +296,17 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>float</code></td>
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setPitch-float-">setPitch</a></span>&#8203;(float&nbsp;pitch)</code></th>
 <td class="colLast">
-<div class="block">Sets the playback pitch.</div>
+<div class="block">Sets the target playback pitch.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code>float</code></td>
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#setSpeed-float-">setSpeed</a></span>&#8203;(float&nbsp;speed)</code></th>
 <td class="colLast">
-<div class="block">Sets the playback speed.</div>
+<div class="block">Sets the target playback speed.</div>
 </td>
 </tr>
 </table>
@@ -377,15 +377,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <ul class="blockList">
 <li class="blockList">
 <h4>setSpeed</h4>
-<pre>public&nbsp;float&nbsp;setSpeed&#8203;(float&nbsp;speed)</pre>
-<div class="block">Sets the playback speed. This method may only be called after draining data through the
+<pre>public&nbsp;void&nbsp;setSpeed&#8203;(float&nbsp;speed)</pre>
+<div class="block">Sets the target playback speed. This method may only be called after draining data through the
  processor. The value returned by <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#isActive--"><code>isActive()</code></a> may change, and the processor must be
  <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#flush--"><code>flushed</code></a> before queueing more data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>speed</code> - The requested new playback speed.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The actual new playback speed.</dd>
+<dd><code>speed</code> - The target playback speed.</dd>
 </dl>
 </li>
 </ul>
@@ -395,15 +393,13 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 <ul class="blockList">
 <li class="blockList">
 <h4>setPitch</h4>
-<pre>public&nbsp;float&nbsp;setPitch&#8203;(float&nbsp;pitch)</pre>
-<div class="block">Sets the playback pitch. This method may only be called after draining data through the
+<pre>public&nbsp;void&nbsp;setPitch&#8203;(float&nbsp;pitch)</pre>
+<div class="block">Sets the target playback pitch. This method may only be called after draining data through the
  processor. The value returned by <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#isActive--"><code>isActive()</code></a> may change, and the processor must be
  <a href="../../../../../com/google/android/exoplayer2/audio/SonicAudioProcessor.html#flush--"><code>flushed</code></a> before queueing more data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>pitch</code> - The requested new pitch.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The actual new pitch.</dd>
+<dd><code>pitch</code> - The target pitch.</dd>
 </dl>
 </li>
 </ul>
@@ -424,21 +420,24 @@ implements <a href="../../../../../com/google/android/exoplayer2/audio/AudioProc
 </dl>
 </li>
 </ul>
-<a name="scaleDurationForSpeedup-long-">
+<a name="getMediaDuration-long-">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>scaleDurationForSpeedup</h4>
-<pre>public&nbsp;long&nbsp;scaleDurationForSpeedup&#8203;(long&nbsp;duration)</pre>
-<div class="block">Returns the specified duration scaled to take into account the speedup factor of this instance,
- in the same units as <code>duration</code>.</div>
+<h4>getMediaDuration</h4>
+<pre>public&nbsp;long&nbsp;getMediaDuration&#8203;(long&nbsp;playoutDuration)</pre>
+<div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
+ adjustment into account.
+
+ <p>The scaling performed by this method will use the actual playback speed achieved by the
+ audio processor, on average, since it was last flushed. This may differ very slightly from the
+ target playback speed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>duration</code> - The duration to scale taking into account speedup.</dd>
+<dd><code>playoutDuration</code> - The playout duration to scale.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>The specified duration scaled to take into account speedup, in the same units as
-     <code>duration</code>.</dd>
+<dd>The corresponding media duration, in the same units as <code>duration</code>.</dd>
 </dl>
 </li>
 </ul>
