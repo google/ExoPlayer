@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.audio;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import java.lang.annotation.Documented;
@@ -173,7 +172,8 @@ public final class AacUtil {
    *
    * @param audioSpecificConfig A byte array containing the AudioSpecificConfig to parse.
    * @return The parsed configuration.
-   * @throws ParserException If the AudioSpecificConfig cannot be parsed as it's not supported.
+   * @throws ParserException If the AudioSpecificConfig cannot be parsed because it is invalid or
+   *     unsupported.
    */
   public static Config parseAudioSpecificConfig(byte[] audioSpecificConfig) throws ParserException {
     return parseAudioSpecificConfig(
@@ -188,7 +188,8 @@ public final class AacUtil {
    * @param forceReadToEnd Whether the entire AudioSpecificConfig should be read. Required for
    *     knowing the length of the configuration payload.
    * @return The parsed configuration.
-   * @throws ParserException If the AudioSpecificConfig cannot be parsed as it's not supported.
+   * @throws ParserException If the AudioSpecificConfig cannot be parsed because it is invalid or
+   *     unsupported.
    */
   public static Config parseAudioSpecificConfig(ParsableBitArray bitArray, boolean forceReadToEnd)
       throws ParserException {
@@ -248,7 +249,9 @@ public final class AacUtil {
     }
     // For supported containers, bits_to_decode() is always 0.
     int channelCount = AUDIO_SPECIFIC_CONFIG_CHANNEL_COUNT_TABLE[channelConfiguration];
-    Assertions.checkArgument(channelCount != AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID);
+    if (channelCount == AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID) {
+      throw new ParserException();
+    }
     return new Config(sampleRateHz, channelCount, codecs);
   }
 
@@ -336,15 +339,17 @@ public final class AacUtil {
    *
    * @param bitArray The bit array containing the audio specific configuration.
    * @return The sampling frequency.
+   * @throws ParserException If the audio specific configuration is invalid.
    */
-  private static int getSamplingFrequency(ParsableBitArray bitArray) {
+  private static int getSamplingFrequency(ParsableBitArray bitArray) throws ParserException {
     int samplingFrequency;
     int frequencyIndex = bitArray.readBits(4);
     if (frequencyIndex == AUDIO_SPECIFIC_CONFIG_FREQUENCY_INDEX_ARBITRARY) {
       samplingFrequency = bitArray.readBits(24);
-    } else {
-      Assertions.checkArgument(frequencyIndex < 13);
+    } else if (frequencyIndex < 13) {
       samplingFrequency = AUDIO_SPECIFIC_CONFIG_SAMPLING_RATE_TABLE[frequencyIndex];
+    } else {
+      throw new ParserException();
     }
     return samplingFrequency;
   }
