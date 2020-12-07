@@ -22,7 +22,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.source.MediaPeriodId;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -51,16 +50,18 @@ public final class ExoPlaybackException extends Exception {
   })
   public @interface Type {}
   /**
-   * The error occurred loading data from a {@link MediaSource}.
-   * <p>
-   * Call {@link #getSourceException()} to retrieve the underlying cause.
+   * The error occurred loading data from a {@code MediaSource}.
+   *
+   * <p>Call {@link #getSourceException()} to retrieve the underlying cause.
    */
+  // TODO(b/172315872) MediaSource was a link. Link to equivalent concept or remove @code.
   public static final int TYPE_SOURCE = 0;
   /**
-   * The error occurred in a {@link Renderer}.
-   * <p>
-   * Call {@link #getRendererException()} to retrieve the underlying cause.
+   * The error occurred in a {@code Renderer}.
+   *
+   * <p>Call {@link #getRendererException()} to retrieve the underlying cause.
    */
+  // TODO(b/172315872) Renderer was a link. Link to equivalent concept or remove @code.
   public static final int TYPE_RENDERER = 1;
   /**
    * The error was an unexpected {@link RuntimeException}.
@@ -100,9 +101,11 @@ public final class ExoPlaybackException extends Exception {
 
   /** The operation where this error occurred is not defined. */
   public static final int TIMEOUT_OPERATION_UNDEFINED = 0;
-  /** The error occurred in {@link ExoPlayer#release}. */
+  // TODO(b/172315872) Change back @code to @link when the Player is in common.
+  /** The error occurred in {@code Player#release}. */
   public static final int TIMEOUT_OPERATION_RELEASE = 1;
-  /** The error occurred in {@link ExoPlayer#setForegroundMode}. */
+  /** The error occurred in {@code ExoPlayer#setForegroundMode}. */
+  // TODO(b/172315872) Set foregroundMode is an ExoPlayer method, NOT a player one.
   public static final int TIMEOUT_OPERATION_SET_FOREGROUND_MODE = 2;
   /** The error occurred while detaching a surface from the player. */
   public static final int TIMEOUT_OPERATION_DETACH_SURFACE = 3;
