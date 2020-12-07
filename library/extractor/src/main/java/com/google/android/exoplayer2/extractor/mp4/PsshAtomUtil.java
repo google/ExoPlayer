@@ -138,7 +138,7 @@ public final class PsshAtomUtil {
     if (parsedAtom == null) {
       return null;
     }
-    if (uuid != null && !uuid.equals(parsedAtom.uuid)) {
+    if (!uuid.equals(parsedAtom.uuid)) {
       Log.w(TAG, "UUID mismatch. Expected: " + uuid + ", got: " + parsedAtom.uuid + ".");
       return null;
     }
