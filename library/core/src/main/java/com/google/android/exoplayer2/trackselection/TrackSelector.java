@@ -83,7 +83,7 @@ import com.google.android.exoplayer2.util.Assertions;
  * thread. The track selector may call {@link InvalidationListener#onTrackSelectionsInvalidated()}
  * from any thread.
  */
-public abstract class TrackSelector {
+public abstract class TrackSelector implements TrackSelectorInterface {
 
   /**
    * Notified when selections previously made by a {@link TrackSelector} are no longer valid.

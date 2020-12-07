@@ -468,6 +468,10 @@ public interface ExoPlayer extends Player {
     }
   }
 
+  @Override
+  @Nullable
+  TrackSelector getTrackSelector();
+
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
 
