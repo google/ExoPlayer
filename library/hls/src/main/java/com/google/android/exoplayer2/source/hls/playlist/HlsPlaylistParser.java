@@ -839,6 +839,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             (long) (parseDoubleAttr(line, REGEX_ATTR_DURATION) * C.MICROS_PER_SECOND);
         boolean isIndependent =
             parseOptionalBooleanAttribute(line, REGEX_INDEPENDENT, /* defaultValue= */ false);
+        // The first part of a segment is always independent if the segments are independent.
+        isIndependent |= hasIndependentSegmentsTag && trailingParts.isEmpty();
         boolean isGap = parseOptionalBooleanAttribute(line, REGEX_GAP, /* defaultValue= */ false);
         @Nullable
         String byteRange = parseOptionalStringAttr(line, REGEX_ATTR_BYTERANGE, variableDefinitions);
