@@ -21,6 +21,7 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C.FormatSupport;
+import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
@@ -133,11 +134,8 @@ public final class ExoPlaybackException extends Exception {
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
 
-  /**
-   * The {@link MediaSource.MediaPeriodId} of the media associated with this error, or null if
-   * undetermined.
-   */
-  @Nullable public final MediaSource.MediaPeriodId mediaPeriodId;
+  /** The {@link MediaPeriodId} of the media associated with this error, or null if undetermined. */
+  @Nullable public final MediaPeriodId mediaPeriodId;
 
   /**
    * Whether the error may be recoverable.
@@ -334,7 +332,7 @@ public final class ExoPlaybackException extends Exception {
       int rendererIndex,
       @Nullable Format rendererFormat,
       @FormatSupport int rendererFormatSupport,
-      @Nullable MediaSource.MediaPeriodId mediaPeriodId,
+      @Nullable MediaPeriodId mediaPeriodId,
       @TimeoutOperation int timeoutOperation,
       long timestampMs,
       boolean isRecoverable) {
@@ -402,14 +400,13 @@ public final class ExoPlaybackException extends Exception {
   }
 
   /**
-   * Returns a copy of this exception with the provided {@link MediaSource.MediaPeriodId}.
+   * Returns a copy of this exception with the provided {@link MediaPeriodId}.
    *
-   * @param mediaPeriodId The {@link MediaSource.MediaPeriodId}.
+   * @param mediaPeriodId The {@link MediaPeriodId}.
    * @return The copied exception.
    */
   @CheckResult
-  /* package */ ExoPlaybackException copyWithMediaPeriodId(
-      @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
+  /* package */ ExoPlaybackException copyWithMediaPeriodId(@Nullable MediaPeriodId mediaPeriodId) {
     return new ExoPlaybackException(
         getMessage(),
         cause,

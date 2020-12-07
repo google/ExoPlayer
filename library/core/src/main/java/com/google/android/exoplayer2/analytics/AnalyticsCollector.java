@@ -646,7 +646,7 @@ public class AnalyticsCollector
   public final void onPlayerError(ExoPlaybackException error) {
     EventTime eventTime =
         error.mediaPeriodId != null
-            ? generateEventTime(error.mediaPeriodId)
+            ? generateEventTime(new MediaPeriodId(error.mediaPeriodId))
             : generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
         eventTime,
