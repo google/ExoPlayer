@@ -19,6 +19,7 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.getAdGroupTimesUsForCuePoints;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
@@ -1126,6 +1127,57 @@ public final class ImaAdsLoaderTest {
     // Verify that the second source's ad cue points have preloaded.
     assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 1))
         .isEqualTo(new AdPlaybackState(secondAdsId, /* adGroupTimesUs...= */ 0));
+  }
+
+  @Test
+  public void buildWithDefaultEnableContinuousPlayback_doesNotSetAdsRequestProperty() {
+    imaAdsLoader =
+        new ImaAdsLoader.Builder(getApplicationContext())
+            .setImaFactory(mockImaFactory)
+            .setImaSdkSettings(mockImaSdkSettings)
+            .build();
+    imaAdsLoader.setPlayer(fakePlayer);
+    adsMediaSource =
+        new AdsMediaSource(
+            new FakeMediaSource(CONTENT_TIMELINE),
+            TEST_DATA_SPEC,
+            TEST_ADS_ID,
+            new DefaultMediaSourceFactory((Context) getApplicationContext()),
+            imaAdsLoader,
+            adViewProvider);
+    when(mockAdsManager.getAdCuePoints()).thenReturn(PREROLL_CUE_POINTS_SECONDS);
+
+    imaAdsLoader.setSupportedContentTypes(C.TYPE_OTHER);
+    imaAdsLoader.start(
+        adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
+
+    verify(mockAdsRequest, never()).setContinuousPlayback(anyBoolean());
+  }
+
+  @Test
+  public void buildWithEnableContinuousPlayback_setsAdsRequestProperty() {
+    imaAdsLoader =
+        new ImaAdsLoader.Builder(getApplicationContext())
+            .setEnableContinuousPlayback(true)
+            .setImaFactory(mockImaFactory)
+            .setImaSdkSettings(mockImaSdkSettings)
+            .build();
+    imaAdsLoader.setPlayer(fakePlayer);
+    adsMediaSource =
+        new AdsMediaSource(
+            new FakeMediaSource(CONTENT_TIMELINE),
+            TEST_DATA_SPEC,
+            TEST_ADS_ID,
+            new DefaultMediaSourceFactory((Context) getApplicationContext()),
+            imaAdsLoader,
+            adViewProvider);
+    when(mockAdsManager.getAdCuePoints()).thenReturn(PREROLL_CUE_POINTS_SECONDS);
+
+    imaAdsLoader.setSupportedContentTypes(C.TYPE_OTHER);
+    imaAdsLoader.start(
+        adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
+
+    verify(mockAdsRequest).setContinuousPlayback(true);
   }
 
   private void setupMocks() {

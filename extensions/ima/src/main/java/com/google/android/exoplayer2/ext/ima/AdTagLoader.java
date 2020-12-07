@@ -517,6 +517,9 @@ import java.util.Map;
     }
     pendingAdRequestContext = new Object();
     request.setUserRequestContext(pendingAdRequestContext);
+    if (configuration.enableContinuousPlayback != null) {
+      request.setContinuousPlayback(configuration.enableContinuousPlayback);
+    }
     if (configuration.vastLoadTimeoutMs != TIMEOUT_UNSET) {
       request.setVastLoadTimeout(configuration.vastLoadTimeoutMs);
     }

@@ -45,6 +45,8 @@
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Fix a condition where playback can get stuck before an empty ad
         ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
+    *   Add `ImaAdsLoader.Builder.setEnableContinuousPlayback` for setting
+        whether to request ads for continuous playback.
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
 *   FFmpeg extension:
