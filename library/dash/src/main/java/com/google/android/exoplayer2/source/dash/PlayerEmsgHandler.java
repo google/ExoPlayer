@@ -24,8 +24,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.ParserException;
-import com.google.android.exoplayer2.drm.DrmSessionEventListener;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
@@ -285,12 +283,7 @@ public final class PlayerEmsgHandler implements Handler.Callback {
     private final MetadataInputBuffer buffer;
 
     /* package */ PlayerTrackEmsgHandler(Allocator allocator) {
-      this.sampleQueue =
-          new SampleQueue(
-              allocator,
-              /* playbackLooper= */ handler.getLooper(),
-              DrmSessionManager.getDummyDrmSessionManager(),
-              new DrmSessionEventListener.EventDispatcher());
+      this.sampleQueue = SampleQueue.createWithoutDrm(allocator);
       formatHolder = new FormatHolder();
       buffer = new MetadataInputBuffer();
     }

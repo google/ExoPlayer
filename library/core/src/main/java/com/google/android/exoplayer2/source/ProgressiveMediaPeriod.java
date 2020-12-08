@@ -715,7 +715,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
     SampleQueue trackOutput =
-        new SampleQueue(
+        SampleQueue.createWithDrm(
             allocator,
             /* playbackLooper= */ handler.getLooper(),
             drmSessionManager,

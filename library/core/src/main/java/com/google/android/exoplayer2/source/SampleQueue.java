@@ -60,9 +60,9 @@ public class SampleQueue implements TrackOutput {
 
   private final SampleDataQueue sampleDataQueue;
   private final SampleExtrasHolder extrasHolder;
-  private final Looper playbackLooper;
-  private final DrmSessionManager drmSessionManager;
-  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
+  @Nullable private final DrmSessionManager drmSessionManager;
+  @Nullable private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
+  @Nullable private final Looper playbackLooper;
   @Nullable private UpstreamFormatChangedListener upstreamFormatChangeListener;
 
   @Nullable private Format downstreamFormat;
@@ -100,7 +100,23 @@ public class SampleQueue implements TrackOutput {
   private boolean pendingSplice;
 
   /**
-   * Creates a sample queue.
+   * Creates a sample queue without DRM resource management.
+   *
+   * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
+   */
+  public static SampleQueue createWithoutDrm(Allocator allocator) {
+    return new SampleQueue(
+        allocator,
+        /* playbackLooper= */ null,
+        /* drmSessionManager= */ null,
+        /* drmEventDispatcher= */ null);
+  }
+
+  /**
+   * Creates a sample queue with DRM resource management.
+   *
+   * <p>For each sample added to the queue, a {@link DrmSession} will be attached containing the
+   * keys needed to decrypt it.
    *
    * @param allocator An {@link Allocator} from which allocations for sample data can be obtained.
    * @param playbackLooper The looper associated with the media playback thread.
@@ -109,11 +125,23 @@ public class SampleQueue implements TrackOutput {
    * @param drmEventDispatcher A {@link DrmSessionEventListener.EventDispatcher} to notify of events
    *     related to this SampleQueue.
    */
-  public SampleQueue(
+  public static SampleQueue createWithDrm(
       Allocator allocator,
       Looper playbackLooper,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
+    return new SampleQueue(
+        allocator,
+        Assertions.checkNotNull(playbackLooper),
+        Assertions.checkNotNull(drmSessionManager),
+        Assertions.checkNotNull(drmEventDispatcher));
+  }
+
+  protected SampleQueue(
+      Allocator allocator,
+      @Nullable Looper playbackLooper,
+      @Nullable DrmSessionManager drmSessionManager,
+      @Nullable DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
     this.playbackLooper = playbackLooper;
     this.drmSessionManager = drmSessionManager;
     this.drmEventDispatcher = drmEventDispatcher;
@@ -844,6 +872,10 @@ public class SampleQueue implements TrackOutput {
     outputFormatHolder.format =
         newFormat.copyWithExoMediaCryptoType(drmSessionManager.getExoMediaCryptoType(newFormat));
     outputFormatHolder.drmSession = currentDrmSession;
+    if (drmSessionManager == null) {
+      // This sample queue is not expected to handle DRM. Nothing to do.
+      return;
+    }
     if (!isFirstFormat && Util.areEqual(oldDrmInitData, newDrmInitData)) {
       // Nothing to do.
       return;
@@ -852,7 +884,8 @@ public class SampleQueue implements TrackOutput {
     // is being used for both DrmInitData.
     @Nullable DrmSession previousSession = currentDrmSession;
     currentDrmSession =
-        drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat);
+        drmSessionManager.acquireSession(
+            Assertions.checkNotNull(playbackLooper), drmEventDispatcher, newFormat);
     outputFormatHolder.drmSession = currentDrmSession;
 
     if (previousSession != null) {
