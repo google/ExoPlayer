@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.robolectric;
 
+import static org.robolectric.Shadows.shadowOf;
+
 import android.os.Looper;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -69,6 +71,8 @@ public final class RobolectricUtil {
    * Runs tasks of the main Robolectric {@link Looper} until the {@code condition} returns {@code
    * true}.
    *
+   * <p>Must be called on the main test thread.
+   *
    * @param condition The condition.
    * @param timeoutMs The timeout in milliseconds.
    * @param clock The {@link Clock} to measure the timeout.
@@ -76,15 +80,47 @@ public final class RobolectricUtil {
    */
   public static void runMainLooperUntil(Supplier<Boolean> condition, long timeoutMs, Clock clock)
       throws TimeoutException {
-    if (Looper.myLooper() != Looper.getMainLooper()) {
+    runLooperUntil(Looper.getMainLooper(), condition, timeoutMs, clock);
+  }
+
+  /**
+   * Runs tasks of the {@code looper} until the {@code condition} returns {@code true}.
+   *
+   * <p>Must be called on the thread corresponding to the {@code looper}.
+   *
+   * @param looper The {@link Looper}.
+   * @param condition The condition.
+   * @throws TimeoutException If the {@link #DEFAULT_TIMEOUT_MS} is exceeded.
+   */
+  public static void runLooperUntil(Looper looper, Supplier<Boolean> condition)
+      throws TimeoutException {
+    runLooperUntil(looper, condition, DEFAULT_TIMEOUT_MS * 1000000, Clock.DEFAULT);
+  }
+
+  /**
+   * Runs tasks of the {@code looper} until the {@code condition} returns {@code true}.
+   *
+   * <p>Must be called on the thread corresponding to the {@code looper}.
+   *
+   * @param looper The {@link Looper}.
+   * @param condition The condition.
+   * @param timeoutMs The timeout in milliseconds.
+   * @param clock The {@link Clock} to measure the timeout.
+   * @throws TimeoutException If the {@code timeoutMs timeout} is exceeded.
+   */
+  public static void runLooperUntil(
+      Looper looper, Supplier<Boolean> condition, long timeoutMs, Clock clock)
+      throws TimeoutException {
+    if (Looper.myLooper() != looper) {
       throw new IllegalStateException();
     }
+    ShadowLooper shadowLooper = shadowOf(looper);
     long timeoutTimeMs = clock.currentTimeMillis() + timeoutMs;
     while (!condition.get()) {
       if (clock.currentTimeMillis() >= timeoutTimeMs) {
         throw new TimeoutException();
       }
-      ShadowLooper.runMainLooperOneTask();
+      shadowLooper.runOneTask();
     }
   }
 }
