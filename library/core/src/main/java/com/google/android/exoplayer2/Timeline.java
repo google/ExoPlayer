@@ -166,7 +166,7 @@ public abstract class Timeline {
 
     /**
      * The window's start time in milliseconds since the Unix epoch, or {@link C#TIME_UNSET} if
-     * unknown or not applicable. For informational purposes only.
+     * unknown or not applicable.
      */
     public long windowStartTimeMs;
 
