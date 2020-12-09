@@ -156,7 +156,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
   public void remove(T listener) {
     for (ListenerHolder<T, E> listenerHolder : listeners) {
       if (listenerHolder.listener.equals(listener)) {
-        listenerHolder.release();
+        listenerHolder.release(iterationFinishedEvent);
         listeners.remove(listenerHolder);
       }
     }
@@ -221,7 +221,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
    */
   public void release() {
     for (ListenerHolder<T, E> listenerHolder : listeners) {
-      listenerHolder.release();
+      listenerHolder.release(iterationFinishedEvent);
     }
     listeners.clear();
     released = true;
@@ -245,6 +245,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
     @Nonnull public final T listener;
 
     private E eventsFlags;
+    private boolean needsIterationFinishedEvent;
     private boolean released;
 
     public ListenerHolder(@Nonnull T listener, Supplier<E> eventFlagSupplier) {
@@ -252,26 +253,31 @@ public final class ListenerSet<T, E extends MutableFlags> {
       this.eventsFlags = eventFlagSupplier.get();
     }
 
-    public void release() {
+    public void release(IterationFinishedEvent<T, E> event) {
       released = true;
+      if (needsIterationFinishedEvent) {
+        event.invoke(listener, eventsFlags);
+      }
     }
 
     public void invoke(int eventFlag, Event<T> event) {
       if (!released) {
-        event.invoke(listener);
         if (eventFlag != C.INDEX_UNSET) {
           eventsFlags.add(eventFlag);
         }
+        needsIterationFinishedEvent = true;
+        event.invoke(listener);
       }
     }
 
     public void iterationFinished(
         Supplier<E> eventFlagSupplier, IterationFinishedEvent<T, E> event) {
-      if (!released) {
+      if (!released && needsIterationFinishedEvent) {
         // Reset flags before invoking the listener to ensure we keep all new flags that are set by
         // recursive events triggered from this callback.
         E flagToNotify = eventsFlags;
         eventsFlags = eventFlagSupplier.get();
+        needsIterationFinishedEvent = false;
         event.invoke(listener, flagToNotify);
       }
     }

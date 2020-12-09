@@ -297,10 +297,11 @@ public class ListenerSetTest {
     // Listener2 shouldn't even get this event as it's removed before the event can be invoked.
     listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
     listenerSet.remove(listener1);
-    listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
+    listenerSet.sendEvent(EVENT_ID_2, TestListener::callback2);
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener1).callback1();
+    verify(listener1).iterationFinished(Flags.create(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
@@ -348,6 +349,7 @@ public class ListenerSetTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener1).callback1();
+    verify(listener1).iterationFinished(Flags.create(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
