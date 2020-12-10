@@ -71,7 +71,7 @@ public final class SinglePeriodTimelineTest {
             /* windowDefaultStartPositionUs= */ 0,
             /* isSeekable= */ false,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
     // Should return null with a positive position projection beyond window duration.

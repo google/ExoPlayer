@@ -54,7 +54,7 @@ public final class MediaPeriodQueueTest {
           CONTENT_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false,
+          /* useLiveConfiguration= */ false,
           /* manifest= */ null,
           MediaItem.fromUri(Uri.EMPTY));
   private static final Uri AD_URI = Uri.EMPTY;

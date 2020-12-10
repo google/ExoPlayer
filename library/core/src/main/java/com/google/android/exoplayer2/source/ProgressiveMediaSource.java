@@ -336,7 +336,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
             timelineDurationUs,
             timelineIsSeekable,
             /* isDynamic= */ false,
-            /* isLive= */ timelineIsLive,
+            /* useLiveConfiguration= */ timelineIsLive,
             /* manifest= */ null,
             mediaItem);
     if (timelineIsPlaceholder) {

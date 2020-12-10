@@ -1003,7 +1003,7 @@ public final class DownloadHelper {
         // Ignore dynamic updates.
         return;
       }
-      if (timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window()).isLive) {
+      if (timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window()).isLive()) {
         downloadHelperHandler
             .obtainMessage(
                 DOWNLOAD_HELPER_CALLBACK_MESSAGE_FAILED,

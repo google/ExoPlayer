@@ -1570,7 +1570,7 @@ public interface Player {
   /**
    * Returns whether the current window is live, or {@code false} if the {@link Timeline} is empty.
    *
-   * @see Timeline.Window#isLive
+   * @see Timeline.Window#isLive()
    */
   boolean isCurrentWindowLive();
 

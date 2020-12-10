@@ -287,14 +287,15 @@ public final class DashMediaSourceTest {
                 () -> createSampleMpdDataSource(SAMPLE_MPD_LIVE_WITHOUT_LIVE_CONFIGURATION))
             .createMediaSource(MediaItem.fromUri(Uri.EMPTY));
 
-    MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
-    assertThat(mediaItemFromSource.liveConfiguration.targetOffsetMs)
+    assertThat(liveConfiguration.targetOffsetMs)
         .isEqualTo(DashMediaSource.DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS);
-    assertThat(mediaItemFromSource.liveConfiguration.minOffsetMs).isEqualTo(0L);
-    assertThat(mediaItemFromSource.liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
-    assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
-    assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(0L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
 
   @Test
@@ -306,13 +307,14 @@ public final class DashMediaSourceTest {
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(MediaItem.fromUri(Uri.EMPTY));
 
-    MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
-    assertThat(mediaItemFromSource.liveConfiguration.targetOffsetMs).isEqualTo(1234L);
-    assertThat(mediaItemFromSource.liveConfiguration.minOffsetMs).isEqualTo(0L);
-    assertThat(mediaItemFromSource.liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
-    assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
-    assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.targetOffsetMs).isEqualTo(1234L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(0L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
 
   @Test
@@ -333,13 +335,10 @@ public final class DashMediaSourceTest {
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(mediaItem);
 
-    MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
-    assertThat(mediaItemFromSource.liveConfiguration.targetOffsetMs).isEqualTo(876L);
-    assertThat(mediaItemFromSource.liveConfiguration.minOffsetMs).isEqualTo(500L);
-    assertThat(mediaItemFromSource.liveConfiguration.maxOffsetMs).isEqualTo(20_000L);
-    assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
-    assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
+    assertThat(liveConfiguration).isEqualTo(mediaItem.liveConfiguration);
   }
 
   @Test
@@ -353,13 +352,14 @@ public final class DashMediaSourceTest {
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(MediaItem.fromUri(Uri.EMPTY));
 
-    MediaItem mediaItem = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
-    assertThat(mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(2_000L);
-    assertThat(mediaItem.liveConfiguration.minOffsetMs).isEqualTo(500L);
-    assertThat(mediaItem.liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
-    assertThat(mediaItem.liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
-    assertThat(mediaItem.liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.targetOffsetMs).isEqualTo(2_000L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(500L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(58_000L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(C.RATE_UNSET);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(C.RATE_UNSET);
   }
 
   @Test
@@ -383,13 +383,14 @@ public final class DashMediaSourceTest {
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(mediaItem);
 
-    MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
-    assertThat(mediaItemFromSource.liveConfiguration.targetOffsetMs).isEqualTo(876L);
-    assertThat(mediaItem.liveConfiguration.minOffsetMs).isEqualTo(200L);
-    assertThat(mediaItem.liveConfiguration.maxOffsetMs).isEqualTo(999L);
-    assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
-    assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
+    assertThat(liveConfiguration.targetOffsetMs).isEqualTo(876L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(200L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
   }
 
   @Test
@@ -401,13 +402,14 @@ public final class DashMediaSourceTest {
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(MediaItem.fromUri(Uri.EMPTY));
 
-    MediaItem mediaItem = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
-    assertThat(mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(4_000L);
-    assertThat(mediaItem.liveConfiguration.minOffsetMs).isEqualTo(2_000L);
-    assertThat(mediaItem.liveConfiguration.maxOffsetMs).isEqualTo(6_000L);
-    assertThat(mediaItem.liveConfiguration.minPlaybackSpeed).isEqualTo(0.96f);
-    assertThat(mediaItem.liveConfiguration.maxPlaybackSpeed).isEqualTo(1.04f);
+    assertThat(liveConfiguration.targetOffsetMs).isEqualTo(4_000L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(2_000L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(6_000L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(0.96f);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(1.04f);
   }
 
   @Test
@@ -428,13 +430,14 @@ public final class DashMediaSourceTest {
             .setFallbackTargetLiveOffsetMs(1234L)
             .createMediaSource(mediaItem);
 
-    MediaItem mediaItemFromSource = prepareAndWaitForTimelineRefresh(mediaSource).mediaItem;
+    MediaItem.LiveConfiguration liveConfiguration =
+        prepareAndWaitForTimelineRefresh(mediaSource).liveConfiguration;
 
-    assertThat(mediaItemFromSource.liveConfiguration.targetOffsetMs).isEqualTo(876L);
-    assertThat(mediaItemFromSource.liveConfiguration.minOffsetMs).isEqualTo(100L);
-    assertThat(mediaItemFromSource.liveConfiguration.maxOffsetMs).isEqualTo(999L);
-    assertThat(mediaItemFromSource.liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
-    assertThat(mediaItemFromSource.liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
+    assertThat(liveConfiguration.targetOffsetMs).isEqualTo(876L);
+    assertThat(liveConfiguration.minOffsetMs).isEqualTo(100L);
+    assertThat(liveConfiguration.maxOffsetMs).isEqualTo(999L);
+    assertThat(liveConfiguration.minPlaybackSpeed).isEqualTo(23f);
+    assertThat(liveConfiguration.maxPlaybackSpeed).isEqualTo(42f);
   }
 
   @Test
@@ -448,7 +451,7 @@ public final class DashMediaSourceTest {
     Window window = prepareAndWaitForTimelineRefresh(mediaSource);
 
     // Expect the target live offset as defined in the manifest.
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(3000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(3000);
     // Expect the default position at the first segment start before the live edge.
     assertThat(window.getDefaultPositionMs()).isEqualTo(2_000);
   }
@@ -466,7 +469,7 @@ public final class DashMediaSourceTest {
     // Expect the default position at the first segment start below the minimum live start position.
     assertThat(window.getDefaultPositionMs()).isEqualTo(4_000);
     // Expect the target live offset reaching from now time to the minimum live start position.
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(9000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(9000);
   }
 
   @Test
@@ -483,7 +486,7 @@ public final class DashMediaSourceTest {
     // Expect the default position at the start of the last segment.
     assertThat(window.getDefaultPositionMs()).isEqualTo(12_000);
     // Expect the target live offset reaching from now time to the end of the window.
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(60_000 - 16_000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(60_000 - 16_000);
   }
 
   private static Window prepareAndWaitForTimelineRefresh(MediaSource mediaSource)

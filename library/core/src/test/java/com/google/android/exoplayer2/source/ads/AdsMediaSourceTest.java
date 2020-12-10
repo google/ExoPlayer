@@ -58,7 +58,7 @@ public final class AdsMediaSourceTest {
           PREROLL_AD_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false,
+          /* useLiveConfiguration= */ false,
           /* manifest= */ null,
           MediaItem.fromUri(Uri.EMPTY));
   private static final Object PREROLL_AD_PERIOD_UID =
@@ -70,7 +70,7 @@ public final class AdsMediaSourceTest {
           CONTENT_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false,
+          /* useLiveConfiguration= */ false,
           /* manifest= */ null,
           MediaItem.fromUri(Uri.EMPTY));
   private static final Object CONTENT_PERIOD_UID =

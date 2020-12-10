@@ -329,7 +329,7 @@ public final class FakeTimeline extends Timeline {
         /* elapsedRealtimeEpochOffsetMs= */ windowDefinition.isLive ? 0 : C.TIME_UNSET,
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
-        windowDefinition.isLive,
+        windowDefinition.isLive ? windowDefinition.mediaItem.liveConfiguration : null,
         windowDefinition.defaultPositionUs,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],

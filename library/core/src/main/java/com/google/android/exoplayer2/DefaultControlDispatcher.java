@@ -99,7 +99,7 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     int nextWindowIndex = player.getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       player.seekTo(nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window).isLive) {
+    } else if (timeline.getWindow(windowIndex, window).isLive()) {
       player.seekTo(windowIndex, C.TIME_UNSET);
     }
     return true;
