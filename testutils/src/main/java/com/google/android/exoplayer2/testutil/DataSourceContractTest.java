@@ -16,11 +16,12 @@
 package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.common.truth.Truth.assertWithMessage;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -31,6 +32,7 @@ import java.io.IOException;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -47,7 +49,10 @@ import org.junit.Test;
  * in the implementation. The test should be overridden in the subclass and annotated {@link
  * Ignore}, with a link to an issue to track fixing the implementation and un-ignoring the test.
  */
+@RequiresApi(19)
 public abstract class DataSourceContractTest {
+
+  @Rule public final AdditionalFailureInfo additionalFailureInfo = new AdditionalFailureInfo();
 
   /** Creates and returns an instance of the {@link DataSource}. */
   protected abstract DataSource createDataSource();
@@ -74,19 +79,20 @@ public abstract class DataSourceContractTest {
   public void unboundedDataSpec_readEverything() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
     for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
       TestResource resource = resources.get(i);
       DataSource dataSource = createDataSource();
       try {
         long length = dataSource.open(new DataSpec(resource.getUri()));
         byte[] data = Util.readToEnd(dataSource);
-
-        String failureLabel = getFailureLabel(resources, i);
-        assertWithMessage(failureLabel).that(length).isEqualTo(resource.getExpectedLength());
-        assertWithMessage(failureLabel).that(data).isEqualTo(resource.getExpectedBytes());
+        assertThat(length).isEqualTo(resource.getExpectedLength());
+        assertThat(data).isEqualTo(resource.getExpectedBytes());
       } finally {
         dataSource.close();
       }
+      additionalFailureInfo.setInfo(null);
     }
   }
 
