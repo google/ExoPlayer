@@ -290,6 +290,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   private static final int ADAPTATION_WORKAROUND_SLICE_WIDTH_HEIGHT = 32;
 
+  private final MediaCodecAdapter.Factory codecAdapterFactory;
   private final MediaCodecSelector mediaCodecSelector;
   private final boolean enableDecoderFallback;
   private final float assumedMinimumCodecOperatingRate;
@@ -374,10 +375,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   public MediaCodecRenderer(
       int trackType,
+      MediaCodecAdapter.Factory codecAdapterFactory,
       MediaCodecSelector mediaCodecSelector,
       boolean enableDecoderFallback,
       float assumedMinimumCodecOperatingRate) {
     super(trackType);
+    this.codecAdapterFactory = codecAdapterFactory;
     this.mediaCodecSelector = checkNotNull(mediaCodecSelector);
     this.enableDecoderFallback = enableDecoderFallback;
     this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
@@ -1082,7 +1085,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                     enableSynchronizeCodecInteractionsWithQueueing)
                 .createAdapter(codec);
       } else {
-        codecAdapter = new SynchronousMediaCodecAdapter.Factory().createAdapter(codec);
+        codecAdapter = codecAdapterFactory.createAdapter(codec);
       }
       TraceUtil.endSection();
       TraceUtil.beginSection("configureCodec");

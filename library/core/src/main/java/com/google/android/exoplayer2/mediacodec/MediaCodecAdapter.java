@@ -39,6 +39,9 @@ public interface MediaCodecAdapter {
   /** A factory for {@link MediaCodecAdapter} instances. */
   interface Factory {
 
+    /** Default factory used in most cases. */
+    Factory DEFAULT = new SynchronousMediaCodecAdapter.Factory();
+
     /** Creates an instance wrapping the provided {@link MediaCodec} instance. */
     MediaCodecAdapter createAdapter(MediaCodec codec);
   }
