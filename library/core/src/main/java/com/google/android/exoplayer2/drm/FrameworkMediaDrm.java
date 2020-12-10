@@ -91,8 +91,12 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    * @throws UnsupportedDrmException If the DRM scheme is unsupported or cannot be instantiated.
    */
   public static FrameworkMediaDrm newInstance(UUID uuid) throws UnsupportedDrmException {
+    return newInstance(uuid, false);
+  }
+
+  public static FrameworkMediaDrm newInstance(UUID uuid, Boolean forceWidevineL3) throws UnsupportedDrmException {
     try {
-      return new FrameworkMediaDrm(uuid);
+      return new FrameworkMediaDrm(uuid, forceWidevineL3);
     } catch (UnsupportedSchemeException e) {
       throw new UnsupportedDrmException(UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME, e);
     } catch (Exception e) {
@@ -100,14 +104,14 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     }
   }
 
-  private FrameworkMediaDrm(UUID uuid) throws UnsupportedSchemeException {
+  private FrameworkMediaDrm(UUID uuid, Boolean forceWidevineL3) throws UnsupportedSchemeException {
     Assertions.checkNotNull(uuid);
     Assertions.checkArgument(!C.COMMON_PSSH_UUID.equals(uuid), "Use C.CLEARKEY_UUID instead");
     this.uuid = uuid;
     this.mediaDrm = new MediaDrm(adjustUuid(uuid));
     // Creators of an instance automatically acquire ownership of the created instance.
     referenceCount = 1;
-    if (C.WIDEVINE_UUID.equals(uuid) && needsForceWidevineL3Workaround()) {
+    if (C.WIDEVINE_UUID.equals(uuid) && (needsForceWidevineL3Workaround() || forceWidevineL3)) {
       forceWidevineL3(mediaDrm);
     }
   }
