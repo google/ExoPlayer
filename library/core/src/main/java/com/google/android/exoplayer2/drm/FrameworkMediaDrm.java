@@ -64,6 +64,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
         }
       };
 
+  private static final String KEY_SECURITY_LEVEL = "securityLevel";
+
   private static final String CENC_SCHEME_MIME_TYPE = "cenc";
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
@@ -296,7 +298,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     // Work around a bug prior to Lollipop where L1 Widevine forced into L3 mode would still
     // indicate that it required secure video decoders [Internal ref: b/11428937].
     boolean forceAllowInsecureDecoderComponents = Util.SDK_INT < 21
-        && C.WIDEVINE_UUID.equals(uuid) && "L3".equals(getPropertyString("securityLevel"));
+        && C.WIDEVINE_UUID.equals(uuid) && getSecurityLevel().equals("L3");
     return new FrameworkMediaCrypto(
         adjustUuid(uuid), initData, forceAllowInsecureDecoderComponents);
   }
@@ -420,7 +422,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
 
   @SuppressLint("WrongConstant") // Suppress spurious lint error [Internal ref: b/32137960]
   private static void forceWidevineL3(MediaDrm mediaDrm) {
-    mediaDrm.setPropertyString("securityLevel", "L3");
+    mediaDrm.setPropertyString(KEY_SECURITY_LEVEL, "L3");
+  }
+
+  public String getSecurityLevel() {
+    return getPropertyString(KEY_SECURITY_LEVEL);
   }
 
   /**
