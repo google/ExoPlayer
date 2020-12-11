@@ -49,7 +49,7 @@ import java.util.List;
 
   private final StyledPlayerControlView styledPlayerControlView;
 
-  @Nullable private final ViewGroup embeddedTransportControls;
+  @Nullable private final ViewGroup centerControls;
   @Nullable private final ViewGroup bottomBar;
   @Nullable private final ViewGroup minimalControls;
   @Nullable private final ViewGroup basicControls;
@@ -99,8 +99,7 @@ import java.util.List;
 
     // Relating to Center View
     ViewGroup centerView = styledPlayerControlView.findViewById(R.id.exo_center_view);
-    embeddedTransportControls =
-        styledPlayerControlView.findViewById(R.id.exo_embedded_transport_controls);
+    centerControls = styledPlayerControlView.findViewById(R.id.exo_center_controls);
 
     // Relating to Minimal Layout
     minimalControls = styledPlayerControlView.findViewById(R.id.exo_minimal_controls);
@@ -126,7 +125,7 @@ import java.util.List;
 
     Resources resources = styledPlayerControlView.getResources();
     float bottomBarHeight =
-        resources.getDimension(R.dimen.exo_bottom_bar_height)
+        resources.getDimension(R.dimen.exo_styled_bottom_bar_height)
             - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
     float progressBarHeight =
         resources.getDimension(R.dimen.exo_styled_progress_margin_bottom)
@@ -563,10 +562,8 @@ import java.util.List;
             - styledPlayerControlView.getPaddingBottom()
             - styledPlayerControlView.getPaddingTop();
     int defaultModeWidth =
-        Math.max(
-            getWidth(embeddedTransportControls), getWidth(timeView) + getWidth(overflowShowButton));
-    int defaultModeHeight =
-        getHeight(embeddedTransportControls) + getHeight(timeBar) + getHeight(bottomBar);
+        Math.max(getWidth(centerControls), getWidth(timeView) + getWidth(overflowShowButton));
+    int defaultModeHeight = getHeight(centerControls) + getHeight(timeBar) + getHeight(bottomBar);
 
     return (width <= defaultModeWidth || height <= defaultModeHeight);
   }
