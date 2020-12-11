@@ -21,7 +21,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -673,6 +675,11 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsView.setLayoutManager(new LinearLayoutManager(getContext()));
     settingsWindow =
         new PopupWindow(settingsView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+    if (Util.SDK_INT < 23) {
+      // Work around issue where tapping outside of the menu area or pressing the back button
+      // doesn't dismiss the menu as expected. See: https://github.com/google/ExoPlayer/issues/8272.
+      settingsWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+    }
     settingsWindow.setOnDismissListener(componentListener);
     needToHideBars = true;
 

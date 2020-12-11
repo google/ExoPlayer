@@ -2,6 +2,11 @@
 
 ### 2.12.3 (???-??-??) ###
 
+*   UI:
+    *   Fix issue where pop-up menus belonging to `StyledPlayerControlView`
+        would not be dismissed when tapping outside of the menu area or pressing
+        the back button, on API level 22 and earlier
+        ([#8272](https://github.com/google/ExoPlayer/issues/8272)).
 *   IMA extension:
     *   Fix a condition where playback can get stuck before an empty ad
         ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
