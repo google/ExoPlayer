@@ -55,7 +55,7 @@ public abstract class DataSourceContractTest {
   @Rule public final AdditionalFailureInfo additionalFailureInfo = new AdditionalFailureInfo();
 
   /** Creates and returns an instance of the {@link DataSource}. */
-  protected abstract DataSource createDataSource();
+  protected abstract DataSource createDataSource() throws Exception;
 
   /**
    * Returns {@link TestResource} instances.
@@ -66,7 +66,7 @@ public abstract class DataSourceContractTest {
    * <p>If multiple resources are returned, it's recommended to disambiguate them using {@link
    * TestResource.Builder#setName(String)}.
    */
-  protected abstract ImmutableList<TestResource> getTestResources();
+  protected abstract ImmutableList<TestResource> getTestResources() throws Exception;
 
   /**
    * Returns a {@link Uri} that doesn't resolve.
