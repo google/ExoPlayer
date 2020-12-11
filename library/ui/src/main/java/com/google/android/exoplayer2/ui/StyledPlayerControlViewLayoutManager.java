@@ -98,7 +98,7 @@ import java.util.List;
     shownButtons = new ArrayList<>();
 
     // Relating to Center View
-    ViewGroup centerView = styledPlayerControlView.findViewById(R.id.exo_center_view);
+    View controlsBackground = styledPlayerControlView.findViewById(R.id.exo_controls_background);
     centerControls = styledPlayerControlView.findViewById(R.id.exo_center_controls);
 
     // Relating to Minimal Layout
@@ -137,8 +137,11 @@ import java.util.List;
     fadeOutAnimator.addUpdateListener(
         animation -> {
           float animatedValue = (float) animation.getAnimatedValue();
-          if (centerView != null) {
-            centerView.setAlpha(animatedValue);
+          if (controlsBackground != null) {
+            controlsBackground.setAlpha(animatedValue);
+          }
+          if (centerControls != null) {
+            centerControls.setAlpha(animatedValue);
           }
           if (minimalControls != null) {
             minimalControls.setAlpha(animatedValue);
@@ -155,8 +158,11 @@ import java.util.List;
 
           @Override
           public void onAnimationEnd(Animator animation) {
-            if (centerView != null) {
-              centerView.setVisibility(View.INVISIBLE);
+            if (controlsBackground != null) {
+              controlsBackground.setVisibility(View.INVISIBLE);
+            }
+            if (centerControls != null) {
+              centerControls.setVisibility(View.INVISIBLE);
             }
             if (minimalControls != null) {
               minimalControls.setVisibility(View.INVISIBLE);
@@ -169,8 +175,11 @@ import java.util.List;
     fadeInAnimator.addUpdateListener(
         animation -> {
           float animatedValue = (float) animation.getAnimatedValue();
-          if (centerView != null) {
-            centerView.setAlpha(animatedValue);
+          if (controlsBackground != null) {
+            controlsBackground.setAlpha(animatedValue);
+          }
+          if (centerControls != null) {
+            centerControls.setAlpha(animatedValue);
           }
           if (minimalControls != null) {
             minimalControls.setAlpha(animatedValue);
@@ -180,8 +189,11 @@ import java.util.List;
         new AnimatorListenerAdapter() {
           @Override
           public void onAnimationStart(Animator animation) {
-            if (centerView != null) {
-              centerView.setVisibility(View.VISIBLE);
+            if (controlsBackground != null) {
+              controlsBackground.setVisibility(View.VISIBLE);
+            }
+            if (centerControls != null) {
+              centerControls.setVisibility(View.VISIBLE);
             }
             if (minimalControls != null) {
               minimalControls.setVisibility(isMinimalMode ? View.VISIBLE : View.INVISIBLE);
@@ -595,13 +607,14 @@ import java.util.List;
               .getDimensionPixelSize(R.dimen.exo_styled_progress_margin_bottom);
       timeBarParams.bottomMargin = (isMinimalMode ? 0 : timeBarMarginBottom);
       timeBar.setLayoutParams(timeBarParams);
-      if (timeBar instanceof DefaultTimeBar
-          && uxState != UX_STATE_ANIMATING_HIDE
-          && uxState != UX_STATE_ANIMATING_SHOW) {
-        if (isMinimalMode || uxState != UX_STATE_ALL_VISIBLE) {
-          ((DefaultTimeBar) timeBar).hideScrubber();
-        } else {
-          ((DefaultTimeBar) timeBar).showScrubber();
+      if (timeBar instanceof DefaultTimeBar) {
+        DefaultTimeBar defaultTimeBar = (DefaultTimeBar) timeBar;
+        if (isMinimalMode) {
+          defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ true);
+        } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
+          defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ false);
+        } else if (uxState != UX_STATE_ANIMATING_HIDE && uxState != UX_STATE_ANIMATING_SHOW) {
+          defaultTimeBar.showScrubber();
         }
       }
     }

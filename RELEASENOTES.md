@@ -27,6 +27,7 @@
     *   Add option to specify multiple preferred audio or text languages.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
 *   UI:
+    *   Miscellaneous fixes for `StyledPlayerControlView` in minimal mode.
     *   Show overflow button in `StyledPlayerControlView` only when there is not
         enough space.
     *   Update StyledPlayer's control overlay scrim from 30% opacity to 60%

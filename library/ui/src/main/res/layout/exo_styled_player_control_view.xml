@@ -15,42 +15,11 @@
 -->
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <FrameLayout android:id="@+id/exo_center_view"
+  <View android:id="@+id/exo_controls_background"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="center"
-      android:layoutDirection="ltr">
-
-    <View android:id="@+id/exo_center_view_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:background="@color/exo_black_opacity_60"/>
-
-    <LinearLayout android:id="@+id/exo_center_controls"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center">
-
-      <ImageButton android:id="@+id/exo_prev"
-          style="@style/ExoStyledControls.Button.Center.Previous"/>
-
-      <Button android:id="@+id/exo_rew_with_amount"
-          style="@style/ExoStyledControls.Button.Center.RewWithAmount"/>
-
-      <ImageButton android:id="@+id/exo_play_pause"
-          style="@style/ExoStyledControls.Button.Center.PlayPause"/>
-
-      <Button android:id="@+id/exo_ffwd_with_amount"
-          style="@style/ExoStyledControls.Button.Center.FfwdWithAmount"/>
-
-      <ImageButton android:id="@+id/exo_next"
-          style="@style/ExoStyledControls.Button.Center.Next"/>
-
-    </LinearLayout>
-
-  </FrameLayout>
+      android:background="@color/exo_black_opacity_60"/>
 
   <FrameLayout android:id="@+id/exo_bottom_bar"
       android:layout_width="match_parent"
@@ -84,7 +53,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|end"
-        android:orientation="horizontal"
         android:layoutDirection="ltr">
 
       <ImageButton android:id="@+id/exo_shuffle"
@@ -130,18 +98,42 @@
 
   </FrameLayout>
 
-  <LinearLayout  android:id="@+id/exo_minimal_controls"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      android:layout_gravity="bottom|end"
-      android:layout_marginBottom="@dimen/exo_styled_progress_layout_height"
-      android:visibility="invisible"/>
-
   <View android:id="@+id/exo_progress_placeholder"
       android:layout_width="match_parent"
       android:layout_height="@dimen/exo_styled_progress_layout_height"
       android:layout_gravity="bottom"
       android:layout_marginBottom="@dimen/exo_styled_progress_margin_bottom"/>
+
+  <LinearLayout android:id="@+id/exo_minimal_controls"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom|end"
+      android:layout_marginBottom="@dimen/exo_styled_minimal_controls_margin_bottom"
+      android:orientation="horizontal"
+      android:gravity="center_vertical"
+      android:layoutDirection="ltr"/>
+
+  <LinearLayout android:id="@+id/exo_center_controls"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:gravity="center">
+
+    <ImageButton android:id="@+id/exo_prev"
+        style="@style/ExoStyledControls.Button.Center.Previous"/>
+
+    <Button android:id="@+id/exo_rew_with_amount"
+        style="@style/ExoStyledControls.Button.Center.RewWithAmount"/>
+
+    <ImageButton android:id="@+id/exo_play_pause"
+        style="@style/ExoStyledControls.Button.Center.PlayPause"/>
+
+    <Button android:id="@+id/exo_ffwd_with_amount"
+        style="@style/ExoStyledControls.Button.Center.FfwdWithAmount"/>
+
+    <ImageButton android:id="@+id/exo_next"
+        style="@style/ExoStyledControls.Button.Center.Next"/>
+
+  </LinearLayout>
 
 </merge>
