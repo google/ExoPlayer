@@ -51,7 +51,6 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
@@ -1491,7 +1490,8 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    player.setPlaybackParameters(new PlaybackParameters(speed));
+    controlDispatcher.dispatchSetPlaybackParameters(
+        player, player.getPlaybackParameters().withSpeed(speed));
   }
 
   /* package */ void requestPlayPauseFocus() {
