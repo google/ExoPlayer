@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.MetadataRetriever.retrieveMetadata;
+import static com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -24,8 +25,10 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
+import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -141,6 +144,8 @@ public class MetadataRetrieverTest {
   public void retrieveMetadata_sefSlowMotion_outputsExpectedMetadata() throws Exception {
     MediaItem mediaItem =
         MediaItem.fromUri(Uri.parse("asset://android_asset/media/mp4/sample_sef_slow_motion.mp4"));
+    SmtaMetadataEntry expectedSmtaEntry =
+        new SmtaMetadataEntry(/* captureFrameRate= */ 240, /* svcTemporalLayerCount= */ 4);
     List<SlowMotionData.Segment> segments = new ArrayList<>();
     segments.add(
         new SlowMotionData.Segment(
@@ -149,6 +154,12 @@ public class MetadataRetrieverTest {
         new SlowMotionData.Segment(
             /* startTimeMs= */ 1255, /* endTimeMs= */ 1970, /* speedDivisor= */ 8));
     SlowMotionData expectedSlowMotionData = new SlowMotionData(segments);
+    MdtaMetadataEntry expectedMdtaEntry =
+        new MdtaMetadataEntry(
+            KEY_ANDROID_CAPTURE_FPS,
+            /* value= */ new byte[] {67, 112, 0, 0},
+            /* localeIndicator= */ 0,
+            /* typeIndicator= */ 23);
 
     ListenableFuture<TrackGroupArray> trackGroupsFuture =
         retrieveMetadata(context, mediaItem, clock);
@@ -156,11 +167,13 @@ public class MetadataRetrieverTest {
 
     assertThat(trackGroups.length).isEqualTo(2); // Video and audio
     // Audio
-    assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(1);
-    assertThat(trackGroups.get(0).getFormat(0).metadata.get(0)).isEqualTo(expectedSlowMotionData);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.length()).isEqualTo(2);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(0)).isEqualTo(expectedSmtaEntry);
+    assertThat(trackGroups.get(0).getFormat(0).metadata.get(1)).isEqualTo(expectedSlowMotionData);
     // Video
-    assertThat(trackGroups.get(1).getFormat(0).metadata.length())
-        .isEqualTo(3); // 2 Mdta entries and 1 slow motion entry.
+    assertThat(trackGroups.get(1).getFormat(0).metadata.length()).isEqualTo(3);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(0)).isEqualTo(expectedMdtaEntry);
+    assertThat(trackGroups.get(1).getFormat(0).metadata.get(1)).isEqualTo(expectedSmtaEntry);
     assertThat(trackGroups.get(1).getFormat(0).metadata.get(2)).isEqualTo(expectedSlowMotionData);
   }
 

@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.mp4.MdtaMetadataEntry;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Utilities for handling metadata in MP4. */
 /* package */ final class MetadataUtil {
@@ -290,9 +291,8 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
       int trackType,
       @Nullable Metadata udtaMetaMetadata,
       @Nullable Metadata mdtaMetadata,
-      @Nullable Metadata smtaMetadata,
       Format.Builder formatBuilder,
-      Metadata.Entry... additionalEntries) {
+      @NullableType Metadata... additionalMetadata) {
     Metadata formatMetadata = new Metadata();
 
     if (trackType == C.TRACK_TYPE_AUDIO) {
@@ -314,12 +314,11 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
           }
         }
       }
-      if (smtaMetadata != null) {
-        formatMetadata = formatMetadata.copyWithAppendedEntriesFrom(smtaMetadata);
-      }
     }
 
-    formatMetadata = formatMetadata.copyWithAppendedEntries(additionalEntries);
+    for (Metadata metadata : additionalMetadata) {
+      formatMetadata = formatMetadata.copyWithAppendedEntriesFrom(metadata);
+    }
 
     if (formatMetadata.length() > 0) {
       formatBuilder.setMetadata(formatMetadata);
