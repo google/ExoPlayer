@@ -140,6 +140,13 @@ public class DefaultControlDispatcher implements ControlDispatcher {
   }
 
   @Override
+  public boolean dispatchSetPlaybackParameters(
+      Player player, PlaybackParameters playbackParameters) {
+    player.setPlaybackParameters(playbackParameters);
+    return true;
+  }
+
+  @Override
   public boolean isRewindEnabled() {
     return rewindIncrementMs > 0;
   }

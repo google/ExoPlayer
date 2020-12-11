@@ -116,6 +116,10 @@
     *   Notify onBufferingEnded when the state of origin player becomes
         `STATE_IDLE` or `STATE_ENDED`.
     *   Allow to remove all playlist items that makes the player reset.
+*   MediaSession extension:
+    *   Support `setPlaybackSpeed(float)` and disable it by default. Use
+        `MediaSessionConnector.setEnabledPlaybackActions(long)` to enable
+        ([#8229](https://github.com/google/ExoPlayer/issues/8229)).
 
 ### 2.12.1 (2020-10-23) ###
 
