@@ -720,11 +720,13 @@ public class MatroskaExtractor implements Extractor {
         break;
       case ID_CUES:
         if (!sentSeekMap) {
-          extractorOutput.seekMap(buildSeekMap());
+          extractorOutput.seekMap(buildSeekMap(cueTimesUs, cueClusterPositions));
           sentSeekMap = true;
         } else {
           // We have already built the cues. Ignore.
         }
+        this.cueTimesUs = null;
+        this.cueClusterPositions = null;
         break;
       case ID_BLOCK_GROUP:
         if (blockState != BLOCK_STATE_DATA) {
@@ -769,20 +771,16 @@ public class MatroskaExtractor implements Extractor {
         }
         break;
       case ID_TRACK_ENTRY:
-        if (currentTrack == null) {
-          throw new ParserException("TrackEntry ends without matching start");
+        Track currentTrack = checkStateNotNull(this.currentTrack);
+        if (currentTrack.codecId == null) {
+          throw new ParserException("CodecId is missing in TrackEntry element");
         } else {
-          Track currentTrack = this.currentTrack;
-          if (currentTrack.codecId == null) {
-            throw new ParserException("CodecId is missing in TrackEntry element");
-          } else {
-            if (isCodecSupported(currentTrack.codecId)) {
-              currentTrack.initializeOutput(extractorOutput, currentTrack.number);
-              tracks.put(currentTrack.number, currentTrack);
-            }
+          if (isCodecSupported(currentTrack.codecId)) {
+            currentTrack.initializeOutput(extractorOutput, currentTrack.number);
+            tracks.put(currentTrack.number, currentTrack);
           }
         }
-        currentTrack = null;
+        this.currentTrack = null;
         break;
       case ID_TRACKS:
         if (tracks.size() == 0) {
@@ -1735,15 +1733,12 @@ public class MatroskaExtractor implements Extractor {
    * @return The built {@link SeekMap}. The returned {@link SeekMap} may be unseekable if cues
    *     information was missing or incomplete.
    */
-  private SeekMap buildSeekMap() {
-    LongArray cueTimesUs = this.cueTimesUs;
-    LongArray cueClusterPositions = this.cueClusterPositions;
+  private SeekMap buildSeekMap(
+      @Nullable LongArray cueTimesUs, @Nullable LongArray cueClusterPositions) {
     if (segmentContentPosition == C.POSITION_UNSET || durationUs == C.TIME_UNSET
         || cueTimesUs == null || cueTimesUs.size() == 0
         || cueClusterPositions == null || cueClusterPositions.size() != cueTimesUs.size()) {
       // Cues information is missing or incomplete.
-      this.cueTimesUs = null;
-      this.cueClusterPositions = null;
       return new SeekMap.Unseekable(durationUs);
     }
     int cuePointsSize = cueTimesUs.size();
@@ -1772,8 +1767,6 @@ public class MatroskaExtractor implements Extractor {
       timesUs = Arrays.copyOf(timesUs, timesUs.length - 1);
     }
 
-    this.cueTimesUs = null;
-    this.cueClusterPositions = null;
     return new ChunkIndex(sizes, offsets, durationsUs, timesUs);
   }
 
@@ -2231,10 +2224,11 @@ public class MatroskaExtractor implements Extractor {
           break;
         case CODEC_ID_ASS:
           mimeType = MimeTypes.TEXT_SSA;
+          initializationData = ImmutableList.of(SSA_DIALOGUE_FORMAT, getCodecPrivate(codecId));
           break;
         case CODEC_ID_VOBSUB:
           mimeType = MimeTypes.APPLICATION_VOBSUB;
-          initializationData = Collections.singletonList(getCodecPrivate(codecId));
+          initializationData = ImmutableList.of(getCodecPrivate(codecId));
           break;
         case CODEC_ID_PGS:
           mimeType = MimeTypes.APPLICATION_PGS;
@@ -2317,12 +2311,9 @@ public class MatroskaExtractor implements Extractor {
             .setProjectionData(projectionData)
             .setStereoMode(stereoMode)
             .setColorInfo(colorInfo);
-      } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)) {
-        type = C.TRACK_TYPE_TEXT;
-      } else if (MimeTypes.TEXT_SSA.equals(mimeType)) {
-        type = C.TRACK_TYPE_TEXT;
-        initializationData = ImmutableList.of(SSA_DIALOGUE_FORMAT, getCodecPrivate(codecId));
-      } else if (MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
+      } else if (MimeTypes.APPLICATION_SUBRIP.equals(mimeType)
+          || MimeTypes.TEXT_SSA.equals(mimeType)
+          || MimeTypes.APPLICATION_VOBSUB.equals(mimeType)
           || MimeTypes.APPLICATION_PGS.equals(mimeType)
           || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)) {
         type = C.TRACK_TYPE_TEXT;
