@@ -13,6 +13,10 @@
 *   Text:
     *   Gracefully handle null-terminated subtitle content in Matroska
         containers.
+*   Media2 extension
+    *   Make media2-extension depend on AndroidX media2:media2-session:1.1.0 to
+        fix a deadlock while creating PlaybackStateCompat internally.
+        ([#8011](https://github.com/google/ExoPlayer/issues/8011)).
 
 ### 2.12.2 (2020-12-01) ###
 
