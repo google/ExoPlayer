@@ -86,7 +86,11 @@ public abstract class DataSourceContractTest {
       DataSource dataSource = createDataSource();
       try {
         long length = dataSource.open(new DataSpec(resource.getUri()));
-        byte[] data = Util.readToEnd(dataSource);
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, resource.getExpectedBytes().length);
+
         assertThat(length).isEqualTo(resource.getExpectedLength());
         assertThat(data).isEqualTo(resource.getExpectedBytes());
       } finally {
@@ -124,13 +128,19 @@ public abstract class DataSourceContractTest {
     private final Uri uri;
     private final byte[] expectedBytes;
     private final boolean resolvesToKnownLength;
+    private final boolean endOfInputExpected;
 
     private TestResource(
-        @Nullable String name, Uri uri, byte[] expectedBytes, boolean resolvesToKnownLength) {
+        @Nullable String name,
+        Uri uri,
+        byte[] expectedBytes,
+        boolean resolvesToKnownLength,
+        boolean endOfInputExpected) {
       this.name = name;
       this.uri = uri;
       this.expectedBytes = expectedBytes;
       this.resolvesToKnownLength = resolvesToKnownLength;
+      this.endOfInputExpected = endOfInputExpected;
     }
 
     /** Returns a human-readable name for the resource, for use in test failure messages. */
@@ -159,16 +169,26 @@ public abstract class DataSourceContractTest {
       return resolvesToKnownLength ? expectedBytes.length : C.LENGTH_UNSET;
     }
 
+    /**
+     * Returns whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
+     * after all the resource data are read.
+     */
+    public boolean isEndOfInputExpected() {
+      return endOfInputExpected;
+    }
+
     /** Builder for {@link TestResource} instances. */
     public static final class Builder {
       private @MonotonicNonNull String name;
       private @MonotonicNonNull Uri uri;
       private byte @MonotonicNonNull [] expectedBytes;
       private boolean resolvesToKnownLength;
+      private boolean endOfInputExpected;
 
       /** Construct a new instance. */
       public Builder() {
         this.resolvesToKnownLength = true;
+        this.endOfInputExpected = true;
       }
 
       /**
@@ -201,9 +221,22 @@ public abstract class DataSourceContractTest {
         return this;
       }
 
+      /**
+       * Sets whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
+       * after all the resource data have been read. By default, this is set to {@code true}.
+       */
+      public Builder setEndOfInputExpected(boolean expected) {
+        this.endOfInputExpected = expected;
+        return this;
+      }
+
       public TestResource build() {
         return new TestResource(
-            name, checkNotNull(uri), checkNotNull(expectedBytes), resolvesToKnownLength);
+            name,
+            checkNotNull(uri),
+            checkNotNull(expectedBytes),
+            resolvesToKnownLength,
+            endOfInputExpected);
       }
     }
   }
