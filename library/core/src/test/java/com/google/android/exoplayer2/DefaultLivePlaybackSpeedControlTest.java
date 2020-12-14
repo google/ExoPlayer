@@ -388,7 +388,7 @@ public class DefaultLivePlaybackSpeedControlTest {
 
     for (int i = 0; i < 500; i++) {
       ShadowSystemClock.advanceBy(Duration.ofMillis(100));
-      long noiseUs = ((i % 10) - 5) * 1_000;
+      long noiseUs = ((i % 10) - 5L) * 1_000;
       defaultLivePlaybackSpeedControl.getAdjustedPlaybackSpeed(
           /* liveOffsetUs= */ 45_000_000, /* bufferedDurationUs= */ 1_000_000 + noiseUs);
     }
@@ -419,7 +419,7 @@ public class DefaultLivePlaybackSpeedControlTest {
     // Pretend to have a buffered duration at around the target duration with some artificial noise.
     for (int i = 0; i < 500; i++) {
       ShadowSystemClock.advanceBy(Duration.ofMillis(100));
-      long noiseUs = ((i % 10) - 5) * 1_000;
+      long noiseUs = ((i % 10) - 5L) * 1_000;
       defaultLivePlaybackSpeedControl.getAdjustedPlaybackSpeed(
           /* liveOffsetUs= */ 49_000_000, /* bufferedDurationUs= */ 7_000_000 + noiseUs);
     }
@@ -451,7 +451,7 @@ public class DefaultLivePlaybackSpeedControlTest {
     // Pretend to have a buffered duration at around the target duration with some artificial noise.
     for (int i = 0; i < 500; i++) {
       ShadowSystemClock.advanceBy(Duration.ofMillis(100));
-      long noiseUs = ((i % 10) - 5) * 1_000;
+      long noiseUs = ((i % 10) - 5L) * 1_000;
       defaultLivePlaybackSpeedControl.getAdjustedPlaybackSpeed(
           /* liveOffsetUs= */ 49_000_000, /* bufferedDurationUs= */ 7_000_000 + noiseUs);
     }
