@@ -343,7 +343,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
   @Override
   protected HttpDataSource createDataSourceInternal(HttpDataSource.RequestProperties
       defaultRequestProperties) {
-    CronetEngine cronetEngine = cronetEngineWrapper.getCronetEngine();
+    @Nullable CronetEngine cronetEngine = cronetEngineWrapper.getCronetEngine();
     if (cronetEngine == null) {
       return fallbackFactory.createDataSource();
     }

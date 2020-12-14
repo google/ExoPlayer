@@ -23,6 +23,8 @@
         been handled and the values reported through callbacks are again
         completely consistent with the values obtained from the `Player`
         getters.
+    *   Deprecate `HttpDataSource.Factory.getDefaultRequestProperties` and add
+        `HttpDataSource.Factory.setDefaultRequestProperties` instead.
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
