@@ -48,7 +48,7 @@ public final class ContentDataSourceContractTest extends DataSourceContractTest 
             .setName("simple (pipe=true)")
             .setUri(TestContentProvider.buildUri(DATA_PATH, /* pipeMode= */ true))
             .setExpectedBytes(completeData)
-            .resolvesToUnknownLength()
+            .setResolvesToUnknownLength(true)
             .build());
   }
 
