@@ -126,6 +126,7 @@ public final class ImaAdsLoaderTest {
   @Mock private AdPodInfo mockAdPodInfo;
   @Mock private Ad mockPrerollSingleAd;
 
+  private TimelineWindowDefinition[] timelineWindowDefinitions;
   private AdsMediaSource adsMediaSource;
   private ViewGroup adViewGroup;
   private AdsLoader.AdViewProvider adViewProvider;
@@ -183,7 +184,9 @@ public final class ImaAdsLoaderTest {
             new DefaultMediaSourceFactory((Context) getApplicationContext()),
             imaAdsLoader,
             adViewProvider);
-    adsLoaderListener = new TestAdsLoaderListener(getInitialTimelineWindowDefinition(TEST_ADS_ID));
+    timelineWindowDefinitions =
+        new TimelineWindowDefinition[] {getInitialTimelineWindowDefinition(TEST_ADS_ID)};
+    adsLoaderListener = new TestAdsLoaderListener(/* periodIndex= */ 0);
     when(mockAdsManager.getAdCuePoints()).thenReturn(PREROLL_CUE_POINTS_SECONDS);
   }
 
@@ -224,9 +227,10 @@ public final class ImaAdsLoaderTest {
 
   @Test
   public void start_withPlaceholderContent_initializedAdsLoader() {
-    adsLoaderListener =
-        new TestAdsLoaderListener(
-            getInitialTimelineWindowDefinition(TEST_ADS_ID, /* isPlaceholder= */ true));
+    timelineWindowDefinitions =
+        new TimelineWindowDefinition[] {
+          getInitialTimelineWindowDefinition(TEST_ADS_ID, /* isPlaceholder= */ true)
+        };
 
     when(mockAdsManager.getAdCuePoints()).thenReturn(PREROLL_CUE_POINTS_SECONDS);
     imaAdsLoader.start(
@@ -241,7 +245,7 @@ public final class ImaAdsLoaderTest {
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
@@ -312,7 +316,7 @@ public final class ImaAdsLoaderTest {
     adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
 
     // Verify that the preroll ad has been marked as played.
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -336,7 +340,7 @@ public final class ImaAdsLoaderTest {
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
     adEventListener.onAdEvent(mockMidrollFetchErrorAdEvent);
 
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 20_500_000)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -384,7 +388,7 @@ public final class ImaAdsLoaderTest {
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
     adEventListener.onAdEvent(mockPostrollFetchErrorAdEvent);
 
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -412,7 +416,7 @@ public final class ImaAdsLoaderTest {
     ShadowSystemClock.advanceBy(Duration.ofSeconds(1));
     contentProgressProvider.getContentProgress();
 
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
@@ -437,7 +441,7 @@ public final class ImaAdsLoaderTest {
     ShadowSystemClock.advanceBy(Duration.ofSeconds(5));
     contentProgressProvider.getContentProgress();
 
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -537,7 +541,7 @@ public final class ImaAdsLoaderTest {
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 
     verify(mockAdsRenderingSettings, never()).setPlayAdsAfterTime(anyDouble());
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
@@ -562,7 +566,7 @@ public final class ImaAdsLoaderTest {
     assertThat(playAdsAfterTimeCaptor.getValue())
         .isWithin(0.1)
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -589,7 +593,7 @@ public final class ImaAdsLoaderTest {
     assertThat(playAdsAfterTimeCaptor.getValue())
         .isWithin(0.1)
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -618,7 +622,7 @@ public final class ImaAdsLoaderTest {
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 
     verify(mockAdsRenderingSettings, never()).setPlayAdsAfterTime(anyDouble());
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
@@ -650,7 +654,7 @@ public final class ImaAdsLoaderTest {
     assertThat(playAdsAfterTimeCaptor.getValue())
         .isWithin(0.1)
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -692,7 +696,7 @@ public final class ImaAdsLoaderTest {
     assertThat(playAdsAfterTimeCaptor.getValue())
         .isWithin(0.1d)
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
@@ -733,7 +737,7 @@ public final class ImaAdsLoaderTest {
     assertThat(playAdsAfterTimeCaptor.getValue())
         .isWithin(0.1d)
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -770,7 +774,7 @@ public final class ImaAdsLoaderTest {
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
 
     verify(mockAdsManager).destroy();
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -821,7 +825,7 @@ public final class ImaAdsLoaderTest {
     assertThat(playAdsAfterTimeCaptor.getValue())
         .isWithin(0.1d)
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withSkippedAdGroup(/* adGroupIndex= */ 0)
@@ -869,7 +873,7 @@ public final class ImaAdsLoaderTest {
     assertThat(playAdsAfterTimeCaptor.getValue())
         .isWithin(0.1d)
         .of(expectedPlayAdsAfterTimeUs / C.MICROS_PER_SECOND);
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -998,7 +1002,7 @@ public final class ImaAdsLoaderTest {
           }
         });
 
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -1018,10 +1022,12 @@ public final class ImaAdsLoaderTest {
             new DefaultMediaSourceFactory((Context) getApplicationContext()),
             imaAdsLoader,
             adViewProvider);
-    adsLoaderListener =
-        new TestAdsLoaderListener(
-            getInitialTimelineWindowDefinition(TEST_ADS_ID),
-            getInitialTimelineWindowDefinition(secondAdsId));
+    timelineWindowDefinitions =
+        new TimelineWindowDefinition[] {
+          getInitialTimelineWindowDefinition(TEST_ADS_ID),
+          getInitialTimelineWindowDefinition(secondAdsId)
+        };
+    TestAdsLoaderListener secondAdsLoaderListener = new TestAdsLoaderListener(/* periodIndex= */ 1);
 
     // Load and play the preroll ad then content.
     imaAdsLoader.start(
@@ -1047,10 +1053,10 @@ public final class ImaAdsLoaderTest {
 
     // Simulate starting to buffer the second ads media source.
     imaAdsLoader.start(
-        secondAdsMediaSource, TEST_DATA_SPEC, secondAdsId, adViewProvider, adsLoaderListener);
+        secondAdsMediaSource, TEST_DATA_SPEC, secondAdsId, adViewProvider, secondAdsLoaderListener);
 
     // Verify that the preroll ad has been marked as played.
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -1060,7 +1066,7 @@ public final class ImaAdsLoaderTest {
                 .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
     // Verify that the second source's ad cue points have preloaded.
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 1))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 1))
         .isEqualTo(new AdPlaybackState(secondAdsId, /* adGroupTimesUs...= */ 0));
   }
 
@@ -1075,10 +1081,12 @@ public final class ImaAdsLoaderTest {
             new DefaultMediaSourceFactory((Context) getApplicationContext()),
             imaAdsLoader,
             adViewProvider);
-    adsLoaderListener =
-        new TestAdsLoaderListener(
-            getInitialTimelineWindowDefinition(TEST_ADS_ID),
-            getInitialTimelineWindowDefinition(secondAdsId));
+    timelineWindowDefinitions =
+        new TimelineWindowDefinition[] {
+          getInitialTimelineWindowDefinition(TEST_ADS_ID),
+          getInitialTimelineWindowDefinition(secondAdsId)
+        };
+    TestAdsLoaderListener secondAdsLoaderListener = new TestAdsLoaderListener(/* periodIndex= */ 1);
 
     // Load and play the preroll ad then content.
     imaAdsLoader.start(
@@ -1104,7 +1112,7 @@ public final class ImaAdsLoaderTest {
 
     // Simulate starting to buffer the second ads media source.
     imaAdsLoader.start(
-        secondAdsMediaSource, TEST_DATA_SPEC, secondAdsId, adViewProvider, adsLoaderListener);
+        secondAdsMediaSource, TEST_DATA_SPEC, secondAdsId, adViewProvider, secondAdsLoaderListener);
 
     // Simulate backgrounding/resuming.
     imaAdsLoader.stop(adsMediaSource);
@@ -1112,10 +1120,10 @@ public final class ImaAdsLoaderTest {
     imaAdsLoader.start(
         adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
     imaAdsLoader.start(
-        secondAdsMediaSource, TEST_DATA_SPEC, secondAdsId, adViewProvider, adsLoaderListener);
+        secondAdsMediaSource, TEST_DATA_SPEC, secondAdsId, adViewProvider, secondAdsLoaderListener);
 
     // Verify that the preroll ad has been marked as played.
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 0))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
         .isEqualTo(
             new AdPlaybackState(TEST_ADS_ID, /* adGroupTimesUs...= */ 0)
                 .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
@@ -1125,7 +1133,7 @@ public final class ImaAdsLoaderTest {
                 .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
                 .withAdResumePositionUs(/* adResumePositionUs= */ 0));
     // Verify that the second source's ad cue points have preloaded.
-    assertThat(adsLoaderListener.getAdPlaybackState(/* periodIndex= */ 1))
+    assertThat(getAdPlaybackState(/* periodIndex= */ 1))
         .isEqualTo(new AdPlaybackState(secondAdsId, /* adGroupTimesUs...= */ 0));
   }
 
@@ -1254,6 +1262,10 @@ public final class ImaAdsLoaderTest {
     when(mockPrerollSingleAd.getAdPodInfo()).thenReturn(mockAdPodInfo);
   }
 
+  private AdPlaybackState getAdPlaybackState(int periodIndex) {
+    return timelineWindowDefinitions[periodIndex].adPlaybackState;
+  }
+
   private static AdEvent getAdEvent(AdEventType adEventType, @Nullable Ad ad) {
     return new AdEvent() {
       @Override
@@ -1277,14 +1289,10 @@ public final class ImaAdsLoaderTest {
   /** Ad loader event listener that forwards ad playback state to a fake player. */
   private final class TestAdsLoaderListener implements AdsLoader.EventListener {
 
-    private final TimelineWindowDefinition[] timelineWindowDefinitions;
+    private final int periodIndex;
 
-    public TestAdsLoaderListener(TimelineWindowDefinition... timelineWindowDefinitions) {
-      this.timelineWindowDefinitions = timelineWindowDefinitions;
-    }
-
-    public AdPlaybackState getAdPlaybackState(int periodIndex) {
-      return timelineWindowDefinitions[periodIndex].adPlaybackState;
+    public TestAdsLoaderListener(int periodIndex) {
+      this.periodIndex = periodIndex;
     }
 
     @Override
@@ -1296,25 +1304,20 @@ public final class ImaAdsLoaderTest {
       }
       adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
 
-      // Update the timeline window definition(s) to reflect the new ad playback state.
-      for (int i = 0; i < timelineWindowDefinitions.length; i++) {
-        TimelineWindowDefinition timelineWindowDefinition = timelineWindowDefinitions[i];
-        if (!Util.areEqual(timelineWindowDefinition.adPlaybackState.adsId, adPlaybackState.adsId)) {
-          continue;
-        }
-        timelineWindowDefinitions[i] =
-            new TimelineWindowDefinition(
-                timelineWindowDefinition.periodCount,
-                timelineWindowDefinition.id,
-                timelineWindowDefinition.isSeekable,
-                timelineWindowDefinition.isDynamic,
-                timelineWindowDefinition.isLive,
-                timelineWindowDefinition.isPlaceholder,
-                timelineWindowDefinition.durationUs,
-                timelineWindowDefinition.defaultPositionUs,
-                timelineWindowDefinition.windowOffsetInFirstPeriodUs,
-                adPlaybackState);
-      }
+      TimelineWindowDefinition timelineWindowDefinition = timelineWindowDefinitions[periodIndex];
+      assertThat(adPlaybackState.adsId).isEqualTo(timelineWindowDefinition.adPlaybackState.adsId);
+      timelineWindowDefinitions[periodIndex] =
+          new TimelineWindowDefinition(
+              timelineWindowDefinition.periodCount,
+              timelineWindowDefinition.id,
+              timelineWindowDefinition.isSeekable,
+              timelineWindowDefinition.isDynamic,
+              timelineWindowDefinition.isLive,
+              timelineWindowDefinition.isPlaceholder,
+              timelineWindowDefinition.durationUs,
+              timelineWindowDefinition.defaultPositionUs,
+              timelineWindowDefinition.windowOffsetInFirstPeriodUs,
+              adPlaybackState);
       fakePlayer.updateTimeline(
           new FakeTimeline(timelineWindowDefinitions), Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
     }
