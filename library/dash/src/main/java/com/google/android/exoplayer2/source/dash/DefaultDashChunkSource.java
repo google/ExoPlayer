@@ -196,7 +196,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         long segmentNum = representationHolder.getSegmentNum(positionUs);
         long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
         long secondSyncUs =
-            firstSyncUs < positionUs && segmentNum < representationHolder.getSegmentCount() - 1
+            firstSyncUs < positionUs && segmentNum < representationHolder.getLastSegmentNumber()
                 ? representationHolder.getSegmentStartTimeUs(segmentNum + 1)
                 : firstSyncUs;
         return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
@@ -435,9 +435,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
         && ((InvalidResponseCodeException) e).responseCode == 404) {
       RepresentationHolder representationHolder =
           representationHolders[trackSelection.indexOf(chunk.trackFormat)];
-      int segmentCount = representationHolder.getSegmentCount();
-      if (segmentCount != DashSegmentIndex.INDEX_UNBOUNDED && segmentCount != 0) {
-        long lastAvailableSegmentNum = representationHolder.getFirstSegmentNum() + segmentCount - 1;
+      long lastAvailableSegmentNum = representationHolder.getLastSegmentNumber();
+      if (lastAvailableSegmentNum != DashSegmentIndex.INDEX_UNBOUNDED) {
         if (((MediaChunk) chunk).getNextChunkIndex() > lastAvailableSegmentNum) {
           missingLastSegment = true;
           return true;
@@ -758,6 +757,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     public long getFirstSegmentNum() {
       return segmentIndex.getFirstSegmentNum() + segmentNumShift;
+    }
+
+    public long getLastSegmentNumber() {
+      int segmentCount = getSegmentCount();
+      if (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED || segmentCount == 0) {
+        return DashSegmentIndex.INDEX_UNBOUNDED;
+      } else {
+        return getFirstSegmentNum() + segmentCount - 1;
+      }
     }
 
     public long getFirstAvailableSegmentNum(long nowUnixTimeUs) {
