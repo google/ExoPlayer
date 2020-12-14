@@ -196,7 +196,8 @@ public interface AnalyticsListener {
     EVENT_DRM_SESSION_MANAGER_ERROR,
     EVENT_DRM_KEYS_RESTORED,
     EVENT_DRM_KEYS_REMOVED,
-    EVENT_DRM_SESSION_RELEASED
+    EVENT_DRM_SESSION_RELEASED,
+    EVENT_PLAYER_RELEASED,
   })
   @interface EventFlags {}
   /** {@link Player#getCurrentTimeline()} changed. */
@@ -309,6 +310,8 @@ public interface AnalyticsListener {
   int EVENT_DRM_KEYS_REMOVED = 1034;
   /** A DRM session has been released. */
   int EVENT_DRM_SESSION_RELEASED = 1035;
+  /** The player was released. */
+  int EVENT_PLAYER_RELEASED = 1036;
 
   /** Time information of an event. */
   final class EventTime {
@@ -1012,6 +1015,13 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    */
   default void onDrmSessionReleased(EventTime eventTime) {}
+
+  /**
+   * Called when the {@link Player} is released.
+   *
+   * @param eventTime The event time.
+   */
+  default void onPlayerReleased(EventTime eventTime) {}
 
   /**
    * Called after one or more events occurred.

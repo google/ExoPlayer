@@ -22,6 +22,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import android.os.Handler;
 import android.os.Looper;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -364,6 +365,34 @@ public class ListenerSetTest {
     listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
 
     verify(listener, never()).callback1();
+  }
+
+  @Test
+  public void lazyRelease_stopsForwardingEventsFromNewHandlerMessagesAndCallsReleaseCallback() {
+    ListenerSet<TestListener, Flags> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+    TestListener listener = mock(TestListener.class);
+    listenerSet.add(listener);
+
+    // In-line event before release.
+    listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
+    // Message triggering event sent before release.
+    new Handler().post(() -> listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1));
+    // Lazy release with release callback.
+    listenerSet.lazyRelease(EVENT_ID_3, TestListener::callback3);
+    // In-line event after release.
+    listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
+    // Message triggering event sent after release.
+    new Handler().post(() -> listenerSet.sendEvent(EVENT_ID_2, TestListener::callback2));
+    ShadowLooper.runMainLooperToNextTask();
+
+    // Verify all events are delivered except for the one triggered by the message sent after the
+    // lazy release.
+    verify(listener, times(3)).callback1();
+    verify(listener).callback3();
+    verify(listener).iterationFinished(Flags.create(EVENT_ID_1));
+    verify(listener).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_3));
+    verifyNoMoreInteractions(listener);
   }
 
   private interface TestListener {

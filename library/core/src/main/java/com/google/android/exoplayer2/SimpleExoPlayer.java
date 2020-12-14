@@ -1785,6 +1785,7 @@ public class SimpleExoPlayer extends BasePlayer
     wifiLockManager.setStayAwake(false);
     audioFocusManager.release();
     player.release();
+    analyticsCollector.release();
     removeSurfaceCallbacks();
     if (surface != null) {
       if (ownsSurface) {

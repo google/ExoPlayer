@@ -145,6 +145,19 @@ public class AnalyticsCollector
   }
 
   /**
+   * Releases the collector. Must be called after the player for which data is collected has been
+   * released.
+   */
+  public void release() {
+    EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
+    eventTimes.put(AnalyticsListener.EVENT_PLAYER_RELEASED, eventTime);
+    // Release listeners lazily so that all events that got triggered as part of player.release()
+    // are still delivered to all listeners.
+    listeners.lazyRelease(
+        AnalyticsListener.EVENT_PLAYER_RELEASED, listener -> listener.onPlayerReleased(eventTime));
+  }
+
+  /**
    * Updates the playback queue information used for event association.
    *
    * <p>Should only be called by the player controlling the queue and not from app code.
