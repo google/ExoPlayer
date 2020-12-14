@@ -15,10 +15,9 @@
  */
 package com.google.android.exoplayer2.trackselection;
 
-import com.google.android.exoplayer2.Player;
-
+// TODO(b/172315872) Replace @code by @link when Player has been migrated to common
 /**
- * The component of a {@link Player} responsible for selecting tracks to be played.
+ * The component of a {@code Player} responsible for selecting tracks to be played.
  *
  * <p>No Player agnostic track selection is currently supported. Clients should downcast to the
  * implementation's track selection.
