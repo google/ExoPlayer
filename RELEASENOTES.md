@@ -62,10 +62,16 @@
 *   Text:
     *   Gracefully handle null-terminated subtitle content in Matroska
         containers.
+*   OkHttp extension:
+    *   Add `OkHttpDataSource.Factory` and deprecate `OkHttpDataSourceFactory`.
 *   Media2 extension
     *   Make media2-extension depend on AndroidX media2:media2-session:1.1.0 to
         fix a deadlock while creating PlaybackStateCompat internally.
         ([#8011](https://github.com/google/ExoPlayer/issues/8011)).
+*   MediaSession extension:
+    *   Support `setPlaybackSpeed(float)` and disable it by default. Use
+        `MediaSessionConnector.setEnabledPlaybackActions(long)` to enable
+        ([#8229](https://github.com/google/ExoPlayer/issues/8229)).
 
 ### 2.12.2 (2020-12-01) ###
 
@@ -128,10 +134,6 @@
         `STATE_IDLE` or `STATE_ENDED`.
     *   Allow to remove all playlist items that makes the player reset.
         ([#8047](https://github.com/google/ExoPlayer/issues/8047)).
-*   MediaSession extension:
-    *   Support `setPlaybackSpeed(float)` and disable it by default. Use
-        `MediaSessionConnector.setEnabledPlaybackActions(long)` to enable
-        ([#8229](https://github.com/google/ExoPlayer/issues/8229)).
 
 ### 2.12.1 (2020-10-23) ###
 
