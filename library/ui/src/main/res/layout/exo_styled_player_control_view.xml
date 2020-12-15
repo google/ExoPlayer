@@ -24,6 +24,7 @@
   <FrameLayout android:id="@+id/exo_bottom_bar"
       android:layout_width="match_parent"
       android:layout_height="@dimen/exo_styled_bottom_bar_height"
+      android:layout_marginTop="@dimen/exo_styled_bottom_bar_margin_top"
       android:layout_gravity="bottom"
       android:background="@color/exo_bottom_bar_background"
       android:layoutDirection="ltr">
@@ -31,10 +32,10 @@
     <LinearLayout android:id="@+id/exo_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/exo_styled_time_padding"
-        android:paddingEnd="@dimen/exo_styled_time_padding"
-        android:paddingLeft="@dimen/exo_styled_time_padding"
-        android:paddingRight="@dimen/exo_styled_time_padding"
+        android:paddingStart="@dimen/exo_styled_bottom_bar_time_padding"
+        android:paddingEnd="@dimen/exo_styled_bottom_bar_time_padding"
+        android:paddingLeft="@dimen/exo_styled_bottom_bar_time_padding"
+        android:paddingRight="@dimen/exo_styled_bottom_bar_time_padding"
         android:layout_gravity="center_vertical|start"
         android:layoutDirection="ltr">
 

@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.LinearInterpolator;
 import androidx.annotation.Nullable;
@@ -477,9 +478,9 @@ import java.util.List;
       int oldRight,
       int oldBottom) {
 
-    boolean shouldBeMinimalMode = shouldBeMinimalMode();
-    if (isMinimalMode != shouldBeMinimalMode) {
-      isMinimalMode = shouldBeMinimalMode;
+    boolean useMinimalMode = useMinimalMode();
+    if (isMinimalMode != useMinimalMode) {
+      isMinimalMode = useMinimalMode;
       v.post(this::updateLayoutForSizeChange);
     }
     boolean widthChanged = (right - left) != (oldRight - oldLeft);
@@ -564,7 +565,7 @@ import java.util.List;
     }
   }
 
-  private boolean shouldBeMinimalMode() {
+  private boolean useMinimalMode() {
     int width =
         styledPlayerControlView.getWidth()
             - styledPlayerControlView.getPaddingLeft()
@@ -573,11 +574,14 @@ import java.util.List;
         styledPlayerControlView.getHeight()
             - styledPlayerControlView.getPaddingBottom()
             - styledPlayerControlView.getPaddingTop();
-    int defaultModeWidth =
-        Math.max(getWidth(centerControls), getWidth(timeView) + getWidth(overflowShowButton));
-    int defaultModeHeight = getHeight(centerControls) + getHeight(timeBar) + getHeight(bottomBar);
+    int defaultModeMinimumWidth =
+        Math.max(
+            getWidthWithMargins(centerControls),
+            getWidthWithMargins(timeView) + getWidthWithMargins(overflowShowButton));
+    int defaultModeMinimumHeight =
+        getHeightWithMargins(centerControls) + 2 * getHeightWithMargins(bottomBar);
 
-    return (width <= defaultModeWidth || height <= defaultModeHeight);
+    return width <= defaultModeMinimumWidth || height <= defaultModeMinimumHeight;
   }
 
   private void updateLayoutForSizeChange() {
@@ -644,7 +648,7 @@ import java.util.List;
         styledPlayerControlView.getWidth()
             - styledPlayerControlView.getPaddingLeft()
             - styledPlayerControlView.getPaddingRight();
-    int bottomBarWidth = getWidth(timeView);
+    int bottomBarWidth = getWidthWithMargins(timeView);
     for (int i = 0; i < basicControls.getChildCount(); ++i) {
       bottomBarWidth += basicControls.getChildAt(i).getWidth();
     }
@@ -707,11 +711,29 @@ import java.util.List;
     }
   }
 
-  private static int getWidth(@Nullable View v) {
-    return (v != null ? v.getWidth() : 0);
+  private static int getWidthWithMargins(@Nullable View v) {
+    if (v == null) {
+      return 0;
+    }
+    int width = v.getWidth();
+    LayoutParams layoutParams = v.getLayoutParams();
+    if (layoutParams instanceof MarginLayoutParams) {
+      MarginLayoutParams marginLayoutParams = (MarginLayoutParams) layoutParams;
+      width += marginLayoutParams.leftMargin + marginLayoutParams.rightMargin;
+    }
+    return width;
   }
 
-  private static int getHeight(@Nullable View v) {
-    return (v != null ? v.getHeight() : 0);
+  private static int getHeightWithMargins(@Nullable View v) {
+    if (v == null) {
+      return 0;
+    }
+    int height = v.getHeight();
+    LayoutParams layoutParams = v.getLayoutParams();
+    if (layoutParams instanceof MarginLayoutParams) {
+      MarginLayoutParams marginLayoutParams = (MarginLayoutParams) layoutParams;
+      height += marginLayoutParams.topMargin + marginLayoutParams.bottomMargin;
+    }
+    return height;
   }
 }
