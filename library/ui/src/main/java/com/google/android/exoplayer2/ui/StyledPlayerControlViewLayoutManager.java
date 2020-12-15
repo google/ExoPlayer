@@ -60,10 +60,10 @@ import java.util.List;
   @Nullable private final View timeBar;
   @Nullable private final View overflowShowButton;
 
-  private final AnimatorSet hideMainBarsAnimator;
+  private final AnimatorSet hideMainBarAnimator;
   private final AnimatorSet hideProgressBarAnimator;
   private final AnimatorSet hideAllBarsAnimator;
-  private final AnimatorSet showMainBarsAnimator;
+  private final AnimatorSet showMainBarAnimator;
   private final AnimatorSet showAllBarsAnimator;
   private final ValueAnimator overflowShowAnimator;
   private final ValueAnimator overflowHideAnimator;
@@ -71,7 +71,7 @@ import java.util.List;
   private final Runnable showAllBarsRunnable;
   private final Runnable hideAllBarsRunnable;
   private final Runnable hideProgressBarRunnable;
-  private final Runnable hideMainBarsRunnable;
+  private final Runnable hideMainBarRunnable;
   private final Runnable hideControllerRunnable;
   private final OnLayoutChangeListener onLayoutChangeListener;
 
@@ -91,7 +91,7 @@ import java.util.List;
     showAllBarsRunnable = this::showAllBars;
     hideAllBarsRunnable = this::hideAllBars;
     hideProgressBarRunnable = this::hideProgressBar;
-    hideMainBarsRunnable = this::hideMainBars;
+    hideMainBarRunnable = this::hideMainBar;
     hideControllerRunnable = this::hideController;
     onLayoutChangeListener = this::onLayoutChange;
     animationEnabled = true;
@@ -123,15 +123,6 @@ import java.util.List;
       overflowShowButton.setOnClickListener(this::onOverflowButtonClick);
       overflowHideButton.setOnClickListener(this::onOverflowButtonClick);
     }
-
-    Resources resources = styledPlayerControlView.getResources();
-    float bottomBarHeight =
-        resources.getDimension(R.dimen.exo_styled_bottom_bar_height)
-            - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
-    float progressBarHeight =
-        resources.getDimension(R.dimen.exo_styled_progress_margin_bottom)
-            + resources.getDimension(R.dimen.exo_styled_progress_layout_height)
-            - bottomBarHeight;
 
     ValueAnimator fadeOutAnimator = ValueAnimator.ofFloat(1.0f, 0.0f);
     fadeOutAnimator.setInterpolator(new LinearInterpolator());
@@ -205,9 +196,15 @@ import java.util.List;
           }
         });
 
-    hideMainBarsAnimator = new AnimatorSet();
-    hideMainBarsAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
-    hideMainBarsAnimator.addListener(
+    Resources resources = styledPlayerControlView.getResources();
+    float translationYForProgressBar =
+        resources.getDimension(R.dimen.exo_styled_bottom_bar_height)
+            - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
+    float translationYForNoBars = resources.getDimension(R.dimen.exo_styled_bottom_bar_height);
+
+    hideMainBarAnimator = new AnimatorSet();
+    hideMainBarAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
+    hideMainBarAnimator.addListener(
         new AnimatorListenerAdapter() {
           @Override
           public void onAnimationStart(Animator animation) {
@@ -223,10 +220,10 @@ import java.util.List;
             }
           }
         });
-    hideMainBarsAnimator
+    hideMainBarAnimator
         .play(fadeOutAnimator)
-        .with(ofTranslationY(0, bottomBarHeight, timeBar))
-        .with(ofTranslationY(0, bottomBarHeight, bottomBar));
+        .with(ofTranslationY(0, translationYForProgressBar, timeBar))
+        .with(ofTranslationY(0, translationYForProgressBar, bottomBar));
 
     hideProgressBarAnimator = new AnimatorSet();
     hideProgressBarAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
@@ -247,8 +244,8 @@ import java.util.List;
           }
         });
     hideProgressBarAnimator
-        .play(ofTranslationY(bottomBarHeight, bottomBarHeight + progressBarHeight, timeBar))
-        .with(ofTranslationY(bottomBarHeight, bottomBarHeight + progressBarHeight, bottomBar));
+        .play(ofTranslationY(translationYForProgressBar, translationYForNoBars, timeBar))
+        .with(ofTranslationY(translationYForProgressBar, translationYForNoBars, bottomBar));
 
     hideAllBarsAnimator = new AnimatorSet();
     hideAllBarsAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
@@ -270,12 +267,12 @@ import java.util.List;
         });
     hideAllBarsAnimator
         .play(fadeOutAnimator)
-        .with(ofTranslationY(0, bottomBarHeight + progressBarHeight, timeBar))
-        .with(ofTranslationY(0, bottomBarHeight + progressBarHeight, bottomBar));
+        .with(ofTranslationY(0, translationYForNoBars, timeBar))
+        .with(ofTranslationY(0, translationYForNoBars, bottomBar));
 
-    showMainBarsAnimator = new AnimatorSet();
-    showMainBarsAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
-    showMainBarsAnimator.addListener(
+    showMainBarAnimator = new AnimatorSet();
+    showMainBarAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
+    showMainBarAnimator.addListener(
         new AnimatorListenerAdapter() {
           @Override
           public void onAnimationStart(Animator animation) {
@@ -287,10 +284,10 @@ import java.util.List;
             setUxState(UX_STATE_ALL_VISIBLE);
           }
         });
-    showMainBarsAnimator
+    showMainBarAnimator
         .play(fadeInAnimator)
-        .with(ofTranslationY(bottomBarHeight, 0, timeBar))
-        .with(ofTranslationY(bottomBarHeight, 0, bottomBar));
+        .with(ofTranslationY(translationYForProgressBar, 0, timeBar))
+        .with(ofTranslationY(translationYForProgressBar, 0, bottomBar));
 
     showAllBarsAnimator = new AnimatorSet();
     showAllBarsAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
@@ -308,8 +305,8 @@ import java.util.List;
         });
     showAllBarsAnimator
         .play(fadeInAnimator)
-        .with(ofTranslationY(bottomBarHeight + progressBarHeight, 0, timeBar))
-        .with(ofTranslationY(bottomBarHeight + progressBarHeight, 0, bottomBar));
+        .with(ofTranslationY(translationYForNoBars, 0, timeBar))
+        .with(ofTranslationY(translationYForNoBars, 0, bottomBar));
 
     overflowShowAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
     overflowShowAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
@@ -407,7 +404,7 @@ import java.util.List;
       } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
         postDelayedRunnable(hideProgressBarRunnable, ANIMATION_INTERVAL_MS);
       } else {
-        postDelayedRunnable(hideMainBarsRunnable, showTimeoutMs);
+        postDelayedRunnable(hideMainBarRunnable, showTimeoutMs);
       }
     }
   }
@@ -415,7 +412,7 @@ import java.util.List;
   public void removeHideCallbacks() {
     styledPlayerControlView.removeCallbacks(hideControllerRunnable);
     styledPlayerControlView.removeCallbacks(hideAllBarsRunnable);
-    styledPlayerControlView.removeCallbacks(hideMainBarsRunnable);
+    styledPlayerControlView.removeCallbacks(hideMainBarRunnable);
     styledPlayerControlView.removeCallbacks(hideProgressBarRunnable);
   }
 
@@ -510,7 +507,7 @@ import java.util.List;
         showAllBarsAnimator.start();
         break;
       case UX_STATE_ONLY_PROGRESS_VISIBLE:
-        showMainBarsAnimator.start();
+        showMainBarAnimator.start();
         break;
       case UX_STATE_ANIMATING_HIDE:
         needToShowBars = true;
@@ -531,8 +528,8 @@ import java.util.List;
     hideProgressBarAnimator.start();
   }
 
-  private void hideMainBars() {
-    hideMainBarsAnimator.start();
+  private void hideMainBar() {
+    hideMainBarAnimator.start();
     postDelayedRunnable(hideProgressBarRunnable, ANIMATION_INTERVAL_MS);
   }
 
