@@ -132,6 +132,7 @@ import java.util.Map;
   private final Timeline.Period period;
   private final Handler handler;
   private final ComponentListener componentListener;
+  private final List<EventListener> eventListeners;
   private final List<VideoAdPlayer.VideoAdPlayerCallback> adCallbacks;
   private final Runnable updateAdProgressRunnable;
   private final BiMap<AdMediaInfo, AdInfo> adInfoByAdMediaInfo;
@@ -139,7 +140,6 @@ import java.util.Map;
   private final AdsLoader adsLoader;
 
   @Nullable private Object pendingAdRequestContext;
-  @Nullable private EventListener eventListener;
   @Nullable private Player player;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
@@ -235,6 +235,7 @@ import java.util.Map;
     period = new Timeline.Period();
     handler = Util.createHandler(getImaLooper(), /* callback= */ null);
     componentListener = new ComponentListener();
+    eventListeners = new ArrayList<>();
     adCallbacks = new ArrayList<>(/* initialCapacity= */ 1);
     if (configuration.applicationVideoAdPlayerCallback != null) {
       adCallbacks.add(configuration.applicationVideoAdPlayerCallback);
@@ -284,8 +285,16 @@ import java.util.Map;
    * Starts passing events from this instance (including any pending ad playback state) and
    * registers obstructions.
    */
-  public void start(AdViewProvider adViewProvider, EventListener eventListener) {
-    this.eventListener = eventListener;
+  public void addListenerWithAdView(EventListener eventListener, AdViewProvider adViewProvider) {
+    boolean isStarted = !eventListeners.isEmpty();
+    eventListeners.add(eventListener);
+    if (isStarted) {
+      if (!AdPlaybackState.NONE.equals(adPlaybackState)) {
+        // Pass the existing ad playback state to the new listener.
+        eventListener.onAdPlaybackState(adPlaybackState);
+      }
+      return;
+    }
     lastVolumePercent = 0;
     lastAdProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
     lastContentProgress = VideoProgressUpdate.VIDEO_TIME_NOT_READY;
@@ -350,9 +359,11 @@ import java.util.Map;
   }
 
   /** Stops passing of events from this instance and unregisters obstructions. */
-  public void stop() {
-    eventListener = null;
-    adDisplayContainer.unregisterAllFriendlyObstructions();
+  public void removeListener(EventListener eventListener) {
+    eventListeners.remove(eventListener);
+    if (eventListeners.isEmpty()) {
+      adDisplayContainer.unregisterAllFriendlyObstructions();
+    }
   }
 
   /** Releases all resources used by the ad tag loader. */
@@ -713,13 +724,13 @@ import java.util.Map;
         pauseContentInternal();
         break;
       case TAPPED:
-        if (eventListener != null) {
-          eventListener.onAdTapped();
+        for (int i = 0; i < eventListeners.size(); i++) {
+          eventListeners.get(i).onAdTapped();
         }
         break;
       case CLICKED:
-        if (eventListener != null) {
-          eventListener.onAdClicked();
+        for (int i = 0; i < eventListeners.size(); i++) {
+          eventListeners.get(i).onAdClicked();
         }
         break;
       case CONTENT_RESUME_REQUESTED:
@@ -1115,15 +1126,16 @@ import java.util.Map;
   }
 
   private void updateAdPlaybackState() {
-    // Ignore updates while detached. When a player is attached it will receive the latest state.
-    if (eventListener != null) {
-      eventListener.onAdPlaybackState(adPlaybackState);
+    for (int i = 0; i < eventListeners.size(); i++) {
+      eventListeners.get(i).onAdPlaybackState(adPlaybackState);
     }
   }
 
   private void maybeNotifyPendingAdLoadError() {
-    if (pendingAdLoadError != null && eventListener != null) {
-      eventListener.onAdLoadError(pendingAdLoadError, adTagDataSpec);
+    if (pendingAdLoadError != null) {
+      for (int i = 0; i < eventListeners.size(); i++) {
+        eventListeners.get(i).onAdLoadError(pendingAdLoadError, adTagDataSpec);
+      }
       pendingAdLoadError = null;
     }
   }
@@ -1136,9 +1148,12 @@ import java.util.Map;
       adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
     }
     updateAdPlaybackState();
-    if (eventListener != null) {
-      eventListener.onAdLoadError(
-          AdLoadException.createForUnexpected(new RuntimeException(message, cause)), adTagDataSpec);
+    for (int i = 0; i < eventListeners.size(); i++) {
+      eventListeners
+          .get(i)
+          .onAdLoadError(
+              AdLoadException.createForUnexpected(new RuntimeException(message, cause)),
+              adTagDataSpec);
     }
   }
 

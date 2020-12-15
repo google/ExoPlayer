@@ -40,11 +40,11 @@ import java.util.List;
  *
  * <p>{@link #start(AdsMediaSource, DataSpec, Object, AdViewProvider, EventListener)} will be called
  * when an ads media source first initializes, at which point the loader can request ads. If the
- * player enters the background, {@link #stop(AdsMediaSource)} will be called. Loaders should
- * maintain any ad playback state in preparation for a later call to {@link #start(AdsMediaSource,
- * DataSpec, Object, AdViewProvider, EventListener)}. If an ad is playing when the player is
- * detached, update the ad playback state with the current playback position using {@link
- * AdPlaybackState#withAdResumePositionUs(long)}.
+ * player enters the background, {@link #stop(AdsMediaSource, EventListener)} will be called.
+ * Loaders should maintain any ad playback state in preparation for a later call to {@link
+ * #start(AdsMediaSource, DataSpec, Object, AdViewProvider, EventListener)}. If an ad is playing
+ * when the player is detached, update the ad playback state with the current playback position
+ * using {@link AdPlaybackState#withAdResumePositionUs(long)}.
  *
  * <p>If {@link EventListener#onAdPlaybackState(AdPlaybackState)} has been called, the
  * implementation of {@link #start(AdsMediaSource, DataSpec, Object, AdViewProvider, EventListener)}
@@ -220,8 +220,9 @@ public interface AdsLoader {
    * thread by {@link AdsMediaSource}.
    *
    * @param adsMediaSource The ads media source requesting to stop loading/playing ads.
+   * @param eventListener The ads media source's listener for ads loader events.
    */
-  void stop(AdsMediaSource adsMediaSource);
+  void stop(AdsMediaSource adsMediaSource, EventListener eventListener);
 
   /**
    * Notifies the ads loader that preparation of an ad media period is complete. Called on the main

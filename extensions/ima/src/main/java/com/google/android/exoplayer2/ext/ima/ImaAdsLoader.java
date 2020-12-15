@@ -530,16 +530,16 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
       adTagLoader = adTagLoaderByAdsId.get(adsId);
     }
     adTagLoaderByAdsMediaSource.put(adsMediaSource, checkNotNull(adTagLoader));
-    checkNotNull(adTagLoader).start(adViewProvider, eventListener);
+    adTagLoader.addListenerWithAdView(eventListener, adViewProvider);
     maybeUpdateCurrentAdTagLoader();
   }
 
   @Override
-  public void stop(AdsMediaSource adsMediaSource) {
+  public void stop(AdsMediaSource adsMediaSource, EventListener eventListener) {
     @Nullable AdTagLoader removedAdTagLoader = adTagLoaderByAdsMediaSource.remove(adsMediaSource);
     maybeUpdateCurrentAdTagLoader();
     if (removedAdTagLoader != null) {
-      removedAdTagLoader.stop();
+      removedAdTagLoader.removeListener(eventListener);
     }
 
     if (player != null && adTagLoaderByAdsMediaSource.isEmpty()) {
