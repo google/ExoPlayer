@@ -717,16 +717,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int atomSize = smta.readInt();
       int atomType = smta.readInt();
       if (atomType == Atom.TYPE_saut) {
+        if (atomSize < 14) {
+          return null;
+        }
         smta.skipBytes(5); // author (4), reserved = 0 (1).
         int recordingMode = smta.readUnsignedByte();
-        float captureFrameRate;
-        if (recordingMode == 12) {
-          captureFrameRate = 240;
-        } else if (recordingMode == 13) {
-          captureFrameRate = 120;
-        } else {
-          captureFrameRate = C.RATE_UNSET;
+        if (recordingMode != 12 && recordingMode != 13) {
+          return null;
         }
+        float captureFrameRate = recordingMode == 12 ? 240 : 120;
         smta.skipBytes(1); // reserved = 1 (1).
         int svcTemporalLayerCount = smta.readUnsignedByte();
         return new Metadata(new SmtaMetadataEntry(captureFrameRate, svcTemporalLayerCount));
