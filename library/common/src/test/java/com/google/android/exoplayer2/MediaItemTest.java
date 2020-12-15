@@ -282,7 +282,7 @@ public class MediaItemTest {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri).build();
 
     assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
-    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isNull();
   }
 
   @Test
