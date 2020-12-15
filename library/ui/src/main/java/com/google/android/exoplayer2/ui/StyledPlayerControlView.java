@@ -268,6 +268,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       <ul>
  *         <li>Type: {@link ImageView}
  *       </ul>
+ *   <li><b>{@code exo_minimal_fullscreen}</b> - The fullscreen button in minimal mode.
+ *       <ul>
+ *         <li>Type: {@link ImageView}
+ *       </ul>
  *   <li><b>{@code exo_position}</b> - Text view displaying the current playback position.
  *       <ul>
  *         <li>Type: {@link TextView}
@@ -430,7 +434,6 @@ public class StyledPlayerControlView extends FrameLayout {
   private StyledPlayerControlViewLayoutManager controlViewLayoutManager;
   private Resources resources;
 
-  // Relating to Settings List View
   private int selectedMainSettingsPosition;
   private RecyclerView settingsView;
   private SettingsAdapter settingsAdapter;
@@ -448,9 +451,9 @@ public class StyledPlayerControlView extends FrameLayout {
   // TODO(insun): Add setTrackNameProvider to use customized track name provider.
   private TrackNameProvider trackNameProvider;
 
-  // Relating to Bottom Bar Right View
   @Nullable private ImageView subtitleButton;
   @Nullable private ImageView fullScreenButton;
+  @Nullable private ImageView minimalFullScreenButton;
   @Nullable private View settingsButton;
 
   public StyledPlayerControlView(Context context) {
@@ -552,20 +555,19 @@ public class StyledPlayerControlView extends FrameLayout {
     controlDispatcher = new DefaultControlDispatcher(fastForwardMs, rewindMs);
     updateProgressAction = this::updateProgress;
 
-    // Relating to Bottom Bar Left View
     durationView = findViewById(R.id.exo_duration);
     positionView = findViewById(R.id.exo_position);
 
-    // Relating to Bottom Bar Right View
     subtitleButton = findViewById(R.id.exo_subtitle);
     if (subtitleButton != null) {
       subtitleButton.setOnClickListener(componentListener);
     }
+
     fullScreenButton = findViewById(R.id.exo_fullscreen);
-    if (fullScreenButton != null) {
-      fullScreenButton.setVisibility(GONE);
-      fullScreenButton.setOnClickListener(this::onFullScreenButtonClicked);
-    }
+    initializeFullScreenButton(fullScreenButton, this::onFullScreenButtonClicked);
+    minimalFullScreenButton = findViewById(R.id.exo_minimal_fullscreen);
+    initializeFullScreenButton(minimalFullScreenButton, this::onFullScreenButtonClicked);
+
     settingsButton = findViewById(R.id.exo_settings);
     if (settingsButton != null) {
       settingsButton.setOnClickListener(componentListener);
@@ -648,7 +650,6 @@ public class StyledPlayerControlView extends FrameLayout {
     controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
     controlViewLayoutManager.setAnimationEnabled(animationEnabled);
 
-    // Related to Settings List View
     String[] settingTexts = new String[2];
     Drawable[] settingIcons = new Drawable[2];
     settingTexts[SETTINGS_PLAYBACK_SPEED_POSITION] =
@@ -726,12 +727,6 @@ public class StyledPlayerControlView extends FrameLayout {
     controlViewLayoutManager.setShowButton(
         repeatToggleButton, repeatToggleModes != RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE);
     addOnLayoutChangeListener(this::onLayoutChange);
-  }
-
-  @SuppressWarnings("ResourceType")
-  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
-      TypedArray a, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
-    return a.getInt(R.styleable.StyledPlayerControlView_repeat_toggle_modes, repeatToggleModes);
   }
 
   /**
@@ -1057,16 +1052,9 @@ public class StyledPlayerControlView extends FrameLayout {
    */
   public void setOnFullScreenModeChangedListener(
       @Nullable OnFullScreenModeChangedListener listener) {
-    if (fullScreenButton == null) {
-      return;
-    }
-
     onFullScreenModeChangedListener = listener;
-    if (onFullScreenModeChangedListener == null) {
-      fullScreenButton.setVisibility(GONE);
-    } else {
-      fullScreenButton.setVisibility(VISIBLE);
-    }
+    updateFullScreenButtonVisibility(fullScreenButton, listener != null);
+    updateFullScreenButtonVisibility(minimalFullScreenButton, listener != null);
   }
 
   /**
@@ -1549,21 +1537,29 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private void onFullScreenButtonClicked(View v) {
-    if (onFullScreenModeChangedListener == null || fullScreenButton == null) {
+    if (onFullScreenModeChangedListener == null) {
       return;
     }
 
     isFullScreen = !isFullScreen;
+    updateFullScreenButtonForState(fullScreenButton, isFullScreen);
+    updateFullScreenButtonForState(minimalFullScreenButton, isFullScreen);
+    if (onFullScreenModeChangedListener != null) {
+      onFullScreenModeChangedListener.onFullScreenModeChanged(isFullScreen);
+    }
+  }
+
+  private void updateFullScreenButtonForState(
+      @Nullable ImageView fullScreenButton, boolean isFullScreen) {
+    if (fullScreenButton == null) {
+      return;
+    }
     if (isFullScreen) {
       fullScreenButton.setImageDrawable(fullScreenExitDrawable);
       fullScreenButton.setContentDescription(fullScreenExitContentDescription);
     } else {
       fullScreenButton.setImageDrawable(fullScreenEnterDrawable);
       fullScreenButton.setContentDescription(fullScreenEnterContentDescription);
-    }
-
-    if (onFullScreenModeChangedListener != null) {
-      onFullScreenModeChangedListener.onFullScreenModeChanged(isFullScreen);
     }
   }
 
@@ -1749,6 +1745,32 @@ public class StyledPlayerControlView extends FrameLayout {
       }
     }
     return true;
+  }
+
+  private static void initializeFullScreenButton(View fullScreenButton, OnClickListener listener) {
+    if (fullScreenButton == null) {
+      return;
+    }
+    fullScreenButton.setVisibility(GONE);
+    fullScreenButton.setOnClickListener(listener);
+  }
+
+  private static void updateFullScreenButtonVisibility(
+      @Nullable View fullScreenButton, boolean visible) {
+    if (fullScreenButton == null) {
+      return;
+    }
+    if (visible) {
+      fullScreenButton.setVisibility(VISIBLE);
+    } else {
+      fullScreenButton.setVisibility(GONE);
+    }
+  }
+
+  @SuppressWarnings("ResourceType")
+  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
+      TypedArray a, @RepeatModeUtil.RepeatToggleModes int defaultValue) {
+    return a.getInt(R.styleable.StyledPlayerControlView_repeat_toggle_modes, defaultValue);
   }
 
   private final class ComponentListener

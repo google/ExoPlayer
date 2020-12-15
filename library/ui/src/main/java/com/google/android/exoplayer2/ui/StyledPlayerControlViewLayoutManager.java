@@ -589,20 +589,6 @@ import java.util.List;
       minimalControls.setVisibility(isMinimalMode ? View.VISIBLE : View.INVISIBLE);
     }
 
-    View fullScreenButton = styledPlayerControlView.findViewById(R.id.exo_fullscreen);
-    if (fullScreenButton != null) {
-      ViewGroup parent = (ViewGroup) fullScreenButton.getParent();
-      parent.removeView(fullScreenButton);
-
-      if (isMinimalMode && minimalControls != null) {
-        minimalControls.addView(fullScreenButton);
-      } else if (!isMinimalMode && basicControls != null) {
-        int index = Math.max(0, basicControls.getChildCount() - 1);
-        basicControls.addView(fullScreenButton, index);
-      } else {
-        parent.addView(fullScreenButton);
-      }
-    }
     if (timeBar != null) {
       MarginLayoutParams timeBarParams = (MarginLayoutParams) timeBar.getLayoutParams();
       int timeBarMarginBottom =

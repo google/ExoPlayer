@@ -56,23 +56,23 @@
         android:layout_gravity="center_vertical|end"
         android:layoutDirection="ltr">
 
+      <ImageButton android:id="@+id/exo_vr"
+          style="@style/ExoStyledControls.Button.Bottom.VR"/>
+
       <ImageButton android:id="@+id/exo_shuffle"
           style="@style/ExoStyledControls.Button.Bottom.Shuffle"/>
 
       <ImageButton android:id="@+id/exo_repeat_toggle"
           style="@style/ExoStyledControls.Button.Bottom.RepeatToggle"/>
 
-      <ImageButton android:id="@+id/exo_vr"
-          style="@style/ExoStyledControls.Button.Bottom.VR"/>
-
       <ImageButton android:id="@+id/exo_subtitle"
           style="@style/ExoStyledControls.Button.Bottom.CC"/>
 
-      <ImageButton android:id="@+id/exo_fullscreen"
-          style="@style/ExoStyledControls.Button.Bottom.FullScreen"/>
-
       <ImageButton android:id="@+id/exo_settings"
           style="@style/ExoStyledControls.Button.Bottom.Settings"/>
+
+      <ImageButton android:id="@+id/exo_fullscreen"
+          style="@style/ExoStyledControls.Button.Bottom.FullScreen"/>
 
       <ImageButton android:id="@+id/exo_overflow_show"
           style="@style/ExoStyledControls.Button.Bottom.OverflowShow"/>
@@ -112,7 +112,12 @@
       android:layout_marginBottom="@dimen/exo_styled_minimal_controls_margin_bottom"
       android:orientation="horizontal"
       android:gravity="center_vertical"
-      android:layoutDirection="ltr"/>
+      android:layoutDirection="ltr">
+
+    <ImageButton android:id="@+id/exo_minimal_fullscreen"
+        style="@style/ExoStyledControls.Button.Bottom.FullScreen"/>
+
+  </LinearLayout>
 
   <LinearLayout android:id="@+id/exo_center_controls"
       android:layout_width="wrap_content"

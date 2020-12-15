@@ -515,12 +515,6 @@ public class PlayerControlView extends FrameLayout {
         resources.getString(R.string.exo_controls_shuffle_off_description);
   }
 
-  @SuppressWarnings("ResourceType")
-  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
-      TypedArray a, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
-    return a.getInt(R.styleable.PlayerControlView_repeat_toggle_modes, repeatToggleModes);
-  }
-
   /**
    * Returns the {@link Player} currently being controlled by this view, or null if no player is
    * set.
@@ -1316,6 +1310,12 @@ public class PlayerControlView extends FrameLayout {
       }
     }
     return true;
+  }
+
+  @SuppressWarnings("ResourceType")
+  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
+      TypedArray a, @RepeatModeUtil.RepeatToggleModes int defaultValue) {
+    return a.getInt(R.styleable.PlayerControlView_repeat_toggle_modes, defaultValue);
   }
 
   private final class ComponentListener
