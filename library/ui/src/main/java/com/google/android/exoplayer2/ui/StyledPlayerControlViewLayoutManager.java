@@ -631,65 +631,59 @@ import java.util.List;
         styledPlayerControlView.getWidth()
             - styledPlayerControlView.getPaddingLeft()
             - styledPlayerControlView.getPaddingRight();
-    int bottomBarWidth = getWidthWithMargins(timeView);
-    for (int i = 0; i < basicControls.getChildCount(); ++i) {
-      bottomBarWidth += basicControls.getChildAt(i).getWidth();
+
+    // Reset back to all controls being basic controls and the overflow not being needed. The last
+    // child of extraControls is the overflow hide button, which shouldn't be moved back.
+    while (extraControls.getChildCount() > 1) {
+      int controlViewIndex = extraControls.getChildCount() - 2;
+      View controlView = extraControls.getChildAt(controlViewIndex);
+      extraControls.removeViewAt(controlViewIndex);
+      basicControls.addView(controlView, /* index= */ 0);
+    }
+    if (overflowShowButton != null) {
+      overflowShowButton.setVisibility(View.GONE);
     }
 
-    if (bottomBarWidth > width) {
-      if (overflowShowButton != null && overflowShowButton.getVisibility() != View.VISIBLE) {
+    // Calculate how much of the available width is occupied. The last child of basicControls is the
+    // overflow show button, which we're currently assuming will not be visible.
+    int occupiedWidth = getWidthWithMargins(timeView);
+    int endIndex = basicControls.getChildCount() - 1;
+    for (int i = 0; i < endIndex; i++) {
+      View controlView = basicControls.getChildAt(i);
+      occupiedWidth += getWidthWithMargins(controlView);
+    }
+
+    if (occupiedWidth > width) {
+      // We need to move some controls to extraControls.
+      if (overflowShowButton != null) {
         overflowShowButton.setVisibility(View.VISIBLE);
-        bottomBarWidth += overflowShowButton.getWidth();
+        occupiedWidth += getWidthWithMargins(overflowShowButton);
       }
-      // Move control views from basicControls to extraControls
-      ArrayList<View> movingChildren = new ArrayList<>();
-      int movingWidth = 0;
-      // The last child is overflow show button, which shouldn't move.
-      int endIndex = basicControls.getChildCount() - 1;
-      for (int index = 0; index < endIndex; index++) {
-        View child = basicControls.getChildAt(index);
-        movingWidth += child.getWidth();
-        movingChildren.add(child);
-        if (bottomBarWidth - movingWidth <= width) {
+      ArrayList<View> controlsToMove = new ArrayList<>();
+      // The last child of basicControls is the overflow show button, which shouldn't be moved.
+      for (int i = 0; i < endIndex; i++) {
+        View control = basicControls.getChildAt(i);
+        occupiedWidth -= getWidthWithMargins(control);
+        controlsToMove.add(control);
+        if (occupiedWidth <= width) {
           break;
         }
       }
-
-      if (!movingChildren.isEmpty()) {
-        basicControls.removeViews(0, movingChildren.size());
-
-        for (View child : movingChildren) {
-          // The last child of extra controls is the overflow hide button. Adding other buttons
-          // before it.
+      if (!controlsToMove.isEmpty()) {
+        basicControls.removeViews(/* start= */ 0, controlsToMove.size());
+        for (int i = 0; i < controlsToMove.size(); i++) {
+          // The last child of extraControls is the overflow hide button. Add controls before it.
           int index = extraControls.getChildCount() - 1;
-          extraControls.addView(child, index);
+          extraControls.addView(controlsToMove.get(i), index);
         }
       }
-
     } else {
-      // Move controls from extraControls to basicControls if possible, else do nothing.
-      ArrayList<View> movingChildren = new ArrayList<>();
-      int movingWidth = 0;
-      // The last child of extra controls is the overflow button, which shouldn't move.
-      int endIndex = extraControls.getChildCount() - 2;
-      for (int index = endIndex; index >= 0; index--) {
-        View child = extraControls.getChildAt(index);
-        movingWidth += child.getWidth();
-        if (bottomBarWidth + movingWidth > width) {
-          break;
-        }
-        movingChildren.add(child);
-      }
-
-      if (!movingChildren.isEmpty()) {
-        extraControls.removeViews(endIndex - movingChildren.size() + 1, movingChildren.size());
-
-        for (View child : movingChildren) {
-          basicControls.addView(child, 0);
-        }
-      }
-      if (extraControls.getChildCount() == 1 && overflowShowButton != null) {
-        overflowShowButton.setVisibility(View.GONE);
+      // If extraControls are visible, hide them since they're now empty.
+      if (extraControlsScrollView != null
+          && extraControlsScrollView.getVisibility() == View.VISIBLE
+          && !overflowHideAnimator.isStarted()) {
+        overflowShowAnimator.cancel();
+        overflowHideAnimator.start();
       }
     }
   }
