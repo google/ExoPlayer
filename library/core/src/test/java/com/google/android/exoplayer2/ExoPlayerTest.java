@@ -4490,6 +4490,42 @@ public final class ExoPlayerTest {
     assertThat(totalBufferedDurationMs[1]).isEqualTo(adDurationMs);
   }
 
+  // https://github.com/google/ExoPlayer/issues/8349
+  @Test
+  public void seekTo_whilePlayingAd_doesntBlockFutureUpdates() throws Exception {
+    long contentDurationMs = 10_000;
+    long adDurationMs = 4_000;
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.EMPTY);
+    long[][] durationsUs = new long[1][];
+    durationsUs[0] = new long[] {C.msToUs(adDurationMs)};
+    adPlaybackState = adPlaybackState.withAdDurationsUs(durationsUs);
+    Timeline adTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ C.msToUs(contentDurationMs),
+                adPlaybackState));
+    FakeMediaSource adsMediaSource = new FakeMediaSource(adTimeline);
+
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(adsMediaSource);
+    player.pause();
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.seekTo(0, 8000);
+    player.play();
+
+    // This times out if playback info updates after the seek are blocked.
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+  }
+
   @Test
   public void becomingNoisyIgnoredIfBecomingNoisyHandlingIsDisabled() throws Exception {
     CountDownLatch becomingNoisyHandlingDisabled = new CountDownLatch(1);
