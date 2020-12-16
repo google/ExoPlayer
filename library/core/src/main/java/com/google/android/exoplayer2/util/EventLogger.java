@@ -181,9 +181,9 @@ public class EventLogger implements AnalyticsListener {
           "  "
               + "window ["
               + getTimeString(window.getDurationMs())
-              + ", "
+              + ", seekable="
               + window.isSeekable
-              + ", "
+              + ", dynamic="
               + window.isDynamic
               + "]");
     }
