@@ -24,7 +24,7 @@ project.ext {
     guavaVersion = '27.1-android'
     mockitoVersion = '2.28.2'
     mockWebServerVersion = '3.12.0'
-    robolectricVersion = '4.5-SNAPSHOT'
+    robolectricVersion = '4.5-alpha-3'
     checkerframeworkVersion = '3.3.0'
     checkerframeworkCompatVersion = '2.5.0'
     jsr305Version = '3.0.2'

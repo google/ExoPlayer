@@ -15,12 +15,6 @@
 apply from: "$gradle.ext.exoplayerSettingsDir/constants.gradle"
 apply plugin: 'com.android.library'
 
-repositories {
-    // TODO(internal b/169753382): Remove this when we no longer depend on
-    // Robolectric snapshots.
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-}
-
 android {
     compileSdkVersion project.ext.compileSdkVersion
 
