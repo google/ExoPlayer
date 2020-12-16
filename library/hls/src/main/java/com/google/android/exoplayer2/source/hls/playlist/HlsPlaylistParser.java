@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Rendit
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.upstream.ParsingLoadable;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -65,6 +66,8 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
  * HLS playlists parsing logic.
  */
 public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlaylist> {
+
+  private static final String LOG_TAG = "HlsPlaylistParser";
 
   private static final String PLAYLIST_HEADER = "#EXTM3U";
 
@@ -516,7 +519,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             sampleMimeType = MimeTypes.TEXT_VTT;
           }
           formatBuilder.setSampleMimeType(sampleMimeType).setMetadata(metadata);
-          subtitles.add(new Rendition(uri, formatBuilder.build(), groupId, name));
+          if (uri != null) {
+            subtitles.add(new Rendition(uri, formatBuilder.build(), groupId, name));
+          } else {
+            Log.w(LOG_TAG, "EXT-X-MEDIA tag with missing mandatory URI attribute: skipping");
+          }
           break;
         case TYPE_CLOSED_CAPTIONS:
           String instreamId = parseStringAttr(line, REGEX_INSTREAM_ID, variableDefinitions);

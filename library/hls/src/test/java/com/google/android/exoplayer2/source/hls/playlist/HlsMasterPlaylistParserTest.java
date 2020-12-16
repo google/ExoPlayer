@@ -109,6 +109,14 @@ public class HlsMasterPlaylistParserTest {
 
   private static final String PLAYLIST_WITH_SUBTITLES =
       " #EXTM3U \n"
+          + "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"sub1\",URI=\"s1/en/prog_index.m3u8\","
+          + "LANGUAGE=\"es\",NAME=\"Eng\"\n"
+          + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,"
+          + "CODECS=\"mp4a.40.2,avc1.66.30\",RESOLUTION=304x128\n"
+          + "http://example.com/low.m3u8\n";
+
+  private static final String PLAYLIST_WITH_SUBTITLES_NO_URI =
+      " #EXTM3U \n"
           + "#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"sub1\","
           + "LANGUAGE=\"es\",NAME=\"Eng\"\n"
           + "#EXT-X-STREAM-INF:BANDWIDTH=1280000,"
@@ -352,6 +360,13 @@ public class HlsMasterPlaylistParserTest {
     Format firstTextFormat = playlist.subtitles.get(0).format;
     assertThat(firstTextFormat.id).isEqualTo("sub1:Eng");
     assertThat(firstTextFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_VTT);
+  }
+
+  @Test
+  public void parseMasterPlaylist_subtitlesWithoutUri_skipsSubtitles() throws IOException {
+    HlsMasterPlaylist playlist = parseMasterPlaylist(PLAYLIST_URI, PLAYLIST_WITH_SUBTITLES_NO_URI);
+
+    assertThat(playlist.subtitles).isEmpty();
   }
 
   @Test
