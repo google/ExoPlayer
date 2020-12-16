@@ -2,6 +2,9 @@
 
 ### 2.12.3 (???-??-??) ###
 
+*   Core library:
+    *   Fix playback issues after seeking during an ad
+        ([#8349](https://github.com/google/ExoPlayer/issues/8349)).
 *   UI:
     *   Fix issue where pop-up menus belonging to `StyledPlayerControlView`
         would not be dismissed when tapping outside of the menu area or pressing
