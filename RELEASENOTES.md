@@ -52,6 +52,9 @@
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Fix a condition where playback can get stuck before an empty ad
         ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
+    *   Log a warning rather than throwing when reaching the end of the stream
+        with an ad playing but without ad media info
+        ([#8290](https://github.com/google/ExoPlayer/issues/8290)).
     *   Add `ImaAdsLoader.Builder.setEnableContinuousPlayback` for setting
         whether to request ads for continuous playback.
 *   Metadata retriever:

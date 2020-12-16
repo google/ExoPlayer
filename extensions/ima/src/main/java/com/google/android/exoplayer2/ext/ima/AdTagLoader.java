@@ -800,7 +800,7 @@ import java.util.Map;
         && playWhenReady) {
       ensureSentContentCompleteIfAtEndOfStream();
     } else if (imaAdState != IMA_AD_STATE_NONE && playbackState == Player.STATE_ENDED) {
-      AdMediaInfo adMediaInfo = checkNotNull(imaAdMediaInfo);
+      @Nullable AdMediaInfo adMediaInfo = imaAdMediaInfo;
       if (adMediaInfo == null) {
         Log.w(TAG, "onEnded without ad media info");
       } else {
