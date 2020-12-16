@@ -143,8 +143,29 @@ public final class Cea708Decoder extends CeaDecoder {
   private static final int CHARACTER_LOWER_RIGHT_BORDER = 0x7E;
   private static final int CHARACTER_UPPER_LEFT_BORDER = 0x7F;
 
+  // Command lengths in bits exluding the command byte.
+  private static final int CLW_COMMAND_LEN = 8;
+  private static final int DSW_COMMAND_LEN = 8;
+  private static final int HDW_COMMAND_LEN = 8;
+  private static final int TGW_COMMAND_LEN = 8;
+  private static final int DLW_COMMAND_LEN = 8;
+  private static final int DLY_COMMAND_LEN = 8;
+  private static final int SPA_COMMAND_LEN = 16;
+  private static final int SPL_COMMAND_LEN = 16;
+  private static final int SPC_COMMAND_LEN = 24;
+  private static final int SWA_COMMAND_LEN = 32;
+  private static final int DFS_COMMAND_LEN = 48;
+
   private final ParsableByteArray ccData;
   private final ParsableBitArray serviceBlockPacket;
+  // This holds the service blocks. This used to accumulate the commands spread across the service
+  // blocks as well as the service blocks and/or commands spread across the DTVCC packets
+  private   List<Byte> serviceBlockList = new ArrayList<>();
+  private static final int CC_DATA_STATE_COMPLETE_PARAM = 0;
+  private static final int CC_DATA_STATE_WAITING_PARAM = 1;
+  private int ccDataState = CC_DATA_STATE_COMPLETE_PARAM;
+  private int lastSequenceNo = -1;
+
   // TODO: Use isWideAspectRatio in decoding.
   @SuppressWarnings({"unused", "FieldCanBeLocal"})
   private final boolean isWideAspectRatio;
@@ -189,6 +210,8 @@ public final class Cea708Decoder extends CeaDecoder {
     currentCueInfoBuilder = cueInfoBuilders[currentWindow];
     resetCueBuilders();
     currentDtvCcPacket = null;
+    ccDataState = CC_DATA_STATE_COMPLETE_PARAM;
+    serviceBlockList.clear();
   }
 
   @Override
@@ -231,6 +254,13 @@ public final class Cea708Decoder extends CeaDecoder {
         finalizeCurrentPacket();
 
         int sequenceNumber = (ccData1 & 0xC0) >> 6; // first 2 bits
+        if (lastSequenceNo != -1 && sequenceNumber != (lastSequenceNo + 1) % 4) {
+          resetCueBuilders();
+          Log.w(TAG, "discontinuity in sequence number detected : lastSequenceNo = " + lastSequenceNo
+              + " sequenceNumber = " + sequenceNumber);
+        }
+        lastSequenceNo = sequenceNumber;
+
         int packetSize = ccData1 & 0x3F; // last 6 bits
         if (packetSize == 0) {
           packetSize = 64;
@@ -270,81 +300,113 @@ public final class Cea708Decoder extends CeaDecoder {
   @RequiresNonNull("currentDtvCcPacket")
   private void processCurrentPacket() {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
-      Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
+      Log.d(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
           + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
           + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
-      return;
+      // This is not invalid packet. The Packect end can happen either through the reception of
+      // bytes equals to (pack_size_code*2-1) or the reception of cc_type = 0x03 (binary 11).
     }
 
-    serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);
-
-    int serviceNumber = serviceBlockPacket.readBits(3);
-    int blockSize = serviceBlockPacket.readBits(5);
-    if (serviceNumber == 7) {
-      // extended service numbers
-      serviceBlockPacket.skipBits(2);
-      serviceNumber = serviceBlockPacket.readBits(6);
-      if (serviceNumber < 7) {
-        Log.w(TAG, "Invalid extended service number: " + serviceNumber);
-      }
-    }
-
-    // Ignore packets in which blockSize is 0
-    if (blockSize == 0) {
-      if (serviceNumber != 0) {
-        Log.w(TAG, "serviceNumber is non-zero (" + serviceNumber + ") when blockSize is 0");
-      }
-      return;
-    }
-
-    if (serviceNumber != selectedServiceNumber) {
-      return;
-    }
-
-    // The cues should be updated if we receive a C0 ETX command, any C1 command, or if after
-    // processing the service block any text has been added to the buffer. See CEA-708-B Section
-    // 8.10.4 for more details.
-    boolean cuesNeedUpdate = false;
-
-    while (serviceBlockPacket.bitsLeft() > 0) {
-      int command = serviceBlockPacket.readBits(8);
-      if (command != COMMAND_EXT1) {
-        if (command <= GROUP_C0_END) {
-          handleC0Command(command);
-          // If the C0 command was an ETX command, the cues are updated in handleC0Command.
-        } else if (command <= GROUP_G0_END) {
-          handleG0Character(command);
-          cuesNeedUpdate = true;
-        } else if (command <= GROUP_C1_END) {
-          handleC1Command(command);
-          cuesNeedUpdate = true;
-        } else if (command <= GROUP_G1_END) {
-          handleG1Character(command);
-          cuesNeedUpdate = true;
-        } else {
-          Log.w(TAG, "Invalid base command: " + command);
+    int currOffset = 0;
+    // Caption channel packet can contain more than one service blocks. Handle all the service
+    // blocks in the current packet. If the previous command spread across the paket, that is
+    // accumulated and handled after all the bytes are received
+    while (currOffset < currentDtvCcPacket.currentIndex) {
+      int serviceNumber = (currentDtvCcPacket.packetData[currOffset] & 0xE0) >> 5; //3 bits
+      int blockSize = (currentDtvCcPacket.packetData[currOffset] & 0x1F); // 5 bits
+      currOffset++;
+      if (serviceNumber == 7) {
+        // extended service numbers
+        serviceNumber = (currentDtvCcPacket.packetData[currOffset] & 0x3F); //skip 2 bits
+        if (serviceNumber < 7) {
+          Log.w(TAG, "Invalid extended service number: " + serviceNumber);
         }
-      } else {
-        // Read the extended command
-        command = serviceBlockPacket.readBits(8);
-        if (command <= GROUP_C2_END) {
-          handleC2Command(command);
-        } else if (command <= GROUP_G2_END) {
-          handleG2Character(command);
-          cuesNeedUpdate = true;
-        } else if (command <= GROUP_C3_END) {
-          handleC3Command(command);
-        } else if (command <= GROUP_G3_END) {
-          handleG3Character(command);
-          cuesNeedUpdate = true;
+        currOffset++;
+      }
+
+      // Ignore packets in which blockSize is 0
+      if (blockSize == 0) {
+        if (serviceNumber != 0) {
+          Log.w(TAG, "serviceNumber is non-zero (" + serviceNumber + ") when blockSize is 0");
+        }
+        return;
+      }
+
+      if (serviceNumber == selectedServiceNumber) {
+        int b = 0;
+        while ( b < blockSize) {
+          // start accumulating the service blocks
+          if (currOffset >= currentDtvCcPacket.currentIndex) {
+            // extra protection to avoid array out of bound.
+            break;
+          }
+          serviceBlockList.add(currentDtvCcPacket.packetData[currOffset++]);
+          b++;
+        }
+        // Convert the ArrayList to byte[].
+        byte[] blk = new  byte[serviceBlockList.size()];
+        for (int i = 0; i < serviceBlockList.size(); i++) {
+          blk[i] = serviceBlockList.get(i);
+        }
+        serviceBlockPacket.reset(blk, serviceBlockList.size());
+      }
+      else {
+        // different service number skip the entire service block
+        currOffset += blockSize;
+      }
+
+      // The cues should be updated if we receive a C0 ETX command, any C1 command, or if after
+      // processing the service block any text has been added to the buffer. See CEA-708-B Section
+      // 8.10.4 for more details.
+      boolean cuesNeedUpdate = false;
+
+      while (serviceBlockPacket.bitsLeft() > 0) {
+        int command = serviceBlockPacket.readBits(8);
+        if (command != COMMAND_EXT1) {
+          if (command <= GROUP_C0_END) {
+            handleC0Command(command);
+            // If the C0 command was an ETX command, the cues are updated in handleC0Command.
+          } else if (command <= GROUP_G0_END) {
+            handleG0Character(command);
+            cuesNeedUpdate = true;
+          } else if (command <= GROUP_C1_END) {
+            handleC1Command(command);
+            if (ccDataState == CC_DATA_STATE_WAITING_PARAM) {
+              // command structure is partial. Wait for more data
+              break;
+            }
+            cuesNeedUpdate = true;
+          } else if (command <= GROUP_G1_END) {
+            handleG1Character(command);
+            cuesNeedUpdate = true;
+          } else {
+            Log.w(TAG, "Invalid base command: " + command);
+          }
         } else {
-          Log.w(TAG, "Invalid extended command: " + command);
+          // Read the extended command
+          command = serviceBlockPacket.readBits(8);
+          if (command <= GROUP_C2_END) {
+            handleC2Command(command);
+          } else if (command <= GROUP_G2_END) {
+            handleG2Character(command);
+            cuesNeedUpdate = true;
+          } else if (command <= GROUP_C3_END) {
+            handleC3Command(command);
+          } else if (command <= GROUP_G3_END) {
+            handleG3Character(command);
+            cuesNeedUpdate = true;
+          } else {
+            Log.w(TAG, "Invalid extended command: " + command);
+          }
         }
       }
-    }
 
-    if (cuesNeedUpdate) {
-      cues = getDisplayCues();
+      if (cuesNeedUpdate) {
+        cues = getDisplayCues();
+      }
+      if (ccDataState == CC_DATA_STATE_COMPLETE_PARAM) {
+        serviceBlockList.clear();
+      }
     }
   }
 
@@ -383,6 +445,7 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private void handleC1Command(int command) {
     int window;
+    ccDataState = CC_DATA_STATE_COMPLETE_PARAM;
     switch (command) {
       case COMMAND_CW0:
       case COMMAND_CW1:
@@ -399,6 +462,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_CLW:
+        if (serviceBlockPacket.bitsLeft() < CLW_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].clear();
@@ -406,6 +473,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_DSW:
+        if (serviceBlockPacket.bitsLeft() < DSW_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].setVisibility(true);
@@ -413,6 +484,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_HDW:
+        if (serviceBlockPacket.bitsLeft() < HDW_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].setVisibility(false);
@@ -420,6 +495,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_TGW:
+        if (serviceBlockPacket.bitsLeft() < TGW_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
             CueInfoBuilder cueInfoBuilder = cueInfoBuilders[NUM_WINDOWS - i];
@@ -428,6 +507,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_DLW:
+        if (serviceBlockPacket.bitsLeft() < DLW_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         for (int i = 1; i <= NUM_WINDOWS; i++) {
           if (serviceBlockPacket.readBit()) {
             cueInfoBuilders[NUM_WINDOWS - i].reset();
@@ -435,6 +518,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_DLY:
+        if (serviceBlockPacket.bitsLeft() < DLY_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         // TODO: Add support for delay commands.
         serviceBlockPacket.skipBits(8);
         break;
@@ -445,6 +532,10 @@ public final class Cea708Decoder extends CeaDecoder {
         resetCueBuilders();
         break;
       case COMMAND_SPA:
+        if (serviceBlockPacket.bitsLeft() < SPA_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_COMPLETE_PARAM;
+          break;
+        }
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(16);
@@ -453,6 +544,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_SPC:
+        if (serviceBlockPacket.bitsLeft() < SPC_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(24);
@@ -461,6 +556,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_SPL:
+        if (serviceBlockPacket.bitsLeft() < SPL_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(16);
@@ -469,6 +568,10 @@ public final class Cea708Decoder extends CeaDecoder {
         }
         break;
       case COMMAND_SWA:
+        if (serviceBlockPacket.bitsLeft() < SWA_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         if (!currentCueInfoBuilder.isDefined()) {
           // ignore this command if the current window/cue isn't defined
           serviceBlockPacket.skipBits(32);
@@ -484,6 +587,10 @@ public final class Cea708Decoder extends CeaDecoder {
       case COMMAND_DF5:
       case COMMAND_DF6:
       case COMMAND_DF7:
+        if (serviceBlockPacket.bitsLeft() < DFS_COMMAND_LEN) {
+          ccDataState = CC_DATA_STATE_WAITING_PARAM;
+          break;
+        }
         window = (command - COMMAND_DF0);
         handleDefineWindow(window);
         // We also set the current window to the newly defined window.
