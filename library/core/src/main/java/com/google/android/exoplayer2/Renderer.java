@@ -237,10 +237,9 @@ public interface Renderer extends PlayerMessage.Target {
   String getName();
 
   /**
-   * Returns the track type that the renderer handles. For example, a video renderer will return
-   * {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a text
-   * renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
+   * Returns the track type that the renderer handles.
    *
+   * @see Player#getRendererType(int)
    * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   int getTrackType();

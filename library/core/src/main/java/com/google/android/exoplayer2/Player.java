@@ -1431,7 +1431,9 @@ public interface Player {
   /**
    * Returns the track type that the renderer at a given index handles.
    *
-   * @see Renderer#getTrackType()
+   * <p>For example, a video renderer will return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will
+   * return {@link C#TRACK_TYPE_AUDIO} and a text renderer will return {@link C#TRACK_TYPE_TEXT}.
+   *
    * @param index The index of the renderer.
    * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
