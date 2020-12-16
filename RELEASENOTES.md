@@ -10,6 +10,9 @@
 *   IMA extension:
     *   Fix a condition where playback can get stuck before an empty ad
         ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
+    *   Log a warning rather than throwing when reaching the end of the stream
+        with an ad playing but without ad media info
+        ([#8290](https://github.com/google/ExoPlayer/issues/8290)).
 *   Text:
     *   Gracefully handle null-terminated subtitle content in Matroska
         containers.
@@ -78,6 +81,7 @@
     *   Notify onBufferingEnded when the state of origin player becomes
         `STATE_IDLE` or `STATE_ENDED`.
     *   Allow to remove all playlist items that makes the player reset.
+        ([#8047](https://github.com/google/ExoPlayer/issues/8047)).
 
 ### 2.12.1 (2020-10-23) ###
 
