@@ -37,6 +37,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okio.Buffer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -134,6 +135,7 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(secondFullPlaylist.segments).containsNoneIn(firstFullPlaylist.segments);
   }
 
+  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_playlistCanSkip_requestsDeltaUpdateAndExpandsSkippedSegments()
       throws IOException, TimeoutException, InterruptedException {
@@ -168,6 +170,7 @@ public class DefaultHlsPlaylistTrackerTest {
         .isEqualTo(initialPlaylistWithAllSegments.segments.get(3).url);
   }
 
+  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_playlistCanSkip_missingSegments_correctedMediaSequence()
       throws IOException, TimeoutException, InterruptedException {
@@ -196,6 +199,7 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(mergedPlaylist.segments).hasSize(4);
   }
 
+  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_playlistCanSkipDataRanges_requestsDeltaUpdateV2()
       throws IOException, TimeoutException, InterruptedException {
@@ -220,6 +224,7 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(11);
   }
 
+  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_playlistCanSkipAndUriWithParams_preservesOriginalParams()
       throws IOException, TimeoutException, InterruptedException {
@@ -360,6 +365,7 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(mediaPlaylists.get(1).trailingParts).hasSize(2);
   }
 
+  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_httpBadRequest_forcesFullNonBlockingPlaylistRequest()
       throws IOException, TimeoutException, InterruptedException {

@@ -774,8 +774,9 @@ public final class DefaultHlsPlaylistTracker
         }
       }
       if (playlistSnapshot.serverControl.skipUntilUs != C.TIME_UNSET) {
-        uriBuilder.appendQueryParameter(
-            SKIP_PARAM, playlistSnapshot.serverControl.canSkipDateRanges ? "v2" : "YES");
+        // TODO: Fix skipped segment merging before re-enabling.
+        // uriBuilder.appendQueryParameter(
+        //    SKIP_PARAM, playlistSnapshot.serverControl.canSkipDateRanges ? "v2" : "YES");
       }
       return uriBuilder.build();
     }
