@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import okhttp3.internal.Util;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -39,12 +38,10 @@ public class FileDataSourceContractTest extends DataSourceContractTest {
   @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
 
   private Uri simpleUri;
-  private Uri zeroBytesUri;
 
   @Before
   public void writeFiles() throws Exception {
     simpleUri = writeFile(DATA);
-    zeroBytesUri = writeFile(Util.EMPTY_BYTE_ARRAY);
   }
 
   @Override
@@ -54,11 +51,6 @@ public class FileDataSourceContractTest extends DataSourceContractTest {
             .setName("simple")
             .setUri(simpleUri)
             .setExpectedBytes(DATA)
-            .build(),
-        new TestResource.Builder()
-            .setName("zero-bytes")
-            .setUri(zeroBytesUri)
-            .setExpectedBytes(Util.EMPTY_BYTE_ARRAY)
             .build());
   }
 
