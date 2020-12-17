@@ -1,4 +1,4 @@
-MediaCodec (audio/eac3-joc):
+MediaCodecAdapter (exotest.audio.eac3joc):
   buffers.length = 65
   buffers[0] = length 2560, hash 882594AD
   buffers[1] = length 2560, hash 41EC8B22
