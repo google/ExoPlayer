@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.e2etest;
 
+import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -23,6 +24,7 @@ import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
@@ -57,11 +59,14 @@ public final class Mp3PlaybackTest {
 
   @Test
   public void test() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
     SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext())
+        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new AutoAdvancingFakeClock())
             .build();
-    PlaybackOutput playbackOutput = PlaybackOutput.register(player, mediaCodecConfig);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     player.setMediaItem(MediaItem.fromUri("asset:///media/mp3/" + inputFile));
     player.prepare();
@@ -70,8 +75,6 @@ public final class Mp3PlaybackTest {
     player.release();
 
     DumpFileAsserts.assertOutput(
-        ApplicationProvider.getApplicationContext(),
-        playbackOutput,
-        "playbackdumps/mp3/" + inputFile + ".dump");
+        applicationContext, playbackOutput, "playbackdumps/mp3/" + inputFile + ".dump");
   }
 }

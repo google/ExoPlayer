@@ -1,4 +1,4 @@
-MediaCodec (audio/mpeg):
+MediaCodecAdapter (exotest.audio.mpeg):
   buffers.length = 118
   buffers[0] = length 96, hash 1F161542
   buffers[1] = length 768, hash CD1DC50F
