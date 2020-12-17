@@ -43,11 +43,7 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
   @Before
   public void setUp() {
     udpDataSource = new UdpDataSource();
-    // UDP is unreliable: it may lose, duplicate or re-order packets. We want to transmit more than
-    // one UDP packets to thoroughly test the UDP data source. We assume that UDP delivery within
-    // the same host is reliable.
-    int dataLength = (10 * 1024) + 512; // 10.5 KiB, not a round number by intention
-    data = TestUtil.buildTestData(dataLength);
+    data = TestUtil.buildTestData(/* length= */ 256);
     PacketTrasmitterTransferListener transferListener = new PacketTrasmitterTransferListener(data);
     udpDataSource.addTransferListener(transferListener);
   }
@@ -116,9 +112,11 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
       String host = dataSpec.uri.getHost();
       int port = dataSpec.uri.getPort();
       try (DatagramSocket socket = new DatagramSocket()) {
-        // Split data in packets of up to 1024 bytes.
-        for (int offset = 0; offset < data.length; offset += 1024) {
-          int packetLength = min(1024, data.length - offset);
+        // Split data in packets of up to 64 bytes: UDP is unreliable, it may lose, duplicate or
+        // re-order packets. However, we want to transmit more than one UDP packets to thoroughly
+        // test the UDP data source. We assume that UDP delivery within the same host is reliable.
+        for (int offset = 0; offset < data.length; offset += 64) {
+          int packetLength = min(64, data.length - offset);
           DatagramPacket packet =
               new DatagramPacket(data, offset, packetLength, InetAddress.getByName(host), port);
           socket.send(packet);
