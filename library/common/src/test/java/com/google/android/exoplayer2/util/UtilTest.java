@@ -20,10 +20,12 @@ import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.getStringForTime;
+import static com.google.android.exoplayer2.util.Util.minValue;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -32,6 +34,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
+import android.util.SparseLongArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
@@ -39,6 +42,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.zip.Deflater;
 import org.junit.Test;
@@ -721,6 +725,21 @@ public class UtilTest {
                 /* inclusive= */ true,
                 /* stayInBounds= */ false))
         .isEqualTo(2);
+  }
+
+  @Test
+  public void sparseLongArrayMinValue_returnsMinValue() {
+    SparseLongArray sparseLongArray = new SparseLongArray();
+    sparseLongArray.put(0, 12);
+    sparseLongArray.put(25, 10);
+    sparseLongArray.put(42, 11);
+
+    assertThat(minValue(sparseLongArray)).isEqualTo(10);
+  }
+
+  @Test
+  public void sparseLongArrayMinValue_emptyArray_throws() {
+    assertThrows(NoSuchElementException.class, () -> minValue(new SparseLongArray()));
   }
 
   @Test
