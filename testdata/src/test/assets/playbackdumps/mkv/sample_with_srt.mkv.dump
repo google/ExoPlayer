@@ -1,4 +1,4 @@
-MediaCodec (audio/ac3):
+MediaCodecAdapter (exotest.audio.ac3):
   buffers.length = 30
   buffers[0] = length 416, hash 211F2286
   buffers[1] = length 418, hash 77425A86
@@ -30,7 +30,7 @@ MediaCodec (audio/ac3):
   buffers[27] = length 418, hash DE46E5D3
   buffers[28] = length 418, hash 56AB8D37
   buffers[29] = length 0, hash 1
-MediaCodec (video/avc):
+MediaCodecAdapter (exotest.video.avc):
   buffers.length = 31
   buffers[0] = length 36477, hash F0F36CFE
   buffers[1] = length 5341, hash 40B85E2
