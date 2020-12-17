@@ -1,4 +1,4 @@
-MediaCodec (video/avc):
+MediaCodecAdapter (exotest.video.avc):
   buffers.length = 72
   buffers[0] = length 747, hash 59AEB08
   buffers[1] = length 117, hash 57A315CB
