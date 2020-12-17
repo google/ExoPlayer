@@ -30,6 +30,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** {@link DataSource} contract tests for {@link UdpDataSource}. */
@@ -73,8 +74,9 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
     return Uri.parse("udp://notfound.invalid:12345");
   }
 
-  @Override
+  @Test
   @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
   public void dataSpecWithPosition_readUntilEnd() {}
 
   /**
