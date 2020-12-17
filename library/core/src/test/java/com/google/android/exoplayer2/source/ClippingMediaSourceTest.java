@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
 import com.google.android.exoplayer2.source.MaskingMediaSource.PlaceholderTimeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
@@ -562,7 +561,7 @@ public final class ClippingMediaSourceTest {
     FakeMediaSource fakeMediaSource =
         new FakeMediaSource(timeline) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -579,7 +578,7 @@ public final class ClippingMediaSourceTest {
                     /* trackSelectionData= */ null,
                     C.usToMs(eventStartUs),
                     C.usToMs(eventEndUs)));
-            return super.createFakeMediaPeriod(
+            return super.createMediaPeriod(
                 id,
                 trackGroupArray,
                 allocator,

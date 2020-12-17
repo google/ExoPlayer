@@ -652,7 +652,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -696,7 +696,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -728,7 +728,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -974,7 +974,7 @@ public final class ExoPlayerTest {
     MediaSource mediaSource =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -1027,7 +1027,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(/* timeline= */ null, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -4284,7 +4284,7 @@ public final class ExoPlayerTest {
                 AdPlaybackState.NONE));
     return new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
       @Override
-      protected FakeMediaPeriod createFakeMediaPeriod(
+      protected MediaPeriod createMediaPeriod(
           MediaPeriodId id,
           TrackGroupArray trackGroupArray,
           Allocator allocator,
@@ -4659,7 +4659,7 @@ public final class ExoPlayerTest {
     MediaSource mediaSourceWithLoadInProgress =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -7210,7 +7210,7 @@ public final class ExoPlayerTest {
     MediaSource continuouslyAllocatingMediaSource =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -7287,7 +7287,7 @@ public final class ExoPlayerTest {
     MediaSource largeBufferAllocatingMediaSource =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -8023,7 +8023,7 @@ public final class ExoPlayerTest {
     player.addMediaSource(
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -8068,7 +8068,7 @@ public final class ExoPlayerTest {
     player.addMediaSource(
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
