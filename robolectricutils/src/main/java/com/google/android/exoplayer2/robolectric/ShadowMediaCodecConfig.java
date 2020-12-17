@@ -15,17 +15,13 @@
  */
 package com.google.android.exoplayer2.robolectric;
 
-import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
-import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
-import java.util.HashMap;
+import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Map;
 import org.junit.rules.ExternalResource;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
 import org.robolectric.shadows.ShadowMediaCodec;
@@ -35,28 +31,12 @@ import org.robolectric.shadows.ShadowMediaCodecList;
  * A JUnit @Rule to configure Roboelectric's {@link ShadowMediaCodec}.
  *
  * <p>Registers a {@link org.robolectric.shadows.ShadowMediaCodec.CodecConfig} for each audio/video
- * MIME type known by ExoPlayer, and provides access to the bytes passed to these via {@link
- * TeeCodec}.
+ * MIME type known by ExoPlayer.
  */
 public final class ShadowMediaCodecConfig extends ExternalResource {
 
-  private final Map<String, TeeCodec> codecsByMimeType;
-
-  private ShadowMediaCodecConfig() {
-    this.codecsByMimeType = new HashMap<>();
-  }
-
   public static ShadowMediaCodecConfig forAllSupportedMimeTypes() {
     return new ShadowMediaCodecConfig();
-  }
-
-  /**
-   * @deprecated Use {@link CapturingRenderersFactory} to access {@link MediaCodec} interactions
-   *     instead.
-   */
-  @Deprecated
-  public ImmutableMap<String, TeeCodec> getCodecs() {
-    return ImmutableMap.copyOf(codecsByMimeType);
   }
 
   @Override
@@ -101,7 +81,6 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
 
   @Override
   protected void after() {
-    codecsByMimeType.clear();
     ShadowMediaCodecList.reset();
     ShadowMediaCodec.clearCodecs();
   }
@@ -136,12 +115,11 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
             .build());
     // TODO: Update ShadowMediaCodec to consider the MediaFormat.KEY_MAX_INPUT_SIZE value passed
     // to configure() so we don't have to specify large buffers here.
-    TeeCodec codec = new TeeCodec(mimeType);
+    CodecImpl codec = new CodecImpl(mimeType);
     ShadowMediaCodec.addDecoder(
         codecName,
         new ShadowMediaCodec.CodecConfig(
             /* inputBufferSize= */ 100_000, /* outputBufferSize= */ 100_000, codec));
-    codecsByMimeType.put(mimeType, codec);
   }
 
   private static MediaCodecInfo.CodecProfileLevel createProfileLevel(int profile, int level) {
@@ -149,5 +127,31 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
     profileLevel.profile = profile;
     profileLevel.level = level;
     return profileLevel;
+  }
+
+  /**
+   * A {@link ShadowMediaCodec.CodecConfig.Codec} that passes data through without modifying it.
+   *
+   * <p>Note: This currently drops all audio data - removing this restriction is tracked in
+   * [internal b/174737370].
+   */
+  private static final class CodecImpl implements ShadowMediaCodec.CodecConfig.Codec {
+
+    private final String mimeType;
+
+    public CodecImpl(String mimeType) {
+      this.mimeType = mimeType;
+    }
+
+    @Override
+    public void process(ByteBuffer in, ByteBuffer out) {
+      byte[] bytes = new byte[in.remaining()];
+      in.get(bytes);
+
+      // TODO(internal b/174737370): Output audio bytes as well.
+      if (!MimeTypes.isAudio(mimeType)) {
+        out.put(bytes);
+      }
+    }
   }
 }

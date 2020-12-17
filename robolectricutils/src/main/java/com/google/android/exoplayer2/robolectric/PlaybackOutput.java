@@ -22,10 +22,8 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.Dumper;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,17 +37,13 @@ import java.util.List;
  */
 public final class PlaybackOutput implements Dumper.Dumpable {
 
-  @Nullable private final ShadowMediaCodecConfig codecConfig;
-  @Nullable private final CapturingRenderersFactory capturingRenderersFactory;
+  private final CapturingRenderersFactory capturingRenderersFactory;
 
   private final List<Metadata> metadatas;
   private final List<List<Cue>> subtitles;
 
   private PlaybackOutput(
-      SimpleExoPlayer player,
-      @Nullable ShadowMediaCodecConfig codecConfig,
-      @Nullable CapturingRenderersFactory capturingRenderersFactory) {
-    this.codecConfig = codecConfig;
+      SimpleExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
     this.capturingRenderersFactory = capturingRenderersFactory;
 
     metadatas = Collections.synchronizedList(new ArrayList<>());
@@ -75,27 +69,12 @@ public final class PlaybackOutput implements Dumper.Dumpable {
    */
   public static PlaybackOutput register(
       SimpleExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
-    return new PlaybackOutput(player, /* codecConfig= */ null, capturingRenderersFactory);
-  }
-
-  /** @deprecated Use {@link #register(SimpleExoPlayer, CapturingRenderersFactory)}. */
-  @Deprecated
-  public static PlaybackOutput register(
-      SimpleExoPlayer player, ShadowMediaCodecConfig mediaCodecConfig) {
-    return new PlaybackOutput(player, mediaCodecConfig, /* capturingRenderersFactory= */ null);
+    return new PlaybackOutput(player, capturingRenderersFactory);
   }
 
   @Override
   public void dump(Dumper dumper) {
-    if (codecConfig != null) {
-      ImmutableMap<String, TeeCodec> codecs = codecConfig.getCodecs();
-      ImmutableList<String> mimeTypes = ImmutableList.sortedCopyOf(codecs.keySet());
-      for (String mimeType : mimeTypes) {
-        dumper.add(Assertions.checkNotNull(codecs.get(mimeType)));
-      }
-    } else {
-      Assertions.checkNotNull(capturingRenderersFactory).dump(dumper);
-    }
+    capturingRenderersFactory.dump(dumper);
 
     dumpMetadata(dumper);
     dumpSubtitles(dumper);
