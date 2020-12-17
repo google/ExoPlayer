@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -475,9 +476,12 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     this.skippedSegmentCount = skippedSegmentCount;
     this.trailingParts = ImmutableList.copyOf(trailingParts);
     this.renditionReports = ImmutableMap.copyOf(renditionReports);
-    if (!segments.isEmpty()) {
-      Segment last = segments.get(segments.size() - 1);
-      durationUs = last.relativeStartTimeUs + last.durationUs;
+    if (!trailingParts.isEmpty()) {
+      Part lastPart = Iterables.getLast(trailingParts);
+      durationUs = lastPart.relativeStartTimeUs + lastPart.durationUs;
+    } else if (!segments.isEmpty()) {
+      Segment lastSegment = Iterables.getLast(segments);
+      durationUs = lastSegment.relativeStartTimeUs + lastSegment.durationUs;
     } else {
       durationUs = 0;
     }
