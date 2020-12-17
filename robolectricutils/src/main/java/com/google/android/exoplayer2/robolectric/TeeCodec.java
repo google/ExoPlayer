@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.robolectric;
 
+import android.media.MediaCodec;
+import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.Dumper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
@@ -25,12 +27,10 @@ import java.util.List;
 import org.robolectric.shadows.ShadowMediaCodec;
 
 /**
- * A {@link ShadowMediaCodec.CodecConfig.Codec} for Robolectric's {@link ShadowMediaCodec} that
- * records the contents of buffers passed to it before copying the contents into the output buffer.
- *
- * <p>This also implements {@link Dumper.Dumpable} so the recorded buffers can be written out to a
- * dump file.
+ * @deprecated Use {@link CapturingRenderersFactory} to access {@link MediaCodec} interactions
+ *     instead.
  */
+@Deprecated
 public final class TeeCodec implements ShadowMediaCodec.CodecConfig.Codec, Dumper.Dumpable {
 
   private final String mimeType;

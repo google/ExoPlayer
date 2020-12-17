@@ -1,4 +1,4 @@
-MediaCodec (audio/ac4):
+MediaCodecAdapter (exotest.audio.ac4):
   buffers.length = 20
   buffers[0] = length 367, hash D2762FA
   buffers[1] = length 367, hash BDD3224A

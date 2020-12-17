@@ -15,8 +15,10 @@
  */
 package com.google.android.exoplayer2.robolectric;
 
+import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -48,6 +50,11 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
     return new ShadowMediaCodecConfig();
   }
 
+  /**
+   * @deprecated Use {@link CapturingRenderersFactory} to access {@link MediaCodec} interactions
+   *     instead.
+   */
+  @Deprecated
   public ImmutableMap<String, TeeCodec> getCodecs() {
     return ImmutableMap.copyOf(codecsByMimeType);
   }

@@ -1,4 +1,4 @@
-MediaCodec (audio/mp4a-latm):
+MediaCodecAdapter (exotest.audio.aac):
   buffers.length = 218
   buffers[0] = length 21, hash D57A2CCC
   buffers[1] = length 4, hash EE9DF
@@ -218,7 +218,7 @@ MediaCodec (audio/mp4a-latm):
   buffers[215] = length 4, hash EE9DF
   buffers[216] = length 4, hash EE9DF
   buffers[217] = length 0, hash 1
-MediaCodec (video/avc):
+MediaCodecAdapter (exotest.video.avc):
   buffers.length = 126
   buffers[0] = length 5384, hash F220EEFD
   buffers[1] = length 58, hash 897F4173
