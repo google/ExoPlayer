@@ -1,4 +1,4 @@
-MediaCodec (audio/flac):
+MediaCodecAdapter (exotest.audio.flac):
   buffers.length = 34
   buffers[0] = length 5030, hash D2B60530
   buffers[1] = length 5066, hash 4C932A54

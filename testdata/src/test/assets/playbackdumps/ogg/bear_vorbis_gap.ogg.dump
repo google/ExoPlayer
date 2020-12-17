@@ -1,4 +1,4 @@
-MediaCodec (audio/vorbis):
+MediaCodecAdapter (exotest.audio.vorbis):
   buffers.length = 181
   buffers[0] = length 49, hash 2FFF94F0
   buffers[1] = length 44, hash 3946418A
