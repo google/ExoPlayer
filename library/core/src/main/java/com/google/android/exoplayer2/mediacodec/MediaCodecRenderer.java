@@ -1382,6 +1382,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = checkNotNull(formatHolder.format);
+    if (newFormat.sampleMimeType == null) {
+      // If the new format is invalid, it is either a media bug or it is not intended to be played.
+      // See also https://github.com/google/ExoPlayer/issues/8283.
+      throw createRendererException(new IllegalArgumentException(), newFormat);
+    }
     setSourceDrmSession(formatHolder.drmSession);
     inputFormat = newFormat;
 
