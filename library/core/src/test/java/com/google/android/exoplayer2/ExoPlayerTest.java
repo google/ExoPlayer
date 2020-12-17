@@ -7536,14 +7536,54 @@ public final class ExoPlayerTest {
         .isEqualTo(rendererStreamOffsetsUs.get(0) + periodDurationUs);
   }
 
-  @Ignore // See [internal: b/175773664]
   @Test
   public void mediaItemOfSources_correctInTimelineWindows() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    TimelineWindowDefinition window1 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 1,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            MediaItem.fromUri("http://foo.bar/fake1"));
+    FakeMediaSource fakeMediaSource1 = new FakeMediaSource(new FakeTimeline(window1));
+    TimelineWindowDefinition window2 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 2,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            MediaItem.fromUri("http://foo.bar/fake2"));
+    FakeMediaSource fakeMediaSource2 = new FakeMediaSource(new FakeTimeline(window2));
+    TimelineWindowDefinition window3 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 3,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            MediaItem.fromUri("http://foo.bar/fake3"));
+    FakeMediaSource fakeMediaSource3 = new FakeMediaSource(new FakeTimeline(window3));
     final Player[] playerHolder = {null};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
+            .pause()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -7553,10 +7593,10 @@ public final class ExoPlayerTest {
                 })
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_ENDED)
+            .play()
             .build();
     List<MediaItem> currentMediaItems = new ArrayList<>();
-    List<MediaItem> initialMediaItems = new ArrayList<>();
+    List<MediaItem> mediaItemsInTimeline = new ArrayList<>();
     Player.EventListener eventListener =
         new Player.EventListener() {
           @Override
@@ -7566,31 +7606,34 @@ public final class ExoPlayerTest {
             }
             Window window = new Window();
             for (int i = 0; i < timeline.getWindowCount(); i++) {
-              initialMediaItems.add(timeline.getWindow(i, window).mediaItem);
+              mediaItemsInTimeline.add(timeline.getWindow(i, window).mediaItem);
             }
           }
 
           @Override
           public void onPositionDiscontinuity(int reason) {
-            currentMediaItems.add(playerHolder[0].getCurrentMediaItem());
+            if (reason == Player.DISCONTINUITY_REASON_SEEK
+                || reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+              currentMediaItems.add(playerHolder[0].getCurrentMediaItem());
+            }
           }
         };
     new ExoPlayerTestRunner.Builder(context)
         .setEventListener(eventListener)
         .setActionSchedule(actionSchedule)
-        .setMediaSources(
-            factory.setTag("1").createMediaSource(),
-            factory.setTag("2").createMediaSource(),
-            factory.setTag("3").createMediaSource())
+        .setMediaSources(fakeMediaSource1, fakeMediaSource2, fakeMediaSource3)
         .build()
         .start()
         .blockUntilActionScheduleFinished(TIMEOUT_MS)
         .blockUntilEnded(TIMEOUT_MS);
 
-    assertThat(currentMediaItems.get(0).playbackProperties.tag).isEqualTo("1");
-    assertThat(currentMediaItems.get(1).playbackProperties.tag).isEqualTo("2");
-    assertThat(currentMediaItems.get(2).playbackProperties.tag).isEqualTo("3");
-    assertThat(initialMediaItems).containsExactlyElementsIn(currentMediaItems);
+    assertThat(currentMediaItems.get(0).playbackProperties.uri.toString())
+        .isEqualTo("http://foo.bar/fake1");
+    assertThat(currentMediaItems.get(1).playbackProperties.uri.toString())
+        .isEqualTo("http://foo.bar/fake2");
+    assertThat(currentMediaItems.get(2).playbackProperties.uri.toString())
+        .isEqualTo("http://foo.bar/fake3");
+    assertThat(mediaItemsInTimeline).containsExactlyElementsIn(currentMediaItems);
   }
 
   @Test
