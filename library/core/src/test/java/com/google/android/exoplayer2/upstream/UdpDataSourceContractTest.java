@@ -29,6 +29,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 /** {@link DataSource} contract tests for {@link UdpDataSource}. */
@@ -72,6 +73,29 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
     return Uri.parse("udp://notfound.invalid:12345");
   }
 
+  @Override
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  public void dataSpecWithPosition_readUntilEnd() {}
+
+  /**
+   * Finds a free UDP port in the range of unreserved ports 50000-60000 that can be used from the
+   * test or throws an {@link IllegalStateException} if no port is available.
+   *
+   * <p>There is no guarantee that the port returned will still be available as another process may
+   * occupy it in the mean time.
+   */
+  private static int findFreeUdpPort() {
+    for (int i = 50000; i <= 60000; i++) {
+      try {
+        new DatagramSocket(i).close();
+        return i;
+      } catch (SocketException e) {
+        // Port is occupied, continue to next port.
+      }
+    }
+    throw new IllegalStateException();
+  }
+
   /**
    * A {@link TransferListener} that triggers UDP packet transmissions back to the UDP data source.
    */
@@ -108,24 +132,5 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
 
     @Override
     public void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork) {}
-  }
-
-  /**
-   * Finds a free UDP port in the range of unreserved ports 50000-60000 that can be used from the
-   * test or throws an {@link IllegalStateException} if no port is available.
-   *
-   * <p>There is no guarantee that the port returned will still be available as another process may
-   * occupy it in the mean time.
-   */
-  private static int findFreeUdpPort() {
-    for (int i = 50000; i <= 60000; i++) {
-      try {
-        new DatagramSocket(i).close();
-        return i;
-      } catch (SocketException e) {
-        // Port is occupied, continue to next port.
-      }
-    }
-    throw new IllegalStateException();
   }
 }
