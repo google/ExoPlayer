@@ -7749,13 +7749,38 @@ public final class ExoPlayerTest {
         Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED);
   }
 
-  @Ignore // See [internal: b/175773664]
   @Test
   public void repeat_notifiesMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    MediaItem mediaItem1 = MediaItem.fromUri("http://foo.bar/fake1");
+    TimelineWindowDefinition window1 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 1,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            mediaItem1);
+    MediaItem mediaItem2 = MediaItem.fromUri("http://foo.bar/fake2");
+    TimelineWindowDefinition window2 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 2,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            mediaItem2);
+    FakeMediaSource mediaSource1 = new FakeMediaSource(new FakeTimeline(window1));
+    FakeMediaSource mediaSource2 = new FakeMediaSource(new FakeTimeline(window2));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
@@ -7767,9 +7792,9 @@ public final class ExoPlayerTest {
                     player.setRepeatMode(Player.REPEAT_MODE_ONE);
                   }
                 })
-            .play()
-            .waitForPositionDiscontinuity()
-            .waitForPositionDiscontinuity()
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 90)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 80)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 70)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -7777,6 +7802,7 @@ public final class ExoPlayerTest {
                     player.setRepeatMode(Player.REPEAT_MODE_OFF);
                   }
                 })
+            .play()
             .build();
 
     ExoPlayerTestRunner exoPlayerTestRunner =
