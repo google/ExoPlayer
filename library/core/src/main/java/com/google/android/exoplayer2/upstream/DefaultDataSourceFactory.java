@@ -59,7 +59,7 @@ public final class DefaultDataSourceFactory implements Factory {
    */
   public DefaultDataSourceFactory(
       Context context, String userAgent, @Nullable TransferListener listener) {
-    this(context, listener, new DefaultHttpDataSourceFactory(userAgent, listener));
+    this(context, listener, new DefaultHttpDataSource.Factory().setUserAgent(userAgent));
   }
 
   /**

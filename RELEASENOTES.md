@@ -27,6 +27,8 @@
         `HttpDataSource.Factory.setDefaultRequestProperties` instead.
     *   Fix playback issues after seeking during an ad
         ([#8349](https://github.com/google/ExoPlayer/issues/8349))
+    *   Add `DefaultHttpDataSource.Factory` and deprecate
+        `DefaultHttpDataSourceFactory`.
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.

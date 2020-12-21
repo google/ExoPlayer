@@ -26,7 +26,8 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 /** Fake {@link MediaChunk}. */
 public final class FakeMediaChunk extends MediaChunk {
 
-  private static final DataSource DATA_SOURCE = new DefaultHttpDataSource("TEST_AGENT");
+  private static final DataSource DATA_SOURCE =
+      new DefaultHttpDataSource.Factory().setUserAgent("TEST_AGENT").createDataSource();
 
   /**
    * Creates a fake media chunk.

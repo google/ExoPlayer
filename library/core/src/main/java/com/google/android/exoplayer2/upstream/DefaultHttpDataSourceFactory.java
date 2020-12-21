@@ -19,10 +19,10 @@ import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AG
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
-import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.util.Assertions;
 
-/** A {@link Factory} that produces {@link DefaultHttpDataSource} instances. */
+/** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+@Deprecated
 public final class DefaultHttpDataSourceFactory extends BaseFactory {
 
   private final String userAgent;
@@ -110,6 +110,8 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
   }
 
+  // Calls deprecated constructor.
+  @SuppressWarnings("deprecation")
   @Override
   protected DefaultHttpDataSource createDataSourceInternal(
       HttpDataSource.RequestProperties defaultRequestProperties) {
