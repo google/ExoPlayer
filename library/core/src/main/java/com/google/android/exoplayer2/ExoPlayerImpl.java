@@ -210,16 +210,6 @@ import java.util.concurrent.TimeoutException;
     internalPlayer.experimentalSetForegroundModeTimeoutMs(timeoutMs);
   }
 
-  /**
-   * Configures the player to not throw when it detects it's stuck buffering.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the player is used.
-   */
-  public void experimentalDisableThrowWhenStuckBuffering() {
-    internalPlayer.experimentalDisableThrowWhenStuckBuffering();
-  }
-
   @Override
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     internalPlayer.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);

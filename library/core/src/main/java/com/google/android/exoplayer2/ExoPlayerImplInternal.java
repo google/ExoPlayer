@@ -205,7 +205,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean deliverPendingMessageAtStartPositionRequired;
   @Nullable private ExoPlaybackException pendingRecoverableError;
 
-  private boolean throwWhenStuckBuffering;
   private long setForegroundModeTimeoutMs;
 
   public ExoPlayerImplInternal(
@@ -239,7 +238,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.pauseAtEndOfWindow = pauseAtEndOfWindow;
     this.clock = clock;
 
-    throwWhenStuckBuffering = true;
     backBufferDurationUs = loadControl.getBackBufferDurationUs();
     retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
 
@@ -272,10 +270,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   public void experimentalSetForegroundModeTimeoutMs(long setForegroundModeTimeoutMs) {
     this.setForegroundModeTimeoutMs = setForegroundModeTimeoutMs;
-  }
-
-  public void experimentalDisableThrowWhenStuckBuffering() {
-    throwWhenStuckBuffering = false;
   }
 
   public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
@@ -1012,8 +1006,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           renderers[i].maybeThrowStreamError();
         }
       }
-      if (throwWhenStuckBuffering
-          && !playbackInfo.isLoading
+      if (!playbackInfo.isLoading
           && playbackInfo.totalBufferedDurationUs < 500_000
           && isLoadingPossible()) {
         // Throw if the LoadControl prevents loading even if the buffer is empty or almost empty. We

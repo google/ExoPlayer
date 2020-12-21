@@ -162,7 +162,6 @@ public interface ExoPlayer extends Player {
     private LivePlaybackSpeedControl livePlaybackSpeedControl;
     private boolean buildCalled;
 
-    private boolean throwWhenStuckBuffering;
     private long setForegroundModeTimeoutMs;
 
     /**
@@ -228,7 +227,6 @@ public interface ExoPlayer extends Player {
       seekParameters = SeekParameters.DEFAULT;
       livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
       clock = Clock.DEFAULT;
-      throwWhenStuckBuffering = true;
       releaseTimeoutMs = DEFAULT_RELEASE_TIMEOUT_MS;
     }
 
@@ -243,19 +241,6 @@ public interface ExoPlayer extends Player {
      */
     public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
       setForegroundModeTimeoutMs = timeoutMs;
-      return this;
-    }
-
-    /**
-     * Sets whether the player should throw when it detects it's stuck buffering.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     *
-     * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
-     * @return This builder.
-     */
-    public Builder experimentalSetThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
-      this.throwWhenStuckBuffering = throwWhenStuckBuffering;
       return this;
     }
 
@@ -460,10 +445,6 @@ public interface ExoPlayer extends Player {
       if (setForegroundModeTimeoutMs > 0) {
         player.experimentalSetForegroundModeTimeoutMs(setForegroundModeTimeoutMs);
       }
-      if (!throwWhenStuckBuffering) {
-        player.experimentalDisableThrowWhenStuckBuffering();
-      }
-
       return player;
     }
   }

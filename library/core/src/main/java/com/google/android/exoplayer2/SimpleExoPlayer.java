@@ -119,7 +119,6 @@ public class SimpleExoPlayer extends BasePlayer
     private long releaseTimeoutMs;
     private long detachSurfaceTimeoutMs;
     private boolean pauseAtEndOfMediaItems;
-    private boolean throwWhenStuckBuffering;
     private boolean buildCalled;
 
     /**
@@ -251,7 +250,6 @@ public class SimpleExoPlayer extends BasePlayer
       seekParameters = SeekParameters.DEFAULT;
       livePlaybackSpeedControl = new DefaultLivePlaybackSpeedControl.Builder().build();
       clock = Clock.DEFAULT;
-      throwWhenStuckBuffering = true;
       releaseTimeoutMs = ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
       detachSurfaceTimeoutMs = DEFAULT_DETACH_SURFACE_TIMEOUT_MS;
     }
@@ -537,21 +535,6 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     /**
-     * Sets whether the player should throw when it detects it's stuck buffering.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     *
-     * @param throwWhenStuckBuffering Whether to throw when the player detects it's stuck buffering.
-     * @return This builder.
-     * @throws IllegalStateException If {@link #build()} has already been called.
-     */
-    public Builder experimentalSetThrowWhenStuckBuffering(boolean throwWhenStuckBuffering) {
-      Assertions.checkState(!buildCalled);
-      this.throwWhenStuckBuffering = throwWhenStuckBuffering;
-      return this;
-    }
-
-    /**
      * Sets the {@link Clock} that will be used by the player. Should only be set for testing
      * purposes.
      *
@@ -722,9 +705,6 @@ public class SimpleExoPlayer extends BasePlayer
     wifiLockManager = new WifiLockManager(builder.context);
     wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
     deviceInfo = createDeviceInfo(streamVolumeManager);
-    if (!builder.throwWhenStuckBuffering) {
-      player.experimentalDisableThrowWhenStuckBuffering();
-    }
 
     sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
     sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
