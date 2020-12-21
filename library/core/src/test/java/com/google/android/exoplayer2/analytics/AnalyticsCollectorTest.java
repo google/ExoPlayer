@@ -29,7 +29,6 @@ import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DR
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DROPPED_VIDEO_FRAMES;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_IS_LOADING_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_IS_PLAYING_CHANGED;
-import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_CANCELED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_COMPLETED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_ERROR;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_LOAD_STARTED;
@@ -283,7 +282,7 @@ public final class AnalyticsCollectorTest {
         .inOrder();
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
-        .containsExactly(period0, period0, period0, period0)
+        .containsExactly(period0, period0)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(period0, period1)
@@ -365,7 +364,7 @@ public final class AnalyticsCollectorTest {
         .inOrder();
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
-        .containsExactly(period0, period0, period0, period0)
+        .containsExactly(period0, period0)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(period0, period1)
@@ -428,8 +427,6 @@ public final class AnalyticsCollectorTest {
             // Wait until second period has fully loaded to assert loading events without flakiness.
             .waitForIsLoading(true)
             .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
             .seek(/* windowIndex= */ 1, /* positionMs= */ 0)
             .play()
             .build();
@@ -453,9 +450,9 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period1);
-    List<EventWindowAndPeriodId> loadingEvents = listener.getEvents(EVENT_IS_LOADING_CHANGED);
-    assertThat(loadingEvents).hasSize(4);
-    assertThat(loadingEvents).containsAtLeast(period0, period0).inOrder();
+    assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
+        .containsExactly(period0, period0)
+        .inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(period0, period1, period1)
         .inOrder();
@@ -555,7 +552,7 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_SEEK_STARTED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
-        .containsExactly(period0, period0, period0, period0, period0, period0)
+        .containsExactly(period0, period0, period0, period0)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(period0, period1Seq2)
@@ -851,8 +848,7 @@ public final class AnalyticsCollectorTest {
             period1Seq0 /* SOURCE_UPDATE (child sources in concatenating source moved) */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
-        .containsExactly(
-            window0Period1Seq0, window0Period1Seq0, window0Period1Seq0, window0Period1Seq0);
+        .containsExactly(window0Period1Seq0, window0Period1Seq0, period1Seq0, period1Seq0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED)).containsExactly(window0Period1Seq0);
     assertThat(listener.getEvents(EVENT_LOAD_STARTED))
         .containsExactly(
@@ -960,27 +956,27 @@ public final class AnalyticsCollectorTest {
         .containsExactly(WINDOW_0 /* manifest */, period0Seq0 /* media */, period1Seq1 /* media */)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DOWNSTREAM_FORMAT_CHANGED))
-        .containsExactly(period0Seq0, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_ENABLED))
-        .containsExactly(period0Seq0, period0Seq1, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_INIT))
-        .containsExactly(period0Seq0, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_FORMAT_CHANGED))
-        .containsExactly(period0Seq0, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_DECODER_DISABLED))
         .containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED))
-        .containsExactly(period0Seq0, period0Seq1, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1, period0Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INITIALIZED))
-        .containsExactly(period0Seq0, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_INPUT_FORMAT_CHANGED))
-        .containsExactly(period0Seq0, period0Seq1)
+        .containsExactly(period0Seq0, period1Seq1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_VIDEO_DISABLED)).containsExactly(period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_DROPPED_VIDEO_FRAMES)).containsExactly(period0Seq1);
@@ -1022,14 +1018,19 @@ public final class AnalyticsCollectorTest {
             DrmSessionManager.DUMMY,
             (unusedFormat, mediaPeriodId) -> {
               if (mediaPeriodId.isAd()) {
-                return ImmutableList.of(oneByteSample(/* timeUs= */ 0), END_OF_STREAM_ITEM);
+                return ImmutableList.of(
+                    oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM);
               } else {
                 // Provide a single sample before and after the midroll ad and another after the
                 // postroll.
                 return ImmutableList.of(
-                    oneByteSample(windowOffsetInFirstPeriodUs + C.MICROS_PER_SECOND),
-                    oneByteSample(windowOffsetInFirstPeriodUs + 6 * C.MICROS_PER_SECOND),
-                    oneByteSample(windowOffsetInFirstPeriodUs + contentDurationsUs),
+                    oneByteSample(
+                        windowOffsetInFirstPeriodUs + C.MICROS_PER_SECOND, C.BUFFER_FLAG_KEY_FRAME),
+                    oneByteSample(
+                        windowOffsetInFirstPeriodUs + 6 * C.MICROS_PER_SECOND,
+                        C.BUFFER_FLAG_KEY_FRAME),
+                    oneByteSample(
+                        windowOffsetInFirstPeriodUs + contentDurationsUs, C.BUFFER_FLAG_KEY_FRAME),
                     END_OF_STREAM_ITEM);
               }
             },
@@ -1071,16 +1072,6 @@ public final class AnalyticsCollectorTest {
                 })
             .pause()
             // Ensure everything is preloaded.
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
             .waitForIsLoading(true)
             .waitForIsLoading(false)
             .waitForPlaybackState(Player.STATE_READY)
@@ -1161,9 +1152,7 @@ public final class AnalyticsCollectorTest {
             contentAfterPreroll, midrollAd, contentAfterMidroll, postrollAd, contentAfterPostroll)
         .inOrder();
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
-        .containsExactly(
-            prerollAd, prerollAd, prerollAd, prerollAd, prerollAd, prerollAd, prerollAd, prerollAd,
-            prerollAd, prerollAd, prerollAd, prerollAd)
+        .containsExactly(prerollAd, prerollAd)
         .inOrder();
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
         .containsExactly(
@@ -1289,12 +1278,16 @@ public final class AnalyticsCollectorTest {
             DrmSessionManager.DUMMY,
             (unusedFormat, mediaPeriodId) -> {
               if (mediaPeriodId.isAd()) {
-                return ImmutableList.of(oneByteSample(/* timeUs= */ 0), END_OF_STREAM_ITEM);
+                return ImmutableList.of(
+                    oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM);
               } else {
                 // Provide a sample before the midroll and another after the seek point below (6s).
                 return ImmutableList.of(
-                    oneByteSample(windowOffsetInFirstPeriodUs + C.MICROS_PER_SECOND),
-                    oneByteSample(windowOffsetInFirstPeriodUs + 7 * C.MICROS_PER_SECOND),
+                    oneByteSample(
+                        windowOffsetInFirstPeriodUs + C.MICROS_PER_SECOND, C.BUFFER_FLAG_KEY_FRAME),
+                    oneByteSample(
+                        windowOffsetInFirstPeriodUs + 7 * C.MICROS_PER_SECOND,
+                        C.BUFFER_FLAG_KEY_FRAME),
                     END_OF_STREAM_ITEM);
               }
             },
@@ -1303,10 +1296,6 @@ public final class AnalyticsCollectorTest {
         new ActionSchedule.Builder(TAG)
             .pause()
             // Ensure everything is preloaded.
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
             .waitForIsLoading(true)
             .waitForIsLoading(false)
             // Seek behind the midroll.
@@ -1359,10 +1348,6 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_SEEK_PROCESSED)).containsExactly(contentAfterMidroll);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(
-            contentBeforeMidroll,
-            contentBeforeMidroll,
-            contentBeforeMidroll,
-            contentBeforeMidroll,
             contentBeforeMidroll,
             contentBeforeMidroll,
             midrollAd,

@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
+import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
@@ -102,15 +103,19 @@ public class DecoderAudioRendererTest {
 
   @Test
   public void immediatelyReadEndOfStreamPlaysAudioSinkToEndOfStream() throws Exception {
-    audioRenderer.enable(
-        RendererConfiguration.DEFAULT,
-        new Format[] {FORMAT},
+    FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
             /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
             new DrmSessionEventListener.EventDispatcher(),
             FORMAT,
-            ImmutableList.of(END_OF_STREAM_ITEM)),
+            ImmutableList.of(END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    audioRenderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {FORMAT},
+        fakeSampleStream,
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,

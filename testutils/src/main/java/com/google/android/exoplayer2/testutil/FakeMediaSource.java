@@ -343,6 +343,7 @@ public class FakeMediaSource extends BaseMediaSource {
     long defaultFirstSampleTimeUs = positionInWindowUs >= 0 || id.isAd() ? 0 : -positionInWindowUs;
     return new FakeMediaPeriod(
         trackGroupArray,
+        allocator,
         trackDataFactory != null
             ? trackDataFactory
             : TrackDataFactory.singleSampleWithTimeUs(defaultFirstSampleTimeUs),
