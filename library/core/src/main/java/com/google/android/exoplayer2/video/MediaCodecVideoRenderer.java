@@ -112,7 +112,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
 
   private final Context context;
-  private final VideoFrameReleaseTimeHelper frameReleaseTimeHelper;
+  private final VideoFrameReleaseHelper frameReleaseHelper;
   private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
@@ -123,7 +123,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
 
   @Nullable private Surface surface;
-  private float surfaceFrameRate;
   @Nullable private Surface dummySurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   @C.VideoScalingMode private int scalingMode;
@@ -278,7 +277,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     this.context = context.getApplicationContext();
-    frameReleaseTimeHelper = new VideoFrameReleaseTimeHelper(this.context);
+    frameReleaseHelper = new VideoFrameReleaseHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     joiningDeadlineMs = C.TIME_UNSET;
@@ -408,7 +407,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       releaseCodec();
     }
     eventDispatcher.enabled(decoderCounters);
-    frameReleaseTimeHelper.onEnabled();
+    frameReleaseHelper.onEnabled();
     mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
     renderedFirstFrameAfterEnable = false;
   }
@@ -417,7 +416,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
     clearRenderedFirstFrame();
-    frameReleaseTimeHelper.onPositionReset();
+    frameReleaseHelper.onPositionReset();
     lastBufferPresentationTimeUs = C.TIME_UNSET;
     initialPositionUs = C.TIME_UNSET;
     consecutiveDroppedFrameCount = 0;
@@ -459,8 +458,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
     totalVideoFrameProcessingOffsetUs = 0;
     videoFrameProcessingOffsetCount = 0;
-    frameReleaseTimeHelper.onStarted();
-    updateSurfaceFrameRate(/* isNewSurface= */ false);
+    frameReleaseHelper.onStarted();
   }
 
   @Override
@@ -468,7 +466,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     joiningDeadlineMs = C.TIME_UNSET;
     maybeNotifyDroppedFrames();
     maybeNotifyVideoFrameProcessingOffset();
-    clearSurfaceFrameRate();
+    frameReleaseHelper.onStopped();
     super.onStopped();
   }
 
@@ -477,7 +475,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     clearReportedVideoSize();
     clearRenderedFirstFrame();
     haveReportedFirstFrameRenderedForCurrentSurface = false;
-    frameReleaseTimeHelper.onDisabled();
+    frameReleaseHelper.onDisabled();
     tunnelingOnFrameRenderedListener = null;
     try {
       super.onDisabled();
@@ -533,10 +531,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
     // We only need to update the codec if the surface has changed.
     if (this.surface != surface) {
-      clearSurfaceFrameRate();
       this.surface = surface;
+      frameReleaseHelper.onSurfaceChanged(surface);
       haveReportedFirstFrameRenderedForCurrentSurface = false;
-      updateSurfaceFrameRate(/* isNewSurface= */ true);
 
       @State int state = getState();
       @Nullable MediaCodecAdapter codec = getCodec();
@@ -643,8 +640,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   public void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {
     super.setPlaybackSpeed(playbackSpeed);
-    frameReleaseTimeHelper.onPlaybackSpeed(playbackSpeed);
-    updateSurfaceFrameRate(/* isNewSurface= */ false);
+    frameReleaseHelper.onPlaybackSpeed(playbackSpeed);
   }
 
   @Override
@@ -749,8 +745,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // On API level 20 and below the decoder does not apply the rotation.
       currentUnappliedRotationDegrees = format.rotationDegrees;
     }
-    frameReleaseTimeHelper.onFormatChanged(format.frameRate);
-    updateSurfaceFrameRate(/* isNewSurface= */ false);
+    frameReleaseHelper.onFormatChanged(format.frameRate);
   }
 
   @Override
@@ -805,7 +800,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     if (bufferPresentationTimeUs != lastBufferPresentationTimeUs) {
-      frameReleaseTimeHelper.onNextFrame(bufferPresentationTimeUs);
+      frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
       this.lastBufferPresentationTimeUs = bufferPresentationTimeUs;
     }
 
@@ -873,8 +868,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
 
     // Apply a timestamp adjustment, if there is one.
-    long adjustedReleaseTimeNs =
-        frameReleaseTimeHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
+    long adjustedReleaseTimeNs = frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
     earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
 
     boolean treatDroppedBuffersAsSkipped = joiningDeadlineMs != C.TIME_UNSET;
@@ -1131,50 +1125,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     maybeNotifyRenderedFirstFrame();
-  }
-
-  /**
-   * Updates the frame-rate of the current {@link #surface} based on the renderer operating rate,
-   * frame-rate of the content, and whether the renderer is started.
-   *
-   * @param isNewSurface Whether the current {@link #surface} is new.
-   */
-  private void updateSurfaceFrameRate(boolean isNewSurface) {
-    if (Util.SDK_INT < 30 || surface == null || surface == dummySurface) {
-      return;
-    }
-    float playbackFrameRate = frameReleaseTimeHelper.getPlaybackFrameRate();
-    float surfaceFrameRate =
-        getState() == STATE_STARTED && playbackFrameRate != C.RATE_UNSET ? playbackFrameRate : 0;
-    // We always set the frame-rate if we have a new surface, since we have no way of knowing what
-    // it might have been set to previously.
-    if (this.surfaceFrameRate == surfaceFrameRate && !isNewSurface) {
-      return;
-    }
-    this.surfaceFrameRate = surfaceFrameRate;
-    setSurfaceFrameRateV30(surface, surfaceFrameRate);
-  }
-
-  /** Clears the frame-rate of the current {@link #surface}. */
-  private void clearSurfaceFrameRate() {
-    if (Util.SDK_INT < 30 || surface == null || surface == dummySurface || surfaceFrameRate == 0) {
-      return;
-    }
-    surfaceFrameRate = 0;
-    setSurfaceFrameRateV30(surface, /* frameRate= */ 0);
-  }
-
-  @RequiresApi(30)
-  private static void setSurfaceFrameRateV30(Surface surface, float frameRate) {
-    int compatibility =
-        frameRate == 0
-            ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
-            : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
-    try {
-      surface.setFrameRate(frameRate, compatibility);
-    } catch (IllegalStateException e) {
-      Log.e(TAG, "Failed to call Surface.setFrameRate", e);
-    }
   }
 
   private boolean shouldUseDummySurface(MediaCodecInfo codecInfo) {
