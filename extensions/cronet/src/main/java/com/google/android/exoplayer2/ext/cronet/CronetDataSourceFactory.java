@@ -21,14 +21,14 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
-import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import java.util.concurrent.Executor;
 import org.chromium.net.CronetEngine;
 
-/**
- * A {@link Factory} that produces {@link CronetDataSource}.
- */
+/** @deprecated Use {@link CronetDataSource.Factory} instead. */
+// Uses deprecated DefaultHttpDataSourceFactory
+@SuppressWarnings("deprecation")
+@Deprecated
 public final class CronetDataSourceFactory extends BaseFactory {
 
   /**

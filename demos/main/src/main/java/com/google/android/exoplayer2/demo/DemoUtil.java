@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
-import com.google.android.exoplayer2.ext.cronet.CronetDataSourceFactory;
+import com.google.android.exoplayer2.ext.cronet.CronetDataSource;
 import com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
@@ -81,7 +81,7 @@ public final class DemoUtil {
       context = context.getApplicationContext();
       CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper(context);
       httpDataSourceFactory =
-          new CronetDataSourceFactory(cronetEngineWrapper, Executors.newSingleThreadExecutor());
+          new CronetDataSource.Factory(cronetEngineWrapper, Executors.newSingleThreadExecutor());
     }
     return httpDataSourceFactory;
   }

@@ -73,6 +73,8 @@
         ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
 *   OkHttp extension:
     *   Add `OkHttpDataSource.Factory` and deprecate `OkHttpDataSourceFactory`.
+*   Cronet extension:
+    *   Add `CronetDataSource.Factory` and deprecate `CronetDataSourceFactory`.
 *   Media2 extension
     *   Make media2-extension depend on AndroidX media2:media2-session:1.1.0 to
         fix a deadlock while creating PlaybackStateCompat internally.
