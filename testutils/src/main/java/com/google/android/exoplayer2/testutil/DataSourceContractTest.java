@@ -128,6 +128,59 @@ public abstract class DataSourceContractTest {
   }
 
   @Test
+  public void dataSpecWithLength_readExpectedRange() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(new DataSpec.Builder().setUri(resource.getUri()).setLength(4).build());
+        byte[] data = readToEnd(dataSource, resource);
+
+        assertThat(length).isEqualTo(4);
+        byte[] expectedData = Arrays.copyOf(resource.getExpectedBytes(), 4);
+        assertThat(data).isEqualTo(expectedData);
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void dataSpecWithPositionAndLength_readExpectedRange() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(
+                new DataSpec.Builder()
+                    .setUri(resource.getUri())
+                    .setPosition(2)
+                    .setLength(2)
+                    .build());
+        byte[] data = readToEnd(dataSource, resource);
+
+        assertThat(length).isEqualTo(2);
+        byte[] expectedData = Arrays.copyOfRange(resource.getExpectedBytes(), 2, 4);
+        assertThat(data).isEqualTo(expectedData);
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
   public void resourceNotFound() throws Exception {
     DataSource dataSource = createDataSource();
     try {

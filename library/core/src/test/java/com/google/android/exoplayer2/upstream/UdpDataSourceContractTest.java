@@ -75,6 +75,16 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
   @Override
   public void dataSpecWithPosition_readUntilEnd() {}
 
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
+  public void dataSpecWithLength_readExpectedRange() {}
+
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
+  public void dataSpecWithPositionAndLength_readExpectedRange() {}
+
   /**
    * Finds a free UDP port in the range of unreserved ports 50000-60000 that can be used from the
    * test or throws an {@link IllegalStateException} if no port is available.
