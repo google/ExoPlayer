@@ -870,7 +870,10 @@ public class SampleQueue implements TrackOutput {
     @Nullable DrmInitData newDrmInitData = newFormat.drmInitData;
 
     outputFormatHolder.format =
-        newFormat.copyWithExoMediaCryptoType(drmSessionManager.getExoMediaCryptoType(newFormat));
+        drmSessionManager != null
+            ? newFormat.copyWithExoMediaCryptoType(
+                drmSessionManager.getExoMediaCryptoType(newFormat))
+            : newFormat;
     outputFormatHolder.drmSession = currentDrmSession;
     if (drmSessionManager == null) {
       // This sample queue is not expected to handle DRM. Nothing to do.
