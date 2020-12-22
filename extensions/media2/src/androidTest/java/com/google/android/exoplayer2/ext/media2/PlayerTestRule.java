@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.media2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
@@ -143,6 +145,7 @@ import org.junit.rules.ExternalResource;
 
     private final DataSource wrappedDataSource;
     private final DataSourceInstrumentation instrumentation;
+    private boolean opened;
 
     public InstrumentedDataSource(
         DataSource wrappedDataSource, DataSourceInstrumentation instrumentation) {
@@ -157,8 +160,11 @@ import org.junit.rules.ExternalResource;
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {
+      checkState(!opened);
       instrumentation.onPreOpen(dataSpec);
-      return wrappedDataSource.open(dataSpec);
+      long length = wrappedDataSource.open(dataSpec);
+      opened = true;
+      return length;
     }
 
     @Nullable
@@ -180,6 +186,7 @@ import org.junit.rules.ExternalResource;
     @Override
     public void close() throws IOException {
       wrappedDataSource.close();
+      opened = false;
     }
   }
 }

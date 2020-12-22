@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -50,6 +52,7 @@ import javax.crypto.spec.SecretKeySpec;
   private final DataSource upstream;
   private final byte[] encryptionKey;
   private final byte[] encryptionIv;
+  private boolean opened;
 
   @Nullable private CipherInputStream cipherInputStream;
 
@@ -72,6 +75,7 @@ import javax.crypto.spec.SecretKeySpec;
 
   @Override
   public final long open(DataSpec dataSpec) throws IOException {
+    checkState(!opened);
     Cipher cipher;
     try {
       cipher = getCipherInstance();
@@ -91,7 +95,7 @@ import javax.crypto.spec.SecretKeySpec;
     DataSourceInputStream inputStream = new DataSourceInputStream(upstream, dataSpec);
     cipherInputStream = new CipherInputStream(inputStream, cipher);
     inputStream.open();
-
+    opened = true;
     return C.LENGTH_UNSET;
   }
 
@@ -121,6 +125,7 @@ import javax.crypto.spec.SecretKeySpec;
     if (cipherInputStream != null) {
       cipherInputStream = null;
       upstream.close();
+      opened = false;
     }
   }
 

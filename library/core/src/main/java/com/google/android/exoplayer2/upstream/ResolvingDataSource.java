@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -103,6 +104,7 @@ public final class ResolvingDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
+    checkState(!upstreamOpened);
     DataSpec resolvedDataSpec = resolver.resolveDataSpec(dataSpec);
     upstreamOpened = true;
     return upstreamDataSource.open(resolvedDataSpec);

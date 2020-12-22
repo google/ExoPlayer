@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.okhttp;
 
 import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -277,6 +278,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
+    checkState(!opened);
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
     this.bytesSkipped = 0;

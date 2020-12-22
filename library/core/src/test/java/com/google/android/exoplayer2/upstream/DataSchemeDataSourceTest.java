@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.C.RESULT_END_OF_INPUT;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 import android.net.Uri;
@@ -130,19 +131,20 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void malformedData() {
-    try {
-      schemeDataDataSource.open(buildDataSpec("data:text/plain;base64,,This%20is%20Content"));
-      fail();
-    } catch (IOException e) {
-      // Expected.
-    }
-    try {
-      schemeDataDataSource.open(buildDataSpec("data:text/plain;base64,IncorrectPadding=="));
-      fail();
-    } catch (IOException e) {
-      // Expected.
-    }
+  public void malformedData_throwsIOException() {
+    assertThrows(
+        IOException.class,
+        () ->
+            schemeDataDataSource.open(
+                buildDataSpec("data:text/plain;base64,,This%20is%20Content")));
+  }
+
+  @Test
+  public void malformedData_incorrectPadding_throwsIOException() {
+    assertThrows(
+        IOException.class,
+        () ->
+            schemeDataDataSource.open(buildDataSpec("data:text/plain;base64,IncorrectPadding==")));
   }
 
   @Test

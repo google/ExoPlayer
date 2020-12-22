@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -104,6 +105,7 @@ public class Aes128DataSourceTest {
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {
+      checkState(!opened);
       opened = true;
       return C.LENGTH_UNSET;
     }
