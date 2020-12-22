@@ -3,8 +3,16 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
-    *   `LoadControl`:
-        *   Add a `targetLiveOffsetUs` parameter to `shouldStartPlayback`.
+    *   Add a `LivePlaybackSpeedControl` component to control the playback speed
+        during live playbacks. This allows the player to stay close to the
+        configured live offset. A configurable default implementation
+        `DefaultLivePlaybackSpeedControl` is added to `ExoPlayer` and
+        `SimpleExoPlayer` by default.
+    *   Add `LiveConfiguration` to `MediaItem` to allow media-specific live
+        offset and live playback speed settings. The same settings can be set
+        for all `MediaItems` in `DefaultMediaSourceFactory`.
+    *   Add  `targetLiveOffsetUs` parameter to
+        `LoadControl.shouldStartPlayback`.
     *   Verify correct thread usage in `SimpleExoPlayer` by default. Opt-out is
         still possible until the next major release using
         `setThrowsWhenUsingWrongThread(false)`
@@ -32,6 +40,15 @@
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
+*   DASH:
+    *   Support low-latency DASH playback (`availabilityTimeOffset` and
+        `ServiceDescription` tags)
+        ([#4904](https://github.com/google/ExoPlayer/issues/4904)).
+*   HLS:
+    *   Support playlist delta updates, blocking playlist reloads and rendition
+        reports.
+    *   Support low-latency HLS playback (`EXT-X-PART`s and preload hints)
+        ([#5011](https://github.com/google/ExoPlayer/issues/5011)).
 *   UI:
     *   Miscellaneous fixes for `StyledPlayerControlView` in minimal mode.
     *   Fix issue where pop-up menus belonging to `StyledPlayerControlView`
