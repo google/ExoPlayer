@@ -409,7 +409,7 @@ public final class VideoFrameReleaseHelper {
 
     private final Handler handler;
     private final HandlerThread choreographerOwnerThread;
-    @MonotonicNonNull private Choreographer choreographer;
+    private @MonotonicNonNull Choreographer choreographer;
     private int observerCount;
 
     public static VSyncSampler getInstance() {
