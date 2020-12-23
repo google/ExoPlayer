@@ -88,7 +88,10 @@ public abstract class DataSourceContractTest {
       DataSource dataSource = createDataSource();
       try {
         long length = dataSource.open(new DataSpec(resource.getUri()));
-        byte[] data = readToEnd(dataSource, resource);
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, resource.getExpectedBytes().length);
 
         assertThat(length).isEqualTo(resource.getExpectedResolvedLength());
         assertThat(data).isEqualTo(resource.getExpectedBytes());
@@ -112,7 +115,10 @@ public abstract class DataSourceContractTest {
         long length =
             dataSource.open(
                 new DataSpec.Builder().setUri(resource.getUri()).setPosition(3).build());
-        byte[] data = readToEnd(dataSource, resource);
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, resource.getExpectedBytes().length - 3);
 
         if (resource.getExpectedResolvedLength() != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(resource.getExpectedResolvedLength() - 3);
@@ -139,7 +145,10 @@ public abstract class DataSourceContractTest {
       try {
         long length =
             dataSource.open(new DataSpec.Builder().setUri(resource.getUri()).setLength(4).build());
-        byte[] data = readToEnd(dataSource, resource);
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, /* length= */ 4);
 
         assertThat(length).isEqualTo(4);
         byte[] expectedData = Arrays.copyOf(resource.getExpectedBytes(), 4);
@@ -168,7 +177,10 @@ public abstract class DataSourceContractTest {
                     .setPosition(2)
                     .setLength(2)
                     .build());
-        byte[] data = readToEnd(dataSource, resource);
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, /* length= */ 2);
 
         assertThat(length).isEqualTo(2);
         byte[] expectedData = Arrays.copyOfRange(resource.getExpectedBytes(), 2, 4);
@@ -199,13 +211,6 @@ public abstract class DataSourceContractTest {
     } else {
       return String.format("resource[%s]", i);
     }
-  }
-
-  private static byte[] readToEnd(DataSource dataSource, TestResource expectedResource)
-      throws IOException {
-    return expectedResource.isEndOfInputExpected()
-        ? Util.readToEnd(dataSource)
-        : Util.readExactly(dataSource, expectedResource.getExpectedBytes().length);
   }
 
   /** Information about a resource that can be used to test the {@link DataSource} instance. */
