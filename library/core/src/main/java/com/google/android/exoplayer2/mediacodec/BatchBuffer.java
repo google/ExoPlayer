@@ -153,26 +153,26 @@ import java.nio.ByteBuffer;
   }
 
   private void putAccessUnit(DecoderInputBuffer accessUnit) {
-    @Nullable ByteBuffer accessUnitData = accessUnit.data;
-    if (accessUnitData != null) {
-      accessUnit.flip();
-      ensureSpaceForWrite(accessUnitData.remaining());
-      this.data.put(accessUnitData);
-    }
-
     if (accessUnit.isEndOfStream()) {
       setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-    }
-    if (accessUnit.isDecodeOnly()) {
-      setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-    }
-    if (accessUnit.isKeyFrame()) {
-      setFlags(C.BUFFER_FLAG_KEY_FRAME);
-    }
-    accessUnitCount++;
-    timeUs = accessUnit.timeUs;
-    if (accessUnitCount == 1) { // First read of the buffer
-      firstAccessUnitTimeUs = timeUs;
+    } else {
+      timeUs = accessUnit.timeUs;
+      if (accessUnit.isDecodeOnly()) {
+        setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+      }
+      if (accessUnit.isKeyFrame()) {
+        setFlags(C.BUFFER_FLAG_KEY_FRAME);
+      }
+      @Nullable ByteBuffer accessUnitData = accessUnit.data;
+      if (accessUnitData != null) {
+        accessUnit.flip();
+        ensureSpaceForWrite(accessUnitData.remaining());
+        this.data.put(accessUnitData);
+      }
+      accessUnitCount++;
+      if (accessUnitCount == 1) {
+        firstAccessUnitTimeUs = timeUs;
+      }
     }
     accessUnit.clear();
   }
