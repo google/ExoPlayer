@@ -21,7 +21,12 @@ import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.testutil.WebServerDispatcher;
 import com.google.common.collect.ImmutableList;
+import java.util.function.Function;
+import okhttp3.HttpUrl;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -61,23 +66,43 @@ public class DefaultHttpDataSourceContractTest extends DataSourceContractTest {
           .resolvesToUnknownLength(true)
           .build();
 
-  private final MockWebServer mockWebServer = new MockWebServer();
+  private static final WebServerDispatcher.Resource REDIRECTS_TO_RANGE_SUPPORTED =
+      RANGE_SUPPORTED.buildUpon().setPath("/redirects/to/range/supported").build();
+
+  private final MockWebServer originServer = new MockWebServer();
+  private final MockWebServer redirectionServer = new MockWebServer();
 
   @Before
-  public void startServer() throws Exception {
-    mockWebServer.start();
-    mockWebServer.setDispatcher(
+  public void startServers() throws Exception {
+    originServer.start();
+    originServer.setDispatcher(
         WebServerDispatcher.forResources(
             ImmutableList.of(
                 RANGE_SUPPORTED,
                 RANGE_SUPPORTED_LENGTH_UNKNOWN,
                 RANGE_NOT_SUPPORTED,
                 RANGE_NOT_SUPPORTED_LENGTH_UNKNOWN)));
+
+    redirectionServer.start();
+    redirectionServer.setDispatcher(
+        new Dispatcher() {
+          @Override
+          public MockResponse dispatch(RecordedRequest request) {
+            if (request.getPath().equals(REDIRECTS_TO_RANGE_SUPPORTED.getPath())) {
+              return new MockResponse()
+                  .setResponseCode(302)
+                  .setHeader("Location", originServer.url(RANGE_SUPPORTED.getPath()).toString());
+            } else {
+              return new MockResponse().setResponseCode(404);
+            }
+          }
+        });
   }
 
   @After
-  public void shutdownServer() throws Exception {
-    mockWebServer.shutdown();
+  public void shutdownServers() throws Exception {
+    originServer.shutdown();
+    redirectionServer.shutdown();
   }
 
   @Override
@@ -88,21 +113,27 @@ public class DefaultHttpDataSourceContractTest extends DataSourceContractTest {
   @Override
   protected ImmutableList<TestResource> getTestResources() {
     return ImmutableList.of(
-        toTestResource("range supported", RANGE_SUPPORTED),
-        toTestResource("range supported, length unknown", RANGE_SUPPORTED_LENGTH_UNKNOWN),
-        toTestResource("range not supported", RANGE_NOT_SUPPORTED),
-        toTestResource("range not supported, length unknown", RANGE_NOT_SUPPORTED_LENGTH_UNKNOWN));
+        toTestResource("range supported", RANGE_SUPPORTED, originServer::url),
+        toTestResource(
+            "range supported, length unknown", RANGE_SUPPORTED_LENGTH_UNKNOWN, originServer::url),
+        toTestResource("range not supported", RANGE_NOT_SUPPORTED, originServer::url),
+        toTestResource(
+            "range not supported, length unknown",
+            RANGE_NOT_SUPPORTED_LENGTH_UNKNOWN,
+            originServer::url),
+        toTestResource("302 redirect", REDIRECTS_TO_RANGE_SUPPORTED, redirectionServer::url));
   }
 
   @Override
   protected Uri getNotFoundUri() {
-    return Uri.parse(mockWebServer.url("/not/a/real/path").toString());
+    return Uri.parse(originServer.url("/not/a/real/path").toString());
   }
 
-  private TestResource toTestResource(String name, WebServerDispatcher.Resource resource) {
+  private static TestResource toTestResource(
+      String name, WebServerDispatcher.Resource resource, Function<String, HttpUrl> urlResolver) {
     return new TestResource.Builder()
         .setName(name)
-        .setUri(Uri.parse(mockWebServer.url(resource.getPath()).toString()))
+        .setUri(Uri.parse(urlResolver.apply(resource.getPath()).toString()))
         .setExpectedBytes(resource.getData())
         .setResolvesToUnknownLength(resource.resolvesToUnknownLength())
         .setEndOfInputExpected(!resource.resolvesToUnknownLength())

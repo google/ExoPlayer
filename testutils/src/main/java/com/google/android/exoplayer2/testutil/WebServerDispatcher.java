@@ -48,6 +48,16 @@ public class WebServerDispatcher extends Dispatcher {
       private boolean supportsRangeRequests;
       private boolean resolvesToUnknownLength;
 
+      /** Constructs an instance. */
+      public Builder() {}
+
+      private Builder(Resource resource) {
+        this.path = resource.getPath();
+        this.data = resource.getData();
+        this.supportsRangeRequests = resource.supportsRangeRequests();
+        this.resolvesToUnknownLength = resource.resolvesToUnknownLength();
+      }
+
       /**
        * Sets the path this data should be served at. This is required.
        *
@@ -131,6 +141,11 @@ public class WebServerDispatcher extends Dispatcher {
      */
     public boolean resolvesToUnknownLength() {
       return resolvesToUnknownLength;
+    }
+
+    /** Returns a new {@link Builder} initialized with the values from this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
     }
   }
 
