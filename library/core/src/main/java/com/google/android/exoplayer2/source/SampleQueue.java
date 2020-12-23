@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
@@ -869,11 +870,11 @@ public class SampleQueue implements TrackOutput {
     downstreamFormat = newFormat;
     @Nullable DrmInitData newDrmInitData = newFormat.drmInitData;
 
-    outputFormatHolder.format =
-        drmSessionManager != null
-            ? newFormat.copyWithExoMediaCryptoType(
-                drmSessionManager.getExoMediaCryptoType(newFormat))
-            : newFormat;
+    @Nullable
+    Class<? extends ExoMediaCrypto> exoMediaCryptoType =
+        (drmSessionManager != null ? drmSessionManager : DrmSessionManager.DUMMY)
+            .getExoMediaCryptoType(newFormat);
+    outputFormatHolder.format = newFormat.copyWithExoMediaCryptoType(exoMediaCryptoType);
     outputFormatHolder.drmSession = currentDrmSession;
     if (drmSessionManager == null) {
       // This sample queue is not expected to handle DRM. Nothing to do.
