@@ -2133,54 +2133,59 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   private boolean bypassRender(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
-    BatchBuffer batchBuffer = bypassBatchBuffer;
 
     // Process any data in the batch buffer.
     checkState(!outputStreamEnded);
-    if (!batchBuffer.isEmpty()) { // Optimisation: Do not process buffer if empty.
+    if (!bypassBatchBuffer.isEmpty()) {
       if (processOutputBuffer(
           positionUs,
           elapsedRealtimeUs,
           /* codec= */ null,
-          batchBuffer.data,
+          bypassBatchBuffer.data,
           outputIndex,
           /* bufferFlags= */ 0,
-          batchBuffer.getAccessUnitCount(),
-          batchBuffer.getFirstAccessUnitTimeUs(),
-          batchBuffer.isDecodeOnly(),
-          batchBuffer.isEndOfStream(),
+          bypassBatchBuffer.getAccessUnitCount(),
+          bypassBatchBuffer.getFirstAccessUnitTimeUs(),
+          bypassBatchBuffer.isDecodeOnly(),
+          bypassBatchBuffer.isEndOfStream(),
           outputFormat)) {
-        onProcessedOutputBuffer(batchBuffer.getLastAccessUnitTimeUs());
+        onProcessedOutputBuffer(bypassBatchBuffer.getLastAccessUnitTimeUs());
       } else {
         // Could not process the whole buffer. Try again later.
         return false;
       }
     }
-    // Process the end of stream, if it has been reached.
-    if (batchBuffer.isEndOfStream()) {
+    // Process end of stream, if reached.
+    if (bypassBatchBuffer.isEndOfStream()) {
       outputStreamEnded = true;
       return false;
     }
-    batchBuffer.batchWasConsumed();
+
+    bypassBatchBuffer.batchWasConsumed();
 
     if (bypassDrainAndReinitialize) {
-      if (!batchBuffer.isEmpty()) {
-        return true; // Drain the batch buffer before propagating the format change.
+      if (!bypassBatchBuffer.isEmpty()) {
+        // The bypassBatchBuffer.batchWasConsumed() call above caused a pending access unit to be
+        // made available inside the batch buffer, meaning it's once again non-empty. We need to
+        // process this data before we can re-initialize.
+        return true;
       }
-      disableBypass(); // The new format might require a codec.
+      // The new format might require using a codec rather than bypass.
+      disableBypass();
       bypassDrainAndReinitialize = false;
       maybeInitCodecOrBypass();
       if (!bypassEnabled) {
-        return false; // The new format is not supported in codec bypass.
+        // We're no longer in bypass mode.
+        return false;
       }
     }
 
-    // Now refill the empty buffer for the next iteration.
+    // Fill the batch buffer for the next iteration.
     checkState(!inputStreamEnded);
     FormatHolder formatHolder = getFormatHolder();
-    boolean formatChange = readBatchFromSource(formatHolder, batchBuffer);
+    boolean formatChange = readBatchFromSource(formatHolder, bypassBatchBuffer);
 
-    if (!batchBuffer.isEmpty() && waitingForFirstSampleInFormat) {
+    if (!bypassBatchBuffer.isEmpty() && waitingForFirstSampleInFormat) {
       // This is the first buffer in a new format, the output format must be updated.
       outputFormat = checkNotNull(inputFormat);
       onOutputFormatChanged(outputFormat, /* mediaFormat= */ null);
@@ -2192,12 +2197,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     boolean haveDataToProcess = false;
-    if (batchBuffer.isEndOfStream()) {
+    if (bypassBatchBuffer.isEndOfStream()) {
       inputStreamEnded = true;
       haveDataToProcess = true;
     }
-    if (!batchBuffer.isEmpty()) {
-      batchBuffer.flip();
+    if (!bypassBatchBuffer.isEmpty()) {
+      bypassBatchBuffer.flip();
       haveDataToProcess = true;
     }
 
