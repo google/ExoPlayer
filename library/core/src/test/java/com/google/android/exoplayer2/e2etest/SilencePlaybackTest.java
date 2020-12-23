@@ -56,4 +56,25 @@ public final class SilencePlaybackTest {
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/silence/500ms.dump");
   }
+
+  @Test
+  public void test_0ms() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setClock(new AutoAdvancingFakeClock())
+            .build();
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    player.setMediaSource(new SilenceMediaSource(/* durationUs= */ 0));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/silence/0ms.dump");
+  }
 }

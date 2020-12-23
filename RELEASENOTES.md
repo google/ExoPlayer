@@ -26,6 +26,8 @@
         ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
     *   Fix bug where `AnalyticsListener` callbacks can arrive in the wrong
         order ([#8048](https://github.com/google/ExoPlayer/issues/8048)).
+    *   Fix `MediaCodecRenderer` issue where empty streams would fail to play in
+        bypass mode ([#8374](https://github.com/google/ExoPlayer/issues/8374)).
     *   Add `onEvents` callback to `Player.EventListener` and
         `AnalyticsListener` to notify when all simultaneous state changes have
         been handled and the values reported through callbacks are again
