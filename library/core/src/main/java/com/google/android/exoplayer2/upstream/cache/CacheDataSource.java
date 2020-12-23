@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -34,6 +33,7 @@ import com.google.android.exoplayer2.upstream.PriorityDataSource;
 import com.google.android.exoplayer2.upstream.TeeDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.upstream.cache.Cache.CacheException;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -397,7 +397,6 @@ public final class CacheDataSource implements DataSource {
   private boolean currentRequestIgnoresCache;
   private long totalCachedBytesRead;
   private long checkCachePosition;
-  private boolean opened;
 
   /**
    * Constructs an instance with default {@link DataSource} and {@link DataSink} instances for
@@ -553,7 +552,6 @@ public final class CacheDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    checkState(!opened);
     try {
       String key = cacheKeyFactory.buildCacheKey(dataSpec);
       DataSpec requestDataSpec = dataSpec.buildUpon().setKey(key).build();
@@ -579,7 +577,6 @@ public final class CacheDataSource implements DataSource {
         }
       }
       openNextSource(requestDataSpec, false);
-      opened = true;
       return bytesRemaining;
     } catch (Throwable e) {
       handleBeforeThrow(e);
@@ -652,7 +649,6 @@ public final class CacheDataSource implements DataSource {
     notifyBytesRead();
     try {
       closeCurrentSource();
-      opened = false;
     } catch (Throwable e) {
       handleBeforeThrow(e);
       throw e;
@@ -743,7 +739,7 @@ public final class CacheDataSource implements DataSource {
             ? readPosition + MIN_READ_BEFORE_CHECKING_CACHE
             : Long.MAX_VALUE;
     if (checkCache) {
-      checkState(isBypassingCache());
+      Assertions.checkState(isBypassingCache());
       if (nextDataSource == upstreamDataSource) {
         // Continue reading from upstream.
         return;

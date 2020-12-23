@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -90,18 +89,14 @@ public class BaseDataSourceTest {
 
   private static final class TestSource extends BaseDataSource {
 
-    private boolean opened;
-
     public TestSource(boolean isNetwork) {
       super(isNetwork);
     }
 
     @Override
     public long open(DataSpec dataSpec) throws IOException {
-      checkState(!opened);
       transferInitializing(dataSpec);
       transferStarted(dataSpec);
-      opened = true;
       return C.LENGTH_UNSET;
     }
 
@@ -120,7 +115,6 @@ public class BaseDataSourceTest {
     @Override
     public void close() throws IOException {
       transferEnded();
-      opened = false;
     }
   }
 

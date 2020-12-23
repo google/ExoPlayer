@@ -284,7 +284,6 @@ public final class CacheDataSourceTest {
             cacheDataSource.open(
                 buildDataSpec(TEST_DATA.length - 2, C.LENGTH_UNSET, defaultCacheKey)))
         .isEqualTo(2);
-    cacheDataSource.close();
 
     // An unbounded request with offset for not cached content.
     dataSpec =

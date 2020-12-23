@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -90,8 +89,6 @@ public final class UdpDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws UdpDataSourceException {
-    checkState(!opened);
-
     uri = dataSpec.uri;
     String host = uri.getHost();
     int port = uri.getPort();

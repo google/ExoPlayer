@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -99,7 +98,6 @@ public final class RawResourceDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws RawResourceDataSourceException {
-    checkState(!opened);
     Uri uri = dataSpec.uri;
     this.uri = uri;
 

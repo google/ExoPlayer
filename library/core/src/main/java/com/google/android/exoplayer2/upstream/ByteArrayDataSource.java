@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import android.net.Uri;
@@ -46,7 +45,6 @@ public final class ByteArrayDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    checkState(!opened);
     uri = dataSpec.uri;
     transferInitializing(dataSpec);
     readPosition = (int) dataSpec.position;

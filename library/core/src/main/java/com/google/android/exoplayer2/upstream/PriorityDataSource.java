@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
-
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
@@ -42,7 +40,6 @@ public final class PriorityDataSource implements DataSource {
   private final DataSource upstream;
   private final PriorityTaskManager priorityTaskManager;
   private final int priority;
-  private boolean opened;
 
   /**
    * @param upstream The upstream {@link DataSource}.
@@ -64,11 +61,8 @@ public final class PriorityDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    checkState(!opened);
     priorityTaskManager.proceedOrThrow(priority);
-    long length = upstream.open(dataSpec);
-    opened = true;
-    return length;
+    return upstream.open(dataSpec);
   }
 
   @Override
@@ -91,7 +85,6 @@ public final class PriorityDataSource implements DataSource {
   @Override
   public void close() throws IOException {
     upstream.close();
-    opened = false;
   }
 
 }

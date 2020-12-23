@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -45,7 +44,6 @@ public final class DataSchemeDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    checkState(this.dataSpec == null);
     transferInitializing(dataSpec);
     this.dataSpec = dataSpec;
     readPosition = (int) dataSpec.position;

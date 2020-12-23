@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
-
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -37,7 +35,6 @@ public final class StatsDataSource implements DataSource {
   private long bytesRead;
   private Uri lastOpenedUri;
   private Map<String, List<String>> lastResponseHeaders;
-  private boolean opened;
 
   /**
    * Creates the stats data source.
@@ -81,14 +78,12 @@ public final class StatsDataSource implements DataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws IOException {
-    checkState(!opened);
     // Reassign defaults in case dataSource.open throws an exception.
     lastOpenedUri = dataSpec.uri;
     lastResponseHeaders = Collections.emptyMap();
     long availableBytes = dataSource.open(dataSpec);
     lastOpenedUri = Assertions.checkNotNull(getUri());
     lastResponseHeaders = getResponseHeaders();
-    opened = true;
     return availableBytes;
   }
 
@@ -115,6 +110,5 @@ public final class StatsDataSource implements DataSource {
   @Override
   public void close() throws IOException {
     dataSource.close();
-    opened = false;
   }
 }

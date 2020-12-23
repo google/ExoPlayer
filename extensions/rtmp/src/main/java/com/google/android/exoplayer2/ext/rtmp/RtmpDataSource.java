@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.rtmp;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
@@ -38,7 +37,6 @@ public final class RtmpDataSource extends BaseDataSource {
 
   @Nullable private RtmpClient rtmpClient;
   @Nullable private Uri uri;
-  private boolean opened;
 
   public RtmpDataSource() {
     super(/* isNetwork= */ true);
@@ -46,14 +44,12 @@ public final class RtmpDataSource extends BaseDataSource {
 
   @Override
   public long open(DataSpec dataSpec) throws RtmpIOException {
-    checkState(!opened);
     transferInitializing(dataSpec);
     rtmpClient = new RtmpClient();
     rtmpClient.open(dataSpec.uri.toString(), false);
 
     this.uri = dataSpec.uri;
     transferStarted(dataSpec);
-    opened = true;
     return C.LENGTH_UNSET;
   }
 
@@ -77,7 +73,6 @@ public final class RtmpDataSource extends BaseDataSource {
       rtmpClient.close();
       rtmpClient = null;
     }
-    opened = false;
   }
 
   @Override
