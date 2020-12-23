@@ -67,6 +67,8 @@
 *   Text:
     *   Gracefully handle null-terminated subtitle content in Matroska
         containers.
+    *   Fix CEA-708 anchor positioning
+        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
 *   OkHttp extension:
     *   Add `OkHttpDataSource.Factory` and deprecate `OkHttpDataSourceFactory`.
 *   Media2 extension

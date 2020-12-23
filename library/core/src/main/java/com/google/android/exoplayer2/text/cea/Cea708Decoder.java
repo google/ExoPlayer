@@ -1226,18 +1226,18 @@ public final class Cea708Decoder extends CeaDecoder {
       //   |           |
       //   6-----7-----8
       @AnchorType int verticalAnchorType;
-      if (anchorId % 3 == 0) {
+      if (anchorId / 3 == 0) {
         verticalAnchorType = Cue.ANCHOR_TYPE_START;
-      } else if (anchorId % 3 == 1) {
+      } else if (anchorId / 3 == 1) {
         verticalAnchorType = Cue.ANCHOR_TYPE_MIDDLE;
       } else {
         verticalAnchorType = Cue.ANCHOR_TYPE_END;
       }
       // TODO: Add support for right-to-left languages (i.e. where start is on the right).
       @AnchorType int horizontalAnchorType;
-      if (anchorId / 3 == 0) {
+      if (anchorId % 3 == 0) {
         horizontalAnchorType = Cue.ANCHOR_TYPE_START;
-      } else if (anchorId / 3 == 1) {
+      } else if (anchorId % 3 == 1) {
         horizontalAnchorType = Cue.ANCHOR_TYPE_MIDDLE;
       } else {
         horizontalAnchorType = Cue.ANCHOR_TYPE_END;
