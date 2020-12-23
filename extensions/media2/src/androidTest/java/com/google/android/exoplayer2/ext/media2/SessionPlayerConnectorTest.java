@@ -63,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -930,6 +931,8 @@ public class SessionPlayerConnectorTest {
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
+  // TODO(b/168860979): De-flake and re-enable.
+  @Ignore
   @Test
   @LargeTest
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
