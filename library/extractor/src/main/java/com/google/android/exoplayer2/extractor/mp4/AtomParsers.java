@@ -1058,6 +1058,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         if (!pixelWidthHeightRatioFromPasp) {
           pixelWidthHeightRatio = avcConfig.pixelWidthAspectRatio;
         }
+        codecs = avcConfig.codecs;
       } else if (childAtomType == Atom.TYPE_hvcC) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H265;
