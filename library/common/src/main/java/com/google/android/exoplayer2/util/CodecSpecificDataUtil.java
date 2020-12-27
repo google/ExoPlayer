@@ -84,6 +84,57 @@ public final class CodecSpecificDataUtil {
   }
 
   /**
+   * Builds an RFC 6381 HEVC codec string using the provided parameters.
+   *
+   * @param generalProfileSpace general_profile_space value
+   * @param generalProfileIdc general_profile_idc value
+   * @param generalProfileCompatibilityFlags all of general_profile_compatibility_flag
+   * @param generalTierFlag general_tier_flag value
+   * @param generalLevelIdc general_level_idc value
+   * @param constraintBytes 6 bytes of constraint flags
+   * @return An RFC 6381 HEVC codec string built using the provided parameters.
+   */
+  public static String buildHevcCodecString(
+      int generalProfileSpace, int generalProfileIdc, int generalProfileCompatibilityFlags,
+      boolean generalTierFlag, int generalLevelIdc, int[] constraintBytes) {
+    final StringBuilder builder = new StringBuilder();
+    builder.append("hvc1.");
+    switch (generalProfileSpace) {
+      case 1:
+        builder.append('A');
+        break;
+      case 2:
+        builder.append('B');
+        break;
+      case 3:
+        builder.append('C');
+        break;
+      default:
+        break;
+    }
+    builder.append(generalProfileIdc);
+    builder.append(String.format(".%X", generalProfileCompatibilityFlags));
+    builder.append(generalTierFlag ? ".H" : ".L");
+    builder.append(generalLevelIdc);
+
+    // Remove trailing zero bytes
+    int trailingZeroIndex = constraintBytes.length;
+    for (int i = 0; i < constraintBytes.length; ++i) {
+      if (constraintBytes[i] == 0) {
+        if (trailingZeroIndex == constraintBytes.length)
+          trailingZeroIndex = i;
+      } else {
+        trailingZeroIndex = constraintBytes.length;
+      }
+    }
+    for (int i = 0; i < trailingZeroIndex; ++i) {
+      builder.append(String.format(".%02X", constraintBytes[i]));
+    }
+
+    return builder.toString();
+  }
+
+  /**
    * Constructs a NAL unit consisting of the NAL start code followed by the specified data.
    *
    * @param data An array containing the data that should follow the NAL start code.

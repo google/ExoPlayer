@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.video;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil;
+import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +28,9 @@ import java.util.List;
  * HEVC configuration data.
  */
 public final class HevcConfig {
-
   @Nullable public final List<byte[]> initializationData;
   public final int nalUnitLengthFieldLength;
+  public final String codecs;
 
   /**
    * Parses HEVC configuration data.
@@ -40,7 +42,9 @@ public final class HevcConfig {
    */
   public static HevcConfig parse(ParsableByteArray data) throws ParserException {
     try {
-      data.skipBytes(21); // Skip to the NAL unit length size field.
+      data.skipBytes(1); // Skip to the general_profile_space
+      final String codecs = buildCodecString(data);
+      data.skipBytes(20); // Skip to the NAL unit length size field.
       int lengthSizeMinusOne = data.readUnsignedByte() & 0x03;
 
       // Calculate the combined size of all VPS/SPS/PPS bitstreams.
@@ -76,16 +80,38 @@ public final class HevcConfig {
         }
       }
 
-      List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
-      return new HevcConfig(initializationData, lengthSizeMinusOne + 1);
+      @Nullable List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
+      return new HevcConfig(initializationData, lengthSizeMinusOne + 1, codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new ParserException("Error parsing HEVC config", e);
     }
   }
 
-  private HevcConfig(@Nullable List<byte[]> initializationData, int nalUnitLengthFieldLength) {
+  private static String buildCodecString(ParsableByteArray data) {
+    final ParsableBitArray bitArray = new ParsableBitArray();
+    bitArray.reset(data);
+    final int generalProfileSpace = bitArray.readBits(2);
+    final boolean generalTierFlag = bitArray.readBit();
+    final int generalProfileIdc = bitArray.readBits(5);
+    final int generalProfileCompatibilityFlags = bitArray.readBits(32);
+    final int[] constraintBytes = new int[6];
+    for (int i = 0; i < constraintBytes.length; ++i) {
+      constraintBytes[i] = bitArray.readBits(8);
+    }
+    final int generalLevelIdc = bitArray.readBits(8);
+    return CodecSpecificDataUtil.buildHevcCodecString(
+        generalProfileSpace,
+        generalProfileIdc,
+        generalProfileCompatibilityFlags,
+        generalTierFlag,
+        generalLevelIdc,
+        constraintBytes);
+  }
+
+  private HevcConfig(@Nullable List<byte[]> initializationData, int nalUnitLengthFieldLength, String codecs) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
+    this.codecs = codecs;
   }
 
 }

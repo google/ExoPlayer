@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -245,8 +246,15 @@ public final class H265Reader implements ElementaryStreamReader {
     bitArray.skipBit(); // sps_temporal_id_nesting_flag
 
     // profile_tier_level(1, sps_max_sub_layers_minus1)
-    bitArray.skipBits(88); // if (profilePresentFlag) {...}
-    bitArray.skipBits(8); // general_level_idc
+    final int generalProfileSpace = bitArray.readBits(2);
+    final boolean generalTierFlag = bitArray.readBit();
+    final int generalProfileIdc = bitArray.readBits(5);
+    final int generalProfileCompatibilityFlags = bitArray.readBits(32);
+    final int[] constraintBytes = new int[6];
+    for (int i = 0; i < constraintBytes.length; ++i) {
+      constraintBytes[i] = bitArray.readBits(8);
+    }
+    final int generalLevelIdc = bitArray.readBits(8); // general_level_idc
     int toSkip = 0;
     for (int i = 0; i < maxSubLayersMinus1; i++) {
       if (bitArray.readBit()) { // sub_layer_profile_present_flag[i]
@@ -339,6 +347,13 @@ public final class H265Reader implements ElementaryStreamReader {
     return new Format.Builder()
         .setId(formatId)
         .setSampleMimeType(MimeTypes.VIDEO_H265)
+        .setCodecs(CodecSpecificDataUtil.buildHevcCodecString(
+            generalProfileSpace,
+            generalProfileIdc,
+            generalProfileCompatibilityFlags,
+            generalTierFlag,
+            generalLevelIdc,
+            constraintBytes))
         .setWidth(picWidthInLumaSamples)
         .setHeight(picHeightInLumaSamples)
         .setPixelWidthHeightRatio(pixelWidthHeightRatio)
