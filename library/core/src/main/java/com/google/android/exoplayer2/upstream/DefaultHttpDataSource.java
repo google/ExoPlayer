@@ -378,7 +378,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
             errorStream != null ? Util.toByteArray(errorStream) : Util.EMPTY_BYTE_ARRAY;
       } catch (IOException e) {
         throw new InvalidResponseCodeException(
-              responseCode, responseMessage, headers, dataSpec, null);
+            responseCode, responseMessage, headers, dataSpec, null);
       }
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
