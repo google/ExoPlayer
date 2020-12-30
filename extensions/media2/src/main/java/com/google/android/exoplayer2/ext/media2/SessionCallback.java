@@ -226,7 +226,7 @@ import java.util.concurrent.TimeoutException;
       build = new SessionCommandGroup.Builder();
     }
 
-    build.addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_1);
+    build.addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_2);
     // TODO(internal b/142848015): Use removeCommand(int) when it's added.
     if (mediaItemProvider == null) {
       build.removeCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM));
@@ -234,6 +234,7 @@ import java.util.concurrent.TimeoutException;
       build.removeCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM));
       build.removeCommand(
           new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM));
+      build.removeCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
     }
     if (ratingCallback == null) {
       build.removeCommand(new SessionCommand(SessionCommand.COMMAND_CODE_SESSION_SET_RATING));
