@@ -145,6 +145,7 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private final ParsableByteArray ccData;
   private final ParsableBitArray serviceBlockPacket;
+  private int lastSequenceNo = -1;
   // TODO: Use isWideAspectRatio in decoding.
   @SuppressWarnings({"unused", "FieldCanBeLocal"})
   private final boolean isWideAspectRatio;
@@ -231,6 +232,13 @@ public final class Cea708Decoder extends CeaDecoder {
         finalizeCurrentPacket();
 
         int sequenceNumber = (ccData1 & 0xC0) >> 6; // first 2 bits
+        if (lastSequenceNo != -1 && sequenceNumber != (lastSequenceNo + 1) % 4) {
+          resetCueBuilders();
+          Log.w(TAG, "discontinuity in sequence number detected : lastSequenceNo = " +
+              lastSequenceNo + " sequenceNumber = " + sequenceNumber);
+        }
+        lastSequenceNo = sequenceNumber;
+
         int packetSize = ccData1 & 0x3F; // last 6 bits
         if (packetSize == 0) {
           packetSize = 64;
@@ -270,10 +278,11 @@ public final class Cea708Decoder extends CeaDecoder {
   @RequiresNonNull("currentDtvCcPacket")
   private void processCurrentPacket() {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
-      Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
+      Log.d(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
           + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
-          + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
-      return;
+          + currentDtvCcPacket.sequenceNumber + ");");
+      // This is not invalid packet. As per CEA-708 section 4.4.1.1, the Packect end can happen
+      // when the reception of cc_type = 0x03 (binary 11).
     }
 
     serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);
