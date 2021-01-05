@@ -9,6 +9,7 @@ track 0:
   format 0:
     id = 1
     sampleMimeType = video/avc
+    codecs = avc1.64001F
     width = 1080
     height = 720
     initializationData:

@@ -198,6 +198,7 @@ track 9:
   sample count = 30
   format 0:
     sampleMimeType = video/avc
+    codecs = avc1.640034
     width = 1080
     height = 720
     initializationData:

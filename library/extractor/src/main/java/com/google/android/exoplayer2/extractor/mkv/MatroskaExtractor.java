@@ -2086,6 +2086,7 @@ public class MatroskaExtractor implements Extractor {
           AvcConfig avcConfig = AvcConfig.parse(new ParsableByteArray(getCodecPrivate(codecId)));
           initializationData = avcConfig.initializationData;
           nalUnitLengthFieldLength = avcConfig.nalUnitLengthFieldLength;
+          codecs = avcConfig.codecs;
           break;
         case CODEC_ID_H265:
           mimeType = MimeTypes.VIDEO_H265;

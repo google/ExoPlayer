@@ -93,6 +93,7 @@ import com.google.android.exoplayer2.video.AvcConfig;
       Format format =
           new Format.Builder()
               .setSampleMimeType(MimeTypes.VIDEO_H264)
+              .setCodecs(avcConfig.codecs)
               .setWidth(avcConfig.width)
               .setHeight(avcConfig.height)
               .setPixelWidthHeightRatio(avcConfig.pixelWidthAspectRatio)

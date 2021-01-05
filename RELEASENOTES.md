@@ -39,6 +39,9 @@
         ([#8349](https://github.com/google/ExoPlayer/issues/8349))
     *   Add `DefaultHttpDataSource.Factory` and deprecate
         `DefaultHttpDataSourceFactory`.
+    *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
+        allow decoder capability checks based on codec profile/level
+        ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
 *   Track selection:
     *   Add option to specify multiple preferred audio or text languages.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
