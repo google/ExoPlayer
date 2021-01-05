@@ -67,12 +67,23 @@
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.
+*   Downloads:
+    *    Fix crash in `DownloadManager` that could occur when adding a stopped
+         download with the same ID as a download currently being removed
+         ([#8419](https://github.com/google/ExoPlayer/issues/8419)).
 *   Analytics:
     *   Pass a `DecoderReuseEvaluation` to `AnalyticsListener`'s
         `onVideoInputFormatChanged` and `onAudioInputFormatChanged` methods. The
         `DecoderReuseEvaluation` indicates whether it was possible to re-use an
         existing decoder instance for the new format, and if not then the
         reasons why.
+*   Text:
+    *   Gracefully handle null-terminated subtitle content in Matroska
+        containers.
+    *   Fix CEA-708 anchor positioning
+        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
+*   Metadata retriever:
+    *   Parse Google Photos HEIC motion photos metadata.
 *   IMA extension:
     *   Add support for playback of ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
@@ -83,16 +94,9 @@
         ([#8290](https://github.com/google/ExoPlayer/issues/8290)).
     *   Add `ImaAdsLoader.Builder.setEnableContinuousPlayback` for setting
         whether to request ads for continuous playback.
-*   Metadata retriever:
-    *   Parse Google Photos HEIC motion photos metadata.
 *   FFmpeg extension:
     *   Link the FFmpeg library statically, saving 350KB in binary size on
         average.
-*   Text:
-    *   Gracefully handle null-terminated subtitle content in Matroska
-        containers.
-    *   Fix CEA-708 anchor positioning
-        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
 *   OkHttp extension:
     *   Add `OkHttpDataSource.Factory` and deprecate `OkHttpDataSourceFactory`.
 *   Cronet extension:
@@ -225,7 +229,7 @@
         ([#7378](https://github.com/google/ExoPlayer/issues/7378)).
 *   Downloads: Fix issue retrying progressive downloads, which could also result
     in a crash in `DownloadManager.InternalHandler.onContentLengthChanged`
-    ([#8078](https://github.com/google/ExoPlayer/issues/8078).
+    ([#8078](https://github.com/google/ExoPlayer/issues/8078)).
 *   HLS: Fix crash affecting chunkful preparation of master playlists that start
     with an I-FRAME only variant
     ([#8025](https://github.com/google/ExoPlayer/issues/8025)).

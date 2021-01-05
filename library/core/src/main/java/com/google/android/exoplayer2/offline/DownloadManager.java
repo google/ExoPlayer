@@ -856,7 +856,7 @@ public final class DownloadManager {
     private void setStopReason(Download download, int stopReason) {
       if (stopReason == STOP_REASON_NONE) {
         if (download.state == STATE_STOPPED) {
-          putDownloadWithState(download, STATE_QUEUED);
+          putDownloadWithState(download, STATE_QUEUED, STOP_REASON_NONE);
         }
       } else if (stopReason != download.stopReason) {
         @Download.State int state = download.state;
@@ -910,7 +910,7 @@ public final class DownloadManager {
         Log.e(TAG, "Failed to remove nonexistent download: " + id);
         return;
       }
-      putDownloadWithState(download, STATE_REMOVING);
+      putDownloadWithState(download, STATE_REMOVING, STOP_REASON_NONE);
       syncTasks();
     }
 
@@ -924,10 +924,11 @@ public final class DownloadManager {
         Log.e(TAG, "Failed to load downloads.");
       }
       for (int i = 0; i < downloads.size(); i++) {
-        downloads.set(i, copyDownloadWithState(downloads.get(i), STATE_REMOVING));
+        downloads.set(i, copyDownloadWithState(downloads.get(i), STATE_REMOVING, STOP_REASON_NONE));
       }
       for (int i = 0; i < terminalDownloads.size(); i++) {
-        downloads.add(copyDownloadWithState(terminalDownloads.get(i), STATE_REMOVING));
+        downloads.add(
+            copyDownloadWithState(terminalDownloads.get(i), STATE_REMOVING, STOP_REASON_NONE));
       }
       Collections.sort(downloads, InternalHandler::compareStartTimes);
       try {
@@ -1019,7 +1020,7 @@ public final class DownloadManager {
       }
 
       // We can start a download task.
-      download = putDownloadWithState(download, STATE_DOWNLOADING);
+      download = putDownloadWithState(download, STATE_DOWNLOADING, STOP_REASON_NONE);
       Downloader downloader = downloaderFactory.createDownloader(download.request);
       activeTask =
           new Task(
@@ -1041,7 +1042,7 @@ public final class DownloadManager {
         Task activeTask, Download download, int accumulatingDownloadTaskCount) {
       Assertions.checkState(!activeTask.isRemove);
       if (!canDownloadsRun() || accumulatingDownloadTaskCount >= maxParallelDownloads) {
-        putDownloadWithState(download, STATE_QUEUED);
+        putDownloadWithState(download, STATE_QUEUED, STOP_REASON_NONE);
         activeTask.cancel(/* released= */ false);
       }
     }
@@ -1161,8 +1162,9 @@ public final class DownloadManager {
 
     private void onRemoveTaskStopped(Download download) {
       if (download.state == STATE_RESTARTING) {
-        putDownloadWithState(
-            download, download.stopReason == STOP_REASON_NONE ? STATE_QUEUED : STATE_STOPPED);
+        @Download.State
+        int state = download.stopReason == STOP_REASON_NONE ? STATE_QUEUED : STATE_STOPPED;
+        putDownloadWithState(download, state, download.stopReason);
         syncTasks();
       } else {
         int removeIndex = getDownloadIndex(download.request.id);
@@ -1204,12 +1206,11 @@ public final class DownloadManager {
       return !downloadsPaused && notMetRequirements == 0;
     }
 
-    private Download putDownloadWithState(Download download, @Download.State int state) {
-      // Downloads in terminal states shouldn't be in the downloads list. This method cannot be used
-      // to set STATE_STOPPED either, because it doesn't have a stopReason argument.
-      Assertions.checkState(
-          state != STATE_COMPLETED && state != STATE_FAILED && state != STATE_STOPPED);
-      return putDownload(copyDownloadWithState(download, state));
+    private Download putDownloadWithState(
+        Download download, @Download.State int state, int stopReason) {
+      // Downloads in terminal states shouldn't be in the downloads list.
+      Assertions.checkState(state != STATE_COMPLETED && state != STATE_FAILED);
+      return putDownload(copyDownloadWithState(download, state, stopReason));
     }
 
     private Download putDownload(Download download) {
@@ -1267,14 +1268,15 @@ public final class DownloadManager {
       return C.INDEX_UNSET;
     }
 
-    private static Download copyDownloadWithState(Download download, @Download.State int state) {
+    private static Download copyDownloadWithState(
+        Download download, @Download.State int state, int stopReason) {
       return new Download(
           download.request,
           state,
           download.startTimeMs,
           /* updateTimeMs= */ System.currentTimeMillis(),
           download.contentLength,
-          /* stopReason= */ 0,
+          stopReason,
           FAILURE_REASON_NONE,
           download.progress);
     }
