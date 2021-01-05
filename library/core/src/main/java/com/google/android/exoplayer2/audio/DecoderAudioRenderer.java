@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCA
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static java.lang.Math.max;
 
-import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import android.os.SystemClock;
 import androidx.annotation.CallSuper;
@@ -311,18 +310,6 @@ public abstract class DecoderAudioRenderer<
       }
       decoderCounters.ensureUpdated();
     }
-  }
-
-  /**
-   * Called when the audio session id becomes known. The default implementation is a no-op. One
-   * reason for overriding this method would be to instantiate and enable a {@link Virtualizer} in
-   * order to spatialize the audio channels. For this use case, any {@link Virtualizer} instances
-   * should be released in {@link #onDisabled()} (if not before).
-   *
-   * <p>See {@link AudioSink.Listener#onAudioSessionId(int)}.
-   */
-  protected void onAudioSessionId(int audioSessionId) {
-    // Do nothing.
   }
 
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
@@ -730,7 +717,6 @@ public abstract class DecoderAudioRenderer<
     @Override
     public void onAudioSessionId(int audioSessionId) {
       eventDispatcher.audioSessionId(audioSessionId);
-      DecoderAudioRenderer.this.onAudioSessionId(audioSessionId);
     }
 
     @Override

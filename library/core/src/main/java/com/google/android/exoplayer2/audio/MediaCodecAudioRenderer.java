@@ -26,7 +26,6 @@ import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
-import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
@@ -475,18 +474,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
   }
 
-  /**
-   * Called when the audio session id becomes known. The default implementation is a no-op. One
-   * reason for overriding this method would be to instantiate and enable a {@link Virtualizer} in
-   * order to spatialize the audio channels. For this use case, any {@link Virtualizer} instances
-   * should be released in {@link #onDisabled()} (if not before).
-   *
-   * <p>See {@link AudioSink.Listener#onAudioSessionId(int)}.
-   */
-  protected void onAudioSessionId(int audioSessionId) {
-    // Do nothing.
-  }
-
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
   @CallSuper
   protected void onPositionDiscontinuity() {
@@ -829,7 +816,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     @Override
     public void onAudioSessionId(int audioSessionId) {
       eventDispatcher.audioSessionId(audioSessionId);
-      MediaCodecAudioRenderer.this.onAudioSessionId(audioSessionId);
     }
 
     @Override
