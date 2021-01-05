@@ -12,6 +12,10 @@
         would not be dismissed when tapping outside of the menu area or pressing
         the back button, on API level 22 and earlier
         ([#8272](https://github.com/google/ExoPlayer/issues/8272)).
+*   Downloads:
+    *    Fix crash in `DownloadManager` that could occur when adding a stopped
+         download with the same ID as a download currently being removed
+         ([#8419](https://github.com/google/ExoPlayer/issues/8419)).
 *   IMA extension:
     *   Fix a condition where playback can get stuck before an empty ad
         ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
@@ -147,7 +151,7 @@
         ([#7378](https://github.com/google/ExoPlayer/issues/7378)).
 *   Downloads: Fix issue retrying progressive downloads, which could also result
     in a crash in `DownloadManager.InternalHandler.onContentLengthChanged`
-    ([#8078](https://github.com/google/ExoPlayer/issues/8078).
+    ([#8078](https://github.com/google/ExoPlayer/issues/8078)).
 *   HLS: Fix crash affecting chunkful preparation of master playlists that start
     with an I-FRAME only variant
     ([#8025](https://github.com/google/ExoPlayer/issues/8025)).
