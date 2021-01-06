@@ -25,10 +25,8 @@ import java.util.Arrays;
  */
 /* package */ final class FixedFrameRateEstimator {
 
-  /**
-   * The number of consecutive matching frame durations for the tracker to be considered in sync.
-   */
-  @VisibleForTesting static final int CONSECUTIVE_MATCHING_FRAME_DURATIONS_FOR_SYNC = 10;
+  /** The number of consecutive matching frame durations required to detect a fixed frame rate. */
+  public static final int CONSECUTIVE_MATCHING_FRAME_DURATIONS_FOR_SYNC = 15;
   /**
    * The maximum amount frame durations can differ for them to be considered matching, in
    * nanoseconds.
@@ -44,13 +42,12 @@ import java.util.Arrays;
   private Matcher candidateMatcher;
   private boolean candidateMatcherActive;
   private boolean switchToCandidateMatcherWhenSynced;
-  private float formatFrameRate;
   private long lastFramePresentationTimeNs;
+  private int framesWithoutSyncCount;
 
   public FixedFrameRateEstimator() {
     currentMatcher = new Matcher();
     candidateMatcher = new Matcher();
-    formatFrameRate = Format.NO_VALUE;
     lastFramePresentationTimeNs = C.TIME_UNSET;
   }
 
@@ -59,29 +56,8 @@ import java.util.Arrays;
     currentMatcher.reset();
     candidateMatcher.reset();
     candidateMatcherActive = false;
-    formatFrameRate = Format.NO_VALUE;
     lastFramePresentationTimeNs = C.TIME_UNSET;
-  }
-
-  /**
-   * Called when the renderer's output format changes.
-   *
-   * @param formatFrameRate The format's frame rate, or {@link Format#NO_VALUE} if unknown.
-   */
-  public void onFormatChanged(float formatFrameRate) {
-    // The format frame rate is only used to determine to what extent the estimator should be reset.
-    // Frame rate estimates are always calculated directly from frame presentation timestamps.
-    if (this.formatFrameRate != formatFrameRate) {
-      reset();
-    } else {
-      // Keep the current matcher, but prefer to switch to a new matcher once synced even if the
-      // current one does not lose sync. This avoids an issue where the current matcher would
-      // continue to be used if a frame rate change has occurred that's too small to trigger sync
-      // loss (e.g., a change from 30fps to 29.97fps) and which is not represented in the format
-      // frame rates (e.g., because they're unset or only have integer precision).
-      switchToCandidateMatcherWhenSynced = true;
-    }
-    this.formatFrameRate = formatFrameRate;
+    framesWithoutSyncCount = 0;
   }
 
   /**
@@ -113,11 +89,25 @@ import java.util.Arrays;
       switchToCandidateMatcherWhenSynced = false;
     }
     lastFramePresentationTimeNs = framePresentationTimeNs;
+    framesWithoutSyncCount = currentMatcher.isSynced() ? 0 : framesWithoutSyncCount + 1;
   }
 
   /** Returns whether the estimator has detected a fixed frame rate. */
   public boolean isSynced() {
     return currentMatcher.isSynced();
+  }
+
+  /** Returns the number of frames since the estimator last detected a fixed frame rate. */
+  public int getFramesWithoutSyncCount() {
+    return framesWithoutSyncCount;
+  }
+
+  /**
+   * Returns the sum of all frame durations used to calculate the current fixed frame rate estimate,
+   * or {@link C#TIME_UNSET} if {@link #isSynced()} is {@code false}.
+   */
+  public long getMatchingFrameDurationSumNs() {
+    return isSynced() ? currentMatcher.getMatchingFrameDurationSumNs() : C.TIME_UNSET;
   }
 
   /**
@@ -134,9 +124,9 @@ import java.util.Arrays;
    * #isSynced()} is {@code false}. Whilst synced, the estimate is refined each time {@link
    * #onNextFrame} is called with a new frame presentation timestamp.
    */
-  public double getFrameRate() {
+  public float getFrameRate() {
     return isSynced()
-        ? (double) C.NANOS_PER_SECOND / currentMatcher.getFrameDurationNs()
+        ? (float) ((double) C.NANOS_PER_SECOND / currentMatcher.getFrameDurationNs())
         : Format.NO_VALUE;
   }
 
@@ -182,6 +172,10 @@ import java.util.Arrays;
         return false;
       }
       return recentFrameOutlierFlags[getRecentFrameOutlierIndex(frameCount - 1)];
+    }
+
+    public long getMatchingFrameDurationSumNs() {
+      return matchingFrameDurationSumNs;
     }
 
     public long getFrameDurationNs() {

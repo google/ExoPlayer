@@ -51,6 +51,31 @@ public final class VideoFrameReleaseHelper {
 
   private static final String TAG = "VideoFrameReleaseHelper";
 
+  /**
+   * The minimum sum of frame durations used to calculate the current fixed frame rate estimate, for
+   * the estimate to be treated as a high confidence estimate.
+   */
+  private static final long MINIMUM_MATCHING_FRAME_DURATION_FOR_HIGH_CONFIDENCE_NS = 5_000_000_000L;
+
+  /**
+   * The minimum change in media frame rate that will trigger a change in surface frame rate, given
+   * a high confidence estimate.
+   */
+  private static final float MINIMUM_MEDIA_FRAME_RATE_CHANGE_FOR_UPDATE_HIGH_CONFIDENCE = 0.02f;
+
+  /**
+   * The minimum change in media frame rate that will trigger a change in surface frame rate, given
+   * a low confidence estimate.
+   */
+  private static final float MINIMUM_MEDIA_FRAME_RATE_CHANGE_FOR_UPDATE_LOW_CONFIDENCE = 1f;
+
+  /**
+   * The minimum number of frames without a frame rate estimate, for the surface frame rate to be
+   * cleared.
+   */
+  private static final int MINIMUM_FRAMES_WITHOUT_SYNC_TO_CLEAR_SURFACE_FRAME_RATE =
+      2 * FixedFrameRateEstimator.CONSECUTIVE_MATCHING_FRAME_DURATIONS_FOR_SYNC;
+
   /** The period between sampling display VSYNC timestamps, in milliseconds. */
   private static final long VSYNC_SAMPLE_UPDATE_PERIOD_MS = 500;
   /**
@@ -65,7 +90,7 @@ public final class VideoFrameReleaseHelper {
    */
   private static final long VSYNC_OFFSET_PERCENTAGE = 80;
 
-  private final FixedFrameRateEstimator fixedFrameRateEstimator;
+  private final FixedFrameRateEstimator frameRateEstimator;
   @Nullable private final WindowManager windowManager;
   @Nullable private final VSyncSampler vsyncSampler;
   @Nullable private final DefaultDisplayListener displayListener;
@@ -73,9 +98,18 @@ public final class VideoFrameReleaseHelper {
   private boolean started;
   @Nullable private Surface surface;
 
-  private float surfaceFrameRate;
+  /** The media frame rate specified in the {@link Format}. */
   private float formatFrameRate;
-  private double playbackSpeed;
+  /**
+   * The media frame rate used to calculate the playback frame rate of the {@link Surface}. This may
+   * be different to {@link #formatFrameRate} if {@link #formatFrameRate} is unspecified or
+   * inaccurate.
+   */
+  private float surfaceMediaFrameRate;
+  /** The playback frame rate set on the {@link Surface}. */
+  private float surfacePlaybackFrameRate;
+
+  private float playbackSpeed;
 
   private long vsyncDurationNs;
   private long vsyncOffsetNs;
@@ -92,7 +126,7 @@ public final class VideoFrameReleaseHelper {
    * @param context A context from which information about the default display can be retrieved.
    */
   public VideoFrameReleaseHelper(@Nullable Context context) {
-    fixedFrameRateEstimator = new FixedFrameRateEstimator();
+    frameRateEstimator = new FixedFrameRateEstimator();
     if (context != null) {
       context = context.getApplicationContext();
       windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -116,7 +150,6 @@ public final class VideoFrameReleaseHelper {
   /** Called when the renderer is enabled. */
   @TargetApi(17) // displayListener is null if Util.SDK_INT < 17.
   public void onEnabled() {
-    fixedFrameRateEstimator.reset();
     if (windowManager != null) {
       checkNotNull(vsyncSampler).addObserver();
       if (displayListener != null) {
@@ -130,7 +163,7 @@ public final class VideoFrameReleaseHelper {
   public void onStarted() {
     started = true;
     resetAdjustment();
-    updateSurfaceFrameRate(/* isNewSurface= */ false);
+    updateSurfacePlaybackFrameRate(/* isNewSurface= */ false);
   }
 
   /**
@@ -148,7 +181,7 @@ public final class VideoFrameReleaseHelper {
     }
     clearSurfaceFrameRate();
     this.surface = surface;
-    updateSurfaceFrameRate(/* isNewSurface= */ true);
+    updateSurfacePlaybackFrameRate(/* isNewSurface= */ true);
   }
 
   /** Called when the renderer's position is reset. */
@@ -162,10 +195,10 @@ public final class VideoFrameReleaseHelper {
    *
    * @param playbackSpeed The player's speed.
    */
-  public void onPlaybackSpeed(double playbackSpeed) {
+  public void onPlaybackSpeed(float playbackSpeed) {
     this.playbackSpeed = playbackSpeed;
     resetAdjustment();
-    updateSurfaceFrameRate(/* isNewSurface= */ false);
+    updateSurfacePlaybackFrameRate(/* isNewSurface= */ false);
   }
 
   /**
@@ -175,8 +208,8 @@ public final class VideoFrameReleaseHelper {
    */
   public void onFormatChanged(float formatFrameRate) {
     this.formatFrameRate = formatFrameRate;
-    fixedFrameRateEstimator.onFormatChanged(formatFrameRate);
-    updateSurfaceFrameRate(/* isNewSurface= */ false);
+    frameRateEstimator.reset();
+    updateSurfaceMediaFrameRate();
   }
 
   /**
@@ -189,8 +222,9 @@ public final class VideoFrameReleaseHelper {
       lastAdjustedFrameIndex = pendingLastAdjustedFrameIndex;
       lastAdjustedReleaseTimeNs = pendingLastAdjustedReleaseTimeNs;
     }
-    fixedFrameRateEstimator.onNextFrame(framePresentationTimeUs * 1000);
     frameIndex++;
+    frameRateEstimator.onNextFrame(framePresentationTimeUs * 1000);
+    updateSurfaceMediaFrameRate();
   }
 
   /** Called when the renderer is stopped. */
@@ -230,8 +264,8 @@ public final class VideoFrameReleaseHelper {
     // Until we know better, the adjustment will be a no-op.
     long adjustedReleaseTimeNs = releaseTimeNs;
 
-    if (lastAdjustedFrameIndex != C.INDEX_UNSET && fixedFrameRateEstimator.isSynced()) {
-      long frameDurationNs = fixedFrameRateEstimator.getFrameDurationNs();
+    if (lastAdjustedFrameIndex != C.INDEX_UNSET && frameRateEstimator.isSynced()) {
+      long frameDurationNs = frameRateEstimator.getFrameDurationNs();
       long candidateAdjustedReleaseTimeNs =
           lastAdjustedReleaseTimeNs
               + (long) ((frameDurationNs * (frameIndex - lastAdjustedFrameIndex)) / playbackSpeed);
@@ -271,36 +305,78 @@ public final class VideoFrameReleaseHelper {
   // Surface frame rate adjustment.
 
   /**
-   * Updates the frame-rate of the current {@link #surface} based on the renderer operating rate,
-   * frame-rate of the content, and whether the renderer is started.
-   *
-   * @param isNewSurface Whether the current {@link #surface} is new.
+   * Updates the media frame rate that's used to calculate the playback frame rate of the current
+   * {@link #surface}. If the frame rate is updated then {@link #updateSurfacePlaybackFrameRate} is
+   * called to update the surface.
    */
-  private void updateSurfaceFrameRate(boolean isNewSurface) {
+  private void updateSurfaceMediaFrameRate() {
     if (Util.SDK_INT < 30 || surface == null) {
       return;
     }
 
-    float surfaceFrameRate = 0;
-    // TODO: Hook up fixedFrameRateEstimator.
-    if (started && formatFrameRate != Format.NO_VALUE) {
-      surfaceFrameRate = (float) (formatFrameRate * playbackSpeed);
+    float candidateFrameRate =
+        frameRateEstimator.isSynced() ? frameRateEstimator.getFrameRate() : formatFrameRate;
+    if (candidateFrameRate == surfaceMediaFrameRate) {
+      return;
+    }
+
+    // The candidate is different to the current surface media frame rate. Decide whether to update
+    // the surface media frame rate.
+    boolean shouldUpdate;
+    if (candidateFrameRate != Format.NO_VALUE && surfaceMediaFrameRate != Format.NO_VALUE) {
+      boolean candidateIsHighConfidence =
+          frameRateEstimator.isSynced()
+              && frameRateEstimator.getMatchingFrameDurationSumNs()
+                  >= MINIMUM_MATCHING_FRAME_DURATION_FOR_HIGH_CONFIDENCE_NS;
+      float minimumChangeForUpdate =
+          candidateIsHighConfidence
+              ? MINIMUM_MEDIA_FRAME_RATE_CHANGE_FOR_UPDATE_HIGH_CONFIDENCE
+              : MINIMUM_MEDIA_FRAME_RATE_CHANGE_FOR_UPDATE_LOW_CONFIDENCE;
+      shouldUpdate = Math.abs(candidateFrameRate - surfaceMediaFrameRate) >= minimumChangeForUpdate;
+    } else if (candidateFrameRate != Format.NO_VALUE) {
+      shouldUpdate = true;
+    } else {
+      shouldUpdate =
+          frameRateEstimator.getFramesWithoutSyncCount()
+              >= MINIMUM_FRAMES_WITHOUT_SYNC_TO_CLEAR_SURFACE_FRAME_RATE;
+    }
+
+    if (shouldUpdate) {
+      surfaceMediaFrameRate = candidateFrameRate;
+      updateSurfacePlaybackFrameRate(/* isNewSurface= */ false);
+    }
+  }
+
+  /**
+   * Updates the playback frame rate of the current {@link #surface} based on the playback speed,
+   * frame rate of the content, and whether the renderer is started.
+   *
+   * @param isNewSurface Whether the current {@link #surface} is new.
+   */
+  private void updateSurfacePlaybackFrameRate(boolean isNewSurface) {
+    if (Util.SDK_INT < 30 || surface == null) {
+      return;
+    }
+
+    float surfacePlaybackFrameRate = 0;
+    if (started && surfaceMediaFrameRate != Format.NO_VALUE) {
+      surfacePlaybackFrameRate = surfaceMediaFrameRate * playbackSpeed;
     }
     // We always set the frame-rate if we have a new surface, since we have no way of knowing what
     // it might have been set to previously.
-    if (this.surfaceFrameRate == surfaceFrameRate && !isNewSurface) {
+    if (!isNewSurface && this.surfacePlaybackFrameRate == surfacePlaybackFrameRate) {
       return;
     }
-    this.surfaceFrameRate = surfaceFrameRate;
-    setSurfaceFrameRateV30(surface, surfaceFrameRate);
+    this.surfacePlaybackFrameRate = surfacePlaybackFrameRate;
+    setSurfaceFrameRateV30(surface, surfacePlaybackFrameRate);
   }
 
   /** Clears the frame-rate of the current {@link #surface}. */
   private void clearSurfaceFrameRate() {
-    if (Util.SDK_INT < 30 || surface == null || surfaceFrameRate == 0) {
+    if (Util.SDK_INT < 30 || surface == null || surfacePlaybackFrameRate == 0) {
       return;
     }
-    surfaceFrameRate = 0;
+    surfacePlaybackFrameRate = 0;
     setSurfaceFrameRateV30(surface, /* frameRate= */ 0);
   }
 
