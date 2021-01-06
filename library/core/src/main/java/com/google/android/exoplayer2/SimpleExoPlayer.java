@@ -962,6 +962,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
     this.audioSessionId = audioSessionId;
     sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+    sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     if (audioSessionId != C.AUDIO_SESSION_ID_UNSET) {
       notifyAudioSessionIdSet();
     }

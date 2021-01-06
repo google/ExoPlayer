@@ -501,18 +501,25 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
-    if (messageType == MSG_SET_SURFACE) {
-      setSurface((Surface) message);
-    } else if (messageType == MSG_SET_SCALING_MODE) {
-      scalingMode = (Integer) message;
-      @Nullable MediaCodecAdapter codec = getCodec();
-      if (codec != null) {
-        codec.setVideoScalingMode(scalingMode);
-      }
-    } else if (messageType == MSG_SET_VIDEO_FRAME_METADATA_LISTENER) {
-      frameMetadataListener = (VideoFrameMetadataListener) message;
-    } else {
-      super.handleMessage(messageType, message);
+    switch (messageType) {
+      case MSG_SET_SURFACE:
+        setSurface((Surface) message);
+        break;
+      case MSG_SET_SCALING_MODE:
+        scalingMode = (Integer) message;
+        @Nullable MediaCodecAdapter codec = getCodec();
+        if (codec != null) {
+          codec.setVideoScalingMode(scalingMode);
+        }
+        break;
+      case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
+        frameMetadataListener = (VideoFrameMetadataListener) message;
+        break;
+      case MSG_SET_AUDIO_SESSION_ID:
+        // TODO: Set tunnelingAudioSessionId.
+        break;
+      default:
+        super.handleMessage(messageType, message);
     }
   }
 

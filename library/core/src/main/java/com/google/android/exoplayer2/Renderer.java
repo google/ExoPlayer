@@ -160,13 +160,14 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_SKIP_SILENCE_ENABLED = 101;
   /**
-   * A type of a message that can be passed to an audio renderer via {@link
+   * The type of a message that can be passed to audio and video renderers via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be an {@link Integer} instance
-   * representing the audio session ID that will be attached to the underlying audio track.
+   * representing the audio session ID that will be attached to the underlying audio track. Video
+   * renderers that support tunneling will use the audio session ID when tunneling is enabled.
    */
   int MSG_SET_AUDIO_SESSION_ID = 102;
   /**
-   * A type of a message that can be passed to a {@link Renderer} via {@link
+   * The type of a message that can be passed to a {@link Renderer} via {@link
    * ExoPlayer#createMessage(Target)}, to inform the renderer that it can schedule waking up another
    * component.
    *
