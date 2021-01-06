@@ -309,8 +309,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       try {
         errorResponseBody = Util.toByteArray(Assertions.checkNotNull(responseByteStream));
       } catch (IOException e) {
-        throw new InvalidResponseCodeException(
-            responseCode, response.message(), headers, dataSpec, null);
+        errorResponseBody = Util.EMPTY_BYTE_ARRAY;
       }
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
