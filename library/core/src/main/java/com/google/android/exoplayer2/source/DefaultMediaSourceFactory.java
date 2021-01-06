@@ -233,8 +233,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Sets the minimum playback speed for live streams.
    *
-   * @param minSpeed The minimum playback speed for live streams, or {@link C#RATE_UNSET} to use the
-   *     media-defined default.
+   * @param minSpeed The minimum factor by which playback can be sped up for live streams, or {@link
+   *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
   public DefaultMediaSourceFactory setLiveMinSpeed(float minSpeed) {
@@ -245,8 +245,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Sets the maximum playback speed for live streams.
    *
-   * @param maxSpeed The maximum playback speed for live streams, or {@link C#RATE_UNSET} to use the
-   *     media-defined default.
+   * @param maxSpeed The maximum factor by which playback can be sped up for live streams, or {@link
+   *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
   public DefaultMediaSourceFactory setLiveMaxSpeed(float maxSpeed) {

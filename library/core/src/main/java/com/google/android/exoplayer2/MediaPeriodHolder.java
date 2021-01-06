@@ -173,7 +173,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /**
    * Handles period preparation.
    *
-   * @param playbackSpeed The current playback speed.
+   * @param playbackSpeed The current factor by which playback is sped up.
    * @param timeline The current {@link Timeline}.
    * @throws ExoPlaybackException If an error occurs during track selection.
    */
@@ -224,7 +224,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * <p>The new track selection needs to be applied with {@link
    * #applyTrackSelection(TrackSelectorResult, long, boolean)} before taking effect.
    *
-   * @param playbackSpeed The current playback speed.
+   * @param playbackSpeed The current factor by which playback is sped up.
    * @param timeline The current {@link Timeline}.
    * @return The {@link TrackSelectorResult}.
    * @throws ExoPlaybackException If an error occurs during track selection.

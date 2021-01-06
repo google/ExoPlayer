@@ -184,7 +184,7 @@ public interface TrackSelection {
    * Called to notify the selection of the current playback speed. The playback speed may affect
    * adaptive track selection.
    *
-   * @param speed The playback speed.
+   * @param speed The factor by which playback is sped up.
    */
   void onPlaybackSpeed(float speed);
 

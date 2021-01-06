@@ -413,7 +413,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * @param format The {@link Format} of the candidate track.
    * @param trackBitrate The estimated bitrate of the track. May differ from {@link Format#bitrate}
    *     if a more accurate estimate of the current track bitrate is available.
-   * @param playbackSpeed The current playback speed.
+   * @param playbackSpeed The current factor by which playback is sped up.
    * @param effectiveBitrate The bitrate available to this selection.
    * @return Whether this {@link Format} can be selected.
    */

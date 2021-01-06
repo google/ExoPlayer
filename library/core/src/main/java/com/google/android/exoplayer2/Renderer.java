@@ -399,12 +399,11 @@ public interface Renderer extends PlayerMessage.Target {
   void resetPosition(long positionUs) throws ExoPlaybackException;
 
   /**
-   * Indicates the player's speed to this renderer, where 1 is the default rate, 2 is twice the
-   * default rate, 0.5 is half the default rate and so on.
+   * Indicates the playback speed to this renderer.
    *
    * <p>The default implementation is a no-op.
    *
-   * @param playbackSpeed The playback speed.
+   * @param playbackSpeed The factor by which playback is sped up.
    * @throws ExoPlaybackException If an error occurs handling the playback speed.
    */
   default void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {}

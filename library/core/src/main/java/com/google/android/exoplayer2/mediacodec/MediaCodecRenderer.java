@@ -1631,7 +1631,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * <p>The default implementation returns {@link #CODEC_OPERATING_RATE_UNSET}.
    *
-   * @param playbackSpeed The playback speed.
+   * @param playbackSpeed The factor by which playback is sped up.
    * @param format The {@link Format} for which the codec is being configured.
    * @param streamFormats The possible stream formats.
    * @return The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if no codec operating

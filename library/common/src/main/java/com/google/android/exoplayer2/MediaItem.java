@@ -514,8 +514,8 @@ public final class MediaItem {
      *
      * <p>This value is ignored for other stream types.
      *
-     * @param minPlaybackSpeed The minimum playback speed for live streams, or {@link C#RATE_UNSET}
-     *     to use the media-defined default.
+     * @param minPlaybackSpeed The minimum factor by which playback can be sped up for live streams,
+     *     or {@link C#RATE_UNSET} to use the media-defined default.
      */
     public Builder setLiveMinPlaybackSpeed(float minPlaybackSpeed) {
       this.liveMinPlaybackSpeed = minPlaybackSpeed;
@@ -527,8 +527,8 @@ public final class MediaItem {
      *
      * <p>This value is ignored for other stream types.
      *
-     * @param maxPlaybackSpeed The maximum playback speed for live streams, or {@link C#RATE_UNSET}
-     *     to use the media-defined default.
+     * @param maxPlaybackSpeed The maximum factor by which playback can be sped up for live streams,
+     *     or {@link C#RATE_UNSET} to use the media-defined default.
      */
     public Builder setLiveMaxPlaybackSpeed(float maxPlaybackSpeed) {
       this.liveMaxPlaybackSpeed = maxPlaybackSpeed;
@@ -865,10 +865,16 @@ public final class MediaItem {
      */
     public final long maxOffsetMs;
 
-    /** Minimum playback speed, or {@link C#RATE_UNSET} to use the media-defined default. */
+    /**
+     * Minimum factor by which playback can be sped up, or {@link C#RATE_UNSET} to use the
+     * media-defined default.
+     */
     public final float minPlaybackSpeed;
 
-    /** Maximum playback speed, or {@link C#RATE_UNSET} to use the media-defined default. */
+    /**
+     * Maximum factor by which playback can be sped up, or {@link C#RATE_UNSET} to use the
+     * media-defined default.
+     */
     public final float maxPlaybackSpeed;
 
     /**

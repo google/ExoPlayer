@@ -55,7 +55,7 @@ public interface LivePlaybackSpeedControl {
    *
    * @param liveOffsetUs The current live offset, in microseconds.
    * @param bufferedDurationUs The duration of media that's currently buffered, in microseconds.
-   * @return The adjusted playback speed.
+   * @return The adjusted factor by which playback should be sped up.
    */
   float getAdjustedPlaybackSpeed(long liveOffsetUs, long bufferedDurationUs);
 
