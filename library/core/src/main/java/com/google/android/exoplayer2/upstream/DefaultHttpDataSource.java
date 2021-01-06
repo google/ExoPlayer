@@ -369,8 +369,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     }
 
     // Check for a valid response code.
-    if (responseCode < 200 || responseCode > 299) {
-      Map<String, List<String>> headers = connection.getHeaderFields();
+    if (responseCode < 200 || responseCode > 299) {      
       @Nullable InputStream errorStream = connection.getErrorStream();
       byte[] errorResponseBody;
       try {
@@ -379,6 +378,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       } catch (IOException e) {
         errorResponseBody = Util.EMPTY_BYTE_ARRAY;
       }
+      Map<String, List<String>> headers = connection.getHeaderFields();
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
           new InvalidResponseCodeException(
