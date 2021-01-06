@@ -43,6 +43,8 @@
         allow decoder capability checks based on codec profile/level
         ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
 *   Track selection:
+    *   Allow parallel adaptation for video and audio
+        ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
     *   Add option to specify multiple preferred audio or text languages.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
 *   DASH:

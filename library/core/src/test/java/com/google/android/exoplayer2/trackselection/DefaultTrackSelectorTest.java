@@ -94,6 +94,7 @@ public final class DefaultTrackSelectorTest {
           .setSampleMimeType(MimeTypes.AUDIO_AAC)
           .setChannelCount(2)
           .setSampleRate(44100)
+          .setAverageBitrate(128000)
           .build();
   private static final Format TEXT_FORMAT =
       new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build();
@@ -1108,6 +1109,21 @@ public final class DefaultTrackSelectorTest {
   }
 
   @Test
+  public void selectTracks_multipleAudioTracksWithoutBitrate_onlySelectsSingleTrack()
+      throws Exception {
+    TrackGroupArray trackGroups =
+        singleTrackGroup(
+            AUDIO_FORMAT.buildUpon().setId("0").setAverageBitrate(Format.NO_VALUE).build(),
+            AUDIO_FORMAT.buildUpon().setId("1").setAverageBitrate(Format.NO_VALUE).build());
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups.get(0), /* expectedTrack= */ 0);
+  }
+
+  @Test
   public void selectTracksWithMultipleAudioTracksWithMixedSampleRates() throws Exception {
     Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
     Format highSampleRateAudioFormat = formatBuilder.setSampleRate(44100).build();
@@ -1411,6 +1427,48 @@ public final class DefaultTrackSelectorTest {
     assertAdaptiveSelection(result.selections.get(0), trackGroups.get(0), 1, 2);
   }
 
+  @Test
+  public void selectTracks_multipleVideoAndAudioTracks() throws Exception {
+    Format videoFormat1 = VIDEO_FORMAT.buildUpon().setAverageBitrate(1000).build();
+    Format videoFormat2 = VIDEO_FORMAT.buildUpon().setAverageBitrate(2000).build();
+    Format audioFormat1 = AUDIO_FORMAT.buildUpon().setAverageBitrate(100).build();
+    Format audioFormat2 = AUDIO_FORMAT.buildUpon().setAverageBitrate(200).build();
+    TrackGroupArray trackGroups =
+        new TrackGroupArray(
+            new TrackGroup(videoFormat1, videoFormat2), new TrackGroup(audioFormat1, audioFormat2));
+
+    // Multiple adaptive selections allowed.
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setAllowMultipleAdaptiveSelections(true));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertAdaptiveSelection(
+        result.selections.get(0), trackGroups.get(0), /* expectedTracks...= */ 1, 0);
+    assertAdaptiveSelection(
+        result.selections.get(1), trackGroups.get(1), /* expectedTracks...= */ 1, 0);
+
+    // Multiple adaptive selection disallowed.
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setAllowMultipleAdaptiveSelections(false));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES, AUDIO_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+
+    assertThat(result.length).isEqualTo(2);
+    assertAdaptiveSelection(
+        result.selections.get(0), trackGroups.get(0), /* expectedTracks...= */ 1, 0);
+    assertFixedSelection(result.selections.get(1), trackGroups.get(1), /* expectedTrack= */ 1);
+  }
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
@@ -1478,6 +1536,7 @@ public final class DefaultTrackSelectorTest {
         .setSampleMimeType(mimeType)
         .setChannelCount(channelCount)
         .setSampleRate(sampleRate)
+        .setAverageBitrate(128000)
         .build();
   }
 
@@ -1531,6 +1590,7 @@ public final class DefaultTrackSelectorTest {
         /* forceHighestSupportedBitrate= */ true,
         /* exceedRendererCapabilitiesIfNecessary= */ false,
         /* tunnelingAudioSessionId= */ 13,
+        /* allowMultipleAdaptiveSelections= */ true,
         // Overrides
         selectionOverrides,
         rendererDisabledFlags);

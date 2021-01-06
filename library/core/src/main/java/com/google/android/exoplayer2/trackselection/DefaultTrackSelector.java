@@ -195,6 +195,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean forceHighestSupportedBitrate;
     private boolean exceedRendererCapabilitiesIfNecessary;
     private int tunnelingAudioSessionId;
+    private boolean allowMultipleAdaptiveSelections;
 
     private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
         selectionOverrides;
@@ -261,6 +262,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
       exceedRendererCapabilitiesIfNecessary = initialValues.exceedRendererCapabilitiesIfNecessary;
       tunnelingAudioSessionId = initialValues.tunnelingAudioSessionId;
+      allowMultipleAdaptiveSelections = initialValues.allowMultipleAdaptiveSelections;
       // Overrides
       selectionOverrides = cloneSelectionOverrides(initialValues.selectionOverrides);
       rendererDisabledFlags = initialValues.rendererDisabledFlags.clone();
@@ -645,6 +647,18 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return this;
     }
 
+    /**
+     * Sets whether multiple adaptive selections with more than one track are allowed.
+     *
+     * @param allowMultipleAdaptiveSelections Whether multiple adaptive selections are allowed.
+     * @return This builder.
+     */
+    public ParametersBuilder setAllowMultipleAdaptiveSelections(
+        boolean allowMultipleAdaptiveSelections) {
+      this.allowMultipleAdaptiveSelections = allowMultipleAdaptiveSelections;
+      return this;
+    }
+
     // Overrides
 
     /**
@@ -799,6 +813,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           forceHighestSupportedBitrate,
           exceedRendererCapabilitiesIfNecessary,
           tunnelingAudioSessionId,
+          allowMultipleAdaptiveSelections,
           selectionOverrides,
           rendererDisabledFlags);
     }
@@ -827,6 +842,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       forceHighestSupportedBitrate = false;
       exceedRendererCapabilitiesIfNecessary = true;
       tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
+      allowMultipleAdaptiveSelections = true;
     }
 
     private static SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
@@ -1007,6 +1023,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * disabled).
      */
     public final int tunnelingAudioSessionId;
+    /**
+     * Whether multiple adaptive selections with more than one track are allowed. The default value
+     * is {@code true}.
+     *
+     * <p>Note that tracks are only eligible for adaptation if they define a bitrate, the renderers
+     * support the tracks and allow adaptation between them, and they are not excluded based on
+     * other track selection parameters.
+     */
+    public final boolean allowMultipleAdaptiveSelections;
 
     // Overrides
     private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
@@ -1047,6 +1072,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean forceHighestSupportedBitrate,
         boolean exceedRendererCapabilitiesIfNecessary,
         int tunnelingAudioSessionId,
+        boolean allowMultipleAdaptiveSelections,
         // Overrides
         SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides,
         SparseBooleanArray rendererDisabledFlags) {
@@ -1083,6 +1109,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
       this.exceedRendererCapabilitiesIfNecessary = exceedRendererCapabilitiesIfNecessary;
       this.tunnelingAudioSessionId = tunnelingAudioSessionId;
+      this.allowMultipleAdaptiveSelections = allowMultipleAdaptiveSelections;
       // Overrides
       this.selectionOverrides = selectionOverrides;
       this.rendererDisabledFlags = rendererDisabledFlags;
@@ -1117,6 +1144,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.forceHighestSupportedBitrate = Util.readBoolean(in);
       this.exceedRendererCapabilitiesIfNecessary = Util.readBoolean(in);
       this.tunnelingAudioSessionId = in.readInt();
+      this.allowMultipleAdaptiveSelections = Util.readBoolean(in);
       // Overrides
       this.selectionOverrides = readSelectionOverrides(in);
       this.rendererDisabledFlags = Util.castNonNull(in.readSparseBooleanArray());
@@ -1203,6 +1231,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
           && exceedRendererCapabilitiesIfNecessary == other.exceedRendererCapabilitiesIfNecessary
           && tunnelingAudioSessionId == other.tunnelingAudioSessionId
+          && allowMultipleAdaptiveSelections == other.allowMultipleAdaptiveSelections
           // Overrides
           && areRendererDisabledFlagsEqual(rendererDisabledFlags, other.rendererDisabledFlags)
           && areSelectionOverridesEqual(selectionOverrides, other.selectionOverrides);
@@ -1238,6 +1267,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
       result = 31 * result + (exceedRendererCapabilitiesIfNecessary ? 1 : 0);
       result = 31 * result + tunnelingAudioSessionId;
+      result = 31 * result + (allowMultipleAdaptiveSelections ? 1 : 0);
       // Overrides (omitted from hashCode).
       return result;
     }
@@ -1279,6 +1309,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       Util.writeBoolean(dest, forceHighestSupportedBitrate);
       Util.writeBoolean(dest, exceedRendererCapabilitiesIfNecessary);
       dest.writeInt(tunnelingAudioSessionId);
+      Util.writeBoolean(dest, allowMultipleAdaptiveSelections);
       // Overrides
       writeSelectionOverridesToParcel(dest, selectionOverrides);
       dest.writeSparseBooleanArray(rendererDisabledFlags);
@@ -1517,8 +1548,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private final TrackSelection.Factory trackSelectionFactory;
   private final AtomicReference<Parameters> parametersReference;
 
-  private boolean allowMultipleAdaptiveSelections;
-
   /** @deprecated Use {@link #DefaultTrackSelector(Context)} instead. */
   @Deprecated
   public DefaultTrackSelector() {
@@ -1586,15 +1615,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   /** Returns a new {@link ParametersBuilder} initialized with the current selection parameters. */
   public ParametersBuilder buildUponParameters() {
     return getParameters().buildUpon();
-  }
-
-  /**
-   * Allows the creation of multiple adaptive track selections.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   */
-  public void experimentalAllowMultipleAdaptiveSelections() {
-    this.allowMultipleAdaptiveSelections = true;
   }
 
   // MappingTrackSelector implementation.
@@ -1719,7 +1739,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     for (int i = 0; i < rendererCount; i++) {
       if (C.TRACK_TYPE_AUDIO == mappedTrackInfo.getRendererType(i)) {
         boolean enableAdaptiveTrackSelection =
-            allowMultipleAdaptiveSelections || !seenVideoRendererWithMappedTracks;
+            params.allowMultipleAdaptiveSelections || !seenVideoRendererWithMappedTracks;
         @Nullable
         Pair<TrackSelection.Definition, AudioTrackScore> audioSelection =
             selectAudioTrack(
@@ -2207,7 +2227,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       boolean allowMixedSampleRateAdaptiveness,
       boolean allowAudioMixedChannelCountAdaptiveness) {
     return isSupported(formatSupport, /* allowExceedsCapabilities= */ false)
-        && (format.bitrate == Format.NO_VALUE || format.bitrate <= maxAudioBitrate)
+        && format.bitrate != Format.NO_VALUE
+        && format.bitrate <= maxAudioBitrate
         && (allowAudioMixedChannelCountAdaptiveness
             || (format.channelCount != Format.NO_VALUE
                 && format.channelCount == primaryFormat.channelCount))
