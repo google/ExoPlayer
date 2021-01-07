@@ -1577,16 +1577,18 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static boolean evaluateDeviceNeedsSetOutputSurfaceWorkaround() {
     if (Util.SDK_INT <= 28) {
-      // Workaround for MiTV devices which have been observed broken up to API 28.
+      // Workaround for MiTV and MiBox devices which have been observed broken up to API 28.
       // https://github.com/google/ExoPlayer/issues/5169,
       // https://github.com/google/ExoPlayer/issues/6899.
       // https://github.com/google/ExoPlayer/issues/8014.
+      // https://github.com/google/ExoPlayer/issues/8329.
       switch (Util.DEVICE) {
         case "dangal":
         case "dangalUHD":
         case "dangalFHD":
         case "magnolia":
         case "machuca":
+        case "oneday":
           return true;
         default:
           break; // Do nothing.
