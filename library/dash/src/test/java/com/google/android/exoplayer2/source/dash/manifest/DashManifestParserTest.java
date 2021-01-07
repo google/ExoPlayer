@@ -42,7 +42,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 @RunWith(AndroidJUnit4.class)
 public class DashManifestParserTest {
 
-  private static final String SAMPLE_MPD = "media/mpd/sample_mpd";
+  private static final String SAMPLE_MPD_LIVE = "media/mpd/sample_mpd_live";
   private static final String SAMPLE_MPD_UNKNOWN_MIME_TYPE =
       "media/mpd/sample_mpd_unknown_mime_type";
   private static final String SAMPLE_MPD_SEGMENT_TEMPLATE = "media/mpd/sample_mpd_segment_template";
@@ -73,7 +73,7 @@ public class DashManifestParserTest {
     DashManifestParser parser = new DashManifestParser();
     parser.parse(
         Uri.parse("https://example.com/test.mpd"),
-        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD));
+        TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_LIVE));
     parser.parse(
         Uri.parse("https://example.com/test.mpd"),
         TestUtil.getInputStream(
@@ -184,7 +184,7 @@ public class DashManifestParserTest {
     DashManifest manifest =
         parser.parse(
             Uri.parse("https://example.com/test.mpd"),
-            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD));
+            TestUtil.getInputStream(ApplicationProvider.getApplicationContext(), SAMPLE_MPD_LIVE));
     ProgramInformation expectedProgramInformation =
         new ProgramInformation(
             "MediaTitle", "MediaSource", "MediaCopyright", "www.example.com", "enUs");

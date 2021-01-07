@@ -42,7 +42,6 @@ public class DefaultDashChunkSourceTest {
 
   private static final String SAMPLE_MPD_LIVE_WITH_OFFSET_INSIDE_WINDOW =
       "media/mpd/sample_mpd_live_with_offset_inside_window";
-
   private static final String SAMPLE_MPD_VOD = "media/mpd/sample_mpd_vod";
 
   @Test
