@@ -42,6 +42,9 @@
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level
         ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
+    *   Add option to `MergingMediaSource` to clip the durations of all sources
+        to have the same length
+        ([#8422](https://github.com/google/ExoPlayer/issues/8422)).
 *   Track selection:
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
