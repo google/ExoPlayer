@@ -1219,8 +1219,7 @@ public interface Player {
   /**
    * Returns the error that caused playback to fail. This is the same error that will have been
    * reported via {@link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
-   * failure. It can be queried using this method until {@code stop(true)} is called or the player
-   * is re-prepared.
+   * failure. It can be queried using this method until the player is re-prepared.
    *
    * <p>Note that this method will always return {@code null} if {@link #getPlaybackState()} is not
    * {@link #STATE_IDLE}.
@@ -1405,16 +1404,11 @@ public interface Player {
   void stop();
 
   /**
-   * Stops playback and optionally clears the playlist and resets the position and playback error.
-   * Use {@link #pause()} rather than this method if the intention is to pause playback.
-   *
-   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
-   * player instance can still be used, and {@link #release()} must still be called on the player if
-   * it's no longer required.
-   *
-   * @param reset Whether the playlist should be cleared and whether the playback position and
-   *     playback error should be reset.
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
    */
+  @Deprecated
   void stop(boolean reset);
 
   /**
