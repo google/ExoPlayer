@@ -571,9 +571,16 @@ import java.util.List;
         styledPlayerControlView.getHeight()
             - styledPlayerControlView.getPaddingBottom()
             - styledPlayerControlView.getPaddingTop();
+
+    int centerControlWidth =
+        getWidthWithMargins(centerControls)
+            - (centerControls != null
+                ? (centerControls.getPaddingLeft() + centerControls.getPaddingRight())
+                : 0);
+
     int defaultModeMinimumWidth =
         Math.max(
-            getWidthWithMargins(centerControls),
+            centerControlWidth,
             getWidthWithMargins(timeView) + getWidthWithMargins(overflowShowButton));
     int defaultModeMinimumHeight =
         getHeightWithMargins(centerControls) + 2 * getHeightWithMargins(bottomBar);

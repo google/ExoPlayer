@@ -44,6 +44,7 @@
     <dimen name="exo_styled_bottom_bar_height">60dp</dimen>
     <dimen name="exo_styled_bottom_bar_time_padding">10dp</dimen>
     <dimen name="exo_styled_bottom_bar_margin_top">10dp</dimen>
+    <dimen name="exo_styled_controls_padding">0dp</dimen>
     <dimen name="exo_styled_minimal_controls_margin_bottom">4dp</dimen>
 
     <dimen name="exo_error_message_height">32dp</dimen>

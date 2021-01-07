@@ -11,8 +11,7 @@
     *   Add `LiveConfiguration` to `MediaItem` to allow media-specific live
         offset and live playback speed settings. The same settings can be set
         for all `MediaItems` in `DefaultMediaSourceFactory`.
-    *   Add  `targetLiveOffsetUs` parameter to
-        `LoadControl.shouldStartPlayback`.
+    *   Add `targetLiveOffsetUs` parameter to `LoadControl.shouldStartPlayback`.
     *   Verify correct thread usage in `SimpleExoPlayer` by default. Opt-out is
         still possible until the next major release using
         `setThrowsWhenUsingWrongThread(false)`
@@ -71,13 +70,14 @@
         enough space.
     *   Update StyledPlayer's control overlay scrim from 30% opacity to 60%
         opacity for Accessibility requirements.
+    *   Switch `StyledPlayerControlView` button controls to borderless ripples.
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.
 *   Downloads:
-    *    Fix crash in `DownloadManager` that could occur when adding a stopped
-         download with the same ID as a download currently being removed
-         ([#8419](https://github.com/google/ExoPlayer/issues/8419)).
+    *   Fix crash in `DownloadManager` that could occur when adding a stopped
+        download with the same ID as a download currently being removed
+        ([#8419](https://github.com/google/ExoPlayer/issues/8419)).
 *   Analytics:
     *   Pass a `DecoderReuseEvaluation` to `AnalyticsListener`'s
         `onVideoInputFormatChanged` and `onAudioInputFormatChanged` methods. The

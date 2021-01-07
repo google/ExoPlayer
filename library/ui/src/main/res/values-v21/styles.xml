@@ -14,16 +14,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-  <item android:state_pressed="true">
-    <layer-list>
-      <item>
-      <shape>
-        <solid android:color="@color/exo_gray_ripple"/>
-      </shape>
-      </item>
-      <item android:drawable="@drawable/exo_styled_controls_rewind"/>
-    </layer-list>
-  </item>
-  <item android:drawable="@drawable/exo_styled_controls_rewind" />
-</selector>
+<resources>
+  <style name="ExoStyledControls.Button.Center">
+    <item name="android:layout_width">@dimen/exo_icon_size</item>
+    <item name="android:layout_height">@dimen/exo_icon_size</item>
+    <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+  </style>
+</resources>

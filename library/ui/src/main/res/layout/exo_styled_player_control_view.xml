@@ -119,23 +119,25 @@
 
   </LinearLayout>
 
-  <LinearLayout android:id="@+id/exo_center_controls"
+  <LinearLayout
+      android:id="@+id/exo_center_controls"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="center"
-      android:gravity="center">
+      android:background="@android:color/transparent"
+      android:gravity="center"
+      android:padding="@dimen/exo_styled_controls_padding">
+
 
     <ImageButton android:id="@+id/exo_prev"
         style="@style/ExoStyledControls.Button.Center.Previous"/>
 
-    <Button android:id="@+id/exo_rew_with_amount"
-        style="@style/ExoStyledControls.Button.Center.RewWithAmount"/>
+    <include layout="@layout/exo_styled_player_control_rewind_button" />
 
     <ImageButton android:id="@+id/exo_play_pause"
         style="@style/ExoStyledControls.Button.Center.PlayPause"/>
 
-    <Button android:id="@+id/exo_ffwd_with_amount"
-        style="@style/ExoStyledControls.Button.Center.FfwdWithAmount"/>
+    <include layout="@layout/exo_styled_player_control_ffwd_button" />
 
     <ImageButton android:id="@+id/exo_next"
         style="@style/ExoStyledControls.Button.Center.Next"/>
