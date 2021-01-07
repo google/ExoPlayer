@@ -603,11 +603,16 @@ public final class DefaultHlsPlaylistTracker
               loadDurationMs,
               loadable.bytesLoaded());
       boolean isBlockingRequest = loadable.getUri().getQueryParameter(BLOCK_MSN_PARAM) != null;
-      if (isBlockingRequest && error instanceof HttpDataSource.InvalidResponseCodeException) {
-        int responseCode = ((HttpDataSource.InvalidResponseCodeException) error).responseCode;
-        if (responseCode == 400 || responseCode == 503) {
-          // Intercept bad request and service unavailable to force a full, non-blocking request
-          // (see RFC 8216, section 6.2.5.2).
+      boolean deltaUpdateFailed = error instanceof HlsPlaylistParser.DeltaUpdateException;
+      if (isBlockingRequest || deltaUpdateFailed) {
+        int responseCode = Integer.MAX_VALUE;
+        if (error instanceof HttpDataSource.InvalidResponseCodeException) {
+          responseCode = ((HttpDataSource.InvalidResponseCodeException) error).responseCode;
+        }
+        if (deltaUpdateFailed || responseCode == 400 || responseCode == 503) {
+          // Intercept failed delta updates and blocking requests producing a Bad Request (400) and
+          // Service Unavailable (503). In such cases, force a full, non-blocking request (see RFC
+          // 8216, section 6.2.5.2 and 6.3.7).
           earliestNextLoadTimeMs = SystemClock.elapsedRealtime();
           loadPlaylist();
           castNonNull(eventDispatcher)

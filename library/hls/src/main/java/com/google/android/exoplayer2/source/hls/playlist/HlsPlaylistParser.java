@@ -69,6 +69,9 @@ import org.checkerframework.checker.nullness.qual.PolyNull;
  */
 public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlaylist> {
 
+  /** Exception thrown when merging a delta update fails. */
+  public static final class DeltaUpdateException extends IOException {}
+
   private static final String LOG_TAG = "HlsPlaylistParser";
 
   private static final String PLAYLIST_HEADER = "#EXTM3U";
@@ -744,36 +747,37 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         checkState(previousMediaPlaylist != null && segments.isEmpty());
         int startIndex = (int) (mediaSequence - castNonNull(previousMediaPlaylist).mediaSequence);
         int endIndex = startIndex + skippedSegmentCount;
-        if (startIndex >= 0 && endIndex <= previousMediaPlaylist.segments.size()) {
-          // Merge only if all skipped segments are available in the previous playlist.
-          for (int i = startIndex; i < endIndex; i++) {
-            Segment segment = previousMediaPlaylist.segments.get(i);
-            if (mediaSequence != previousMediaPlaylist.mediaSequence) {
-              // If the media sequences of the playlists are not the same, we need to recreate the
-              // object with the updated relative start time and the relative discontinuity
-              // sequence. With identical playlist media sequences these values do not change.
-              int newRelativeDiscontinuitySequence =
-                  previousMediaPlaylist.discontinuitySequence
-                      - playlistDiscontinuitySequence
-                      + segment.relativeDiscontinuitySequence;
-              segment = segment.copyWith(segmentStartTimeUs, newRelativeDiscontinuitySequence);
-            }
-            segments.add(segment);
-            segmentStartTimeUs += segment.durationUs;
-            partStartTimeUs = segmentStartTimeUs;
-            if (segment.byteRangeLength != C.LENGTH_UNSET) {
-              segmentByteRangeOffset = segment.byteRangeOffset + segment.byteRangeLength;
-            }
-            relativeDiscontinuitySequence = segment.relativeDiscontinuitySequence;
-            initializationSegment = segment.initializationSegment;
-            cachedDrmInitData = segment.drmInitData;
-            fullSegmentEncryptionKeyUri = segment.fullSegmentEncryptionKeyUri;
-            if (segment.encryptionIV == null
-                || !segment.encryptionIV.equals(Long.toHexString(segmentMediaSequence))) {
-              fullSegmentEncryptionIV = segment.encryptionIV;
-            }
-            segmentMediaSequence++;
+        if (startIndex < 0 || endIndex > previousMediaPlaylist.segments.size()) {
+          // Throw to force a reload if not all segments are available in the previous playlist.
+          throw new DeltaUpdateException();
+        }
+        for (int i = startIndex; i < endIndex; i++) {
+          Segment segment = previousMediaPlaylist.segments.get(i);
+          if (mediaSequence != previousMediaPlaylist.mediaSequence) {
+            // If the media sequences of the playlists are not the same, we need to recreate the
+            // object with the updated relative start time and the relative discontinuity
+            // sequence. With identical playlist media sequences these values do not change.
+            int newRelativeDiscontinuitySequence =
+                previousMediaPlaylist.discontinuitySequence
+                    - playlistDiscontinuitySequence
+                    + segment.relativeDiscontinuitySequence;
+            segment = segment.copyWith(segmentStartTimeUs, newRelativeDiscontinuitySequence);
           }
+          segments.add(segment);
+          segmentStartTimeUs += segment.durationUs;
+          partStartTimeUs = segmentStartTimeUs;
+          if (segment.byteRangeLength != C.LENGTH_UNSET) {
+            segmentByteRangeOffset = segment.byteRangeOffset + segment.byteRangeLength;
+          }
+          relativeDiscontinuitySequence = segment.relativeDiscontinuitySequence;
+          initializationSegment = segment.initializationSegment;
+          cachedDrmInitData = segment.drmInitData;
+          fullSegmentEncryptionKeyUri = segment.fullSegmentEncryptionKeyUri;
+          if (segment.encryptionIV == null
+              || !segment.encryptionIV.equals(Long.toHexString(segmentMediaSequence))) {
+            fullSegmentEncryptionIV = segment.encryptionIV;
+          }
+          segmentMediaSequence++;
         }
       } else if (line.startsWith(TAG_KEY)) {
         String method = parseStringAttr(line, REGEX_METHOD, variableDefinitions);

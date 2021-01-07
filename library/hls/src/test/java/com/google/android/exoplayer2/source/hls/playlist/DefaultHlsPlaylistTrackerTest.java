@@ -37,7 +37,6 @@ import okhttp3.mockwebserver.MockWebServer;
 import okio.Buffer;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,6 +49,8 @@ public class DefaultHlsPlaylistTrackerTest {
       "media/m3u8/live_low_latency_master_media_uri_with_param";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL =
       "media/m3u8/live_low_latency_media_can_skip_until";
+  private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_FULL_RELOAD_AFTER_ERROR =
+      "media/m3u8/live_low_latency_media_can_skip_until_full_reload_after_error";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_DATERANGES =
       "media/m3u8/live_low_latency_media_can_skip_dateranges";
   private static final String SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED =
@@ -168,18 +169,21 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(mergedPlaylist.segments.get(1).relativeStartTimeUs).isEqualTo(4000000);
   }
 
-  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
-  public void start_playlistCanSkip_missingSegments_correctedMediaSequence()
+  public void start_playlistCanSkip_missingSegments_reloadsWithoutSkipping()
       throws IOException, TimeoutException, InterruptedException {
     List<HttpUrl> httpUrls =
         enqueueWebServerResponses(
             new String[] {
-              "/master.m3u8", "/media0/playlist.m3u8", "/media0/playlist.m3u8?_HLS_skip=YES"
+              "/master.m3u8",
+              "/media0/playlist.m3u8",
+              "/media0/playlist.m3u8?_HLS_skip=YES",
+              "/media0/playlist.m3u8"
             },
             getMockResponse(SAMPLE_M3U8_LIVE_MASTER),
             getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL),
-            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED_MEDIA_SEQUENCE_NO_OVERLAPPING));
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_SKIPPED_MEDIA_SEQUENCE_NO_OVERLAPPING),
+            getMockResponse(SAMPLE_M3U8_LIVE_MEDIA_CAN_SKIP_UNTIL_FULL_RELOAD_AFTER_ERROR));
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
@@ -192,8 +196,8 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(initialPlaylistWithAllSegments.mediaSequence).isEqualTo(10);
     assertThat(initialPlaylistWithAllSegments.segments).hasSize(6);
     HlsMediaPlaylist mergedPlaylist = mediaPlaylists.get(1);
-    assertThat(mergedPlaylist.mediaSequence).isEqualTo(22);
-    assertThat(mergedPlaylist.segments).hasSize(4);
+    assertThat(mergedPlaylist.mediaSequence).isEqualTo(20);
+    assertThat(mergedPlaylist.segments).hasSize(6);
   }
 
   @Test
