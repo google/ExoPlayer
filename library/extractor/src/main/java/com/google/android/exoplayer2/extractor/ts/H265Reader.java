@@ -334,6 +334,23 @@ public final class H265Reader implements ElementaryStreamReader {
           Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
         }
       }
+      if (bitArray.readBit()) // overscan_info_present_flag
+        bitArray.skipBit();
+      if (bitArray.readBit()) { // video_signal_type_present_flag
+        bitArray.skipBits(4);
+        if (bitArray.readBit()) // colour_description_present_flag
+          bitArray.skipBits(24);
+      }
+      if (bitArray.readBit()) { // chroma_loc_info_present_flag
+        bitArray.readUnsignedExpGolombCodedInt();
+        bitArray.readUnsignedExpGolombCodedInt();
+      }
+      bitArray.skipBit(); // neutral_chroma_indication_flag
+      if (bitArray.readBit()) { // field_seq_flag
+        // field_seq_flag equal to 1 indicates that the CVS conveys pictures that represent fields,
+        // which means that picture height must be multiplied by 2 to get frame height
+        picHeightInLumaSamples *= 2;
+      }
     }
 
     return new Format.Builder()
