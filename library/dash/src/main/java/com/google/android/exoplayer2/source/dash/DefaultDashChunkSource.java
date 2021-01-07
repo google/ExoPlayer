@@ -499,8 +499,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private long getNowPeriodTimeUs(long nowUnixTimeUs) {
-    return nowUnixTimeUs
-        - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
+    return manifest.availabilityStartTimeMs == C.TIME_UNSET
+        ? C.TIME_UNSET
+        : nowUnixTimeUs
+            - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
   }
 
   protected Chunk newInitializationChunk(
@@ -797,7 +799,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowPeriodTimeUs) {
-      return getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
+      return nowPeriodTimeUs == C.TIME_UNSET || getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
     }
 
     @Nullable
