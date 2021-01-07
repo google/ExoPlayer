@@ -175,7 +175,8 @@ public class AsynchronousMediaCodecCallbackTest {
 
   @Test
   public void dequeOutputBufferIndex_returnsEnqueuedBuffers() {
-    // Send two output buffers to the callback.
+    // Send an output format and two output buffers to the callback.
+    asynchronousMediaCodecCallback.onOutputFormatChanged(codec, createMediaFormat("format0"));
     MediaCodec.BufferInfo bufferInfo1 = new MediaCodec.BufferInfo();
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 0, bufferInfo1);
     MediaCodec.BufferInfo bufferInfo2 = new MediaCodec.BufferInfo();
@@ -183,6 +184,10 @@ public class AsynchronousMediaCodecCallbackTest {
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 1, bufferInfo2);
 
     MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
+    assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(outBufferInfo))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(asynchronousMediaCodecCallback.getOutputFormat().getString("name"))
+        .isEqualTo("format0");
     assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(0);
     assertBufferInfosEqual(bufferInfo1, outBufferInfo);
     assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(1);
@@ -235,8 +240,9 @@ public class AsynchronousMediaCodecCallbackTest {
     Looper callbackThreadLooper = callbackThread.getLooper();
     AtomicBoolean flushCompleted = new AtomicBoolean();
 
-    // Send two output buffers to the callback, then flush(), then send
+    // Send an output format and two output buffers to the callback, then flush(), then send
     // another output buffer.
+    asynchronousMediaCodecCallback.onOutputFormatChanged(codec, createMediaFormat("format0"));
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 0, bufferInfo);
     asynchronousMediaCodecCallback.onOutputBufferAvailable(codec, 1, bufferInfo);
     asynchronousMediaCodecCallback.flushAsync(
@@ -247,6 +253,10 @@ public class AsynchronousMediaCodecCallbackTest {
     MediaCodec.BufferInfo outBufferInfo = new MediaCodec.BufferInfo();
 
     assertThat(flushCompleted.get()).isTrue();
+    assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(outBufferInfo))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(asynchronousMediaCodecCallback.getOutputFormat().getString("name"))
+        .isEqualTo("format0");
     assertThat(asynchronousMediaCodecCallback.dequeueOutputBufferIndex(outBufferInfo)).isEqualTo(2);
   }
 
