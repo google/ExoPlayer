@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.initialization.qual.UnderInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
 /**
  * A default {@link TrackSelector} suitable for most use cases. Track selections are made according
@@ -183,6 +184,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private int viewportWidth;
     private int viewportHeight;
     private boolean viewportOrientationMayChange;
+    private ImmutableList<String> preferredVideoMimeTypes;
     // Audio
     private int maxAudioChannelCount;
     private int maxAudioBitrate;
@@ -190,6 +192,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean allowAudioMixedMimeTypeAdaptiveness;
     private boolean allowAudioMixedSampleRateAdaptiveness;
     private boolean allowAudioMixedChannelCountAdaptiveness;
+    private ImmutableList<String> preferredAudioMimeTypes;
     // General
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
@@ -249,6 +252,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       viewportWidth = initialValues.viewportWidth;
       viewportHeight = initialValues.viewportHeight;
       viewportOrientationMayChange = initialValues.viewportOrientationMayChange;
+      preferredVideoMimeTypes = initialValues.preferredVideoMimeTypes;
       // Audio
       maxAudioChannelCount = initialValues.maxAudioChannelCount;
       maxAudioBitrate = initialValues.maxAudioBitrate;
@@ -257,6 +261,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       allowAudioMixedSampleRateAdaptiveness = initialValues.allowAudioMixedSampleRateAdaptiveness;
       allowAudioMixedChannelCountAdaptiveness =
           initialValues.allowAudioMixedChannelCountAdaptiveness;
+      preferredAudioMimeTypes = initialValues.preferredAudioMimeTypes;
       // General
       forceLowestBitrate = initialValues.forceLowestBitrate;
       forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
@@ -447,6 +452,29 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return this;
     }
 
+    /**
+     * Sets the preferred sample MIME type for video tracks.
+     *
+     * @param mimeType The preferred MIME type for video tracks, or {@code null} to clear a
+     *     previously set preference.
+     * @return This builder.
+     */
+    public ParametersBuilder setPreferredVideoMimeType(@Nullable String mimeType) {
+      return mimeType == null ? setPreferredVideoMimeTypes() : setPreferredVideoMimeTypes(mimeType);
+    }
+
+    /**
+     * Sets the preferred sample MIME types for video tracks.
+     *
+     * @param mimeTypes The preferred MIME types for video tracks in order of preference, or an
+     *     empty list for no preference.
+     * @return This builder.
+     */
+    public ParametersBuilder setPreferredVideoMimeTypes(String... mimeTypes) {
+      preferredVideoMimeTypes = ImmutableList.copyOf(mimeTypes);
+      return this;
+    }
+
     // Audio
 
     @Override
@@ -539,6 +567,29 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public ParametersBuilder setAllowAudioMixedChannelCountAdaptiveness(
         boolean allowAudioMixedChannelCountAdaptiveness) {
       this.allowAudioMixedChannelCountAdaptiveness = allowAudioMixedChannelCountAdaptiveness;
+      return this;
+    }
+
+    /**
+     * Sets the preferred sample MIME type for audio tracks.
+     *
+     * @param mimeType The preferred MIME type for audio tracks, or {@code null} to clear a
+     *     previously set preference.
+     * @return This builder.
+     */
+    public ParametersBuilder setPreferredAudioMimeType(@Nullable String mimeType) {
+      return mimeType == null ? setPreferredAudioMimeTypes() : setPreferredAudioMimeTypes(mimeType);
+    }
+
+    /**
+     * Sets the preferred sample MIME types for audio tracks.
+     *
+     * @param mimeTypes The preferred MIME types for audio tracks in order of preference, or an
+     *     empty list for no preference.
+     * @return This builder.
+     */
+    public ParametersBuilder setPreferredAudioMimeTypes(String... mimeTypes) {
+      preferredAudioMimeTypes = ImmutableList.copyOf(mimeTypes);
       return this;
     }
 
@@ -795,6 +846,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           viewportWidth,
           viewportHeight,
           viewportOrientationMayChange,
+          preferredVideoMimeTypes,
           // Audio
           preferredAudioLanguages,
           maxAudioChannelCount,
@@ -803,6 +855,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           allowAudioMixedMimeTypeAdaptiveness,
           allowAudioMixedSampleRateAdaptiveness,
           allowAudioMixedChannelCountAdaptiveness,
+          preferredAudioMimeTypes,
           // Text
           preferredTextLanguages,
           preferredTextRoleFlags,
@@ -818,6 +871,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           rendererDisabledFlags);
     }
 
+    @EnsuresNonNull({"preferredVideoMimeTypes", "preferredAudioMimeTypes"})
     private void setInitialValuesWithoutContext(@UnderInitialization ParametersBuilder this) {
       // Video
       maxVideoWidth = Integer.MAX_VALUE;
@@ -830,6 +884,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       viewportWidth = Integer.MAX_VALUE;
       viewportHeight = Integer.MAX_VALUE;
       viewportOrientationMayChange = true;
+      preferredVideoMimeTypes = ImmutableList.of();
       // Audio
       maxAudioChannelCount = Integer.MAX_VALUE;
       maxAudioBitrate = Integer.MAX_VALUE;
@@ -837,6 +892,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       allowAudioMixedMimeTypeAdaptiveness = false;
       allowAudioMixedSampleRateAdaptiveness = false;
       allowAudioMixedChannelCountAdaptiveness = false;
+      preferredAudioMimeTypes = ImmutableList.of();
       // General
       forceLowestBitrate = false;
       forceHighestSupportedBitrate = false;
@@ -963,6 +1019,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * The default value is {@code true}.
      */
     public final boolean viewportOrientationMayChange;
+    /**
+     * The preferred sample MIME types for video tracks in order of preference, or an empty list for
+     * no preference. The default is an empty list.
+     */
+    public final ImmutableList<String> preferredVideoMimeTypes;
     // Audio
     /**
      * Maximum allowed audio channel count. The default value is {@link Integer#MAX_VALUE} (i.e. no
@@ -995,7 +1056,11 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * false}.
      */
     public final boolean allowAudioMixedChannelCountAdaptiveness;
-
+    /**
+     * The preferred sample MIME types for audio tracks in order of preference, or an empty list for
+     * no preference. The default is an empty list.
+     */
+    public final ImmutableList<String> preferredAudioMimeTypes;
     // General
     /**
      * Whether to force selection of the single lowest bitrate audio and video tracks that comply
@@ -1054,6 +1119,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         int viewportWidth,
         int viewportHeight,
         boolean viewportOrientationMayChange,
+        ImmutableList<String> preferredVideoMimeTypes,
         // Audio
         ImmutableList<String> preferredAudioLanguages,
         int maxAudioChannelCount,
@@ -1062,6 +1128,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean allowAudioMixedMimeTypeAdaptiveness,
         boolean allowAudioMixedSampleRateAdaptiveness,
         boolean allowAudioMixedChannelCountAdaptiveness,
+        ImmutableList<String> preferredAudioMimeTypes,
         // Text
         ImmutableList<String> preferredTextLanguages,
         @C.RoleFlags int preferredTextRoleFlags,
@@ -1097,6 +1164,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.viewportWidth = viewportWidth;
       this.viewportHeight = viewportHeight;
       this.viewportOrientationMayChange = viewportOrientationMayChange;
+      this.preferredVideoMimeTypes = preferredVideoMimeTypes;
       // Audio
       this.maxAudioChannelCount = maxAudioChannelCount;
       this.maxAudioBitrate = maxAudioBitrate;
@@ -1104,6 +1172,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.allowAudioMixedMimeTypeAdaptiveness = allowAudioMixedMimeTypeAdaptiveness;
       this.allowAudioMixedSampleRateAdaptiveness = allowAudioMixedSampleRateAdaptiveness;
       this.allowAudioMixedChannelCountAdaptiveness = allowAudioMixedChannelCountAdaptiveness;
+      this.preferredAudioMimeTypes = preferredAudioMimeTypes;
       // General
       this.forceLowestBitrate = forceLowestBitrate;
       this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
@@ -1132,6 +1201,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.viewportWidth = in.readInt();
       this.viewportHeight = in.readInt();
       this.viewportOrientationMayChange = Util.readBoolean(in);
+      ArrayList<String> preferredVideoMimeTypes = new ArrayList<>();
+      in.readList(preferredVideoMimeTypes, /* loader= */ null);
+      this.preferredVideoMimeTypes = ImmutableList.copyOf(preferredVideoMimeTypes);
       // Audio
       this.maxAudioChannelCount = in.readInt();
       this.maxAudioBitrate = in.readInt();
@@ -1139,6 +1211,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.allowAudioMixedMimeTypeAdaptiveness = Util.readBoolean(in);
       this.allowAudioMixedSampleRateAdaptiveness = Util.readBoolean(in);
       this.allowAudioMixedChannelCountAdaptiveness = Util.readBoolean(in);
+      ArrayList<String> preferredAudioMimeTypes = new ArrayList<>();
+      in.readList(preferredAudioMimeTypes, /* loader= */ null);
+      this.preferredAudioMimeTypes = ImmutableList.copyOf(preferredAudioMimeTypes);
       // General
       this.forceLowestBitrate = Util.readBoolean(in);
       this.forceHighestSupportedBitrate = Util.readBoolean(in);
@@ -1218,6 +1293,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && viewportOrientationMayChange == other.viewportOrientationMayChange
           && viewportWidth == other.viewportWidth
           && viewportHeight == other.viewportHeight
+          && preferredVideoMimeTypes.equals(other.preferredVideoMimeTypes)
           // Audio
           && maxAudioChannelCount == other.maxAudioChannelCount
           && maxAudioBitrate == other.maxAudioBitrate
@@ -1226,6 +1302,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && allowAudioMixedSampleRateAdaptiveness == other.allowAudioMixedSampleRateAdaptiveness
           && allowAudioMixedChannelCountAdaptiveness
               == other.allowAudioMixedChannelCountAdaptiveness
+          && preferredAudioMimeTypes.equals(other.preferredAudioMimeTypes)
           // General
           && forceLowestBitrate == other.forceLowestBitrate
           && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
@@ -1255,6 +1332,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (viewportOrientationMayChange ? 1 : 0);
       result = 31 * result + viewportWidth;
       result = 31 * result + viewportHeight;
+      result = 31 * result + preferredVideoMimeTypes.hashCode();
       // Audio
       result = 31 * result + maxAudioChannelCount;
       result = 31 * result + maxAudioBitrate;
@@ -1262,6 +1340,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (allowAudioMixedMimeTypeAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedSampleRateAdaptiveness ? 1 : 0);
       result = 31 * result + (allowAudioMixedChannelCountAdaptiveness ? 1 : 0);
+      result = 31 * result + preferredAudioMimeTypes.hashCode();
       // General
       result = 31 * result + (forceLowestBitrate ? 1 : 0);
       result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
@@ -1297,6 +1376,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       dest.writeInt(viewportWidth);
       dest.writeInt(viewportHeight);
       Util.writeBoolean(dest, viewportOrientationMayChange);
+      dest.writeList(preferredVideoMimeTypes);
       // Audio
       dest.writeInt(maxAudioChannelCount);
       dest.writeInt(maxAudioBitrate);
@@ -1304,6 +1384,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       Util.writeBoolean(dest, allowAudioMixedMimeTypeAdaptiveness);
       Util.writeBoolean(dest, allowAudioMixedSampleRateAdaptiveness);
       Util.writeBoolean(dest, allowAudioMixedChannelCountAdaptiveness);
+      dest.writeList(preferredAudioMimeTypes);
       // General
       Util.writeBoolean(dest, forceLowestBitrate);
       Util.writeBoolean(dest, forceHighestSupportedBitrate);
@@ -2576,6 +2657,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final boolean isWithinRendererCapabilities;
     private final int bitrate;
     private final int pixelCount;
+    private final int preferredMimeTypeMatchIndex;
 
     public VideoTrackScore(
         Format format,
@@ -2603,6 +2685,15 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           isSupported(formatSupport, /* allowExceedsCapabilities= */ false);
       bitrate = format.bitrate;
       pixelCount = format.getPixelCount();
+      int bestMimeTypeMatchIndex = Integer.MAX_VALUE;
+      for (int i = 0; i < parameters.preferredVideoMimeTypes.size(); i++) {
+        if (format.sampleMimeType != null
+            && format.sampleMimeType.equals(parameters.preferredVideoMimeTypes.get(i))) {
+          bestMimeTypeMatchIndex = i;
+          break;
+        }
+      }
+      preferredMimeTypeMatchIndex = bestMimeTypeMatchIndex;
     }
 
     @Override
@@ -2623,6 +2714,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           .compareFalseFirst(this.isWithinRendererCapabilities, other.isWithinRendererCapabilities)
           .compareFalseFirst(this.isWithinMaxConstraints, other.isWithinMaxConstraints)
           .compareFalseFirst(this.isWithinMinConstraints, other.isWithinMinConstraints)
+          .compare(
+              this.preferredMimeTypeMatchIndex,
+              other.preferredMimeTypeMatchIndex,
+              Ordering.natural().reverse())
           .compare(
               this.bitrate,
               other.bitrate,
@@ -2653,6 +2748,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final int channelCount;
     private final int sampleRate;
     private final int bitrate;
+    private final int preferredMimeTypeMatchIndex;
 
     public AudioTrackScore(Format format, Parameters parameters, @Capabilities int formatSupport) {
       this.parameters = parameters;
@@ -2684,20 +2780,29 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               && (format.channelCount == Format.NO_VALUE
                   || format.channelCount <= parameters.maxAudioChannelCount);
       String[] localeLanguages = Util.getSystemLanguageCodes();
-      int bestMatchIndex = Integer.MAX_VALUE;
-      int bestMatchScore = 0;
+      int bestLocaleMatchIndex = Integer.MAX_VALUE;
+      int bestLocaleMatchScore = 0;
       for (int i = 0; i < localeLanguages.length; i++) {
         int score =
             getFormatLanguageScore(
                 format, localeLanguages[i], /* allowUndeterminedFormatLanguage= */ false);
         if (score > 0) {
-          bestMatchIndex = i;
-          bestMatchScore = score;
+          bestLocaleMatchIndex = i;
+          bestLocaleMatchScore = score;
           break;
         }
       }
-      localeLanguageMatchIndex = bestMatchIndex;
-      localeLanguageScore = bestMatchScore;
+      localeLanguageMatchIndex = bestLocaleMatchIndex;
+      localeLanguageScore = bestLocaleMatchScore;
+      int bestMimeTypeMatchIndex = Integer.MAX_VALUE;
+      for (int i = 0; i < parameters.preferredAudioMimeTypes.size(); i++) {
+        if (format.sampleMimeType != null
+            && format.sampleMimeType.equals(parameters.preferredAudioMimeTypes.get(i))) {
+          bestMimeTypeMatchIndex = i;
+          break;
+        }
+      }
+      preferredMimeTypeMatchIndex = bestMimeTypeMatchIndex;
     }
 
     /**
@@ -2723,6 +2828,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               Ordering.natural().reverse())
           .compare(this.preferredLanguageScore, other.preferredLanguageScore)
           .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)
+          .compare(
+              this.preferredMimeTypeMatchIndex,
+              other.preferredMimeTypeMatchIndex,
+              Ordering.natural().reverse())
           .compare(
               this.bitrate,
               other.bitrate,

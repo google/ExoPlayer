@@ -36,7 +36,7 @@
     *   Deprecate `HttpDataSource.Factory.getDefaultRequestProperties` and add
         `HttpDataSource.Factory.setDefaultRequestProperties` instead.
     *   Fix playback issues after seeking during an ad
-        ([#8349](https://github.com/google/ExoPlayer/issues/8349))
+        ([#8349](https://github.com/google/ExoPlayer/issues/8349)).
     *   Add `DefaultHttpDataSource.Factory` and deprecate
         `DefaultHttpDataSourceFactory`.
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
@@ -46,6 +46,8 @@
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
     *   Add option to specify multiple preferred audio or text languages.
+    *   Add option to specify preferred MIME type(s) for video and audio
+        ([#8320](https://github.com/google/ExoPlayer/issues/8320)).
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
 *   DASH:
     *   Support low-latency DASH playback (`availabilityTimeOffset` and

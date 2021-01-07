@@ -1469,6 +1469,98 @@ public final class DefaultTrackSelectorTest {
     assertFixedSelection(result.selections.get(1), trackGroups.get(1), /* expectedTrack= */ 1);
   }
 
+  @Test
+  public void selectTracks_withPreferredVideoMimeTypes_selectsTrackWithPreferredMimeType()
+      throws Exception {
+    Format formatAv1 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_AV1).build();
+    Format formatVp9 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_VP9).build();
+    Format formatH264 = new Format.Builder().setSampleMimeType(MimeTypes.VIDEO_H264).build();
+    TrackGroupArray trackGroups = wrapFormats(formatAv1, formatVp9, formatH264);
+
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setPreferredVideoMimeType(MimeTypes.VIDEO_VP9));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatVp9);
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setPreferredVideoMimeTypes(MimeTypes.VIDEO_VP9, MimeTypes.VIDEO_AV1));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatVp9);
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setPreferredVideoMimeTypes(MimeTypes.VIDEO_DIVX, MimeTypes.VIDEO_H264));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatH264);
+
+    // Select first in the list if no preference is specified.
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setPreferredVideoMimeType(null));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {VIDEO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatAv1);
+  }
+
+  @Test
+  public void selectTracks_withPreferredAudioMimeTypes_selectsTrackWithPreferredMimeType()
+      throws Exception {
+    Format formatAac = new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).build();
+    Format formatAc4 = new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AC4).build();
+    Format formatEAc3 = new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_E_AC3).build();
+    TrackGroupArray trackGroups = wrapFormats(formatAac, formatAc4, formatEAc3);
+
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setPreferredAudioMimeType(MimeTypes.AUDIO_AC4));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatAc4);
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setPreferredAudioMimeTypes(MimeTypes.AUDIO_AC4, MimeTypes.AUDIO_AAC));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatAc4);
+
+    trackSelector.setParameters(
+        trackSelector
+            .buildUponParameters()
+            .setPreferredAudioMimeTypes(MimeTypes.AUDIO_AMR, MimeTypes.AUDIO_E_AC3));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatEAc3);
+
+    // Select first in the list if no preference is specified.
+    trackSelector.setParameters(
+        trackSelector.buildUponParameters().setPreferredAudioMimeType(null));
+    result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {AUDIO_CAPABILITIES}, trackGroups, periodId, TIMELINE);
+    assertThat(result.length).isEqualTo(1);
+    assertFixedSelection(result.selections.get(0), trackGroups, formatAac);
+  }
+
   private static void assertSelections(TrackSelectorResult result, TrackSelection[] expected) {
     assertThat(result.length).isEqualTo(expected.length);
     for (int i = 0; i < expected.length; i++) {
@@ -1572,6 +1664,7 @@ public final class DefaultTrackSelectorTest {
         /* viewportWidth= */ 8,
         /* viewportHeight= */ 9,
         /* viewportOrientationMayChange= */ true,
+        /* preferredVideoMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_AV1, MimeTypes.VIDEO_H264),
         // Audio
         /* preferredAudioLanguages= */ ImmutableList.of("zh", "jp"),
         /* maxAudioChannelCount= */ 10,
@@ -1580,6 +1673,7 @@ public final class DefaultTrackSelectorTest {
         /* allowAudioMixedMimeTypeAdaptiveness= */ true,
         /* allowAudioMixedSampleRateAdaptiveness= */ false,
         /* allowAudioMixedChannelCountAdaptiveness= */ true,
+        /* preferredAudioMimeTypes= */ ImmutableList.of(MimeTypes.AUDIO_AC3, MimeTypes.AUDIO_E_AC3),
         // Text
         /* preferredTextLanguages= */ ImmutableList.of("de", "en"),
         /* preferredTextRoleFlags= */ C.ROLE_FLAG_CAPTION,
