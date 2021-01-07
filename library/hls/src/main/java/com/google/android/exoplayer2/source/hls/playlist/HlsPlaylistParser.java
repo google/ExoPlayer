@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.source.hls.playlist;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -211,13 +213,14 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
       Pattern.compile("\\{\\$([a-zA-Z0-9\\-_]+)\\}");
 
   private final HlsMasterPlaylist masterPlaylist;
+  @Nullable private final HlsMediaPlaylist previousMediaPlaylist;
 
   /**
    * Creates an instance where media playlists are parsed without inheriting attributes from a
    * master playlist.
    */
   public HlsPlaylistParser() {
-    this(HlsMasterPlaylist.EMPTY);
+    this(HlsMasterPlaylist.EMPTY, /* previousMediaPlaylist= */ null);
   }
 
   /**
@@ -225,9 +228,13 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
    * playlist.
    *
    * @param masterPlaylist The master playlist from which media playlists will inherit attributes.
+   * @param previousMediaPlaylist The previous media playlist from which the new media playlist may
+   *     inherit skipped segments.
    */
-  public HlsPlaylistParser(HlsMasterPlaylist masterPlaylist) {
+  public HlsPlaylistParser(
+      HlsMasterPlaylist masterPlaylist, @Nullable HlsMediaPlaylist previousMediaPlaylist) {
     this.masterPlaylist = masterPlaylist;
+    this.previousMediaPlaylist = previousMediaPlaylist;
   }
 
   @Override
@@ -257,7 +264,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             || line.equals(TAG_ENDLIST)) {
           extraLines.add(line);
           return parseMediaPlaylist(
-              masterPlaylist, new LineIterator(extraLines, reader), uri.toString());
+              masterPlaylist,
+              previousMediaPlaylist,
+              new LineIterator(extraLines, reader),
+              uri.toString());
         } else {
           extraLines.add(line);
         }
@@ -603,7 +613,11 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   }
 
   private static HlsMediaPlaylist parseMediaPlaylist(
-      HlsMasterPlaylist masterPlaylist, LineIterator iterator, String baseUri) throws IOException {
+      HlsMasterPlaylist masterPlaylist,
+      @Nullable HlsMediaPlaylist previousMediaPlaylist,
+      LineIterator iterator,
+      String baseUri)
+      throws IOException {
     @HlsMediaPlaylist.PlaylistType int playlistType = HlsMediaPlaylist.PLAYLIST_TYPE_UNKNOWN;
     long startOffsetUs = C.TIME_UNSET;
     long mediaSequence = 0;
@@ -642,7 +656,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             /* holdBackUs= */ C.TIME_UNSET,
             /* partHoldBackUs= */ C.TIME_UNSET,
             /* canBlockReload= */ false);
-    int skippedSegmentCount = 0;
 
     @Nullable DrmInitData playlistProtectionSchemes = null;
     @Nullable String fullSegmentEncryptionKeyUri = null;
@@ -727,7 +740,41 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             (long) (parseDoubleAttr(line, REGEX_MEDIA_DURATION) * C.MICROS_PER_SECOND);
         segmentTitle = parseOptionalStringAttr(line, REGEX_MEDIA_TITLE, "", variableDefinitions);
       } else if (line.startsWith(TAG_SKIP)) {
-        skippedSegmentCount = parseIntAttr(line, REGEX_SKIPPED_SEGMENTS);
+        int skippedSegmentCount = parseIntAttr(line, REGEX_SKIPPED_SEGMENTS);
+        checkState(previousMediaPlaylist != null && segments.isEmpty());
+        int startIndex = (int) (mediaSequence - castNonNull(previousMediaPlaylist).mediaSequence);
+        int endIndex = startIndex + skippedSegmentCount;
+        if (startIndex >= 0 && endIndex <= previousMediaPlaylist.segments.size()) {
+          // Merge only if all skipped segments are available in the previous playlist.
+          for (int i = startIndex; i < endIndex; i++) {
+            Segment segment = previousMediaPlaylist.segments.get(i);
+            if (mediaSequence != previousMediaPlaylist.mediaSequence) {
+              // If the media sequences of the playlists are not the same, we need to recreate the
+              // object with the updated relative start time and the relative discontinuity
+              // sequence. With identical playlist media sequences these values do not change.
+              int newRelativeDiscontinuitySequence =
+                  previousMediaPlaylist.discontinuitySequence
+                      - playlistDiscontinuitySequence
+                      + segment.relativeDiscontinuitySequence;
+              segment = segment.copyWith(segmentStartTimeUs, newRelativeDiscontinuitySequence);
+            }
+            segments.add(segment);
+            segmentStartTimeUs += segment.durationUs;
+            partStartTimeUs = segmentStartTimeUs;
+            if (segment.byteRangeLength != C.LENGTH_UNSET) {
+              segmentByteRangeOffset = segment.byteRangeOffset + segment.byteRangeLength;
+            }
+            relativeDiscontinuitySequence = segment.relativeDiscontinuitySequence;
+            initializationSegment = segment.initializationSegment;
+            cachedDrmInitData = segment.drmInitData;
+            fullSegmentEncryptionKeyUri = segment.fullSegmentEncryptionKeyUri;
+            if (segment.encryptionIV == null
+                || !segment.encryptionIV.equals(Long.toHexString(segmentMediaSequence))) {
+              fullSegmentEncryptionIV = segment.encryptionIV;
+            }
+            segmentMediaSequence++;
+          }
+        }
       } else if (line.startsWith(TAG_KEY)) {
         String method = parseStringAttr(line, REGEX_METHOD, variableDefinitions);
         String keyFormat =
@@ -972,7 +1019,6 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         /* hasProgramDateTime= */ playlistStartTimeUs != 0,
         playlistProtectionSchemes,
         segments,
-        skippedSegmentCount,
         trailingParts,
         serverControl,
         renditionReports);

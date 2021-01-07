@@ -303,24 +303,112 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
-  public void parseMediaPlaylist_withSkippedSegments_parsesNumberOfSkippedSegments()
-      throws IOException {
+  public void parseMediaPlaylist_withSkippedSegments_correctlyMergedSegments() throws IOException {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String previousPlaylistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-DISCONTINUITY-SEQUENCE:1234\n"
+            + "#EXT-X-SERVER-CONTROL:CAN-SKIP-UNTIL=24.0\n"
+            + "#EXT-X-MEDIA-SEQUENCE:263\n"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence264.mp4\n"
+            + "#EXT-X-DISCONTINUITY\n"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence265.mp4\n"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence266.mp4";
     String playlistString =
         "#EXTM3U\n"
             + "#EXT-X-TARGETDURATION:4\n"
             + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-DISCONTINUITY-SEQUENCE:1234\n"
             + "#EXT-X-SERVER-CONTROL:CAN-SKIP-UNTIL=24.0\n"
-            + "#EXT-X-MEDIA-SEQUENCE:266\n"
-            + "#EXT-X-SKIP:SKIPPED-SEGMENTS=1234\n"
+            + "#EXT-X-MEDIA-SEQUENCE:265\n"
+            + "#EXT-X-SKIP:SKIPPED-SEGMENTS=1\n"
             + "#EXTINF:4.00008,\n"
-            + "fileSequence266.mp4";
+            + "fileSequence266.mp4"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence267.mp4\n";
+    InputStream previousInputStream =
+        new ByteArrayInputStream(Util.getUtf8Bytes(previousPlaylistString));
+    HlsMediaPlaylist previousPlaylist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, previousInputStream);
     InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
 
     HlsMediaPlaylist playlist =
-        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+        (HlsMediaPlaylist)
+            new HlsPlaylistParser(HlsMasterPlaylist.EMPTY, previousPlaylist)
+                .parse(playlistUri, inputStream);
 
-    assertThat(playlist.skippedSegmentCount).isEqualTo(1234);
+    assertThat(playlist.segments).hasSize(3);
+    assertThat(playlist.segments.get(1).relativeStartTimeUs).isEqualTo(4000079);
+    assertThat(previousPlaylist.segments.get(0).relativeDiscontinuitySequence).isEqualTo(0);
+    assertThat(previousPlaylist.segments.get(1).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(previousPlaylist.segments.get(2).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(playlist.segments.get(0).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(playlist.segments.get(1).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(playlist.segments.get(2).relativeDiscontinuitySequence).isEqualTo(1);
+  }
+
+  @Test
+  public void parseMediaPlaylist_withSkippedSegments_correctlyMergedParts() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String previousPlaylistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-DISCONTINUITY-SEQUENCE:1234\n"
+            + "#EXT-X-SERVER-CONTROL:CAN-SKIP-UNTIL=24.0\n"
+            + "#EXT-X-MEDIA-SEQUENCE:264\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part264.1.ts\"\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part264.2.ts\"\n"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence264.mp4\n"
+            + "#EXT-X-DISCONTINUITY\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part265.1.ts\"\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part265.2.ts\"\n"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence265.mp4\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part266.1.ts\"\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part266.2.ts\"\n"
+            + "#EXTINF:4.00008,\n"
+            + "fileSequence266.mp4\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part267.1.ts\"";
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:6\n"
+            + "#EXT-X-DISCONTINUITY-SEQUENCE:1234\n"
+            + "#EXT-X-SERVER-CONTROL:CAN-SKIP-UNTIL=24.0\n"
+            + "#EXT-X-MEDIA-SEQUENCE:265\n"
+            + "#EXT-X-SKIP:SKIPPED-SEGMENTS=2\n"
+            + "#EXT-X-PART:DURATION=2.00000,URI=\"part267.1.ts\"";
+    InputStream previousInputStream =
+        new ByteArrayInputStream(Util.getUtf8Bytes(previousPlaylistString));
+    HlsMediaPlaylist previousPlaylist =
+        (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, previousInputStream);
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+
+    HlsMediaPlaylist playlist =
+        (HlsMediaPlaylist)
+            new HlsPlaylistParser(HlsMasterPlaylist.EMPTY, previousPlaylist)
+                .parse(playlistUri, inputStream);
+
+    assertThat(playlist.segments).hasSize(2);
+    assertThat(playlist.segments.get(0).relativeStartTimeUs).isEqualTo(0);
+    assertThat(playlist.segments.get(0).parts.get(0).relativeStartTimeUs).isEqualTo(0);
+    assertThat(playlist.segments.get(0).parts.get(0).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(playlist.segments.get(0).parts.get(1).relativeStartTimeUs).isEqualTo(2000000);
+    assertThat(playlist.segments.get(0).parts.get(1).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(playlist.segments.get(1).relativeStartTimeUs).isEqualTo(4000079);
+    assertThat(playlist.segments.get(1).parts.get(0).relativeStartTimeUs).isEqualTo(4000079);
+    assertThat(playlist.segments.get(1).parts.get(1).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(playlist.segments.get(1).parts.get(1).relativeStartTimeUs).isEqualTo(6000079);
+    assertThat(playlist.segments.get(1).parts.get(1).relativeDiscontinuitySequence).isEqualTo(1);
+    assertThat(playlist.trailingParts.get(0).relativeStartTimeUs).isEqualTo(8000158);
+    assertThat(playlist.trailingParts.get(0).relativeDiscontinuitySequence).isEqualTo(1);
   }
 
   @Test
@@ -1125,7 +1213,9 @@ public class HlsMediaPlaylistParserTest {
             /* variableDefinitions= */ Collections.emptyMap(),
             /* sessionKeyDrmInitData= */ Collections.emptyList());
     HlsMediaPlaylist playlistWithInheritance =
-        (HlsMediaPlaylist) new HlsPlaylistParser(masterPlaylist).parse(playlistUri, inputStream);
+        (HlsMediaPlaylist)
+            new HlsPlaylistParser(masterPlaylist, /* previousMediaPlaylist= */ null)
+                .parse(playlistUri, inputStream);
     assertThat(playlistWithInheritance.hasIndependentSegments).isTrue();
   }
 
@@ -1187,7 +1277,9 @@ public class HlsMediaPlaylistParserTest {
             variableDefinitions,
             /* sessionKeyDrmInitData= */ Collections.emptyList());
     HlsMediaPlaylist playlist =
-        (HlsMediaPlaylist) new HlsPlaylistParser(masterPlaylist).parse(playlistUri, inputStream);
+        (HlsMediaPlaylist)
+            new HlsPlaylistParser(masterPlaylist, /* previousMediaPlaylist= */ null)
+                .parse(playlistUri, inputStream);
     for (int i = 1; i <= 4; i++) {
       assertThat(playlist.segments.get(i - 1).url).isEqualTo("long_path" + i + ".ts");
     }

@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -116,7 +116,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -128,14 +128,12 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(firstFullPlaylist.segments).hasSize(6);
     HlsMediaPlaylist secondFullPlaylist = mediaPlaylists.get(1);
     assertThat(secondFullPlaylist.mediaSequence).isEqualTo(11);
-    assertThat(secondFullPlaylist.skippedSegmentCount).isEqualTo(0);
     assertThat(secondFullPlaylist.segments.get(0).url).isEqualTo("fileSequence11.ts");
     assertThat(secondFullPlaylist.segments.get(5).url).isEqualTo("fileSequence16.ts");
     assertThat(secondFullPlaylist.segments).hasSize(6);
     assertThat(secondFullPlaylist.segments).containsNoneIn(firstFullPlaylist.segments);
   }
 
-  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_playlistCanSkip_requestsDeltaUpdateAndExpandsSkippedSegments()
       throws IOException, TimeoutException, InterruptedException {
@@ -150,7 +148,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -160,14 +158,14 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(initialPlaylistWithAllSegments.segments).hasSize(6);
     HlsMediaPlaylist mergedPlaylist = mediaPlaylists.get(1);
     assertThat(mergedPlaylist.mediaSequence).isEqualTo(11);
-    assertThat(mergedPlaylist.skippedSegmentCount).isEqualTo(0);
     assertThat(mergedPlaylist.segments).hasSize(6);
     // First 2 segments of the merged playlist need to be copied from the previous playlist.
-    assertThat(mergedPlaylist.segments.subList(0, 2))
-        .containsExactlyElementsIn(initialPlaylistWithAllSegments.segments.subList(1, 3))
-        .inOrder();
-    assertThat(mergedPlaylist.segments.get(2).url)
-        .isEqualTo(initialPlaylistWithAllSegments.segments.get(3).url);
+    assertThat(mergedPlaylist.segments.get(0).url)
+        .isEqualTo(initialPlaylistWithAllSegments.segments.get(1).url);
+    assertThat(mergedPlaylist.segments.get(0).relativeStartTimeUs).isEqualTo(0);
+    assertThat(mergedPlaylist.segments.get(1).url)
+        .isEqualTo(initialPlaylistWithAllSegments.segments.get(2).url);
+    assertThat(mergedPlaylist.segments.get(1).relativeStartTimeUs).isEqualTo(4000000);
   }
 
   @Ignore // Test disabled because playlist delta updates are temporarily disabled.
@@ -185,7 +183,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -195,11 +193,9 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(initialPlaylistWithAllSegments.segments).hasSize(6);
     HlsMediaPlaylist mergedPlaylist = mediaPlaylists.get(1);
     assertThat(mergedPlaylist.mediaSequence).isEqualTo(22);
-    assertThat(mergedPlaylist.skippedSegmentCount).isEqualTo(0);
     assertThat(mergedPlaylist.segments).hasSize(4);
   }
 
-  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_playlistCanSkipDataRanges_requestsDeltaUpdateV2()
       throws IOException, TimeoutException, InterruptedException {
@@ -214,7 +210,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -224,7 +220,6 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(mediaPlaylists.get(1).mediaSequence).isEqualTo(11);
   }
 
-  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_playlistCanSkipAndUriWithParams_preservesOriginalParams()
       throws IOException, TimeoutException, InterruptedException {
@@ -241,7 +236,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -266,7 +261,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -292,7 +287,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -321,7 +316,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -352,7 +347,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            new DefaultHttpDataSourceFactory(),
+            new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 2);
 
@@ -365,7 +360,6 @@ public class DefaultHlsPlaylistTrackerTest {
     assertThat(mediaPlaylists.get(1).trailingParts).hasSize(2);
   }
 
-  @Ignore // Test disabled because playlist delta updates are temporarily disabled.
   @Test
   public void start_httpBadRequest_forcesFullNonBlockingPlaylistRequest()
       throws IOException, TimeoutException, InterruptedException {
@@ -386,7 +380,7 @@ public class DefaultHlsPlaylistTrackerTest {
 
     List<HlsMediaPlaylist> mediaPlaylists =
         runPlaylistTrackerAndCollectMediaPlaylists(
-            /* dataSourceFactory= */ new DefaultHttpDataSourceFactory(),
+            /* dataSourceFactory= */ new DefaultHttpDataSource.Factory(),
             Uri.parse(mockWebServer.url("/master.m3u8").toString()),
             /* awaitedMediaPlaylistCount= */ 3);
 
