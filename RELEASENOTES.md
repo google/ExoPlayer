@@ -41,6 +41,11 @@
     *   Add option to `MergingMediaSource` to clip the durations of all sources
         to have the same length
         ([#8422](https://github.com/google/ExoPlayer/issues/8422)).
+    *   Fix propagation of `LoadErrorHandlingPolicy` from
+        `DefaultMediaSourceFactory` into `SingleSampleMediaSource.Factory` when
+        creating subtitle media sources from
+        `MediaItem.playbackProperties.subtitles`
+        ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level

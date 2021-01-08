@@ -360,7 +360,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
       mediaSources[0] = mediaSource;
       SingleSampleMediaSource.Factory singleSampleSourceFactory =
-          new SingleSampleMediaSource.Factory(dataSourceFactory);
+          new SingleSampleMediaSource.Factory(dataSourceFactory)
+              .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
       for (int i = 0; i < subtitles.size(); i++) {
         mediaSources[i + 1] =
             singleSampleSourceFactory.createMediaSource(
