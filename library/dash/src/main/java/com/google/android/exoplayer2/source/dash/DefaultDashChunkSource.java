@@ -429,8 +429,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (!cancelable) {
       return false;
     }
-    if (playerTrackEmsgHandler != null
-        && playerTrackEmsgHandler.maybeRefreshManifestOnLoadingError(chunk)) {
+    if (playerTrackEmsgHandler != null && playerTrackEmsgHandler.onChunkLoadError(chunk)) {
       return true;
     }
     // Workaround for missing segment at the end of the period

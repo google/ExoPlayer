@@ -64,6 +64,9 @@
     *   Support low-latency DASH playback (`availabilityTimeOffset` and
         `ServiceDescription` tags)
         ([#4904](https://github.com/google/ExoPlayer/issues/4904)).
+    *   Improve logic for determining whether to refresh the manifest when a
+        chunk load error occurs in a live streams that contains EMSG data
+        ([#8408](https://github.com/google/ExoPlayer/issues/8408)).
 *   HLS:
     *   Support playlist delta updates, blocking playlist reloads and rendition
         reports.
