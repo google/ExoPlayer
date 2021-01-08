@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.offline.DownloadManager.Listener;
 import com.google.android.exoplayer2.robolectric.TestDownloadManagerListener;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DownloadBuilder;
@@ -622,10 +623,22 @@ public class DownloadManagerTest {
     downloadRemover.assertRemoveStarted();
 
     // Re-add the download with a stop reason.
+    ConditionVariable downloadManagerIdleCondition = new ConditionVariable();
     runOnMainThread(
-        () -> downloadManager.addDownload(createDownloadRequest(ID1), /* stopReason= */ 1234));
+        () -> {
+          downloadManager.addListener(
+              new Listener() {
+                @Override
+                public void onIdle(DownloadManager downloadManager) {
+                  downloadManagerIdleCondition.open();
+                }
+              });
+          downloadManager.addDownload(createDownloadRequest(ID1), /* stopReason= */ 1234);
+        });
 
     downloadRemover.finish();
+
+    assertThat(downloadManagerIdleCondition.block(TIMEOUT_MS)).isTrue();
 
     assertDownloadIndexSize(1);
     // We expect one downloader for the initial download, and one for the removal. A downloader
