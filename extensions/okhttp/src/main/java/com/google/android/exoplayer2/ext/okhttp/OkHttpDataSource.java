@@ -308,8 +308,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       try {
         errorResponseBody = Util.toByteArray(Assertions.checkNotNull(responseByteStream));
       } catch (IOException e) {
-        throw new HttpDataSourceException(
-            "Error reading non-2xx response body", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+        errorResponseBody = Util.EMPTY_BYTE_ARRAY;
       }
       Map<String, List<String>> headers = response.headers().toMultimap();
       closeConnectionQuietly();

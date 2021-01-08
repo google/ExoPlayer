@@ -550,19 +550,11 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     UrlResponseInfo responseInfo = Assertions.checkNotNull(this.responseInfo);
     int responseCode = responseInfo.getHttpStatusCode();
     if (responseCode < 200 || responseCode > 299) {
-      byte[] responseBody = Util.EMPTY_BYTE_ARRAY;
-      ByteBuffer readBuffer = getOrCreateReadBuffer();
-      while (!readBuffer.hasRemaining()) {
-        operation.close();
-        readBuffer.clear();
-        readInternal(readBuffer);
-        if (finished) {
-          break;
-        }
-        readBuffer.flip();
-        int existingResponseBodyEnd = responseBody.length;
-        responseBody = Arrays.copyOf(responseBody, responseBody.length + readBuffer.remaining());
-        readBuffer.get(responseBody, existingResponseBodyEnd, readBuffer.remaining());
+      byte[] responseBody;
+      try {
+        responseBody = readResponseBody();
+      } catch (HttpDataSourceException e) {
+        responseBody = Util.EMPTY_BYTE_ARRAY;
       }
 
       InvalidResponseCodeException exception =
@@ -857,6 +849,29 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   private void resetConnectTimeout() {
     currentConnectTimeoutMs = clock.elapsedRealtime() + connectTimeoutMs;
+  }
+
+  /**
+   * Reads the whole response body.
+   *
+   * @return The response body.
+   * @throws HttpDataSourceException If an error occurs reading from the source.
+   */
+  private byte[] readResponseBody() throws HttpDataSourceException {
+    byte[] responseBody = Util.EMPTY_BYTE_ARRAY;
+    ByteBuffer readBuffer = getOrCreateReadBuffer();
+    while (!finished) {
+      operation.close();
+      readBuffer.clear();
+      readInternal(readBuffer);
+      readBuffer.flip();
+      if (readBuffer.remaining() > 0) {
+        int existingResponseBodyEnd = responseBody.length;
+        responseBody = Arrays.copyOf(responseBody, responseBody.length + readBuffer.remaining());
+        readBuffer.get(responseBody, existingResponseBodyEnd, readBuffer.remaining());
+      }
+    }
+    return responseBody;
   }
 
   /**
