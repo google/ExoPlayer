@@ -26,6 +26,8 @@ import java.util.List;
 public final class CodecSpecificDataUtil {
 
   private static final byte[] NAL_START_CODE = new byte[] {0, 0, 0, 1};
+  private static final String[] HEVC_GENERAL_PROFILE_SPACE_STRINGS =
+      new String[] {"", "A", "B", "C"};
 
   /**
    * Parses an ALAC AudioSpecificConfig (i.e. an <a
@@ -81,6 +83,49 @@ public final class CodecSpecificDataUtil {
       int profileIdc, int constraintsFlagsAndReservedZero2Bits, int levelIdc) {
     return String.format(
         "avc1.%02X%02X%02X", profileIdc, constraintsFlagsAndReservedZero2Bits, levelIdc);
+  }
+
+  /**
+   * Returns an RFC 6381 HEVC codec string based on the SPS NAL unit read from the provided bit
+   * array. The position of the bit array must be the start of an SPS NALU (nal_unit_header), and
+   * the position may be modified by this method.
+   */
+  public static String buildHevcCodecStringFromSps(ParsableNalUnitBitArray bitArray) {
+    // Skip nal_unit_header, sps_video_parameter_set_id, sps_max_sub_layers_minus1 and
+    // sps_temporal_id_nesting_flag.
+    bitArray.skipBits(16 + 4 + 3 + 1);
+    int generalProfileSpace = bitArray.readBits(2);
+    boolean generalTierFlag = bitArray.readBit();
+    int generalProfileIdc = bitArray.readBits(5);
+    int generalProfileCompatibilityFlags = 0;
+    for (int i = 0; i < 32; i++) {
+      if (bitArray.readBit()) {
+        generalProfileCompatibilityFlags |= (1 << i);
+      }
+    }
+    int[] constraintBytes = new int[6];
+    for (int i = 0; i < constraintBytes.length; ++i) {
+      constraintBytes[i] = bitArray.readBits(8);
+    }
+    int generalLevelIdc = bitArray.readBits(8);
+    StringBuilder builder =
+        new StringBuilder(
+            Util.formatInvariant(
+                "hvc1.%s%d.%X.%c%d",
+                HEVC_GENERAL_PROFILE_SPACE_STRINGS[generalProfileSpace],
+                generalProfileIdc,
+                generalProfileCompatibilityFlags,
+                generalTierFlag ? 'H' : 'L',
+                generalLevelIdc));
+    // Omit trailing zero bytes.
+    int trailingZeroIndex = constraintBytes.length;
+    while (trailingZeroIndex > 0 && constraintBytes[trailingZeroIndex - 1] == 0) {
+      trailingZeroIndex--;
+    }
+    for (int i = 0; i < trailingZeroIndex; i++) {
+      builder.append(String.format(".%02X", constraintBytes[i]));
+    }
+    return builder.toString();
   }
 
   /**

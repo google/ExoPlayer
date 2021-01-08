@@ -38,12 +38,16 @@
         ([#8349](https://github.com/google/ExoPlayer/issues/8349)).
     *   Add `DefaultHttpDataSource.Factory` and deprecate
         `DefaultHttpDataSourceFactory`.
-    *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
-        allow decoder capability checks based on codec profile/level
-        ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
     *   Add option to `MergingMediaSource` to clip the durations of all sources
         to have the same length
         ([#8422](https://github.com/google/ExoPlayer/issues/8422)).
+*   Extractors:
+    *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
+        allow decoder capability checks based on codec profile/level
+        ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
+    *   Populate codecs string for H.265/HEVC in MP4, Matroska and MPEG-TS
+        streams to allow decoder capability checks based on codec profile/level
+        ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
 *   Track selection:
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
