@@ -7,6 +7,11 @@
         ([#8349](https://github.com/google/ExoPlayer/issues/8349)).
     *   Fix `MediaCodecRenderer` issue where empty streams would fail to play in
         bypass mode ([#8374](https://github.com/google/ExoPlayer/issues/8374)).
+    *   Fix propagation of `LoadErrorHandlingPolicy` from
+        `DefaultMediaSourceFactory` into `SingleSampleMediaSource.Factory` when
+        creating subtitle media sources from
+        `MediaItem.playbackProperties.subtitles`
+        ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
 *   UI:
     *   Fix issue where pop-up menus belonging to `StyledPlayerControlView`
         would not be dismissed when tapping outside of the menu area or pressing
