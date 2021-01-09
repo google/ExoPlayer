@@ -2093,7 +2093,6 @@ public class MatroskaExtractor implements Extractor {
           HevcConfig hevcConfig = HevcConfig.parse(new ParsableByteArray(getCodecPrivate(codecId)));
           initializationData = hevcConfig.initializationData;
           nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
-          codecs = hevcConfig.codecs;
           break;
         case CODEC_ID_FOURCC:
           Pair<String, @NullableType List<byte[]>> pair =
