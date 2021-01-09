@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -83,7 +82,6 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     public Factory(Call.Factory callFactory) {
       this.callFactory = callFactory;
       defaultRequestProperties = new RequestProperties();
-      userAgent = DEFAULT_USER_AGENT;
     }
 
     /** @deprecated Use {@link #setDefaultRequestProperties(Map)} instead. */
@@ -102,12 +100,14 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     /**
      * Sets the user agent that will be used.
      *
-     * <p>The default is {@link ExoPlayerLibraryInfo#DEFAULT_USER_AGENT}.
+     * <p>The default is {@code null}, which causes the default user agent of the underlying {@link
+     * OkHttpClient} to be used.
      *
-     * @param userAgent The user agent that will be used.
+     * @param userAgent The user agent that will be used, or {@code null} to use the default user
+     *     agent of the underlying {@link OkHttpClient}.
      * @return This factory.
      */
-    public Factory setUserAgent(String userAgent) {
+    public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       return this;
     }
@@ -193,7 +193,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   @SuppressWarnings("deprecation")
   @Deprecated
   public OkHttpDataSource(Call.Factory callFactory) {
-    this(callFactory, DEFAULT_USER_AGENT);
+    this(callFactory, /* userAgent= */ null);
   }
 
   /** @deprecated Use {@link OkHttpDataSource.Factory} instead. */

@@ -99,6 +99,8 @@
         ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
+*   Data sources:
+    *   Use the user agent of the underlying network stack by default.
 *   IMA extension:
     *   Add support for playback of ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
@@ -116,6 +118,8 @@
     *   Add `OkHttpDataSource.Factory` and deprecate `OkHttpDataSourceFactory`.
 *   Cronet extension:
     *   Add `CronetDataSource.Factory` and deprecate `CronetDataSourceFactory`.
+    *   Support setting the user agent on `CronetDataSource.Factory` and
+        `CronetEngineWrapper`.
 *   Media2 extension
     *   Make media2-extension depend on AndroidX media2:media2-session:1.1.0 to
         fix a deadlock while creating PlaybackStateCompat internally.

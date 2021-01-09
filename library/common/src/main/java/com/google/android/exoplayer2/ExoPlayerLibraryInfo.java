@@ -46,9 +46,14 @@ public final class ExoPlayerLibraryInfo {
   // Intentionally hardcoded. Do not derive from other constants (e.g. VERSION) or vice versa.
   public static final int VERSION_INT = 2012002;
 
-  /** The default user agent for requests made by the library. */
+  /**
+   * The default user agent for requests made by the library.
+   *
+   * @deprecated ExoPlayer now uses the user agent of the underlying network stack by default.
+   */
+  @Deprecated
   public static final String DEFAULT_USER_AGENT =
-      VERSION_SLASHY + " (Linux;Android " + Build.VERSION.RELEASE + ") " + VERSION_SLASHY;
+      VERSION_SLASHY + " (Linux; Android " + Build.VERSION.RELEASE + ") " + VERSION_SLASHY;
 
   /**
    * Whether the library was compiled with {@link com.google.android.exoplayer2.util.Assertions}

@@ -83,6 +83,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     @Nullable private HttpDataSource.Factory fallbackFactory;
     @Nullable private Predicate<String> contentTypePredicate;
     @Nullable private TransferListener transferListener;
+    @Nullable private String userAgent;
     private int connectTimeoutMs;
     private int readTimeoutMs;
     private boolean resetTimeoutOnRedirects;
@@ -118,6 +119,22 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
       internalFallbackFactory.setDefaultRequestProperties(defaultRequestProperties);
+      return this;
+    }
+
+    /**
+     * Sets the user agent that will be used.
+     *
+     * <p>The default is {@code null}, which causes the default user agent of the underlying {@link
+     * CronetEngine} to be used.
+     *
+     * @param userAgent The user agent that will be used, or {@code null} to use the default user
+     *     agent of the underlying {@link CronetEngine}.
+     * @return This factory.
+     */
+    public Factory setUserAgent(@Nullable String userAgent) {
+      this.userAgent = userAgent;
+      internalFallbackFactory.setUserAgent(userAgent);
       return this;
     }
 
@@ -239,6 +256,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
               readTimeoutMs,
               resetTimeoutOnRedirects,
               handleSetCookieRequests,
+              userAgent,
               defaultRequestProperties,
               contentTypePredicate);
       if (transferListener != null) {
@@ -293,6 +311,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
   private final boolean handleSetCookieRequests;
+  @Nullable private final String userAgent;
   @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
   private final ConditionVariable operation;
@@ -352,6 +371,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         readTimeoutMs,
         resetTimeoutOnRedirects,
         /* handleSetCookieRequests= */ false,
+        /* userAgent= */ null,
         defaultRequestProperties,
         /* contentTypePredicate= */ null);
   }
@@ -373,6 +393,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         readTimeoutMs,
         resetTimeoutOnRedirects,
         handleSetCookieRequests,
+        /* userAgent= */ null,
         defaultRequestProperties,
         /* contentTypePredicate= */ null);
   }
@@ -434,6 +455,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         readTimeoutMs,
         resetTimeoutOnRedirects,
         handleSetCookieRequests,
+        /* userAgent= */ null,
         defaultRequestProperties,
         contentTypePredicate);
   }
@@ -445,6 +467,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
       boolean handleSetCookieRequests,
+      @Nullable String userAgent,
       @Nullable RequestProperties defaultRequestProperties,
       @Nullable Predicate<String> contentTypePredicate) {
     super(/* isNetwork= */ true);
@@ -453,8 +476,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     this.connectTimeoutMs = connectTimeoutMs;
     this.readTimeoutMs = readTimeoutMs;
     this.resetTimeoutOnRedirects = resetTimeoutOnRedirects;
-    this.defaultRequestProperties = defaultRequestProperties;
     this.handleSetCookieRequests = handleSetCookieRequests;
+    this.userAgent = userAgent;
+    this.defaultRequestProperties = defaultRequestProperties;
     this.contentTypePredicate = contentTypePredicate;
     clock = Clock.DEFAULT;
     urlRequestCallback = new UrlRequestCallback();
@@ -819,6 +843,9 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         rangeValue.append(dataSpec.position + dataSpec.length - 1);
       }
       requestBuilder.addHeader("Range", rangeValue.toString());
+    }
+    if (userAgent != null) {
+      requestBuilder.addHeader("User-Agent", userAgent);
     }
     // TODO: Uncomment when https://bugs.chromium.org/p/chromium/issues/detail?id=711810 is fixed
     // (adjusting the code as necessary).

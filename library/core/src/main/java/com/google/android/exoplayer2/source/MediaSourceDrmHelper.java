@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.source;
 
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
 import static com.google.android.exoplayer2.drm.DefaultDrmSessionManager.MODE_PLAYBACK;
 
 import androidx.annotation.Nullable;
@@ -24,6 +23,7 @@ import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
@@ -73,7 +73,7 @@ public final class MediaSourceDrmHelper {
     HttpDataSource.Factory dataSourceFactory =
         drmHttpDataSourceFactory != null
             ? drmHttpDataSourceFactory
-            : new DefaultHttpDataSourceFactory(userAgent != null ? userAgent : DEFAULT_USER_AGENT);
+            : new DefaultHttpDataSource.Factory().setUserAgent(userAgent);
     HttpMediaDrmCallback httpDrmCallback =
         new HttpMediaDrmCallback(
             drmConfiguration.licenseUri == null ? null : drmConfiguration.licenseUri.toString(),

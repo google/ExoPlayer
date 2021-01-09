@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -92,7 +91,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    */
   public CronetDataSourceFactory(CronetEngineWrapper cronetEngineWrapper, Executor executor) {
-    this(cronetEngineWrapper, executor, DEFAULT_USER_AGENT);
+    this(cronetEngineWrapper, executor, /* userAgent= */ (String) null);
   }
 
   /**
@@ -106,10 +105,12 @@ public final class CronetDataSourceFactory extends BaseFactory {
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
-   * @param userAgent A user agent used to create a fallback HttpDataSource if needed.
+   * @param userAgent The user agent that will be used by the fallback {@link HttpDataSource} if
+   *     needed, or {@code null} for the fallback to use the default user agent of the underlying
+   *     platform.
    */
   public CronetDataSourceFactory(
-      CronetEngineWrapper cronetEngineWrapper, Executor executor, String userAgent) {
+      CronetEngineWrapper cronetEngineWrapper, Executor executor, @Nullable String userAgent) {
     this(
         cronetEngineWrapper,
         executor,
@@ -136,7 +137,9 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param userAgent A user agent used to create a fallback HttpDataSource if needed.
+   * @param userAgent The user agent that will be used by the fallback {@link HttpDataSource} if
+   *     needed, or {@code null} for the fallback to use the default user agent of the underlying
+   *     platform.
    */
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
@@ -144,7 +147,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
-      String userAgent) {
+      @Nullable String userAgent) {
     this(
         cronetEngineWrapper,
         executor,
@@ -238,7 +241,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
       @Nullable TransferListener transferListener) {
-    this(cronetEngineWrapper, executor, transferListener, DEFAULT_USER_AGENT);
+    this(cronetEngineWrapper, executor, transferListener, /* userAgent= */ (String) null);
   }
 
   /**
@@ -253,13 +256,15 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
    * @param transferListener An optional listener.
-   * @param userAgent A user agent used to create a fallback HttpDataSource if needed.
+   * @param userAgent The user agent that will be used by the fallback {@link HttpDataSource} if
+   *     needed, or {@code null} for the fallback to use the default user agent of the underlying
+   *     platform.
    */
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
       Executor executor,
       @Nullable TransferListener transferListener,
-      String userAgent) {
+      @Nullable String userAgent) {
     this(
         cronetEngineWrapper,
         executor,
@@ -287,7 +292,9 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * @param connectTimeoutMs The connection timeout, in milliseconds.
    * @param readTimeoutMs The read timeout, in milliseconds.
    * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
-   * @param userAgent A user agent used to create a fallback HttpDataSource if needed.
+   * @param userAgent The user agent that will be used by the fallback {@link HttpDataSource} if
+   *     needed, or {@code null} for the fallback to use the default user agent of the underlying
+   *     platform.
    */
   public CronetDataSourceFactory(
       CronetEngineWrapper cronetEngineWrapper,
@@ -296,7 +303,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
       int connectTimeoutMs,
       int readTimeoutMs,
       boolean resetTimeoutOnRedirects,
-      String userAgent) {
+      @Nullable String userAgent) {
     this(
         cronetEngineWrapper,
         executor,

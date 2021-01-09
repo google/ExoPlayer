@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -24,7 +23,6 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -69,7 +67,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     @Nullable private TransferListener transferListener;
     @Nullable private Predicate<String> contentTypePredicate;
-    private String userAgent;
+    @Nullable private String userAgent;
     private int connectTimeoutMs;
     private int readTimeoutMs;
     private boolean allowCrossProtocolRedirects;
@@ -77,7 +75,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     /** Creates an instance. */
     public Factory() {
       defaultRequestProperties = new RequestProperties();
-      userAgent = DEFAULT_USER_AGENT;
       connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLIS;
       readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
     }
@@ -98,12 +95,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     /**
      * Sets the user agent that will be used.
      *
-     * <p>The default is {@link ExoPlayerLibraryInfo#DEFAULT_USER_AGENT}.
+     * <p>The default is {@code null}, which causes the default user agent of the underlying
+     * platform to be used.
      *
-     * @param userAgent The user agent that will be used.
+     * @param userAgent The user agent that will be used, or {@code null} to use the default user
+     *     agent of the underlying platform.
      * @return This factory.
      */
-    public Factory setUserAgent(String userAgent) {
+    public Factory setUserAgent(@Nullable String userAgent) {
       this.userAgent = userAgent;
       return this;
     }
@@ -214,7 +213,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private final boolean allowCrossProtocolRedirects;
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
-  private final String userAgent;
+  @Nullable private final String userAgent;
   @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
 
@@ -235,23 +234,21 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @SuppressWarnings("deprecation")
   @Deprecated
   public DefaultHttpDataSource() {
-    this(
-        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS);
+    this(/* userAgent= */ null, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
   /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
   @SuppressWarnings("deprecation")
   @Deprecated
-  public DefaultHttpDataSource(String userAgent) {
+  public DefaultHttpDataSource(@Nullable String userAgent) {
     this(userAgent, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
   /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
   @SuppressWarnings("deprecation")
   @Deprecated
-  public DefaultHttpDataSource(String userAgent, int connectTimeoutMillis, int readTimeoutMillis) {
+  public DefaultHttpDataSource(
+      @Nullable String userAgent, int connectTimeoutMillis, int readTimeoutMillis) {
     this(
         userAgent,
         connectTimeoutMillis,
@@ -263,7 +260,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
   @Deprecated
   public DefaultHttpDataSource(
-      String userAgent,
+      @Nullable String userAgent,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects,
@@ -278,14 +275,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   }
 
   private DefaultHttpDataSource(
-      String userAgent,
+      @Nullable String userAgent,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects,
       @Nullable RequestProperties defaultRequestProperties,
       @Nullable Predicate<String> contentTypePredicate) {
     super(/* isNetwork= */ true);
-    this.userAgent = Assertions.checkNotEmpty(userAgent);
+    this.userAgent = userAgent;
     this.connectTimeoutMillis = connectTimeoutMillis;
     this.readTimeoutMillis = readTimeoutMillis;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
@@ -620,7 +617,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       }
       connection.setRequestProperty("Range", rangeRequest);
     }
-    connection.setRequestProperty("User-Agent", userAgent);
+    if (userAgent != null) {
+      connection.setRequestProperty("User-Agent", userAgent);
+    }
     connection.setRequestProperty("Accept-Encoding", allowGzip ? "gzip" : "identity");
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);

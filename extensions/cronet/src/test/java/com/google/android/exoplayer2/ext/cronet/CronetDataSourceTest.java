@@ -36,7 +36,6 @@ import android.os.SystemClock;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -1412,8 +1411,6 @@ public final class CronetDataSourceTest {
 
     dataSourceUnderTest.open(dataSpec);
 
-    Headers headers = mockWebServer.takeRequest(10, SECONDS).getHeaders();
-    assertThat(headers.get("user-agent")).isEqualTo(ExoPlayerLibraryInfo.DEFAULT_USER_AGENT);
     verify(mockTransferListener)
         .onTransferInitializing(eq(dataSourceUnderTest), eq(dataSpec), /* isNetwork= */ eq(true));
     verify(mockTransferListener)

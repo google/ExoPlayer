@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.demo;
 
 import android.content.Context;
+import android.os.Build;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.ExoDatabaseProvider;
@@ -44,6 +46,13 @@ public final class DemoUtil {
 
   public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
 
+  private static final String USER_AGENT =
+      "ExoPlayerDemo/"
+          + ExoPlayerLibraryInfo.VERSION
+          + " (Linux; Android "
+          + Build.VERSION.RELEASE
+          + ") "
+          + ExoPlayerLibraryInfo.VERSION_SLASHY;
   private static final String TAG = "DemoUtil";
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
@@ -79,7 +88,8 @@ public final class DemoUtil {
   public static synchronized HttpDataSource.Factory getHttpDataSourceFactory(Context context) {
     if (httpDataSourceFactory == null) {
       context = context.getApplicationContext();
-      CronetEngineWrapper cronetEngineWrapper = new CronetEngineWrapper(context);
+      CronetEngineWrapper cronetEngineWrapper =
+          new CronetEngineWrapper(context, USER_AGENT, /* preferGMSCoreCronet= */ false);
       httpDataSourceFactory =
           new CronetDataSource.Factory(cronetEngineWrapper, Executors.newSingleThreadExecutor());
     }
