@@ -294,8 +294,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final MediaCodecSelector mediaCodecSelector;
   private final boolean enableDecoderFallback;
   private final float assumedMinimumCodecOperatingRate;
-  private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer flagsOnlyBuffer;
+  private final DecoderInputBuffer buffer;
+  private final DecoderInputBuffer bypassSampleBuffer;
   private final BatchBuffer bypassBatchBuffer;
   private final TimedValueQueue<Format> formatQueue;
   private final ArrayList<Long> decodeOnlyPresentationTimestamps;
@@ -339,6 +340,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean isDecodeOnlyOutputBuffer;
   private boolean isLastOutputBuffer;
   private boolean bypassEnabled;
+  private boolean bypassSampleBufferPending;
   private boolean bypassDrainAndReinitialize;
   private boolean codecReconfigured;
   @ReconfigurationState private int codecReconfigurationState;
@@ -384,8 +386,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     this.mediaCodecSelector = checkNotNull(mediaCodecSelector);
     this.enableDecoderFallback = enableDecoderFallback;
     this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
-    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
+    buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
+    bypassSampleBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
+    bypassBatchBuffer = new BatchBuffer();
     formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
@@ -396,11 +400,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     pendingOutputStreamSwitchTimesUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     outputStreamStartPositionUs = C.TIME_UNSET;
     outputStreamOffsetUs = C.TIME_UNSET;
-    bypassBatchBuffer = new BatchBuffer();
-    bypassBatchBuffer.ensureSpaceForWrite(/* length= */ 0);
     // MediaCodec outputs audio buffers in native endian:
     // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
     // and code called from MediaCodecAudioRenderer.processOutputBuffer expects this endianness.
+    // Call ensureSpaceForWrite to make sure the buffer has non-null data, and set the expected
+    // endianness.
+    bypassBatchBuffer.ensureSpaceForWrite(/* length= */ 0);
     bypassBatchBuffer.data.order(ByteOrder.nativeOrder());
     resetCodecStateForRelease();
   }
@@ -688,7 +693,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputStreamEnded = false;
     pendingOutputEndOfStream = false;
     if (bypassEnabled) {
-      bypassBatchBuffer.flush();
+      bypassBatchBuffer.clear();
+      bypassSampleBuffer.clear();
+      bypassSampleBufferPending = false;
     } else {
       flushOrReinitializeCodec();
     }
@@ -744,6 +751,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void disableBypass() {
     bypassDrainAndReinitialize = false;
     bypassBatchBuffer.clear();
+    bypassSampleBuffer.clear();
+    bypassSampleBufferPending = false;
     bypassEnabled = false;
   }
 
@@ -1057,9 +1066,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         && !MimeTypes.AUDIO_MPEG.equals(mimeType)
         && !MimeTypes.AUDIO_OPUS.equals(mimeType)) {
       // TODO(b/154746451): Batching provokes frame drops in non offload.
-      bypassBatchBuffer.setMaxAccessUnitCount(1);
+      bypassBatchBuffer.setMaxSampleCount(1);
     } else {
-      bypassBatchBuffer.setMaxAccessUnitCount(BatchBuffer.DEFAULT_BATCH_SIZE_ACCESS_UNITS);
+      bypassBatchBuffer.setMaxSampleCount(BatchBuffer.DEFAULT_MAX_SAMPLE_COUNT);
     }
     bypassEnabled = true;
   }
@@ -2134,9 +2143,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean bypassRender(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException {
 
-    // Process any data in the batch buffer.
+    // Process any batched data.
     checkState(!outputStreamEnded);
-    if (!bypassBatchBuffer.isEmpty()) {
+    if (bypassBatchBuffer.hasSamples()) {
       if (processOutputBuffer(
           positionUs,
           elapsedRealtimeUs,
@@ -2144,30 +2153,35 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           bypassBatchBuffer.data,
           outputIndex,
           /* bufferFlags= */ 0,
-          bypassBatchBuffer.getAccessUnitCount(),
-          bypassBatchBuffer.getFirstAccessUnitTimeUs(),
+          bypassBatchBuffer.getSampleCount(),
+          bypassBatchBuffer.getFirstSampleTimeUs(),
           bypassBatchBuffer.isDecodeOnly(),
           bypassBatchBuffer.isEndOfStream(),
           outputFormat)) {
-        onProcessedOutputBuffer(bypassBatchBuffer.getLastAccessUnitTimeUs());
+        // The batch buffer has been fully processed.
+        onProcessedOutputBuffer(bypassBatchBuffer.getLastSampleTimeUs());
+        bypassBatchBuffer.clear();
       } else {
-        // Could not process the whole buffer. Try again later.
+        // Could not process the whole batch buffer. Try again later.
         return false;
       }
     }
+
     // Process end of stream, if reached.
-    if (bypassBatchBuffer.isEndOfStream()) {
+    if (inputStreamEnded) {
       outputStreamEnded = true;
       return false;
     }
 
-    bypassBatchBuffer.batchWasConsumed();
+    if (bypassSampleBufferPending) {
+      Assertions.checkState(bypassBatchBuffer.append(bypassSampleBuffer));
+      bypassSampleBufferPending = false;
+    }
 
     if (bypassDrainAndReinitialize) {
-      if (!bypassBatchBuffer.isEmpty()) {
-        // The bypassBatchBuffer.batchWasConsumed() call above caused a pending access unit to be
-        // made available inside the batch buffer, meaning it's once again non-empty. We need to
-        // process this data before we can re-initialize.
+      if (bypassBatchBuffer.hasSamples()) {
+        // This can only happen if bypassSampleBufferPending was true above. Return true to try and
+        // immediately process the sample, which has now been appended to the batch buffer.
         return true;
       }
       // The new format might require using a codec rather than bypass.
@@ -2180,61 +2194,52 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       }
     }
 
-    // Fill the batch buffer for the next iteration.
-    checkState(!inputStreamEnded);
-    FormatHolder formatHolder = getFormatHolder();
-    boolean formatChange = readBatchFromSource(formatHolder, bypassBatchBuffer);
+    // Read from the input, appending any sample buffers to the batch buffer.
+    bypassRead();
 
-    if (!bypassBatchBuffer.isEmpty() && waitingForFirstSampleInFormat) {
-      // This is the first buffer in a new format, the output format must be updated.
-      outputFormat = checkNotNull(inputFormat);
-      onOutputFormatChanged(outputFormat, /* mediaFormat= */ null);
-      waitingForFirstSampleInFormat = false;
-    }
-
-    if (formatChange) {
-      onInputFormatChanged(formatHolder);
-    }
-
-    boolean haveDataToProcess = false;
-    if (bypassBatchBuffer.isEndOfStream()) {
-      inputStreamEnded = true;
-      haveDataToProcess = true;
-    }
-    if (!bypassBatchBuffer.isEmpty()) {
+    if (bypassBatchBuffer.hasSamples()) {
       bypassBatchBuffer.flip();
-      haveDataToProcess = true;
     }
-
-    return haveDataToProcess;
+    // We can make more progress if we have batched data or the EOS to process.
+    return bypassBatchBuffer.hasSamples() || inputStreamEnded;
   }
 
-  /**
-   * Fills the buffer with multiple access unit from the source. Has otherwise the same semantic as
-   * {@link #readSource(FormatHolder, DecoderInputBuffer, boolean)}. Will stop early on format
-   * change, EOS or source starvation.
-   *
-   * @return If the format has changed.
-   */
-  private boolean readBatchFromSource(FormatHolder formatHolder, BatchBuffer batchBuffer) {
-    while (!batchBuffer.isFull() && !batchBuffer.isEndOfStream()) {
+  private void bypassRead() throws ExoPlaybackException {
+    checkState(!inputStreamEnded);
+    FormatHolder formatHolder = getFormatHolder();
+    bypassSampleBuffer.clear();
+    while (true) {
+      bypassSampleBuffer.clear();
       @SampleStream.ReadDataResult
-      int result =
-          readSource(
-              formatHolder, batchBuffer.getNextAccessUnitBuffer(), /* formatRequired= */ false);
+      int result = readSource(formatHolder, bypassSampleBuffer, /* formatRequired= */ false);
       switch (result) {
         case C.RESULT_FORMAT_READ:
-          return true;
+          onInputFormatChanged(formatHolder);
+          break;
         case C.RESULT_NOTHING_READ:
-          return false;
+          return;
         case C.RESULT_BUFFER_READ:
-          batchBuffer.commitNextAccessUnit();
+          if (bypassSampleBuffer.isEndOfStream()) {
+            inputStreamEnded = true;
+            return;
+          }
+          if (waitingForFirstSampleInFormat) {
+            // This is the first buffer in a new format, the output format must be updated.
+            outputFormat = checkNotNull(inputFormat);
+            onOutputFormatChanged(outputFormat, /* mediaFormat= */ null);
+            waitingForFirstSampleInFormat = false;
+          }
+          // Try to append the buffer to the batch buffer.
+          bypassSampleBuffer.flip();
+          if (!bypassBatchBuffer.append(bypassSampleBuffer)) {
+            bypassSampleBufferPending = true;
+            return;
+          }
           break;
         default:
-          throw new IllegalStateException(); // Unsupported result
+          throw new IllegalStateException();
       }
     }
-    return false;
   }
 
   private static boolean isMediaCodecException(IllegalStateException error) {

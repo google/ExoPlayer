@@ -16,14 +16,14 @@
 
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
+import static com.google.android.exoplayer2.mediacodec.BatchBuffer.DEFAULT_MAX_SAMPLE_COUNT;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.common.primitives.Bytes;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,220 +32,235 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class BatchBufferTest {
 
-  /** Bigger than {@code BatchBuffer.BATCH_SIZE_BYTES} */
-  private static final int BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES = 6 * 1000 * 1024;
-  /** Smaller than {@code BatchBuffer.BATCH_SIZE_BYTES} */
-  private static final int BUFFER_SIZE_MUCH_SMALLER_THAN_BATCH_SIZE_BYTES = 100;
-
-  private static final byte[] TEST_ACCESS_UNIT =
-      TestUtil.buildTestData(BUFFER_SIZE_MUCH_SMALLER_THAN_BATCH_SIZE_BYTES);
-
+  private final DecoderInputBuffer sampleBuffer =
+      new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DIRECT);
   private final BatchBuffer batchBuffer = new BatchBuffer();
 
   @Test
   public void newBatchBuffer_isEmpty() {
-    assertIsCleared(batchBuffer);
+    assertThat(batchBuffer.getSampleCount()).isEqualTo(0);
+    assertThat(batchBuffer.hasSamples()).isFalse();
   }
 
   @Test
-  public void clear_empty_isEmpty() {
+  public void appendSample() {
+    initSampleBuffer();
+    batchBuffer.append(sampleBuffer);
+
+    assertThat(batchBuffer.getSampleCount()).isEqualTo(1);
+    assertThat(batchBuffer.hasSamples()).isTrue();
+  }
+
+  @Test
+  public void appendSample_thenClear_isEmpty() {
+    initSampleBuffer();
+    batchBuffer.append(sampleBuffer);
     batchBuffer.clear();
 
-    assertIsCleared(batchBuffer);
+    assertThat(batchBuffer.getSampleCount()).isEqualTo(0);
+    assertThat(batchBuffer.hasSamples()).isFalse();
   }
 
   @Test
-  public void clear_afterInsertingAccessUnit_isEmpty() {
-    batchBuffer.commitNextAccessUnit();
+  public void appendSample_updatesTimes() {
+    initSampleBuffer(/* timeUs= */ 1234);
+    batchBuffer.append(sampleBuffer);
 
-    batchBuffer.clear();
+    initSampleBuffer(/* timeUs= */ 5678);
+    batchBuffer.append(sampleBuffer);
 
-    assertIsCleared(batchBuffer);
+    assertThat(batchBuffer.timeUs).isEqualTo(1234);
+    assertThat(batchBuffer.getFirstSampleTimeUs()).isEqualTo(1234);
+    assertThat(batchBuffer.getLastSampleTimeUs()).isEqualTo(5678);
   }
 
   @Test
-  public void commitNextAccessUnit_addsAccessUnit() {
-    batchBuffer.commitNextAccessUnit();
+  public void appendSample_succeedsUntilDefaultMaxSampleCountReached_thenFails() {
+    for (int i = 0; i < DEFAULT_MAX_SAMPLE_COUNT; i++) {
+      initSampleBuffer(/* timeUs= */ i);
+      assertThat(batchBuffer.append(sampleBuffer)).isTrue();
+      assertThat(batchBuffer.getSampleCount()).isEqualTo(i + 1);
+    }
 
-    assertThat(batchBuffer.getAccessUnitCount()).isEqualTo(1);
+    initSampleBuffer(/* timeUs= */ DEFAULT_MAX_SAMPLE_COUNT);
+    assertThat(batchBuffer.append(sampleBuffer)).isFalse();
+    assertThat(batchBuffer.getSampleCount()).isEqualTo(DEFAULT_MAX_SAMPLE_COUNT);
+    assertThat(batchBuffer.getLastSampleTimeUs()).isEqualTo(DEFAULT_MAX_SAMPLE_COUNT - 1);
   }
 
   @Test
-  public void commitNextAccessUnit_untilFull_isFullAndNotEmpty() {
-    fillBatchBuffer(batchBuffer);
+  public void appendSample_succeedsUntilCustomMaxSampleCountReached_thenFails() {
+    int customMaxSampleCount = DEFAULT_MAX_SAMPLE_COUNT * 2;
+    batchBuffer.setMaxSampleCount(customMaxSampleCount);
+    for (int i = 0; i < customMaxSampleCount; i++) {
+      initSampleBuffer(/* timeUs= */ i);
+      assertThat(batchBuffer.append(sampleBuffer)).isTrue();
+      assertThat(batchBuffer.getSampleCount()).isEqualTo(i + 1);
+    }
 
-    assertThat(batchBuffer.isEmpty()).isFalse();
-    assertThat(batchBuffer.isFull()).isTrue();
+    initSampleBuffer(/* timeUs= */ customMaxSampleCount);
+    assertThat(batchBuffer.append(sampleBuffer)).isFalse();
+    assertThat(batchBuffer.getSampleCount()).isEqualTo(customMaxSampleCount);
+    assertThat(batchBuffer.getLastSampleTimeUs()).isEqualTo(customMaxSampleCount - 1);
   }
 
   @Test
-  public void commitNextAccessUnit_whenFull_throws() {
-    batchBuffer.setMaxAccessUnitCount(1);
-    batchBuffer.commitNextAccessUnit();
-
-    assertThrows(IllegalStateException.class, batchBuffer::commitNextAccessUnit);
-  }
-
-  @Test
-  public void commitNextAccessUnit_whenAccessUnitIsDecodeOnly_isDecodeOnly() {
-    batchBuffer.getNextAccessUnitBuffer().setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-
-    batchBuffer.commitNextAccessUnit();
+  public void appendFirstSample_withDecodeOnlyFlag_setsDecodeOnlyFlag() {
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+    batchBuffer.append(sampleBuffer);
 
     assertThat(batchBuffer.isDecodeOnly()).isTrue();
   }
 
   @Test
-  public void commitNextAccessUnit_whenAccessUnitIsEndOfStream_isEndOfSteam() {
-    batchBuffer.getNextAccessUnitBuffer().setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+  public void appendSecondSample_toDecodeOnlyBuffer_withDecodeOnlyFlag_succeeds() {
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+    batchBuffer.append(sampleBuffer);
 
-    batchBuffer.commitNextAccessUnit();
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
 
-    assertThat(batchBuffer.isEndOfStream()).isTrue();
+    assertThat(batchBuffer.append(sampleBuffer)).isTrue();
   }
 
   @Test
-  public void commitNextAccessUnit_whenAccessUnitIsKeyFrame_isKeyFrame() {
-    batchBuffer.getNextAccessUnitBuffer().setFlags(C.BUFFER_FLAG_KEY_FRAME);
+  public void appendSecondSample_toDecodeOnlyBuffer_withoutDecodeOnlyFlag_fails() {
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+    batchBuffer.append(sampleBuffer);
 
-    batchBuffer.commitNextAccessUnit();
+    initSampleBuffer();
+
+    assertThat(batchBuffer.append(sampleBuffer)).isFalse();
+  }
+
+  @Test
+  public void appendSecondSample_toNonDecodeOnlyBuffer_withDecodeOnlyFlag_fails() {
+    initSampleBuffer();
+    batchBuffer.append(sampleBuffer);
+
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+
+    assertThat(batchBuffer.append(sampleBuffer)).isFalse();
+  }
+
+  @Test
+  public void appendSecondSample_withKeyframeFlag_setsKeyframeFlag() {
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
+    batchBuffer.append(sampleBuffer);
 
     assertThat(batchBuffer.isKeyFrame()).isTrue();
   }
 
   @Test
-  public void commitNextAccessUnit_withData_dataIsCopiedInTheBatch() {
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_ACCESS_UNIT.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(TEST_ACCESS_UNIT);
+  public void appendSecondSample_withKeyframeFlag_doesNotSetKeyframeFlag() {
+    initSampleBuffer();
+    batchBuffer.append(sampleBuffer);
 
-    batchBuffer.commitNextAccessUnit();
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
+    batchBuffer.append(sampleBuffer);
+
+    assertThat(batchBuffer.isKeyFrame()).isFalse();
+  }
+
+  @Test
+  public void appendSecondSample_doesNotClearKeyframeFlag() {
+    initSampleBuffer();
+    sampleBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);
+    batchBuffer.append(sampleBuffer);
+
+    initSampleBuffer();
+    batchBuffer.append(sampleBuffer);
+
+    assertThat(batchBuffer.isKeyFrame()).isTrue();
+  }
+
+  @Test
+  public void appendSample_withEndOfStreamFlag_throws() {
+    sampleBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+
+    assertThrows(IllegalArgumentException.class, () -> batchBuffer.append(sampleBuffer));
+  }
+
+  @Test
+  public void appendSample_withEncryptedFlag_throws() {
+    sampleBuffer.setFlags(C.BUFFER_FLAG_ENCRYPTED);
+
+    assertThrows(IllegalArgumentException.class, () -> batchBuffer.append(sampleBuffer));
+  }
+
+  @Test
+  public void appendSample_withSupplementalDataFlag_throws() {
+    sampleBuffer.setFlags(C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA);
+
+    assertThrows(IllegalArgumentException.class, () -> batchBuffer.append(sampleBuffer));
+  }
+
+  @Test
+  public void appendTwoSamples_batchesData() {
+    initSampleBuffer(/* timeUs= */ 1234);
+    batchBuffer.append(sampleBuffer);
+    initSampleBuffer(/* timeUs= */ 5678);
+    batchBuffer.append(sampleBuffer);
     batchBuffer.flip();
 
-    assertThat(batchBuffer.getAccessUnitCount()).isEqualTo(1);
-    assertThat(batchBuffer.data).isEqualTo(ByteBuffer.wrap(TEST_ACCESS_UNIT));
+    ByteBuffer expected = ByteBuffer.allocate(Long.BYTES * 2);
+    expected.putLong(1234);
+    expected.putLong(5678);
+    expected.flip();
+
+    assertThat(batchBuffer.data).isEqualTo(expected);
   }
 
   @Test
-  public void commitNextAccessUnit_nextAccessUnit_isClear() {
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_ACCESS_UNIT.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(TEST_ACCESS_UNIT);
-    batchBuffer.getNextAccessUnitBuffer().setFlags(C.BUFFER_FLAG_KEY_FRAME);
-
-    batchBuffer.commitNextAccessUnit();
-
-    DecoderInputBuffer nextAccessUnit = batchBuffer.getNextAccessUnitBuffer();
-    assertThat(nextAccessUnit.data).isNotNull();
-    assertThat(nextAccessUnit.data.position()).isEqualTo(0);
-    assertThat(nextAccessUnit.isKeyFrame()).isFalse();
+  public void appendFirstSample_exceedingMaxSize_succeeds() {
+    sampleBuffer.ensureSpaceForWrite(BatchBuffer.MAX_SIZE_BYTES + 1);
+    sampleBuffer.data.position(BatchBuffer.MAX_SIZE_BYTES + 1);
+    sampleBuffer.flip();
+    assertThat(batchBuffer.append(sampleBuffer)).isTrue();
   }
 
   @Test
-  public void commitNextAccessUnit_twice_bothAccessUnitAreConcatenated() {
-    // Commit TEST_ACCESS_UNIT
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_ACCESS_UNIT.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(TEST_ACCESS_UNIT);
-    batchBuffer.commitNextAccessUnit();
-    // Commit TEST_ACCESS_UNIT again
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_ACCESS_UNIT.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(TEST_ACCESS_UNIT);
+  public void appendSecondSample_exceedingMaxSize_fails() {
+    initSampleBuffer();
+    batchBuffer.append(sampleBuffer);
 
-    batchBuffer.commitNextAccessUnit();
-    batchBuffer.flip();
-
-    byte[] expected = Bytes.concat(TEST_ACCESS_UNIT, TEST_ACCESS_UNIT);
-    assertThat(batchBuffer.data).isEqualTo(ByteBuffer.wrap(expected));
+    int exceedsMaxSize = BatchBuffer.MAX_SIZE_BYTES - sampleBuffer.data.limit() + 1;
+    sampleBuffer.clear();
+    sampleBuffer.ensureSpaceForWrite(exceedsMaxSize);
+    sampleBuffer.data.position(exceedsMaxSize);
+    sampleBuffer.flip();
+    assertThat(batchBuffer.append(sampleBuffer)).isFalse();
   }
 
   @Test
-  public void commitNextAccessUnit_whenAccessUnitIsHugeAndBatchBufferNotEmpty_isMarkedPending() {
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_ACCESS_UNIT.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(TEST_ACCESS_UNIT);
-    batchBuffer.commitNextAccessUnit();
-    byte[] hugeAccessUnit = TestUtil.buildTestData(BUFFER_SIZE_LARGER_THAN_BATCH_SIZE_BYTES);
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(hugeAccessUnit.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(hugeAccessUnit);
-    batchBuffer.commitNextAccessUnit();
+  public void appendSecondSample_equalsMaxSize_succeeds() {
+    initSampleBuffer();
+    batchBuffer.append(sampleBuffer);
 
-    batchBuffer.batchWasConsumed();
-    batchBuffer.flip();
-
-    assertThat(batchBuffer.getAccessUnitCount()).isEqualTo(1);
-    assertThat(batchBuffer.data).isEqualTo(ByteBuffer.wrap(hugeAccessUnit));
+    int exceedsMaxSize = BatchBuffer.MAX_SIZE_BYTES - sampleBuffer.data.limit();
+    sampleBuffer.clear();
+    sampleBuffer.ensureSpaceForWrite(exceedsMaxSize);
+    sampleBuffer.data.position(exceedsMaxSize);
+    sampleBuffer.flip();
+    assertThat(batchBuffer.append(sampleBuffer)).isTrue();
   }
 
-  @Test
-  public void batchWasConsumed_whenNotEmpty_isEmpty() {
-    batchBuffer.commitNextAccessUnit();
-
-    batchBuffer.batchWasConsumed();
-
-    assertIsCleared(batchBuffer);
+  private void initSampleBuffer() {
+    initSampleBuffer(/* timeUs= */ 0);
   }
 
-  @Test
-  public void batchWasConsumed_whenFull_isEmpty() {
-    fillBatchBuffer(batchBuffer);
-
-    batchBuffer.batchWasConsumed();
-
-    assertIsCleared(batchBuffer);
+  private void initSampleBuffer(long timeUs) {
+    sampleBuffer.clear();
+    sampleBuffer.timeUs = timeUs;
+    sampleBuffer.ensureSpaceForWrite(Long.BYTES);
+    sampleBuffer.data.putLong(timeUs);
+    sampleBuffer.flip();
   }
 
-  @Test
-  public void getMaxAccessUnitCount_whenSetToAPositiveValue_returnsIt() {
-    batchBuffer.setMaxAccessUnitCount(20);
-
-    assertThat(batchBuffer.getMaxAccessUnitCount()).isEqualTo(20);
-  }
-
-  @Test
-  public void setMaxAccessUnitCount_whenSetToNegative_throws() {
-    assertThrows(IllegalArgumentException.class, () -> batchBuffer.setMaxAccessUnitCount(-19));
-  }
-
-  @Test
-  public void setMaxAccessUnitCount_whenSetToZero_throws() {
-    assertThrows(IllegalArgumentException.class, () -> batchBuffer.setMaxAccessUnitCount(0));
-  }
-
-  @Test
-  public void setMaxAccessUnitCount_whenSetToTheNumberOfAccessUnitInTheBatch_isFull() {
-    batchBuffer.commitNextAccessUnit();
-
-    batchBuffer.setMaxAccessUnitCount(1);
-
-    assertThat(batchBuffer.isFull()).isTrue();
-  }
-
-  @Test
-  public void batchWasConsumed_whenAccessUnitIsPending_pendingAccessUnitIsInTheBatch() {
-    batchBuffer.commitNextAccessUnit();
-    batchBuffer.getNextAccessUnitBuffer().setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-    batchBuffer.getNextAccessUnitBuffer().ensureSpaceForWrite(TEST_ACCESS_UNIT.length);
-    batchBuffer.getNextAccessUnitBuffer().data.put(TEST_ACCESS_UNIT);
-    batchBuffer.commitNextAccessUnit();
-
-    batchBuffer.batchWasConsumed();
-    batchBuffer.flip();
-
-    assertThat(batchBuffer.getAccessUnitCount()).isEqualTo(1);
-    assertThat(batchBuffer.isDecodeOnly()).isTrue();
-    assertThat(batchBuffer.data).isEqualTo(ByteBuffer.wrap(TEST_ACCESS_UNIT));
-  }
-
-  private static void fillBatchBuffer(BatchBuffer batchBuffer) {
-    int maxAccessUnit = batchBuffer.getMaxAccessUnitCount();
-    while (!batchBuffer.isFull()) {
-      assertThat(maxAccessUnit--).isNotEqualTo(0);
-      batchBuffer.commitNextAccessUnit();
-    }
-  }
-
-  private static void assertIsCleared(BatchBuffer batchBuffer) {
-    assertThat(batchBuffer.getFirstAccessUnitTimeUs()).isEqualTo(C.TIME_UNSET);
-    assertThat(batchBuffer.getLastAccessUnitTimeUs()).isEqualTo(C.TIME_UNSET);
-    assertThat(batchBuffer.getAccessUnitCount()).isEqualTo(0);
-    assertThat(batchBuffer.isEmpty()).isTrue();
-    assertThat(batchBuffer.isFull()).isFalse();
-  }
 }
