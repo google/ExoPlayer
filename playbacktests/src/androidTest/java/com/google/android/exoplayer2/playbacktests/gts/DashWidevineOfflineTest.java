@@ -48,7 +48,7 @@ import org.junit.runner.RunWith;
 
 /** Tests Widevine encrypted DASH playbacks using offline keys. */
 @RunWith(AndroidJUnit4.class)
-// TODO(internal b/176960595): Re-add the V22 test targets when re-enabling these tests.
+// TODO(internal b/176960595): Re-add the V22 & V29 test targets when re-enabling these tests.
 @Ignore(
     "Need to be reconfigured/rewritten with an offline-compatible licence [internal b/176960595].")
 public final class DashWidevineOfflineTest {
