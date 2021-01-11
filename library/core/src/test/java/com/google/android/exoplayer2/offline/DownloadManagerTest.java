@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.offline.DownloadManager.Listener;
 import com.google.android.exoplayer2.robolectric.TestDownloadManagerListener;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DownloadBuilder;
@@ -600,6 +599,7 @@ public class DownloadManagerTest {
 
     FakeDownloader downloader = getDownloaderAt(1);
     downloader.finish();
+    assertCompleted(ID1);
 
     assertDownloadIndexSize(1);
     // We expect one downloader for the removal, and one for when the download was re-added.
@@ -617,28 +617,18 @@ public class DownloadManagerTest {
   public void addDownloadWithStopReason_whilstRemoving_addsStoppedDownload() throws Throwable {
     postDownloadRequest(ID1);
     getDownloaderAt(0).finish();
+    assertCompleted(ID1);
 
     postRemoveRequest(ID1);
     FakeDownloader downloadRemover = getDownloaderAt(1);
     downloadRemover.assertRemoveStarted();
 
     // Re-add the download with a stop reason.
-    ConditionVariable downloadManagerIdleCondition = new ConditionVariable();
     runOnMainThread(
-        () -> {
-          downloadManager.addListener(
-              new Listener() {
-                @Override
-                public void onIdle(DownloadManager downloadManager) {
-                  downloadManagerIdleCondition.open();
-                }
-              });
-          downloadManager.addDownload(createDownloadRequest(ID1), /* stopReason= */ 1234);
-        });
+        () -> downloadManager.addDownload(createDownloadRequest(ID1), /* stopReason= */ 1234));
 
     downloadRemover.finish();
-
-    assertThat(downloadManagerIdleCondition.block(TIMEOUT_MS)).isTrue();
+    downloadManagerListener.blockUntilIdle();
 
     assertDownloadIndexSize(1);
     // We expect one downloader for the initial download, and one for the removal. A downloader
