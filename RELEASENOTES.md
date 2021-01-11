@@ -93,6 +93,10 @@
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
     *   Add `ImaAdsLoader.Builder.setEnableContinuousPlayback` for setting
         whether to request ads for continuous playback.
+    *   Upgrade IMA SDK dependency to 3.22.0, bringing in a fix for leaking the
+        ad view group
+        ([#7344](https://github.com/google/ExoPlayer/issues/7344)),
+        ([#8339](https://github.com/google/ExoPlayer/issues/8339)).
 *   FFmpeg extension:
     *   Link the FFmpeg library statically, saving 350KB in binary size on
         average.
