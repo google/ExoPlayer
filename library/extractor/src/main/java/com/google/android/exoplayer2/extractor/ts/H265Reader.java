@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -336,9 +337,15 @@ public final class H265Reader implements ElementaryStreamReader {
       }
     }
 
+    // Parse the SPS to derive an RFC 6381 codecs string.
+    bitArray.reset(sps.nalData, 0, sps.nalLength);
+    bitArray.skipBits(24); // Skip start code.
+    String codecs = CodecSpecificDataUtil.buildHevcCodecStringFromSps(bitArray);
+
     return new Format.Builder()
         .setId(formatId)
         .setSampleMimeType(MimeTypes.VIDEO_H265)
+        .setCodecs(codecs)
         .setWidth(picWidthInLumaSamples)
         .setHeight(picHeightInLumaSamples)
         .setPixelWidthHeightRatio(pixelWidthHeightRatio)
