@@ -93,7 +93,9 @@ public abstract class DataSourceContractTest {
                 ? Util.readToEnd(dataSource)
                 : Util.readExactly(dataSource, resource.getExpectedBytes().length);
 
-        assertThat(length).isEqualTo(resource.getExpectedResolvedLength());
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(resource.getExpectedBytes().length);
+        }
         assertThat(data).isEqualTo(resource.getExpectedBytes());
       } finally {
         dataSource.close();
@@ -120,8 +122,8 @@ public abstract class DataSourceContractTest {
                 ? Util.readToEnd(dataSource)
                 : Util.readExactly(dataSource, resource.getExpectedBytes().length - 3);
 
-        if (resource.getExpectedResolvedLength() != C.LENGTH_UNSET) {
-          assertThat(length).isEqualTo(resource.getExpectedResolvedLength() - 3);
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(resource.getExpectedBytes().length - 3);
         }
         byte[] expectedData =
             Arrays.copyOfRange(resource.getExpectedBytes(), 3, resource.getExpectedBytes().length);
@@ -219,19 +221,13 @@ public abstract class DataSourceContractTest {
     @Nullable private final String name;
     private final Uri uri;
     private final byte[] expectedBytes;
-    private final boolean resolvesToUnknownLength;
     private final boolean endOfInputExpected;
 
     private TestResource(
-        @Nullable String name,
-        Uri uri,
-        byte[] expectedBytes,
-        boolean resolvesToUnknownLength,
-        boolean endOfInputExpected) {
+        @Nullable String name, Uri uri, byte[] expectedBytes, boolean endOfInputExpected) {
       this.name = name;
       this.uri = uri;
       this.expectedBytes = expectedBytes;
-      this.resolvesToUnknownLength = resolvesToUnknownLength;
       this.endOfInputExpected = endOfInputExpected;
     }
 
@@ -252,16 +248,6 @@ public abstract class DataSourceContractTest {
     }
 
     /**
-     * Returns the expected resolved length of this resource.
-     *
-     * <p>This is either {@link #getExpectedBytes() getExpectedBytes().length} or {@link
-     * C#LENGTH_UNSET}.
-     */
-    public long getExpectedResolvedLength() {
-      return resolvesToUnknownLength ? C.LENGTH_UNSET : expectedBytes.length;
-    }
-
-    /**
      * Returns whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
      * after all the resource data are read.
      */
@@ -274,7 +260,6 @@ public abstract class DataSourceContractTest {
       private @MonotonicNonNull String name;
       private @MonotonicNonNull Uri uri;
       private byte @MonotonicNonNull [] expectedBytes;
-      private boolean resolvesToUnknownLength;
       private boolean endOfInputExpected;
 
       /** Construct a new instance. */
@@ -308,16 +293,6 @@ public abstract class DataSourceContractTest {
       }
 
       /**
-       * Sets whether {@link DataSource#open(DataSpec)} is expected to return {@link C#LENGTH_UNSET}
-       * when passed the URI of this resource and a {@link DataSpec} with {@code length ==
-       * C.LENGTH_UNSET}.
-       */
-      public Builder setResolvesToUnknownLength(boolean value) {
-        this.resolvesToUnknownLength = value;
-        return this;
-      }
-
-      /**
        * Sets whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
        * after all the resource data have been read. By default, this is set to {@code true}.
        */
@@ -328,11 +303,7 @@ public abstract class DataSourceContractTest {
 
       public TestResource build() {
         return new TestResource(
-            name,
-            checkNotNull(uri),
-            checkNotNull(expectedBytes),
-            resolvesToUnknownLength,
-            endOfInputExpected);
+            name, checkNotNull(uri), checkNotNull(expectedBytes), endOfInputExpected);
       }
     }
   }

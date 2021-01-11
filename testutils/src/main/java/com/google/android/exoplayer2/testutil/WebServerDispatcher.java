@@ -91,6 +91,9 @@ public class WebServerDispatcher extends Dispatcher {
       /**
        * Sets if the resource should resolve to an unknown length. Defaults to false.
        *
+       * <p>If true, responses to unbound requests won't include a Content-Length header and
+       * Content-Range headers won't include the total resource length.
+       *
        * @return this builder, for convenience.
        */
       public Builder resolvesToUnknownLength(boolean resolvesToUnknownLength) {
@@ -133,12 +136,7 @@ public class WebServerDispatcher extends Dispatcher {
       return supportsRangeRequests;
     }
 
-    /**
-     * Returns true if the server shouldn't include the resource length in header responses.
-     *
-     * <p>Responses to unbound requests won't include a Content-Length header, and Content-Range
-     * headers won't include the total resource length.
-     */
+    /** Returns true if the resource should resolve to an unknown length. */
     public boolean resolvesToUnknownLength() {
       return resolvesToUnknownLength;
     }

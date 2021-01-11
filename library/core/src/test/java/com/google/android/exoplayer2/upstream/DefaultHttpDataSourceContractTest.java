@@ -135,7 +135,6 @@ public class DefaultHttpDataSourceContractTest extends DataSourceContractTest {
         .setName(name)
         .setUri(Uri.parse(urlResolver.apply(resource.getPath()).toString()))
         .setExpectedBytes(resource.getData())
-        .setResolvesToUnknownLength(resource.resolvesToUnknownLength())
         .setEndOfInputExpected(!resource.resolvesToUnknownLength())
         .build();
   }
