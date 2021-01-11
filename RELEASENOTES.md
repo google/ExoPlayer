@@ -25,8 +25,6 @@
         ([#5887](https://github.com/google/ExoPlayer/issues/5887)).
     *   Fix bug where `AnalyticsListener` callbacks can arrive in the wrong
         order ([#8048](https://github.com/google/ExoPlayer/issues/8048)).
-    *   Fix `MediaCodecRenderer` issue where empty streams would fail to play in
-        bypass mode ([#8374](https://github.com/google/ExoPlayer/issues/8374)).
     *   Add `onEvents` callback to `Player.EventListener` and
         `AnalyticsListener` to notify when all simultaneous state changes have
         been handled and the values reported through callbacks are again
@@ -34,8 +32,6 @@
         getters.
     *   Deprecate `HttpDataSource.Factory.getDefaultRequestProperties` and add
         `HttpDataSource.Factory.setDefaultRequestProperties` instead.
-    *   Fix playback issues after seeking during an ad
-        ([#8349](https://github.com/google/ExoPlayer/issues/8349)).
     *   Add `DefaultHttpDataSource.Factory` and deprecate
         `DefaultHttpDataSourceFactory`.
     *   Add option to `MergingMediaSource` to clip the durations of all sources
@@ -74,10 +70,6 @@
         ([#5011](https://github.com/google/ExoPlayer/issues/5011)).
 *   UI:
     *   Miscellaneous fixes for `StyledPlayerControlView` in minimal mode.
-    *   Fix issue where pop-up menus belonging to `StyledPlayerControlView`
-        would not be dismissed when tapping outside of the menu area or pressing
-        the back button, on API level 22 and earlier
-        ([#8272](https://github.com/google/ExoPlayer/issues/8272)).
     *   Show overflow button in `StyledPlayerControlView` only when there is not
         enough space.
     *   Update StyledPlayer's control overlay scrim from 30% opacity to 60%
@@ -86,21 +78,12 @@
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.
-*   Downloads:
-    *   Fix crash in `DownloadManager` that could occur when adding a stopped
-        download with the same ID as a download currently being removed
-        ([#8419](https://github.com/google/ExoPlayer/issues/8419)).
 *   Analytics:
     *   Pass a `DecoderReuseEvaluation` to `AnalyticsListener`'s
         `onVideoInputFormatChanged` and `onAudioInputFormatChanged` methods. The
         `DecoderReuseEvaluation` indicates whether it was possible to re-use an
         existing decoder instance for the new format, and if not then the
         reasons why.
-*   Text:
-    *   Gracefully handle null-terminated subtitle content in Matroska
-        containers.
-    *   Fix CEA-708 anchor positioning
-        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
 *   Data sources:
@@ -108,11 +91,6 @@
 *   IMA extension:
     *   Add support for playback of ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
-    *   Fix a condition where playback can get stuck before an empty ad
-        ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
-    *   Log a warning rather than throwing when reaching the end of the stream
-        with an ad playing but without ad media info
-        ([#8290](https://github.com/google/ExoPlayer/issues/8290)).
     *   Add `ImaAdsLoader.Builder.setEnableContinuousPlayback` for setting
         whether to request ads for continuous playback.
 *   FFmpeg extension:
@@ -124,14 +102,47 @@
     *   Add `CronetDataSource.Factory` and deprecate `CronetDataSourceFactory`.
     *   Support setting the user agent on `CronetDataSource.Factory` and
         `CronetEngineWrapper`.
-*   Media2 extension
-    *   Make media2-extension depend on AndroidX media2:media2-session:1.1.0 to
-        fix a deadlock while creating PlaybackStateCompat internally.
-        ([#8011](https://github.com/google/ExoPlayer/issues/8011)).
 *   MediaSession extension:
     *   Support `setPlaybackSpeed(float)` and disable it by default. Use
         `MediaSessionConnector.setEnabledPlaybackActions(long)` to enable
         ([#8229](https://github.com/google/ExoPlayer/issues/8229)).
+
+### 2.12.3 (2021-01-13) ###
+
+*   Core library:
+    *   Fix `MediaCodecRenderer` issue where empty streams would fail to play in
+        bypass mode ([#8374](https://github.com/google/ExoPlayer/issues/8374)).
+    *   Fix playback issues after seeking during an ad
+        ([#8349](https://github.com/google/ExoPlayer/issues/8349)).
+    *   Fix propagation of `LoadErrorHandlingPolicy` from
+        `DefaultMediaSourceFactory` into `SingleSampleMediaSource.Factory` when
+        creating subtitle media sources from
+        `MediaItem.playbackProperties.subtitles`
+        ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
+*   UI:
+    *   Fix issue where pop-up menus belonging to `StyledPlayerControlView`
+        would not be dismissed when tapping outside of the menu area or pressing
+        the back button, on API level 22 and earlier
+        ([#8272](https://github.com/google/ExoPlayer/issues/8272)).
+*   Downloads:
+    *   Fix crash in `DownloadManager` that could occur when adding a stopped
+        download with the same ID as a download currently being removed
+        ([#8419](https://github.com/google/ExoPlayer/issues/8419)).
+*   Text:
+    *   Gracefully handle null-terminated subtitle content in Matroska
+        containers.
+    *   Fix CEA-708 anchor positioning
+        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
+*   IMA extension:
+    *   Fix a condition where playback could get stuck before an empty ad
+        ([#8205](https://github.com/google/ExoPlayer/issues/8205)).
+    *   Log a warning rather than throwing when reaching the end of the stream
+        with an ad playing but without ad media info
+        ([#8290](https://github.com/google/ExoPlayer/issues/8290)).
+*   Media2 extension:
+    *   Make media2-extension depend on AndroidX media2:media2-session:1.1.0 to
+        fix a deadlock while creating PlaybackStateCompat internally.
+        ([#8011](https://github.com/google/ExoPlayer/issues/8011)).
 
 ### 2.12.2 (2020-12-01) ###
 
@@ -192,7 +203,7 @@
 *   Media2 extension:
     *   Notify onBufferingEnded when the state of origin player becomes
         `STATE_IDLE` or `STATE_ENDED`.
-    *   Allow to remove all playlist items that makes the player reset.
+    *   Allow to remove all playlist items that makes the player reset
         ([#8047](https://github.com/google/ExoPlayer/issues/8047)).
 
 ### 2.12.1 (2020-10-23) ###
