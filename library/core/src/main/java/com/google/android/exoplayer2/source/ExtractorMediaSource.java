@@ -214,20 +214,6 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
           mediaItem.playbackProperties.tag != null ? mediaItem.playbackProperties.tag : tag);
     }
 
-    /**
-     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
-     *     MediaSourceEventListener)} instead.
-     */
-    @Deprecated
-    public ExtractorMediaSource createMediaSource(
-        Uri uri, @Nullable Handler eventHandler, @Nullable MediaSourceEventListener eventListener) {
-      ExtractorMediaSource mediaSource = createMediaSource(uri);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
-    }
-
     @Override
     public int[] getSupportedTypes() {
       return new int[] {C.TYPE_OTHER};
