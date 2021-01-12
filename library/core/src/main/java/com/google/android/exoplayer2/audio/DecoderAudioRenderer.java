@@ -619,7 +619,7 @@ public abstract class DecoderAudioRenderer<
       eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (DecoderException e) {
+    } catch (DecoderException | OutOfMemoryError e) {
       throw createRendererException(e, inputFormat);
     }
   }

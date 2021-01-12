@@ -34,20 +34,12 @@ public final class ExoPlaybackException extends Exception {
 
   /**
    * The type of source that produced the error. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER}
-   * {@link #TYPE_UNEXPECTED}, {@link #TYPE_REMOTE}, {@link #TYPE_OUT_OF_MEMORY} or {@link
-   * #TYPE_TIMEOUT}. Note that new types may be added in the future and error handling should handle
-   * unknown type values.
+   * {@link #TYPE_UNEXPECTED}, {@link #TYPE_REMOTE} or {@link #TYPE_TIMEOUT}. Note that new types
+   * may be added in the future and error handling should handle unknown type values.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    TYPE_SOURCE,
-    TYPE_RENDERER,
-    TYPE_UNEXPECTED,
-    TYPE_REMOTE,
-    TYPE_OUT_OF_MEMORY,
-    TYPE_TIMEOUT
-  })
+  @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED, TYPE_REMOTE, TYPE_TIMEOUT})
   public @interface Type {}
   /**
    * The error occurred loading data from a {@code MediaSource}.
@@ -75,10 +67,9 @@ public final class ExoPlaybackException extends Exception {
    * <p>Call {@link #getMessage()} to retrieve the message associated with the error.
    */
   public static final int TYPE_REMOTE = 3;
-  /** The error was an {@link OutOfMemoryError}. */
-  public static final int TYPE_OUT_OF_MEMORY = 4;
+
   /** The error was a {@link TimeoutException}. */
-  public static final int TYPE_TIMEOUT = 5;
+  public static final int TYPE_TIMEOUT = 4;
 
   /** The {@link Type} of the playback failure. */
   @Type public final int type;
@@ -175,7 +166,7 @@ public final class ExoPlaybackException extends Exception {
    * @return The created instance.
    */
   public static ExoPlaybackException createForRenderer(
-      Exception cause,
+      Throwable cause,
       String rendererName,
       int rendererIndex,
       @Nullable Format rendererFormat,
@@ -202,7 +193,7 @@ public final class ExoPlaybackException extends Exception {
    * @return The created instance.
    */
   public static ExoPlaybackException createForRenderer(
-      Exception cause,
+      Throwable cause,
       String rendererName,
       int rendererIndex,
       @Nullable Format rendererFormat,
@@ -238,16 +229,6 @@ public final class ExoPlaybackException extends Exception {
    */
   public static ExoPlaybackException createForRemote(String message) {
     return new ExoPlaybackException(TYPE_REMOTE, message);
-  }
-
-  /**
-   * Creates an instance of type {@link #TYPE_OUT_OF_MEMORY}.
-   *
-   * @param cause The cause of the failure.
-   * @return The created instance.
-   */
-  public static ExoPlaybackException createForOutOfMemory(OutOfMemoryError cause) {
-    return new ExoPlaybackException(TYPE_OUT_OF_MEMORY, cause);
   }
 
   /**
@@ -383,16 +364,6 @@ public final class ExoPlaybackException extends Exception {
   }
 
   /**
-   * Retrieves the underlying error when {@link #type} is {@link #TYPE_OUT_OF_MEMORY}.
-   *
-   * @throws IllegalStateException If {@link #type} is not {@link #TYPE_OUT_OF_MEMORY}.
-   */
-  public OutOfMemoryError getOutOfMemoryError() {
-    Assertions.checkState(type == TYPE_OUT_OF_MEMORY);
-    return (OutOfMemoryError) Assertions.checkNotNull(cause);
-  }
-
-  /**
    * Retrieves the underlying error when {@link #type} is {@link #TYPE_TIMEOUT}.
    *
    * @throws IllegalStateException If {@link #type} is not {@link #TYPE_TIMEOUT}.
@@ -450,9 +421,6 @@ public final class ExoPlaybackException extends Exception {
         break;
       case TYPE_REMOTE:
         message = "Remote error";
-        break;
-      case TYPE_OUT_OF_MEMORY:
-        message = "Out of memory error";
         break;
       case TYPE_TIMEOUT:
         message = "Timeout error";

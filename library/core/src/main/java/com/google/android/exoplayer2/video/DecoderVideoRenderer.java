@@ -707,7 +707,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
           decoderInitializedTimestamp,
           decoderInitializedTimestamp - decoderInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (DecoderException e) {
+    } catch (DecoderException | OutOfMemoryError e) {
       throw createRendererException(e, inputFormat);
     }
   }

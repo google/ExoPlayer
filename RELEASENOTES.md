@@ -42,6 +42,7 @@
         creating subtitle media sources from
         `MediaItem.playbackProperties.subtitles`
         ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
+    *   Remove `ExoPlaybackException.OutOfMemoryError`.
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level
