@@ -403,9 +403,10 @@ public class SampleQueue implements TrackOutput {
       boolean formatRequired,
       boolean loadingFinished) {
     int result =
-        readSampleMetadata(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
+        peekSampleMetadata(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
     if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream() && !buffer.isFlagsOnly()) {
       sampleDataQueue.readToBuffer(buffer, extrasHolder);
+      readPosition++;
     }
     return result;
   }
@@ -650,7 +651,7 @@ public class SampleQueue implements TrackOutput {
   }
 
   @SuppressWarnings("ReferenceEquality") // See comments in setUpstreamFormat
-  private synchronized int readSampleMetadata(
+  private synchronized int peekSampleMetadata(
       FormatHolder formatHolder,
       DecoderInputBuffer buffer,
       boolean formatRequired,
@@ -685,14 +686,10 @@ public class SampleQueue implements TrackOutput {
     if (buffer.timeUs < startTimeUs) {
       buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
     }
-    if (buffer.isFlagsOnly()) {
-      return C.RESULT_BUFFER_READ;
-    }
     extrasHolder.size = sizes[relativeReadIndex];
     extrasHolder.offset = offsets[relativeReadIndex];
     extrasHolder.cryptoData = cryptoDatas[relativeReadIndex];
 
-    readPosition++;
     return C.RESULT_BUFFER_READ;
   }
 
