@@ -3,6 +3,9 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
+    *   Remove long deprecated symbols:
+        *   `DefaultLoadControl` constructors - Use `DefaultLoadControl.Builder`
+            instead.
     *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
         `MediaSourceEventListener` instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed
