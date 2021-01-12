@@ -8,10 +8,17 @@
             `Player.EventListener.onTimelineChanged(Timeline, int)` instead.
         *   `DefaultLoadControl` constructors. Use `DefaultLoadControl.Builder`
             instead.
-        *   `PlayerView.setDefaultArtwork(Bitmap)` - Use
+        *   `PlayerView.setDefaultArtwork(Bitmap)`. Use
             `PlayerView.setDefaultArtwork(Drawable)` instead.
-        *   `PlayerView.setShowBuffering(boolean)` - Use
+        *   `PlayerView.setShowBuffering(boolean)`. Use
             `PlayerView.setShowBuffering(int)` instead.
+        *   `SimpleExoPlayer.clearVideoListener()`. Use
+            `SimpleExoPlayer.removeVideoListener(VideoListener)` instead.
+        *   `SimpleExoPlayer.setVideoListener(VideoListener)`. Use
+            `SimpleExoPlayer.addVideoListener(VideoListener)` instead. If your
+            application is calling `SimpleExoPlayer.setVideoListener(null)`,
+            make sure to replace this call with
+            `SimpleExoPlayer.removeVideoListener(VideoListener)`.
     *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
         `MediaSourceEventListener` instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed

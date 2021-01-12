@@ -1234,34 +1234,6 @@ public class SimpleExoPlayer extends BasePlayer
         C.TRACK_TYPE_CAMERA_MOTION, Renderer.MSG_SET_CAMERA_MOTION_LISTENER, /* payload= */ null);
   }
 
-  /**
-   * Sets a listener to receive video events, removing all existing listeners.
-   *
-   * @param listener The listener.
-   * @deprecated Use {@link #addVideoListener(com.google.android.exoplayer2.video.VideoListener)}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public void setVideoListener(@Nullable VideoListener listener) {
-    videoListeners.clear();
-    if (listener != null) {
-      addVideoListener(listener);
-    }
-  }
-
-  /**
-   * Equivalent to {@link #removeVideoListener(com.google.android.exoplayer2.video.VideoListener)}.
-   *
-   * @param listener The listener to clear.
-   * @deprecated Use {@link
-   *     #removeVideoListener(com.google.android.exoplayer2.video.VideoListener)}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public void clearVideoListener(VideoListener listener) {
-    removeVideoListener(listener);
-  }
-
   @Override
   public void addTextOutput(TextOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
