@@ -19,6 +19,14 @@
             application is calling `SimpleExoPlayer.setVideoListener(null)`,
             make sure to replace this call with
             `SimpleExoPlayer.removeVideoListener(VideoListener)`.
+        *   `MappedTrackInfo.length` - Use `MappedTrackInfo.getRendererCount()`
+            instead.
+        *   `MappedTrackInfo.getTrackTypeRendererSupport(int)` - Use
+            `MappedTrackInfo.getTypeSupport(int)`.
+        *   `MappedTrackInfo.getTrackFormatSupport(int, int, int)` - Use
+            `MappedTrackInfo.getTrackSupport(int, int, int)`.
+        *   `MappedTrackInfo.getUnassociatedTrackGroups()` - Use
+            `MappedTrackInfo.getUnmappedTrackGroups()`.
     *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
         `MediaSourceEventListener` instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed

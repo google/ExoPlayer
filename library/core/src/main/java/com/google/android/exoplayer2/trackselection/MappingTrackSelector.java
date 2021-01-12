@@ -90,9 +90,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
      */
     public static final int RENDERER_SUPPORT_PLAYABLE_TRACKS = 3;
 
-    /** @deprecated Use {@link #getRendererCount()}. */
-    @Deprecated public final int length;
-
     private final int rendererCount;
     private final String[] rendererNames;
     private final int[] rendererTrackTypes;
@@ -126,7 +123,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
       this.rendererMixedMimeTypeAdaptiveSupports = rendererMixedMimeTypeAdaptiveSupports;
       this.unmappedTrackGroups = unmappedTrackGroups;
       this.rendererCount = rendererTrackTypes.length;
-      this.length = rendererCount;
     }
 
     /** Returns the number of renderers. */
@@ -199,13 +195,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
       return bestRendererSupport;
     }
 
-    /** @deprecated Use {@link #getTypeSupport(int)}. */
-    @Deprecated
-    @RendererSupport
-    public int getTrackTypeRendererSupport(int trackType) {
-      return getTypeSupport(trackType);
-    }
-
     /**
      * Returns the extent to which tracks of a specified type are supported. This is the best level
      * of support obtained from {@link #getRendererSupport(int)} for all renderers that handle the
@@ -224,13 +213,6 @@ public abstract class MappingTrackSelector extends TrackSelector {
         }
       }
       return bestRendererSupport;
-    }
-
-    /** @deprecated Use {@link #getTrackSupport(int, int, int)}. */
-    @Deprecated
-    @FormatSupport
-    public int getTrackFormatSupport(int rendererIndex, int groupIndex, int trackIndex) {
-      return getTrackSupport(rendererIndex, groupIndex, trackIndex);
     }
 
     /**
@@ -317,17 +299,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
           : adaptiveSupport;
     }
 
-    /** @deprecated Use {@link #getUnmappedTrackGroups()}. */
-    @Deprecated
-    public TrackGroupArray getUnassociatedTrackGroups() {
-      return getUnmappedTrackGroups();
-    }
-
     /** Returns {@link TrackGroup}s not mapped to any renderer. */
     public TrackGroupArray getUnmappedTrackGroups() {
       return unmappedTrackGroups;
     }
-
   }
 
   @Nullable private MappedTrackInfo currentMappedTrackInfo;
