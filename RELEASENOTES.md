@@ -3,6 +3,8 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
+    *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
+        `MediaSourceEventListener` instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed
         during live playbacks. This allows the player to stay close to the
         configured live offset. A configurable default implementation
