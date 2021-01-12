@@ -48,7 +48,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 /**
  * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayer.Builder}.
@@ -674,11 +673,12 @@ import java.util.concurrent.TimeoutException;
     if (this.foregroundMode != foregroundMode) {
       this.foregroundMode = foregroundMode;
       if (!internalPlayer.setForegroundMode(foregroundMode)) {
+        // One of the renderers timed out releasing its resources.
         stop(
             /* reset= */ false,
-            ExoPlaybackException.createForTimeout(
-                new TimeoutException("Setting foreground mode timed out."),
-                ExoPlaybackException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE));
+            ExoPlaybackException.createForRenderer(
+                new ExoTimeoutException(
+                    ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE)));
       }
     }
   }
@@ -728,13 +728,13 @@ import java.util.concurrent.TimeoutException;
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
         + ExoPlayerLibraryInfo.registeredModules() + "]");
     if (!internalPlayer.release()) {
+      // One of the renderers timed out releasing its resources.
       listeners.sendEvent(
           Player.EVENT_PLAYER_ERROR,
           listener ->
               listener.onPlayerError(
-                  ExoPlaybackException.createForTimeout(
-                      new TimeoutException("Player release timed out."),
-                      ExoPlaybackException.TIMEOUT_OPERATION_RELEASE)));
+                  ExoPlaybackException.createForRenderer(
+                      new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_RELEASE))));
     }
     listeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);

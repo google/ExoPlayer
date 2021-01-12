@@ -2061,11 +2061,11 @@ public class SimpleExoPlayer extends BasePlayer
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
       } catch (TimeoutException e) {
+        // One of the renderers timed out releasing its resources.
         player.stop(
             /* reset= */ false,
-            ExoPlaybackException.createForTimeout(
-                new TimeoutException("Detaching surface timed out."),
-                ExoPlaybackException.TIMEOUT_OPERATION_DETACH_SURFACE));
+            ExoPlaybackException.createForRenderer(
+                new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_DETACH_SURFACE)));
       }
       // If we created the previous surface, we are responsible for releasing it.
       if (this.ownsSurface) {

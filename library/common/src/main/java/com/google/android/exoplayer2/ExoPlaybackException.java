@@ -27,19 +27,18 @@ import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.concurrent.TimeoutException;
 
 /** Thrown when a non locally recoverable playback failure occurs. */
 public final class ExoPlaybackException extends Exception {
 
   /**
    * The type of source that produced the error. One of {@link #TYPE_SOURCE}, {@link #TYPE_RENDERER}
-   * {@link #TYPE_UNEXPECTED}, {@link #TYPE_REMOTE} or {@link #TYPE_TIMEOUT}. Note that new types
-   * may be added in the future and error handling should handle unknown type values.
+   * {@link #TYPE_UNEXPECTED} or {@link #TYPE_REMOTE}. Note that new types may be added in the
+   * future and error handling should handle unknown type values.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED, TYPE_REMOTE, TYPE_TIMEOUT})
+  @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED, TYPE_REMOTE})
   public @interface Type {}
   /**
    * The error occurred loading data from a {@code MediaSource}.
@@ -68,43 +67,19 @@ public final class ExoPlaybackException extends Exception {
    */
   public static final int TYPE_REMOTE = 3;
 
-  /** The error was a {@link TimeoutException}. */
-  public static final int TYPE_TIMEOUT = 4;
-
   /** The {@link Type} of the playback failure. */
   @Type public final int type;
 
   /**
-   * The operation which produced the timeout error. One of {@link #TIMEOUT_OPERATION_RELEASE},
-   * {@link #TIMEOUT_OPERATION_SET_FOREGROUND_MODE}, {@link #TIMEOUT_OPERATION_DETACH_SURFACE} or
-   * {@link #TIMEOUT_OPERATION_UNDEFINED}. Note that new operations may be added in the future and
-   * error handling should handle unknown operation values.
+   * If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer, or null if
+   * unknown.
    */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({
-    TIMEOUT_OPERATION_UNDEFINED,
-    TIMEOUT_OPERATION_RELEASE,
-    TIMEOUT_OPERATION_SET_FOREGROUND_MODE,
-    TIMEOUT_OPERATION_DETACH_SURFACE
-  })
-  public @interface TimeoutOperation {}
-
-  /** The operation where this error occurred is not defined. */
-  public static final int TIMEOUT_OPERATION_UNDEFINED = 0;
-  // TODO(b/172315872) Change back @code to @link when the Player is in common.
-  /** The error occurred in {@code Player#release}. */
-  public static final int TIMEOUT_OPERATION_RELEASE = 1;
-  /** The error occurred in {@code ExoPlayer#setForegroundMode}. */
-  // TODO(b/172315872) Set foregroundMode is an ExoPlayer method, NOT a player one.
-  public static final int TIMEOUT_OPERATION_SET_FOREGROUND_MODE = 2;
-  /** The error occurred while detaching a surface from the player. */
-  public static final int TIMEOUT_OPERATION_DETACH_SURFACE = 3;
-
-  /** If {@link #type} is {@link #TYPE_RENDERER}, this is the name of the renderer. */
   @Nullable public final String rendererName;
 
-  /** If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer. */
+  /**
+   * If {@link #type} is {@link #TYPE_RENDERER}, this is the index of the renderer, or {@link
+   * C#INDEX_UNSET} if unknown.
+   */
   public final int rendererIndex;
 
   /**
@@ -119,11 +94,6 @@ public final class ExoPlaybackException extends Exception {
    * C#FORMAT_HANDLED}.
    */
   @FormatSupport public final int rendererFormatSupport;
-
-  /**
-   * If {@link #type} is {@link #TYPE_TIMEOUT}, this is the operation where the timeout happened.
-   */
-  @TimeoutOperation public final int timeoutOperation;
 
   /** The value of {@link SystemClock#elapsedRealtime()} when this exception was created. */
   public final long timestampMs;
@@ -152,6 +122,24 @@ public final class ExoPlaybackException extends Exception {
    */
   public static ExoPlaybackException createForSource(IOException cause) {
     return new ExoPlaybackException(TYPE_SOURCE, cause);
+  }
+
+  /**
+   * Creates an instance of type {@link #TYPE_RENDERER} for an unknown renderer.
+   *
+   * @param cause The cause of the failure.
+   * @return The created instance.
+   */
+  public static ExoPlaybackException createForRenderer(Exception cause) {
+    return new ExoPlaybackException(
+        TYPE_RENDERER,
+        cause,
+        /* customMessage= */ null,
+        /* rendererName */ null,
+        /* rendererIndex= */ C.INDEX_UNSET,
+        /* rendererFormat= */ null,
+        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
+        /* isRecoverable= */ false);
   }
 
   /**
@@ -207,7 +195,6 @@ public final class ExoPlaybackException extends Exception {
         rendererIndex,
         rendererFormat,
         rendererFormat == null ? C.FORMAT_HANDLED : rendererFormatSupport,
-        TIMEOUT_OPERATION_UNDEFINED,
         isRecoverable);
   }
 
@@ -231,27 +218,6 @@ public final class ExoPlaybackException extends Exception {
     return new ExoPlaybackException(TYPE_REMOTE, message);
   }
 
-  /**
-   * Creates an instance of type {@link #TYPE_TIMEOUT}.
-   *
-   * @param cause The cause of the failure.
-   * @param timeoutOperation The operation that caused this timeout.
-   * @return The created instance.
-   */
-  public static ExoPlaybackException createForTimeout(
-      TimeoutException cause, @TimeoutOperation int timeoutOperation) {
-    return new ExoPlaybackException(
-        TYPE_TIMEOUT,
-        cause,
-        /* customMessage= */ null,
-        /* rendererName= */ null,
-        /* rendererIndex= */ C.INDEX_UNSET,
-        /* rendererFormat= */ null,
-        /* rendererFormatSupport= */ C.FORMAT_HANDLED,
-        timeoutOperation,
-        /* isRecoverable= */ false);
-  }
-
   private ExoPlaybackException(@Type int type, Throwable cause) {
     this(
         type,
@@ -261,7 +227,6 @@ public final class ExoPlaybackException extends Exception {
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
         /* rendererFormatSupport= */ C.FORMAT_HANDLED,
-        TIMEOUT_OPERATION_UNDEFINED,
         /* isRecoverable= */ false);
   }
 
@@ -274,7 +239,6 @@ public final class ExoPlaybackException extends Exception {
         /* rendererIndex= */ C.INDEX_UNSET,
         /* rendererFormat= */ null,
         /* rendererFormatSupport= */ C.FORMAT_HANDLED,
-        /* timeoutOperation= */ TIMEOUT_OPERATION_UNDEFINED,
         /* isRecoverable= */ false);
   }
 
@@ -286,7 +250,6 @@ public final class ExoPlaybackException extends Exception {
       int rendererIndex,
       @Nullable Format rendererFormat,
       @FormatSupport int rendererFormatSupport,
-      @TimeoutOperation int timeoutOperation,
       boolean isRecoverable) {
     this(
         deriveMessage(
@@ -303,7 +266,6 @@ public final class ExoPlaybackException extends Exception {
         rendererFormat,
         rendererFormatSupport,
         /* mediaPeriodId= */ null,
-        timeoutOperation,
         /* timestampMs= */ SystemClock.elapsedRealtime(),
         isRecoverable);
   }
@@ -317,7 +279,6 @@ public final class ExoPlaybackException extends Exception {
       @Nullable Format rendererFormat,
       @FormatSupport int rendererFormatSupport,
       @Nullable MediaPeriodId mediaPeriodId,
-      @TimeoutOperation int timeoutOperation,
       long timestampMs,
       boolean isRecoverable) {
     super(message, cause);
@@ -328,7 +289,6 @@ public final class ExoPlaybackException extends Exception {
     this.rendererFormat = rendererFormat;
     this.rendererFormatSupport = rendererFormatSupport;
     this.mediaPeriodId = mediaPeriodId;
-    this.timeoutOperation = timeoutOperation;
     this.timestampMs = timestampMs;
     this.isRecoverable = isRecoverable;
   }
@@ -364,16 +324,6 @@ public final class ExoPlaybackException extends Exception {
   }
 
   /**
-   * Retrieves the underlying error when {@link #type} is {@link #TYPE_TIMEOUT}.
-   *
-   * @throws IllegalStateException If {@link #type} is not {@link #TYPE_TIMEOUT}.
-   */
-  public TimeoutException getTimeoutException() {
-    Assertions.checkState(type == TYPE_TIMEOUT);
-    return (TimeoutException) Assertions.checkNotNull(cause);
-  }
-
-  /**
    * Returns a copy of this exception with the provided {@link MediaPeriodId}.
    *
    * @param mediaPeriodId The {@link MediaPeriodId}.
@@ -390,7 +340,6 @@ public final class ExoPlaybackException extends Exception {
         rendererFormat,
         rendererFormatSupport,
         mediaPeriodId,
-        timeoutOperation,
         timestampMs,
         isRecoverable);
   }
@@ -421,9 +370,6 @@ public final class ExoPlaybackException extends Exception {
         break;
       case TYPE_REMOTE:
         message = "Remote error";
-        break;
-      case TYPE_TIMEOUT:
-        message = "Timeout error";
         break;
       case TYPE_UNEXPECTED:
       default:
