@@ -97,6 +97,9 @@ import java.util.concurrent.Callable;
   /** Command code for {@link SessionPlayer#removePlaylistItem(int)} */
   public static final int COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM = 16;
 
+  /** Command code for {@link SessionPlayer#movePlaylistItem(int, int)} */
+  public static final int COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM = 17;
+
   /** List of session commands whose result would be set after the command is finished. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -119,6 +122,7 @@ import java.util.concurrent.Callable;
         COMMAND_CODE_PLAYER_SET_PLAYLIST,
         COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
         COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
+        COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
       })
   public @interface CommandCode {}
 

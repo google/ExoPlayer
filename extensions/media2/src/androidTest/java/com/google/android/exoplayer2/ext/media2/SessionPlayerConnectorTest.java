@@ -931,6 +931,38 @@ public class SessionPlayerConnectorTest {
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
+  @Test
+  @LargeTest
+  @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+  public void movePlaylistItem_calledOnlyOnce_notifiesPlaylistChangeOnlyOnce() throws Exception {
+    List<MediaItem> playlist = new ArrayList<>();
+    playlist.add(TestUtils.createMediaItem(R.raw.video_1));
+    playlist.add(TestUtils.createMediaItem(R.raw.video_2));
+    playlist.add(TestUtils.createMediaItem(R.raw.video_3));
+    assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, /* metadata= */ null));
+    assertPlayerResultSuccess(sessionPlayerConnector.prepare());
+
+    CountDownLatch onPlaylistChangedLatch = new CountDownLatch(2);
+    int moveFromIndex = 0;
+    int moveToIndex = 2;
+    playlist.add(moveToIndex, playlist.remove(moveFromIndex));
+    sessionPlayerConnector.registerPlayerCallback(
+        executor,
+        new SessionPlayer.PlayerCallback() {
+          @Override
+          public void onPlaylistChanged(
+              SessionPlayer player,
+              @Nullable List<MediaItem> list,
+              @Nullable MediaMetadata metadata) {
+            assertThat(list).isEqualTo(playlist);
+            onPlaylistChangedLatch.countDown();
+          }
+        });
+    sessionPlayerConnector.movePlaylistItem(moveFromIndex, moveToIndex);
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isFalse();
+    assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
+  }
+
   // TODO(b/168860979): De-flake and re-enable.
   @Ignore
   @Test
