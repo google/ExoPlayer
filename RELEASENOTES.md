@@ -6,6 +6,10 @@
     *   Remove long deprecated symbols:
         *   `DefaultLoadControl` constructors - Use `DefaultLoadControl.Builder`
             instead.
+        *   `PlayerView.setDefaultArtwork(Bitmap)` - Use
+            `PlayerView.setDefaultArtwork(Drawable)` instead.
+        *   `PlayerView.setShowBuffering(boolean)` - Use
+            `PlayerView.setShowBuffering(int)` instead.
     *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
         `MediaSourceEventListener` instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed

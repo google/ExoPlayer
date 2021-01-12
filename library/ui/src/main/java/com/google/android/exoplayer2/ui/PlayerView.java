@@ -675,19 +675,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
    * present in the media.
    *
-   * @param defaultArtwork the default artwork to display.
-   * @deprecated use (@link {@link #setDefaultArtwork(Drawable)} instead.
-   */
-  @Deprecated
-  public void setDefaultArtwork(@Nullable Bitmap defaultArtwork) {
-    setDefaultArtwork(
-        defaultArtwork == null ? null : new BitmapDrawable(getResources(), defaultArtwork));
-  }
-
-  /**
-   * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
-   * present in the media.
-   *
    * @param defaultArtwork the default artwork to display
    */
   public void setDefaultArtwork(@Nullable Drawable defaultArtwork) {
@@ -774,18 +761,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         ((SphericalGLSurfaceView) surfaceView).setUseSensorRotation(useSensorRotation);
       }
     }
-  }
-
-  /**
-   * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
-   * buffering spinner is not displayed by default.
-   *
-   * @deprecated Use {@link #setShowBuffering(int)}
-   * @param showBuffering Whether the buffering icon is displayed
-   */
-  @Deprecated
-  public void setShowBuffering(boolean showBuffering) {
-    setShowBuffering(showBuffering ? SHOW_BUFFERING_WHEN_PLAYING : SHOW_BUFFERING_NEVER);
   }
 
   /**
