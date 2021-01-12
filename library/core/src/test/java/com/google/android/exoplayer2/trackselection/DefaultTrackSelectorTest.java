@@ -1683,7 +1683,7 @@ public final class DefaultTrackSelectorTest {
         /* forceLowestBitrate= */ false,
         /* forceHighestSupportedBitrate= */ true,
         /* exceedRendererCapabilitiesIfNecessary= */ false,
-        /* tunnelingAudioSessionId= */ 13,
+        /* tunnelingEnabled= */ true,
         /* allowMultipleAdaptiveSelections= */ true,
         // Overrides
         selectionOverrides,

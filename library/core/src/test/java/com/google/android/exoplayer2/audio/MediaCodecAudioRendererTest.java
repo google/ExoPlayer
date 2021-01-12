@@ -296,21 +296,6 @@ public class MediaCodecAudioRendererTest {
 
   @Test
   public void
-      render_callsAudioRendererEventListener_whenAudioSinkListenerOnAudioSessionIdIsCalled() {
-    final ArgumentCaptor<AudioSink.Listener> listenerCaptor =
-        ArgumentCaptor.forClass(AudioSink.Listener.class);
-    verify(audioSink, atLeastOnce()).setListener(listenerCaptor.capture());
-    AudioSink.Listener audioSinkListener = listenerCaptor.getValue();
-
-    int audioSessionId = 2;
-    audioSinkListener.onAudioSessionId(audioSessionId);
-
-    shadowOf(Looper.getMainLooper()).idle();
-    verify(audioRendererEventListener).onAudioSessionId(audioSessionId);
-  }
-
-  @Test
-  public void
       render_callsAudioRendererEventListener_whenAudioSinkListenerOnAudioSinkErrorIsCalled() {
     final ArgumentCaptor<AudioSink.Listener> listenerCaptor =
         ArgumentCaptor.forClass(AudioSink.Listener.class);

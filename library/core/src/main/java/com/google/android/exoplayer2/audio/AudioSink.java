@@ -49,9 +49,9 @@ import java.nio.ByteBuffer;
  *
  * <p>The implementation may be backed by a platform {@link AudioTrack}. In this case, {@link
  * #setAudioSessionId(int)}, {@link #setAudioAttributes(AudioAttributes)}, {@link
- * #enableTunnelingV21(int)} and/or {@link #disableTunneling()} may be called before writing data to
- * the sink. These methods may also be called after writing data to the sink, in which case it will
- * be reinitialized as required. For implementations that are not based on platform {@link
+ * #enableTunnelingV21()} and {@link #disableTunneling()} may be called before writing data to the
+ * sink. These methods may also be called after writing data to the sink, in which case it will be
+ * reinitialized as required. For implementations that are not based on platform {@link
  * AudioTrack}s, calling methods relating to audio sessions, audio attributes, and tunneling may
  * have no effect.
  */
@@ -61,13 +61,6 @@ public interface AudioSink {
    * Listener for audio sink events.
    */
   interface Listener {
-
-    /**
-     * Called if the audio sink has started rendering audio to a new platform audio session.
-     *
-     * @param audioSessionId The newly generated audio session's identifier.
-     */
-    void onAudioSessionId(int audioSessionId);
 
     /**
      * Called when the audio sink handles a buffer whose timestamp is discontinuous with the last
@@ -392,14 +385,13 @@ public interface AudioSink {
   void setAuxEffectInfo(AuxEffectInfo auxEffectInfo);
 
   /**
-   * Enables tunneling, if possible. The sink is reset if tunneling was previously disabled or if
-   * the audio session id has changed. Enabling tunneling is only possible if the sink is based on a
-   * platform {@link AudioTrack}, and requires platform API version 21 onwards.
+   * Enables tunneling, if possible. The sink is reset if tunneling was previously disabled.
+   * Enabling tunneling is only possible if the sink is based on a platform {@link AudioTrack}, and
+   * requires platform API version 21 onwards.
    *
-   * @param tunnelingAudioSessionId The audio session id to use.
    * @throws IllegalStateException Thrown if enabling tunneling on platform API version &lt; 21.
    */
-  void enableTunnelingV21(int tunnelingAudioSessionId);
+  void enableTunnelingV21();
 
   /**
    * Disables tunneling. If tunneling was previously enabled then the sink is reset and any audio

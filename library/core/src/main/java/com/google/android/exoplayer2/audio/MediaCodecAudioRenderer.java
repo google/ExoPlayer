@@ -486,9 +486,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
     eventDispatcher.enabled(decoderCounters);
-    int tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
-    if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
-      audioSink.enableTunnelingV21(tunnelingAudioSessionId);
+    if (getConfiguration().tunneling) {
+      audioSink.enableTunnelingV21();
     } else {
       audioSink.disableTunneling();
     }
@@ -812,11 +811,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   private final class AudioSinkListener implements AudioSink.Listener {
-
-    @Override
-    public void onAudioSessionId(int audioSessionId) {
-      eventDispatcher.audioSessionId(audioSessionId);
-    }
 
     @Override
     public void onPositionDiscontinuity() {

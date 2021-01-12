@@ -159,7 +159,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
  *
  * Tunneled playback can be enabled in cases where the combination of renderers and selected tracks
  * support it. Tunneled playback is enabled by passing an audio session ID to {@link
- * ParametersBuilder#setTunnelingAudioSessionId(int)}.
+ * ParametersBuilder#setTunnelingEnabled(boolean)}.
  */
 public class DefaultTrackSelector extends MappingTrackSelector {
 
@@ -197,7 +197,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private boolean forceLowestBitrate;
     private boolean forceHighestSupportedBitrate;
     private boolean exceedRendererCapabilitiesIfNecessary;
-    private int tunnelingAudioSessionId;
+    private boolean tunnelingEnabled;
     private boolean allowMultipleAdaptiveSelections;
 
     private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
@@ -266,7 +266,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       forceLowestBitrate = initialValues.forceLowestBitrate;
       forceHighestSupportedBitrate = initialValues.forceHighestSupportedBitrate;
       exceedRendererCapabilitiesIfNecessary = initialValues.exceedRendererCapabilitiesIfNecessary;
-      tunnelingAudioSessionId = initialValues.tunnelingAudioSessionId;
+      tunnelingEnabled = initialValues.tunnelingEnabled;
       allowMultipleAdaptiveSelections = initialValues.allowMultipleAdaptiveSelections;
       // Overrides
       selectionOverrides = cloneSelectionOverrides(initialValues.selectionOverrides);
@@ -681,20 +681,14 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     /**
-     * Sets the audio session id to use when tunneling.
-     *
-     * <p>Enables or disables tunneling. To enable tunneling, pass an audio session id to use when
-     * in tunneling mode. Session ids can be generated using {@link
-     * C#generateAudioSessionIdV21(Context)}. To disable tunneling pass {@link
-     * C#AUDIO_SESSION_ID_UNSET}. Tunneling will only be activated if it's both enabled and
+     * Sets whether to enable tunneling if possible. Tunneling will only be enabled if it's
      * supported by the audio and video renderers for the selected tracks.
      *
-     * @param tunnelingAudioSessionId The audio session id to use when tunneling, or {@link
-     *     C#AUDIO_SESSION_ID_UNSET} to disable tunneling.
+     * @param tunnelingEnabled Whether to enable tunneling if possible.
      * @return This builder.
      */
-    public ParametersBuilder setTunnelingAudioSessionId(int tunnelingAudioSessionId) {
-      this.tunnelingAudioSessionId = tunnelingAudioSessionId;
+    public ParametersBuilder setTunnelingEnabled(boolean tunnelingEnabled) {
+      this.tunnelingEnabled = tunnelingEnabled;
       return this;
     }
 
@@ -865,7 +859,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           forceLowestBitrate,
           forceHighestSupportedBitrate,
           exceedRendererCapabilitiesIfNecessary,
-          tunnelingAudioSessionId,
+          tunnelingEnabled,
           allowMultipleAdaptiveSelections,
           selectionOverrides,
           rendererDisabledFlags);
@@ -897,7 +891,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       forceLowestBitrate = false;
       forceHighestSupportedBitrate = false;
       exceedRendererCapabilitiesIfNecessary = true;
-      tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
+      tunnelingEnabled = false;
       allowMultipleAdaptiveSelections = true;
     }
 
@@ -1082,12 +1076,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      * {@code true}.
      */
     public final boolean exceedRendererCapabilitiesIfNecessary;
-    /**
-     * The audio session id to use when tunneling, or {@link C#AUDIO_SESSION_ID_UNSET} if tunneling
-     * is disabled. The default value is {@link C#AUDIO_SESSION_ID_UNSET} (i.e. tunneling is
-     * disabled).
-     */
-    public final int tunnelingAudioSessionId;
+    /** Whether to enable tunneling if possible. */
+    public final boolean tunnelingEnabled;
     /**
      * Whether multiple adaptive selections with more than one track are allowed. The default value
      * is {@code true}.
@@ -1138,7 +1128,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         boolean forceLowestBitrate,
         boolean forceHighestSupportedBitrate,
         boolean exceedRendererCapabilitiesIfNecessary,
-        int tunnelingAudioSessionId,
+        boolean tunnelingEnabled,
         boolean allowMultipleAdaptiveSelections,
         // Overrides
         SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>> selectionOverrides,
@@ -1177,7 +1167,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.forceLowestBitrate = forceLowestBitrate;
       this.forceHighestSupportedBitrate = forceHighestSupportedBitrate;
       this.exceedRendererCapabilitiesIfNecessary = exceedRendererCapabilitiesIfNecessary;
-      this.tunnelingAudioSessionId = tunnelingAudioSessionId;
+      this.tunnelingEnabled = tunnelingEnabled;
       this.allowMultipleAdaptiveSelections = allowMultipleAdaptiveSelections;
       // Overrides
       this.selectionOverrides = selectionOverrides;
@@ -1218,7 +1208,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       this.forceLowestBitrate = Util.readBoolean(in);
       this.forceHighestSupportedBitrate = Util.readBoolean(in);
       this.exceedRendererCapabilitiesIfNecessary = Util.readBoolean(in);
-      this.tunnelingAudioSessionId = in.readInt();
+      this.tunnelingEnabled = Util.readBoolean(in);
       this.allowMultipleAdaptiveSelections = Util.readBoolean(in);
       // Overrides
       this.selectionOverrides = readSelectionOverrides(in);
@@ -1307,7 +1297,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && forceLowestBitrate == other.forceLowestBitrate
           && forceHighestSupportedBitrate == other.forceHighestSupportedBitrate
           && exceedRendererCapabilitiesIfNecessary == other.exceedRendererCapabilitiesIfNecessary
-          && tunnelingAudioSessionId == other.tunnelingAudioSessionId
+          && tunnelingEnabled == other.tunnelingEnabled
           && allowMultipleAdaptiveSelections == other.allowMultipleAdaptiveSelections
           // Overrides
           && areRendererDisabledFlagsEqual(rendererDisabledFlags, other.rendererDisabledFlags)
@@ -1345,7 +1335,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (forceLowestBitrate ? 1 : 0);
       result = 31 * result + (forceHighestSupportedBitrate ? 1 : 0);
       result = 31 * result + (exceedRendererCapabilitiesIfNecessary ? 1 : 0);
-      result = 31 * result + tunnelingAudioSessionId;
+      result = 31 * result + (tunnelingEnabled ? 1 : 0);
       result = 31 * result + (allowMultipleAdaptiveSelections ? 1 : 0);
       // Overrides (omitted from hashCode).
       return result;
@@ -1389,7 +1379,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       Util.writeBoolean(dest, forceLowestBitrate);
       Util.writeBoolean(dest, forceHighestSupportedBitrate);
       Util.writeBoolean(dest, exceedRendererCapabilitiesIfNecessary);
-      dest.writeInt(tunnelingAudioSessionId);
+      Util.writeBoolean(dest, tunnelingEnabled);
       Util.writeBoolean(dest, allowMultipleAdaptiveSelections);
       // Overrides
       writeSelectionOverridesToParcel(dest, selectionOverrides);
@@ -1757,12 +1747,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
 
     // Configure audio and video renderers to use tunneling if appropriate.
-    maybeConfigureRenderersForTunneling(
-        mappedTrackInfo,
-        rendererFormatSupports,
-        rendererConfigurations,
-        rendererTrackSelections,
-        params.tunnelingAudioSessionId);
+    if (params.tunnelingEnabled) {
+      maybeConfigureRenderersForTunneling(
+          mappedTrackInfo, rendererFormatSupports, rendererConfigurations, rendererTrackSelections);
+    }
 
     return Pair.create(rendererConfigurations, rendererTrackSelections);
   }
@@ -2418,9 +2406,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   // Utility methods.
 
   /**
-   * Determines whether tunneling should be enabled, replacing {@link RendererConfiguration}s in
-   * {@code rendererConfigurations} with configurations that enable tunneling on the appropriate
-   * renderers if so.
+   * Determines whether tunneling can be enabled, replacing {@link RendererConfiguration}s in {@code
+   * rendererConfigurations} with configurations that enable tunneling on the appropriate renderers
+   * if so.
    *
    * @param mappedTrackInfo Mapped track information.
    * @param renderererFormatSupports The {@link Capabilities} for each mapped track, indexed by
@@ -2428,18 +2416,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @param rendererConfigurations The renderer configurations. Configurations may be replaced with
    *     ones that enable tunneling as a result of this call.
    * @param trackSelections The renderer track selections.
-   * @param tunnelingAudioSessionId The audio session id to use when tunneling, or {@link
-   *     C#AUDIO_SESSION_ID_UNSET} if tunneling should not be enabled.
    */
   private static void maybeConfigureRenderersForTunneling(
       MappedTrackInfo mappedTrackInfo,
       @Capabilities int[][][] renderererFormatSupports,
       @NullableType RendererConfiguration[] rendererConfigurations,
-      @NullableType TrackSelection[] trackSelections,
-      int tunnelingAudioSessionId) {
-    if (tunnelingAudioSessionId == C.AUDIO_SESSION_ID_UNSET) {
-      return;
-    }
+      @NullableType TrackSelection[] trackSelections) {
     // Check whether we can enable tunneling. To enable tunneling we require exactly one audio and
     // one video renderer to support tunneling and have a selection.
     int tunnelingAudioRendererIndex = -1;
@@ -2473,7 +2455,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     enableTunneling &= tunnelingAudioRendererIndex != -1 && tunnelingVideoRendererIndex != -1;
     if (enableTunneling) {
       RendererConfiguration tunnelingRendererConfiguration =
-          new RendererConfiguration(tunnelingAudioSessionId);
+          new RendererConfiguration(/* tunneling= */ true);
       rendererConfigurations[tunnelingAudioRendererIndex] = tunnelingRendererConfiguration;
       rendererConfigurations[tunnelingVideoRendererIndex] = tunnelingRendererConfiguration;
     }

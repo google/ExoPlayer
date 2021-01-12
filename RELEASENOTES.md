@@ -55,6 +55,10 @@
 *   Track selection:
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
+    *   Simplified enabling tunneling with `DefaultTrackSelector`.
+        `ParametersBuilder.setTunnelingAudioSessionId` has been replaced with
+        `ParametersBuilder.setTunnelingEnabled`. The player's audio session ID
+        will be used, and so a tunneling specified ID is no longer needed.
     *   Add option to specify multiple preferred audio or text languages.
     *   Add option to specify preferred MIME type(s) for video and audio
         ([#8320](https://github.com/google/ExoPlayer/issues/8320)).
@@ -87,6 +91,18 @@
         `DecoderReuseEvaluation` indicates whether it was possible to re-use an
         existing decoder instance for the new format, and if not then the
         reasons why.
+*   Audio:
+    *   Fix handling of audio session IDs
+        ([#8190](https://github.com/google/ExoPlayer/issues/8190)).
+        `SimpleExoPlayer` now generates an audio session ID on construction,
+        which can be immediately queried by calling
+        `SimpleExoPlayer.getAudioSessionId`. The audio session ID will only
+        change if application code calls `SimpleExoPlayer.setAudioSessionId`.
+*   Text:
+    *   Gracefully handle null-terminated subtitle content in Matroska
+        containers.
+    *   Fix CEA-708 anchor positioning
+        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
 *   Metadata retriever:
     *   Parse Google Photos HEIC motion photos metadata.
 *   Data sources:

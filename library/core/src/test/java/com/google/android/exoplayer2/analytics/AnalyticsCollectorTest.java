@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AU
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_ENABLED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_INPUT_FORMAT_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_POSITION_ADVANCING;
-import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_AUDIO_SESSION_ID;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DOWNSTREAM_FORMAT_CHANGED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DRM_KEYS_LOADED;
 import static com.google.android.exoplayer2.analytics.AnalyticsListener.EVENT_DRM_SESSION_ACQUIRED;
@@ -243,7 +242,6 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_AUDIO_ENABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INITIALIZED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED)).containsExactly(period0);
-    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INITIALIZED)).containsExactly(period0);
@@ -323,7 +321,6 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED))
         .containsExactly(period0, period1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INITIALIZED))
@@ -399,7 +396,6 @@ public final class AnalyticsCollectorTest {
     assertThat(listener.getEvents(EVENT_AUDIO_ENABLED)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_AUDIO_DECODER_INITIALIZED)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED)).containsExactly(period1);
-    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING)).containsExactly(period1);
     assertThat(listener.getEvents(EVENT_VIDEO_ENABLED)).containsExactly(period0);
     assertThat(listener.getEvents(EVENT_VIDEO_DECODER_INITIALIZED)).containsExactly(period0);
@@ -490,9 +486,6 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period0, period1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED))
-        .containsExactly(period0, period1)
-        .inOrder();
-    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID))
         .containsExactly(period0, period1)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING))
@@ -593,9 +586,6 @@ public final class AnalyticsCollectorTest {
         .containsExactly(period1Seq1, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_INPUT_FORMAT_CHANGED))
-        .containsExactly(period1Seq1, period1Seq2)
-        .inOrder();
-    assertThat(listener.getEvents(EVENT_AUDIO_SESSION_ID))
         .containsExactly(period1Seq1, period1Seq2)
         .inOrder();
     assertThat(listener.getEvents(EVENT_AUDIO_POSITION_ADVANCING))

@@ -285,6 +285,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     currentHeight = Format.NO_VALUE;
     currentPixelWidthHeightRatio = Format.NO_VALUE;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
+    tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
     clearReportedVideoSize();
   }
 
@@ -400,10 +401,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onEnabled(boolean joining, boolean mayRenderStartOfStream)
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
-    int oldTunnelingAudioSessionId = tunnelingAudioSessionId;
-    tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
-    tunneling = tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET;
-    if (tunnelingAudioSessionId != oldTunnelingAudioSessionId) {
+    boolean tunneling = getConfiguration().tunneling;
+    Assertions.checkState(!tunneling || tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET);
+    if (this.tunneling != tunneling) {
+      this.tunneling = tunneling;
       releaseCodec();
     }
     eventDispatcher.enabled(decoderCounters);
@@ -516,7 +517,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         frameMetadataListener = (VideoFrameMetadataListener) message;
         break;
       case MSG_SET_AUDIO_SESSION_ID:
-        // TODO: Set tunnelingAudioSessionId.
+        int tunnelingAudioSessionId = (int) message;
+        if (this.tunnelingAudioSessionId != tunnelingAudioSessionId) {
+          this.tunnelingAudioSessionId = tunnelingAudioSessionId;
+          if (tunneling) {
+            releaseCodec();
+          }
+        }
         break;
       default:
         super.handleMessage(messageType, message);
@@ -600,7 +607,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             codecMaxValues,
             codecOperatingRate,
             deviceNeedsNoPostProcessWorkaround,
-            tunnelingAudioSessionId);
+            tunneling ? tunnelingAudioSessionId : C.AUDIO_SESSION_ID_UNSET);
     if (surface == null) {
       if (!shouldUseDummySurface(codecInfo)) {
         throw new IllegalStateException();
