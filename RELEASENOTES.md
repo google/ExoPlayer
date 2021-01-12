@@ -3,8 +3,10 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
-    *   Remove long deprecated symbols:
-        *   `DefaultLoadControl` constructors - Use `DefaultLoadControl.Builder`
+    *   Remove long deprecated methods:
+        *   `DefaultEventListener.onTimelineChanged(Timeline, Object)`. Use
+            `Player.EventListener.onTimelineChanged(Timeline, int)` instead.
+        *   `DefaultLoadControl` constructors. Use `DefaultLoadControl.Builder`
             instead.
         *   `PlayerView.setDefaultArtwork(Bitmap)` - Use
             `PlayerView.setDefaultArtwork(Drawable)` instead.

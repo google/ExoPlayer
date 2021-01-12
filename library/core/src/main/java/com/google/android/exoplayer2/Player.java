@@ -728,16 +728,8 @@ public interface Player {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
-      // Call deprecated version. Otherwise, do nothing.
-      onTimelineChanged(timeline, manifest);
-    }
-
-    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, int)} instead. */
-    @Deprecated
-    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
     }
   }
