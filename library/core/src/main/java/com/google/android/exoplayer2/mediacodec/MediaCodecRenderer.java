@@ -312,7 +312,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Nullable private MediaCrypto mediaCrypto;
   private boolean mediaCryptoRequiresSecureDecoder;
   private long renderTimeLimitMs;
-  private float playbackSpeed;
+  private float currentPlaybackSpeed;
+  private float targetPlaybackSpeed;
   @Nullable private MediaCodecAdapter codec;
   @Nullable private Format codecInputFormat;
   @Nullable private MediaFormat codecOutputMediaFormat;
@@ -393,7 +394,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     formatQueue = new TimedValueQueue<>();
     decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
-    playbackSpeed = 1f;
+    currentPlaybackSpeed = 1f;
+    targetPlaybackSpeed = 1f;
     renderTimeLimitMs = C.TIME_UNSET;
     pendingOutputStreamStartPositionsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
@@ -715,8 +717,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  public void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {
-    this.playbackSpeed = playbackSpeed;
+  public void setPlaybackSpeed(float currentPlaybackSpeed, float targetPlaybackSpeed)
+      throws ExoPlaybackException {
+    this.currentPlaybackSpeed = currentPlaybackSpeed;
+    this.targetPlaybackSpeed = targetPlaybackSpeed;
     if (codec != null
         && codecDrainAction != DRAIN_ACTION_REINITIALIZE
         && getState() != STATE_DISABLED) {
@@ -1082,7 +1086,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     float codecOperatingRate =
         Util.SDK_INT < 23
             ? CODEC_OPERATING_RATE_UNSET
-            : getCodecOperatingRateV23(playbackSpeed, inputFormat, getStreamFormats());
+            : getCodecOperatingRateV23(targetPlaybackSpeed, inputFormat, getStreamFormats());
     if (codecOperatingRate <= assumedMinimumCodecOperatingRate) {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
@@ -1624,9 +1628,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
                 && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
   }
 
-  /** Returns the playback speed, as set by {@link #setPlaybackSpeed}. */
+  /** Returns the current playback speed, as set by {@link #setPlaybackSpeed}. */
   protected float getPlaybackSpeed() {
-    return playbackSpeed;
+    return currentPlaybackSpeed;
   }
 
   /** Returns the operating rate used by the current codec */
@@ -1640,14 +1644,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *
    * <p>The default implementation returns {@link #CODEC_OPERATING_RATE_UNSET}.
    *
-   * @param playbackSpeed The factor by which playback is sped up.
+   * @param targetPlaybackSpeed The target factor by which playback should be sped up. This may be
+   *     different from the current playback speed, for example, if the speed is temporarily
+   *     adjusted for live playback.
    * @param format The {@link Format} for which the codec is being configured.
    * @param streamFormats The possible stream formats.
    * @return The codec operating rate, or {@link #CODEC_OPERATING_RATE_UNSET} if no codec operating
    *     rate should be set.
    */
   protected float getCodecOperatingRateV23(
-      float playbackSpeed, Format format, Format[] streamFormats) {
+      float targetPlaybackSpeed, Format format, Format[] streamFormats) {
     return CODEC_OPERATING_RATE_UNSET;
   }
 
@@ -1665,7 +1671,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     float newCodecOperatingRate =
-        getCodecOperatingRateV23(playbackSpeed, format, getStreamFormats());
+        getCodecOperatingRateV23(targetPlaybackSpeed, format, getStreamFormats());
     if (codecOperatingRate == newCodecOperatingRate) {
       // No change.
       return true;

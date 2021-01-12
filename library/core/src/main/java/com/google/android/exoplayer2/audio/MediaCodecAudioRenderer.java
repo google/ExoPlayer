@@ -390,7 +390,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected float getCodecOperatingRateV23(
-      float playbackSpeed, Format format, Format[] streamFormats) {
+      float targetPlaybackSpeed, Format format, Format[] streamFormats) {
     // Use the highest known stream sample-rate up front, to avoid having to reconfigure the codec
     // should an adaptive switch to that stream occur.
     int maxSampleRate = -1;
@@ -400,7 +400,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         maxSampleRate = max(maxSampleRate, streamSampleRate);
       }
     }
-    return maxSampleRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxSampleRate * playbackSpeed);
+    return maxSampleRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxSampleRate * targetPlaybackSpeed);
   }
 
   @Override

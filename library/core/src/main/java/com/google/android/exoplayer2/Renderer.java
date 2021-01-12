@@ -403,10 +403,14 @@ public interface Renderer extends PlayerMessage.Target {
    *
    * <p>The default implementation is a no-op.
    *
-   * @param playbackSpeed The factor by which playback is sped up.
+   * @param currentPlaybackSpeed The factor by which playback is currently sped up.
+   * @param targetPlaybackSpeed The target factor by which playback should be sped up. This may be
+   *     different from {@code currentPlaybackSpeed}, for example, if the speed is temporarily
+   *     adjusted for live playback.
    * @throws ExoPlaybackException If an error occurs handling the playback speed.
    */
-  default void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {}
+  default void setPlaybackSpeed(float currentPlaybackSpeed, float targetPlaybackSpeed)
+      throws ExoPlaybackException {}
 
   /**
    * Incrementally renders the {@link SampleStream}.

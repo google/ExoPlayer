@@ -190,10 +190,9 @@ public final class VideoFrameReleaseHelper {
   }
 
   /**
-   * Called when the renderer's playback speed changes, where 1 is the default rate, 2 is twice the
-   * default rate, 0.5 is half the default rate and so on.
+   * Called when the renderer's playback speed changes.
    *
-   * @param playbackSpeed The player's speed.
+   * @param playbackSpeed The factor by which playback is sped up.
    */
   public void onPlaybackSpeed(float playbackSpeed) {
     this.playbackSpeed = playbackSpeed;

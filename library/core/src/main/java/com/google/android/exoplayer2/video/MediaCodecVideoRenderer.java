@@ -645,14 +645,15 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
-  public void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {
-    super.setPlaybackSpeed(playbackSpeed);
-    frameReleaseHelper.onPlaybackSpeed(playbackSpeed);
+  public void setPlaybackSpeed(float currentPlaybackSpeed, float targetPlaybackSpeed)
+      throws ExoPlaybackException {
+    super.setPlaybackSpeed(currentPlaybackSpeed, targetPlaybackSpeed);
+    frameReleaseHelper.onPlaybackSpeed(currentPlaybackSpeed);
   }
 
   @Override
   protected float getCodecOperatingRateV23(
-      float playbackSpeed, Format format, Format[] streamFormats) {
+      float targetPlaybackSpeed, Format format, Format[] streamFormats) {
     // Use the highest known stream frame-rate up front, to avoid having to reconfigure the codec
     // should an adaptive switch to that stream occur.
     float maxFrameRate = -1;
@@ -662,7 +663,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxFrameRate = max(maxFrameRate, streamFrameRate);
       }
     }
-    return maxFrameRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxFrameRate * playbackSpeed);
+    return maxFrameRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxFrameRate * targetPlaybackSpeed);
   }
 
   @Override
