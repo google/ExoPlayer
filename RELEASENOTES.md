@@ -8,6 +8,8 @@
             `Player.EventListener.onTimelineChanged(Timeline, int)` instead.
         *   `DefaultLoadControl` constructors. Use `DefaultLoadControl.Builder`
             instead.
+        *   `DrmInitData.get(UUID)`. Use `DrmInitData.get(int)` and
+            `DrmInitData.SchemeData.matches(UUID)` instead.
         *   `MappedTrackInfo.getTrackFormatSupport(int, int, int)`. Use
             `MappedTrackInfo.getTrackSupport(int, int, int)`.
         *   `MappedTrackInfo.getTrackTypeRendererSupport(int)`. Use
