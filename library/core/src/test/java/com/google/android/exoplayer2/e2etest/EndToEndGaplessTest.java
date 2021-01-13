@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.robolectric.RandomizedMp3Decoder;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
@@ -34,6 +35,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,6 +77,13 @@ public class EndToEndGaplessTest {
                     .setMediaFormat(mp3Format)
                     .build())
             .build());
+  }
+
+  @After
+  public void cleanUp() {
+    MediaCodecUtil.clearDecoderInfoCache();
+    ShadowMediaCodecList.reset();
+    ShadowMediaCodec.clearCodecs();
   }
 
   @Test

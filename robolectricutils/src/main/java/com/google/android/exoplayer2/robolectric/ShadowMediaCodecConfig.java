@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.robolectric;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
@@ -81,6 +82,7 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
 
   @Override
   protected void after() {
+    MediaCodecUtil.clearDecoderInfoCache();
     ShadowMediaCodecList.reset();
     ShadowMediaCodec.clearCodecs();
   }
