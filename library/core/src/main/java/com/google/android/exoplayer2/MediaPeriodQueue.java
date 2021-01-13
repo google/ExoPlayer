@@ -672,15 +672,13 @@ import com.google.common.collect.ImmutableList;
           period.getNextAdIndexToPlay(adGroupIndex, currentPeriodId.adIndexInAdGroup);
       if (nextAdIndexInAdGroup < adCountInCurrentAdGroup) {
         // Play the next ad in the ad group if it's available.
-        return !period.isAdAvailable(adGroupIndex, nextAdIndexInAdGroup)
-            ? null
-            : getMediaPeriodInfoForAd(
-                timeline,
-                currentPeriodId.periodUid,
-                adGroupIndex,
-                nextAdIndexInAdGroup,
-                mediaPeriodInfo.requestedContentPositionUs,
-                currentPeriodId.windowSequenceNumber);
+        return getMediaPeriodInfoForAd(
+            timeline,
+            currentPeriodId.periodUid,
+            adGroupIndex,
+            nextAdIndexInAdGroup,
+            mediaPeriodInfo.requestedContentPositionUs,
+            currentPeriodId.windowSequenceNumber);
       } else {
         // Play content from the ad group position.
         long startPositionUs = mediaPeriodInfo.requestedContentPositionUs;
@@ -720,15 +718,13 @@ import com.google.common.collect.ImmutableList;
             currentPeriodId.windowSequenceNumber);
       }
       int adIndexInAdGroup = period.getFirstAdIndexToPlay(nextAdGroupIndex);
-      return !period.isAdAvailable(nextAdGroupIndex, adIndexInAdGroup)
-          ? null
-          : getMediaPeriodInfoForAd(
-              timeline,
-              currentPeriodId.periodUid,
-              nextAdGroupIndex,
-              adIndexInAdGroup,
-              /* contentPositionUs= */ mediaPeriodInfo.durationUs,
-              currentPeriodId.windowSequenceNumber);
+      return getMediaPeriodInfoForAd(
+          timeline,
+          currentPeriodId.periodUid,
+          nextAdGroupIndex,
+          adIndexInAdGroup,
+          /* contentPositionUs= */ mediaPeriodInfo.durationUs,
+          currentPeriodId.windowSequenceNumber);
     }
   }
 
@@ -737,9 +733,6 @@ import com.google.common.collect.ImmutableList;
       Timeline timeline, MediaPeriodId id, long requestedContentPositionUs, long startPositionUs) {
     timeline.getPeriodByUid(id.periodUid, period);
     if (id.isAd()) {
-      if (!period.isAdAvailable(id.adGroupIndex, id.adIndexInAdGroup)) {
-        return null;
-      }
       return getMediaPeriodInfoForAd(
           timeline,
           id.periodUid,

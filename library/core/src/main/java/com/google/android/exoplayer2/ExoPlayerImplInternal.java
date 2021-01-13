@@ -1762,8 +1762,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     }
     if (shouldContinueLoading) {
-      // We should still be loading, except in the case that it's no longer possible (i.e., because
-      // we've loaded the current playlist to the end).
+      // We should still be loading, except when there is nothing to load or we have fully loaded
+      // the current period.
       shouldContinueLoading = isLoadingPossible();
       updateIsLoading();
     } else {

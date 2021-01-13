@@ -47,6 +47,27 @@ public final class MatroskaExtractorTest {
   }
 
   @Test
+  public void mkvSample_withNullTerminatedSubripSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/sample_with_null_terminated_srt.mkv", simulationConfig);
+  }
+
+  @Test
+  public void mkvSample_withSsaSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/sample_with_ssa_subtitles.mkv", simulationConfig);
+  }
+
+  // https://github.com/google/ExoPlayer/pull/8265
+  @Test
+  public void mkvSample_withNullTerminatedSsaSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new,
+        "media/mkv/sample_with_null_terminated_ssa_subtitles.mkv",
+        simulationConfig);
+  }
+
+  @Test
   public void mkvSample_withHtcRotationInfoInTrackName() throws Exception {
     ExtractorAsserts.assertBehavior(
         MatroskaExtractor::new,

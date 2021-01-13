@@ -1307,6 +1307,15 @@ public class MatroskaExtractor implements Extractor {
           Log.w(TAG, "Skipping subtitle sample with no duration.");
         } else {
           setSubtitleEndTime(track.codecId, blockDurationUs, subtitleSample.getData());
+          // The Matroska spec doesn't clearly define whether subtitle samples are null-terminated
+          // or the sample should instead be sized precisely. We truncate the sample at a null-byte
+          // to gracefully handle null-terminated strings followed by garbage bytes.
+          for (int i = subtitleSample.getPosition(); i < subtitleSample.limit(); i++) {
+            if (subtitleSample.getData()[i] == 0) {
+              subtitleSample.setLimit(i);
+              break;
+            }
+          }
           // Note: If we ever want to support DRM protected subtitles then we'll need to output the
           // appropriate encryption data here.
           track.output.sampleData(subtitleSample, subtitleSample.limit());

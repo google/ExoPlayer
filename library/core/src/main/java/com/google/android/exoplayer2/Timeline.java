@@ -166,7 +166,7 @@ public abstract class Timeline {
 
     /**
      * The window's start time in milliseconds since the Unix epoch, or {@link C#TIME_UNSET} if
-     * unknown or not applicable. For informational purposes only.
+     * unknown or not applicable.
      */
     public long windowStartTimeMs;
 
@@ -607,19 +607,6 @@ public abstract class Timeline {
      */
     public int getAdCountInAdGroup(int adGroupIndex) {
       return adPlaybackState.adGroups[adGroupIndex].count;
-    }
-
-    /**
-     * Returns whether the URL for the specified ad is known.
-     *
-     * @param adGroupIndex The ad group index.
-     * @param adIndexInAdGroup The ad index in the ad group.
-     * @return Whether the URL for the specified ad is known.
-     */
-    public boolean isAdAvailable(int adGroupIndex, int adIndexInAdGroup) {
-      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
-      return adGroup.count != C.LENGTH_UNSET
-          && adGroup.states[adIndexInAdGroup] != AdPlaybackState.AD_STATE_UNAVAILABLE;
     }
 
     /**

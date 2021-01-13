@@ -450,6 +450,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     outputStreamStartPositionUs = C.TIME_UNSET;
     outputStreamOffsetUs = C.TIME_UNSET;
     bypassBatchBuffer = new BatchBuffer();
+    bypassBatchBuffer.ensureSpaceForWrite(/* length= */ 0);
+    // MediaCodec outputs audio buffers in native endian:
+    // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
+    // and code called from MediaCodecAudioRenderer.processOutputBuffer expects this endianness.
+    bypassBatchBuffer.data.order(ByteOrder.nativeOrder());
     resetCodecStateForRelease();
   }
 
@@ -1455,6 +1460,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   protected void onInputFormatChanged(FormatHolder formatHolder) throws ExoPlaybackException {
     waitingForFirstSampleInFormat = true;
     Format newFormat = Assertions.checkNotNull(formatHolder.format);
+    if (newFormat.sampleMimeType == null) {
+      // If the new format is invalid, it is either a media bug or it is not intended to be played.
+      // See also https://github.com/google/ExoPlayer/issues/8283.
+      throw createRendererException(new IllegalArgumentException(), newFormat);
+    }
     setSourceDrmSession(formatHolder.drmSession);
     inputFormat = newFormat;
 
@@ -2129,7 +2139,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    *     iteration of the rendering loop.
    * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
    *     start of the current iteration of the rendering loop.
-   * @return If more buffers are ready to be rendered.
+   * @return Whether immediately calling this method again will make more progress.
    * @throws ExoPlaybackException If an error occurred while processing a buffer or handling a
    *     format change.
    */
@@ -2137,7 +2147,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throws ExoPlaybackException {
     BatchBuffer batchBuffer = bypassBatchBuffer;
 
-    // Let's process the pending buffer if any.
+    // Process any data in the batch buffer.
     checkState(!outputStreamEnded);
     if (!batchBuffer.isEmpty()) { // Optimisation: Do not process buffer if empty.
       if (processOutputBuffer(
@@ -2152,12 +2162,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           batchBuffer.isDecodeOnly(),
           batchBuffer.isEndOfStream(),
           outputFormat)) {
-        // Buffer completely processed
         onProcessedOutputBuffer(batchBuffer.getLastAccessUnitTimeUs());
       } else {
-        return false; // Could not process buffer, let's try later.
+        // Could not process the whole buffer. Try again later.
+        return false;
       }
     }
+    // Process the end of stream, if it has been reached.
     if (batchBuffer.isEndOfStream()) {
       outputStreamEnded = true;
       return false;
@@ -2192,19 +2203,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       onInputFormatChanged(formatHolder);
     }
 
+    boolean haveDataToProcess = false;
     if (batchBuffer.isEndOfStream()) {
       inputStreamEnded = true;
+      haveDataToProcess = true;
+    }
+    if (!batchBuffer.isEmpty()) {
+      batchBuffer.flip();
+      haveDataToProcess = true;
     }
 
-    if (batchBuffer.isEmpty()) {
-      return false; // The buffer could not be filled, there is nothing more to do.
-    }
-    batchBuffer.flip(); // Buffer at least partially full, it can now be processed.
-    // MediaCodec outputs buffers in native endian:
-    // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers
-    // and code called from processOutputBuffer expects this endianness.
-    batchBuffer.data.order(ByteOrder.nativeOrder());
-    return true;
+    return haveDataToProcess;
   }
 
   /**

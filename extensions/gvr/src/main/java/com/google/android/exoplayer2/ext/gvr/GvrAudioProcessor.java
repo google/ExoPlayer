@@ -135,6 +135,7 @@ public class GvrAudioProcessor implements AudioProcessor {
 
   @Override
   public void queueEndOfStream() {
+    // TODO(internal b/174554082): assert gvrAudioSurround is non-null here and in getOutput.
     if (gvrAudioSurround != null) {
       gvrAudioSurround.triggerProcessing();
     }

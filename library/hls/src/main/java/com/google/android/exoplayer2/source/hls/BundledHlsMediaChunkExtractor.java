@@ -101,4 +101,9 @@ public final class BundledHlsMediaChunkExtractor implements HlsMediaChunkExtract
     return new BundledHlsMediaChunkExtractor(
         newExtractorInstance, masterPlaylistFormat, timestampAdjuster);
   }
+
+  @Override
+  public void onTruncatedSegmentParsed() {
+    extractor.seek(/* position= */ 0, /* timeUs= */ 0);
+  }
 }

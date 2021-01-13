@@ -409,18 +409,20 @@ public final class SimpleCache implements Cache {
     Assertions.checkNotNull(cachedContent);
     Assertions.checkState(cachedContent.isFullyLocked(position, length));
     if (!cacheDir.exists()) {
-      // For some reason the cache directory doesn't exist. Make a best effort to create it.
-      cacheDir.mkdirs();
+      // The cache directory has been deleted from underneath us. Recreate it, and remove in-memory
+      // spans corresponding to cache files that no longer exist.
+      createCacheDirectories(cacheDir);
       removeStaleSpans();
     }
     evictor.onStartFile(this, key, position, length);
     // Randomly distribute files into subdirectories with a uniform distribution.
-    File fileDir = new File(cacheDir, Integer.toString(random.nextInt(SUBDIRECTORY_COUNT)));
-    if (!fileDir.exists()) {
-      fileDir.mkdir();
+    File cacheSubDir = new File(cacheDir, Integer.toString(random.nextInt(SUBDIRECTORY_COUNT)));
+    if (!cacheSubDir.exists()) {
+      createCacheDirectories(cacheSubDir);
     }
     long lastTouchTimestamp = System.currentTimeMillis();
-    return SimpleCacheSpan.getCacheFile(fileDir, cachedContent.id, position, lastTouchTimestamp);
+    return SimpleCacheSpan.getCacheFile(
+        cacheSubDir, cachedContent.id, position, lastTouchTimestamp);
   }
 
   @Override
@@ -548,10 +550,10 @@ public final class SimpleCache implements Cache {
   /** Ensures that the cache's in-memory representation has been initialized. */
   private void initialize() {
     if (!cacheDir.exists()) {
-      if (!cacheDir.mkdirs()) {
-        String message = "Failed to create cache directory: " + cacheDir;
-        Log.e(TAG, message);
-        initializationException = new CacheException(message);
+      try {
+        createCacheDirectories(cacheDir);
+      } catch (CacheException e) {
+        initializationException = e;
         return;
       }
     }
@@ -832,6 +834,14 @@ public final class SimpleCache implements Cache {
 
   private static long parseUid(String fileName) {
     return Long.parseLong(fileName.substring(0, fileName.indexOf('.')), /* radix= */ 16);
+  }
+
+  private static void createCacheDirectories(File cacheDir) throws CacheException {
+    if (!cacheDir.mkdirs()) {
+      String message = "Failed to create cache directory: " + cacheDir;
+      Log.e(TAG, message);
+      throw new CacheException(message);
+    }
   }
 
   private static synchronized boolean lockFolder(File cacheDir) {

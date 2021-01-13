@@ -6943,6 +6943,7 @@ public final class ExoPlayerTest {
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .waitForPlaybackState(Player.STATE_READY)
+            .waitForPendingPlayerCommands()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override

@@ -18,8 +18,8 @@ android.defaultConfig.minSdkVersion 19
 dependencies {
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
-    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
-    api 'androidx.media2:media2-session:1.0.3'
+    implementation 'androidx.concurrent:concurrent-futures:' + androidxFuturesVersion
+    api 'androidx.media2:media2-session:' + androidxMedia2Version
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion

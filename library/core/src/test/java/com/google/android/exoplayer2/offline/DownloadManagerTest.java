@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.robolectric.TestDownloadManagerListener;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
@@ -580,6 +581,67 @@ public class DownloadManagerTest {
     Download download2 = downloads.get(2);
     assertThat(download2.request.id).isEqualTo(ID3);
     assertThat(download2.state).isEqualTo(Download.STATE_REMOVING);
+  }
+
+  @Test
+  public void addDownload_whilstRemovingWithStopReason_addsStartedDownload() throws Throwable {
+    runOnMainThread(
+        () -> downloadManager.addDownload(createDownloadRequest(ID1), /* stopReason= */ 1234));
+
+    postRemoveRequest(ID1);
+    FakeDownloader downloadRemover = getDownloaderAt(0);
+    downloadRemover.assertRemoveStarted();
+
+    // Re-add the download without a stop reason.
+    postDownloadRequest(ID1);
+
+    downloadRemover.finish();
+
+    FakeDownloader downloader = getDownloaderAt(1);
+    downloader.finish();
+    assertCompleted(ID1);
+
+    assertDownloadIndexSize(1);
+    // We expect one downloader for the removal, and one for when the download was re-added.
+    assertDownloaderCount(2);
+    // The download has completed, and so is no longer current.
+    assertCurrentDownloadCount(0);
+
+    Download download = postGetDownloadIndex().getDownload(ID1);
+    assertThat(download.state).isEqualTo(Download.STATE_COMPLETED);
+    assertThat(download.stopReason).isEqualTo(0);
+  }
+
+  /** Test for https://github.com/google/ExoPlayer/issues/8419 */
+  @Test
+  public void addDownloadWithStopReason_whilstRemoving_addsStoppedDownload() throws Throwable {
+    postDownloadRequest(ID1);
+    getDownloaderAt(0).finish();
+    assertCompleted(ID1);
+
+    postRemoveRequest(ID1);
+    FakeDownloader downloadRemover = getDownloaderAt(1);
+    downloadRemover.assertRemoveStarted();
+
+    // Re-add the download with a stop reason.
+    runOnMainThread(
+        () -> downloadManager.addDownload(createDownloadRequest(ID1), /* stopReason= */ 1234));
+
+    downloadRemover.finish();
+    downloadManagerListener.blockUntilIdle();
+
+    assertDownloadIndexSize(1);
+    // We expect one downloader for the initial download, and one for the removal. A downloader
+    // should not be created when the download is re-added, since a stop reason is specified.
+    assertDownloaderCount(2);
+    // The download isn't completed, and is therefore still current.
+    assertCurrentDownloadCount(1);
+
+    List<Download> downloads = postGetCurrentDownloads();
+    Download download = downloads.get(0);
+    assertThat(download.request.id).isEqualTo(ID1);
+    assertThat(download.state).isEqualTo(Download.STATE_STOPPED);
+    assertThat(download.stopReason).isEqualTo(1234);
   }
 
   @Test
