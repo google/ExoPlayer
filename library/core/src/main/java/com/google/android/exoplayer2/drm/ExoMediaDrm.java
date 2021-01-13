@@ -22,8 +22,12 @@ import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -182,25 +186,99 @@ public interface ExoMediaDrm {
 
   }
 
-  /** @see android.media.MediaDrm.KeyRequest */
+  /**
+   * Contains data used to request keys from a license server.
+   *
+   * @see android.media.MediaDrm.KeyRequest
+   */
   final class KeyRequest {
+
+    /**
+     * Key request types. One of {@link #REQUEST_TYPE_UNKNOWN}, {@link #REQUEST_TYPE_INITIAL},
+     * {@link #REQUEST_TYPE_RENEWAL}, {@link #REQUEST_TYPE_RELEASE}, {@link #REQUEST_TYPE_NONE} or
+     * {@link #REQUEST_TYPE_UPDATE}.
+     */
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      REQUEST_TYPE_UNKNOWN,
+      REQUEST_TYPE_INITIAL,
+      REQUEST_TYPE_RENEWAL,
+      REQUEST_TYPE_RELEASE,
+      REQUEST_TYPE_NONE,
+      REQUEST_TYPE_UPDATE,
+    })
+    public @interface RequestType {}
+
+    /**
+     * Value returned from {@link #getRequestType()} if the underlying key request does not specify
+     * a type.
+     */
+    public static final int REQUEST_TYPE_UNKNOWN = Integer.MIN_VALUE;
+
+    /** Key request type for an initial license request. */
+    public static final int REQUEST_TYPE_INITIAL = MediaDrm.KeyRequest.REQUEST_TYPE_INITIAL;
+    /** Key request type for license renewal. */
+    public static final int REQUEST_TYPE_RENEWAL = MediaDrm.KeyRequest.REQUEST_TYPE_RENEWAL;
+    /** Key request type for license release. */
+    public static final int REQUEST_TYPE_RELEASE = MediaDrm.KeyRequest.REQUEST_TYPE_RELEASE;
+    /**
+     * Key request type if keys are already loaded and available for use. No license request is
+     * necessary, and no key request data is returned.
+     */
+    public static final int REQUEST_TYPE_NONE = MediaDrm.KeyRequest.REQUEST_TYPE_NONE;
+    /**
+     * Key request type if keys have been loaded, but an additional license request is needed to
+     * update their values.
+     */
+    public static final int REQUEST_TYPE_UPDATE = MediaDrm.KeyRequest.REQUEST_TYPE_UPDATE;
 
     private final byte[] data;
     private final String licenseServerUrl;
+    @RequestType private final int requestType;
 
+    /**
+     * Creates an instance with {@link #REQUEST_TYPE_UNKNOWN}.
+     *
+     * @param data The opaque key request data.
+     * @param licenseServerUrl The license server URL to which the request should be made.
+     */
     public KeyRequest(byte[] data, String licenseServerUrl) {
-      this.data = data;
-      this.licenseServerUrl = licenseServerUrl;
+      this(data, licenseServerUrl, REQUEST_TYPE_UNKNOWN);
     }
 
+    /**
+     * Creates an instance.
+     *
+     * @param data The opaque key request data.
+     * @param licenseServerUrl The license server URL to which the request should be made.
+     * @param requestType The type of the request, or {@link #REQUEST_TYPE_UNKNOWN}.
+     */
+    public KeyRequest(byte[] data, String licenseServerUrl, @RequestType int requestType) {
+      this.data = data;
+      this.licenseServerUrl = licenseServerUrl;
+      this.requestType = requestType;
+    }
+
+    /** Returns the opaque key request data. */
     public byte[] getData() {
       return data;
     }
 
+    /** Returns the URL of the license server to which the request should be made. */
     public String getLicenseServerUrl() {
       return licenseServerUrl;
     }
 
+    /**
+     * Returns the type of the request, or {@link #REQUEST_TYPE_UNKNOWN} if the underlying key
+     * request does not specify a type. Note that when using a platform {@link MediaDrm} instance,
+     * key requests only specify a type on API levels 23 and above.
+     */
+    @RequestType
+    public int getRequestType() {
+      return requestType;
+    }
   }
 
   /** @see android.media.MediaDrm.ProvisionRequest */

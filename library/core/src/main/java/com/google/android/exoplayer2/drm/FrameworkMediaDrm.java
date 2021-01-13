@@ -210,7 +210,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
       licenseServerUrl = schemeData.licenseServerUrl;
     }
 
-    return new KeyRequest(requestData, licenseServerUrl);
+    @KeyRequest.RequestType
+    int requestType =
+        Util.SDK_INT >= 23 ? request.getRequestType() : KeyRequest.REQUEST_TYPE_UNKNOWN;
+
+    return new KeyRequest(requestData, licenseServerUrl, requestType);
   }
 
   @Override

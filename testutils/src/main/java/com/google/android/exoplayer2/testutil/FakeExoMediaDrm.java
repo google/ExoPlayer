@@ -167,7 +167,12 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
             schemeDatas,
             keyType,
             optionalParameters != null ? optionalParameters : ImmutableMap.of());
-    return new KeyRequest(requestData.toByteArray(), /* licenseServerUrl= */ "");
+    @KeyRequest.RequestType
+    int requestType =
+        sessionIdsWithValidKeys.contains(toByteList(scope))
+            ? KeyRequest.REQUEST_TYPE_RENEWAL
+            : KeyRequest.REQUEST_TYPE_INITIAL;
+    return new KeyRequest(requestData.toByteArray(), /* licenseServerUrl= */ "", requestType);
   }
 
   @Nullable

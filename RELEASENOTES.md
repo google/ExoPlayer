@@ -137,6 +137,8 @@
 *   DRM:
     *   Fix playback failure when switching from PlayReady protected content to
         Widevine or Clearkey protected content in a playlist.
+    *   Add `ExoMediaDrm.KeyRequest.getRequestType`
+        ([#7847](https://github.com/google/ExoPlayer/issues/7847)).
 *   Analytics:
     *   Pass a `DecoderReuseEvaluation` to `AnalyticsListener`'s
         `onVideoInputFormatChanged` and `onAudioInputFormatChanged` methods. The
