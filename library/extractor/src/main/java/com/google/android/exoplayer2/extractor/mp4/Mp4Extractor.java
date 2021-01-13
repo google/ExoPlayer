@@ -761,6 +761,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           new MotionPhotoMetadata(
               /* photoStartPosition= */ 0,
               /* photoSize= */ atomStartPosition,
+              /* photoPresentationTimestampUs= */ C.TIME_UNSET,
               /* videoStartPosition= */ atomStartPosition + atomHeaderBytesRead,
               /* videoSize= */ atomSize - atomHeaderBytesRead);
     }

@@ -112,6 +112,7 @@ public class MetadataRetrieverTest {
         new MotionPhotoMetadata(
             /* photoStartPosition= */ 0,
             /* photoSize= */ 28_853,
+            /* photoPresentationTimestampUs= */ C.TIME_UNSET,
             /* videoStartPosition= */ 28_869,
             /* videoSize= */ 28_803);
 
