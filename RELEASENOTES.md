@@ -136,6 +136,11 @@
         which can be immediately queried by calling
         `SimpleExoPlayer.getAudioSessionId`. The audio session ID will only
         change if application code calls `SimpleExoPlayer.setAudioSessionId`.
+    *   `AudioListener.onAudioSessionId` is replaced with
+        `AudioListener.onAudioSessionIdChanged`. Note that
+        `onAudioSessionIdChanged` is called in fewer cases than
+        `onAudioSessionId` was called, due to the improved handling of audio
+        session IDs as described above.
 *   Text:
     *   Gracefully handle null-terminated subtitle content in Matroska
         containers.

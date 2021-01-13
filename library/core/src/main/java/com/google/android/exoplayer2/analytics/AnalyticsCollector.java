@@ -300,7 +300,7 @@ public class AnalyticsCollector
   // AudioListener implementation.
 
   @Override
-  public final void onAudioSessionId(int audioSessionId) {
+  public final void onAudioSessionIdChanged(int audioSessionId) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,

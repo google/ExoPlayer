@@ -19,11 +19,11 @@ package com.google.android.exoplayer2.audio;
 public interface AudioListener {
 
   /**
-   * Called when the audio session is set.
+   * Called when the audio session ID changes.
    *
-   * @param audioSessionId The audio session id.
+   * @param audioSessionId The audio session ID.
    */
-  default void onAudioSessionId(int audioSessionId) {}
+  default void onAudioSessionIdChanged(int audioSessionId) {}
 
   /**
    * Called when the audio attributes change.

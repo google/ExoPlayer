@@ -983,7 +983,7 @@ public class SimpleExoPlayer extends BasePlayer
     sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     for (AudioListener audioListener : audioListeners) {
-      audioListener.onAudioSessionId(audioSessionId);
+      audioListener.onAudioSessionIdChanged(audioSessionId);
     }
   }
 
