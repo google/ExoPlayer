@@ -136,7 +136,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>
+<dd><code><a href="https://developer.android.com/reference/java/io/Closeable.html" title="class or interface in java.io" class="externalLink">Closeable</a></code>, <code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>
 </dl>
 <hr>
 <pre>public final class <span class="typeNameLabel">SessionPlayerConnector</span>
@@ -410,7 +410,7 @@ extends androidx.media2.common.SessionPlayer</pre>
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;androidx.media2.common.SessionPlayer</h3>
-<code>deselectTrackInternal, getCallbacks, getSelectedTrackInternal, getTrackInfoInternal, getVideoSizeInternal, registerPlayerCallback, selectTrackInternal, setSurfaceInternal, unregisterPlayerCallback</code></li>
+<code>deselectTrack, getCallbacks, getSelectedTrack, getTracks, getVideoSize, movePlaylistItem, registerPlayerCallback, selectTrack, setSurface, unregisterPlayerCallback</code></li>
 </ul>
 </li>
 </ul>
@@ -923,6 +923,14 @@ public&nbsp;androidx.media2.common.MediaItem&nbsp;getCurrentMediaItem()</pre>
 <li class="blockList">
 <h4>close</h4>
 <pre>public&nbsp;void&nbsp;close()</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html#close--" title="class or interface in java.lang" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/Closeable.html#close--" title="class or interface in java.io" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>close</code>&nbsp;in class&nbsp;<code>androidx.media2.common.SessionPlayer</code></dd>
+</dl>
 </li>
 </ul>
 </li>

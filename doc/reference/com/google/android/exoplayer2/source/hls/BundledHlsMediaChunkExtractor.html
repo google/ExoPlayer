@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -202,13 +202,20 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/H
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/BundledHlsMediaChunkExtractor.html#onTruncatedSegmentParsed--">onTruncatedSegmentParsed</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Resets the sample parsing state.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/BundledHlsMediaChunkExtractor.html#read-com.google.android.exoplayer2.extractor.ExtractorInput-">read</a></span>&#8203;(<a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;extractorInput)</code></th>
 <td class="colLast">
 <div class="block">Extracts data read from a provided <a href="../../../../../../com/google/android/exoplayer2/extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/source/hls/BundledHlsMediaChunkExtractor.html#recreate--">recreate</a></span>()</code></th>
 <td class="colLast">
@@ -343,7 +350,7 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/H
 <a name="recreate--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>recreate</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a>&nbsp;recreate()</pre>
@@ -353,6 +360,26 @@ implements <a href="../../../../../../com/google/android/exoplayer2/source/hls/H
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html#recreate--">recreate</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="onTruncatedSegmentParsed--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onTruncatedSegmentParsed</h4>
+<pre>public&nbsp;void&nbsp;onTruncatedSegmentParsed()</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html#onTruncatedSegmentParsed--">HlsMediaChunkExtractor</a></code></span></div>
+<div class="block">Resets the sample parsing state.
+
+ <p>Resetting the parsing state allows support for Fragmented MP4 EXT-X-I-FRAME-STREAM-INF
+ segments. EXT-X-I-FRAME-STREAM-INF segments are truncated to include only a leading key frame.
+ After parsing said keyframe, an extractor may reach an unexpected end of file. By resetting its
+ state, we can continue feeding samples from the following segments to the extractor. See <a href="https://github.com/google/ExoPlayer/issues/7512">#7512</a> for context.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html#onTruncatedSegmentParsed--">onTruncatedSegmentParsed</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/source/hls/HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></dd>
 </dl>
 </li>
 </ul>

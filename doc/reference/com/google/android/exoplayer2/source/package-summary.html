@@ -313,7 +313,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html" title="class in com.google.android.exoplayer2.source">MaskingMediaPeriod</a></th>
 <td class="colLast">
-<div class="block">Media period that wraps a media source and defers calling its <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> method until <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-"><code>MaskingMediaPeriod.createPeriod(MediaPeriodId)</code></a> has been called.</div>
+<div class="block">Media period that defers calling <a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-com.google.android.exoplayer2.upstream.Allocator-long-"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a>
+ on a given source until <a href="../../../../../com/google/android/exoplayer2/source/MaskingMediaPeriod.html#createPeriod-com.google.android.exoplayer2.source.MediaSource.MediaPeriodId-"><code>MaskingMediaPeriod.createPeriod(MediaPeriodId)</code></a> has been called.</div>
 </td>
 </tr>
 <tr class="altColor">
