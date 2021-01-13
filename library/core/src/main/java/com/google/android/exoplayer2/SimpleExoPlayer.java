@@ -21,7 +21,6 @@ import android.graphics.SurfaceTexture;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.media.MediaCodec;
-import android.media.PlaybackParams;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Surface;
@@ -29,7 +28,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -1041,37 +1039,6 @@ public class SimpleExoPlayer extends BasePlayer
     notifySkipSilenceEnabledChanged();
   }
 
-  /**
-   * Sets the stream type for audio playback, used by the underlying audio track.
-   *
-   * <p>Setting the stream type during playback may introduce a short gap in audio output as the
-   * audio track is recreated.
-   *
-   * <p>Calling this method overwrites any attributes set previously by calling {@link
-   * #setAudioAttributes(AudioAttributes)}.
-   *
-   * @deprecated Use {@link #setAudioAttributes(AudioAttributes)}.
-   * @param streamType The stream type for audio playback.
-   */
-  @Deprecated
-  public void setAudioStreamType(@C.StreamType int streamType) {
-    @C.AudioUsage int usage = Util.getAudioUsageForStreamType(streamType);
-    @C.AudioContentType int contentType = Util.getAudioContentTypeForStreamType(streamType);
-    AudioAttributes audioAttributes =
-        new AudioAttributes.Builder().setUsage(usage).setContentType(contentType).build();
-    setAudioAttributes(audioAttributes);
-  }
-
-  /**
-   * Returns the stream type for audio playback.
-   *
-   * @deprecated Use {@link #getAudioAttributes()}.
-   */
-  @Deprecated
-  public @C.StreamType int getAudioStreamType() {
-    return Util.getStreamTypeForAudioUsage(audioAttributes.usage);
-  }
-
   /** Returns the {@link AnalyticsCollector} used for collecting analytics events. */
   public AnalyticsCollector getAnalyticsCollector() {
     return analyticsCollector;
@@ -1140,25 +1107,6 @@ public class SimpleExoPlayer extends BasePlayer
       isPriorityTaskManagerRegistered = false;
     }
     this.priorityTaskManager = priorityTaskManager;
-  }
-
-  /**
-   * Sets the {@link PlaybackParams} governing audio playback.
-   *
-   * @param params The {@link PlaybackParams}, or null to clear any previously set parameters.
-   * @deprecated Use {@link #setPlaybackParameters(PlaybackParameters)}.
-   */
-  @Deprecated
-  @RequiresApi(23)
-  public void setPlaybackParams(@Nullable PlaybackParams params) {
-    PlaybackParameters playbackParameters;
-    if (params != null) {
-      params.allowDefaults();
-      playbackParameters = new PlaybackParameters(params.getSpeed(), params.getPitch());
-    } else {
-      playbackParameters = null;
-    }
-    setPlaybackParameters(playbackParameters);
   }
 
   /** Returns the video format currently being played, or null if no video is being played. */

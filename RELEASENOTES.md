@@ -22,9 +22,15 @@
             `PlayerView.setShowBuffering(int)` instead.
         *   `SimpleExoPlayer.clearVideoListener()`. Use
             `SimpleExoPlayer.removeVideoListener(VideoListener)` instead.
+        *   `SimpleExoPlayer.getAudioStreamType()`. Use
+            `SimpleExoPlayer.getAudioAttributes()` instead.
         *   `SimpleExoPlayer.setAudioDebugListener(AudioRendererEventListener)`.
             Use `SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)`
             instead.
+        *   `SimpleExoPlayer.setAudioStreamType(int)`. Use
+            `SimpleExoPlayer.setAudioAttributes(AudioAttributes)` instead.
+        *   `SimpleExoPlayer.setPlaybackParams(PlaybackParams)`. Use
+            `SimpleExoPlayer.setPlaybackParameters(PlaybackParameters)` instead.
         *   `SimpleExoPlayer.setVideoDebugListener(VideoRendererEventListener)`.
             Use `SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)`
             instead.
