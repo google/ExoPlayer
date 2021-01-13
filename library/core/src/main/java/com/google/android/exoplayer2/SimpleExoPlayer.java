@@ -1201,31 +1201,6 @@ public class SimpleExoPlayer extends BasePlayer
     return currentCues;
   }
 
-  /**
-   * Sets an output to receive text events, removing all existing outputs.
-   *
-   * @param output The output.
-   * @deprecated Use {@link #addTextOutput(TextOutput)}.
-   */
-  @Deprecated
-  public void setTextOutput(TextOutput output) {
-    textOutputs.clear();
-    if (output != null) {
-      addTextOutput(output);
-    }
-  }
-
-  /**
-   * Equivalent to {@link #removeTextOutput(TextOutput)}.
-   *
-   * @param output The output to clear.
-   * @deprecated Use {@link #removeTextOutput(TextOutput)}.
-   */
-  @Deprecated
-  public void clearTextOutput(TextOutput output) {
-    removeTextOutput(output);
-  }
-
   @Override
   public void addMetadataOutput(MetadataOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
@@ -1237,31 +1212,6 @@ public class SimpleExoPlayer extends BasePlayer
   public void removeMetadataOutput(MetadataOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     metadataOutputs.remove(listener);
-  }
-
-  /**
-   * Sets an output to receive metadata events, removing all existing outputs.
-   *
-   * @param output The output.
-   * @deprecated Use {@link #addMetadataOutput(MetadataOutput)}.
-   */
-  @Deprecated
-  public void setMetadataOutput(MetadataOutput output) {
-    metadataOutputs.retainAll(Collections.singleton(analyticsCollector));
-    if (output != null) {
-      addMetadataOutput(output);
-    }
-  }
-
-  /**
-   * Equivalent to {@link #removeMetadataOutput(MetadataOutput)}.
-   *
-   * @param output The output to clear.
-   * @deprecated Use {@link #removeMetadataOutput(MetadataOutput)}.
-   */
-  @Deprecated
-  public void clearMetadataOutput(MetadataOutput output) {
-    removeMetadataOutput(output);
   }
 
   /**

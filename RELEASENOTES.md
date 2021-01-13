@@ -22,6 +22,10 @@
             `PlayerView.setDefaultArtwork(Drawable)` instead.
         *   `PlayerView.setShowBuffering(boolean)`. Use
             `PlayerView.setShowBuffering(int)` instead.
+        *   `SimpleExoPlayer.clearMetadataOutput(MetadataOutput)`. Use
+            `SimpleExoPlayer.removeMetadataOutput(MetadataOutput)` instead.
+        *   `SimpleExoPlayer.clearTextOutput(TextOutput)`. Use
+            `SimpleExoPlayer.removeTextOutput(TextOutput)` instead.
         *   `SimpleExoPlayer.clearVideoListener()`. Use
             `SimpleExoPlayer.removeVideoListener(VideoListener)` instead.
         *   `SimpleExoPlayer.getAudioStreamType()`. Use
@@ -31,8 +35,18 @@
             instead.
         *   `SimpleExoPlayer.setAudioStreamType(int)`. Use
             `SimpleExoPlayer.setAudioAttributes(AudioAttributes)` instead.
+        *   `SimpleExoPlayer.setMetadataOutput(MetadataOutput)`. Use
+            `SimpleExoPlayer.addMetadataOutput(MetadataOutput)` instead. If your
+            application is calling `SimpleExoPlayer.setMetadataOutput(null)`,
+            make sure to replace this call with
+            `SimpleExoPlayer.removeMetadataOutput(MetadataOutput)`.
         *   `SimpleExoPlayer.setPlaybackParams(PlaybackParams)`. Use
             `SimpleExoPlayer.setPlaybackParameters(PlaybackParameters)` instead.
+        *   `SimpleExoPlayer.setTextOutput(TextOutput)`. Use
+            `SimpleExoPlayer.addTextOutput(TextOutput)` instead. If your
+            application is calling `SimpleExoPlayer.setTextOutput(null)`, make
+            sure to replace this call with
+            `SimpleExoPlayer.removeTextOutput(TextOutput)`.
         *   `SimpleExoPlayer.setVideoDebugListener(VideoRendererEventListener)`.
             Use `SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)`
             instead.
