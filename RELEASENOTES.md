@@ -8,25 +8,31 @@
             `Player.EventListener.onTimelineChanged(Timeline, int)` instead.
         *   `DefaultLoadControl` constructors. Use `DefaultLoadControl.Builder`
             instead.
+        *   `MappedTrackInfo.getTrackFormatSupport(int, int, int)`. Use
+            `MappedTrackInfo.getTrackSupport(int, int, int)`.
+        *   `MappedTrackInfo.getTrackTypeRendererSupport(int)`. Use
+            `MappedTrackInfo.getTypeSupport(int)`.
+        *   `MappedTrackInfo.getUnassociatedTrackGroups()`. Use
+            `MappedTrackInfo.getUnmappedTrackGroups()`.
+        *   `MappedTrackInfo.length` - Use `MappedTrackInfo.getRendererCount()`
+            instead.
         *   `PlayerView.setDefaultArtwork(Bitmap)`. Use
             `PlayerView.setDefaultArtwork(Drawable)` instead.
         *   `PlayerView.setShowBuffering(boolean)`. Use
             `PlayerView.setShowBuffering(int)` instead.
         *   `SimpleExoPlayer.clearVideoListener()`. Use
             `SimpleExoPlayer.removeVideoListener(VideoListener)` instead.
+        *   `SimpleExoPlayer.setAudioDebugListener(AudioRendererEventListener)`.
+            Use `SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)`
+            instead.
+        *   `SimpleExoPlayer.setVideoDebugListener(VideoRendererEventListener)`.
+            Use `SimpleExoPlayer.addAnalyticsListener(AnalyticsListener)`
+            instead.
         *   `SimpleExoPlayer.setVideoListener(VideoListener)`. Use
             `SimpleExoPlayer.addVideoListener(VideoListener)` instead. If your
             application is calling `SimpleExoPlayer.setVideoListener(null)`,
             make sure to replace this call with
             `SimpleExoPlayer.removeVideoListener(VideoListener)`.
-        *   `MappedTrackInfo.length` - Use `MappedTrackInfo.getRendererCount()`
-            instead.
-        *   `MappedTrackInfo.getTrackTypeRendererSupport(int)` - Use
-            `MappedTrackInfo.getTypeSupport(int)`.
-        *   `MappedTrackInfo.getTrackFormatSupport(int, int, int)` - Use
-            `MappedTrackInfo.getTrackSupport(int, int, int)`.
-        *   `MappedTrackInfo.getUnassociatedTrackGroups()` - Use
-            `MappedTrackInfo.getUnmappedTrackGroups()`.
     *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
         `MediaSourceEventListener` instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed

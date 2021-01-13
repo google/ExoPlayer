@@ -1321,19 +1321,6 @@ public class SimpleExoPlayer extends BasePlayer
    *     information.
    */
   @Deprecated
-  @SuppressWarnings("deprecation")
-  public void setVideoDebugListener(@Nullable VideoRendererEventListener listener) {
-    videoDebugListeners.retainAll(Collections.singleton(analyticsCollector));
-    if (listener != null) {
-      addVideoDebugListener(listener);
-    }
-  }
-
-  /**
-   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
-   *     information.
-   */
-  @Deprecated
   public void addVideoDebugListener(VideoRendererEventListener listener) {
     Assertions.checkNotNull(listener);
     videoDebugListeners.add(listener);
@@ -1346,19 +1333,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Deprecated
   public void removeVideoDebugListener(VideoRendererEventListener listener) {
     videoDebugListeners.remove(listener);
-  }
-
-  /**
-   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
-   *     information.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public void setAudioDebugListener(@Nullable AudioRendererEventListener listener) {
-    audioDebugListeners.retainAll(Collections.singleton(analyticsCollector));
-    if (listener != null) {
-      addAudioDebugListener(listener);
-    }
   }
 
   /**
