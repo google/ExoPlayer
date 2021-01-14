@@ -315,7 +315,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     SampleSizeBox sampleSizeBox;
     @Nullable Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
     if (stszAtom != null) {
-      sampleSizeBox = new StszSampleSizeBox(stszAtom);
+      sampleSizeBox = new StszSampleSizeBox(stszAtom, track.format);
     } else {
       @Nullable Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
       if (stz2Atom == null) {
@@ -1720,10 +1720,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private final int sampleCount;
     private final ParsableByteArray data;
 
-    public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
+    public StszSampleSizeBox(Atom.LeafAtom stszAtom, Format trackFormat) {
       data = stszAtom.data;
       data.setPosition(Atom.FULL_HEADER_SIZE);
       int fixedSampleSize = data.readUnsignedIntToInt();
+      if (MimeTypes.AUDIO_RAW.equals(trackFormat.sampleMimeType)) {
+        @C.PcmEncoding int pcmEncoding = trackFormat.pcmEncoding;
+        int pcmSampleSize = Util.getPcmSampleSize(pcmEncoding);
+        if (pcmSampleSize != fixedSampleSize) {
+          // The sample size from the stsz box is inconsistent with the PCM encoding derived from
+          // the stsd box. Choose the PCM encoding as source of truth [Internal ref: b/171627904].
+          Log.w(
+              TAG,
+              "Audio sample size mismatch. PCM encoding: "
+                  + pcmEncoding
+                  + ", stsz sample size = "
+                  + fixedSampleSize);
+          fixedSampleSize = pcmSampleSize;
+        }
+      }
       this.fixedSampleSize = fixedSampleSize == 0 ? C.LENGTH_UNSET : fixedSampleSize;
       sampleCount = data.readUnsignedIntToInt();
     }
