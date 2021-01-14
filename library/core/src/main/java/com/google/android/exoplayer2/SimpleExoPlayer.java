@@ -63,6 +63,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
+import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
 import java.util.ArrayList;
@@ -85,10 +86,6 @@ public class SimpleExoPlayer extends BasePlayer
 
   /** The default timeout for detaching a surface from the player, in milliseconds. */
   public static final long DEFAULT_DETACH_SURFACE_TIMEOUT_MS = 2_000;
-
-  /** @deprecated Use {@link com.google.android.exoplayer2.video.VideoListener}. */
-  @Deprecated
-  public interface VideoListener extends com.google.android.exoplayer2.video.VideoListener {}
 
   /**
    * A builder for {@link SimpleExoPlayer} instances.
@@ -572,8 +569,7 @@ public class SimpleExoPlayer extends BasePlayer
   private final Context applicationContext;
   private final ExoPlayerImpl player;
   private final ComponentListener componentListener;
-  private final CopyOnWriteArraySet<com.google.android.exoplayer2.video.VideoListener>
-      videoListeners;
+  private final CopyOnWriteArraySet<VideoListener> videoListeners;
   private final CopyOnWriteArraySet<AudioListener> audioListeners;
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
@@ -1120,14 +1116,14 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void addVideoListener(com.google.android.exoplayer2.video.VideoListener listener) {
+  public void addVideoListener(VideoListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     Assertions.checkNotNull(listener);
     videoListeners.add(listener);
   }
 
   @Override
-  public void removeVideoListener(com.google.android.exoplayer2.video.VideoListener listener) {
+  public void removeVideoListener(VideoListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     videoListeners.remove(listener);
   }
@@ -1943,7 +1939,7 @@ public class SimpleExoPlayer extends BasePlayer
     if (width != surfaceWidth || height != surfaceHeight) {
       surfaceWidth = width;
       surfaceHeight = height;
-      for (com.google.android.exoplayer2.video.VideoListener videoListener : videoListeners) {
+      for (VideoListener videoListener : videoListeners) {
         videoListener.onSurfaceSizeChanged(width, height);
       }
     }
@@ -2119,7 +2115,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onVideoSizeChanged(
         int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-      for (com.google.android.exoplayer2.video.VideoListener videoListener : videoListeners) {
+      for (VideoListener videoListener : videoListeners) {
         // Prevent duplicate notification if a listener is both a VideoRendererEventListener and
         // a VideoListener, as they have the same method signature.
         if (!videoDebugListeners.contains(videoListener)) {
@@ -2136,7 +2132,7 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onRenderedFirstFrame(Surface surface) {
       if (SimpleExoPlayer.this.surface == surface) {
-        for (com.google.android.exoplayer2.video.VideoListener videoListener : videoListeners) {
+        for (VideoListener videoListener : videoListeners) {
           videoListener.onRenderedFirstFrame();
         }
       }

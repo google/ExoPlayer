@@ -62,6 +62,8 @@
             application is calling `SimpleExoPlayer.setVideoListener(null)`,
             make sure to replace this call with
             `SimpleExoPlayer.removeVideoListener(VideoListener)`.
+        *   `SimpleExoPlayer.VideoListener`. Use
+            `com.google.android.exoplayer2.video.VideoListener` instead.
         *   `SingleSampleMediaSource.EventListener` and constructors. Use
             `MediaSourceEventListener` and `SingleSampleMediaSource.Factory`
             instead.
