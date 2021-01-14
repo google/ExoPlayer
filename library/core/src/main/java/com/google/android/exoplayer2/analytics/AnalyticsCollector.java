@@ -34,13 +34,11 @@ import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -52,7 +50,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
@@ -64,19 +61,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * Data collector which is able to forward analytics events to {@link AnalyticsListener}s by
- * listening to all available ExoPlayer listeners.
+ * Data collector that forwards analytics events to {@link AnalyticsListener AnalyticsListeners}.
  */
 public class AnalyticsCollector
     implements Player.EventListener,
-        MetadataOutput,
         AudioRendererEventListener,
         VideoRendererEventListener,
         MediaSourceEventListener,
         BandwidthMeter.EventListener,
-        DrmSessionEventListener,
-        VideoListener,
-        AudioListener {
+        DrmSessionEventListener {
 
   private final Clock clock;
   private final Period period;
@@ -196,9 +189,13 @@ public class AnalyticsCollector
     // TODO: remove method.
   }
 
-  // MetadataOutput implementation.
+  // MetadataOutput events.
 
-  @Override
+  /**
+   * Called when there is metadata associated with current playback time.
+   *
+   * @param metadata The metadata.
+   */
   public final void onMetadata(Metadata metadata) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
@@ -294,35 +291,6 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onAudioSinkError(Exception audioSinkError) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_AUDIO_SINK_ERROR,
-        listener -> listener.onAudioSinkError(eventTime, audioSinkError));
-  }
-
-  // AudioListener implementation.
-
-  @Override
-  public final void onAudioSessionIdChanged(int audioSessionId) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_AUDIO_SESSION_ID,
-        listener -> listener.onAudioSessionIdChanged(eventTime, audioSessionId));
-  }
-
-  @Override
-  public final void onAudioAttributesChanged(AudioAttributes audioAttributes) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_AUDIO_ATTRIBUTES_CHANGED,
-        listener -> listener.onAudioAttributesChanged(eventTime, audioAttributes));
-  }
-
-  @Override
   public final void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
@@ -332,12 +300,53 @@ public class AnalyticsCollector
   }
 
   @Override
-  public final void onVolumeChanged(float audioVolume) {
+  public final void onAudioSinkError(Exception audioSinkError) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AUDIO_SINK_ERROR,
+        listener -> listener.onAudioSinkError(eventTime, audioSinkError));
+  }
+
+  // Additional audio events.
+
+  /**
+   * Called when the audio session ID changes.
+   *
+   * @param audioSessionId The audio session ID.
+   */
+  public final void onAudioSessionIdChanged(int audioSessionId) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AUDIO_SESSION_ID,
+        listener -> listener.onAudioSessionIdChanged(eventTime, audioSessionId));
+  }
+
+  /**
+   * Called when the audio attributes change.
+   *
+   * @param audioAttributes The audio attributes.
+   */
+  public final void onAudioAttributesChanged(AudioAttributes audioAttributes) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AUDIO_ATTRIBUTES_CHANGED,
+        listener -> listener.onAudioAttributesChanged(eventTime, audioAttributes));
+  }
+
+  /**
+   * Called when the volume changes.
+   *
+   * @param volume The new volume, with 0 being silence and 1 being unity gain.
+   */
+  public final void onVolumeChanged(float volume) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_VOLUME_CHANGED,
-        listener -> listener.onVolumeChanged(eventTime, audioVolume));
+        listener -> listener.onVolumeChanged(eventTime, volume));
   }
 
   // VideoRendererEventListener implementation.
@@ -416,6 +425,18 @@ public class AnalyticsCollector
   }
 
   @Override
+  public final void onVideoSizeChanged(
+      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_VIDEO_SIZE_CHANGED,
+        listener ->
+            listener.onVideoSizeChanged(
+                eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
+  }
+
+  @Override
   public final void onRenderedFirstFrame(@Nullable Surface surface) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
@@ -434,26 +455,17 @@ public class AnalyticsCollector
             listener.onVideoFrameProcessingOffset(eventTime, totalProcessingOffsetUs, frameCount));
   }
 
-  // VideoListener implementation.
+  // Additional video events.
 
-  @Override
-  public final void onRenderedFirstFrame() {
-    // Do nothing. Already reported in VideoRendererEventListener.onRenderedFirstFrame.
-  }
-
-  @Override
-  public final void onVideoSizeChanged(
-      int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-    EventTime eventTime = generateReadingMediaPeriodEventTime();
-    sendEvent(
-        eventTime,
-        AnalyticsListener.EVENT_VIDEO_SIZE_CHANGED,
-        listener ->
-            listener.onVideoSizeChanged(
-                eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
-  }
-
-  @Override
+  /**
+   * Called each time there's a change in the size of the surface onto which the video is being
+   * rendered.
+   *
+   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
+   *     video is not rendered onto a surface.
+   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+   *     the video is not rendered onto a surface.
+   */
   public void onSurfaceSizeChanged(int width, int height) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(

@@ -574,8 +574,6 @@ public class SimpleExoPlayer extends BasePlayer
   private final CopyOnWriteArraySet<TextOutput> textOutputs;
   private final CopyOnWriteArraySet<MetadataOutput> metadataOutputs;
   private final CopyOnWriteArraySet<DeviceListener> deviceListeners;
-  private final CopyOnWriteArraySet<VideoRendererEventListener> videoDebugListeners;
-  private final CopyOnWriteArraySet<AudioRendererEventListener> audioDebugListeners;
   private final AnalyticsCollector analyticsCollector;
   private final AudioBecomingNoisyManager audioBecomingNoisyManager;
   private final AudioFocusManager audioFocusManager;
@@ -650,8 +648,6 @@ public class SimpleExoPlayer extends BasePlayer
     textOutputs = new CopyOnWriteArraySet<>();
     metadataOutputs = new CopyOnWriteArraySet<>();
     deviceListeners = new CopyOnWriteArraySet<>();
-    videoDebugListeners = new CopyOnWriteArraySet<>();
-    audioDebugListeners = new CopyOnWriteArraySet<>();
     Handler eventHandler = new Handler(builder.looper);
     renderers =
         builder.renderersFactory.createRenderers(
@@ -689,11 +685,6 @@ public class SimpleExoPlayer extends BasePlayer
             builder.looper,
             /* wrappingPlayer= */ this);
     player.addListener(componentListener);
-    videoDebugListeners.add(analyticsCollector);
-    videoListeners.add(analyticsCollector);
-    audioDebugListeners.add(analyticsCollector);
-    audioListeners.add(analyticsCollector);
-    addMetadataOutput(analyticsCollector);
 
     audioBecomingNoisyManager =
         new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
@@ -926,6 +917,7 @@ public class SimpleExoPlayer extends BasePlayer
       this.audioAttributes = audioAttributes;
       sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
       streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
+      analyticsCollector.onAudioAttributesChanged(audioAttributes);
       for (AudioListener audioListener : audioListeners) {
         audioListener.onAudioAttributesChanged(audioAttributes);
       }
@@ -964,6 +956,7 @@ public class SimpleExoPlayer extends BasePlayer
     this.audioSessionId = audioSessionId;
     sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
     sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+    analyticsCollector.onAudioSessionIdChanged(audioSessionId);
     for (AudioListener audioListener : audioListeners) {
       audioListener.onAudioSessionIdChanged(audioSessionId);
     }
@@ -994,6 +987,7 @@ public class SimpleExoPlayer extends BasePlayer
     }
     this.audioVolume = audioVolume;
     sendVolumeToRenderers();
+    analyticsCollector.onVolumeChanged(audioVolume);
     for (AudioListener audioListener : audioListeners) {
       audioListener.onVolumeChanged(audioVolume);
     }
@@ -1194,44 +1188,6 @@ public class SimpleExoPlayer extends BasePlayer
   public void removeMetadataOutput(MetadataOutput listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     metadataOutputs.remove(listener);
-  }
-
-  /**
-   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
-   *     information.
-   */
-  @Deprecated
-  public void addVideoDebugListener(VideoRendererEventListener listener) {
-    Assertions.checkNotNull(listener);
-    videoDebugListeners.add(listener);
-  }
-
-  /**
-   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} and {@link
-   *     #removeAnalyticsListener(AnalyticsListener)} to get more detailed debug information.
-   */
-  @Deprecated
-  public void removeVideoDebugListener(VideoRendererEventListener listener) {
-    videoDebugListeners.remove(listener);
-  }
-
-  /**
-   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} to get more detailed debug
-   *     information.
-   */
-  @Deprecated
-  public void addAudioDebugListener(AudioRendererEventListener listener) {
-    Assertions.checkNotNull(listener);
-    audioDebugListeners.add(listener);
-  }
-
-  /**
-   * @deprecated Use {@link #addAnalyticsListener(AnalyticsListener)} and {@link
-   *     #removeAnalyticsListener(AnalyticsListener)} to get more detailed debug information.
-   */
-  @Deprecated
-  public void removeAudioDebugListener(AudioRendererEventListener listener) {
-    audioDebugListeners.remove(listener);
   }
 
   // ExoPlayer implementation
@@ -1939,6 +1895,7 @@ public class SimpleExoPlayer extends BasePlayer
     if (width != surfaceWidth || height != surfaceHeight) {
       surfaceWidth = width;
       surfaceHeight = height;
+      analyticsCollector.onSurfaceSizeChanged(width, height);
       for (VideoListener videoListener : videoListeners) {
         videoListener.onSurfaceSizeChanged(width, height);
       }
@@ -1952,14 +1909,8 @@ public class SimpleExoPlayer extends BasePlayer
 
   @SuppressWarnings("SuspiciousMethodCalls")
   private void notifySkipSilenceEnabledChanged() {
+    analyticsCollector.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     for (AudioListener listener : audioListeners) {
-      // Prevent duplicate notification if a listener is both a AudioRendererEventListener and
-      // a AudioListener, as they have the same method signature.
-      if (!audioDebugListeners.contains(listener)) {
-        listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
-      }
-    }
-    for (AudioRendererEventListener listener : audioDebugListeners) {
       listener.onSkipSilenceEnabledChanged(skipSilenceEnabled);
     }
   }
@@ -2082,86 +2033,64 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onVideoEnabled(DecoderCounters counters) {
       videoDecoderCounters = counters;
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoEnabled(counters);
-      }
+      analyticsCollector.onVideoEnabled(counters);
     }
 
     @Override
     public void onVideoDecoderInitialized(
         String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoDecoderInitialized(
-            decoderName, initializedTimestampMs, initializationDurationMs);
-      }
+      analyticsCollector.onVideoDecoderInitialized(
+          decoderName, initializedTimestampMs, initializationDurationMs);
     }
 
     @Override
     public void onVideoInputFormatChanged(
         Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       videoFormat = format;
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoInputFormatChanged(format, decoderReuseEvaluation);
-      }
+      analyticsCollector.onVideoInputFormatChanged(format, decoderReuseEvaluation);
     }
 
     @Override
     public void onDroppedFrames(int count, long elapsed) {
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onDroppedFrames(count, elapsed);
-      }
+      analyticsCollector.onDroppedFrames(count, elapsed);
     }
 
     @Override
     public void onVideoSizeChanged(
         int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+      analyticsCollector.onVideoSizeChanged(
+          width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
       for (VideoListener videoListener : videoListeners) {
-        // Prevent duplicate notification if a listener is both a VideoRendererEventListener and
-        // a VideoListener, as they have the same method signature.
-        if (!videoDebugListeners.contains(videoListener)) {
-          videoListener.onVideoSizeChanged(
-              width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
-        }
-      }
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoSizeChanged(
+        videoListener.onVideoSizeChanged(
             width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
       }
     }
 
     @Override
     public void onRenderedFirstFrame(Surface surface) {
+      analyticsCollector.onRenderedFirstFrame(surface);
       if (SimpleExoPlayer.this.surface == surface) {
         for (VideoListener videoListener : videoListeners) {
           videoListener.onRenderedFirstFrame();
         }
       }
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onRenderedFirstFrame(surface);
-      }
     }
 
     @Override
     public void onVideoDecoderReleased(String decoderName) {
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoDecoderReleased(decoderName);
-      }
+      analyticsCollector.onVideoDecoderReleased(decoderName);
     }
 
     @Override
     public void onVideoDisabled(DecoderCounters counters) {
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoDisabled(counters);
-      }
+      analyticsCollector.onVideoDisabled(counters);
       videoFormat = null;
       videoDecoderCounters = null;
     }
 
     @Override
     public void onVideoFrameProcessingOffset(long totalProcessingOffsetUs, int frameCount) {
-      for (VideoRendererEventListener videoDebugListener : videoDebugListeners) {
-        videoDebugListener.onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount);
-      }
+      analyticsCollector.onVideoFrameProcessingOffset(totalProcessingOffsetUs, frameCount);
     }
 
     // AudioRendererEventListener implementation
@@ -2169,55 +2098,41 @@ public class SimpleExoPlayer extends BasePlayer
     @Override
     public void onAudioEnabled(DecoderCounters counters) {
       audioDecoderCounters = counters;
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioEnabled(counters);
-      }
+      analyticsCollector.onAudioEnabled(counters);
     }
 
     @Override
     public void onAudioDecoderInitialized(
         String decoderName, long initializedTimestampMs, long initializationDurationMs) {
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioDecoderInitialized(
-            decoderName, initializedTimestampMs, initializationDurationMs);
-      }
+      analyticsCollector.onAudioDecoderInitialized(
+          decoderName, initializedTimestampMs, initializationDurationMs);
     }
 
     @Override
     public void onAudioInputFormatChanged(
         Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       audioFormat = format;
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioInputFormatChanged(format, decoderReuseEvaluation);
-      }
+      analyticsCollector.onAudioInputFormatChanged(format, decoderReuseEvaluation);
     }
 
     @Override
     public void onAudioPositionAdvancing(long playoutStartSystemTimeMs) {
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioPositionAdvancing(playoutStartSystemTimeMs);
-      }
+      analyticsCollector.onAudioPositionAdvancing(playoutStartSystemTimeMs);
     }
 
     @Override
     public void onAudioUnderrun(int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
-      }
+      analyticsCollector.onAudioUnderrun(bufferSize, bufferSizeMs, elapsedSinceLastFeedMs);
     }
 
     @Override
     public void onAudioDecoderReleased(String decoderName) {
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioDecoderReleased(decoderName);
-      }
+      analyticsCollector.onAudioDecoderReleased(decoderName);
     }
 
     @Override
     public void onAudioDisabled(DecoderCounters counters) {
-      for (AudioRendererEventListener audioDebugListener : audioDebugListeners) {
-        audioDebugListener.onAudioDisabled(counters);
-      }
+      analyticsCollector.onAudioDisabled(counters);
       audioFormat = null;
       audioDecoderCounters = null;
       audioSessionId = C.AUDIO_SESSION_ID_UNSET;
@@ -2230,6 +2145,11 @@ public class SimpleExoPlayer extends BasePlayer
       }
       SimpleExoPlayer.this.skipSilenceEnabled = skipSilenceEnabled;
       notifySkipSilenceEnabledChanged();
+    }
+
+    @Override
+    public void onAudioSinkError(Exception audioSinkError) {
+      analyticsCollector.onAudioSinkError(audioSinkError);
     }
 
     // TextOutput implementation
@@ -2246,6 +2166,7 @@ public class SimpleExoPlayer extends BasePlayer
 
     @Override
     public void onMetadata(Metadata metadata) {
+      analyticsCollector.onMetadata(metadata);
       for (MetadataOutput metadataOutput : metadataOutputs) {
         metadataOutput.onMetadata(metadata);
       }

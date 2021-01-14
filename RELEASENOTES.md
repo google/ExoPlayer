@@ -69,6 +69,13 @@
             `com.google.android.exoplayer2.video.VideoListener` instead.
         *   `SingleSampleMediaSource.EventListener` and constructors. Use
             `MediaSourceEventListener` and `SingleSampleMediaSource.Factory`
+        *   `SimpleExoPlayer.addVideoDebugListener`,
+            `SimpleExoPlayer.removeVideoDebugListener`,
+            `SimpleExoPlayer.addAudioDebugListener`
+            and `SimpleExoPlayer.removeAudioDebugListener`. Use
+            `SimpleExoPlayer.addAnalyticsListener` and
+            `SimpleExoPlayer.removeAnalyticsListener` instead.
+        *   `AdaptiveMediaSourceEventListener`. Use `MediaSourceEventListener`
             instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed
         during live playbacks. This allows the player to stay close to the
