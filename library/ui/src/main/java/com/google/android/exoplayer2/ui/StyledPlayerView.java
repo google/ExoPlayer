@@ -581,8 +581,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          oldVideoComponent.setVideoDecoderOutputBufferRenderer(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -609,9 +607,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          newVideoComponent.setVideoDecoderOutputBufferRenderer(
-              ((VideoDecoderGLSurfaceView) surfaceView).getVideoDecoderOutputBufferRenderer());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }

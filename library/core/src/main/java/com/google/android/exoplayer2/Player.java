@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectorInterface;
 import com.google.android.exoplayer2.util.MutableFlags;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -310,30 +309,6 @@ public interface Player {
      * @param textureView The texture view to clear.
      */
     void clearVideoTextureView(@Nullable TextureView textureView);
-
-    /**
-     * Sets the video decoder output buffer renderer. This is intended for use only with extension
-     * renderers that accept {@link Renderer#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. For most
-     * use cases, an output surface or view should be passed via {@link #setVideoSurface(Surface)}
-     * or {@link #setVideoSurfaceView(SurfaceView)} instead.
-     *
-     * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer, or {@code
-     *     null} to clear the output buffer renderer.
-     */
-    void setVideoDecoderOutputBufferRenderer(
-        @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
-
-    /** Clears the video decoder output buffer renderer. */
-    void clearVideoDecoderOutputBufferRenderer();
-
-    /**
-     * Clears the video decoder output buffer renderer if it matches the one passed. Else does
-     * nothing.
-     *
-     * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer to clear.
-     */
-    void clearVideoDecoderOutputBufferRenderer(
-        @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
   }
 
   /** The text component of a {@link Player}. */

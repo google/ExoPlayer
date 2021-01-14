@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
@@ -590,7 +591,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Nullable private Format videoFormat;
   @Nullable private Format audioFormat;
   @Nullable private AudioTrack keepSessionIdAudioTrack;
-  @Nullable private VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer;
   @Nullable private Surface surface;
   private boolean ownsSurface;
   @C.VideoScalingMode private int videoScalingMode;
@@ -804,7 +804,7 @@ public class SimpleExoPlayer extends BasePlayer
     verifyApplicationThread();
     removeSurfaceCallbacks();
     if (surface != null) {
-      clearVideoDecoderOutputBufferRenderer();
+      setVideoDecoderOutputBufferRenderer(/* videoDecoderOutputBufferRenderer= */ null);
     }
     setVideoSurfaceInternal(surface, /* ownsSurface= */ false);
     int newSurfaceSize = surface == null ? 0 : C.LENGTH_UNSET;
@@ -816,7 +816,7 @@ public class SimpleExoPlayer extends BasePlayer
     verifyApplicationThread();
     removeSurfaceCallbacks();
     if (surfaceHolder != null) {
-      clearVideoDecoderOutputBufferRenderer();
+      setVideoDecoderOutputBufferRenderer(/* videoDecoderOutputBufferRenderer= */ null);
     }
     this.surfaceHolder = surfaceHolder;
     if (surfaceHolder == null) {
@@ -846,12 +846,29 @@ public class SimpleExoPlayer extends BasePlayer
 
   @Override
   public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
-    setVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
+    verifyApplicationThread();
+    if (surfaceView instanceof VideoDecoderGLSurfaceView) {
+      VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer =
+          ((VideoDecoderGLSurfaceView) surfaceView).getVideoDecoderOutputBufferRenderer();
+      clearVideoSurface();
+      surfaceHolder = surfaceView.getHolder();
+      setVideoDecoderOutputBufferRenderer(videoDecoderOutputBufferRenderer);
+    } else {
+      setVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
+    }
   }
 
   @Override
   public void clearVideoSurfaceView(@Nullable SurfaceView surfaceView) {
-    clearVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
+    verifyApplicationThread();
+    if (surfaceView instanceof VideoDecoderGLSurfaceView) {
+      if (surfaceView.getHolder() == surfaceHolder) {
+        setVideoDecoderOutputBufferRenderer(null);
+        surfaceHolder = null;
+      }
+    } else {
+      clearVideoSurfaceHolder(surfaceView == null ? null : surfaceView.getHolder());
+    }
   }
 
   @Override
@@ -859,7 +876,7 @@ public class SimpleExoPlayer extends BasePlayer
     verifyApplicationThread();
     removeSurfaceCallbacks();
     if (textureView != null) {
-      clearVideoDecoderOutputBufferRenderer();
+      setVideoDecoderOutputBufferRenderer(/* videoDecoderOutputBufferRenderer= */ null);
     }
     this.textureView = textureView;
     if (textureView == null) {
@@ -887,32 +904,6 @@ public class SimpleExoPlayer extends BasePlayer
     verifyApplicationThread();
     if (textureView != null && textureView == this.textureView) {
       setVideoTextureView(null);
-    }
-  }
-
-  @Override
-  public void setVideoDecoderOutputBufferRenderer(
-      @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
-    verifyApplicationThread();
-    if (videoDecoderOutputBufferRenderer != null) {
-      clearVideoSurface();
-    }
-    setVideoDecoderOutputBufferRendererInternal(videoDecoderOutputBufferRenderer);
-  }
-
-  @Override
-  public void clearVideoDecoderOutputBufferRenderer() {
-    verifyApplicationThread();
-    setVideoDecoderOutputBufferRendererInternal(/* videoDecoderOutputBufferRenderer= */ null);
-  }
-
-  @Override
-  public void clearVideoDecoderOutputBufferRenderer(
-      @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
-    verifyApplicationThread();
-    if (videoDecoderOutputBufferRenderer != null
-        && videoDecoderOutputBufferRenderer == this.videoDecoderOutputBufferRenderer) {
-      clearVideoDecoderOutputBufferRenderer();
     }
   }
 
@@ -1945,13 +1936,12 @@ public class SimpleExoPlayer extends BasePlayer
     this.ownsSurface = ownsSurface;
   }
 
-  private void setVideoDecoderOutputBufferRendererInternal(
+  private void setVideoDecoderOutputBufferRenderer(
       @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer) {
     sendRendererMessage(
         C.TRACK_TYPE_VIDEO,
         Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER,
         videoDecoderOutputBufferRenderer);
-    this.videoDecoderOutputBufferRenderer = videoDecoderOutputBufferRenderer;
   }
 
   private void maybeNotifySurfaceSizeChanged(int width, int height) {

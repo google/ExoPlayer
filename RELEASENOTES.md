@@ -97,6 +97,8 @@
         `MediaItem.playbackProperties.subtitles`
         ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
     *   Remove `ExoPlaybackException.OutOfMemoryError`.
+    *   Remove `setVideoDecoderOutputBufferRenderer` from Player API.
+        Clients should use `setOutputSurface` directly instead.
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level
