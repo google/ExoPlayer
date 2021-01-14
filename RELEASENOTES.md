@@ -164,10 +164,10 @@
         containers.
     *   Fix CEA-708 anchor positioning
         ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
-*   Metadata retriever:
-    *   Parse Google Photos HEIC motion photos metadata.
 *   Data sources:
     *   Use the user agent of the underlying network stack by default.
+*   Metadata retriever:
+    *   Parse Google Photos HEIC and JPEG motion photo metadata.
 *   IMA extension:
     *   Add support for playback of ads in playlists
         ([#3750](https://github.com/google/ExoPlayer/issues/3750)).
