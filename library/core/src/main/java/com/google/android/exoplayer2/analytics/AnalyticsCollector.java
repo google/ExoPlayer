@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import android.os.Looper;
 import android.util.SparseArray;
 import android.view.Surface;
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -110,6 +111,7 @@ public class AnalyticsCollector
    *
    * @param listener The listener to add.
    */
+  @CallSuper
   public void addListener(AnalyticsListener listener) {
     Assertions.checkNotNull(listener);
     listeners.add(listener);
@@ -120,6 +122,7 @@ public class AnalyticsCollector
    *
    * @param listener The listener to remove.
    */
+  @CallSuper
   public void removeListener(AnalyticsListener listener) {
     listeners.remove(listener);
   }
@@ -131,6 +134,7 @@ public class AnalyticsCollector
    * @param player The {@link Player} for which data will be collected.
    * @param looper The {@link Looper} used for listener callbacks.
    */
+  @CallSuper
   public void setPlayer(Player player, Looper looper) {
     Assertions.checkState(
         this.player == null || mediaPeriodQueueTracker.mediaPeriodQueue.isEmpty());
@@ -148,6 +152,7 @@ public class AnalyticsCollector
    * Releases the collector. Must be called after the player for which data is collected has been
    * released.
    */
+  @CallSuper
   public void release() {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     eventTimes.put(AnalyticsListener.EVENT_PLAYER_RELEASED, eventTime);
@@ -166,7 +171,7 @@ public class AnalyticsCollector
    * @param readingPeriod The media period in the queue that is currently being read by renderers,
    *     or null if the queue is empty.
    */
-  public void updateMediaPeriodQueueInfo(
+  public final void updateMediaPeriodQueueInfo(
       List<MediaPeriodId> queue, @Nullable MediaPeriodId readingPeriod) {
     mediaPeriodQueueTracker.onQueueUpdated(queue, readingPeriod, checkNotNull(player));
   }
@@ -289,7 +294,7 @@ public class AnalyticsCollector
   }
 
   @Override
-  public void onAudioSinkError(Exception audioSinkError) {
+  public final void onAudioSinkError(Exception audioSinkError) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
@@ -309,7 +314,7 @@ public class AnalyticsCollector
   }
 
   @Override
-  public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
+  public final void onAudioAttributesChanged(AudioAttributes audioAttributes) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
@@ -318,7 +323,7 @@ public class AnalyticsCollector
   }
 
   @Override
-  public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
+  public final void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
@@ -327,7 +332,7 @@ public class AnalyticsCollector
   }
 
   @Override
-  public void onVolumeChanged(float audioVolume) {
+  public final void onVolumeChanged(float audioVolume) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
@@ -618,7 +623,7 @@ public class AnalyticsCollector
   }
 
   @Override
-  public void onPlaybackSuppressionReasonChanged(
+  public final void onPlaybackSuppressionReasonChanged(
       @PlaybackSuppressionReason int playbackSuppressionReason) {
     EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
     sendEvent(
@@ -765,19 +770,28 @@ public class AnalyticsCollector
         listener -> listener.onDrmSessionReleased(eventTime));
   }
 
-  // Internal methods.
-
-  private void sendEvent(
-      EventTime eventTime,
-      @AnalyticsListener.EventFlags int eventFlag,
-      ListenerSet.Event<AnalyticsListener> eventInvocation) {
+  /**
+   * Sends an event to registered listeners.
+   *
+   * @param eventTime The {@link EventTime} to report.
+   * @param eventFlag An integer flag indicating the type of the event, or {@link C#INDEX_UNSET} to
+   *     report this event without flag.
+   * @param eventInvocation The event.
+   */
+  protected final void sendEvent(
+      EventTime eventTime, int eventFlag, ListenerSet.Event<AnalyticsListener> eventInvocation) {
     eventTimes.put(eventFlag, eventTime);
     listeners.sendEvent(eventFlag, eventInvocation);
   }
 
+  /** Generates an {@link EventTime} for the currently playing item in the player. */
+  protected final EventTime generateCurrentPlayerMediaPeriodEventTime() {
+    return generateEventTime(mediaPeriodQueueTracker.getCurrentPlayerMediaPeriod());
+  }
+
   /** Returns a new {@link EventTime} for the specified timeline, window and media period id. */
   @RequiresNonNull("player")
-  protected EventTime generateEventTime(
+  protected final EventTime generateEventTime(
       Timeline timeline, int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
     if (timeline.isEmpty()) {
       // Ensure media period id is only reported together with a valid timeline.
@@ -818,6 +832,8 @@ public class AnalyticsCollector
         player.getTotalBufferedDuration());
   }
 
+  // Internal methods.
+
   private EventTime generateEventTime(@Nullable MediaPeriodId mediaPeriodId) {
     checkNotNull(player);
     @Nullable
@@ -834,10 +850,6 @@ public class AnalyticsCollector
     }
     int windowIndex = knownTimeline.getPeriodByUid(mediaPeriodId.periodUid, period).windowIndex;
     return generateEventTime(knownTimeline, windowIndex, mediaPeriodId);
-  }
-
-  private EventTime generateCurrentPlayerMediaPeriodEventTime() {
-    return generateEventTime(mediaPeriodQueueTracker.getCurrentPlayerMediaPeriod());
   }
 
   private EventTime generatePlayingMediaPeriodEventTime() {
