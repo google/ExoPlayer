@@ -12,6 +12,9 @@
             instead.
         *   `DrmInitData.get(UUID)`. Use `DrmInitData.get(int)` and
             `DrmInitData.SchemeData.matches(UUID)` instead.
+        *   `ExtractorsMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
+            `ExtractorsMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
+            instead.
         *   `MappedTrackInfo.getTrackFormatSupport(int, int, int)`. Use
             `MappedTrackInfo.getTrackSupport(int, int, int)`.
         *   `MappedTrackInfo.getTrackTypeRendererSupport(int)`. Use
