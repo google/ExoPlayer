@@ -353,7 +353,7 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
+  public void onAudioSessionIdChanged(EventTime eventTime, int audioSessionId) {
     logd(eventTime, "audioSessionId", Integer.toString(audioSessionId));
   }
 

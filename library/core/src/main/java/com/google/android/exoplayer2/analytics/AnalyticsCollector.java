@@ -305,7 +305,7 @@ public class AnalyticsCollector
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_AUDIO_SESSION_ID,
-        listener -> listener.onAudioSessionId(eventTime, audioSessionId));
+        listener -> listener.onAudioSessionIdChanged(eventTime, audioSessionId));
   }
 
   @Override

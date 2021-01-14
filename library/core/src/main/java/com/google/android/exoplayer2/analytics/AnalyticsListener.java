@@ -805,12 +805,12 @@ public interface AnalyticsListener {
   default void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
 
   /**
-   * Called when the audio session id is set.
+   * Called when the audio session ID changes.
    *
    * @param eventTime The event time.
-   * @param audioSessionId The audio session id.
+   * @param audioSessionId The audio session ID.
    */
-  default void onAudioSessionId(EventTime eventTime, int audioSessionId) {}
+  default void onAudioSessionIdChanged(EventTime eventTime, int audioSessionId) {}
 
   /**
    * Called when the audio attributes change.

@@ -152,8 +152,8 @@
         which can be immediately queried by calling
         `SimpleExoPlayer.getAudioSessionId`. The audio session ID will only
         change if application code calls `SimpleExoPlayer.setAudioSessionId`.
-    *   `AudioListener.onAudioSessionId` is replaced with
-        `AudioListener.onAudioSessionIdChanged`. Note that
+    *   `onAudioSessionId` is replaced with `onAudioSessionIdChanged` in
+        `AudioListener` and `AnalyticsListener`. Note that
         `onAudioSessionIdChanged` is called in fewer cases than
         `onAudioSessionId` was called, due to the improved handling of audio
         session IDs as described above.

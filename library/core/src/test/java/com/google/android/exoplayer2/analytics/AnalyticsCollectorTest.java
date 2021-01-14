@@ -2199,7 +2199,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
+    public void onAudioSessionIdChanged(EventTime eventTime, int audioSessionId) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_SESSION_ID, eventTime));
     }
 
