@@ -19,9 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.net.Uri;
-import android.os.Handler;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
@@ -31,31 +29,12 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import java.io.IOException;
 import java.util.Collections;
 
 /**
  * Loads data at a given {@link Uri} as a single sample belonging to a single {@link MediaPeriod}.
  */
 public final class SingleSampleMediaSource extends BaseMediaSource {
-
-  /**
-   * Listener of {@link SingleSampleMediaSource} events.
-   *
-   * @deprecated Use {@link MediaSourceEventListener}.
-   */
-  @Deprecated
-  public interface EventListener {
-
-    /**
-     * Called when an error occurs loading media data.
-     *
-     * @param sourceId The id of the reporting {@link SingleSampleMediaSource}.
-     * @param e The cause of the failure.
-     */
-    void onLoadError(int sourceId, IOException e);
-
-  }
 
   /** Factory for {@link SingleSampleMediaSource}. */
   public static final class Factory {
@@ -195,67 +174,6 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
   @Nullable private TransferListener transferListener;
 
-  /** @deprecated Use {@link Factory} instead. */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public SingleSampleMediaSource(
-      Uri uri, DataSource.Factory dataSourceFactory, Format format, long durationUs) {
-    this(
-        uri,
-        dataSourceFactory,
-        format,
-        durationUs,
-        DefaultLoadErrorHandlingPolicy.DEFAULT_MIN_LOADABLE_RETRY_COUNT);
-  }
-
-  /** @deprecated Use {@link Factory} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public SingleSampleMediaSource(
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      Format format,
-      long durationUs,
-      int minLoadableRetryCount) {
-    this(
-        uri,
-        dataSourceFactory,
-        format,
-        durationUs,
-        minLoadableRetryCount,
-        /* eventHandler= */ null,
-        /* eventListener= */ null,
-        /* ignored */ C.INDEX_UNSET,
-        /* treatLoadErrorsAsEndOfStream= */ false);
-  }
-
-  /** @deprecated Use {@link Factory} instead. */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public SingleSampleMediaSource(
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      Format format,
-      long durationUs,
-      int minLoadableRetryCount,
-      @Nullable Handler eventHandler,
-      @Nullable EventListener eventListener,
-      int eventSourceId,
-      boolean treatLoadErrorsAsEndOfStream) {
-    this(
-        /* trackId= */ null,
-        new MediaItem.Subtitle(
-            uri, checkNotNull(format.sampleMimeType), format.language, format.selectionFlags),
-        dataSourceFactory,
-        durationUs,
-        new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount),
-        treatLoadErrorsAsEndOfStream,
-        /* tag= */ null);
-    if (eventHandler != null && eventListener != null) {
-      addEventListener(eventHandler, new EventListenerWrapper(eventListener, eventSourceId));
-    }
-  }
-
   private SingleSampleMediaSource(
       @Nullable String trackId,
       MediaItem.Subtitle subtitle,
@@ -346,33 +264,5 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
   @Override
   protected void releaseSourceInternal() {
     // Do nothing.
-  }
-
-  /**
-   * Wraps a deprecated {@link EventListener}, invoking its callback from the equivalent callback in
-   * {@link MediaSourceEventListener}.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  private static final class EventListenerWrapper implements MediaSourceEventListener {
-
-    private final EventListener eventListener;
-    private final int eventSourceId;
-
-    public EventListenerWrapper(EventListener eventListener, int eventSourceId) {
-      this.eventListener = checkNotNull(eventListener);
-      this.eventSourceId = eventSourceId;
-    }
-
-    @Override
-    public void onLoadError(
-        int windowIndex,
-        @Nullable MediaPeriodId mediaPeriodId,
-        LoadEventInfo loadEventInfo,
-        MediaLoadData mediaLoadData,
-        IOException error,
-        boolean wasCanceled) {
-      eventListener.onLoadError(eventSourceId, error);
-    }
   }
 }

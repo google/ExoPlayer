@@ -3,7 +3,7 @@
 ### dev-v2 (not yet released)
 
 *   Core library:
-    *   Remove long deprecated methods:
+    *   Remove long deprecated symbols:
         *   `DefaultEventListener.onTimelineChanged(Timeline, Object)`. Use
             `Player.EventListener.onTimelineChanged(Timeline, int)` instead.
         *   `DefaultLoadControl` constructors. Use `DefaultLoadControl.Builder`
@@ -55,8 +55,11 @@
             application is calling `SimpleExoPlayer.setVideoListener(null)`,
             make sure to replace this call with
             `SimpleExoPlayer.removeVideoListener(VideoListener)`.
-    *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
-        `MediaSourceEventListener` instead.
+        *   `SingleSampleMediaSource.EventListener` and constructors. Use
+            `MediaSourceEventListener` and `SingleSampleMediaSource.Factory`
+            instead.
+        *   Remove deprecated interface `AdaptiveMediaSourceEventListener`. Use
+            `MediaSourceEventListener` instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed
         during live playbacks. This allows the player to stay close to the
         configured live offset. A configurable default implementation
@@ -97,8 +100,8 @@
         `MediaItem.playbackProperties.subtitles`
         ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
     *   Remove `ExoPlaybackException.OutOfMemoryError`.
-    *   Remove `setVideoDecoderOutputBufferRenderer` from Player API.
-        Clients should use `setOutputSurface` directly instead.
+    *   Remove `setVideoDecoderOutputBufferRenderer` from Player API. Clients
+        should use `setOutputSurface` directly instead.
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level
