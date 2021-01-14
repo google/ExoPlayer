@@ -88,26 +88,6 @@ public interface Player {
      * default audio attributes will be used. They are suitable for general media playback.
      *
      * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
-     * the audio track is recreated.
-     *
-     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
-     * ignored, but they will take effect if audio is later played without tunneling.
-     *
-     * <p>If the device is running a build before platform API version 21, audio attributes cannot
-     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
-     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
-     *
-     * @param audioAttributes The attributes to use for audio playback.
-     * @deprecated Use {@link AudioComponent#setAudioAttributes(AudioAttributes, boolean)}.
-     */
-    @Deprecated
-    void setAudioAttributes(AudioAttributes audioAttributes);
-
-    /**
-     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
-     * default audio attributes will be used. They are suitable for general media playback.
-     *
-     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
      * the audio track is recreated. A new audio session id will also be generated.
      *
      * <p>If tunneling is enabled by the track selector, the specified audio attributes will be

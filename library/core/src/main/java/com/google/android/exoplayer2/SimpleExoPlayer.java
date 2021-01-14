@@ -921,11 +921,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setAudioAttributes(AudioAttributes audioAttributes) {
-    setAudioAttributes(audioAttributes, /* handleAudioFocus= */ false);
-  }
-
-  @Override
   public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
     verifyApplicationThread();
     if (playerReleased) {

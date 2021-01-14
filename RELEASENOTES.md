@@ -8,8 +8,6 @@
             instead.
         *   `DefaultAnalyticsListener`. Use `AnalyticsListener` directly
             instead.
-        *   `DefaultEventListener.onTimelineChanged(Timeline, Object)`. Use
-            `Player.EventListener.onTimelineChanged(Timeline, int)` instead.
         *   `DefaultLoadControl` constructors. Use `DefaultLoadControl.Builder`
             instead.
         *   `DrmInitData.get(UUID)`. Use `DrmInitData.get(int)` and
@@ -21,6 +19,11 @@
         *   `MappedTrackInfo.getUnassociatedTrackGroups()`. Use
             `MappedTrackInfo.getUnmappedTrackGroups()`.
         *   `MappedTrackInfo.length` - Use `MappedTrackInfo.getRendererCount()`
+            instead.
+        *   `Player.DefaultEventListener.onTimelineChanged(Timeline, Object)`.
+            Use `Player.EventListener.onTimelineChanged(Timeline, int)` instead.
+        *   `Player.setAudioAttributes(AudioAttributes)`. Use
+            `Player.AudioComponent.setAudioAttributes(AudioAttributes, boolean)`
             instead.
         *   `PlayerView.setDefaultArtwork(Bitmap)`. Use
             `PlayerView.setDefaultArtwork(Drawable)` instead.
