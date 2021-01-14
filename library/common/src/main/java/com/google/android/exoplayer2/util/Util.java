@@ -1674,31 +1674,6 @@ public final class Util {
   }
 
   /**
-   * Returns the sample size for audio in the specified encoding.
-   *
-   * @param pcmEncoding The encoding of the audio data.
-   * @return The size of one audio sample in bytes.
-   */
-  public static int getPcmSampleSize(@C.PcmEncoding int pcmEncoding) {
-    switch (pcmEncoding) {
-      case C.ENCODING_PCM_8BIT:
-        return 1;
-      case C.ENCODING_PCM_16BIT:
-      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
-        return 2;
-      case C.ENCODING_PCM_24BIT:
-        return 3;
-      case C.ENCODING_PCM_32BIT:
-      case C.ENCODING_PCM_FLOAT:
-        return 4;
-      case C.ENCODING_INVALID:
-      case Format.NO_VALUE:
-      default:
-        throw new IllegalArgumentException();
-    }
-  }
-
-  /**
    * Returns the frame size for audio with {@code channelCount} channels in the specified encoding.
    *
    * @param pcmEncoding The encoding of the audio data.
@@ -1706,7 +1681,22 @@ public final class Util {
    * @return The size of one audio frame in bytes.
    */
   public static int getPcmFrameSize(@C.PcmEncoding int pcmEncoding, int channelCount) {
-    return getPcmSampleSize(pcmEncoding) * channelCount;
+    switch (pcmEncoding) {
+      case C.ENCODING_PCM_8BIT:
+        return channelCount;
+      case C.ENCODING_PCM_16BIT:
+      case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
+        return channelCount * 2;
+      case C.ENCODING_PCM_24BIT:
+        return channelCount * 3;
+      case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_FLOAT:
+        return channelCount * 4;
+      case C.ENCODING_INVALID:
+      case Format.NO_VALUE:
+      default:
+        throw new IllegalArgumentException();
+    }
   }
 
   /**
