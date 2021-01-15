@@ -184,17 +184,9 @@ public final class DashMediaSource extends BaseMediaSource {
       return this;
     }
 
-    /** @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead. */
-    @Deprecated
-    public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
-      return setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount));
-    }
-
     /**
      * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
      * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
-     *
-     * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
      *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.

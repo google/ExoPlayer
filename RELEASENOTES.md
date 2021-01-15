@@ -6,17 +6,23 @@
     *   Remove long deprecated symbols:
         *   `AdaptiveMediaSourceEventListener`. Use `MediaSourceEventListener`
             instead.
+        *   `DashMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
+            `DashMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
+            instead.
         *   `DefaultAnalyticsListener`. Use `AnalyticsListener` directly
             instead.
         *   `DefaultLoadControl` constructors. Use `DefaultLoadControl.Builder`
             instead.
         *   `DrmInitData.get(UUID)`. Use `DrmInitData.get(int)` and
             `DrmInitData.SchemeData.matches(UUID)` instead.
+        *   `ExtractorsMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
+            `ExtractorsMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
+            instead.
         *   `FixedTrackSelection.Factory`. If you need to disable adaptive
             selection in `DefaultTrackSelector`, enable the
             `DefaultTrackSelector.Parameters.forceHighestSupportedBitrate` flag.
-        *   `ExtractorsMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
-            `ExtractorsMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
+        *   `HlsMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
+            `HlsMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
             instead.
         *   `MappedTrackInfo.getTrackFormatSupport(int, int, int)`. Use
             `MappedTrackInfo.getTrackSupport(int, int, int)`.
@@ -79,6 +85,12 @@
             `SimpleExoPlayer.addAnalyticsListener` and
             `SimpleExoPlayer.removeAnalyticsListener` instead.
         *   `AdaptiveMediaSourceEventListener`. Use `MediaSourceEventListener`
+            instead.
+        *   `SingleSampleMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
+            `SingleSampleMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
+            instead.
+        *   `SsMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
+            `SsMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
             instead.
     *   Add a `LivePlaybackSpeedControl` component to control the playback speed
         during live playbacks. This allows the player to stay close to the
