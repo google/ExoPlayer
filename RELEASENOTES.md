@@ -143,6 +143,8 @@
     *   Populate codecs string for H.265/HEVC in MP4, Matroska and MPEG-TS
         streams to allow decoder capability checks based on codec profile/level
         ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
+    *   Handle sample size mismatches between raw audio `stsd` information and
+        `stsz` fixed sample size in MP4 extractors.
 *   Track selection:
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
