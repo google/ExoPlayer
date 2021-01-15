@@ -837,7 +837,7 @@ public final class SimpleCache implements Cache {
   }
 
   private static void createCacheDirectories(File cacheDir) throws CacheException {
-    if (!cacheDir.mkdirs()) {
+    if (!cacheDir.mkdirs() && !cacheDir.isDirectory()) {
       String message = "Failed to create cache directory: " + cacheDir;
       Log.e(TAG, message);
       throw new CacheException(message);
