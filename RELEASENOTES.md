@@ -12,6 +12,9 @@
             instead.
         *   `DrmInitData.get(UUID)`. Use `DrmInitData.get(int)` and
             `DrmInitData.SchemeData.matches(UUID)` instead.
+        *   `FixedTrackSelection.Factory`. If you need to disable adaptive
+            selection in `DefaultTrackSelector`, enable the
+            `DefaultTrackSelector.Parameters.forceHighestSupportedBitrate` flag.
         *   `ExtractorsMediaSource.Factory.setMinLoadableRetryCount(int)`. Use
             `ExtractorsMediaSource.Factory.setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)`
             instead.
