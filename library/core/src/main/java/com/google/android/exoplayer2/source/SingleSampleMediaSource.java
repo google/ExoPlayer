@@ -55,6 +55,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
     public Factory(DataSource.Factory dataSourceFactory) {
       this.dataSourceFactory = checkNotNull(dataSourceFactory);
       loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy();
+      treatLoadErrorsAsEndOfStream = true;
     }
 
     /**
@@ -118,7 +119,7 @@ public final class SingleSampleMediaSource extends BaseMediaSource {
 
     /**
      * Sets whether load errors will be treated as end-of-stream signal (load errors will not be
-     * propagated). The default value is false.
+     * propagated). The default value is true.
      *
      * @param treatLoadErrorsAsEndOfStream If true, load errors will not be propagated by sample
      *     streams, treating them as ended instead. If false, load errors will be propagated
