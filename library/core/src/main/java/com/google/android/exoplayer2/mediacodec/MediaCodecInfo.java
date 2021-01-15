@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import java.util.ArrayList;
 
 /** Information about a {@link MediaCodec} for a given mime type. */
 @SuppressWarnings("InlinedApi")
@@ -298,7 +299,15 @@ public final class MediaCodecInfo {
       // which may not be widely supported. See https://github.com/google/ExoPlayer/issues/5145.
       return true;
     }
-    for (CodecProfileLevel capabilities : getProfileLevels()) {
+
+    final CodecProfileLevel[] codecProfileLevels;
+    if (MimeTypes.VIDEO_VP9.equals(mimeType) && Util.SDK_INT <= 23 && capabilities != null) {
+      codecProfileLevels = getVp9CodecProfileLevelsV23(capabilities);
+    } else {
+      codecProfileLevels = getProfileLevels();
+    }
+
+    for (CodecProfileLevel capabilities : codecProfileLevels) {
       if (capabilities.profile == profile && capabilities.level >= level) {
         return true;
       }
@@ -570,6 +579,41 @@ public final class MediaCodecInfo {
       return false;
     }
     return true;
+  }
+
+  /**
+   * On versions L and M, VP9 codecCapabilities do not advertise profile level
+   * support. In this case, estimate the level from MediaCodecInfo.VideoCapabilities
+   * instead. Assume VP9 is not supported before L. For more information, consult
+   * https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html
+   */
+  private static CodecProfileLevel[] getVp9CodecProfileLevelsV23(CodecCapabilities capabilities) {
+    // https://www.webmproject.org/vp9/levels
+    final int[][] bitrateMapping = {
+        {200, 10}, {800, 11}, {1800, 20}, {3600, 21}, {7200, 30}, {12000, 31}, {18000, 40},
+        {30000, 41}, {60000, 50}, {120000, 51}, {180000, 52},
+    };
+
+    VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
+
+    if (videoCapabilities == null) {
+      return new CodecProfileLevel[0];
+    }
+
+    ArrayList<CodecProfileLevel> profileLevelList = new ArrayList<>();
+    for (int[] entry : bitrateMapping) {
+      int bitrate = entry[0];
+      int level = entry[1];
+      if (videoCapabilities.getBitrateRange().contains(bitrate)) {
+        CodecProfileLevel profileLevel = new CodecProfileLevel();
+        // Assume all platforms before N only support VP9 profile 0.
+        profileLevel.profile = CodecProfileLevel.VP9Profile0;
+        profileLevel.level = level;
+        profileLevelList.add(profileLevel);
+      }
+    }
+
+    return profileLevelList.toArray(new CodecProfileLevel[profileLevelList.size()]);
   }
 
   private void logNoSupport(String message) {
