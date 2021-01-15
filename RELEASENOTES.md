@@ -215,6 +215,9 @@
         ad view group
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)),
         ([#8339](https://github.com/google/ExoPlayer/issues/8339)).
+    *   Fix a bug that could cause the next content position played after a
+        seek to snap back to the cue point of the preceding ad, rather than
+        the requested content position.
 *   FFmpeg extension:
     *   Link the FFmpeg library statically, saving 350KB in binary size on
         average.

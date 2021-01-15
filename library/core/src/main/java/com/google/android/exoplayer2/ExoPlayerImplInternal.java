@@ -1086,7 +1086,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
     MediaPeriodId periodId;
     long periodPositionUs;
-    long requestedContentPosition;
+    long requestedContentPositionUs;
     boolean seekPositionAdjusted;
     @Nullable
     Pair<Object, Long> resolvedSeekPosition =
@@ -1105,17 +1105,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
           getPlaceholderFirstMediaPeriodPosition(playbackInfo.timeline);
       periodId = firstPeriodAndPosition.first;
       periodPositionUs = firstPeriodAndPosition.second;
-      requestedContentPosition = C.TIME_UNSET;
+      requestedContentPositionUs = C.TIME_UNSET;
       seekPositionAdjusted = !playbackInfo.timeline.isEmpty();
     } else {
       // Update the resolved seek position to take ads into account.
       Object periodUid = resolvedSeekPosition.first;
-      long resolvedContentPosition = resolvedSeekPosition.second;
-      requestedContentPosition =
-          seekPosition.windowPositionUs == C.TIME_UNSET ? C.TIME_UNSET : resolvedContentPosition;
+      long resolvedContentPositionUs = resolvedSeekPosition.second;
+      requestedContentPositionUs =
+          seekPosition.windowPositionUs == C.TIME_UNSET ? C.TIME_UNSET : resolvedContentPositionUs;
       periodId =
           queue.resolveMediaPeriodIdForAds(
-              playbackInfo.timeline, periodUid, resolvedContentPosition);
+              playbackInfo.timeline, periodUid, resolvedContentPositionUs);
       if (periodId.isAd()) {
         playbackInfo.timeline.getPeriodByUid(periodId.periodUid, period);
         periodPositionUs =
@@ -1124,7 +1124,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
                 : 0;
         seekPositionAdjusted = true;
       } else {
-        periodPositionUs = resolvedContentPosition;
+        periodPositionUs = resolvedContentPositionUs;
         seekPositionAdjusted = seekPosition.windowPositionUs == C.TIME_UNSET;
       }
     }
@@ -1175,11 +1175,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
             /* newPeriodId= */ periodId,
             /* oldTimeline= */ playbackInfo.timeline,
             /* oldPeriodId= */ playbackInfo.periodId,
-            /* positionForTargetOffsetOverrideUs= */ requestedContentPosition);
+            /* positionForTargetOffsetOverrideUs= */ requestedContentPositionUs);
       }
     } finally {
       playbackInfo =
-          handlePositionDiscontinuity(periodId, periodPositionUs, requestedContentPosition);
+          handlePositionDiscontinuity(periodId, periodPositionUs, requestedContentPositionUs);
       if (seekPositionAdjusted) {
         playbackInfoUpdate.setPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT);
       }
@@ -2242,6 +2242,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
               ? emptyTrackSelectorResult
               : playingPeriodHolder.getTrackSelectorResult();
       staticMetadata = extractMetadataFromTrackSelectionArray(trackSelectorResult.selections);
+      // Ensure the media period queue requested content position matches the new playback info.
+      if (playingPeriodHolder != null
+          && playingPeriodHolder.info.requestedContentPositionUs != contentPositionUs) {
+        playingPeriodHolder.info =
+            playingPeriodHolder.info.copyWithRequestedContentPositionUs(contentPositionUs);
+      }
     } else if (!mediaPeriodId.equals(playbackInfo.periodId)) {
       // Reset previously kept track info if unprepared and the period changes.
       trackGroupArray = TrackGroupArray.EMPTY;

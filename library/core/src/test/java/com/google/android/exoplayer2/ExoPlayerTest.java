@@ -2683,6 +2683,64 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void seekPastBufferingMidroll_playsAdAndThenContentFromSeekPosition() throws Exception {
+    long adGroupWindowTimeMs = 1_000;
+    long seekPositionMs = 95_000;
+    long contentDurationMs = 100_000;
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1,
+            /* adGroupTimesUs...= */ TimelineWindowDefinition
+                    .DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
+                + C.msToUs(adGroupWindowTimeMs));
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ C.msToUs(contentDurationMs),
+                adPlaybackState));
+    AtomicBoolean hasCreatedAdMediaPeriod = new AtomicBoolean();
+    FakeMediaSource mediaSource =
+        new FakeMediaSource(timeline) {
+          @Override
+          public MediaPeriod createPeriod(
+              MediaPeriodId id, Allocator allocator, long startPositionUs) {
+            if (id.adGroupIndex == 0) {
+              hasCreatedAdMediaPeriod.set(true);
+            }
+            return super.createPeriod(id, allocator, startPositionUs);
+          }
+        };
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(mediaSource);
+    // Throw on the playback thread if the player position reaches a value that is just less than
+    // seek position. This ensures that playback stops and the assertion on the player position
+    // below fails, even if a long time passes between detecting the discontinuity and asserting.
+    player
+        .createMessage(
+            (messageType, payload) -> {
+              throw new IllegalStateException();
+            })
+        .setPosition(seekPositionMs - 1)
+        .send();
+    player.pause();
+    player.prepare();
+
+    // Block until the midroll has started buffering, then seek after the midroll before playing.
+    runMainLooperUntil(hasCreatedAdMediaPeriod::get);
+    player.seekTo(seekPositionMs);
+    player.play();
+
+    // When the ad finishes, the player position should be at or after the requested seek position.
+    TestPlayerRunHelper.runUntilPositionDiscontinuity(
+        player, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    assertThat(player.getCurrentPosition()).isAtLeast(seekPositionMs);
+  }
+
+  @Test
   public void repeatedSeeksToUnpreparedPeriodInSameWindowKeepsWindowSequenceNumber()
       throws Exception {
     Timeline timeline =
