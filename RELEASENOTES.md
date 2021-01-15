@@ -141,6 +141,7 @@
     *   Add option to specify multiple preferred audio or text languages.
     *   Add option to specify preferred MIME type(s) for video and audio
         ([#8320](https://github.com/google/ExoPlayer/issues/8320)).
+    *   Add option to specify preferred audio role flags.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
 *   DASH:
     *   Support low-latency DASH playback (`availabilityTimeOffset` and

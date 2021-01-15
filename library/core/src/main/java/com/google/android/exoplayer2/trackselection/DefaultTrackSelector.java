@@ -489,6 +489,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       return this;
     }
 
+    @Override
+    public ParametersBuilder setPreferredAudioRoleFlags(@C.RoleFlags int preferredAudioRoleFlags) {
+      super.setPreferredAudioRoleFlags(preferredAudioRoleFlags);
+      return this;
+    }
+
     /**
      * Sets the maximum allowed audio channel count.
      *
@@ -843,6 +849,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           preferredVideoMimeTypes,
           // Audio
           preferredAudioLanguages,
+          preferredAudioRoleFlags,
           maxAudioChannelCount,
           maxAudioBitrate,
           exceedAudioConstraintsIfNecessary,
@@ -1112,6 +1119,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         ImmutableList<String> preferredVideoMimeTypes,
         // Audio
         ImmutableList<String> preferredAudioLanguages,
+        @C.RoleFlags int preferredAudioRoleFlags,
         int maxAudioChannelCount,
         int maxAudioBitrate,
         boolean exceedAudioConstraintsIfNecessary,
@@ -1135,6 +1143,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         SparseBooleanArray rendererDisabledFlags) {
       super(
           preferredAudioLanguages,
+          preferredAudioRoleFlags,
           preferredTextLanguages,
           preferredTextRoleFlags,
           selectUndeterminedTextLanguage,
@@ -2724,6 +2733,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     private final boolean isWithinRendererCapabilities;
     private final int preferredLanguageScore;
     private final int preferredLanguageIndex;
+    private final int preferredRoleFlagsScore;
     private final int localeLanguageMatchIndex;
     private final int localeLanguageScore;
     private final boolean isDefaultSelectionFlag;
@@ -2753,6 +2763,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
       preferredLanguageIndex = bestLanguageIndex;
       preferredLanguageScore = bestLanguageScore;
+      preferredRoleFlagsScore =
+          Integer.bitCount(format.roleFlags & parameters.preferredAudioRoleFlags);
       isDefaultSelectionFlag = (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0;
       channelCount = format.channelCount;
       sampleRate = format.sampleRate;
@@ -2809,6 +2821,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
               other.preferredLanguageIndex,
               Ordering.natural().reverse())
           .compare(this.preferredLanguageScore, other.preferredLanguageScore)
+          .compare(this.preferredRoleFlagsScore, other.preferredRoleFlagsScore)
           .compareFalseFirst(this.isWithinConstraints, other.isWithinConstraints)
           .compare(
               this.preferredMimeTypeMatchIndex,

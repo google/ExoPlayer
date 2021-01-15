@@ -384,6 +384,75 @@ public final class DefaultTrackSelectorTest {
   }
 
   /**
+   * Tests that track selector will select audio track with the highest number of matching role
+   * flags given by {@link Parameters}.
+   */
+  @Test
+  public void selectTracks_withPreferredAudioRoleFlags_selectPreferredTrack() throws Exception {
+    Format.Builder formatBuilder = AUDIO_FORMAT.buildUpon();
+    Format noRoleFlags = formatBuilder.build();
+    Format lessRoleFlags = formatBuilder.setRoleFlags(C.ROLE_FLAG_CAPTION).build();
+    Format moreRoleFlags =
+        formatBuilder
+            .setRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY | C.ROLE_FLAG_DUB)
+            .build();
+    TrackGroupArray trackGroups = wrapFormats(noRoleFlags, moreRoleFlags, lessRoleFlags);
+
+    trackSelector.setParameters(
+        defaultParameters
+            .buildUpon()
+            .setPreferredAudioRoleFlags(C.ROLE_FLAG_CAPTION | C.ROLE_FLAG_COMMENTARY));
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, moreRoleFlags);
+  }
+
+  /**
+   * Tests that track selector with select default audio track if no role flag preference is
+   * specified by {@link Parameters}.
+   */
+  @Test
+  public void selectTracks_withoutPreferredAudioRoleFlags_selectsDefaultTrack() throws Exception {
+    Format firstFormat = AUDIO_FORMAT;
+    Format defaultFormat =
+        AUDIO_FORMAT.buildUpon().setSelectionFlags(C.SELECTION_FLAG_DEFAULT).build();
+    Format roleFlagFormat = AUDIO_FORMAT.buildUpon().setRoleFlags(C.ROLE_FLAG_CAPTION).build();
+    TrackGroupArray trackGroups = wrapFormats(firstFormat, defaultFormat, roleFlagFormat);
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, defaultFormat);
+  }
+
+  /**
+   * Tests that track selector with select the first audio track if no role flag preference is
+   * specified by {@link Parameters} and no default track exists.
+   */
+  @Test
+  public void selectTracks_withoutPreferredAudioRoleFlagsOrDefaultTrack_selectsFirstTrack()
+      throws Exception {
+    Format firstFormat = AUDIO_FORMAT;
+    Format roleFlagFormat = AUDIO_FORMAT.buildUpon().setRoleFlags(C.ROLE_FLAG_CAPTION).build();
+    TrackGroupArray trackGroups = wrapFormats(firstFormat, roleFlagFormat);
+
+    TrackSelectorResult result =
+        trackSelector.selectTracks(
+            new RendererCapabilities[] {ALL_AUDIO_FORMAT_SUPPORTED_RENDERER_CAPABILITIES},
+            trackGroups,
+            periodId,
+            TIMELINE);
+    assertFixedSelection(result.selections.get(0), trackGroups, firstFormat);
+  }
+
+  /**
    * Tests that track selector will prefer selecting audio track with language that match preferred
    * language given by {@link Parameters} over track with {@link C#SELECTION_FLAG_DEFAULT}.
    */
@@ -1667,6 +1736,7 @@ public final class DefaultTrackSelectorTest {
         /* preferredVideoMimeTypes= */ ImmutableList.of(MimeTypes.VIDEO_AV1, MimeTypes.VIDEO_H264),
         // Audio
         /* preferredAudioLanguages= */ ImmutableList.of("zh", "jp"),
+        /* preferredAudioRoleFlags= */ C.ROLE_FLAG_COMMENTARY,
         /* maxAudioChannelCount= */ 10,
         /* maxAudioBitrate= */ 11,
         /* exceedAudioConstraintsIfNecessary= */ false,
