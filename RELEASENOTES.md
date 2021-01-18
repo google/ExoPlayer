@@ -80,8 +80,8 @@
             `MediaSourceEventListener` and `SingleSampleMediaSource.Factory`
         *   `SimpleExoPlayer.addVideoDebugListener`,
             `SimpleExoPlayer.removeVideoDebugListener`,
-            `SimpleExoPlayer.addAudioDebugListener`
-            and `SimpleExoPlayer.removeAudioDebugListener`. Use
+            `SimpleExoPlayer.addAudioDebugListener` and
+            `SimpleExoPlayer.removeAudioDebugListener`. Use
             `SimpleExoPlayer.addAnalyticsListener` and
             `SimpleExoPlayer.removeAnalyticsListener` instead.
         *   `AdaptiveMediaSourceEventListener`. Use `MediaSourceEventListener`
@@ -183,6 +183,10 @@
         Widevine or Clearkey protected content in a playlist.
     *   Add `ExoMediaDrm.KeyRequest.getRequestType`
         ([#7847](https://github.com/google/ExoPlayer/issues/7847)).
+    *   Drop key & provision responses if `DefaultDrmSession` is released while
+        waiting for the response. This fixes (harmless) `IllegalStateException:
+        sending message to a Handler on a dead thread` log messages
+        ([#8328](https://github.com/google/ExoPlayer/issues/8328)).
 *   Analytics:
     *   Pass a `DecoderReuseEvaluation` to `AnalyticsListener`'s
         `onVideoInputFormatChanged` and `onAudioInputFormatChanged` methods. The
@@ -219,9 +223,9 @@
         ad view group
         ([#7344](https://github.com/google/ExoPlayer/issues/7344)),
         ([#8339](https://github.com/google/ExoPlayer/issues/8339)).
-    *   Fix a bug that could cause the next content position played after a
-        seek to snap back to the cue point of the preceding ad, rather than
-        the requested content position.
+    *   Fix a bug that could cause the next content position played after a seek
+        to snap back to the cue point of the preceding ad, rather than the
+        requested content position.
 *   FFmpeg extension:
     *   Link the FFmpeg library statically, saving 350KB in binary size on
         average.
