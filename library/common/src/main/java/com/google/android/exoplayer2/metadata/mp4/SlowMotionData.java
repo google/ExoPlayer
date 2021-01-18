@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.metadata.mp4;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
@@ -45,11 +47,12 @@ public final class SlowMotionData implements Metadata.Entry {
     /**
      * Creates an instance.
      *
-     * @param startTimeMs See {@link #startTimeMs}.
+     * @param startTimeMs See {@link #startTimeMs}. Must be less than endTimeMs.
      * @param endTimeMs See {@link #endTimeMs}.
      * @param speedDivisor See {@link #speedDivisor}.
      */
     public Segment(long startTimeMs, long endTimeMs, int speedDivisor) {
+      checkArgument(startTimeMs < endTimeMs);
       this.startTimeMs = startTimeMs;
       this.endTimeMs = endTimeMs;
       this.speedDivisor = speedDivisor;
@@ -113,9 +116,15 @@ public final class SlowMotionData implements Metadata.Entry {
 
   public final List<Segment> segments;
 
-  /** Creates an instance with a list of {@link Segment}s. */
+  /**
+   * Creates an instance with a list of {@link Segment}s.
+   *
+   * <p>The segments must not overlap, that is that the start time of a segment can not be between
+   * the start and end time of another segment.
+   */
   public SlowMotionData(List<Segment> segments) {
     this.segments = segments;
+    checkArgument(!doSegmentsOverlap(segments));
   }
 
   @Override
@@ -164,4 +173,19 @@ public final class SlowMotionData implements Metadata.Entry {
           return new SlowMotionData[size];
         }
       };
+
+  private static boolean doSegmentsOverlap(List<Segment> segments) {
+    if (segments.isEmpty()) {
+      return false;
+    }
+    long previousEndTimeMs = segments.get(0).endTimeMs;
+    for (int i = 1; i < segments.size(); i++) {
+      if (segments.get(i).startTimeMs < previousEndTimeMs) {
+        return true;
+      }
+      previousEndTimeMs = segments.get(i).endTimeMs;
+    }
+
+    return false;
+  }
 }
