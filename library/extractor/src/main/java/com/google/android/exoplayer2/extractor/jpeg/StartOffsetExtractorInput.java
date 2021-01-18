@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.jpeg;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ForwardingExtractorInput;
@@ -38,10 +38,12 @@ import com.google.android.exoplayer2.extractor.ForwardingExtractorInput;
    * @param input The extractor input to wrap. The reading position must be at or after the start
    *     offset, otherwise data could be read from before the start offset.
    * @param startOffset The offset from which this extractor input provides data, in bytes.
+   * @throws IllegalArgumentException Thrown if the start offset is before the current reading
+   *     position.
    */
   public StartOffsetExtractorInput(ExtractorInput input, long startOffset) {
     super(input);
-    checkState(input.getPosition() >= startOffset);
+    checkArgument(input.getPosition() >= startOffset);
     this.startOffset = startOffset;
   }
 

@@ -147,6 +147,8 @@
         ([#8393](https://github.com/google/ExoPlayer/issues/8393)).
     *   Handle sample size mismatches between raw audio `stsd` information and
         `stsz` fixed sample size in MP4 extractors.
+    *   Add support for playing JPEG motion photos
+        ([#5405](https://github.com/google/ExoPlayer/issues/5405)).
 *   Track selection:
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
