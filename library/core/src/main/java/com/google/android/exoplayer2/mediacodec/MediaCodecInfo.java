@@ -300,11 +300,12 @@ public final class MediaCodecInfo {
       return true;
     }
 
-    final CodecProfileLevel[] codecProfileLevels;
-    if (MimeTypes.VIDEO_VP9.equals(mimeType) && Util.SDK_INT <= 23 && capabilities != null) {
+    CodecProfileLevel[] codecProfileLevels = getProfileLevels();
+    if (MimeTypes.VIDEO_VP9.equals(mimeType) &&
+        Util.SDK_INT <= 23 &&
+        codecProfileLevels.length == 0 &&
+        capabilities != null) {
       codecProfileLevels = getVp9CodecProfileLevelsV23(capabilities);
-    } else {
-      codecProfileLevels = getProfileLevels();
     }
 
     for (CodecProfileLevel capabilities : codecProfileLevels) {
@@ -582,16 +583,25 @@ public final class MediaCodecInfo {
   }
 
   /**
-   * On versions L and M, VP9 codecCapabilities do not advertise profile level
+   * On versions M and below, VP9 codecCapabilities do not advertise profile level
    * support. In this case, estimate the level from MediaCodecInfo.VideoCapabilities
-   * instead. Assume VP9 is not supported before L. For more information, consult
+   * instead. For more information, consult
    * https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html
    */
   private static CodecProfileLevel[] getVp9CodecProfileLevelsV23(CodecCapabilities capabilities) {
     // https://www.webmproject.org/vp9/levels
     final int[][] bitrateMapping = {
-        {200, 10}, {800, 11}, {1800, 20}, {3600, 21}, {7200, 30}, {12000, 31}, {18000, 40},
-        {30000, 41}, {60000, 50}, {120000, 51}, {180000, 52},
+        {180000, CodecProfileLevel.VP9Level52},
+        {120000, CodecProfileLevel.VP9Level51},
+        {60000, CodecProfileLevel.VP9Level5},
+        {30000, CodecProfileLevel.VP9Level41},
+        {18000, CodecProfileLevel.VP9Level4},
+        {12000, CodecProfileLevel.VP9Level31},
+        {7200, CodecProfileLevel.VP9Level3},
+        {3600, CodecProfileLevel.VP9Level21},
+        {1800, CodecProfileLevel.VP9Level2},
+        {800, CodecProfileLevel.VP9Level11},
+        {200, CodecProfileLevel.VP9Level1},
     };
 
     VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
@@ -600,7 +610,6 @@ public final class MediaCodecInfo {
       return new CodecProfileLevel[0];
     }
 
-    ArrayList<CodecProfileLevel> profileLevelList = new ArrayList<>();
     for (int[] entry : bitrateMapping) {
       int bitrate = entry[0];
       int level = entry[1];
@@ -609,11 +618,11 @@ public final class MediaCodecInfo {
         // Assume all platforms before N only support VP9 profile 0.
         profileLevel.profile = CodecProfileLevel.VP9Profile0;
         profileLevel.level = level;
-        profileLevelList.add(profileLevel);
+        return new CodecProfileLevel[] { profileLevel };
       }
     }
 
-    return profileLevelList.toArray(new CodecProfileLevel[profileLevelList.size()]);
+    return new CodecProfileLevel[0];
   }
 
   private void logNoSupport(String message) {
