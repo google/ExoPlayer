@@ -136,6 +136,8 @@
         should use `setOutputSurface` directly instead.
     *   Default `SingleSampleMediaSource.treatLoadErrorsAsEndOfStream` to `true`
         ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
+    *   Remove `setVideoDecoderOutputBufferRenderer` from Player API. Use
+        `setVideoSurfaceView` and `clearVideoSurfaceView` instead.
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level
