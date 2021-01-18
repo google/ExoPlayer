@@ -47,7 +47,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
-import java.util.ArrayList;
 
 /** Information about a {@link MediaCodec} for a given mime type. */
 @SuppressWarnings("InlinedApi")
@@ -301,10 +300,10 @@ public final class MediaCodecInfo {
     }
 
     CodecProfileLevel[] codecProfileLevels = getProfileLevels();
-    if (MimeTypes.VIDEO_VP9.equals(mimeType) &&
-        Util.SDK_INT <= 23 &&
-        codecProfileLevels.length == 0 &&
-        capabilities != null) {
+    if (MimeTypes.VIDEO_VP9.equals(mimeType)
+        && Util.SDK_INT <= 23
+        && codecProfileLevels.length == 0
+        && capabilities != null) {
       codecProfileLevels = getVp9CodecProfileLevelsV23(capabilities);
     }
 
