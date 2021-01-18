@@ -23,7 +23,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /** Holds information about the segments of slow motion playback within a track. */
@@ -31,6 +33,14 @@ public final class SlowMotionData implements Metadata.Entry {
 
   /** Holds information about a single segment of slow motion playback within a track. */
   public static final class Segment implements Parcelable {
+
+    public static final Comparator<Segment> BY_START_THEN_END_THEN_DIVISOR =
+        (s1, s2) ->
+            ComparisonChain.start()
+                .compare(s1.startTimeMs, s2.startTimeMs)
+                .compare(s1.endTimeMs, s2.endTimeMs)
+                .compare(s1.speedDivisor, s2.speedDivisor)
+                .result();
 
     /** The start time, in milliseconds, of the track segment that is intended to be slow motion. */
     public final long startTimeMs;
