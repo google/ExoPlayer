@@ -89,19 +89,18 @@ public class TestUtil {
   }
 
   /**
-   * Generates a random string with the specified maximum length.
+   * Generates a random string with the specified length.
    *
-   * @param maximumLength The maximum length of the string.
+   * @param length The length of the string.
    * @param random A source of randomness.
    * @return The generated string.
    */
-  public static String buildTestString(int maximumLength, Random random) {
-    int length = random.nextInt(maximumLength);
-    StringBuilder builder = new StringBuilder(length);
+  public static String buildTestString(int length, Random random) {
+    char[] chars = new char[length];
     for (int i = 0; i < length; i++) {
-      builder.append((char) random.nextInt());
+      chars[i] = (char) random.nextInt();
     }
-    return builder.toString();
+    return new String(chars);
   }
 
   /**
