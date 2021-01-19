@@ -195,6 +195,11 @@
         `DecoderReuseEvaluation` indicates whether it was possible to re-use an
         existing decoder instance for the new format, and if not then the
         reasons why.
+*   Video:
+    *   Fix VP9 format capability checks on API level 23 and earlier. The
+        platform does not correctly report the VP9 level supported by the
+        decoder in this case, so we estimate it based on the decoder's maximum
+        supported bitrate.
 *   Audio:
     *   Fix handling of audio session IDs
         ([#8190](https://github.com/google/ExoPlayer/issues/8190)).
