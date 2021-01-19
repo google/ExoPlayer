@@ -91,6 +91,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -2119,6 +2120,17 @@ public final class Util {
       initialValue = CRC8_BYTES_MSBF[initialValue ^ (bytes[i] & 0xFF)];
     }
     return initialValue;
+  }
+
+  /** Compresses {@code input} using gzip and returns the result in a newly allocated byte array. */
+  public static byte[] gzip(byte[] input) {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    try (GZIPOutputStream os = new GZIPOutputStream(output)) {
+      os.write(input);
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+    return output.toByteArray();
   }
 
   /**

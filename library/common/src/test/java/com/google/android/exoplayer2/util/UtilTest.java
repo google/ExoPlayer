@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.getStringForTime;
+import static com.google.android.exoplayer2.util.Util.gzip;
 import static com.google.android.exoplayer2.util.Util.minValue;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
@@ -37,6 +38,9 @@ import android.text.style.UnderlineSpan;
 import android.util.SparseLongArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.common.io.ByteStreams;
+import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -45,6 +49,7 @@ import java.util.Formatter;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
@@ -925,6 +930,17 @@ public class UtilTest {
     int result = Util.crc8(bytes, start, end, initialValue);
 
     assertThat(result).isEqualTo(0x4);
+  }
+
+  @Test
+  public void gzip_resultInflatesBackToOriginalValue() throws Exception {
+    byte[] input = TestUtil.buildTestData(20);
+
+    byte[] deflated = gzip(input);
+
+    byte[] inflated =
+        ByteStreams.toByteArray(new GZIPInputStream(new ByteArrayInputStream(deflated)));
+    assertThat(inflated).isEqualTo(input);
   }
 
   @Test

@@ -36,6 +36,7 @@ dependencies {
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {

@@ -60,6 +60,20 @@ public class HttpDataSourceTestEnv extends ExternalResource {
           .resolvesToUnknownLength(true)
           .build();
 
+  private static final WebServerDispatcher.Resource GZIP_ENABLED =
+      new WebServerDispatcher.Resource.Builder()
+          .setPath("/gzip/enabled")
+          .setData(TestUtil.buildTestData(/* length= */ 20, seed++))
+          .setGzipSupport(WebServerDispatcher.Resource.GZIP_SUPPORT_ENABLED)
+          .build();
+
+  private static final WebServerDispatcher.Resource GZIP_FORCED =
+      new WebServerDispatcher.Resource.Builder()
+          .setPath("/gzip/forced")
+          .setData(TestUtil.buildTestData(/* length= */ 20, seed++))
+          .setGzipSupport(WebServerDispatcher.Resource.GZIP_SUPPORT_FORCED)
+          .build();
+
   private static final WebServerDispatcher.Resource REDIRECTS_TO_RANGE_SUPPORTED =
       RANGE_SUPPORTED.buildUpon().setPath("/redirects/to/range/supported").build();
 
@@ -74,6 +88,8 @@ public class HttpDataSourceTestEnv extends ExternalResource {
         createTestResource("range not supported", RANGE_NOT_SUPPORTED),
         createTestResource(
             "range not supported, length unknown", RANGE_NOT_SUPPORTED_LENGTH_UNKNOWN),
+        createTestResource("gzip enabled", GZIP_ENABLED),
+        createTestResource("gzip forced", GZIP_FORCED),
         createTestResource(
             "302 redirect", REDIRECTS_TO_RANGE_SUPPORTED, /* server= */ redirectionServer));
   }
@@ -91,7 +107,9 @@ public class HttpDataSourceTestEnv extends ExternalResource {
                 RANGE_SUPPORTED,
                 RANGE_SUPPORTED_LENGTH_UNKNOWN,
                 RANGE_NOT_SUPPORTED,
-                RANGE_NOT_SUPPORTED_LENGTH_UNKNOWN)));
+                RANGE_NOT_SUPPORTED_LENGTH_UNKNOWN,
+                GZIP_ENABLED,
+                GZIP_FORCED)));
 
     redirectionServer.start();
     redirectionServer.setDispatcher(
