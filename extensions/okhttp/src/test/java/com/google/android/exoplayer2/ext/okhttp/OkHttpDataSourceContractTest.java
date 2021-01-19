@@ -13,25 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.upstream;
+package com.google.android.exoplayer2.ext.okhttp;
 
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.DataSourceContractTest;
 import com.google.android.exoplayer2.testutil.HttpDataSourceTestEnv;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.common.collect.ImmutableList;
+import okhttp3.OkHttpClient;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 
-/** {@link DataSource} contract tests for {@link DefaultHttpDataSource}. */
+/** {@link DataSource} contract tests for {@link OkHttpDataSource}. */
 @RunWith(AndroidJUnit4.class)
-public class DefaultHttpDataSourceContractTest extends DataSourceContractTest {
+public class OkHttpDataSourceContractTest extends DataSourceContractTest {
 
   @Rule public HttpDataSourceTestEnv httpDataSourceTestEnv = new HttpDataSourceTestEnv();
 
   @Override
   protected DataSource createDataSource() {
-    return new DefaultHttpDataSource.Factory().createDataSource();
+    return new OkHttpDataSource.Factory(new OkHttpClient()).createDataSource();
   }
 
   @Override
