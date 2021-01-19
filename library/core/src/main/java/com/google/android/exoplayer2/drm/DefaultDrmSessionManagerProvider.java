@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.source;
+package com.google.android.exoplayer2.drm;
 
 import static com.google.android.exoplayer2.drm.DefaultDrmSessionManager.MODE_PLAYBACK;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
-import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
-import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -31,8 +27,8 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
 import java.util.Map;
 
-/** A helper to create a {@link DrmSessionManager} from a {@link MediaItem}. */
-public final class MediaSourceDrmHelper {
+/** Default implementation of {@link DrmSessionManagerProvider}. */
+public final class DefaultDrmSessionManagerProvider implements DrmSessionManagerProvider {
 
   @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
   @Nullable private String userAgent;
@@ -62,8 +58,8 @@ public final class MediaSourceDrmHelper {
     this.userAgent = userAgent;
   }
 
-  /** Creates a {@link DrmSessionManager} for the given media item. */
-  public DrmSessionManager create(MediaItem mediaItem) {
+  @Override
+  public DrmSessionManager get(MediaItem mediaItem) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
     @Nullable
     MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;

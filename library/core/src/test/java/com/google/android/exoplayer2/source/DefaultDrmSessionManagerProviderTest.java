@@ -21,18 +21,19 @@ import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link MediaSourceDrmHelper}. */
+/** Unit tests for {@link DefaultDrmSessionManagerProvider}. */
 @RunWith(AndroidJUnit4.class)
-public class MediaSourceDrmHelperTest {
+public class DefaultDrmSessionManagerProviderTest {
 
   @Test
   public void create_noDrmProperties_createsNoopManager() {
     DrmSessionManager drmSessionManager =
-        new MediaSourceDrmHelper().create(MediaItem.fromUri(Uri.EMPTY));
+        new DefaultDrmSessionManagerProvider().get(MediaItem.fromUri(Uri.EMPTY));
 
     assertThat(drmSessionManager).isEqualTo(DrmSessionManager.DUMMY);
   }
@@ -46,7 +47,7 @@ public class MediaSourceDrmHelperTest {
             .setDrmUuid(C.WIDEVINE_UUID)
             .build();
 
-    DrmSessionManager drmSessionManager = new MediaSourceDrmHelper().create(mediaItem);
+    DrmSessionManager drmSessionManager = new DefaultDrmSessionManagerProvider().get(mediaItem);
 
     assertThat(drmSessionManager).isNotEqualTo(DrmSessionManager.DUMMY);
   }

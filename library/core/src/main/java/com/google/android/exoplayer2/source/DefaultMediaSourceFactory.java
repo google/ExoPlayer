@@ -23,6 +23,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -100,7 +101,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private static final String TAG = "DefaultMediaSourceFactory";
 
-  private final MediaSourceDrmHelper mediaSourceDrmHelper;
+  private final DefaultDrmSessionManagerProvider drmSessionManagerProvider;
   private final DataSource.Factory dataSourceFactory;
   private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
@@ -157,7 +158,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    mediaSourceDrmHelper = new MediaSourceDrmHelper();
+    drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
     mediaSourceFactories = loadDelegates(dataSourceFactory, extractorsFactory);
     supportedTypes = new int[mediaSourceFactories.size()];
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
@@ -257,13 +258,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    mediaSourceDrmHelper.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+    drmSessionManagerProvider.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-    mediaSourceDrmHelper.setDrmUserAgent(userAgent);
+    drmSessionManagerProvider.setDrmUserAgent(userAgent);
     return this;
   }
 
@@ -310,7 +311,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
     mediaSourceFactory.setDrmSessionManager(
-        drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem));
+        drmSessionManager != null ? drmSessionManager : drmSessionManagerProvider.get(mediaItem));
     mediaSourceFactory.setStreamKeys(
         !mediaItem.playbackProperties.streamKeys.isEmpty()
             ? mediaItem.playbackProperties.streamKeys
