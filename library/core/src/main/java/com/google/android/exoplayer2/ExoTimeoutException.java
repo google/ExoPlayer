@@ -41,11 +41,9 @@ public final class ExoTimeoutException extends Exception {
 
   /** The operation where this error occurred is not defined. */
   public static final int TIMEOUT_OPERATION_UNDEFINED = 0;
-  // TODO(b/172315872) Change back @code to @link when the Player is in common.
-  /** The error occurred in {@code Player#release}. */
+  /** The error occurred in {@link Player#release}. */
   public static final int TIMEOUT_OPERATION_RELEASE = 1;
-  /** The error occurred in {@code ExoPlayer#setForegroundMode}. */
-  // TODO(b/172315872) Set foregroundMode is an ExoPlayer method, NOT a player one.
+  /** The error occurred in {@link ExoPlayer#setForegroundMode}. */
   public static final int TIMEOUT_OPERATION_SET_FOREGROUND_MODE = 2;
   /** The error occurred while detaching a surface from the player. */
   public static final int TIMEOUT_OPERATION_DETACH_SURFACE = 3;
