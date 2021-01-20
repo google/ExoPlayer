@@ -115,45 +115,25 @@ import java.util.Arrays;
   }
 
   /**
-   * Reads data from the rolling buffer to populate a decoder input buffer.
+   * Reads data from the rolling buffer to populate a decoder input buffer, and advances the read
+   * position.
    *
    * @param buffer The buffer to populate.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
    */
   public void readToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
-    // Read encryption data if the sample is encrypted.
-    AllocationNode readAllocationNode = this.readAllocationNode;
-    if (buffer.isEncrypted()) {
-      readAllocationNode = readEncryptionData(readAllocationNode, buffer, extrasHolder, scratch);
-    }
-    // Read sample data, extracting supplemental data into a separate buffer if needed.
-    if (buffer.hasSupplementalData()) {
-      // If there is supplemental data, the sample data is prefixed by its size.
-      scratch.reset(4);
-      readAllocationNode = readData(readAllocationNode, extrasHolder.offset, scratch.getData(), 4);
-      int sampleSize = scratch.readUnsignedIntToInt();
-      extrasHolder.offset += 4;
-      extrasHolder.size -= 4;
+    readAllocationNode = readSampleData(readAllocationNode, buffer, extrasHolder, scratch);
+  }
 
-      // Write the sample data.
-      buffer.ensureSpaceForWrite(sampleSize);
-      readAllocationNode =
-          readData(readAllocationNode, extrasHolder.offset, buffer.data, sampleSize);
-      extrasHolder.offset += sampleSize;
-      extrasHolder.size -= sampleSize;
-
-      // Write the remaining data as supplemental data.
-      buffer.resetSupplementalData(extrasHolder.size);
-      readAllocationNode =
-          readData(
-              readAllocationNode, extrasHolder.offset, buffer.supplementalData, extrasHolder.size);
-    } else {
-      // Write the sample data.
-      buffer.ensureSpaceForWrite(extrasHolder.size);
-      readAllocationNode =
-          readData(readAllocationNode, extrasHolder.offset, buffer.data, extrasHolder.size);
-    }
-    this.readAllocationNode = readAllocationNode;
+  /**
+   * Peeks data from the rolling buffer to populate a decoder input buffer, without advancing the
+   * read position.
+   *
+   * @param buffer The buffer to populate.
+   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   */
+  public void peekToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
+    readSampleData(readAllocationNode, buffer, extrasHolder, scratch);
   }
 
   /**
@@ -268,6 +248,52 @@ import java.util.Arrays;
     if (totalBytesWritten == writeAllocationNode.endPosition) {
       writeAllocationNode = writeAllocationNode.next;
     }
+  }
+
+  /**
+   * Reads data from the rolling buffer to populate a decoder input buffer.
+   *
+   * @param allocationNode The first {@link AllocationNode} containing data yet to be read.
+   * @param buffer The buffer to populate.
+   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   * @param scratch A scratch {@link ParsableByteArray}.
+   * @return The first {@link AllocationNode} that contains unread bytes after the last byte that
+   *     the invocation read.
+   */
+  private static AllocationNode readSampleData(
+      AllocationNode allocationNode,
+      DecoderInputBuffer buffer,
+      SampleExtrasHolder extrasHolder,
+      ParsableByteArray scratch) {
+    if (buffer.isEncrypted()) {
+      allocationNode = readEncryptionData(allocationNode, buffer, extrasHolder, scratch);
+    }
+    // Read sample data, extracting supplemental data into a separate buffer if needed.
+    if (buffer.hasSupplementalData()) {
+      // If there is supplemental data, the sample data is prefixed by its size.
+      scratch.reset(4);
+      allocationNode = readData(allocationNode, extrasHolder.offset, scratch.getData(), 4);
+      int sampleSize = scratch.readUnsignedIntToInt();
+      extrasHolder.offset += 4;
+      extrasHolder.size -= 4;
+
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(sampleSize);
+      allocationNode = readData(allocationNode, extrasHolder.offset, buffer.data, sampleSize);
+      extrasHolder.offset += sampleSize;
+      extrasHolder.size -= sampleSize;
+
+      // Write the remaining data as supplemental data.
+      buffer.resetSupplementalData(extrasHolder.size);
+      allocationNode =
+          readData(allocationNode, extrasHolder.offset, buffer.supplementalData, extrasHolder.size);
+    } else {
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(extrasHolder.size);
+      allocationNode =
+          readData(allocationNode, extrasHolder.offset, buffer.data, extrasHolder.size);
+    }
+    return allocationNode;
   }
 
   /**
