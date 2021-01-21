@@ -2084,7 +2084,7 @@ public final class Util {
 
   /** Creates a new empty file in the directory returned by {@link Context#getCacheDir()}. */
   public static File createTempFile(Context context, String prefix) throws IOException {
-    return File.createTempFile(prefix, null, context.getCacheDir());
+    return File.createTempFile(prefix, null, checkNotNull(context.getCacheDir()));
   }
 
   /**
