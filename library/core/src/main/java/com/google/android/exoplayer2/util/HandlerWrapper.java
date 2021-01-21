@@ -26,39 +26,42 @@ import androidx.annotation.Nullable;
  */
 public interface HandlerWrapper {
 
-  /** @see Handler#getLooper() */
+  /** See {@link Handler#getLooper()}. */
   Looper getLooper();
 
-  /** @see Handler#obtainMessage(int) */
+  /** See {@link Handler#hasMessages(int)}. */
+  boolean hasMessages(int what);
+
+  /** See {@link Handler#obtainMessage(int)}. */
   Message obtainMessage(int what);
 
-  /** @see Handler#obtainMessage(int, Object) */
+  /** See {@link Handler#obtainMessage(int, Object)}. */
   Message obtainMessage(int what, @Nullable Object obj);
 
-  /** @see Handler#obtainMessage(int, int, int) */
+  /** See {@link Handler#obtainMessage(int, int, int)}. */
   Message obtainMessage(int what, int arg1, int arg2);
 
-  /** @see Handler#obtainMessage(int, int, int, Object) */
+  /** See {@link Handler#obtainMessage(int, int, int, Object)}. */
   Message obtainMessage(int what, int arg1, int arg2, @Nullable Object obj);
 
-  /** @see Handler#sendEmptyMessage(int) */
+  /** See {@link Handler#sendEmptyMessage(int)}. */
   boolean sendEmptyMessage(int what);
 
-  /** @see Handler#sendEmptyMessageDelayed(int, long) */
+  /** See {@link Handler#sendEmptyMessageDelayed(int, long)}. */
   boolean sendEmptyMessageDelayed(int what, int delayMs);
 
-  /** @see Handler#sendEmptyMessageAtTime(int, long) */
+  /** See {@link Handler#sendEmptyMessageAtTime(int, long)}. */
   boolean sendEmptyMessageAtTime(int what, long uptimeMs);
 
-  /** @see Handler#removeMessages(int) */
+  /** See {@link Handler#removeMessages(int)}. */
   void removeMessages(int what);
 
-  /** @see Handler#removeCallbacksAndMessages(Object) */
+  /** See {@link Handler#removeCallbacksAndMessages(Object)}. */
   void removeCallbacksAndMessages(@Nullable Object token);
 
-  /** @see Handler#post(Runnable) */
+  /** See {@link Handler#post(Runnable)}. */
   boolean post(Runnable runnable);
 
-  /** @see Handler#postDelayed(Runnable, long) */
+  /** See {@link Handler#postDelayed(Runnable, long)}. */
   boolean postDelayed(Runnable runnable, long delayMs);
 }

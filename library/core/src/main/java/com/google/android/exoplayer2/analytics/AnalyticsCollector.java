@@ -91,6 +91,7 @@ public class AnalyticsCollector
     listeners =
         new ListenerSet<>(
             Util.getCurrentOrMainLooper(),
+            clock,
             AnalyticsListener.Events::new,
             (listener, eventFlags) -> {});
     period = new Period();

@@ -148,6 +148,16 @@ public class FakeClock implements Clock {
     return true;
   }
 
+  private synchronized boolean hasPendingMessage(ClockHandler handler, int what) {
+    for (int i = 0; i < handlerMessages.size(); i++) {
+      HandlerMessageData message = handlerMessages.get(i);
+      if (message.handler.equals(handler) && message.message == what) {
+        return true;
+      }
+    }
+    return handler.handler.hasMessages(what);
+  }
+
   /** Message data saved to send messages or execute runnables at a later time on a Handler. */
   private static final class HandlerMessageData {
 
@@ -196,6 +206,11 @@ public class FakeClock implements Clock {
     @Override
     public Looper getLooper() {
       return handler.getLooper();
+    }
+
+    @Override
+    public boolean hasMessages(int what) {
+      return hasPendingMessage(/* handler= */ this, what);
     }
 
     @Override

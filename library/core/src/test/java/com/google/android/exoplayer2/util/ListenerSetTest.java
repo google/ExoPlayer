@@ -43,7 +43,8 @@ public class ListenerSetTest {
   @Test
   public void queueEvent_withoutFlush_sendsNoEvents() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener = mock(TestListener.class);
     listenerSet.add(listener);
 
@@ -57,7 +58,8 @@ public class ListenerSetTest {
   @Test
   public void flushEvents_sendsPreviouslyQueuedEventsToAllListeners() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener1 = mock(TestListener.class);
     TestListener listener2 = mock(TestListener.class);
     listenerSet.add(listener1);
@@ -81,7 +83,8 @@ public class ListenerSetTest {
   @Test
   public void flushEvents_recursive_sendsEventsInCorrectOrder() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     // Listener1 sends callback3 recursively when receiving callback1.
     TestListener listener1 =
         spy(
@@ -114,7 +117,8 @@ public class ListenerSetTest {
   public void
       flushEvents_withMultipleMessageQueueIterations_sendsIterationFinishedEventPerIteration() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     // Listener1 sends callback1 recursively when receiving callback3.
     TestListener listener1 =
         spy(
@@ -170,7 +174,8 @@ public class ListenerSetTest {
   @Test
   public void flushEvents_calledFromIterationFinishedCallback_restartsIterationFinishedEvents() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     // Listener2 sends callback1 recursively when receiving the iteration finished event.
     TestListener listener2 =
         spy(
@@ -212,7 +217,8 @@ public class ListenerSetTest {
   @Test
   public void flushEvents_withUnsetEventFlag_doesNotThrow() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
 
     listenerSet.queueEvent(/* eventFlag= */ C.INDEX_UNSET, TestListener::callback1);
     listenerSet.flushEvents();
@@ -224,7 +230,8 @@ public class ListenerSetTest {
   @Test
   public void add_withRecursion_onlyReceivesUpdatesForFutureEvents() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener2 = mock(TestListener.class);
     // Listener1 adds listener2 recursively.
     TestListener listener1 =
@@ -256,7 +263,8 @@ public class ListenerSetTest {
   @Test
   public void add_withQueueing_onlyReceivesUpdatesForFutureEvents() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener1 = mock(TestListener.class);
     TestListener listener2 = mock(TestListener.class);
 
@@ -281,7 +289,8 @@ public class ListenerSetTest {
   @Test
   public void remove_withRecursion_stopsReceivingEventsImmediately() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener2 = mock(TestListener.class);
     // Listener1 removes listener2 recursively.
     TestListener listener1 =
@@ -309,7 +318,8 @@ public class ListenerSetTest {
   @Test
   public void remove_withQueueing_stopsReceivingEventsImmediately() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener1 = mock(TestListener.class);
     TestListener listener2 = mock(TestListener.class);
     listenerSet.add(listener1);
@@ -330,7 +340,8 @@ public class ListenerSetTest {
   @Test
   public void release_stopsForwardingEventsImmediately() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener2 = mock(TestListener.class);
     // Listener1 releases the set from within the callback.
     TestListener listener1 =
@@ -357,7 +368,8 @@ public class ListenerSetTest {
   @Test
   public void release_preventsRegisteringNewListeners() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener = mock(TestListener.class);
 
     listenerSet.release();
@@ -370,7 +382,8 @@ public class ListenerSetTest {
   @Test
   public void lazyRelease_stopsForwardingEventsFromNewHandlerMessagesAndCallsReleaseCallback() {
     ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(Looper.myLooper(), Flags::new, TestListener::iterationFinished);
+        new ListenerSet<>(
+            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
     TestListener listener = mock(TestListener.class);
     listenerSet.add(listener);
 

@@ -34,6 +34,11 @@ import androidx.annotation.Nullable;
   }
 
   @Override
+  public boolean hasMessages(int what) {
+    return handler.hasMessages(what);
+  }
+
+  @Override
   public Message obtainMessage(int what) {
     return handler.obtainMessage(what);
   }

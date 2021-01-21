@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.util;
 
-import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import androidx.annotation.CheckResult;
@@ -72,7 +71,8 @@ public final class ListenerSet<T, E extends MutableFlags> {
   private static final int MSG_ITERATION_FINISHED = 0;
   private static final int MSG_LAZY_RELEASE = 1;
 
-  private final Handler handler;
+  private final Clock clock;
+  private final HandlerWrapper handler;
   private final Supplier<E> eventFlagsSupplier;
   private final IterationFinishedEvent<T, E> iterationFinishedEvent;
   private final CopyOnWriteArraySet<ListenerHolder<T, E>> listeners;
@@ -86,6 +86,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
    *
    * @param looper A {@link Looper} used to call listeners on. The same {@link Looper} must be used
    *     to call all other methods of this class.
+   * @param clock A {@link Clock}.
    * @param eventFlagsSupplier A {@link Supplier} for new instances of {@link E the event flags
    *     type}.
    * @param iterationFinishedEvent An {@link IterationFinishedEvent} sent when all other events sent
@@ -93,11 +94,13 @@ public final class ListenerSet<T, E extends MutableFlags> {
    */
   public ListenerSet(
       Looper looper,
+      Clock clock,
       Supplier<E> eventFlagsSupplier,
       IterationFinishedEvent<T, E> iterationFinishedEvent) {
     this(
         /* listeners= */ new CopyOnWriteArraySet<>(),
         looper,
+        clock,
         eventFlagsSupplier,
         iterationFinishedEvent);
   }
@@ -105,8 +108,10 @@ public final class ListenerSet<T, E extends MutableFlags> {
   private ListenerSet(
       CopyOnWriteArraySet<ListenerHolder<T, E>> listeners,
       Looper looper,
+      Clock clock,
       Supplier<E> eventFlagsSupplier,
       IterationFinishedEvent<T, E> iterationFinishedEvent) {
+    this.clock = clock;
     this.listeners = listeners;
     this.eventFlagsSupplier = eventFlagsSupplier;
     this.iterationFinishedEvent = iterationFinishedEvent;
@@ -114,7 +119,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
     queuedEvents = new ArrayDeque<>();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("methodref.receiver.bound.invalid")
-    Handler handler = Util.createHandler(looper, this::handleMessage);
+    HandlerWrapper handler = clock.createHandler(looper, this::handleMessage);
     this.handler = handler;
   }
 
@@ -129,7 +134,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
   @CheckResult
   public ListenerSet<T, E> copy(
       Looper looper, IterationFinishedEvent<T, E> iterationFinishedEvent) {
-    return new ListenerSet<>(listeners, looper, eventFlagsSupplier, iterationFinishedEvent);
+    return new ListenerSet<>(listeners, looper, clock, eventFlagsSupplier, iterationFinishedEvent);
   }
 
   /**

@@ -154,6 +154,7 @@ import java.util.List;
     listeners =
         new ListenerSet<>(
             applicationLooper,
+            clock,
             Player.Events::new,
             (listener, eventFlags) -> listener.onEvents(playerForListeners, eventFlags));
     mediaSourceHolderSnapshots = new ArrayList<>();
