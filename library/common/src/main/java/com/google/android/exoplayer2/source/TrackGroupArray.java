@@ -21,17 +21,13 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import java.util.Arrays;
 
-/** An array of {@link TrackGroup}s exposed by a {@link MediaPeriod}. */
+/** An immutable array of {@link TrackGroup}s. */
 public final class TrackGroupArray implements Parcelable {
 
-  /**
-   * The empty array.
-   */
+  /** The empty array. */
   public static final TrackGroupArray EMPTY = new TrackGroupArray();
 
-  /**
-   * The number of groups in the array. Greater than or equal to zero.
-   */
+  /** The number of groups in the array. Greater than or equal to zero. */
   public final int length;
 
   private final TrackGroup[] trackGroups;
@@ -39,9 +35,7 @@ public final class TrackGroupArray implements Parcelable {
   // Lazily initialized hashcode.
   private int hashCode;
 
-  /**
-   * @param trackGroups The groups. Must not be null or contain null elements, but may be empty.
-   */
+  /** @param trackGroups The groups. May be empty. */
   public TrackGroupArray(TrackGroup... trackGroups) {
     this.trackGroups = trackGroups;
     this.length = trackGroups.length;
@@ -83,9 +77,7 @@ public final class TrackGroupArray implements Parcelable {
     return C.INDEX_UNSET;
   }
 
-  /**
-   * Returns whether this track group array is empty.
-   */
+  /** Returns whether this track group array is empty. */
   public boolean isEmpty() {
     return length == 0;
   }

@@ -29,14 +29,16 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Loads media corresponding to a {@link Timeline.Period}, and allows that media to be read. All
- * methods are called on the player's internal playback thread, as described in the
- * {@link ExoPlayer} Javadoc.
+ * methods are called on the player's internal playback thread, as described in the {@link
+ * ExoPlayer} Javadoc.
+ *
+ * <p>A {@link MediaPeriod} may only able to provide one {@link SampleStream} corresponding to a
+ * group at any given time, however this {@link SampleStream} may adapt between multiple tracks
+ * within the group.
  */
 public interface MediaPeriod extends SequenceableLoader {
 
-  /**
-   * A callback to be notified of {@link MediaPeriod} events.
-   */
+  /** A callback to be notified of {@link MediaPeriod} events. */
   interface Callback extends SequenceableLoader.Callback<MediaPeriod> {
 
     /**

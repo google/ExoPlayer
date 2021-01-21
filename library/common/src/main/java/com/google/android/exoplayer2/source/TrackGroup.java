@@ -23,20 +23,10 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.Assertions;
 import java.util.Arrays;
 
-// TODO: Add an allowMultipleStreams boolean to indicate where the one stream per group restriction
-// does not apply.
-/**
- * Defines a group of tracks exposed by a {@link MediaPeriod}.
- *
- * <p>A {@link MediaPeriod} is only able to provide one {@link SampleStream} corresponding to a
- * group at any given time, however this {@link SampleStream} may adapt between multiple tracks
- * within the group.
- */
+/** Defines an immutable group of tracks identified by their format identity. */
 public final class TrackGroup implements Parcelable {
 
-  /**
-   * The number of tracks in the group.
-   */
+  /** The number of tracks in the group. */
   public final int length;
 
   private final Format[] formats;
@@ -45,7 +35,7 @@ public final class TrackGroup implements Parcelable {
   private int hashCode;
 
   /**
-   * @param formats The track formats. Must not be null, contain null elements or be of length 0.
+   * @param formats The track formats. At least one {@link Format} must be provided.
    */
   public TrackGroup(Format... formats) {
     Assertions.checkState(formats.length > 0);
