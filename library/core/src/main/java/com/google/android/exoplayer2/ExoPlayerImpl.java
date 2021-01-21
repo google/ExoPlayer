@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -67,7 +68,7 @@ import java.util.List;
 
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
-  private final Handler playbackInfoUpdateHandler;
+  private final HandlerWrapper playbackInfoUpdateHandler;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
   private final ListenerSet<Player.EventListener, Player.Events> listeners;
@@ -167,7 +168,7 @@ import java.util.List;
             /* info= */ null);
     period = new Timeline.Period();
     maskingWindowIndex = C.INDEX_UNSET;
-    playbackInfoUpdateHandler = new Handler(applicationLooper);
+    playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
         playbackInfoUpdate ->
             playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
