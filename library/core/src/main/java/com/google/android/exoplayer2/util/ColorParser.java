@@ -67,6 +67,27 @@ public final class ColorParser {
     return parseColorInternal(colorExpression, true);
   }
 
+  /**
+   * Parses a SSA V4+ color expression.
+   *
+   * @param colorExpression The color expression.
+   * @return The parsed ARGB color.
+   */
+  @ColorInt
+  public static int parseSsaColor(String colorExpression) {
+    // SSA V4+ color format is &HAABBGGRR.
+    if (colorExpression.length() != 10 || !"&H".equals(colorExpression.substring(0, 2))) {
+      throw new IllegalArgumentException();
+    }
+    // Convert &HAABBGGRR to #RRGGBBAA.
+    String rgba = new StringBuilder()
+        .append(colorExpression.substring(2))
+        .append("#")
+        .reverse()
+        .toString();
+    return parseColorInternal(rgba, true);
+  }
+
   @ColorInt
   private static int parseColorInternal(String colorExpression, boolean alphaHasFloatFormat) {
     Assertions.checkArgument(!TextUtils.isEmpty(colorExpression));

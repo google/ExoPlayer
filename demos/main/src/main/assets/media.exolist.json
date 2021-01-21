@@ -507,6 +507,13 @@
         "subtitle_language": "en"
       },
       {
+        "name": "SubStation Alpha colors",
+        "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/video-avc-baseline-480.mp4",
+        "subtitle_uri": "https://drive.google.com/uc?export=download&id=13EdW4Qru-vQerUlwS_Ht5Cely_Tn0tQe",
+        "subtitle_mime_type": "text/x-ssa",
+        "subtitle_language": "en"
+      },
+      {
         "name": "MPEG-4 Timed Text",
         "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mp4/dizzy-with-tx3g.mp4"
       }

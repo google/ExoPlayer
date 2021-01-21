@@ -21,10 +21,12 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.graphics.PointF;
 import android.text.TextUtils;
+import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
@@ -83,12 +85,16 @@ import java.util.regex.Pattern;
   public static final int SSA_ALIGNMENT_TOP_CENTER = 8;
   public static final int SSA_ALIGNMENT_TOP_RIGHT = 9;
 
+  public static final int SSA_COLOR_UNKNOWN = -1;
+
   public final String name;
   @SsaAlignment public final int alignment;
+  @ColorInt public int primaryColor;
 
-  private SsaStyle(String name, @SsaAlignment int alignment) {
+  private SsaStyle(String name, @SsaAlignment int alignment, @ColorInt int primaryColor) {
     this.name = name;
     this.alignment = alignment;
+    this.primaryColor = primaryColor;
   }
 
   @Nullable
@@ -105,7 +111,9 @@ import java.util.regex.Pattern;
     }
     try {
       return new SsaStyle(
-          styleValues[format.nameIndex].trim(), parseAlignment(styleValues[format.alignmentIndex]));
+          styleValues[format.nameIndex].trim(),
+          parseAlignment(styleValues[format.alignmentIndex]),
+          parsePrimaryColor(styleValues[format.primaryColorIndex]));
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
       return null;
@@ -144,6 +152,16 @@ import java.util.regex.Pattern;
     }
   }
 
+  @ColorInt
+  private static int parsePrimaryColor(String primaryColorStr) {
+    try {
+      return ColorParser.parseSsaColor(primaryColorStr);
+    } catch (IllegalArgumentException ex) {
+      Log.w(TAG, "Failed parsing color value: " + primaryColorStr);
+    }
+    return SSA_COLOR_UNKNOWN;
+  }
+
   /**
    * Represents a {@code Format:} line from the {@code [V4+ Styles]} section
    *
@@ -154,11 +172,13 @@ import java.util.regex.Pattern;
 
     public final int nameIndex;
     public final int alignmentIndex;
+    public final int primaryColorIndex;
     public final int length;
 
-    private Format(int nameIndex, int alignmentIndex, int length) {
+    private Format(int nameIndex, int alignmentIndex, int primaryColorIndex, int length) {
       this.nameIndex = nameIndex;
       this.alignmentIndex = alignmentIndex;
+      this.primaryColorIndex = primaryColorIndex;
       this.length = length;
     }
 
@@ -171,6 +191,7 @@ import java.util.regex.Pattern;
     public static Format fromFormatLine(String styleFormatLine) {
       int nameIndex = C.INDEX_UNSET;
       int alignmentIndex = C.INDEX_UNSET;
+      int primaryColorIndex = C.INDEX_UNSET;
       String[] keys =
           TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
@@ -181,9 +202,14 @@ import java.util.regex.Pattern;
           case "alignment":
             alignmentIndex = i;
             break;
+          case "primarycolour":
+            primaryColorIndex = i;
+            break;
         }
       }
-      return nameIndex != C.INDEX_UNSET ? new Format(nameIndex, alignmentIndex, keys.length) : null;
+      return nameIndex != C.INDEX_UNSET
+          ? new Format(nameIndex, alignmentIndex, primaryColorIndex, keys.length)
+          : null;
     }
   }
 

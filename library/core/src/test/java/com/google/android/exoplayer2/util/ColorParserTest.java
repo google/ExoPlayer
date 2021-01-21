@@ -18,8 +18,10 @@ package com.google.android.exoplayer2.util;
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.RED;
 import static android.graphics.Color.WHITE;
+import static android.graphics.Color.YELLOW;
 import static android.graphics.Color.argb;
 import static android.graphics.Color.parseColor;
+import static com.google.android.exoplayer2.util.ColorParser.parseSsaColor;
 import static com.google.android.exoplayer2.util.ColorParser.parseTtmlColor;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -64,6 +66,9 @@ public final class ColorParserTest {
     // Hex colors in ColorParser are RGBA, where-as {@link Color#parseColor} takes ARGB.
     assertThat(parseTtmlColor("#FFFFFF00")).isEqualTo(parseColor("#00FFFFFF"));
     assertThat(parseTtmlColor("#12345678")).isEqualTo(parseColor("#78123456"));
+    // SSA colors are in &HAABBGGRR format.
+    assertThat(parseSsaColor("&HFF0000FF")).isEqualTo(RED);
+    assertThat(parseSsaColor("&HFF00FFFF")).isEqualTo(YELLOW);
   }
 
   @Test
