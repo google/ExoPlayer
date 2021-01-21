@@ -212,6 +212,7 @@
         `onAudioSessionIdChanged` is called in fewer cases than
         `onAudioSessionId` was called, due to the improved handling of audio
         session IDs as described above.
+    *   Retry playback after some types of `AudioTrack` error.
 *   Text:
     *   Gracefully handle null-terminated subtitle content in Matroska
         containers.
@@ -317,7 +318,6 @@
     *   Support enabling the previous and next actions individually in
         `PlayerNotificationManager`.
 *   Audio:
-    *   Retry playback after some types of `AudioTrack` error.
     *   Work around `AudioManager` crashes when calling `getStreamVolume`
         ([#8191](https://github.com/google/ExoPlayer/issues/8191)).
 *   Extractors:
