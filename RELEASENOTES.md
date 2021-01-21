@@ -66,7 +66,6 @@
     *   Support enabling the previous and next actions individually in
         `PlayerNotificationManager`.
 *   Audio:
-    *   Retry playback after some types of `AudioTrack` error.
     *   Work around `AudioManager` crashes when calling `getStreamVolume`
         ([#8191](https://github.com/google/ExoPlayer/issues/8191)).
 *   Extractors:
