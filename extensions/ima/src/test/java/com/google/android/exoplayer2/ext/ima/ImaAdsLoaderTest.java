@@ -451,6 +451,62 @@ public final class ImaAdsLoaderTest {
   }
 
   @Test
+  public void startPlaybackAfterMidroll_doesNotSkipMidroll() {
+    // Simulate an ad at 2 seconds, and starting playback with an initial seek position at the ad.
+    long adGroupPositionInWindowUs = 2 * C.MICROS_PER_SECOND;
+    long adGroupTimeUs =
+        adGroupPositionInWindowUs
+            + TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
+    ImmutableList<Float> cuePoints = ImmutableList.of((float) adGroupTimeUs / C.MICROS_PER_SECOND);
+    when(mockAdsManager.getAdCuePoints()).thenReturn(cuePoints);
+    fakePlayer.setState(Player.STATE_BUFFERING, /* playWhenReady= */ true);
+    fakePlayer.setPlayingContentPosition(/* periodIndex= */ 0, C.usToMs(adGroupPositionInWindowUs));
+
+    // Start ad loading while still buffering and simulate the calls from the IMA SDK to resume then
+    // immediately pause content playback.
+    imaAdsLoader.start(
+        adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
+    contentProgressProvider.getContentProgress();
+    adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
+    contentProgressProvider.getContentProgress();
+    adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_PAUSE_REQUESTED, /* ad= */ null));
+    contentProgressProvider.getContentProgress();
+
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
+        .isEqualTo(
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US));
+  }
+
+  @Test
+  public void startPlaybackAfterMidroll_withAdNotPreloadingAfterTimeout_hasErrorAdGroup() {
+    // Simulate an ad at 2 seconds, and starting playback with an initial seek position at the ad.
+    long adGroupPositionInWindowUs = 2 * C.MICROS_PER_SECOND;
+    long adGroupTimeUs =
+        adGroupPositionInWindowUs
+            + TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US;
+    ImmutableList<Float> cuePoints = ImmutableList.of((float) adGroupTimeUs / C.MICROS_PER_SECOND);
+    when(mockAdsManager.getAdCuePoints()).thenReturn(cuePoints);
+    fakePlayer.setState(Player.STATE_BUFFERING, /* playWhenReady= */ true);
+    fakePlayer.setPlayingContentPosition(/* periodIndex= */ 0, C.usToMs(adGroupPositionInWindowUs));
+
+    // Start ad loading while still buffering and poll progress without the ad loading.
+    imaAdsLoader.start(
+        adsMediaSource, TEST_DATA_SPEC, TEST_ADS_ID, adViewProvider, adsLoaderListener);
+    contentProgressProvider.getContentProgress();
+    ShadowSystemClock.advanceBy(Duration.ofSeconds(5));
+    contentProgressProvider.getContentProgress();
+
+    assertThat(getAdPlaybackState(/* periodIndex= */ 0))
+        .isEqualTo(
+            new AdPlaybackState(TEST_ADS_ID, getAdGroupTimesUsForCuePoints(cuePoints))
+                .withContentDurationUs(CONTENT_PERIOD_DURATION_US)
+                .withAdDurationsUs(new long[][] {{TEST_AD_DURATION_US}})
+                .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+                .withAdLoadError(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0));
+  }
+
+  @Test
   public void bufferingDuringAd_callsOnBuffering() {
     // Load the preroll ad.
     imaAdsLoader.start(

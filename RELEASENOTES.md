@@ -238,6 +238,11 @@
     *   Fix a bug that could cause the next content position played after a seek
         to snap back to the cue point of the preceding ad, rather than the
         requested content position.
+    *   Fix a regression that caused an ad group to be skipped after an initial
+        seek to a non-zero position. Unsupported VPAID ads will still be
+        skipped but only after the preload timeout rather than instantly
+        ([#8428](https://github.com/google/ExoPlayer/issues/8428)),
+        ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
 *   FFmpeg extension:
     *   Link the FFmpeg library statically, saving 350KB in binary size on
         average.
