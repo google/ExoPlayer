@@ -1468,7 +1468,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void sendMessageToTarget(PlayerMessage message) throws ExoPlaybackException {
-    if (message.getHandler().getLooper() == playbackLooper) {
+    if (message.getLooper() == playbackLooper) {
       deliverMessage(message);
       if (playbackInfo.playbackState == Player.STATE_READY
           || playbackInfo.playbackState == Player.STATE_BUFFERING) {
@@ -1481,21 +1481,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void sendMessageToTargetThread(final PlayerMessage message) {
-    Handler handler = message.getHandler();
-    if (!handler.getLooper().getThread().isAlive()) {
+    Looper looper = message.getLooper();
+    if (!looper.getThread().isAlive()) {
       Log.w("TAG", "Trying to send message on a dead thread.");
       message.markAsProcessed(/* isDelivered= */ false);
       return;
     }
-    handler.post(
-        () -> {
-          try {
-            deliverMessage(message);
-          } catch (ExoPlaybackException e) {
-            Log.e(TAG, "Unexpected error delivering message on external thread.", e);
-            throw new RuntimeException(e);
-          }
-        });
+    clock
+        .createHandler(looper, /* callback= */ null)
+        .post(
+            () -> {
+              try {
+                deliverMessage(message);
+              } catch (ExoPlaybackException e) {
+                Log.e(TAG, "Unexpected error delivering message on external thread.", e);
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   private void deliverMessage(PlayerMessage message) throws ExoPlaybackException {

@@ -138,6 +138,7 @@
         ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
     *   Remove `setVideoDecoderOutputBufferRenderer` from Player API. Use
         `setVideoSurfaceView` and `clearVideoSurfaceView` instead.
+    *   Replace `PlayerMessage.setHandler` with `PlayerMessage.setLooper`.
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level

@@ -456,6 +456,9 @@ public interface ExoPlayer extends Player {
   /** Returns the {@link Looper} associated with the playback thread. */
   Looper getPlaybackLooper();
 
+  /** Returns the {@link Clock} used for playback. */
+  Clock getClock();
+
   /** @deprecated Use {@link #prepare()} instead. */
   @Deprecated
   void retry();

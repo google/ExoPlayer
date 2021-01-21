@@ -1203,6 +1203,11 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public Clock getClock() {
+    return player.getClock();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     Assertions.checkNotNull(listener);

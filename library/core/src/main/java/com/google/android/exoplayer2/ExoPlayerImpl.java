@@ -70,7 +70,6 @@ import java.util.List;
   private final Handler playbackInfoUpdateHandler;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
-  private final Handler internalPlayerHandler;
   private final ListenerSet<Player.EventListener, Player.Events> listeners;
   private final Timeline.Period period;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
@@ -79,6 +78,7 @@ import java.util.List;
   @Nullable private final AnalyticsCollector analyticsCollector;
   private final Looper applicationLooper;
   private final BandwidthMeter bandwidthMeter;
+  private final Clock clock;
 
   @RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
@@ -149,6 +149,7 @@ import java.util.List;
     this.seekParameters = seekParameters;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.applicationLooper = applicationLooper;
+    this.clock = clock;
     repeatMode = Player.REPEAT_MODE_OFF;
     Player playerForListeners = wrappingPlayer != null ? wrappingPlayer : this;
     listeners =
@@ -193,7 +194,6 @@ import java.util.List;
             applicationLooper,
             clock,
             playbackInfoUpdateListener);
-    internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 
   /**
@@ -258,6 +258,11 @@ import java.util.List;
   @Override
   public Looper getApplicationLooper() {
     return applicationLooper;
+  }
+
+  @Override
+  public Clock getClock() {
+    return clock;
   }
 
   @Override
@@ -755,7 +760,8 @@ import java.util.List;
         target,
         playbackInfo.timeline,
         getCurrentWindowIndex(),
-        internalPlayerHandler);
+        clock,
+        internalPlayer.getPlaybackLooper());
   }
 
   @Override

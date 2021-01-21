@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
-import android.os.Handler;
+import android.os.Looper;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -603,7 +603,7 @@ public abstract class Action {
       } else {
         message.setPosition(positionMs);
       }
-      message.setHandler(Util.createHandlerForCurrentOrMainLooper());
+      message.setLooper(Util.getCurrentOrMainLooper());
       message.setDeleteAfterDelivery(deleteAfterDelivery);
       message.send();
     }
@@ -685,18 +685,21 @@ public abstract class Action {
         @Nullable Surface surface,
         HandlerWrapper handler,
         @Nullable ActionNode nextAction) {
-      Handler testThreadHandler = Util.createHandlerForCurrentOrMainLooper();
       // Schedule a message on the playback thread to ensure the player is paused immediately.
+      Looper applicationLooper = Util.getCurrentOrMainLooper();
       player
           .createMessage(
               (messageType, payload) -> {
                 // Block playback thread until pause command has been sent from test thread.
                 ConditionVariable blockPlaybackThreadCondition = new ConditionVariable();
-                testThreadHandler.post(
-                    () -> {
-                      player.pause();
-                      blockPlaybackThreadCondition.open();
-                    });
+                player
+                    .getClock()
+                    .createHandler(applicationLooper, /* callback= */ null)
+                    .post(
+                        () -> {
+                          player.pause();
+                          blockPlaybackThreadCondition.open();
+                        });
                 try {
                   blockPlaybackThreadCondition.block();
                 } catch (InterruptedException e) {
@@ -712,7 +715,7 @@ public abstract class Action {
                 (messageType, payload) ->
                     nextAction.schedule(player, trackSelector, surface, handler))
             .setPosition(windowIndex, positionMs)
-            .setHandler(testThreadHandler)
+            .setLooper(applicationLooper)
             .send();
       }
       player.play();
@@ -1049,7 +1052,7 @@ public abstract class Action {
       player
           .createMessage(
               (type, data) -> nextAction.schedule(player, trackSelector, surface, handler))
-          .setHandler(Util.createHandlerForCurrentOrMainLooper())
+          .setLooper(Util.getCurrentOrMainLooper())
           .send();
     }
 

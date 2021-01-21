@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.util.Clock;
 import java.util.List;
 
 /**
@@ -72,6 +73,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public Looper getApplicationLooper() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Clock getClock() {
     throw new UnsupportedOperationException();
   }
 
