@@ -151,6 +151,7 @@
     *   Add support for playing JPEG motion photos
         ([#5405](https://github.com/google/ExoPlayer/issues/5405)).
 *   Track selection:
+    *   Moved `Player.getTrackSelector` to the `ExoPlayer` interface.
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
     *   Simplified enabling tunneling with `DefaultTrackSelector`.

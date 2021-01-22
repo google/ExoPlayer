@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectorInterface;
 import com.google.android.exoplayer2.util.MutableFlags;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -1379,12 +1378,6 @@ public interface Player {
    * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   int getRendererType(int index);
-
-  /**
-   * Returns the track selector that this player uses, or null if track selection is not supported.
-   */
-  @Nullable
-  TrackSelectorInterface getTrackSelector();
 
   /** Returns the available track groups. */
   TrackGroupArray getCurrentTrackGroups();

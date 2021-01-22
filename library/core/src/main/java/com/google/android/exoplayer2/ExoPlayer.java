@@ -449,7 +449,9 @@ public interface ExoPlayer extends Player {
     }
   }
 
-  @Override
+  /**
+   * Returns the track selector that this player uses, or null if track selection is not supported.
+   */
   @Nullable
   TrackSelector getTrackSelector();
 

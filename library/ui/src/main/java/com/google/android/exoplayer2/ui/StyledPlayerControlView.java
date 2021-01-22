@@ -51,6 +51,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackPreparer;
@@ -66,6 +67,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Selecti
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -759,8 +761,11 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player != null) {
       player.addListener(componentListener);
     }
-    if (player != null && player.getTrackSelector() instanceof DefaultTrackSelector) {
-      this.trackSelector = (DefaultTrackSelector) player.getTrackSelector();
+    if (player instanceof ExoPlayer) {
+      TrackSelector trackSelector = ((ExoPlayer) player).getTrackSelector();
+      if (trackSelector instanceof DefaultTrackSelector) {
+        this.trackSelector = (DefaultTrackSelector) trackSelector;
+      }
     } else {
       this.trackSelector = null;
     }
