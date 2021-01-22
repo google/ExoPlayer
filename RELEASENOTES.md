@@ -139,6 +139,10 @@
     *   Remove `setVideoDecoderOutputBufferRenderer` from Player API. Use
         `setVideoSurfaceView` and `clearVideoSurfaceView` instead.
     *   Replace `PlayerMessage.setHandler` with `PlayerMessage.setLooper`.
+*   Transformer:
+    *   Add a library to transform media inputs. Available transformations are:
+        configuration of output container format, removal of audio or video
+        track and slow motion flattening.
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level
