@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BaseMediaSource;
@@ -78,11 +79,11 @@ public final class SsMediaSource extends BaseMediaSource
   public static final class Factory implements MediaSourceFactory {
 
     private final SsChunkSource.Factory chunkSourceFactory;
-    private final DefaultDrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private final DataSource.Factory manifestDataSourceFactory;
 
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-    @Nullable private DrmSessionManager drmSessionManager;
+    private boolean usingCustomDrmSessionManagerProvider;
+    private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private long livePresentationDelayMs;
     @Nullable private ParsingLoadable.Parser<? extends SsManifest> manifestParser;
@@ -192,21 +193,43 @@ public final class SsMediaSource extends BaseMediaSource
     }
 
     @Override
+    public Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      if (drmSessionManagerProvider != null) {
+        this.drmSessionManagerProvider = drmSessionManagerProvider;
+        this.usingCustomDrmSessionManagerProvider = true;
+      } else {
+        this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
+        this.usingCustomDrmSessionManagerProvider = false;
+      }
+      return this;
+    }
+
+    @Override
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      this.drmSessionManager = drmSessionManager;
+      if (drmSessionManager == null) {
+        setDrmSessionManagerProvider(null);
+      } else {
+        setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
+      }
       return this;
     }
 
     @Override
     public Factory setDrmHttpDataSourceFactory(
         @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      drmSessionManagerProvider.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      if (!usingCustomDrmSessionManagerProvider) {
+        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
+            .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      }
       return this;
     }
 
     @Override
     public Factory setDrmUserAgent(@Nullable String userAgent) {
-      drmSessionManagerProvider.setDrmUserAgent(userAgent);
+      if (!usingCustomDrmSessionManagerProvider) {
+        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
+      }
       return this;
     }
 
@@ -277,7 +300,7 @@ public final class SsMediaSource extends BaseMediaSource
           /* manifestParser= */ null,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          drmSessionManager != null ? drmSessionManager : drmSessionManagerProvider.get(mediaItem),
+          drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           livePresentationDelayMs);
     }
@@ -321,7 +344,7 @@ public final class SsMediaSource extends BaseMediaSource
           manifestParser,
           chunkSourceFactory,
           compositeSequenceableLoaderFactory,
-          drmSessionManager != null ? drmSessionManager : drmSessionManagerProvider.get(mediaItem),
+          drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           livePresentationDelayMs);
     }

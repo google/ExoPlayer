@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -52,10 +53,10 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   public static final class Factory implements MediaSourceFactory {
 
     private final DataSource.Factory dataSourceFactory;
-    private final DefaultDrmSessionManagerProvider drmSessionManagerProvider;
 
     private ExtractorsFactory extractorsFactory;
-    @Nullable private DrmSessionManager drmSessionManager;
+    private boolean usingCustomDrmSessionManagerProvider;
+    private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private int continueLoadingCheckIntervalBytes;
     @Nullable private String customCacheKey;
@@ -149,21 +150,42 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     }
 
     @Override
+    public Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      if (drmSessionManagerProvider != null) {
+        this.drmSessionManagerProvider = drmSessionManagerProvider;
+        this.usingCustomDrmSessionManagerProvider = true;
+      } else {
+        this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
+        this.usingCustomDrmSessionManagerProvider = false;
+      }
+      return this;
+    }
+
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      this.drmSessionManager = drmSessionManager;
+      if (drmSessionManager == null) {
+        setDrmSessionManagerProvider(null);
+      } else {
+        setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
+      }
       return this;
     }
 
     @Override
     public Factory setDrmHttpDataSourceFactory(
         @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      drmSessionManagerProvider.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      if (!usingCustomDrmSessionManagerProvider) {
+        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
+            .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      }
       return this;
     }
 
     @Override
     public Factory setDrmUserAgent(@Nullable String userAgent) {
-      drmSessionManagerProvider.setDrmUserAgent(userAgent);
+      if (!usingCustomDrmSessionManagerProvider) {
+        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
+      }
       return this;
     }
 
@@ -199,7 +221,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
           mediaItem,
           dataSourceFactory,
           extractorsFactory,
-          drmSessionManager != null ? drmSessionManager : drmSessionManagerProvider.get(mediaItem),
+          drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           continueLoadingCheckIntervalBytes);
     }

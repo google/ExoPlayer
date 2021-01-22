@@ -191,6 +191,9 @@
         waiting for the response. This fixes (harmless) `IllegalStateException:
         sending message to a Handler on a dead thread` log messages
         ([#8328](https://github.com/google/ExoPlayer/issues/8328)).
+    *   Allow apps to fully customize DRM behaviour per-`MediaItem` by passing a
+        `DrmSessionManagerProvider` to `MediaSourceFactory`
+        ([#8466](https://github.com/google/ExoPlayer/issues/8466)).
 *   Analytics:
     *   Pass a `DecoderReuseEvaluation` to `AnalyticsListener`'s
         `onVideoInputFormatChanged` and `onAudioInputFormatChanged` methods. The

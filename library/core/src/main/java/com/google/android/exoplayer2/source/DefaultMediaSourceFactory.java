@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -101,14 +102,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private static final String TAG = "DefaultMediaSourceFactory";
 
-  private final DefaultDrmSessionManagerProvider drmSessionManagerProvider;
   private final DataSource.Factory dataSourceFactory;
   private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
 
   @Nullable private AdsLoaderProvider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
-  @Nullable private DrmSessionManager drmSessionManager;
+  private boolean usingCustomDrmSessionManagerProvider;
+  private DrmSessionManagerProvider drmSessionManagerProvider;
   @Nullable private List<StreamKey> streamKeys;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private long liveTargetOffsetMs;
@@ -258,20 +259,42 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    drmSessionManagerProvider.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+    if (!usingCustomDrmSessionManagerProvider) {
+      ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
+          .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+    }
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-    drmSessionManagerProvider.setDrmUserAgent(userAgent);
+    if (!usingCustomDrmSessionManagerProvider) {
+      ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
+    }
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {
-    this.drmSessionManager = drmSessionManager;
+    if (drmSessionManager == null) {
+      setDrmSessionManagerProvider(null);
+    } else {
+      setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
+    }
+    return this;
+  }
+
+  @Override
+  public DefaultMediaSourceFactory setDrmSessionManagerProvider(
+      @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+    if (drmSessionManagerProvider != null) {
+      this.drmSessionManagerProvider = drmSessionManagerProvider;
+      this.usingCustomDrmSessionManagerProvider = true;
+    } else {
+      this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
+      this.usingCustomDrmSessionManagerProvider = false;
+    }
     return this;
   }
 
@@ -310,8 +333,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
-    mediaSourceFactory.setDrmSessionManager(
-        drmSessionManager != null ? drmSessionManager : drmSessionManagerProvider.get(mediaItem));
+    mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
     mediaSourceFactory.setStreamKeys(
         !mediaItem.playbackProperties.streamKeys.isEmpty()
             ? mediaItem.playbackProperties.streamKeys

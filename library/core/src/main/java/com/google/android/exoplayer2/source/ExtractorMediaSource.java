@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -152,6 +153,18 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     public Factory setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
       this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
       return this;
+    }
+
+    /**
+     * @deprecated Use {@link
+     *     ProgressiveMediaSource.Factory#setDrmSessionManagerProvider(DrmSessionManagerProvider)}
+     *     instead.
+     */
+    @Deprecated
+    @Override
+    public Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      throw new UnsupportedOperationException();
     }
 
     /** @deprecated Use {@link ProgressiveMediaSource.Factory#setDrmSessionManager} instead. */
