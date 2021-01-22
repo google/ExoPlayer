@@ -217,6 +217,10 @@
         containers.
     *   Fix CEA-708 anchor positioning
         ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
+    *   Fix CEA-708 sequence number discontinuity handling
+        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
+    *   Fix CEA-708 handling of unexpectedly small packets
+        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
 *   Data sources:
     *   Use the user agent of the underlying network stack by default.
 *   Metadata retriever:
