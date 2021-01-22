@@ -85,7 +85,6 @@ public class HttpDataSourceTestEnv extends ExternalResource {
         createTestResource("range supported", RANGE_SUPPORTED),
         createTestResource("range supported, length unknown", RANGE_SUPPORTED_LENGTH_UNKNOWN),
         createTestResource("range not supported", RANGE_NOT_SUPPORTED),
-        createTestResource("range not supported", RANGE_NOT_SUPPORTED),
         createTestResource(
             "range not supported, length unknown", RANGE_NOT_SUPPORTED_LENGTH_UNKNOWN),
         createTestResource("gzip enabled", GZIP_ENABLED),

@@ -13,12 +13,25 @@
 // limitations under the License.
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
+android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+}
+
 dependencies {
     api "com.google.android.gms:play-services-cronet:17.0.0"
     implementation project(modulePrefix + 'library-core')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    androidTestImplementation 'androidx.test:rules:' + androidxTestRulesVersion
+    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
+    // Emulator tests assume that an app-packaged version of cronet is
+    // available.
+    androidTestImplementation 'org.chromium.net:cronet-embedded:76.3809.111'
+    androidTestImplementation(project(modulePrefix + 'testutils'))
     testImplementation project(modulePrefix + 'library')
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
