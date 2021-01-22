@@ -17,8 +17,10 @@ package com.google.android.exoplayer2.video;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.ParsableNalUnitBitArray;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,9 +28,6 @@ import java.util.List;
  * HEVC configuration data.
  */
 public final class HevcConfig {
-
-  @Nullable public final List<byte[]> initializationData;
-  public final int nalUnitLengthFieldLength;
 
   /**
    * Parses HEVC configuration data.
@@ -61,8 +60,9 @@ public final class HevcConfig {
       data.setPosition(csdStartPosition);
       byte[] buffer = new byte[csdLength];
       int bufferPosition = 0;
+      @Nullable String codecs = null;
       for (int i = 0; i < numberOfArrays; i++) {
-        data.skipBytes(1); // completeness (1), nal_unit_type (7)
+        int nalUnitType = data.readUnsignedByte() & 0x7F; // completeness (1), nal_unit_type (7)
         int numberOfNalUnits = data.readUnsignedShort();
         for (int j = 0; j < numberOfNalUnits; j++) {
           int nalUnitLength = data.readUnsignedShort();
@@ -71,21 +71,52 @@ public final class HevcConfig {
           bufferPosition += NalUnitUtil.NAL_START_CODE.length;
           System.arraycopy(
               data.getData(), data.getPosition(), buffer, bufferPosition, nalUnitLength);
+          if (nalUnitType == SPS_NAL_UNIT_TYPE && j == 0) {
+            ParsableNalUnitBitArray bitArray =
+                new ParsableNalUnitBitArray(
+                    buffer,
+                    /* offset= */ bufferPosition,
+                    /* limit= */ bufferPosition + nalUnitLength);
+            codecs = CodecSpecificDataUtil.buildHevcCodecStringFromSps(bitArray);
+          }
           bufferPosition += nalUnitLength;
           data.skipBytes(nalUnitLength);
         }
       }
 
+      @Nullable
       List<byte[]> initializationData = csdLength == 0 ? null : Collections.singletonList(buffer);
-      return new HevcConfig(initializationData, lengthSizeMinusOne + 1);
+      return new HevcConfig(initializationData, lengthSizeMinusOne + 1, codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new ParserException("Error parsing HEVC config", e);
     }
   }
 
-  private HevcConfig(@Nullable List<byte[]> initializationData, int nalUnitLengthFieldLength) {
+  private static final int SPS_NAL_UNIT_TYPE = 33;
+
+  /**
+   * List of buffers containing the codec-specific data to be provided to the decoder, or {@code
+   * null} if not known.
+   *
+   * @see com.google.android.exoplayer2.Format#initializationData
+   */
+  @Nullable public final List<byte[]> initializationData;
+  /** The length of the NAL unit length field in the bitstream's container, in bytes. */
+  public final int nalUnitLengthFieldLength;
+  /**
+   * An RFC 6381 codecs string representing the video format, or {@code null} if not known.
+   *
+   * @see com.google.android.exoplayer2.Format#codecs
+   */
+  @Nullable public final String codecs;
+
+  private HevcConfig(
+      @Nullable List<byte[]> initializationData,
+      int nalUnitLengthFieldLength,
+      @Nullable String codecs) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
+    this.codecs = codecs;
   }
 
 }

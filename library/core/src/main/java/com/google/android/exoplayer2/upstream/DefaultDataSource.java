@@ -19,7 +19,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -89,7 +88,7 @@ public final class DefaultDataSource implements DataSource {
   public DefaultDataSource(Context context, boolean allowCrossProtocolRedirects) {
     this(
         context,
-        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
+        /* userAgent= */ null,
         DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
         allowCrossProtocolRedirects);
@@ -99,11 +98,13 @@ public final class DefaultDataSource implements DataSource {
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
    *
    * @param context A context.
-   * @param userAgent The User-Agent to use when requesting remote data.
+   * @param userAgent The user agent that will be used when requesting remote data, or {@code null}
+   *     to use the default user agent of the underlying platform.
    * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
    *     to HTTPS and vice versa) are enabled when fetching remote data.
    */
-  public DefaultDataSource(Context context, String userAgent, boolean allowCrossProtocolRedirects) {
+  public DefaultDataSource(
+      Context context, @Nullable String userAgent, boolean allowCrossProtocolRedirects) {
     this(
         context,
         userAgent,
@@ -116,7 +117,8 @@ public final class DefaultDataSource implements DataSource {
    * Constructs a new instance, optionally configured to follow cross-protocol redirects.
    *
    * @param context A context.
-   * @param userAgent The User-Agent to use when requesting remote data.
+   * @param userAgent The user agent that will be used when requesting remote data, or {@code null}
+   *     to use the default user agent of the underlying platform.
    * @param connectTimeoutMillis The connection timeout that should be used when requesting remote
    *     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.
    * @param readTimeoutMillis The read timeout that should be used when requesting remote data, in
@@ -126,18 +128,18 @@ public final class DefaultDataSource implements DataSource {
    */
   public DefaultDataSource(
       Context context,
-      String userAgent,
+      @Nullable String userAgent,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects) {
     this(
         context,
-        new DefaultHttpDataSource(
-            userAgent,
-            connectTimeoutMillis,
-            readTimeoutMillis,
-            allowCrossProtocolRedirects,
-            /* defaultRequestProperties= */ null));
+        new DefaultHttpDataSource.Factory()
+            .setUserAgent(userAgent)
+            .setConnectTimeoutMs(connectTimeoutMillis)
+            .setReadTimeoutMs(readTimeoutMillis)
+            .setAllowCrossProtocolRedirects(allowCrossProtocolRedirects)
+            .createDataSource());
   }
 
   /**

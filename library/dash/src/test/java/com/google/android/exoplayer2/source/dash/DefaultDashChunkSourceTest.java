@@ -42,6 +42,7 @@ public class DefaultDashChunkSourceTest {
 
   private static final String SAMPLE_MPD_LIVE_WITH_OFFSET_INSIDE_WINDOW =
       "media/mpd/sample_mpd_live_with_offset_inside_window";
+  private static final String SAMPLE_MPD_VOD = "media/mpd/sample_mpd_vod";
 
   @Test
   public void getNextChunk_forLowLatencyManifest_setsCorrectMayNotLoadAtFullNetworkSpeedFlag()
@@ -88,5 +89,42 @@ public class DefaultDashChunkSourceTest {
         output);
     assertThat(output.chunk.dataSpec.flags & DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED)
         .isNotEqualTo(0);
+  }
+
+  @Test
+  public void getNextChunk_forVodManifest_doesNotSetMayNotLoadAtFullNetworkSpeedFlag()
+      throws Exception {
+    long nowMs = 2_000_000_000_000L;
+    SystemClock.setCurrentTimeMillis(nowMs);
+    DashManifest manifest =
+        new DashManifestParser()
+            .parse(
+                Uri.parse("https://example.com/test.mpd"),
+                TestUtil.getInputStream(
+                    ApplicationProvider.getApplicationContext(), SAMPLE_MPD_VOD));
+    DefaultDashChunkSource chunkSource =
+        new DefaultDashChunkSource(
+            new LoaderErrorThrower.Dummy(),
+            manifest,
+            /* periodIndex= */ 0,
+            /* adaptationSetIndices= */ new int[] {0},
+            new FixedTrackSelection(new TrackGroup(new Format.Builder().build()), /* track= */ 0),
+            C.TRACK_TYPE_VIDEO,
+            new FakeDataSource(),
+            /* elapsedRealtimeOffsetMs= */ 0,
+            /* maxSegmentsPerLoad= */ 1,
+            /* enableEventMessageTrack= */ false,
+            /* closedCaptionFormats */ ImmutableList.of(),
+            /* playerTrackEmsgHandler= */ null);
+
+    ChunkHolder output = new ChunkHolder();
+    chunkSource.getNextChunk(
+        /* playbackPositionUs= */ 0,
+        /* loadPositionUs= */ 0,
+        /* queue= */ ImmutableList.of(),
+        output);
+
+    assertThat(output.chunk.dataSpec.flags & DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED)
+        .isEqualTo(0);
   }
 }

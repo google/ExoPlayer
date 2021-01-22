@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import android.os.Handler;
 import android.os.HandlerThread;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.util.Clock;
@@ -55,9 +54,14 @@ public class PlayerMessageTest {
     PlayerMessage.Target target = (messageType, payload) -> {};
     handlerThread = new HandlerThread("TestHandler");
     handlerThread.start();
-    Handler handler = new Handler(handlerThread.getLooper());
     message =
-        new PlayerMessage(sender, target, Timeline.EMPTY, /* defaultWindowIndex= */ 0, handler);
+        new PlayerMessage(
+            sender,
+            target,
+            Timeline.EMPTY,
+            /* defaultWindowIndex= */ 0,
+            clock,
+            handlerThread.getLooper());
   }
 
   @After
@@ -69,8 +73,7 @@ public class PlayerMessageTest {
   public void blockUntilDelivered_timesOut() throws Exception {
     when(clock.elapsedRealtime()).thenReturn(0L).thenReturn(TIMEOUT_MS * 2);
 
-    assertThrows(
-        TimeoutException.class, () -> message.send().blockUntilDelivered(TIMEOUT_MS, clock));
+    assertThrows(TimeoutException.class, () -> message.send().blockUntilDelivered(TIMEOUT_MS));
 
     // Ensure blockUntilDelivered() entered the blocking loop.
     verify(clock, Mockito.times(2)).elapsedRealtime();
@@ -82,7 +85,7 @@ public class PlayerMessageTest {
 
     message.send().markAsProcessed(/* isDelivered= */ true);
 
-    assertThat(message.blockUntilDelivered(TIMEOUT_MS, clock)).isTrue();
+    assertThat(message.blockUntilDelivered(TIMEOUT_MS)).isTrue();
   }
 
   @Test
@@ -110,7 +113,7 @@ public class PlayerMessageTest {
             });
 
     try {
-      assertThat(message.blockUntilDelivered(TIMEOUT_MS, clock)).isTrue();
+      assertThat(message.blockUntilDelivered(TIMEOUT_MS)).isTrue();
       // Ensure blockUntilDelivered() entered the blocking loop.
       verify(clock, Mockito.atLeast(2)).elapsedRealtime();
       future.get(1, SECONDS);

@@ -43,6 +43,7 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
+import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
@@ -118,6 +119,7 @@ public class MediaCodecAudioRendererTest {
 
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
             /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
             new DrmSessionEventListener.EventDispatcher(),
@@ -131,6 +133,7 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 200, C.BUFFER_FLAG_KEY_FRAME),
                 oneByteSample(/* timeUs= */ 250, C.BUFFER_FLAG_KEY_FRAME),
                 END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
 
     mediaCodecAudioRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -173,6 +176,7 @@ public class MediaCodecAudioRendererTest {
 
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
             /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
             new DrmSessionEventListener.EventDispatcher(),
@@ -186,6 +190,7 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 200, C.BUFFER_FLAG_KEY_FRAME),
                 oneByteSample(/* timeUs= */ 250, C.BUFFER_FLAG_KEY_FRAME),
                 END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
 
     mediaCodecAudioRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -249,12 +254,14 @@ public class MediaCodecAudioRendererTest {
 
     FakeSampleStream fakeSampleStream =
         new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
             /* mediaSourceEventDispatcher= */ null,
             DrmSessionManager.DUMMY,
             new DrmSessionEventListener.EventDispatcher(),
             /* initialFormat= */ AUDIO_AAC,
             ImmutableList.of(
                 oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
 
     exceptionThrowingRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -285,21 +292,6 @@ public class MediaCodecAudioRendererTest {
     // Doesn't throw an exception because it's cleared after being thrown in the previous call to
     // render.
     exceptionThrowingRenderer.render(/* positionUs= */ 750, SystemClock.elapsedRealtime() * 1000);
-  }
-
-  @Test
-  public void
-      render_callsAudioRendererEventListener_whenAudioSinkListenerOnAudioSessionIdIsCalled() {
-    final ArgumentCaptor<AudioSink.Listener> listenerCaptor =
-        ArgumentCaptor.forClass(AudioSink.Listener.class);
-    verify(audioSink, atLeastOnce()).setListener(listenerCaptor.capture());
-    AudioSink.Listener audioSinkListener = listenerCaptor.getValue();
-
-    int audioSessionId = 2;
-    audioSinkListener.onAudioSessionId(audioSessionId);
-
-    shadowOf(Looper.getMainLooper()).idle();
-    verify(audioRendererEventListener).onAudioSessionId(audioSessionId);
   }
 
   @Test

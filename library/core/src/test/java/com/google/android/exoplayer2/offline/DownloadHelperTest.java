@@ -493,6 +493,7 @@ public class DownloadHelperTest {
       int periodIndex = TEST_TIMELINE.getIndexOfPeriod(id.periodUid);
       return new FakeMediaPeriod(
           trackGroupArrays[periodIndex],
+          allocator,
           TEST_TIMELINE.getWindow(0, new Timeline.Window()).positionInFirstPeriodUs,
           new EventDispatcher()
               .withParameters(/* windowIndex= */ 0, id, /* mediaTimeOffsetMs= */ 0)) {

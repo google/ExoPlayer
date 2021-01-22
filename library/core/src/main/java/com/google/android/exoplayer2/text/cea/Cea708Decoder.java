@@ -158,12 +158,15 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private final ParsableByteArray ccData;
   private final ParsableBitArray serviceBlockPacket;
+
   // This holds the service blocks. This used to accumulate the commands spread across the service
   // blocks as well as the service blocks and/or commands spread across the DTVCC packets
   private   List<Byte> serviceBlockList = new ArrayList<>();
   private static final int CC_DATA_STATE_COMPLETE_PARAM = 0;
   private static final int CC_DATA_STATE_WAITING_PARAM = 1;
   private int ccDataState = CC_DATA_STATE_COMPLETE_PARAM;
+
+  private int previousSequenceNumber;
 
   // TODO: Use isWideAspectRatio in decoding.
   @SuppressWarnings({"unused", "FieldCanBeLocal"})
@@ -182,6 +185,7 @@ public final class Cea708Decoder extends CeaDecoder {
   public Cea708Decoder(int accessibilityChannel, @Nullable List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
     serviceBlockPacket = new ParsableBitArray();
+    previousSequenceNumber = C.INDEX_UNSET;
     selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
     isWideAspectRatio =
         initializationData != null
@@ -253,6 +257,18 @@ public final class Cea708Decoder extends CeaDecoder {
         finalizeCurrentPacket();
 
         int sequenceNumber = (ccData1 & 0xC0) >> 6; // first 2 bits
+        if (previousSequenceNumber != C.INDEX_UNSET
+            && sequenceNumber != (previousSequenceNumber + 1) % 4) {
+          resetCueBuilders();
+          Log.w(
+              TAG,
+              "Sequence number discontinuity. previous="
+                  + previousSequenceNumber
+                  + " current="
+                  + sequenceNumber);
+        }
+        previousSequenceNumber = sequenceNumber;
+
         int packetSize = ccData1 & 0x3F; // last 6 bits
         if (packetSize == 0) {
           packetSize = 64;
@@ -292,10 +308,18 @@ public final class Cea708Decoder extends CeaDecoder {
   @RequiresNonNull("currentDtvCcPacket")
   private void processCurrentPacket() {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
-      Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
-          + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
-          + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
-      return;
+      Log.d(
+          TAG,
+          "DtvCcPacket ended prematurely; size is "
+              + (currentDtvCcPacket.packetSize * 2 - 1)
+              + ", but current index is "
+              + currentDtvCcPacket.currentIndex
+              + " (sequence number "
+              + currentDtvCcPacket.sequenceNumber
+              + ");");
+      // We've received cc_type=0x03 (packet start) before receiving packetSize byte pairs of data.
+      // This might indicate a byte pair has been lost, but we'll still attempt to process the data
+      // we have received.
     }
 
     int currOffset = 0;
@@ -1324,18 +1348,18 @@ public final class Cea708Decoder extends CeaDecoder {
       //   |           |
       //   6-----7-----8
       @AnchorType int verticalAnchorType;
-      if (anchorId % 3 == 0) {
+      if (anchorId / 3 == 0) {
         verticalAnchorType = Cue.ANCHOR_TYPE_START;
-      } else if (anchorId % 3 == 1) {
+      } else if (anchorId / 3 == 1) {
         verticalAnchorType = Cue.ANCHOR_TYPE_MIDDLE;
       } else {
         verticalAnchorType = Cue.ANCHOR_TYPE_END;
       }
       // TODO: Add support for right-to-left languages (i.e. where start is on the right).
       @AnchorType int horizontalAnchorType;
-      if (anchorId / 3 == 0) {
+      if (anchorId % 3 == 0) {
         horizontalAnchorType = Cue.ANCHOR_TYPE_START;
-      } else if (anchorId / 3 == 1) {
+      } else if (anchorId % 3 == 1) {
         horizontalAnchorType = Cue.ANCHOR_TYPE_MIDDLE;
       } else {
         horizontalAnchorType = Cue.ANCHOR_TYPE_END;

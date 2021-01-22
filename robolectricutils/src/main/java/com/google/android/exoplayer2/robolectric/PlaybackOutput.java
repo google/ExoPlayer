@@ -19,12 +19,11 @@ import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.Dumper;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,13 +37,14 @@ import java.util.List;
  */
 public final class PlaybackOutput implements Dumper.Dumpable {
 
-  private final ShadowMediaCodecConfig codecConfig;
+  private final CapturingRenderersFactory capturingRenderersFactory;
 
   private final List<Metadata> metadatas;
   private final List<List<Cue>> subtitles;
 
-  private PlaybackOutput(SimpleExoPlayer player, ShadowMediaCodecConfig codecConfig) {
-    this.codecConfig = codecConfig;
+  private PlaybackOutput(
+      SimpleExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
+    this.capturingRenderersFactory = capturingRenderersFactory;
 
     metadatas = Collections.synchronizedList(new ArrayList<>());
     subtitles = Collections.synchronizedList(new ArrayList<>());
@@ -57,28 +57,24 @@ public final class PlaybackOutput implements Dumper.Dumpable {
 
   /**
    * Create an instance that captures the metadata and text output from {@code player} and the audio
-   * and video output via the {@link TeeCodec TeeCodecs} exposed by {@code mediaCodecConfig}.
+   * and video output via {@code capturingRenderersFactory}.
    *
    * <p>Must be called <b>before</b> playback to ensure metadata and text output is captured
    * correctly.
    *
    * @param player The {@link SimpleExoPlayer} to capture metadata and text output from.
-   * @param mediaCodecConfig The {@link ShadowMediaCodecConfig} to capture audio and video output
-   *     from.
+   * @param capturingRenderersFactory The {@link CapturingRenderersFactory} to capture audio and
+   *     video output from.
    * @return A new instance that can be used to dump the playback output.
    */
   public static PlaybackOutput register(
-      SimpleExoPlayer player, ShadowMediaCodecConfig mediaCodecConfig) {
-    return new PlaybackOutput(player, mediaCodecConfig);
+      SimpleExoPlayer player, CapturingRenderersFactory capturingRenderersFactory) {
+    return new PlaybackOutput(player, capturingRenderersFactory);
   }
 
   @Override
   public void dump(Dumper dumper) {
-    ImmutableMap<String, TeeCodec> codecs = codecConfig.getCodecs();
-    ImmutableList<String> mimeTypes = ImmutableList.sortedCopyOf(codecs.keySet());
-    for (String mimeType : mimeTypes) {
-      dumper.add(Assertions.checkNotNull(codecs.get(mimeType)));
-    }
+    capturingRenderersFactory.dump(dumper);
 
     dumpMetadata(dumper);
     dumpSubtitles(dumper);

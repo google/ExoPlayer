@@ -132,7 +132,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *         <li>Default: {@code never}
  *       </ul>
  *   <li><b>{@code resize_mode}</b> - Controls how video and album art is resized within the view.
- *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height} and {@code fill}.
+ *       Valid values are {@code fit}, {@code fixed_width}, {@code fixed_height}, {@code fill} and
+ *       {@code zoom}.
  *       <ul>
  *         <li>Corresponding method: {@link #setResizeMode(int)}
  *         <li>Default: {@code fit}
@@ -580,8 +581,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          oldVideoComponent.setVideoDecoderOutputBufferRenderer(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -608,9 +607,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          newVideoComponent.setVideoDecoderOutputBufferRenderer(
-              ((VideoDecoderGLSurfaceView) surfaceView).getVideoDecoderOutputBufferRenderer());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -732,9 +728,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   /**
    * Sets whether the currently displayed video frame or media artwork is kept visible when the
    * player is reset. A player reset is defined to mean the player being re-prepared with different
-   * media, the player transitioning to unprepared media, {@link Player#stop(boolean)} being called
-   * with {@code reset=true}, or the player being replaced or cleared by calling {@link
-   * #setPlayer(Player)}.
+   * media, the player transitioning to unprepared media or an empty list of media items, or the
+   * player being replaced or cleared by calling {@link #setPlayer(Player)}.
    *
    * <p>If enabled, the currently displayed video frame or media artwork will be kept visible until
    * the player set on the view has been successfully prepared with new media and loaded enough of

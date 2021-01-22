@@ -18,11 +18,14 @@ package com.google.android.exoplayer2.source;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.content.Context;
+import android.util.Pair;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -99,14 +102,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private static final String TAG = "DefaultMediaSourceFactory";
 
-  private final MediaSourceDrmHelper mediaSourceDrmHelper;
   private final DataSource.Factory dataSourceFactory;
   private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
 
   @Nullable private AdsLoaderProvider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
-  @Nullable private DrmSessionManager drmSessionManager;
+  private boolean usingCustomDrmSessionManagerProvider;
+  private DrmSessionManagerProvider drmSessionManagerProvider;
   @Nullable private List<StreamKey> streamKeys;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
   private long liveTargetOffsetMs;
@@ -156,7 +159,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    mediaSourceDrmHelper = new MediaSourceDrmHelper();
+    drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
     mediaSourceFactories = loadDelegates(dataSourceFactory, extractorsFactory);
     supportedTypes = new int[mediaSourceFactories.size()];
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
@@ -232,8 +235,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Sets the minimum playback speed for live streams.
    *
-   * @param minSpeed The minimum playback speed for live streams, or {@link C#RATE_UNSET} to use the
-   *     media-defined default.
+   * @param minSpeed The minimum factor by which playback can be sped up for live streams, or {@link
+   *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
   public DefaultMediaSourceFactory setLiveMinSpeed(float minSpeed) {
@@ -244,8 +247,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   /**
    * Sets the maximum playback speed for live streams.
    *
-   * @param maxSpeed The maximum playback speed for live streams, or {@link C#RATE_UNSET} to use the
-   *     media-defined default.
+   * @param maxSpeed The maximum factor by which playback can be sped up for live streams, or {@link
+   *     C#RATE_UNSET} to use the media-defined default.
    * @return This factory, for convenience.
    */
   public DefaultMediaSourceFactory setLiveMaxSpeed(float maxSpeed) {
@@ -256,20 +259,42 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    mediaSourceDrmHelper.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+    if (!usingCustomDrmSessionManagerProvider) {
+      ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
+          .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+    }
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-    mediaSourceDrmHelper.setDrmUserAgent(userAgent);
+    if (!usingCustomDrmSessionManagerProvider) {
+      ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
+    }
     return this;
   }
 
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {
-    this.drmSessionManager = drmSessionManager;
+    if (drmSessionManager == null) {
+      setDrmSessionManagerProvider(null);
+    } else {
+      setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
+    }
+    return this;
+  }
+
+  @Override
+  public DefaultMediaSourceFactory setDrmSessionManagerProvider(
+      @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+    if (drmSessionManagerProvider != null) {
+      this.drmSessionManagerProvider = drmSessionManagerProvider;
+      this.usingCustomDrmSessionManagerProvider = true;
+    } else {
+      this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
+      this.usingCustomDrmSessionManagerProvider = false;
+    }
     return this;
   }
 
@@ -308,8 +333,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
-    mediaSourceFactory.setDrmSessionManager(
-        drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem));
+    mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
     mediaSourceFactory.setStreamKeys(
         !mediaItem.playbackProperties.streamKeys.isEmpty()
             ? mediaItem.playbackProperties.streamKeys
@@ -359,7 +383,8 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
       mediaSources[0] = mediaSource;
       SingleSampleMediaSource.Factory singleSampleSourceFactory =
-          new SingleSampleMediaSource.Factory(dataSourceFactory);
+          new SingleSampleMediaSource.Factory(dataSourceFactory)
+              .setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
       for (int i = 0; i < subtitles.size(); i++) {
         mediaSources[i + 1] =
             singleSampleSourceFactory.createMediaSource(
@@ -411,7 +436,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return new AdsMediaSource(
         mediaSource,
         new DataSpec(adsConfiguration.adTagUri),
-        adsConfiguration.adsId,
+        /* adsId= */ adsConfiguration.adsId != null
+            ? adsConfiguration.adsId
+            : Pair.create(mediaItem.mediaId, adsConfiguration.adTagUri),
         /* adMediaSourceFactory= */ this,
         adsLoader,
         adViewProvider);

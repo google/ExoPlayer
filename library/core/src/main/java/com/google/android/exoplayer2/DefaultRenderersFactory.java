@@ -77,14 +77,18 @@ public class DefaultRenderersFactory implements RenderersFactory {
   /**
    * Allow use of extension renderers. Extension renderers are indexed before core renderers of the
    * same type. A {@link TrackSelector} that prefers the first suitable renderer will therefore
-   * prefer to use an extension renderer to a core renderer in the case that both are able to play
-   * a given track.
+   * prefer to use an extension renderer to a core renderer in the case that both are able to play a
+   * given track.
    */
   public static final int EXTENSION_RENDERER_MODE_PREFER = 2;
 
-  private static final String TAG = "DefaultRenderersFactory";
+  /**
+   * The maximum number of frames that can be dropped between invocations of {@link
+   * VideoRendererEventListener#onDroppedFrames(int, long)}.
+   */
+  public static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
-  protected static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
+  private static final String TAG = "DefaultRenderersFactory";
 
   private final Context context;
   @ExtensionRendererMode private int extensionRendererMode;

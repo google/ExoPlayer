@@ -262,15 +262,6 @@ public final class DefaultAudioSink implements AudioSink {
   private static final String TAG = "DefaultAudioSink";
 
   /**
-   * Whether to enable a workaround for an issue where an audio effect does not keep its session
-   * active across releasing/initializing a new audio track, on platform builds where
-   * {@link Util#SDK_INT} &lt; 21.
-   * <p>
-   * The flag must be set before creating a player.
-   */
-  public static boolean enablePreV21AudioSessionWorkaround = false;
-
-  /**
    * Whether to throw an {@link InvalidAudioTrackTimestampException} when a spurious timestamp is
    * reported from {@link AudioTrack#getTimestamp}.
    * <p>
@@ -297,11 +288,6 @@ public final class DefaultAudioSink implements AudioSink {
   private final PendingExceptionHolder<WriteException> writeExceptionPendingExceptionHolder;
 
   @Nullable private Listener listener;
-  /**
-   * Used to keep the audio session active on pre-V21 builds (see {@link #initializeAudioTrack()}).
-   */
-  @Nullable private AudioTrack keepSessionIdAudioTrack;
-
   @Nullable private Configuration pendingConfiguration;
   @MonotonicNonNull private Configuration configuration;
   @Nullable private AudioTrack audioTrack;
@@ -336,6 +322,7 @@ public final class DefaultAudioSink implements AudioSink {
   private boolean stoppedAudioTrack;
 
   private boolean playing;
+  private boolean externalAudioSessionIdProvided;
   private int audioSessionId;
   private AuxEffectInfo auxEffectInfo;
   private boolean tunneling;
@@ -646,27 +633,7 @@ public final class DefaultAudioSink implements AudioSink {
       audioTrack.setOffloadDelayPadding(
           configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);
     }
-    int audioSessionId = audioTrack.getAudioSessionId();
-    if (enablePreV21AudioSessionWorkaround) {
-      if (Util.SDK_INT < 21) {
-        // The workaround creates an audio track with a two byte buffer on the same session, and
-        // does not release it until this object is released, which keeps the session active.
-        if (keepSessionIdAudioTrack != null
-            && audioSessionId != keepSessionIdAudioTrack.getAudioSessionId()) {
-          releaseKeepSessionIdAudioTrack();
-        }
-        if (keepSessionIdAudioTrack == null) {
-          keepSessionIdAudioTrack = initializeKeepSessionIdAudioTrack(audioSessionId);
-        }
-      }
-    }
-    if (this.audioSessionId != audioSessionId) {
-      this.audioSessionId = audioSessionId;
-      if (listener != null) {
-        listener.onAudioSessionId(audioSessionId);
-      }
-    }
-
+    audioSessionId = audioTrack.getAudioSessionId();
     audioTrackPositionTracker.setAudioTrack(
         audioTrack,
         /* isPassthrough= */ configuration.outputMode == OUTPUT_MODE_PASSTHROUGH,
@@ -1115,13 +1082,13 @@ public final class DefaultAudioSink implements AudioSink {
       return;
     }
     flush();
-    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
   }
 
   @Override
   public void setAudioSessionId(int audioSessionId) {
     if (this.audioSessionId != audioSessionId) {
       this.audioSessionId = audioSessionId;
+      externalAudioSessionIdProvided = audioSessionId != C.AUDIO_SESSION_ID_UNSET;
       flush();
     }
   }
@@ -1145,11 +1112,11 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public void enableTunnelingV21(int tunnelingAudioSessionId) {
+  public void enableTunnelingV21() {
     Assertions.checkState(Util.SDK_INT >= 21);
-    if (!tunneling || audioSessionId != tunnelingAudioSessionId) {
+    Assertions.checkState(externalAudioSessionIdProvided);
+    if (!tunneling) {
       tunneling = true;
-      audioSessionId = tunnelingAudioSessionId;
       flush();
     }
   }
@@ -1158,7 +1125,6 @@ public final class DefaultAudioSink implements AudioSink {
   public void disableTunneling() {
     if (tunneling) {
       tunneling = false;
-      audioSessionId = C.AUDIO_SESSION_ID_UNSET;
       flush();
     }
   }
@@ -1203,6 +1169,14 @@ public final class DefaultAudioSink implements AudioSink {
       // AudioTrack.release can take some time, so we call it on a background thread.
       final AudioTrack toRelease = audioTrack;
       audioTrack = null;
+      if (Util.SDK_INT < 21 && !externalAudioSessionIdProvided) {
+        // Prior to API level 21, audio sessions are not kept alive once there are no components
+        // associated with them. If we generated the session ID internally, the only component
+        // associated with the session is the audio track that's being released, and therefore
+        // the session will not be kept alive. As a result, we need to generate a new session when
+        // we next create an audio track.
+        audioSessionId = C.AUDIO_SESSION_ID_UNSET;
+      }
       if (pendingConfiguration != null) {
         configuration = pendingConfiguration;
         pendingConfiguration = null;
@@ -1261,14 +1235,12 @@ public final class DefaultAudioSink implements AudioSink {
   @Override
   public void reset() {
     flush();
-    releaseKeepSessionIdAudioTrack();
     for (AudioProcessor audioProcessor : toIntPcmAvailableAudioProcessors) {
       audioProcessor.reset();
     }
     for (AudioProcessor audioProcessor : toFloatPcmAvailableAudioProcessors) {
       audioProcessor.reset();
     }
-    audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     playing = false;
     offloadDisabledUntilNextConfiguration = false;
   }
@@ -1301,23 +1273,6 @@ public final class DefaultAudioSink implements AudioSink {
     bytesUntilNextAvSync = 0;
     trimmingAudioProcessor.resetTrimmedFrameCount();
     flushAudioProcessors();
-  }
-
-  /** Releases {@link #keepSessionIdAudioTrack} asynchronously, if it is non-{@code null}. */
-  private void releaseKeepSessionIdAudioTrack() {
-    if (keepSessionIdAudioTrack == null) {
-      return;
-    }
-
-    // AudioTrack.release can take some time, so we call it on a background thread.
-    final AudioTrack toRelease = keepSessionIdAudioTrack;
-    keepSessionIdAudioTrack = null;
-    new Thread() {
-      @Override
-      public void run() {
-        toRelease.release();
-      }
-    }.start();
   }
 
   @RequiresApi(23)
@@ -1585,21 +1540,6 @@ public final class DefaultAudioSink implements AudioSink {
   // TODO(internal b/158191844): Add an SDK API to query offload gapless support.
   private static boolean isOffloadedGaplessPlaybackSupported() {
     return Util.SDK_INT >= 30 && Util.MODEL.startsWith("Pixel");
-  }
-
-  private static AudioTrack initializeKeepSessionIdAudioTrack(int audioSessionId) {
-    int sampleRate = 4000; // Equal to private AudioTrack.MIN_SAMPLE_RATE.
-    int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
-    @C.PcmEncoding int encoding = C.ENCODING_PCM_16BIT;
-    int bufferSize = 2; // Use a two byte buffer, as it is not actually used for playback.
-    return new AudioTrack(
-        C.STREAM_TYPE_DEFAULT,
-        sampleRate,
-        channelConfig,
-        encoding,
-        bufferSize,
-        AudioTrack.MODE_STATIC,
-        audioSessionId);
   }
 
   private static int getMaximumEncodedRateBytesPerSecond(@C.Encoding int encoding) {

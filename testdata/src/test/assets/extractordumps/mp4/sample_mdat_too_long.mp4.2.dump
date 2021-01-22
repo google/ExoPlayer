@@ -12,6 +12,7 @@ track 0:
   format 0:
     id = 1
     sampleMimeType = video/avc
+    codecs = avc1.64001F
     maxInputSize = 36722
     width = 1080
     height = 720

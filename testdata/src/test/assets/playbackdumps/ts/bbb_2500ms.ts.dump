@@ -1,4 +1,4 @@
-MediaCodec (audio/mpeg-L2):
+MediaCodecAdapter (exotest.audio.mpegl2):
   buffers.length = 94
   buffers[0] = length 1253, hash 2267F8F
   buffers[1] = length 1254, hash F01E8708
@@ -94,7 +94,7 @@ MediaCodec (audio/mpeg-L2):
   buffers[91] = length 1254, hash B74BCB59
   buffers[92] = length 1254, hash 1D10AC24
   buffers[93] = length 0, hash 1
-MediaCodec (video/mpeg2):
+MediaCodecAdapter (exotest.video.mpeg2):
   buffers.length = 58
   buffers[0] = length 32732, hash 7B7C01FD
   buffers[1] = length 1302, hash CE206BF9

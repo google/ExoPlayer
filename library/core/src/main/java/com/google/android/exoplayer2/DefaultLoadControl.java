@@ -263,42 +263,14 @@ public class DefaultLoadControl implements LoadControl {
   /** Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class. */
   @SuppressWarnings("deprecation")
   public DefaultLoadControl() {
-    this(new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE));
-  }
-
-  /** @deprecated Use {@link Builder} instead. */
-  @Deprecated
-  public DefaultLoadControl(DefaultAllocator allocator) {
     this(
-        allocator,
+        new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
         DEFAULT_MIN_BUFFER_MS,
         DEFAULT_MAX_BUFFER_MS,
         DEFAULT_BUFFER_FOR_PLAYBACK_MS,
         DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
         DEFAULT_TARGET_BUFFER_BYTES,
         DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS,
-        DEFAULT_BACK_BUFFER_DURATION_MS,
-        DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME);
-  }
-
-  /** @deprecated Use {@link Builder} instead. */
-  @Deprecated
-  public DefaultLoadControl(
-      DefaultAllocator allocator,
-      int minBufferMs,
-      int maxBufferMs,
-      int bufferForPlaybackMs,
-      int bufferForPlaybackAfterRebufferMs,
-      int targetBufferBytes,
-      boolean prioritizeTimeOverSizeThresholds) {
-    this(
-        allocator,
-        minBufferMs,
-        maxBufferMs,
-        bufferForPlaybackMs,
-        bufferForPlaybackAfterRebufferMs,
-        targetBufferBytes,
-        prioritizeTimeOverSizeThresholds,
         DEFAULT_BACK_BUFFER_DURATION_MS,
         DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME);
   }

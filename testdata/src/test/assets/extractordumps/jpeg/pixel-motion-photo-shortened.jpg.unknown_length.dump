@@ -1,0 +1,11 @@
+seekMap:
+  isSeekable = false
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+numberOfTracks = 1
+track 1024:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    metadata = entries=[]
+tracksEnded = true

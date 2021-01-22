@@ -15,55 +15,38 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.C.BufferFlags;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.drm.DrmInitData;
-import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.Iterables;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Fake {@link SampleStream} that outputs a given {@link Format}, any amount of {@link
- * FakeSampleStreamItem items}, then end of stream.
+ * Fake {@link SampleStream} that outputs a given {@link Format} and any amount of {@link
+ * FakeSampleStreamItem items}.
  */
 public class FakeSampleStream implements SampleStream {
-
-  private static class SampleInfo {
-    private final byte[] data;
-    @C.BufferFlags private final int flags;
-    private final long timeUs;
-
-    private SampleInfo(byte[] data, @C.BufferFlags int flags, long timeUs) {
-      this.data = Arrays.copyOf(data, data.length);
-      this.flags = flags;
-      this.timeUs = timeUs;
-    }
-  }
 
   /** Item to customize a return value of {@link FakeSampleStream#readData}. */
   public static final class FakeSampleStreamItem {
 
-    /**
-     * Item that designates the end of stream has been reached.
-     *
-     * <p>When this item is read, readData will repeatedly return end of stream.
-     */
+    /** Item that designates the end of stream has been reached. */
     public static final FakeSampleStreamItem END_OF_STREAM_ITEM =
         sample(
             /* timeUs= */ Long.MAX_VALUE,
@@ -92,10 +75,9 @@ public class FakeSampleStream implements SampleStream {
      * <p>The sample will contain a single byte of data.
      *
      * @param timeUs The timestamp of the sample.
-     * @param flags The buffer flags that will be set when reading this sample through {@link
-     *     FakeSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)}.
+     * @param flags The sample {@link C.BufferFlags}.
      */
-    public static FakeSampleStreamItem oneByteSample(long timeUs, @BufferFlags int flags) {
+    public static FakeSampleStreamItem oneByteSample(long timeUs, @C.BufferFlags int flags) {
       return sample(timeUs, flags, new byte[] {0});
     }
 
@@ -103,12 +85,11 @@ public class FakeSampleStream implements SampleStream {
      * Creates an item representing a sample with the provided timestamp, flags and data.
      *
      * @param timeUs The timestamp of the sample.
-     * @param flags The buffer flags that will be set when reading this sample through {@link
-     *     FakeSampleStream#readData(FormatHolder, DecoderInputBuffer, boolean)}.
+     * @param flags The sample {@link C.BufferFlags}.
      * @param sampleData The sample data.
      */
     public static FakeSampleStreamItem sample(
-        long timeUs, @BufferFlags int flags, byte[] sampleData) {
+        long timeUs, @C.BufferFlags int flags, byte[] sampleData) {
       return new FakeSampleStreamItem(
           /* format= */ null, new SampleInfo(sampleData.clone(), flags, timeUs));
     }
@@ -126,218 +107,205 @@ public class FakeSampleStream implements SampleStream {
     }
   }
 
+  private final SampleQueue sampleQueue;
   @Nullable private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
-  private final Format initialFormat;
-  private final List<FakeSampleStreamItem> fakeSampleStreamItems;
-  private final DrmSessionManager drmSessionManager;
-  private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
+  private final List<FakeSampleStreamItem> sampleStreamItems;
 
-  private int sampleItemIndex;
-  private @MonotonicNonNull Format downstreamFormat;
-  private boolean readEOSBuffer;
-  @Nullable private DrmSession currentDrmSession;
+  private int sampleStreamItemsWritePosition;
+  private boolean loadingFinished;
+  @Nullable private Format downstreamFormat;
+  @Nullable private Format notifiedDownstreamFormat;
 
   /**
    * Creates a fake sample stream which outputs the given {@link Format} followed by the provided
    * {@link FakeSampleStreamItem items}.
    *
+   * @param allocator An {@link Allocator}.
    * @param mediaSourceEventDispatcher A {@link MediaSourceEventListener.EventDispatcher} to notify
    *     of media events.
    * @param drmSessionManager A {@link DrmSessionManager} for DRM interactions.
    * @param drmEventDispatcher A {@link DrmSessionEventListener.EventDispatcher} to notify of DRM
    *     events.
    * @param initialFormat The first {@link Format} to output.
-   * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to customize the return
-   *     values of {@link #readData(FormatHolder, DecoderInputBuffer, boolean)}. This is assumed to
-   *     be in ascending order of sampleTime. Note that once an EOS buffer has been read, that will
-   *     return every time readData is called. This should usually end with {@link
-   *     FakeSampleStreamItem#END_OF_STREAM_ITEM}.
+   * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to output.
    */
   public FakeSampleStream(
+      Allocator allocator,
       @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
       DrmSessionEventListener.EventDispatcher drmEventDispatcher,
       Format initialFormat,
       List<FakeSampleStreamItem> fakeSampleStreamItems) {
+    this.sampleQueue =
+        SampleQueue.createWithDrm(
+            allocator,
+            /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+            drmSessionManager,
+            drmEventDispatcher);
     this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
-    this.drmSessionManager = drmSessionManager;
-    this.drmEventDispatcher = drmEventDispatcher;
-    this.initialFormat = initialFormat;
-    this.fakeSampleStreamItems = new ArrayList<>(fakeSampleStreamItems);
+    this.sampleStreamItems = new ArrayList<>();
+    sampleStreamItems.add(FakeSampleStreamItem.format(initialFormat));
+    sampleStreamItems.addAll(fakeSampleStreamItems);
   }
 
   /**
-   * Seeks inside this sample stream.
+   * Appends {@link FakeSampleStreamItem FakeSampleStreamItems} to the list of items that should be
+   * written to the queue.
    *
-   * <p>Seeks to just before the first sample with {@code sampleTime >= timeUs}, or to the end of
-   * the stream otherwise.
+   * <p>Note that this data is only written to the queue once {@link #writeData(long)} is called.
+   *
+   * @param items The items to append.
    */
-  public void seekTo(long timeUs) {
-    Format applicableFormat = initialFormat;
-    for (int i = 0; i < fakeSampleStreamItems.size(); i++) {
-      @Nullable SampleInfo sampleInfo = fakeSampleStreamItems.get(i).sampleInfo;
+  public void append(List<FakeSampleStreamItem> items) {
+    sampleStreamItems.addAll(items);
+  }
+
+  /**
+   * Writes all not yet written {@link FakeSampleStreamItem sample stream items} to the sample queue
+   * starting at the given position.
+   *
+   * @param startPositionUs The start position, in microseconds.
+   */
+  public void writeData(long startPositionUs) {
+    if (sampleStreamItemsWritePosition == 0) {
+      sampleQueue.setStartTimeUs(startPositionUs);
+    }
+    boolean writtenFirstFormat = false;
+    @Nullable Format pendingFirstFormat = null;
+    for (int i = 0; i < sampleStreamItems.size(); i++) {
+      FakeSampleStreamItem fakeSampleStreamItem = sampleStreamItems.get(i);
+      @Nullable FakeSampleStream.SampleInfo sampleInfo = fakeSampleStreamItem.sampleInfo;
       if (sampleInfo == null) {
-        applicableFormat = Assertions.checkNotNull(fakeSampleStreamItems.get(i).format);
+        if (writtenFirstFormat) {
+          sampleQueue.format(checkNotNull(fakeSampleStreamItem.format));
+        } else {
+          pendingFirstFormat = checkNotNull(fakeSampleStreamItem.format);
+        }
         continue;
       }
-      if (sampleInfo.timeUs >= timeUs) {
-        sampleItemIndex = i;
-        readEOSBuffer = false;
-        if (downstreamFormat != null && !applicableFormat.equals(downstreamFormat)) {
-          notifyEventDispatcher(applicableFormat);
+      if ((sampleInfo.flags & C.BUFFER_FLAG_END_OF_STREAM) != 0) {
+        loadingFinished = true;
+        break;
+      }
+      if (sampleInfo.timeUs >= startPositionUs && i >= sampleStreamItemsWritePosition) {
+        if (!writtenFirstFormat) {
+          sampleQueue.format(checkNotNull(pendingFirstFormat));
+          writtenFirstFormat = true;
         }
-        return;
+        sampleQueue.sampleData(new ParsableByteArray(sampleInfo.data), sampleInfo.data.length);
+        sampleQueue.sampleMetadata(
+            sampleInfo.timeUs,
+            sampleInfo.flags,
+            sampleInfo.data.length,
+            /* offset= */ 0,
+            /* cryptoData= */ null);
       }
     }
-    sampleItemIndex = fakeSampleStreamItems.size();
-    @Nullable
-    FakeSampleStreamItem lastItem =
-        Iterables.getLast(fakeSampleStreamItems, /* defaultValue= */ null);
-    readEOSBuffer =
-        lastItem != null
-            && lastItem.sampleInfo != null
-            && ((lastItem.sampleInfo.flags & C.BUFFER_FLAG_END_OF_STREAM) != 0);
+    sampleStreamItemsWritePosition = sampleStreamItems.size();
   }
 
   /**
-   * Adds an item to the end of the queue of {@link FakeSampleStreamItem items}.
+   * Seeks the stream to a new position using already available data in the queue.
    *
-   * @param item The item to add.
+   * @param positionUs The new position, in microseconds.
+   * @return Whether seeking inside the available data was possible.
    */
-  public void addFakeSampleStreamItem(FakeSampleStreamItem item) {
-    this.fakeSampleStreamItems.add(item);
+  public boolean seekToUs(long positionUs) {
+    return sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ false);
+  }
+
+  /**
+   * Resets the sample queue.
+   *
+   * <p>A new call to {@link #writeData(long)} is required to fill the queue again.
+   */
+  public void reset() {
+    sampleQueue.reset();
+    sampleStreamItemsWritePosition = 0;
+    loadingFinished = false;
+  }
+
+  /** Returns whether data has been written to the sample queue until the end of stream signal. */
+  public boolean isLoadingFinished() {
+    return loadingFinished;
+  }
+
+  /**
+   * Returns the timestamp of the largest queued sample in the queue, or {@link Long#MIN_VALUE} if
+   * no samples are queued.
+   */
+  public long getLargestQueuedTimestampUs() {
+    return sampleQueue.getLargestQueuedTimestampUs();
+  }
+
+  /**
+   * Discards data from the queue.
+   *
+   * @param positionUs The position to discard to, in microseconds.
+   * @param toKeyframe Whether to discard to keyframes only.
+   */
+  public void discardTo(long positionUs, boolean toKeyframe) {
+    sampleQueue.discardTo(positionUs, toKeyframe, /* stopAtReadPosition= */ true);
+  }
+
+  /** Release the stream and its underlying sample queue. */
+  public void release() {
+    sampleQueue.release();
   }
 
   @Override
   public boolean isReady() {
-    if (sampleItemIndex == fakeSampleStreamItems.size()) {
-      return readEOSBuffer || downstreamFormat == null;
-    }
-    if (fakeSampleStreamItems.get(sampleItemIndex).format != null) {
-      // A format can be read.
-      return true;
-    }
-    return mayReadSample();
+    return sampleQueue.isReady(loadingFinished);
+  }
+
+  @Override
+  public void maybeThrowError() throws IOException {
+    sampleQueue.maybeThrowError();
   }
 
   @Override
   public int readData(
       FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired) {
-    if (downstreamFormat == null || formatRequired) {
-      onFormatResult(downstreamFormat == null ? initialFormat : downstreamFormat, formatHolder);
-      return C.RESULT_FORMAT_READ;
+    int result = sampleQueue.read(formatHolder, buffer, formatRequired, loadingFinished);
+    if (result == C.RESULT_FORMAT_READ) {
+      downstreamFormat = checkNotNull(formatHolder.format);
     }
-    // Once an EOS buffer has been read, send EOS every time.
-    if (readEOSBuffer) {
-      buffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-      return C.RESULT_BUFFER_READ;
+    if (result == C.RESULT_BUFFER_READ && !buffer.isFlagsOnly()) {
+      maybeNotifyDownstreamFormat(buffer.timeUs);
     }
-
-    if (sampleItemIndex < fakeSampleStreamItems.size()) {
-      FakeSampleStreamItem fakeSampleStreamItem = fakeSampleStreamItems.get(sampleItemIndex);
-      sampleItemIndex++;
-      if (fakeSampleStreamItem.format != null) {
-        onFormatResult(fakeSampleStreamItem.format, formatHolder);
-        return C.RESULT_FORMAT_READ;
-      } else {
-        SampleInfo sampleInfo = Assertions.checkNotNull(fakeSampleStreamItem.sampleInfo);
-        if (sampleInfo.flags != 0) {
-          buffer.setFlags(sampleInfo.flags);
-          if (buffer.isEndOfStream()) {
-            readEOSBuffer = true;
-            return C.RESULT_BUFFER_READ;
-          }
-        }
-        if (!mayReadSample()) {
-          sampleItemIndex--;
-          return C.RESULT_NOTHING_READ;
-        }
-        buffer.timeUs = sampleInfo.timeUs;
-        buffer.ensureSpaceForWrite(sampleInfo.data.length);
-        buffer.data.put(sampleInfo.data);
-        return C.RESULT_BUFFER_READ;
-      }
-    }
-    return C.RESULT_NOTHING_READ;
-  }
-
-  private void onFormatResult(Format newFormat, FormatHolder outputFormatHolder) {
-    outputFormatHolder.format = newFormat;
-    @Nullable
-    DrmInitData oldDrmInitData = downstreamFormat == null ? null : downstreamFormat.drmInitData;
-    boolean isFirstFormat = downstreamFormat == null;
-    downstreamFormat = newFormat;
-    @Nullable DrmInitData newDrmInitData = newFormat.drmInitData;
-    outputFormatHolder.drmSession = currentDrmSession;
-    notifyEventDispatcher(newFormat);
-    if (!isFirstFormat && Util.areEqual(oldDrmInitData, newDrmInitData)) {
-      // Nothing to do.
-      return;
-    }
-    // Ensure we acquire the new session before releasing the previous one in case the same session
-    // is being used for both DrmInitData.
-    @Nullable DrmSession previousSession = currentDrmSession;
-    Looper playbackLooper = Assertions.checkNotNull(Looper.myLooper());
-    currentDrmSession =
-        drmSessionManager.acquireSession(playbackLooper, drmEventDispatcher, newFormat);
-    outputFormatHolder.drmSession = currentDrmSession;
-
-    if (previousSession != null) {
-      previousSession.release(drmEventDispatcher);
-    }
-  }
-
-  private boolean mayReadSample() {
-    @Nullable DrmSession drmSession = this.currentDrmSession;
-    @Nullable
-    FakeSampleStreamItem nextSample =
-        Iterables.get(fakeSampleStreamItems, sampleItemIndex, /* defaultValue= */ null);
-    boolean nextSampleIsClear =
-        nextSample != null
-            && nextSample.sampleInfo != null
-            && (nextSample.sampleInfo.flags & C.BUFFER_FLAG_ENCRYPTED) == 0;
-    return drmSession == null
-        || drmSession.getState() == DrmSession.STATE_OPENED_WITH_KEYS
-        || (nextSampleIsClear && drmSession.playClearSamplesWithoutKeys());
-  }
-
-  @Override
-  public void maybeThrowError() throws IOException {
-    if (currentDrmSession != null && currentDrmSession.getState() == DrmSession.STATE_ERROR) {
-      throw Assertions.checkNotNull(currentDrmSession.getError());
-    }
+    return result;
   }
 
   @Override
   public int skipData(long positionUs) {
-    // TODO: Implement this.
-    return 0;
+    int skipCount = sampleQueue.getSkipCount(positionUs, loadingFinished);
+    sampleQueue.skip(skipCount);
+    return skipCount;
   }
 
-  /** Release this SampleStream and all underlying resources. */
-  public void release() {
-    if (currentDrmSession != null) {
-      currentDrmSession.release(drmEventDispatcher);
-      currentDrmSession = null;
+  private void maybeNotifyDownstreamFormat(long timeUs) {
+    if (mediaSourceEventDispatcher != null
+        && downstreamFormat != null
+        && !downstreamFormat.equals(notifiedDownstreamFormat)) {
+      mediaSourceEventDispatcher.downstreamFormatChanged(
+          MimeTypes.getTrackType(downstreamFormat.sampleMimeType),
+          downstreamFormat,
+          C.SELECTION_REASON_UNKNOWN,
+          /* trackSelectionData= */ null,
+          timeUs);
+      notifiedDownstreamFormat = downstreamFormat;
     }
   }
 
-  private void notifyEventDispatcher(Format format) {
-    if (mediaSourceEventDispatcher != null) {
-      @Nullable SampleInfo sampleInfo = null;
-      for (int i = sampleItemIndex; i < fakeSampleStreamItems.size(); i++) {
-        sampleInfo = fakeSampleStreamItems.get(i).sampleInfo;
-        if (sampleInfo != null) {
-          break;
-        }
-      }
-      long nextSampleTimeUs = sampleInfo != null ? sampleInfo.timeUs : C.TIME_END_OF_SOURCE;
-      mediaSourceEventDispatcher.downstreamFormatChanged(
-          C.TRACK_TYPE_UNKNOWN,
-          format,
-          C.SELECTION_REASON_UNKNOWN,
-          /* trackSelectionData= */ null,
-          /* mediaTimeUs= */ nextSampleTimeUs);
+  private static class SampleInfo {
+    public final byte[] data;
+    @C.BufferFlags public final int flags;
+    public final long timeUs;
+
+    public SampleInfo(byte[] data, @C.BufferFlags int flags, long timeUs) {
+      this.data = Arrays.copyOf(data, data.length);
+      this.flags = flags;
+      this.timeUs = timeUs;
     }
   }
 }

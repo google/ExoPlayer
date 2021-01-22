@@ -26,8 +26,10 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BaseMediaSource;
@@ -35,7 +37,6 @@ import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.DefaultCompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceDrmHelper;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.SequenceableLoader;
@@ -94,13 +95,13 @@ public final class HlsMediaSource extends BaseMediaSource
   public static final class Factory implements MediaSourceFactory {
 
     private final HlsDataSourceFactory hlsDataSourceFactory;
-    private final MediaSourceDrmHelper mediaSourceDrmHelper;
 
     private HlsExtractorFactory extractorFactory;
     private HlsPlaylistParserFactory playlistParserFactory;
     private HlsPlaylistTracker.Factory playlistTrackerFactory;
     private CompositeSequenceableLoaderFactory compositeSequenceableLoaderFactory;
-    @Nullable private DrmSessionManager drmSessionManager;
+    private boolean usingCustomDrmSessionManagerProvider;
+    private DrmSessionManagerProvider drmSessionManagerProvider;
     private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
     private boolean allowChunklessPreparation;
     @MetadataType private int metadataType;
@@ -128,7 +129,7 @@ public final class HlsMediaSource extends BaseMediaSource
      */
     public Factory(HlsDataSourceFactory hlsDataSourceFactory) {
       this.hlsDataSourceFactory = checkNotNull(hlsDataSourceFactory);
-      mediaSourceDrmHelper = new MediaSourceDrmHelper();
+      drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
       playlistParserFactory = new DefaultHlsPlaylistParserFactory();
       playlistTrackerFactory = DefaultHlsPlaylistTracker.FACTORY;
       extractorFactory = HlsExtractorFactory.DEFAULT;
@@ -167,8 +168,6 @@ public final class HlsMediaSource extends BaseMediaSource
      * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
      * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
      *
-     * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
-     *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
      */
@@ -178,13 +177,6 @@ public final class HlsMediaSource extends BaseMediaSource
           loadErrorHandlingPolicy != null
               ? loadErrorHandlingPolicy
               : new DefaultLoadErrorHandlingPolicy();
-      return this;
-    }
-
-    /** @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead. */
-    @Deprecated
-    public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
-      this.loadErrorHandlingPolicy = new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount);
       return this;
     }
 
@@ -290,21 +282,43 @@ public final class HlsMediaSource extends BaseMediaSource
     }
 
     @Override
+    public Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      if (drmSessionManagerProvider != null) {
+        this.drmSessionManagerProvider = drmSessionManagerProvider;
+        this.usingCustomDrmSessionManagerProvider = true;
+      } else {
+        this.drmSessionManagerProvider = new DefaultDrmSessionManagerProvider();
+        this.usingCustomDrmSessionManagerProvider = false;
+      }
+      return this;
+    }
+
+    @Override
     public Factory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager) {
-      this.drmSessionManager = drmSessionManager;
+      if (drmSessionManager == null) {
+        setDrmSessionManagerProvider(null);
+      } else {
+        setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager);
+      }
       return this;
     }
 
     @Override
     public Factory setDrmHttpDataSourceFactory(
         @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-      mediaSourceDrmHelper.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      if (!usingCustomDrmSessionManagerProvider) {
+        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider)
+            .setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+      }
       return this;
     }
 
     @Override
-    public MediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-      mediaSourceDrmHelper.setDrmUserAgent(userAgent);
+    public Factory setDrmUserAgent(@Nullable String userAgent) {
+      if (!usingCustomDrmSessionManagerProvider) {
+        ((DefaultDrmSessionManagerProvider) drmSessionManagerProvider).setDrmUserAgent(userAgent);
+      }
       return this;
     }
 
@@ -378,7 +392,7 @@ public final class HlsMediaSource extends BaseMediaSource
           hlsDataSourceFactory,
           extractorFactory,
           compositeSequenceableLoaderFactory,
-          drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem),
+          drmSessionManagerProvider.get(mediaItem),
           loadErrorHandlingPolicy,
           playlistTrackerFactory.createTracker(
               hlsDataSourceFactory, loadErrorHandlingPolicy, playlistParserFactory),
@@ -405,8 +419,9 @@ public final class HlsMediaSource extends BaseMediaSource
   private final boolean useSessionKeys;
   private final HlsPlaylistTracker playlistTracker;
   private final long elapsedRealTimeOffsetMs;
+  private final MediaItem mediaItem;
 
-  private MediaItem mediaItem;
+  private MediaItem.LiveConfiguration liveConfiguration;
   @Nullable private TransferListener mediaTransferListener;
 
   private HlsMediaSource(
@@ -423,6 +438,7 @@ public final class HlsMediaSource extends BaseMediaSource
       boolean useSessionKeys) {
     this.playbackProperties = checkNotNull(mediaItem.playbackProperties);
     this.mediaItem = mediaItem;
+    this.liveConfiguration = mediaItem.liveConfiguration;
     this.dataSourceFactory = dataSourceFactory;
     this.extractorFactory = extractorFactory;
     this.compositeSequenceableLoaderFactory = compositeSequenceableLoaderFactory;
@@ -515,8 +531,8 @@ public final class HlsMediaSource extends BaseMediaSource
     if (playlistTracker.isLive()) {
       long liveEdgeOffsetUs = getLiveEdgeOffsetUs(playlist);
       long targetLiveOffsetUs =
-          mediaItem.liveConfiguration.targetOffsetMs != C.TIME_UNSET
-              ? C.msToUs(mediaItem.liveConfiguration.targetOffsetMs)
+          liveConfiguration.targetOffsetMs != C.TIME_UNSET
+              ? C.msToUs(liveConfiguration.targetOffsetMs)
               : getTargetLiveOffsetUs(playlist, liveEdgeOffsetUs);
       // Ensure target live offset is within the live window and greater than the live edge offset.
       targetLiveOffsetUs =
@@ -534,7 +550,6 @@ public final class HlsMediaSource extends BaseMediaSource
       } else if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
       }
-
       timeline =
           new SinglePeriodTimeline(
               presentationStartTimeMs,
@@ -546,9 +561,9 @@ public final class HlsMediaSource extends BaseMediaSource
               windowDefaultStartPositionUs,
               /* isSeekable= */ true,
               /* isDynamic= */ !playlist.hasEndTag,
-              /* isLive= */ true,
               manifest,
-              mediaItem);
+              mediaItem,
+              liveConfiguration);
     } else /* not live */ {
       if (windowDefaultStartPositionUs == C.TIME_UNSET) {
         windowDefaultStartPositionUs = 0;
@@ -564,9 +579,9 @@ public final class HlsMediaSource extends BaseMediaSource
               windowDefaultStartPositionUs,
               /* isSeekable= */ true,
               /* isDynamic= */ false,
-              /* isLive= */ false,
               manifest,
-              mediaItem);
+              mediaItem,
+              /* liveConfiguration= */ null);
     }
     refreshSourceInfo(timeline);
   }
@@ -581,9 +596,7 @@ public final class HlsMediaSource extends BaseMediaSource
     List<HlsMediaPlaylist.Segment> segments = playlist.segments;
     int segmentIndex = segments.size() - 1;
     long minStartPositionUs =
-        playlist.durationUs
-            + liveEdgeOffsetUs
-            - C.msToUs(mediaItem.liveConfiguration.targetOffsetMs);
+        playlist.durationUs + liveEdgeOffsetUs - C.msToUs(liveConfiguration.targetOffsetMs);
     while (segmentIndex > 0
         && segments.get(segmentIndex).relativeStartTimeUs > minStartPositionUs) {
       segmentIndex--;
@@ -593,8 +606,9 @@ public final class HlsMediaSource extends BaseMediaSource
 
   private void maybeUpdateMediaItem(long targetLiveOffsetUs) {
     long targetLiveOffsetMs = C.usToMs(targetLiveOffsetUs);
-    if (targetLiveOffsetMs != mediaItem.liveConfiguration.targetOffsetMs) {
-      mediaItem = mediaItem.buildUpon().setLiveTargetOffsetMs(targetLiveOffsetMs).build();
+    if (targetLiveOffsetMs != liveConfiguration.targetOffsetMs) {
+      liveConfiguration =
+          mediaItem.buildUpon().setLiveTargetOffsetMs(targetLiveOffsetMs).build().liveConfiguration;
     }
   }
 

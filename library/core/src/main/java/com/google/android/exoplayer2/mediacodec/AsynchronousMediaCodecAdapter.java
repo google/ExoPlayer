@@ -29,6 +29,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
+import com.google.common.base.Supplier;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,6 +42,69 @@ import java.nio.ByteBuffer;
  */
 @RequiresApi(23)
 /* package */ final class AsynchronousMediaCodecAdapter implements MediaCodecAdapter {
+
+  /** A factory for {@link AsynchronousMediaCodecAdapter} instances. */
+  public static final class Factory implements MediaCodecAdapter.Factory {
+    private final Supplier<HandlerThread> callbackThreadSupplier;
+    private final Supplier<HandlerThread> queueingThreadSupplier;
+    private final boolean forceQueueingSynchronizationWorkaround;
+    private final boolean synchronizeCodecInteractionsWithQueueing;
+
+    /** Creates a factory for the specified {@code trackType}. */
+    public Factory(int trackType) {
+      this(
+          trackType,
+          /* forceQueueingSynchronizationWorkaround= */ false,
+          /* synchronizeCodecInteractionsWithQueueing= */ false);
+    }
+
+    /**
+     * Creates an factory for {@link AsynchronousMediaCodecAdapter} instances.
+     *
+     * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
+     *     labelling the internal thread accordingly.
+     * @param forceQueueingSynchronizationWorkaround Whether the queueing synchronization workaround
+     *     will be enabled by default or only for the predefined devices.
+     * @param synchronizeCodecInteractionsWithQueueing Whether the adapter should synchronize {@link
+     *     MediaCodec} interactions with asynchronous buffer queueing. When {@code true}, codec
+     *     interactions will wait until all input buffers pending queueing wil be submitted to the
+     *     {@link MediaCodec}.
+     */
+    public Factory(
+        int trackType,
+        boolean forceQueueingSynchronizationWorkaround,
+        boolean synchronizeCodecInteractionsWithQueueing) {
+      this(
+          /* callbackThreadSupplier= */ () ->
+              new HandlerThread(createCallbackThreadLabel(trackType)),
+          /* queueingThreadSupplier= */ () ->
+              new HandlerThread(createQueueingThreadLabel(trackType)),
+          forceQueueingSynchronizationWorkaround,
+          synchronizeCodecInteractionsWithQueueing);
+    }
+
+    @VisibleForTesting
+    /* package */ Factory(
+        Supplier<HandlerThread> callbackThreadSupplier,
+        Supplier<HandlerThread> queueingThreadSupplier,
+        boolean forceQueueingSynchronizationWorkaround,
+        boolean synchronizeCodecInteractionsWithQueueing) {
+      this.callbackThreadSupplier = callbackThreadSupplier;
+      this.queueingThreadSupplier = queueingThreadSupplier;
+      this.forceQueueingSynchronizationWorkaround = forceQueueingSynchronizationWorkaround;
+      this.synchronizeCodecInteractionsWithQueueing = synchronizeCodecInteractionsWithQueueing;
+    }
+
+    @Override
+    public AsynchronousMediaCodecAdapter createAdapter(MediaCodec codec) {
+      return new AsynchronousMediaCodecAdapter(
+          codec,
+          callbackThreadSupplier.get(),
+          queueingThreadSupplier.get(),
+          forceQueueingSynchronizationWorkaround,
+          synchronizeCodecInteractionsWithQueueing);
+    }
+  }
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -59,32 +123,7 @@ import java.nio.ByteBuffer;
   private boolean codecReleased;
   @State private int state;
 
-  /**
-   * Creates an instance that wraps the specified {@link MediaCodec}.
-   *
-   * @param codec The {@link MediaCodec} to wrap.
-   * @param trackType One of {@link C#TRACK_TYPE_AUDIO} or {@link C#TRACK_TYPE_VIDEO}. Used for
-   *     labelling the internal thread accordingly.
-   * @param synchronizeCodecInteractionsWithQueueing Whether the adapter should synchronize {@link
-   *     MediaCodec} interactions with asynchronous buffer queueing. When {@code true}, codec
-   *     interactions will wait until all input buffers pending queueing wil be submitted to the
-   *     {@link MediaCodec}.
-   */
-  /* package */ AsynchronousMediaCodecAdapter(
-      MediaCodec codec,
-      int trackType,
-      boolean forceQueueingSynchronizationWorkaround,
-      boolean synchronizeCodecInteractionsWithQueueing) {
-    this(
-        codec,
-        new HandlerThread(createCallbackThreadLabel(trackType)),
-        new HandlerThread(createQueueingThreadLabel(trackType)),
-        forceQueueingSynchronizationWorkaround,
-        synchronizeCodecInteractionsWithQueueing);
-  }
-
-  @VisibleForTesting
-  /* package */ AsynchronousMediaCodecAdapter(
+  private AsynchronousMediaCodecAdapter(
       MediaCodec codec,
       HandlerThread callbackThread,
       HandlerThread enqueueingThread,

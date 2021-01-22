@@ -45,13 +45,6 @@ public interface AudioRendererEventListener {
   default void onAudioEnabled(DecoderCounters counters) {}
 
   /**
-   * Called when the audio session is set.
-   *
-   * @param audioSessionId The audio session id.
-   */
-  default void onAudioSessionId(int audioSessionId) {}
-
-  /**
    * Called when a decoder is created.
    *
    * @param decoderName The decoder that was created.
@@ -221,13 +214,6 @@ public interface AudioRendererEventListener {
               counters.ensureUpdated();
               castNonNull(listener).onAudioDisabled(counters);
             });
-      }
-    }
-
-    /** Invokes {@link AudioRendererEventListener#onAudioSessionId(int)}. */
-    public void audioSessionId(int audioSessionId) {
-      if (handler != null) {
-        handler.post(() -> castNonNull(listener).onAudioSessionId(audioSessionId));
       }
     }
 

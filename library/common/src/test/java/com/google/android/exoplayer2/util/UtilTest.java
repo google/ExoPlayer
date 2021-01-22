@@ -20,10 +20,13 @@ import static com.google.android.exoplayer2.util.Util.binarySearchFloor;
 import static com.google.android.exoplayer2.util.Util.escapeFileName;
 import static com.google.android.exoplayer2.util.Util.getCodecsOfType;
 import static com.google.android.exoplayer2.util.Util.getStringForTime;
+import static com.google.android.exoplayer2.util.Util.gzip;
+import static com.google.android.exoplayer2.util.Util.minValue;
 import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -32,15 +35,21 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
+import android.util.SparseLongArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.common.io.ByteStreams;
+import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
@@ -724,6 +733,21 @@ public class UtilTest {
   }
 
   @Test
+  public void sparseLongArrayMinValue_returnsMinValue() {
+    SparseLongArray sparseLongArray = new SparseLongArray();
+    sparseLongArray.put(0, 12);
+    sparseLongArray.put(25, 10);
+    sparseLongArray.put(42, 11);
+
+    assertThat(minValue(sparseLongArray)).isEqualTo(10);
+  }
+
+  @Test
+  public void sparseLongArrayMinValue_emptyArray_throws() {
+    assertThrows(NoSuchElementException.class, () -> minValue(new SparseLongArray()));
+  }
+
+  @Test
   public void parseXsDuration_returnsParsedDurationInMillis() {
     assertThat(parseXsDuration("PT150.279S")).isEqualTo(150279L);
     assertThat(parseXsDuration("PT1.500S")).isEqualTo(1500L);
@@ -906,6 +930,17 @@ public class UtilTest {
     int result = Util.crc8(bytes, start, end, initialValue);
 
     assertThat(result).isEqualTo(0x4);
+  }
+
+  @Test
+  public void gzip_resultInflatesBackToOriginalValue() throws Exception {
+    byte[] input = TestUtil.buildTestData(20);
+
+    byte[] deflated = gzip(input);
+
+    byte[] inflated =
+        ByteStreams.toByteArray(new GZIPInputStream(new ByteArrayInputStream(deflated)));
+    assertThat(inflated).isEqualTo(input);
   }
 
   @Test

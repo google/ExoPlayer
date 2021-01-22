@@ -340,7 +340,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param format The current format used by the renderer. May be null.
    */
   protected final ExoPlaybackException createRendererException(
-      Exception cause, @Nullable Format format) {
+      Throwable cause, @Nullable Format format) {
     return createRendererException(cause, format, /* isRecoverable= */ false);
   }
 
@@ -353,7 +353,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param isRecoverable If the error is recoverable by disabling and re-enabling the renderer.
    */
   protected final ExoPlaybackException createRendererException(
-      Exception cause, @Nullable Format format, boolean isRecoverable) {
+      Throwable cause, @Nullable Format format, boolean isRecoverable) {
     @C.FormatSupport int formatSupport = C.FORMAT_HANDLED;
     if (format != null && !throwRendererExceptionIsExecuting) {
       // Prevent recursive re-entry from subclass supportsFormat implementations.

@@ -24,6 +24,7 @@ import android.media.MediaCodecList;
 import android.text.TextUtils;
 import android.util.Pair;
 import androidx.annotation.CheckResult;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -63,6 +64,7 @@ public final class MediaCodecUtil {
   private static final String TAG = "MediaCodecUtil";
   private static final Pattern PROFILE_PATTERN = Pattern.compile("^\\D?(\\d+)$");
 
+  @GuardedBy("MediaCodecUtil.class")
   private static final HashMap<CodecKey, List<MediaCodecInfo>> decoderInfosCache = new HashMap<>();
 
   // Codecs to constant mappings.
@@ -106,6 +108,15 @@ public final class MediaCodecUtil {
   }
 
   /**
+   * Clears the codec cache.
+   *
+   * <p>This method should only be called in tests.
+   */
+  public static synchronized void clearDecoderInfoCache() {
+    decoderInfosCache.clear();
+  }
+
+  /**
    * Returns information about a decoder that will only decrypt data, without decoding it.
    *
    * @return A {@link MediaCodecInfo} describing the decoder, or null if no suitable decoder exists.
@@ -134,7 +145,7 @@ public final class MediaCodecUtil {
     return decoderInfos.isEmpty() ? null : decoderInfos.get(0);
   }
 
-  /**
+  /*
    * Returns all {@link MediaCodecInfo}s for the given mime type, in the order given by {@link
    * MediaCodecList}.
    *

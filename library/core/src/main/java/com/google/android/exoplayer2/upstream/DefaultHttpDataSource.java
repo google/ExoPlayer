@@ -23,7 +23,6 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
@@ -52,15 +51,148 @@ import java.util.zip.GZIPInputStream;
  * An {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
  *
  * <p>By default this implementation will not follow cross-protocol redirects (i.e. redirects from
- * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by using the {@link
- * #DefaultHttpDataSource(String, int, int, boolean, RequestProperties)} constructor and passing
- * {@code true} for the {@code allowCrossProtocolRedirects} argument.
+ * HTTP to HTTPS or vice versa). Cross-protocol redirects can be enabled by passing {@code true} to
+ * {@link DefaultHttpDataSource.Factory#setAllowCrossProtocolRedirects(boolean)}.
  *
  * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
- * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
- * construct the instance.
+ * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default properties that can
+ * be passed to {@link HttpDataSource.Factory#setDefaultRequestProperties(Map)}.
  */
 public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSource {
+
+  /** {@link DataSource.Factory} for {@link DefaultHttpDataSource} instances. */
+  public static final class Factory implements HttpDataSource.Factory {
+
+    private final RequestProperties defaultRequestProperties;
+
+    @Nullable private TransferListener transferListener;
+    @Nullable private Predicate<String> contentTypePredicate;
+    @Nullable private String userAgent;
+    private int connectTimeoutMs;
+    private int readTimeoutMs;
+    private boolean allowCrossProtocolRedirects;
+
+    /** Creates an instance. */
+    public Factory() {
+      defaultRequestProperties = new RequestProperties();
+      connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLIS;
+      readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLIS;
+    }
+
+    /** @deprecated Use {@link #setDefaultRequestProperties(Map)} instead. */
+    @Deprecated
+    @Override
+    public final RequestProperties getDefaultRequestProperties() {
+      return defaultRequestProperties;
+    }
+
+    @Override
+    public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
+      this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
+      return this;
+    }
+
+    /**
+     * Sets the user agent that will be used.
+     *
+     * <p>The default is {@code null}, which causes the default user agent of the underlying
+     * platform to be used.
+     *
+     * @param userAgent The user agent that will be used, or {@code null} to use the default user
+     *     agent of the underlying platform.
+     * @return This factory.
+     */
+    public Factory setUserAgent(@Nullable String userAgent) {
+      this.userAgent = userAgent;
+      return this;
+    }
+
+    /**
+     * Sets the connect timeout, in milliseconds.
+     *
+     * <p>The default is {@link DefaultHttpDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS}.
+     *
+     * @param connectTimeoutMs The connect timeout, in milliseconds, that will be used.
+     * @return This factory.
+     */
+    public Factory setConnectTimeoutMs(int connectTimeoutMs) {
+      this.connectTimeoutMs = connectTimeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets the read timeout, in milliseconds.
+     *
+     * <p>The default is {@link DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS}.
+     *
+     * @param readTimeoutMs The connect timeout, in milliseconds, that will be used.
+     * @return This factory.
+     */
+    public Factory setReadTimeoutMs(int readTimeoutMs) {
+      this.readTimeoutMs = readTimeoutMs;
+      return this;
+    }
+
+    /**
+     * Sets whether to allow cross protocol redirects.
+     *
+     * <p>The default is {@code false}.
+     *
+     * @param allowCrossProtocolRedirects Whether to allow cross protocol redirects.
+     * @return This factory.
+     */
+    public Factory setAllowCrossProtocolRedirects(boolean allowCrossProtocolRedirects) {
+      this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
+      return this;
+    }
+
+    /**
+     * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
+     * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
+     * DefaultHttpDataSource#open(DataSpec)}.
+     *
+     * <p>The default is {@code null}.
+     *
+     * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
+     *     predicate that was previously set.
+     * @return This factory.
+     */
+    public Factory setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
+      this.contentTypePredicate = contentTypePredicate;
+      return this;
+    }
+
+    /**
+     * Sets the {@link TransferListener} that will be used.
+     *
+     * <p>The default is {@code null}.
+     *
+     * <p>See {@link DataSource#addTransferListener(TransferListener)}.
+     *
+     * @param transferListener The listener that will be used.
+     * @return This factory.
+     */
+    public Factory setTransferListener(@Nullable TransferListener transferListener) {
+      this.transferListener = transferListener;
+      return this;
+    }
+
+    @Override
+    public DefaultHttpDataSource createDataSource() {
+      DefaultHttpDataSource dataSource =
+          new DefaultHttpDataSource(
+              userAgent,
+              connectTimeoutMs,
+              readTimeoutMs,
+              allowCrossProtocolRedirects,
+              defaultRequestProperties,
+              contentTypePredicate);
+      if (transferListener != null) {
+        dataSource.addTransferListener(transferListener);
+      }
+      return dataSource;
+    }
+  }
 
   /** The default connection timeout, in milliseconds. */
   public static final int DEFAULT_CONNECT_TIMEOUT_MILLIS = 8 * 1000;
@@ -81,7 +213,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private final boolean allowCrossProtocolRedirects;
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
-  private final String userAgent;
+  @Nullable private final String userAgent;
   @Nullable private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
 
@@ -98,33 +230,25 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private long bytesSkipped;
   private long bytesRead;
 
-  /** Creates an instance. */
+  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
   public DefaultHttpDataSource() {
-    this(
-        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS);
+    this(/* userAgent= */ null, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
-  /**
-   * Creates an instance.
-   *
-   * @param userAgent The User-Agent string that should be used.
-   */
-  public DefaultHttpDataSource(String userAgent) {
+  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
+  public DefaultHttpDataSource(@Nullable String userAgent) {
     this(userAgent, DEFAULT_CONNECT_TIMEOUT_MILLIS, DEFAULT_READ_TIMEOUT_MILLIS);
   }
 
-  /**
-   * Creates an instance.
-   *
-   * @param userAgent The User-Agent string that should be used.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout.
-   */
-  public DefaultHttpDataSource(String userAgent, int connectTimeoutMillis, int readTimeoutMillis) {
+  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  @SuppressWarnings("deprecation")
+  @Deprecated
+  public DefaultHttpDataSource(
+      @Nullable String userAgent, int connectTimeoutMillis, int readTimeoutMillis) {
     this(
         userAgent,
         connectTimeoutMillis,
@@ -133,129 +257,45 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         /* defaultRequestProperties= */ null);
   }
 
-  /**
-   * Creates an instance.
-   *
-   * @param userAgent The User-Agent string that should be used.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
-   *     default value.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
-   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
-   *     to HTTPS and vice versa) are enabled.
-   * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
-   *     headers or {@code null} if not required.
-   */
+  /** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+  @Deprecated
   public DefaultHttpDataSource(
-      String userAgent,
+      @Nullable String userAgent,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects,
       @Nullable RequestProperties defaultRequestProperties) {
+    this(
+        userAgent,
+        connectTimeoutMillis,
+        readTimeoutMillis,
+        allowCrossProtocolRedirects,
+        defaultRequestProperties,
+        /* contentTypePredicate= */ null);
+  }
+
+  private DefaultHttpDataSource(
+      @Nullable String userAgent,
+      int connectTimeoutMillis,
+      int readTimeoutMillis,
+      boolean allowCrossProtocolRedirects,
+      @Nullable RequestProperties defaultRequestProperties,
+      @Nullable Predicate<String> contentTypePredicate) {
     super(/* isNetwork= */ true);
-    this.userAgent = Assertions.checkNotEmpty(userAgent);
-    this.requestProperties = new RequestProperties();
+    this.userAgent = userAgent;
     this.connectTimeoutMillis = connectTimeoutMillis;
     this.readTimeoutMillis = readTimeoutMillis;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
     this.defaultRequestProperties = defaultRequestProperties;
-  }
-
-  /**
-   * Creates an instance.
-   *
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @deprecated Use {@link #DefaultHttpDataSource(String)} and {@link
-   *     #setContentTypePredicate(Predicate)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public DefaultHttpDataSource(String userAgent, @Nullable Predicate<String> contentTypePredicate) {
-    this(
-        userAgent,
-        contentTypePredicate,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS);
-  }
-
-  /**
-   * Creates an instance.
-   *
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, int, int)} and {@link
-   *     #setContentTypePredicate(Predicate)}.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      int connectTimeoutMillis,
-      int readTimeoutMillis) {
-    this(
-        userAgent,
-        contentTypePredicate,
-        connectTimeoutMillis,
-        readTimeoutMillis,
-        /* allowCrossProtocolRedirects= */ false,
-        /* defaultRequestProperties= */ null);
-  }
-
-  /**
-   * Creates an instance.
-   *
-   * @param userAgent The User-Agent string that should be used.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then a {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param connectTimeoutMillis The connection timeout, in milliseconds. A timeout of zero is
-   *     interpreted as an infinite timeout. Pass {@link #DEFAULT_CONNECT_TIMEOUT_MILLIS} to use the
-   *     default value.
-   * @param readTimeoutMillis The read timeout, in milliseconds. A timeout of zero is interpreted as
-   *     an infinite timeout. Pass {@link #DEFAULT_READ_TIMEOUT_MILLIS} to use the default value.
-   * @param allowCrossProtocolRedirects Whether cross-protocol redirects (i.e. redirects from HTTP
-   *     to HTTPS and vice versa) are enabled.
-   * @param defaultRequestProperties The default request properties to be sent to the server as HTTP
-   *     headers or {@code null} if not required.
-   * @deprecated Use {@link #DefaultHttpDataSource(String, int, int, boolean, RequestProperties)}
-   *     and {@link #setContentTypePredicate(Predicate)}.
-   */
-  @Deprecated
-  public DefaultHttpDataSource(
-      String userAgent,
-      @Nullable Predicate<String> contentTypePredicate,
-      int connectTimeoutMillis,
-      int readTimeoutMillis,
-      boolean allowCrossProtocolRedirects,
-      @Nullable RequestProperties defaultRequestProperties) {
-    super(/* isNetwork= */ true);
-    this.userAgent = Assertions.checkNotEmpty(userAgent);
     this.contentTypePredicate = contentTypePredicate;
     this.requestProperties = new RequestProperties();
-    this.connectTimeoutMillis = connectTimeoutMillis;
-    this.readTimeoutMillis = readTimeoutMillis;
-    this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
-    this.defaultRequestProperties = defaultRequestProperties;
   }
 
   /**
-   * Sets a content type {@link Predicate}. If a content type is rejected by the predicate then a
-   * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
-   *
-   * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
-   *     predicate that was previously set.
+   * @deprecated Use {@link DefaultHttpDataSource.Factory#setContentTypePredicate(Predicate)}
+   *     instead.
    */
+  @Deprecated
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
     this.contentTypePredicate = contentTypePredicate;
   }
@@ -334,8 +374,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         errorResponseBody =
             errorStream != null ? Util.toByteArray(errorStream) : Util.EMPTY_BYTE_ARRAY;
       } catch (IOException e) {
-        throw new HttpDataSourceException(
-            "Error reading non-2xx response body", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+        errorResponseBody = Util.EMPTY_BYTE_ARRAY;
       }
       closeConnectionQuietly();
       InvalidResponseCodeException exception =
@@ -578,7 +617,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       }
       connection.setRequestProperty("Range", rangeRequest);
     }
-    connection.setRequestProperty("User-Agent", userAgent);
+    if (userAgent != null) {
+      connection.setRequestProperty("User-Agent", userAgent);
+    }
     connection.setRequestProperty("Accept-Encoding", allowGzip ? "gzip" : "identity");
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);

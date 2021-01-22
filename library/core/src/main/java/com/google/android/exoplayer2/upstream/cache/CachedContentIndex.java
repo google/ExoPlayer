@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.AtomicFile;
 import com.google.android.exoplayer2.util.ReusableBufferedOutputStream;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableSet;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -301,9 +302,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** Removes all resources whose {@link CachedContent CachedContents} are empty and unlocked. */
   public void removeEmpty() {
-    String[] keys = new String[keyToContent.size()];
-    keyToContent.keySet().toArray(keys);
-    for (String key : keys) {
+    // Create a copy of the keys as the underlying map is modified by maybeRemove(key).
+    for (String key : ImmutableSet.copyOf(keyToContent.keySet())) {
       maybeRemove(key);
     }
   }

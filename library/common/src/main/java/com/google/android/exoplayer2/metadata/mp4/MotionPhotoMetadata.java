@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.metadata.mp4;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.common.primitives.Longs;
 
@@ -29,6 +30,10 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
   public final long photoStartPosition;
   /** The size of the photo data, in bytes. */
   public final long photoSize;
+  /**
+   * The presentation timestamp of the photo, in microseconds, or {@link C#TIME_UNSET} if unknown.
+   */
+  public final long photoPresentationTimestampUs;
   /** The start offset of the video data, in bytes. */
   public final long videoStartPosition;
   /** The size of the video data, in bytes. */
@@ -36,9 +41,14 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
 
   /** Creates an instance. */
   public MotionPhotoMetadata(
-      long photoStartPosition, long photoSize, long videoStartPosition, long videoSize) {
+      long photoStartPosition,
+      long photoSize,
+      long photoPresentationTimestampUs,
+      long videoStartPosition,
+      long videoSize) {
     this.photoStartPosition = photoStartPosition;
     this.photoSize = photoSize;
+    this.photoPresentationTimestampUs = photoPresentationTimestampUs;
     this.videoStartPosition = videoStartPosition;
     this.videoSize = videoSize;
   }
@@ -46,6 +56,7 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
   private MotionPhotoMetadata(Parcel in) {
     photoStartPosition = in.readLong();
     photoSize = in.readLong();
+    photoPresentationTimestampUs = in.readLong();
     videoStartPosition = in.readLong();
     videoSize = in.readLong();
   }
@@ -61,6 +72,7 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
     MotionPhotoMetadata other = (MotionPhotoMetadata) obj;
     return photoStartPosition == other.photoStartPosition
         && photoSize == other.photoSize
+        && photoPresentationTimestampUs == other.photoPresentationTimestampUs
         && videoStartPosition == other.videoStartPosition
         && videoSize == other.videoSize;
   }
@@ -70,6 +82,7 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
     int result = 17;
     result = 31 * result + Longs.hashCode(photoStartPosition);
     result = 31 * result + Longs.hashCode(photoSize);
+    result = 31 * result + Longs.hashCode(photoPresentationTimestampUs);
     result = 31 * result + Longs.hashCode(videoStartPosition);
     result = 31 * result + Longs.hashCode(videoSize);
     return result;
@@ -81,6 +94,8 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
         + photoStartPosition
         + ", photoSize="
         + photoSize
+        + ", photoPresentationTimestampUs="
+        + photoPresentationTimestampUs
         + ", videoStartPosition="
         + videoStartPosition
         + ", videoSize="
@@ -93,6 +108,7 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeLong(photoStartPosition);
     dest.writeLong(photoSize);
+    dest.writeLong(photoPresentationTimestampUs);
     dest.writeLong(videoStartPosition);
     dest.writeLong(videoSize);
   }

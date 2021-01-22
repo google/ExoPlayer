@@ -15,13 +15,17 @@
  */
 package com.google.android.exoplayer2.metadata.mp4;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /** Holds information about the segments of slow motion playback within a track. */
@@ -29,6 +33,14 @@ public final class SlowMotionData implements Metadata.Entry {
 
   /** Holds information about a single segment of slow motion playback within a track. */
   public static final class Segment implements Parcelable {
+
+    public static final Comparator<Segment> BY_START_THEN_END_THEN_DIVISOR =
+        (s1, s2) ->
+            ComparisonChain.start()
+                .compare(s1.startTimeMs, s2.startTimeMs)
+                .compare(s1.endTimeMs, s2.endTimeMs)
+                .compare(s1.speedDivisor, s2.speedDivisor)
+                .result();
 
     /** The start time, in milliseconds, of the track segment that is intended to be slow motion. */
     public final long startTimeMs;
@@ -45,11 +57,12 @@ public final class SlowMotionData implements Metadata.Entry {
     /**
      * Creates an instance.
      *
-     * @param startTimeMs See {@link #startTimeMs}.
+     * @param startTimeMs See {@link #startTimeMs}. Must be less than endTimeMs.
      * @param endTimeMs See {@link #endTimeMs}.
      * @param speedDivisor See {@link #speedDivisor}.
      */
     public Segment(long startTimeMs, long endTimeMs, int speedDivisor) {
+      checkArgument(startTimeMs < endTimeMs);
       this.startTimeMs = startTimeMs;
       this.endTimeMs = endTimeMs;
       this.speedDivisor = speedDivisor;
@@ -113,9 +126,15 @@ public final class SlowMotionData implements Metadata.Entry {
 
   public final List<Segment> segments;
 
-  /** Creates an instance with a list of {@link Segment}s. */
+  /**
+   * Creates an instance with a list of {@link Segment}s.
+   *
+   * <p>The segments must not overlap, that is that the start time of a segment can not be between
+   * the start and end time of another segment.
+   */
   public SlowMotionData(List<Segment> segments) {
     this.segments = segments;
+    checkArgument(!doSegmentsOverlap(segments));
   }
 
   @Override
@@ -164,4 +183,19 @@ public final class SlowMotionData implements Metadata.Entry {
           return new SlowMotionData[size];
         }
       };
+
+  private static boolean doSegmentsOverlap(List<Segment> segments) {
+    if (segments.isEmpty()) {
+      return false;
+    }
+    long previousEndTimeMs = segments.get(0).endTimeMs;
+    for (int i = 1; i < segments.size(); i++) {
+      if (segments.get(i).startTimeMs < previousEndTimeMs) {
+        return true;
+      }
+      previousEndTimeMs = segments.get(i).endTimeMs;
+    }
+
+    return false;
+  }
 }

@@ -418,12 +418,12 @@ public final class MediaItem {
     /**
      * Sets the optional ad tag {@link Uri}.
      *
-     * <p>All ads media items in the playlist with the same ad tag URI and loader will share the
-     * same ad playback state. To resume ad playback when recreating the playlist on returning from
-     * the background, pass the same ad tag URI.
-     *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     *
+     * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
+     * the same ad playback state. To resume ad playback when recreating the playlist on returning
+     * from the background, pass media items with the same ad tag URIs and media IDs to the player.
      *
      * @param adTagUri The ad tag URI to load.
      */
@@ -434,34 +434,35 @@ public final class MediaItem {
     /**
      * Sets the optional ad tag {@link Uri}.
      *
-     * <p>All ads media items in the playlist with the same ad tag URI and loader will share the
-     * same ad playback state. To resume ad playback when recreating the playlist on returning from
-     * the background, pass the same ad tag URI.
-     *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
+     *
+     * <p>Media items in the playlist with the same ad tag URI, media ID and ads loader will share
+     * the same ad playback state. To resume ad playback when recreating the playlist on returning
+     * from the background, pass media items with the same ad tag URIs and media IDs to the player.
      *
      * @param adTagUri The ad tag URI to load.
      */
     public Builder setAdTagUri(@Nullable Uri adTagUri) {
-      return setAdTagUri(adTagUri, /* adsId= */ adTagUri);
+      return setAdTagUri(adTagUri, /* adsId= */ null);
     }
 
     /**
      * Sets the optional ad tag {@link Uri} and ads identifier.
      *
-     * <p>All ads media items in the playlist with the same ads identifier and loader will share the
-     * same ad playback state.
-     *
      * <p>If {@link #setUri} is passed a non-null {@code uri}, the ad tag URI is used to create a
      * {@link PlaybackProperties} object. Otherwise it will be ignored.
      *
+     * <p>Media items in the playlist that have the same ads identifier and ads loader share the
+     * same ad playback state. To resume ad playback when recreating the playlist on returning from
+     * the background, pass the same ads IDs to the player.
+     *
      * @param adTagUri The ad tag URI to load.
-     * @param adsId An opaque identifier for ad playback state associated with this item. Must be
-     *     non-null if {@code adTagUri} is non-null. Ad loading and playback state is shared among
-     *     all media items that have the same ads id (by {@link Object#equals(Object) equality}) and
-     *     ads loader, so it is important to pass the same identifiers when constructing playlist
-     *     items each time the player returns to the foreground.
+     * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
+     *     and playback state is shared among all media items that have the same ads ID (by {@link
+     *     Object#equals(Object) equality}) and ads loader, so it is important to pass the same
+     *     identifiers when constructing playlist items each time the player returns to the
+     *     foreground.
      */
     public Builder setAdTagUri(@Nullable Uri adTagUri, @Nullable Object adsId) {
       this.adTagUri = adTagUri;
@@ -513,8 +514,8 @@ public final class MediaItem {
      *
      * <p>This value is ignored for other stream types.
      *
-     * @param minPlaybackSpeed The minimum playback speed for live streams, or {@link C#RATE_UNSET}
-     *     to use the media-defined default.
+     * @param minPlaybackSpeed The minimum factor by which playback can be sped up for live streams,
+     *     or {@link C#RATE_UNSET} to use the media-defined default.
      */
     public Builder setLiveMinPlaybackSpeed(float minPlaybackSpeed) {
       this.liveMinPlaybackSpeed = minPlaybackSpeed;
@@ -526,8 +527,8 @@ public final class MediaItem {
      *
      * <p>This value is ignored for other stream types.
      *
-     * @param maxPlaybackSpeed The maximum playback speed for live streams, or {@link C#RATE_UNSET}
-     *     to use the media-defined default.
+     * @param maxPlaybackSpeed The maximum factor by which playback can be sped up for live streams,
+     *     or {@link C#RATE_UNSET} to use the media-defined default.
      */
     public Builder setLiveMaxPlaybackSpeed(float maxPlaybackSpeed) {
       this.liveMaxPlaybackSpeed = maxPlaybackSpeed;
@@ -576,7 +577,7 @@ public final class MediaItem {
                         drmSessionForClearTypes,
                         drmKeySetId)
                     : null,
-                adTagUri != null ? new AdsConfiguration(adTagUri, checkNotNull(adsId)) : null,
+                adTagUri != null ? new AdsConfiguration(adTagUri, adsId) : null,
                 streamKeys,
                 customCacheKey,
                 subtitles,
@@ -700,19 +701,26 @@ public final class MediaItem {
   /** Configuration for playing back linear ads with a media item. */
   public static final class AdsConfiguration {
 
+    /** The ad tag URI to load. */
     public final Uri adTagUri;
-    public final Object adsId;
+    /**
+     * An opaque identifier for ad playback state associated with this item, or {@code null} if the
+     * combination of the {@link MediaItem.Builder#setMediaId(String) media ID} and {@link #adTagUri
+     * ad tag URI} should be used as the ads identifier.
+     */
+    @Nullable public final Object adsId;
 
     /**
      * Creates an ads configuration with the given ad tag URI and ads identifier.
      *
      * @param adTagUri The ad tag URI to load.
      * @param adsId An opaque identifier for ad playback state associated with this item. Ad loading
-     *     and playback state is shared among all media items that have the same ads id (by {@link
-     *     Object#equals(Object) equality}), so it is important to pass the same identifiers when
-     *     constructing playlist items each time the player returns to the foreground.
+     *     and playback state is shared among all media items that have the same ads ID (by {@link
+     *     Object#equals(Object) equality}) and ads loader, so it is important to pass the same
+     *     identifiers when constructing playlist items each time the player returns to the
+     *     foreground.
      */
-    private AdsConfiguration(Uri adTagUri, Object adsId) {
+    private AdsConfiguration(Uri adTagUri, @Nullable Object adsId) {
       this.adTagUri = adTagUri;
       this.adsId = adsId;
     }
@@ -727,13 +735,13 @@ public final class MediaItem {
       }
 
       AdsConfiguration other = (AdsConfiguration) obj;
-      return adTagUri.equals(other.adTagUri) && adsId.equals(other.adsId);
+      return adTagUri.equals(other.adTagUri) && Util.areEqual(adsId, other.adsId);
     }
 
     @Override
     public int hashCode() {
       int result = adTagUri.hashCode();
-      result = 31 * result + adsId.hashCode();
+      result = 31 * result + (adsId != null ? adsId.hashCode() : 0);
       return result;
     }
   }
@@ -857,10 +865,16 @@ public final class MediaItem {
      */
     public final long maxOffsetMs;
 
-    /** Minimum playback speed, or {@link C#RATE_UNSET} to use the media-defined default. */
+    /**
+     * Minimum factor by which playback can be sped up, or {@link C#RATE_UNSET} to use the
+     * media-defined default.
+     */
     public final float minPlaybackSpeed;
 
-    /** Maximum playback speed, or {@link C#RATE_UNSET} to use the media-defined default. */
+    /**
+     * Maximum factor by which playback can be sped up, or {@link C#RATE_UNSET} to use the
+     * media-defined default.
+     */
     public final float maxPlaybackSpeed;
 
     /**

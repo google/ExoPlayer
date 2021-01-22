@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
@@ -145,28 +146,30 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    *
    * @param udtaAtom The udta (user data) atom to decode.
    * @param isQuickTime True for QuickTime media. False otherwise.
-   * @return Parsed metadata, or null.
+   * @return A {@link Pair} containing the metadata from the meta child atom as first value (if
+   *     any), and the metadata from the smta child atom as second value (if any).
    */
-  @Nullable
-  public static Metadata parseUdta(Atom.LeafAtom udtaAtom, boolean isQuickTime) {
-    if (isQuickTime) {
-      // Meta boxes are regular boxes rather than full boxes in QuickTime. For now, don't try and
-      // decode one.
-      return null;
-    }
+  public static Pair<@NullableType Metadata, @NullableType Metadata> parseUdta(
+      Atom.LeafAtom udtaAtom, boolean isQuickTime) {
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
+    @Nullable Metadata metaMetadata = null;
+    @Nullable Metadata smtaMetadata = null;
     while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
       int atomPosition = udtaData.getPosition();
       int atomSize = udtaData.readInt();
       int atomType = udtaData.readInt();
-      if (atomType == Atom.TYPE_meta) {
+      // Meta boxes are regular boxes rather than full boxes in QuickTime. Ignore them for now.
+      if (atomType == Atom.TYPE_meta && !isQuickTime) {
         udtaData.setPosition(atomPosition);
-        return parseUdtaMeta(udtaData, atomPosition + atomSize);
+        metaMetadata = parseUdtaMeta(udtaData, atomPosition + atomSize);
+      } else if (atomType == Atom.TYPE_smta) {
+        udtaData.setPosition(atomPosition);
+        smtaMetadata = parseSmta(udtaData, atomPosition + atomSize);
       }
       udtaData.setPosition(atomPosition + atomSize);
     }
-    return null;
+    return Pair.create(metaMetadata, smtaMetadata);
   }
 
   /**
@@ -312,7 +315,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     SampleSizeBox sampleSizeBox;
     @Nullable Atom.LeafAtom stszAtom = stblAtom.getLeafAtomOfType(Atom.TYPE_stsz);
     if (stszAtom != null) {
-      sampleSizeBox = new StszSampleSizeBox(stszAtom);
+      sampleSizeBox = new StszSampleSizeBox(stszAtom, track.format);
     } else {
       @Nullable Atom.LeafAtom stz2Atom = stblAtom.getLeafAtomOfType(Atom.TYPE_stz2);
       if (stz2Atom == null) {
@@ -702,6 +705,37 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
+   * Parses metadata from a Samsung smta atom.
+   *
+   * <p>See [Internal: b/150138465#comment76].
+   */
+  @Nullable
+  private static Metadata parseSmta(ParsableByteArray smta, int limit) {
+    smta.skipBytes(Atom.FULL_HEADER_SIZE);
+    while (smta.getPosition() < limit) {
+      int atomPosition = smta.getPosition();
+      int atomSize = smta.readInt();
+      int atomType = smta.readInt();
+      if (atomType == Atom.TYPE_saut) {
+        if (atomSize < 14) {
+          return null;
+        }
+        smta.skipBytes(5); // author (4), reserved = 0 (1).
+        int recordingMode = smta.readUnsignedByte();
+        if (recordingMode != 12 && recordingMode != 13) {
+          return null;
+        }
+        float captureFrameRate = recordingMode == 12 ? 240 : 120;
+        smta.skipBytes(1); // reserved = 1 (1).
+        int svcTemporalLayerCount = smta.readUnsignedByte();
+        return new Metadata(new SmtaMetadataEntry(captureFrameRate, svcTemporalLayerCount));
+      }
+      smta.setPosition(atomPosition + atomSize);
+    }
+    return null;
+  }
+
+  /**
    * Parses a mvhd atom (defined in ISO/IEC 14496-12), returning the timescale for the movie.
    *
    * @param mvhd Contents of the mvhd atom to be parsed.
@@ -1024,6 +1058,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         if (!pixelWidthHeightRatioFromPasp) {
           pixelWidthHeightRatio = avcConfig.pixelWidthAspectRatio;
         }
+        codecs = avcConfig.codecs;
       } else if (childAtomType == Atom.TYPE_hvcC) {
         Assertions.checkState(mimeType == null);
         mimeType = MimeTypes.VIDEO_H265;
@@ -1031,6 +1066,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         HevcConfig hevcConfig = HevcConfig.parse(parent);
         initializationData = hevcConfig.initializationData;
         out.nalUnitLengthFieldLength = hevcConfig.nalUnitLengthFieldLength;
+        codecs = hevcConfig.codecs;
       } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
         @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
         if (dolbyVisionConfig != null) {
@@ -1684,10 +1720,25 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private final int sampleCount;
     private final ParsableByteArray data;
 
-    public StszSampleSizeBox(Atom.LeafAtom stszAtom) {
+    public StszSampleSizeBox(Atom.LeafAtom stszAtom, Format trackFormat) {
       data = stszAtom.data;
       data.setPosition(Atom.FULL_HEADER_SIZE);
       int fixedSampleSize = data.readUnsignedIntToInt();
+      if (MimeTypes.AUDIO_RAW.equals(trackFormat.sampleMimeType)) {
+        int pcmFrameSize = Util.getPcmFrameSize(trackFormat.pcmEncoding, trackFormat.channelCount);
+        if (fixedSampleSize == 0 || fixedSampleSize % pcmFrameSize != 0) {
+          // The sample size from the stsz box is inconsistent with the PCM encoding and channel
+          // count derived from the stsd box. Choose stsd box as source of truth
+          // [Internal ref: b/171627904].
+          Log.w(
+              TAG,
+              "Audio sample size mismatch. stsd sample size: "
+                  + pcmFrameSize
+                  + ", stsz sample size: "
+                  + fixedSampleSize);
+          fixedSampleSize = pcmFrameSize;
+        }
+      }
       this.fixedSampleSize = fixedSampleSize == 0 ? C.LENGTH_UNSET : fixedSampleSize;
       sampleCount = data.readUnsignedIntToInt();
     }

@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.net.Uri;
 import android.os.SystemClock;
 import android.util.Pair;
@@ -74,10 +76,10 @@ import com.google.android.exoplayer2.util.Util;
  * <p>A timeline for a live stream consists of a period whose duration is unknown, since it's
  * continually extending as more content is broadcast. If content only remains available for a
  * limited period of time then the window may start at a non-zero position, defining the region of
- * content that can still be played. The window will have {@link Window#isLive} set to true to
- * indicate it's a live stream and {@link Window#isDynamic} set to true as long as we expect changes
- * to the live window. Its default position is typically near to the live edge (indicated by the
- * black dot in the figure above).
+ * content that can still be played. The window will return true from {@link Window#isLive()} to
+ * indicate it's a live stream and {@link Window#isDynamic} will be set to true as long as we expect
+ * changes to the live window. Its default position is typically near to the live edge (indicated by
+ * the black dot in the figure above).
  *
  * <h3>Live stream with indefinite availability</h3>
  *
@@ -166,7 +168,7 @@ public abstract class Timeline {
 
     /**
      * The window's start time in milliseconds since the Unix epoch, or {@link C#TIME_UNSET} if
-     * unknown or not applicable. For informational purposes only.
+     * unknown or not applicable.
      */
     public long windowStartTimeMs;
 
@@ -191,12 +193,14 @@ public abstract class Timeline {
     /** Whether this window may change when the timeline is updated. */
     public boolean isDynamic;
 
+    /** @deprecated Use {@link #isLive()} instead. */
+    @Deprecated public boolean isLive;
+
     /**
-     * Whether the media in this window is live. For informational purposes only.
-     *
-     * <p>Check {@link #isDynamic} to know whether this window may still change.
+     * The {@link MediaItem.LiveConfiguration} that is used or null if {@link #isLive()} returns
+     * false.
      */
-    public boolean isLive;
+    @Nullable public MediaItem.LiveConfiguration liveConfiguration;
 
     /**
      * Whether this window contains placeholder information because the real information has yet to
@@ -248,7 +252,7 @@ public abstract class Timeline {
         long elapsedRealtimeEpochOffsetMs,
         boolean isSeekable,
         boolean isDynamic,
-        boolean isLive,
+        @Nullable MediaItem.LiveConfiguration liveConfiguration,
         long defaultPositionUs,
         long durationUs,
         int firstPeriodIndex,
@@ -266,7 +270,8 @@ public abstract class Timeline {
       this.elapsedRealtimeEpochOffsetMs = elapsedRealtimeEpochOffsetMs;
       this.isSeekable = isSeekable;
       this.isDynamic = isDynamic;
-      this.isLive = isLive;
+      this.isLive = liveConfiguration != null;
+      this.liveConfiguration = liveConfiguration;
       this.defaultPositionUs = defaultPositionUs;
       this.durationUs = durationUs;
       this.firstPeriodIndex = firstPeriodIndex;
@@ -336,6 +341,14 @@ public abstract class Timeline {
       return Util.getNowUnixTimeMs(elapsedRealtimeEpochOffsetMs);
     }
 
+    /** Returns whether this is a live stream. */
+    // Verifies whether the deprecated isLive member field is in a correct state.
+    @SuppressWarnings("deprecation")
+    public boolean isLive() {
+      checkState(isLive == (liveConfiguration != null));
+      return liveConfiguration != null;
+    }
+
     // Provide backward compatibility for tag.
     @Override
     public boolean equals(@Nullable Object obj) {
@@ -349,12 +362,12 @@ public abstract class Timeline {
       return Util.areEqual(uid, that.uid)
           && Util.areEqual(mediaItem, that.mediaItem)
           && Util.areEqual(manifest, that.manifest)
+          && Util.areEqual(liveConfiguration, that.liveConfiguration)
           && presentationStartTimeMs == that.presentationStartTimeMs
           && windowStartTimeMs == that.windowStartTimeMs
           && elapsedRealtimeEpochOffsetMs == that.elapsedRealtimeEpochOffsetMs
           && isSeekable == that.isSeekable
           && isDynamic == that.isDynamic
-          && isLive == that.isLive
           && isPlaceholder == that.isPlaceholder
           && defaultPositionUs == that.defaultPositionUs
           && durationUs == that.durationUs
@@ -370,6 +383,7 @@ public abstract class Timeline {
       result = 31 * result + uid.hashCode();
       result = 31 * result + mediaItem.hashCode();
       result = 31 * result + (manifest == null ? 0 : manifest.hashCode());
+      result = 31 * result + (liveConfiguration == null ? 0 : liveConfiguration.hashCode());
       result = 31 * result + (int) (presentationStartTimeMs ^ (presentationStartTimeMs >>> 32));
       result = 31 * result + (int) (windowStartTimeMs ^ (windowStartTimeMs >>> 32));
       result =
@@ -377,7 +391,6 @@ public abstract class Timeline {
               + (int) (elapsedRealtimeEpochOffsetMs ^ (elapsedRealtimeEpochOffsetMs >>> 32));
       result = 31 * result + (isSeekable ? 1 : 0);
       result = 31 * result + (isDynamic ? 1 : 0);
-      result = 31 * result + (isLive ? 1 : 0);
       result = 31 * result + (isPlaceholder ? 1 : 0);
       result = 31 * result + (int) (defaultPositionUs ^ (defaultPositionUs >>> 32));
       result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));

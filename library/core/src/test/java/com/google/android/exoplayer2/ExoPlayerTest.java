@@ -70,7 +70,6 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SilenceMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -90,6 +89,7 @@ import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
+import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
@@ -98,7 +98,6 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.NoUidTimeline;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -123,6 +122,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -651,7 +651,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -662,6 +662,7 @@ public final class ExoPlayerTest {
             FakeMediaPeriod mediaPeriod =
                 new FakeMediaPeriod(
                     trackGroupArray,
+                    allocator,
                     TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                     mediaSourceEventDispatcher,
                     drmSessionManager,
@@ -695,7 +696,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -706,6 +707,7 @@ public final class ExoPlayerTest {
             FakeMediaPeriod mediaPeriod =
                 new FakeMediaPeriod(
                     trackGroupArray,
+                    allocator,
                     TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                     mediaSourceEventDispatcher);
             mediaPeriod.setDiscontinuityPositionUs(10);
@@ -727,7 +729,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -738,6 +740,7 @@ public final class ExoPlayerTest {
             FakeMediaPeriod mediaPeriod =
                 new FakeMediaPeriod(
                     trackGroupArray,
+                    allocator,
                     TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                     mediaSourceEventDispatcher);
             // Set a discontinuity at the position this period is supposed to start at anyway.
@@ -973,7 +976,7 @@ public final class ExoPlayerTest {
     MediaSource mediaSource =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -985,6 +988,7 @@ public final class ExoPlayerTest {
             fakeMediaPeriodHolder[0] =
                 new FakeMediaPeriod(
                     trackGroupArray,
+                    allocator,
                     TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                     mediaSourceEventDispatcher,
                     drmSessionManager,
@@ -1026,7 +1030,7 @@ public final class ExoPlayerTest {
     FakeMediaSource mediaSource =
         new FakeMediaSource(/* timeline= */ null, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -1038,6 +1042,7 @@ public final class ExoPlayerTest {
             fakeMediaPeriodHolder[0] =
                 new FakeMediaPeriod(
                     trackGroupArray,
+                    allocator,
                     TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                     mediaSourceEventDispatcher,
                     drmSessionManager,
@@ -2678,6 +2683,64 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void seekPastBufferingMidroll_playsAdAndThenContentFromSeekPosition() throws Exception {
+    long adGroupWindowTimeMs = 1_000;
+    long seekPositionMs = 95_000;
+    long contentDurationMs = 100_000;
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1,
+            /* adGroupTimesUs...= */ TimelineWindowDefinition
+                    .DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US
+                + C.msToUs(adGroupWindowTimeMs));
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ C.msToUs(contentDurationMs),
+                adPlaybackState));
+    AtomicBoolean hasCreatedAdMediaPeriod = new AtomicBoolean();
+    FakeMediaSource mediaSource =
+        new FakeMediaSource(timeline) {
+          @Override
+          public MediaPeriod createPeriod(
+              MediaPeriodId id, Allocator allocator, long startPositionUs) {
+            if (id.adGroupIndex == 0) {
+              hasCreatedAdMediaPeriod.set(true);
+            }
+            return super.createPeriod(id, allocator, startPositionUs);
+          }
+        };
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(mediaSource);
+    // Throw on the playback thread if the player position reaches a value that is just less than
+    // seek position. This ensures that playback stops and the assertion on the player position
+    // below fails, even if a long time passes between detecting the discontinuity and asserting.
+    player
+        .createMessage(
+            (messageType, payload) -> {
+              throw new IllegalStateException();
+            })
+        .setPosition(seekPositionMs - 1)
+        .send();
+    player.pause();
+    player.prepare();
+
+    // Block until the midroll has started buffering, then seek after the midroll before playing.
+    runMainLooperUntil(hasCreatedAdMediaPeriod::get);
+    player.seekTo(seekPositionMs);
+    player.play();
+
+    // When the ad finishes, the player position should be at or after the requested seek position.
+    TestPlayerRunHelper.runUntilPositionDiscontinuity(
+        player, Player.DISCONTINUITY_REASON_AD_INSERTION);
+    assertThat(player.getCurrentPosition()).isAtLeast(seekPositionMs);
+  }
+
+  @Test
   public void repeatedSeeksToUnpreparedPeriodInSameWindowKeepsWindowSequenceNumber()
       throws Exception {
     Timeline timeline =
@@ -4283,7 +4346,7 @@ public final class ExoPlayerTest {
                 AdPlaybackState.NONE));
     return new FakeMediaSource(fakeTimeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
       @Override
-      protected FakeMediaPeriod createFakeMediaPeriod(
+      protected MediaPeriod createMediaPeriod(
           MediaPeriodId id,
           TrackGroupArray trackGroupArray,
           Allocator allocator,
@@ -4291,17 +4354,19 @@ public final class ExoPlayerTest {
           DrmSessionManager drmSessionManager,
           DrmSessionEventListener.EventDispatcher drmEventDispatcher,
           @Nullable TransferListener transferListener) {
-        FakeMediaPeriod fakeMediaPeriod =
-            new FakeMediaPeriod(
-                trackGroupArray,
-                FakeMediaPeriod.TrackDataFactory.singleSampleWithTimeUs(/* sampleTimeUs= */ 0),
-                mediaSourceEventDispatcher,
-                drmSessionManager,
-                drmEventDispatcher,
-                /* deferOnPrepared= */ false);
-        fakeMediaPeriod.setBufferedPositionUs(
-            windowOffsetInFirstPeriodUs + C.msToUs(maxBufferedPositionMs));
-        return fakeMediaPeriod;
+        return new FakeMediaPeriod(
+            trackGroupArray,
+            allocator,
+            /* trackDataFactory= */ (format, mediaPeriodId) ->
+                ImmutableList.of(
+                    oneByteSample(windowOffsetInFirstPeriodUs, C.BUFFER_FLAG_KEY_FRAME),
+                    oneByteSample(
+                        windowOffsetInFirstPeriodUs + C.msToUs(maxBufferedPositionMs),
+                        C.BUFFER_FLAG_KEY_FRAME)),
+            mediaSourceEventDispatcher,
+            drmSessionManager,
+            drmEventDispatcher,
+            /* deferOnPrepared= */ false);
       }
     };
   }
@@ -4335,12 +4400,10 @@ public final class ExoPlayerTest {
     boolean[] isPlayingAd = new boolean[3];
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
-            .waitForPlaybackState(Player.STATE_READY)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
             .pause()
+            .waitForIsLoading(true)
+            .waitForIsLoading(false)
+            .waitForPlaybackState(Player.STATE_READY)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -4394,19 +4457,19 @@ public final class ExoPlayerTest {
     assertThat(isPlayingAd[0]).isTrue();
     assertThat(positionMs[0]).isAtMost(adDurationMs);
     assertThat(bufferedPositionMs[0]).isEqualTo(adDurationMs);
-    assertThat(totalBufferedDurationMs[0]).isEqualTo(adDurationMs - positionMs[0]);
+    assertThat(totalBufferedDurationMs[0]).isAtLeast(adDurationMs - positionMs[0]);
 
     assertThat(windowIndex[1]).isEqualTo(0);
     assertThat(isPlayingAd[1]).isTrue();
     assertThat(positionMs[1]).isAtMost(adDurationMs);
     assertThat(bufferedPositionMs[1]).isEqualTo(adDurationMs);
-    assertThat(totalBufferedDurationMs[1]).isEqualTo(adDurationMs - positionMs[1]);
+    assertThat(totalBufferedDurationMs[1]).isAtLeast(adDurationMs - positionMs[1]);
 
     assertThat(windowIndex[2]).isEqualTo(0);
     assertThat(isPlayingAd[2]).isFalse();
     assertThat(positionMs[2]).isGreaterThan(8000);
     assertThat(bufferedPositionMs[2]).isEqualTo(contentDurationMs);
-    assertThat(totalBufferedDurationMs[2]).isEqualTo(contentDurationMs - positionMs[2]);
+    assertThat(totalBufferedDurationMs[2]).isAtLeast(contentDurationMs - positionMs[2]);
   }
 
   @Test
@@ -4488,6 +4551,42 @@ public final class ExoPlayerTest {
     assertThat(positionMs[1]).isEqualTo(0);
     assertThat(bufferedPositionMs[1]).isEqualTo(adDurationMs);
     assertThat(totalBufferedDurationMs[1]).isEqualTo(adDurationMs);
+  }
+
+  // https://github.com/google/ExoPlayer/issues/8349
+  @Test
+  public void seekTo_whilePlayingAd_doesntBlockFutureUpdates() throws Exception {
+    long contentDurationMs = 10_000;
+    long adDurationMs = 4_000;
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0)
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.EMPTY);
+    long[][] durationsUs = new long[1][];
+    durationsUs[0] = new long[] {C.msToUs(adDurationMs)};
+    adPlaybackState = adPlaybackState.withAdDurationsUs(durationsUs);
+    Timeline adTimeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ C.msToUs(contentDurationMs),
+                adPlaybackState));
+    FakeMediaSource adsMediaSource = new FakeMediaSource(adTimeline);
+
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(adsMediaSource);
+    player.pause();
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.seekTo(0, 8000);
+    player.play();
+
+    // This times out if playback info updates after the seek are blocked.
+    runUntilPlaybackState(player, Player.STATE_ENDED);
   }
 
   @Test
@@ -4622,7 +4721,7 @@ public final class ExoPlayerTest {
     MediaSource mediaSourceWithLoadInProgress =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -4632,6 +4731,7 @@ public final class ExoPlayerTest {
               @Nullable TransferListener transferListener) {
             return new FakeMediaPeriod(
                 trackGroupArray,
+                allocator,
                 TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
                 mediaSourceEventDispatcher) {
               @Override
@@ -7017,8 +7117,6 @@ public final class ExoPlayerTest {
             // Wait until fully buffered so that the new renderer can be enabled immediately.
             .waitForIsLoading(true)
             .waitForIsLoading(false)
-            .waitForIsLoading(true)
-            .waitForIsLoading(false)
             .removeMediaItem(0)
             .build();
     ExoPlayerTestRunner testRunner =
@@ -7173,7 +7271,7 @@ public final class ExoPlayerTest {
     MediaSource continuouslyAllocatingMediaSource =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -7183,6 +7281,7 @@ public final class ExoPlayerTest {
               @Nullable TransferListener transferListener) {
             return new FakeMediaPeriod(
                 trackGroupArray,
+                allocator,
                 trackDataWithoutEos,
                 mediaSourceEventDispatcher,
                 drmSessionManager,
@@ -7247,10 +7346,18 @@ public final class ExoPlayerTest {
           @Override
           public void cancelLoad() {}
         };
+    // Create 3 samples without end of stream signal to test that all 3 samples are
+    // still played before the sample stream exception is thrown.
+    FakeSampleStreamItem sample =
+        oneByteSample(
+            TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+            C.BUFFER_FLAG_KEY_FRAME);
+    FakeMediaPeriod.TrackDataFactory threeSamplesWithoutEos =
+        (format, mediaPeriodId) -> ImmutableList.of(sample, sample, sample);
     MediaSource largeBufferAllocatingMediaSource =
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -7260,7 +7367,8 @@ public final class ExoPlayerTest {
               @Nullable TransferListener transferListener) {
             return new FakeMediaPeriod(
                 trackGroupArray,
-                TimelineWindowDefinition.DEFAULT_WINDOW_OFFSET_IN_FIRST_PERIOD_US,
+                allocator,
+                threeSamplesWithoutEos,
                 mediaSourceEventDispatcher,
                 drmSessionManager,
                 drmEventDispatcher,
@@ -7269,30 +7377,29 @@ public final class ExoPlayerTest {
 
               @Override
               public boolean continueLoading(long positionUs) {
-                loader.startLoading(
-                    loadable, new FakeLoaderCallback(), /* defaultMinRetryCount= */ 1);
+                super.continueLoading(positionUs);
+                if (!loader.isLoading()) {
+                  loader.startLoading(
+                      loadable, new FakeLoaderCallback(), /* defaultMinRetryCount= */ 1);
+                }
                 return true;
               }
 
               @Override
-              protected SampleStream createSampleStream(
-                  long positionUs,
-                  TrackSelection selection,
-                  MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+              protected FakeSampleStream createSampleStream(
+                  Allocator allocator,
+                  @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
                   DrmSessionManager drmSessionManager,
-                  DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
-                // Create 3 samples without end of stream signal to test that all 3 samples are
-                // still played before the exception is thrown.
+                  DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+                  Format initialFormat,
+                  List<FakeSampleStreamItem> fakeSampleStreamItems) {
                 return new FakeSampleStream(
+                    allocator,
                     mediaSourceEventDispatcher,
                     drmSessionManager,
                     drmEventDispatcher,
-                    selection.getSelectedFormat(),
-                    ImmutableList.of(
-                        oneByteSample(positionUs),
-                        oneByteSample(positionUs),
-                        oneByteSample(positionUs))) {
-
+                    initialFormat,
+                    fakeSampleStreamItems) {
                   @Override
                   public void maybeThrowError() throws IOException {
                     loader.maybeThrowError();
@@ -7461,14 +7568,16 @@ public final class ExoPlayerTest {
             /* timeline= */ null,
             DrmSessionManager.DUMMY,
             (unusedFormat, unusedMediaPeriodId) ->
-                ImmutableList.of(oneByteSample(firstSampleTimeUs), END_OF_STREAM_ITEM),
+                ImmutableList.of(
+                    oneByteSample(firstSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM),
             ExoPlayerTestRunner.VIDEO_FORMAT);
     FakeMediaSource secondMediaSource =
         new FakeMediaSource(
             timelineWithOffsets,
             DrmSessionManager.DUMMY,
             (unusedFormat, unusedMediaPeriodId) ->
-                ImmutableList.of(oneByteSample(firstSampleTimeUs), END_OF_STREAM_ITEM),
+                ImmutableList.of(
+                    oneByteSample(firstSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM),
             ExoPlayerTestRunner.VIDEO_FORMAT);
     player.setMediaSources(ImmutableList.of(firstMediaSource, secondMediaSource));
 
@@ -7501,11 +7610,52 @@ public final class ExoPlayerTest {
 
   @Test
   public void mediaItemOfSources_correctInTimelineWindows() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
+    TimelineWindowDefinition window1 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 1,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            MediaItem.fromUri("http://foo.bar/fake1"));
+    FakeMediaSource fakeMediaSource1 = new FakeMediaSource(new FakeTimeline(window1));
+    TimelineWindowDefinition window2 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 2,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            MediaItem.fromUri("http://foo.bar/fake2"));
+    FakeMediaSource fakeMediaSource2 = new FakeMediaSource(new FakeTimeline(window2));
+    TimelineWindowDefinition window3 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 3,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            MediaItem.fromUri("http://foo.bar/fake3"));
+    FakeMediaSource fakeMediaSource3 = new FakeMediaSource(new FakeTimeline(window3));
     final Player[] playerHolder = {null};
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
+            .pause()
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -7515,10 +7665,10 @@ public final class ExoPlayerTest {
                 })
             .waitForPlaybackState(Player.STATE_READY)
             .seek(/* positionMs= */ 0)
-            .waitForPlaybackState(Player.STATE_ENDED)
+            .play()
             .build();
     List<MediaItem> currentMediaItems = new ArrayList<>();
-    List<MediaItem> initialMediaItems = new ArrayList<>();
+    List<MediaItem> mediaItemsInTimeline = new ArrayList<>();
     Player.EventListener eventListener =
         new Player.EventListener() {
           @Override
@@ -7528,31 +7678,34 @@ public final class ExoPlayerTest {
             }
             Window window = new Window();
             for (int i = 0; i < timeline.getWindowCount(); i++) {
-              initialMediaItems.add(timeline.getWindow(i, window).mediaItem);
+              mediaItemsInTimeline.add(timeline.getWindow(i, window).mediaItem);
             }
           }
 
           @Override
           public void onPositionDiscontinuity(int reason) {
-            currentMediaItems.add(playerHolder[0].getCurrentMediaItem());
+            if (reason == Player.DISCONTINUITY_REASON_SEEK
+                || reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+              currentMediaItems.add(playerHolder[0].getCurrentMediaItem());
+            }
           }
         };
     new ExoPlayerTestRunner.Builder(context)
         .setEventListener(eventListener)
         .setActionSchedule(actionSchedule)
-        .setMediaSources(
-            factory.setTag("1").createMediaSource(),
-            factory.setTag("2").createMediaSource(),
-            factory.setTag("3").createMediaSource())
+        .setMediaSources(fakeMediaSource1, fakeMediaSource2, fakeMediaSource3)
         .build()
         .start()
         .blockUntilActionScheduleFinished(TIMEOUT_MS)
         .blockUntilEnded(TIMEOUT_MS);
 
-    assertThat(currentMediaItems.get(0).playbackProperties.tag).isEqualTo("1");
-    assertThat(currentMediaItems.get(1).playbackProperties.tag).isEqualTo("2");
-    assertThat(currentMediaItems.get(2).playbackProperties.tag).isEqualTo("3");
-    assertThat(initialMediaItems).containsExactlyElementsIn(currentMediaItems);
+    assertThat(currentMediaItems.get(0).playbackProperties.uri.toString())
+        .isEqualTo("http://foo.bar/fake1");
+    assertThat(currentMediaItems.get(1).playbackProperties.uri.toString())
+        .isEqualTo("http://foo.bar/fake2");
+    assertThat(currentMediaItems.get(2).playbackProperties.uri.toString())
+        .isEqualTo("http://foo.bar/fake3");
+    assertThat(mediaItemsInTimeline).containsExactlyElementsIn(currentMediaItems);
   }
 
   @Test
@@ -7713,10 +7866,36 @@ public final class ExoPlayerTest {
 
   @Test
   public void repeat_notifiesMediaItemTransition() throws Exception {
-    SilenceMediaSource.Factory factory =
-        new SilenceMediaSource.Factory().setDurationUs(C.msToUs(100_000));
-    SilenceMediaSource mediaSource1 = factory.setTag("1").createMediaSource();
-    SilenceMediaSource mediaSource2 = factory.setTag("2").createMediaSource();
+    MediaItem mediaItem1 = MediaItem.fromUri("http://foo.bar/fake1");
+    TimelineWindowDefinition window1 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 1,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            mediaItem1);
+    MediaItem mediaItem2 = MediaItem.fromUri("http://foo.bar/fake2");
+    TimelineWindowDefinition window2 =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 2,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs = */ 100_000,
+            /* defaultPositionUs = */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            AdPlaybackState.NONE,
+            mediaItem2);
+    FakeMediaSource mediaSource1 = new FakeMediaSource(new FakeTimeline(window1));
+    FakeMediaSource mediaSource2 = new FakeMediaSource(new FakeTimeline(window2));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .pause()
@@ -7728,9 +7907,9 @@ public final class ExoPlayerTest {
                     player.setRepeatMode(Player.REPEAT_MODE_ONE);
                   }
                 })
-            .play()
-            .waitForPositionDiscontinuity()
-            .waitForPositionDiscontinuity()
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 90)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 80)
+            .playUntilPosition(/* windowIndex= */ 0, /* positionMs= */ 70)
             .executeRunnable(
                 new PlayerRunnable() {
                   @Override
@@ -7738,6 +7917,7 @@ public final class ExoPlayerTest {
                     player.setRepeatMode(Player.REPEAT_MODE_OFF);
                   }
                 })
+            .play()
             .build();
 
     ExoPlayerTestRunner exoPlayerTestRunner =
@@ -7915,7 +8095,7 @@ public final class ExoPlayerTest {
     player.addMediaSource(
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -7925,6 +8105,7 @@ public final class ExoPlayerTest {
               @Nullable TransferListener transferListener) {
             return new FakeMediaPeriod(
                 trackGroupArray,
+                allocator,
                 /* singleSampleTimeUs= */ 0,
                 mediaSourceEventDispatcher,
                 DrmSessionManager.DUMMY,
@@ -7960,7 +8141,7 @@ public final class ExoPlayerTest {
     player.addMediaSource(
         new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -7969,20 +8150,28 @@ public final class ExoPlayerTest {
               DrmSessionEventListener.EventDispatcher drmEventDispatcher,
               @Nullable TransferListener transferListener) {
             return new FakeMediaPeriod(
-                trackGroupArray, /* singleSampleTimeUs= */ 0, mediaSourceEventDispatcher) {
+                trackGroupArray,
+                allocator,
+                /* trackDataFactory= */ (format, mediaPeriodId) -> ImmutableList.of(),
+                mediaSourceEventDispatcher,
+                drmSessionManager,
+                drmEventDispatcher,
+                /* deferOnPrepared= */ false) {
               @Override
-              protected SampleStream createSampleStream(
-                  long positionUs,
-                  TrackSelection selection,
-                  MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+              protected FakeSampleStream createSampleStream(
+                  Allocator allocator,
+                  @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
                   DrmSessionManager drmSessionManager,
-                  DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
+                  DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+                  Format initialFormat,
+                  List<FakeSampleStreamItem> fakeSampleStreamItems) {
                 return new FakeSampleStream(
+                    allocator,
                     mediaSourceEventDispatcher,
-                    DrmSessionManager.DUMMY,
+                    drmSessionManager,
                     drmEventDispatcher,
-                    selection.getSelectedFormat(),
-                    /* fakeSampleStreamItems= */ ImmutableList.of()) {
+                    initialFormat,
+                    fakeSampleStreamItems) {
                   @Override
                   public void maybeThrowError() throws IOException {
                     throw new IOException();
@@ -8072,6 +8261,7 @@ public final class ExoPlayerTest {
     assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
   }
 
+  @Ignore // See [internal: b/170387438]
   @Test
   public void enableOffloadSchedulingWhileSleepingForOffload_isDisabled_isReported()
       throws Exception {
@@ -8088,6 +8278,8 @@ public final class ExoPlayerTest {
 
     assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
   }
+
+  @Ignore // See [internal: b/170387438]
   @Test
   public void enableOffloadScheduling_isEnable_playerSleeps() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
@@ -8104,6 +8296,7 @@ public final class ExoPlayerTest {
     assertThat(player.experimentalIsSleepingForOffload()).isTrue();
   }
 
+  @Ignore // See [internal: b/170387438]
   @Test
   public void
       experimentalEnableOffloadSchedulingWhileSleepingForOffload_isDisabled_renderingResumes()
@@ -8124,6 +8317,7 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_ENDED);
   }
 
+  @Ignore // See [internal: b/170387438]
   @Test
   public void wakeupListenerWhileSleepingForOffload_isWokenUp_renderingResumes() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();

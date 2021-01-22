@@ -114,6 +114,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     @Nullable private List<String> adMediaMimeTypes;
     @Nullable private Set<UiElement> adUiElements;
     @Nullable private Collection<CompanionAdSlot> companionAdSlots;
+    @Nullable private Boolean enableContinuousPlayback;
     private long adPreloadTimeoutMs;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
@@ -236,6 +237,20 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     }
 
     /**
+     * Sets whether to enable continuous playback. Pass {@code true} if content videos will be
+     * played continuously, similar to a TV broadcast. This setting may modify the ads request but
+     * does not affect ad playback behavior. The requested value is unknown by default.
+     *
+     * @param enableContinuousPlayback Whether to enable continuous playback.
+     * @return This builder, for convenience.
+     * @see AdsRequest#setContinuousPlayback(boolean)
+     */
+    public Builder setEnableContinuousPlayback(boolean enableContinuousPlayback) {
+      this.enableContinuousPlayback = enableContinuousPlayback;
+      return this;
+    }
+
+    /**
      * Sets the duration in milliseconds for which the player must buffer while preloading an ad
      * group before that ad group is skipped and marked as having failed to load. Pass {@link
      * C#TIME_UNSET} if there should be no such timeout. The default value is {@value
@@ -354,6 +369,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
               focusSkipButtonWhenAvailable,
               playAdBeforeStartPosition,
               mediaBitrate,
+              enableContinuousPlayback,
               adMediaMimeTypes,
               adUiElements,
               companionAdSlots,
@@ -514,16 +530,16 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
       adTagLoader = adTagLoaderByAdsId.get(adsId);
     }
     adTagLoaderByAdsMediaSource.put(adsMediaSource, checkNotNull(adTagLoader));
-    checkNotNull(adTagLoader).start(adViewProvider, eventListener);
+    adTagLoader.addListenerWithAdView(eventListener, adViewProvider);
     maybeUpdateCurrentAdTagLoader();
   }
 
   @Override
-  public void stop(AdsMediaSource adsMediaSource) {
+  public void stop(AdsMediaSource adsMediaSource, EventListener eventListener) {
     @Nullable AdTagLoader removedAdTagLoader = adTagLoaderByAdsMediaSource.remove(adsMediaSource);
     maybeUpdateCurrentAdTagLoader();
     if (removedAdTagLoader != null) {
-      removedAdTagLoader.stop();
+      removedAdTagLoader.removeListener(eventListener);
     }
 
     if (player != null && adTagLoaderByAdsMediaSource.isEmpty()) {

@@ -183,7 +183,7 @@ public class HlsMediaSourceTest {
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     // The target live offset is picked from target duration (3 * 4 = 12 seconds) and then expressed
     // in relation to the live edge (12 + 1 seconds).
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(13000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(13000);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
   }
 
@@ -219,7 +219,7 @@ public class HlsMediaSourceTest {
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     // The target live offset is picked from hold back and then expressed in relation to the live
     // edge (+1 seconds).
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(13000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(13000);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
   }
 
@@ -257,7 +257,7 @@ public class HlsMediaSourceTest {
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     // The target live offset is picked from hold back and then expressed in relation to the live
     // edge (+1 seconds).
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(13000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(13000);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
   }
 
@@ -288,7 +288,7 @@ public class HlsMediaSourceTest {
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     // The target live offset is picked from part hold back and then expressed in relation to the
     // live edge (+1 seconds).
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(4000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(4000);
     assertThat(window.defaultPositionUs).isEqualTo(0);
   }
 
@@ -318,7 +318,7 @@ public class HlsMediaSourceTest {
 
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     // The target live offset is picked from the media item and not adjusted.
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(1000);
+    assertThat(window.liveConfiguration).isEqualTo(mediaItem.liveConfiguration);
     assertThat(window.defaultPositionUs).isEqualTo(0);
   }
 
@@ -351,7 +351,7 @@ public class HlsMediaSourceTest {
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     assertThat(mediaItem.liveConfiguration.targetOffsetMs)
         .isGreaterThan(C.usToMs(window.durationUs));
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(9000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(9000);
   }
 
   @Test
@@ -385,7 +385,7 @@ public class HlsMediaSourceTest {
     Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
     // The target live offset is not adjusted to the live edge because the list does not have
     // program date time.
-    assertThat(window.mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(12000);
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(12000);
     assertThat(window.defaultPositionUs).isEqualTo(4000000);
   }
 
@@ -475,13 +475,13 @@ public class HlsMediaSourceTest {
     runMainLooperUntil(() -> timelines.size() == 4);
 
     Timeline.Window window = new Timeline.Window();
-    assertThat(timelines.get(0).getWindow(0, window).mediaItem.liveConfiguration.targetOffsetMs)
+    assertThat(timelines.get(0).getWindow(0, window).liveConfiguration.targetOffsetMs)
         .isEqualTo(12000);
-    assertThat(timelines.get(1).getWindow(0, window).mediaItem.liveConfiguration.targetOffsetMs)
+    assertThat(timelines.get(1).getWindow(0, window).liveConfiguration.targetOffsetMs)
         .isEqualTo(12000);
-    assertThat(timelines.get(2).getWindow(0, window).mediaItem.liveConfiguration.targetOffsetMs)
+    assertThat(timelines.get(2).getWindow(0, window).liveConfiguration.targetOffsetMs)
         .isEqualTo(8000);
-    assertThat(timelines.get(3).getWindow(0, window).mediaItem.liveConfiguration.targetOffsetMs)
+    assertThat(timelines.get(3).getWindow(0, window).liveConfiguration.targetOffsetMs)
         .isEqualTo(8000);
   }
 

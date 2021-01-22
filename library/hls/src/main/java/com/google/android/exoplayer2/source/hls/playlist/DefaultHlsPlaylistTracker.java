@@ -68,7 +68,6 @@ public final class DefaultHlsPlaylistTracker
   private final List<PlaylistEventListener> listeners;
   private final double playlistStuckTargetDurationCoefficient;
 
-  @Nullable private ParsingLoadable.Parser<HlsPlaylist> mediaPlaylistParser;
   @Nullable private EventDispatcher eventDispatcher;
   @Nullable private Loader initialPlaylistLoader;
   @Nullable private Handler playlistRefreshHandler;
@@ -243,7 +242,6 @@ public final class DefaultHlsPlaylistTracker
       masterPlaylist = (HlsMasterPlaylist) result;
     }
     this.masterPlaylist = masterPlaylist;
-    mediaPlaylistParser = playlistParserFactory.createPlaylistParser(masterPlaylist);
     primaryMediaPlaylistUrl = masterPlaylist.variants.get(0).url;
     createBundles(masterPlaylist.mediaPlaylistUrls);
     LoadEventInfo loadEventInfo =
@@ -605,11 +603,16 @@ public final class DefaultHlsPlaylistTracker
               loadDurationMs,
               loadable.bytesLoaded());
       boolean isBlockingRequest = loadable.getUri().getQueryParameter(BLOCK_MSN_PARAM) != null;
-      if (isBlockingRequest && error instanceof HttpDataSource.InvalidResponseCodeException) {
-        int responseCode = ((HttpDataSource.InvalidResponseCodeException) error).responseCode;
-        if (responseCode == 400 || responseCode == 503) {
-          // Intercept bad request and service unavailable to force a full, non-blocking request
-          // (see RFC 8216, section 6.2.5.2).
+      boolean deltaUpdateFailed = error instanceof HlsPlaylistParser.DeltaUpdateException;
+      if (isBlockingRequest || deltaUpdateFailed) {
+        int responseCode = Integer.MAX_VALUE;
+        if (error instanceof HttpDataSource.InvalidResponseCodeException) {
+          responseCode = ((HttpDataSource.InvalidResponseCodeException) error).responseCode;
+        }
+        if (deltaUpdateFailed || responseCode == 400 || responseCode == 503) {
+          // Intercept failed delta updates and blocking requests producing a Bad Request (400) and
+          // Service Unavailable (503). In such cases, force a full, non-blocking request (see RFC
+          // 8216, section 6.2.5.2 and 6.3.7).
           earliestNextLoadTimeMs = SystemClock.elapsedRealtime();
           loadPlaylist();
           castNonNull(eventDispatcher)
@@ -671,6 +674,8 @@ public final class DefaultHlsPlaylistTracker
     }
 
     private void loadPlaylistImmediately(Uri playlistRequestUri) {
+      ParsingLoadable.Parser<HlsPlaylist> mediaPlaylistParser =
+          playlistParserFactory.createPlaylistParser(masterPlaylist, playlistSnapshot);
       ParsingLoadable<HlsPlaylist> mediaPlaylistLoadable =
           new ParsingLoadable<>(
               mediaPlaylistDataSource,
@@ -691,10 +696,6 @@ public final class DefaultHlsPlaylistTracker
     private void processLoadedPlaylist(
         HlsMediaPlaylist loadedPlaylist, LoadEventInfo loadEventInfo) {
       @Nullable HlsMediaPlaylist oldPlaylist = playlistSnapshot;
-      loadedPlaylist =
-          loadedPlaylist.skippedSegmentCount > 0
-              ? loadedPlaylist.expandSkippedSegments(checkNotNull(playlistSnapshot))
-              : loadedPlaylist;
       long currentTimeMs = SystemClock.elapsedRealtime();
       lastSnapshotLoadMs = currentTimeMs;
       playlistSnapshot = getLatestPlaylistSnapshot(oldPlaylist, loadedPlaylist);
@@ -759,9 +760,7 @@ public final class DefaultHlsPlaylistTracker
       Uri.Builder uriBuilder = playlistUrl.buildUpon();
       if (playlistSnapshot.serverControl.canBlockReload) {
         long targetMediaSequence =
-            playlistSnapshot.mediaSequence
-                + playlistSnapshot.segments.size()
-                + playlistSnapshot.skippedSegmentCount;
+            playlistSnapshot.mediaSequence + playlistSnapshot.segments.size();
         uriBuilder.appendQueryParameter(BLOCK_MSN_PARAM, String.valueOf(targetMediaSequence));
         if (playlistSnapshot.partTargetDurationUs != C.TIME_UNSET) {
           List<Part> trailingParts = playlistSnapshot.trailingParts;

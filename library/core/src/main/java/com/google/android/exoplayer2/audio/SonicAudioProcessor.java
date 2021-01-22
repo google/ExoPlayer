@@ -79,7 +79,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
    * processor. The value returned by {@link #isActive()} may change, and the processor must be
    * {@link #flush() flushed} before queueing more data.
    *
-   * @param speed The target playback speed.
+   * @param speed The target factor by which playback should be sped up.
    */
   public void setSpeed(float speed) {
     if (this.speed != speed) {

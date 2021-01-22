@@ -34,10 +34,8 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.MutableFlags;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -83,26 +81,6 @@ public interface Player {
      * @param listener The listener to unregister.
      */
     void removeAudioListener(AudioListener listener);
-
-    /**
-     * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
-     * default audio attributes will be used. They are suitable for general media playback.
-     *
-     * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
-     * the audio track is recreated. A new audio session id will also be generated.
-     *
-     * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
-     * ignored, but they will take effect if audio is later played without tunneling.
-     *
-     * <p>If the device is running a build before platform API version 21, audio attributes cannot
-     * be set directly on the underlying audio track. In this case, the usage will be mapped onto an
-     * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
-     *
-     * @param audioAttributes The attributes to use for audio playback.
-     * @deprecated Use {@link AudioComponent#setAudioAttributes(AudioAttributes, boolean)}.
-     */
-    @Deprecated
-    void setAudioAttributes(AudioAttributes audioAttributes);
 
     /**
      * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
@@ -310,30 +288,6 @@ public interface Player {
      * @param textureView The texture view to clear.
      */
     void clearVideoTextureView(@Nullable TextureView textureView);
-
-    /**
-     * Sets the video decoder output buffer renderer. This is intended for use only with extension
-     * renderers that accept {@link Renderer#MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. For most
-     * use cases, an output surface or view should be passed via {@link #setVideoSurface(Surface)}
-     * or {@link #setVideoSurfaceView(SurfaceView)} instead.
-     *
-     * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer, or {@code
-     *     null} to clear the output buffer renderer.
-     */
-    void setVideoDecoderOutputBufferRenderer(
-        @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
-
-    /** Clears the video decoder output buffer renderer. */
-    void clearVideoDecoderOutputBufferRenderer();
-
-    /**
-     * Clears the video decoder output buffer renderer if it matches the one passed. Else does
-     * nothing.
-     *
-     * @param videoDecoderOutputBufferRenderer The video decoder output buffer renderer to clear.
-     */
-    void clearVideoDecoderOutputBufferRenderer(
-        @Nullable VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer);
   }
 
   /** The text component of a {@link Player}. */
@@ -728,16 +682,8 @@ public interface Player {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public void onTimelineChanged(
         Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
-      // Call deprecated version. Otherwise, do nothing.
-      onTimelineChanged(timeline, manifest);
-    }
-
-    /** @deprecated Use {@link EventListener#onTimelineChanged(Timeline, int)} instead. */
-    @Deprecated
-    public void onTimelineChanged(Timeline timeline, @Nullable Object manifest) {
       // Do nothing.
     }
   }
@@ -1219,8 +1165,7 @@ public interface Player {
   /**
    * Returns the error that caused playback to fail. This is the same error that will have been
    * reported via {@link Player.EventListener#onPlayerError(ExoPlaybackException)} at the time of
-   * failure. It can be queried using this method until {@code stop(true)} is called or the player
-   * is re-prepared.
+   * failure. It can be queried using this method until the player is re-prepared.
    *
    * <p>Note that this method will always return {@code null} if {@link #getPlaybackState()} is not
    * {@link #STATE_IDLE}.
@@ -1405,16 +1350,11 @@ public interface Player {
   void stop();
 
   /**
-   * Stops playback and optionally clears the playlist and resets the position and playback error.
-   * Use {@link #pause()} rather than this method if the intention is to pause playback.
-   *
-   * <p>Calling this method will cause the playback state to transition to {@link #STATE_IDLE}. The
-   * player instance can still be used, and {@link #release()} must still be called on the player if
-   * it's no longer required.
-   *
-   * @param reset Whether the playlist should be cleared and whether the playback position and
-   *     playback error should be reset.
+   * @deprecated Use {@link #stop()} and {@link #clearMediaItems()} (if {@code reset} is true) or
+   *     just {@link #stop()} (if {@code reset} is false). Any player error will be cleared when
+   *     {@link #prepare() re-preparing} the player.
    */
+  @Deprecated
   void stop(boolean reset);
 
   /**
@@ -1431,17 +1371,13 @@ public interface Player {
   /**
    * Returns the track type that the renderer at a given index handles.
    *
-   * @see Renderer#getTrackType()
+   * <p>For example, a video renderer will return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will
+   * return {@link C#TRACK_TYPE_AUDIO} and a text renderer will return {@link C#TRACK_TYPE_TEXT}.
+   *
    * @param index The index of the renderer.
    * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   int getRendererType(int index);
-
-  /**
-   * Returns the track selector that this player uses, or null if track selection is not supported.
-   */
-  @Nullable
-  TrackSelector getTrackSelector();
 
   /** Returns the available track groups. */
   TrackGroupArray getCurrentTrackGroups();
@@ -1570,7 +1506,7 @@ public interface Player {
   /**
    * Returns whether the current window is live, or {@code false} if the {@link Timeline} is empty.
    *
-   * @see Timeline.Window#isLive
+   * @see Timeline.Window#isLive()
    */
   boolean isCurrentWindowLive();
 

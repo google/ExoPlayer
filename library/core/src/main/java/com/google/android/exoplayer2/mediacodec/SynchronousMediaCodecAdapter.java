@@ -34,13 +34,21 @@ import java.nio.ByteBuffer;
 /**
  * A {@link MediaCodecAdapter} that operates the underlying {@link MediaCodec} in synchronous mode.
  */
-/* package */ final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
+public final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
+
+  /** A factory for {@link SynchronousMediaCodecAdapter} instances. */
+  public static final class Factory implements MediaCodecAdapter.Factory {
+    @Override
+    public MediaCodecAdapter createAdapter(MediaCodec codec) {
+      return new SynchronousMediaCodecAdapter(codec);
+    }
+  }
 
   private final MediaCodec codec;
   @Nullable private ByteBuffer[] inputByteBuffers;
   @Nullable private ByteBuffer[] outputByteBuffers;
 
-  public SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
+  private SynchronousMediaCodecAdapter(MediaCodec mediaCodec) {
     this.codec = mediaCodec;
   }
 

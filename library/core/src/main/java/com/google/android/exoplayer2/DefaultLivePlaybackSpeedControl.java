@@ -48,14 +48,14 @@ import com.google.android.exoplayer2.util.Util;
 public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedControl {
 
   /**
-   * The default minimum playback speed that should be used if no minimum playback speed is defined
-   * by the media.
+   * The default minimum factor by which playback can be sped up that should be used if no minimum
+   * playback speed is defined by the media.
    */
   public static final float DEFAULT_FALLBACK_MIN_PLAYBACK_SPEED = 0.97f;
 
   /**
-   * The default maximum playback speed that should be used if no maximum playback speed is defined
-   * by the media.
+   * The default maximum factor by which playback can be sped up that should be used if no maximum
+   * playback speed is defined by the media.
    */
   public static final float DEFAULT_FALLBACK_MAX_PLAYBACK_SPEED = 1.03f;
 
@@ -118,7 +118,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      *
      * <p>The default is {@link #DEFAULT_FALLBACK_MIN_PLAYBACK_SPEED}.
      *
-     * @param fallbackMinPlaybackSpeed The fallback minimum playback speed.
+     * @param fallbackMinPlaybackSpeed The fallback minimum factor by which playback can be sped up.
      * @return This builder, for convenience.
      */
     public Builder setFallbackMinPlaybackSpeed(float fallbackMinPlaybackSpeed) {
@@ -133,7 +133,7 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
      *
      * <p>The default is {@link #DEFAULT_FALLBACK_MAX_PLAYBACK_SPEED}.
      *
-     * @param fallbackMaxPlaybackSpeed The fallback maximum playback speed.
+     * @param fallbackMaxPlaybackSpeed The fallback maximum factor by which playback can be sped up.
      * @return This builder, for convenience.
      */
     public Builder setFallbackMaxPlaybackSpeed(float fallbackMaxPlaybackSpeed) {
@@ -160,8 +160,8 @@ public final class DefaultLivePlaybackSpeedControl implements LivePlaybackSpeedC
     /**
      * Sets the proportional control factor used to adjust the playback speed.
      *
-     * <p>The adjusted playback speed is calculated as {@code 1.0 + proportionalControlFactor x
-     * (currentLiveOffsetSec - targetLiveOffsetSec)}.
+     * <p>The factor by which playback will be sped up is calculated as {@code 1.0 +
+     * proportionalControlFactor x (currentLiveOffsetSec - targetLiveOffsetSec)}.
      *
      * <p>The default is {@link #DEFAULT_PROPORTIONAL_CONTROL_FACTOR}.
      *

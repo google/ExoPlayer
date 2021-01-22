@@ -15,12 +15,14 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.common.truth.Truth.assertWithMessage;
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -28,9 +30,11 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -47,10 +51,13 @@ import org.junit.Test;
  * in the implementation. The test should be overridden in the subclass and annotated {@link
  * Ignore}, with a link to an issue to track fixing the implementation and un-ignoring the test.
  */
+@RequiresApi(19)
 public abstract class DataSourceContractTest {
 
+  @Rule public final AdditionalFailureInfo additionalFailureInfo = new AdditionalFailureInfo();
+
   /** Creates and returns an instance of the {@link DataSource}. */
-  protected abstract DataSource createDataSource();
+  protected abstract DataSource createDataSource() throws Exception;
 
   /**
    * Returns {@link TestResource} instances.
@@ -61,7 +68,7 @@ public abstract class DataSourceContractTest {
    * <p>If multiple resources are returned, it's recommended to disambiguate them using {@link
    * TestResource.Builder#setName(String)}.
    */
-  protected abstract ImmutableList<TestResource> getTestResources();
+  protected abstract ImmutableList<TestResource> getTestResources() throws Exception;
 
   /**
    * Returns a {@link Uri} that doesn't resolve.
@@ -74,19 +81,153 @@ public abstract class DataSourceContractTest {
   public void unboundedDataSpec_readEverything() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
     for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
       TestResource resource = resources.get(i);
       DataSource dataSource = createDataSource();
       try {
         long length = dataSource.open(new DataSpec(resource.getUri()));
-        byte[] data = Util.readToEnd(dataSource);
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, resource.getExpectedBytes().length);
 
-        String failureLabel = getFailureLabel(resources, i);
-        assertWithMessage(failureLabel).that(length).isEqualTo(resource.getExpectedLength());
-        assertWithMessage(failureLabel).that(data).isEqualTo(resource.getExpectedBytes());
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(resource.getExpectedBytes().length);
+        }
+        assertThat(data).isEqualTo(resource.getExpectedBytes());
       } finally {
         dataSource.close();
       }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void dataSpecWithPosition_readUntilEnd() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(
+                new DataSpec.Builder().setUri(resource.getUri()).setPosition(3).build());
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, resource.getExpectedBytes().length - 3);
+
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(resource.getExpectedBytes().length - 3);
+        }
+        byte[] expectedData =
+            Arrays.copyOfRange(resource.getExpectedBytes(), 3, resource.getExpectedBytes().length);
+        assertThat(data).isEqualTo(expectedData);
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void dataSpecWithLength_readExpectedRange() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(new DataSpec.Builder().setUri(resource.getUri()).setLength(4).build());
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, /* length= */ 4);
+
+        assertThat(length).isEqualTo(4);
+        byte[] expectedData = Arrays.copyOf(resource.getExpectedBytes(), 4);
+        assertThat(data).isEqualTo(expectedData);
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void dataSpecWithPositionAndLength_readExpectedRange() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(
+                new DataSpec.Builder()
+                    .setUri(resource.getUri())
+                    .setPosition(2)
+                    .setLength(2)
+                    .build());
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, /* length= */ 2);
+
+        assertThat(length).isEqualTo(2);
+        byte[] expectedData = Arrays.copyOfRange(resource.getExpectedBytes(), 2, 4);
+        assertThat(data).isEqualTo(expectedData);
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  /**
+   * {@link DataSpec#FLAG_ALLOW_GZIP} should either be ignored by {@link DataSource}
+   * implementations, or correctly handled (i.e. the data is decompressed before being returned from
+   * {@link DataSource#read(byte[], int, int)}).
+   */
+  @Test
+  public void gzipFlagDoesntAffectReturnedData() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(
+                new DataSpec.Builder()
+                    .setUri(resource.getUri())
+                    .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+                    .build());
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, resource.getExpectedBytes().length);
+
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(resource.getExpectedBytes().length);
+        }
+        assertThat(data).isEqualTo(resource.getExpectedBytes());
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
     }
   }
 
@@ -117,14 +258,14 @@ public abstract class DataSourceContractTest {
     @Nullable private final String name;
     private final Uri uri;
     private final byte[] expectedBytes;
-    private final boolean resolvesToKnownLength;
+    private final boolean endOfInputExpected;
 
     private TestResource(
-        @Nullable String name, Uri uri, byte[] expectedBytes, boolean resolvesToKnownLength) {
+        @Nullable String name, Uri uri, byte[] expectedBytes, boolean endOfInputExpected) {
       this.name = name;
       this.uri = uri;
       this.expectedBytes = expectedBytes;
-      this.resolvesToKnownLength = resolvesToKnownLength;
+      this.endOfInputExpected = endOfInputExpected;
     }
 
     /** Returns a human-readable name for the resource, for use in test failure messages. */
@@ -144,13 +285,11 @@ public abstract class DataSourceContractTest {
     }
 
     /**
-     * Returns the expected length of this resource.
-     *
-     * <p>This is either {@link #getExpectedBytes() getExpectedBytes().length} or {@link
-     * C#LENGTH_UNSET}.
+     * Returns whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
+     * after all the resource data are read.
      */
-    public long getExpectedLength() {
-      return resolvesToKnownLength ? expectedBytes.length : C.LENGTH_UNSET;
+    public boolean isEndOfInputExpected() {
+      return endOfInputExpected;
     }
 
     /** Builder for {@link TestResource} instances. */
@@ -158,11 +297,11 @@ public abstract class DataSourceContractTest {
       private @MonotonicNonNull String name;
       private @MonotonicNonNull Uri uri;
       private byte @MonotonicNonNull [] expectedBytes;
-      private boolean resolvesToKnownLength;
+      private boolean endOfInputExpected;
 
       /** Construct a new instance. */
       public Builder() {
-        this.resolvesToKnownLength = true;
+        this.endOfInputExpected = true;
       }
 
       /**
@@ -179,25 +318,29 @@ public abstract class DataSourceContractTest {
         return this;
       }
 
-      /** Sets the expected contents of this resource. */
+      /**
+       * Sets the expected contents of this resource.
+       *
+       * <p>Must be at least 5 bytes.
+       */
       public Builder setExpectedBytes(byte[] expectedBytes) {
+        checkArgument(expectedBytes.length >= 5);
         this.expectedBytes = expectedBytes;
         return this;
       }
 
       /**
-       * Calling this method indicates it's expected that {@link DataSource#open(DataSpec)} will
-       * return {@link C#LENGTH_UNSET} when passed the URI of this resource and a {@link DataSpec}
-       * with {@code length == C.LENGTH_UNSET}.
+       * Sets whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
+       * after all the resource data have been read. By default, this is set to {@code true}.
        */
-      public Builder resolvesToUnknownLength() {
-        this.resolvesToKnownLength = false;
+      public Builder setEndOfInputExpected(boolean expected) {
+        this.endOfInputExpected = expected;
         return this;
       }
 
       public TestResource build() {
         return new TestResource(
-            name, checkNotNull(uri), checkNotNull(expectedBytes), resolvesToKnownLength);
+            name, checkNotNull(uri), checkNotNull(expectedBytes), endOfInputExpected);
       }
     }
   }

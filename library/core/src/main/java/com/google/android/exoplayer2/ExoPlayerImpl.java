@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -48,7 +49,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 /**
  * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayer.Builder}.
@@ -68,10 +68,9 @@ import java.util.concurrent.TimeoutException;
 
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
-  private final Handler playbackInfoUpdateHandler;
+  private final HandlerWrapper playbackInfoUpdateHandler;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
-  private final Handler internalPlayerHandler;
   private final ListenerSet<Player.EventListener, Player.Events> listeners;
   private final Timeline.Period period;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
@@ -80,6 +79,7 @@ import java.util.concurrent.TimeoutException;
   @Nullable private final AnalyticsCollector analyticsCollector;
   private final Looper applicationLooper;
   private final BandwidthMeter bandwidthMeter;
+  private final Clock clock;
 
   @RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
@@ -150,11 +150,13 @@ import java.util.concurrent.TimeoutException;
     this.seekParameters = seekParameters;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.applicationLooper = applicationLooper;
+    this.clock = clock;
     repeatMode = Player.REPEAT_MODE_OFF;
     Player playerForListeners = wrappingPlayer != null ? wrappingPlayer : this;
     listeners =
         new ListenerSet<>(
             applicationLooper,
+            clock,
             Player.Events::new,
             (listener, eventFlags) -> listener.onEvents(playerForListeners, eventFlags));
     mediaSourceHolderSnapshots = new ArrayList<>();
@@ -166,7 +168,7 @@ import java.util.concurrent.TimeoutException;
             /* info= */ null);
     period = new Timeline.Period();
     maskingWindowIndex = C.INDEX_UNSET;
-    playbackInfoUpdateHandler = new Handler(applicationLooper);
+    playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
         playbackInfoUpdate ->
             playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
@@ -193,7 +195,6 @@ import java.util.concurrent.TimeoutException;
             applicationLooper,
             clock,
             playbackInfoUpdateListener);
-    internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 
   /**
@@ -204,20 +205,10 @@ import java.util.concurrent.TimeoutException;
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
    * only be called before the player is used.
    *
-   * @param timeoutMs The time limit in milliseconds, or 0 for no limit.
+   * @param timeoutMs The time limit in milliseconds.
    */
   public void experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
     internalPlayer.experimentalSetForegroundModeTimeoutMs(timeoutMs);
-  }
-
-  /**
-   * Configures the player to not throw when it detects it's stuck buffering.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the player is used.
-   */
-  public void experimentalDisableThrowWhenStuckBuffering() {
-    internalPlayer.experimentalDisableThrowWhenStuckBuffering();
   }
 
   @Override
@@ -268,6 +259,11 @@ import java.util.concurrent.TimeoutException;
   @Override
   public Looper getApplicationLooper() {
     return applicationLooper;
+  }
+
+  @Override
+  public Clock getClock() {
+    return clock;
   }
 
   @Override
@@ -613,8 +609,10 @@ import java.util.concurrent.TimeoutException;
       // general because the midroll ad preceding the seek destination must be played before the
       // content position can be played, if a different ad is playing at the moment.
       Log.w(TAG, "seekTo ignored because an ad is playing");
-      playbackInfoUpdateListener.onPlaybackInfoUpdate(
-          new ExoPlayerImplInternal.PlaybackInfoUpdate(playbackInfo));
+      ExoPlayerImplInternal.PlaybackInfoUpdate playbackInfoUpdate =
+          new ExoPlayerImplInternal.PlaybackInfoUpdate(this.playbackInfo);
+      playbackInfoUpdate.incrementPendingOperationAcks(1);
+      playbackInfoUpdateListener.onPlaybackInfoUpdate(playbackInfoUpdate);
       return;
     }
     @Player.State
@@ -682,11 +680,12 @@ import java.util.concurrent.TimeoutException;
     if (this.foregroundMode != foregroundMode) {
       this.foregroundMode = foregroundMode;
       if (!internalPlayer.setForegroundMode(foregroundMode)) {
+        // One of the renderers timed out releasing its resources.
         stop(
             /* reset= */ false,
-            ExoPlaybackException.createForTimeout(
-                new TimeoutException("Setting foreground mode timed out."),
-                ExoPlaybackException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE));
+            ExoPlaybackException.createForRenderer(
+                new ExoTimeoutException(
+                    ExoTimeoutException.TIMEOUT_OPERATION_SET_FOREGROUND_MODE)));
       }
     }
   }
@@ -736,13 +735,13 @@ import java.util.concurrent.TimeoutException;
         + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
         + ExoPlayerLibraryInfo.registeredModules() + "]");
     if (!internalPlayer.release()) {
+      // One of the renderers timed out releasing its resources.
       listeners.sendEvent(
           Player.EVENT_PLAYER_ERROR,
           listener ->
               listener.onPlayerError(
-                  ExoPlaybackException.createForTimeout(
-                      new TimeoutException("Player release timed out."),
-                      ExoPlaybackException.TIMEOUT_OPERATION_RELEASE)));
+                  ExoPlaybackException.createForRenderer(
+                      new ExoTimeoutException(ExoTimeoutException.TIMEOUT_OPERATION_RELEASE))));
     }
     listeners.release();
     playbackInfoUpdateHandler.removeCallbacksAndMessages(null);
@@ -762,7 +761,8 @@ import java.util.concurrent.TimeoutException;
         target,
         playbackInfo.timeline,
         getCurrentWindowIndex(),
-        internalPlayerHandler);
+        clock,
+        internalPlayer.getPlaybackLooper());
   }
 
   @Override

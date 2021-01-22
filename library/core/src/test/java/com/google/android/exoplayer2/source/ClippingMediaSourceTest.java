@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
 import com.google.android.exoplayer2.source.MaskingMediaSource.PlaceholderTimeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
-import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
@@ -69,7 +68,7 @@ public final class ClippingMediaSourceTest {
             TEST_PERIOD_DURATION_US,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -90,7 +89,7 @@ public final class ClippingMediaSourceTest {
             TEST_PERIOD_DURATION_US,
             /* isSeekable= */ false,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -112,7 +111,7 @@ public final class ClippingMediaSourceTest {
             /* durationUs= */ C.TIME_UNSET,
             /* isSeekable= */ false,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -134,7 +133,7 @@ public final class ClippingMediaSourceTest {
             TEST_PERIOD_DURATION_US,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -153,7 +152,7 @@ public final class ClippingMediaSourceTest {
             TEST_PERIOD_DURATION_US,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -189,7 +188,7 @@ public final class ClippingMediaSourceTest {
             /* durationUs= */ TEST_PERIOD_DURATION_US,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -208,7 +207,7 @@ public final class ClippingMediaSourceTest {
             /* durationUs= */ C.TIME_UNSET,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -226,7 +225,7 @@ public final class ClippingMediaSourceTest {
             TEST_PERIOD_DURATION_US,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -249,7 +248,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -272,7 +271,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
     Timeline timeline2 =
@@ -283,7 +282,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -323,7 +322,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
     Timeline timeline2 =
@@ -334,7 +333,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -374,7 +373,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
     Timeline timeline2 =
@@ -385,7 +384,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -426,7 +425,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
     Timeline timeline2 =
@@ -437,7 +436,7 @@ public final class ClippingMediaSourceTest {
             /* windowDefaultStartPositionUs= */ TEST_CLIP_AMOUNT_US,
             /* isSeekable= */ true,
             /* isDynamic= */ true,
-            /* isLive= */ true,
+            /* useLiveConfiguration= */ true,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
 
@@ -556,13 +555,13 @@ public final class ClippingMediaSourceTest {
             TEST_PERIOD_DURATION_US,
             /* isSeekable= */ true,
             /* isDynamic= */ false,
-            /* isLive= */ false,
+            /* useLiveConfiguration= */ false,
             /* manifest= */ null,
             MediaItem.fromUri(Uri.EMPTY));
     FakeMediaSource fakeMediaSource =
         new FakeMediaSource(timeline) {
           @Override
-          protected FakeMediaPeriod createFakeMediaPeriod(
+          protected MediaPeriod createMediaPeriod(
               MediaPeriodId id,
               TrackGroupArray trackGroupArray,
               Allocator allocator,
@@ -579,7 +578,7 @@ public final class ClippingMediaSourceTest {
                     /* trackSelectionData= */ null,
                     C.usToMs(eventStartUs),
                     C.usToMs(eventEndUs)));
-            return super.createFakeMediaPeriod(
+            return super.createMediaPeriod(
                 id,
                 trackGroupArray,
                 allocator,

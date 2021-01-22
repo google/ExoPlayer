@@ -160,13 +160,14 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_SKIP_SILENCE_ENABLED = 101;
   /**
-   * A type of a message that can be passed to an audio renderer via {@link
+   * The type of a message that can be passed to audio and video renderers via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be an {@link Integer} instance
-   * representing the audio session ID that will be attached to the underlying audio track.
+   * representing the audio session ID that will be attached to the underlying audio track. Video
+   * renderers that support tunneling will use the audio session ID when tunneling is enabled.
    */
   int MSG_SET_AUDIO_SESSION_ID = 102;
   /**
-   * A type of a message that can be passed to a {@link Renderer} via {@link
+   * The type of a message that can be passed to a {@link Renderer} via {@link
    * ExoPlayer#createMessage(Target)}, to inform the renderer that it can schedule waking up another
    * component.
    *
@@ -237,10 +238,9 @@ public interface Renderer extends PlayerMessage.Target {
   String getName();
 
   /**
-   * Returns the track type that the renderer handles. For example, a video renderer will return
-   * {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a text
-   * renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
+   * Returns the track type that the renderer handles.
    *
+   * @see Player#getRendererType(int)
    * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   int getTrackType();
@@ -399,15 +399,18 @@ public interface Renderer extends PlayerMessage.Target {
   void resetPosition(long positionUs) throws ExoPlaybackException;
 
   /**
-   * Indicates the player's speed to this renderer, where 1 is the default rate, 2 is twice the
-   * default rate, 0.5 is half the default rate and so on.
+   * Indicates the playback speed to this renderer.
    *
    * <p>The default implementation is a no-op.
    *
-   * @param playbackSpeed The playback speed.
+   * @param currentPlaybackSpeed The factor by which playback is currently sped up.
+   * @param targetPlaybackSpeed The target factor by which playback should be sped up. This may be
+   *     different from {@code currentPlaybackSpeed}, for example, if the speed is temporarily
+   *     adjusted for live playback.
    * @throws ExoPlaybackException If an error occurs handling the playback speed.
    */
-  default void setPlaybackSpeed(float playbackSpeed) throws ExoPlaybackException {}
+  default void setPlaybackSpeed(float currentPlaybackSpeed, float targetPlaybackSpeed)
+      throws ExoPlaybackException {}
 
   /**
    * Incrementally renders the {@link SampleStream}.

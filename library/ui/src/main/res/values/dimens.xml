@@ -41,13 +41,11 @@
     <dimen name="exo_styled_progress_layout_height">48dp</dimen>
     <dimen name="exo_styled_progress_touch_target_height">48dp</dimen>
     <dimen name="exo_styled_progress_margin_bottom">52dp</dimen>
-
-    <dimen name="exo_bottom_bar_height">60dp</dimen>
-    <dimen name="exo_bottom_bar_padding_bottom">4dp</dimen>
-
-    <dimen name="exo_time_view_padding">10dp</dimen>
-    <dimen name="exo_time_view_width">170sp</dimen>
-    <dimen name="exo_time_view_height">48dp</dimen>
+    <dimen name="exo_styled_bottom_bar_height">60dp</dimen>
+    <dimen name="exo_styled_bottom_bar_time_padding">10dp</dimen>
+    <dimen name="exo_styled_bottom_bar_margin_top">10dp</dimen>
+    <dimen name="exo_styled_controls_padding">0dp</dimen>
+    <dimen name="exo_styled_minimal_controls_margin_bottom">4dp</dimen>
 
     <dimen name="exo_error_message_height">32dp</dimen>
     <dimen name="exo_error_message_margin_bottom">64dp</dimen>

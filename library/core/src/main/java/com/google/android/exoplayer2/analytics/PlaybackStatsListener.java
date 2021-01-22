@@ -147,28 +147,6 @@ public final class PlaybackStatsListener
     return activeStatsTracker == null ? null : activeStatsTracker.build(/* isFinal= */ false);
   }
 
-  /**
-   * Finishes all pending playback sessions. Should be called when the listener is removed from the
-   * player or when the player is released.
-   */
-  public void finishAllSessions() {
-    // TODO: Add AnalyticsListener.onAttachedToPlayer and onDetachedFromPlayer to auto-release with
-    // an actual EventTime. Should also simplify other cases where the listener needs to be released
-    // separately from the player.
-    sessionManager.finishAllSessions(
-        new EventTime(
-            SystemClock.elapsedRealtime(),
-            Timeline.EMPTY,
-            /* windowIndex= */ 0,
-            /* mediaPeriodId= */ null,
-            /* eventPlaybackPositionMs= */ 0,
-            Timeline.EMPTY,
-            /* currentWindowIndex= */ 0,
-            /* currentMediaPeriodId= */ null,
-            /* currentPlaybackPositionMs= */ 0,
-            /* totalBufferedDurationMs= */ 0));
-  }
-
   // PlaybackSessionManager.Listener implementation.
 
   @Override
@@ -309,6 +287,9 @@ public final class PlaybackStatsListener
     onSeekStartedEventTime = null;
     videoFormat = null;
     audioFormat = null;
+    if (events.contains(AnalyticsListener.EVENT_PLAYER_RELEASED)) {
+      sessionManager.finishAllSessions(events.getEventTime(EVENT_PLAYER_RELEASED));
+    }
   }
 
   private void maybeAddSessions(Player player, Events events) {

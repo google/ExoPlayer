@@ -49,6 +49,7 @@ import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.SparseLongArray;
 import android.view.Display;
 import android.view.SurfaceView;
 import android.view.WindowManager;
@@ -82,6 +83,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.NoSuchElementException;
 import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -89,6 +91,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -1174,6 +1177,25 @@ public final class Util {
   }
 
   /**
+   * Returns the minimum value in the given {@link SparseLongArray}.
+   *
+   * @param sparseLongArray The {@link SparseLongArray}.
+   * @return The minimum value.
+   * @throws NoSuchElementException If the array is empty.
+   */
+  @RequiresApi(18)
+  public static long minValue(SparseLongArray sparseLongArray) {
+    if (sparseLongArray.size() == 0) {
+      throw new NoSuchElementException();
+    }
+    long min = Long.MAX_VALUE;
+    for (int i = 0; i < sparseLongArray.size(); i++) {
+      min = min(min, sparseLongArray.valueAt(i));
+    }
+    return min;
+  }
+
+  /**
    * Parses an xs:duration attribute value, returning the parsed duration in milliseconds.
    *
    * @param value The attribute value to decode.
@@ -1342,7 +1364,7 @@ public final class Util {
    * Returns the duration of media that will elapse in {@code playoutDuration}.
    *
    * @param playoutDuration The duration to scale.
-   * @param speed The playback speed.
+   * @param speed The factor by which playback is sped up.
    * @return The scaled duration, in the same units as {@code playoutDuration}.
    */
   public static long getMediaDurationForPlayoutDuration(long playoutDuration, float speed) {
@@ -2024,8 +2046,6 @@ public final class Util {
 
   /** Returns a data URI with the specified MIME type and data. */
   public static Uri getDataUriForString(String mimeType, String data) {
-    // TODO(internal: b/169937045): For now we don't pass the URL_SAFE flag as DataSchemeDataSource
-    // doesn't decode using it.
     return Uri.parse(
         "data:" + mimeType + ";base64," + Base64.encodeToString(data.getBytes(), Base64.NO_WRAP));
   }
@@ -2064,7 +2084,7 @@ public final class Util {
 
   /** Creates a new empty file in the directory returned by {@link Context#getCacheDir()}. */
   public static File createTempFile(Context context, String prefix) throws IOException {
-    return File.createTempFile(prefix, null, context.getCacheDir());
+    return File.createTempFile(prefix, null, checkNotNull(context.getCacheDir()));
   }
 
   /**
@@ -2100,6 +2120,17 @@ public final class Util {
       initialValue = CRC8_BYTES_MSBF[initialValue ^ (bytes[i] & 0xFF)];
     }
     return initialValue;
+  }
+
+  /** Compresses {@code input} using gzip and returns the result in a newly allocated byte array. */
+  public static byte[] gzip(byte[] input) {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    try (GZIPOutputStream os = new GZIPOutputStream(output)) {
+      os.write(input);
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+    return output.toByteArray();
   }
 
   /**

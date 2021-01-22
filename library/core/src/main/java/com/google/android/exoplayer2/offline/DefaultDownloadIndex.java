@@ -21,6 +21,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.net.Uri;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.database.DatabaseIOException;
@@ -136,7 +137,9 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   private final String name;
   private final String tableName;
   private final DatabaseProvider databaseProvider;
+  private final Object initializationLock;
 
+  @GuardedBy("initializationLock")
   private boolean initialized;
 
   /**
@@ -168,6 +171,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
     this.name = name;
     this.databaseProvider = databaseProvider;
     tableName = TABLE_PREFIX + name;
+    initializationLock = new Object();
   }
 
   @Override
@@ -273,33 +277,35 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   private void ensureInitialized() throws DatabaseIOException {
-    if (initialized) {
-      return;
-    }
-    try {
-      SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
-      int version = VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, name);
-      if (version != TABLE_VERSION) {
-        SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
-        writableDatabase.beginTransactionNonExclusive();
-        try {
-          VersionTable.setVersion(
-              writableDatabase, VersionTable.FEATURE_OFFLINE, name, TABLE_VERSION);
-          List<Download> upgradedDownloads =
-              version == 2 ? loadDownloadsFromVersion2(writableDatabase) : new ArrayList<>();
-          writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
-          writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
-          for (Download download : upgradedDownloads) {
-            putDownloadInternal(download, writableDatabase);
-          }
-          writableDatabase.setTransactionSuccessful();
-        } finally {
-          writableDatabase.endTransaction();
-        }
+    synchronized (initializationLock) {
+      if (initialized) {
+        return;
       }
-      initialized = true;
-    } catch (SQLException e) {
-      throw new DatabaseIOException(e);
+      try {
+        SQLiteDatabase readableDatabase = databaseProvider.getReadableDatabase();
+        int version = VersionTable.getVersion(readableDatabase, VersionTable.FEATURE_OFFLINE, name);
+        if (version != TABLE_VERSION) {
+          SQLiteDatabase writableDatabase = databaseProvider.getWritableDatabase();
+          writableDatabase.beginTransactionNonExclusive();
+          try {
+            VersionTable.setVersion(
+                writableDatabase, VersionTable.FEATURE_OFFLINE, name, TABLE_VERSION);
+            List<Download> upgradedDownloads =
+                version == 2 ? loadDownloadsFromVersion2(writableDatabase) : new ArrayList<>();
+            writableDatabase.execSQL("DROP TABLE IF EXISTS " + tableName);
+            writableDatabase.execSQL("CREATE TABLE " + tableName + " " + TABLE_SCHEMA);
+            for (Download download : upgradedDownloads) {
+              putDownloadInternal(download, writableDatabase);
+            }
+            writableDatabase.setTransactionSuccessful();
+          } finally {
+            writableDatabase.endTransaction();
+          }
+        }
+        initialized = true;
+      } catch (SQLException e) {
+        throw new DatabaseIOException(e);
+      }
     }
   }
 

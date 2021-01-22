@@ -195,8 +195,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
       if (representationHolder.segmentIndex != null) {
         long segmentNum = representationHolder.getSegmentNum(positionUs);
         long firstSyncUs = representationHolder.getSegmentStartTimeUs(segmentNum);
+        int segmentCount = representationHolder.getSegmentCount();
         long secondSyncUs =
-            firstSyncUs < positionUs && segmentNum < representationHolder.getSegmentCount() - 1
+            firstSyncUs < positionUs
+                    && (segmentCount == DashSegmentIndex.INDEX_UNBOUNDED
+                        || segmentNum
+                            < representationHolder.getFirstSegmentNum() + segmentCount - 1)
                 ? representationHolder.getSegmentStartTimeUs(segmentNum + 1)
                 : firstSyncUs;
         return seekParameters.resolveSeekPositionUs(positionUs, firstSyncUs, secondSyncUs);
@@ -425,8 +429,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     if (!cancelable) {
       return false;
     }
-    if (playerTrackEmsgHandler != null
-        && playerTrackEmsgHandler.maybeRefreshManifestOnLoadingError(chunk)) {
+    if (playerTrackEmsgHandler != null && playerTrackEmsgHandler.onChunkLoadError(chunk)) {
       return true;
     }
     // Workaround for missing segment at the end of the period
@@ -495,8 +498,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   private long getNowPeriodTimeUs(long nowUnixTimeUs) {
-    return nowUnixTimeUs
-        - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
+    return manifest.availabilityStartTimeMs == C.TIME_UNSET
+        ? C.TIME_UNSET
+        : nowUnixTimeUs
+            - C.msToUs(manifest.availabilityStartTimeMs + manifest.getPeriod(periodIndex).startMs);
   }
 
   protected Chunk newInitializationChunk(
@@ -793,7 +798,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowPeriodTimeUs) {
-      return getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
+      return nowPeriodTimeUs == C.TIME_UNSET || getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
     }
 
     @Nullable

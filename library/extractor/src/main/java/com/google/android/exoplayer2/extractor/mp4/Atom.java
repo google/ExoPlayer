@@ -335,6 +335,12 @@ import java.util.List;
   public static final int TYPE_meta = 0x6d657461;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_smta = 0x736d7461;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_saut = 0x73617574;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_keys = 0x6b657973;
 
   @SuppressWarnings("ConstantCaseForConstants")

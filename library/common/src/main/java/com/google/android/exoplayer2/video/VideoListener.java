@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.video;
 
+import com.google.android.exoplayer2.C;
+
 /** A listener for metadata corresponding to video being rendered. */
 public interface VideoListener {
 
@@ -41,12 +43,10 @@ public interface VideoListener {
    * Called each time there's a change in the size of the surface onto which the video is being
    * rendered.
    *
-   * @param width The surface width in pixels. May be {@link
-   *     com.google.android.exoplayer2.C#LENGTH_UNSET} if unknown, or 0 if the video is not rendered
-   *     onto a surface.
-   * @param height The surface height in pixels. May be {@link
-   *     com.google.android.exoplayer2.C#LENGTH_UNSET} if unknown, or 0 if the video is not rendered
-   *     onto a surface.
+   * @param width The surface width in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if the
+   *     video is not rendered onto a surface.
+   * @param height The surface height in pixels. May be {@link C#LENGTH_UNSET} if unknown, or 0 if
+   *     the video is not rendered onto a surface.
    */
   default void onSurfaceSizeChanged(int width, int height) {}
 

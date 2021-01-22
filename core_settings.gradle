@@ -28,6 +28,7 @@ include modulePrefix + 'library-dash'
 include modulePrefix + 'library-extractor'
 include modulePrefix + 'library-hls'
 include modulePrefix + 'library-smoothstreaming'
+include modulePrefix + 'library-transformer'
 include modulePrefix + 'library-ui'
 include modulePrefix + 'robolectricutils'
 include modulePrefix + 'testutils'
@@ -56,6 +57,7 @@ project(modulePrefix + 'library-dash').projectDir = new File(rootDir, 'library/d
 project(modulePrefix + 'library-extractor').projectDir = new File(rootDir, 'library/extractor')
 project(modulePrefix + 'library-hls').projectDir = new File(rootDir, 'library/hls')
 project(modulePrefix + 'library-smoothstreaming').projectDir = new File(rootDir, 'library/smoothstreaming')
+project(modulePrefix + 'library-transformer').projectDir = new File(rootDir, 'library/transformer')
 project(modulePrefix + 'library-ui').projectDir = new File(rootDir, 'library/ui')
 project(modulePrefix + 'robolectricutils').projectDir = new File(rootDir, 'robolectricutils')
 project(modulePrefix + 'testutils').projectDir = new File(rootDir, 'testutils')

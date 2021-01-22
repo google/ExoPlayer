@@ -23,6 +23,7 @@ dependencies {
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
     implementation project(modulePrefix + 'library-core')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }

@@ -227,6 +227,7 @@ import java.util.concurrent.TimeoutException;
     }
 
     build.addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_1);
+    build.addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
     // TODO(internal b/142848015): Use removeCommand(int) when it's added.
     if (mediaItemProvider == null) {
       build.removeCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM));

@@ -30,14 +30,6 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   /** Key for the capture frame rate (in frames per second). */
   public static final String KEY_ANDROID_CAPTURE_FPS = "com.android.capture.fps";
-  /** Key for the temporal SVC layer count. */
-  public static final String KEY_ANDROID_TEMPORAL_LAYER_COUNT =
-      "com.android.video.temporal_layers_count";
-
-  /** Type indicator for a 32-bit floating point value. */
-  public static final int TYPE_INDICATOR_FLOAT = 23;
-  /** Type indicator for a 32-bit integer. */
-  public static final int TYPE_INDICATOR_INT = 67;
 
   /** The metadata key name. */
   public final String key;

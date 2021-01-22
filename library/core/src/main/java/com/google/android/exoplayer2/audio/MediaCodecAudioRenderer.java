@@ -26,7 +26,6 @@ import android.media.AudioFormat;
 import android.media.MediaCodec;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
-import android.media.audiofx.Virtualizer;
 import android.os.Handler;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
@@ -173,6 +172,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       AudioSink audioSink) {
     this(
         context,
+        MediaCodecAdapter.Factory.DEFAULT,
         mediaCodecSelector,
         /* enableDecoderFallback= */ false,
         eventHandler,
@@ -198,8 +198,42 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       @Nullable Handler eventHandler,
       @Nullable AudioRendererEventListener eventListener,
       AudioSink audioSink) {
+    this(
+        context,
+        MediaCodecAdapter.Factory.DEFAULT,
+        mediaCodecSelector,
+        enableDecoderFallback,
+        eventHandler,
+        eventListener,
+        audioSink);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param context A context.
+   * @param codecAdapterFactory The {@link MediaCodecAdapter.Factory} used to create {@link
+   *     MediaCodecAdapter} instances.
+   * @param mediaCodecSelector A decoder selector.
+   * @param enableDecoderFallback Whether to enable fallback to lower-priority decoders if decoder
+   *     initialization fails. This may result in using a decoder that is slower/less efficient than
+   *     the primary decoder.
+   * @param eventHandler A handler to use when delivering events to {@code eventListener}. May be
+   *     null if delivery of events is not required.
+   * @param eventListener A listener of events. May be null if delivery of events is not required.
+   * @param audioSink The sink to which audio will be output.
+   */
+  public MediaCodecAudioRenderer(
+      Context context,
+      MediaCodecAdapter.Factory codecAdapterFactory,
+      MediaCodecSelector mediaCodecSelector,
+      boolean enableDecoderFallback,
+      @Nullable Handler eventHandler,
+      @Nullable AudioRendererEventListener eventListener,
+      AudioSink audioSink) {
     super(
         C.TRACK_TYPE_AUDIO,
+        codecAdapterFactory,
         mediaCodecSelector,
         enableDecoderFallback,
         /* assumedMinimumCodecOperatingRate= */ 44100);
@@ -356,7 +390,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
 
   @Override
   protected float getCodecOperatingRateV23(
-      float playbackSpeed, Format format, Format[] streamFormats) {
+      float targetPlaybackSpeed, Format format, Format[] streamFormats) {
     // Use the highest known stream sample-rate up front, to avoid having to reconfigure the codec
     // should an adaptive switch to that stream occur.
     int maxSampleRate = -1;
@@ -366,7 +400,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         maxSampleRate = max(maxSampleRate, streamSampleRate);
       }
     }
-    return maxSampleRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxSampleRate * playbackSpeed);
+    return maxSampleRate == -1 ? CODEC_OPERATING_RATE_UNSET : (maxSampleRate * targetPlaybackSpeed);
   }
 
   @Override
@@ -440,18 +474,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
   }
 
-  /**
-   * Called when the audio session id becomes known. The default implementation is a no-op. One
-   * reason for overriding this method would be to instantiate and enable a {@link Virtualizer} in
-   * order to spatialize the audio channels. For this use case, any {@link Virtualizer} instances
-   * should be released in {@link #onDisabled()} (if not before).
-   *
-   * <p>See {@link AudioSink.Listener#onAudioSessionId(int)}.
-   */
-  protected void onAudioSessionId(int audioSessionId) {
-    // Do nothing.
-  }
-
   /** See {@link AudioSink.Listener#onPositionDiscontinuity()}. */
   @CallSuper
   protected void onPositionDiscontinuity() {
@@ -464,9 +486,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
     eventDispatcher.enabled(decoderCounters);
-    int tunnelingAudioSessionId = getConfiguration().tunnelingAudioSessionId;
-    if (tunnelingAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
-      audioSink.enableTunnelingV21(tunnelingAudioSessionId);
+    if (getConfiguration().tunneling) {
+      audioSink.enableTunnelingV21();
     } else {
       audioSink.disableTunneling();
     }
@@ -790,12 +811,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   private final class AudioSinkListener implements AudioSink.Listener {
-
-    @Override
-    public void onAudioSessionId(int audioSessionId) {
-      eventDispatcher.audioSessionId(audioSessionId);
-      MediaCodecAudioRenderer.this.onAudioSessionId(audioSessionId);
-    }
 
     @Override
     public void onPositionDiscontinuity() {

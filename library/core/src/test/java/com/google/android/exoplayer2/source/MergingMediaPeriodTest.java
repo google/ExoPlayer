@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispat
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CountDownLatch;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -82,6 +83,7 @@ public final class MergingMediaPeriodTest {
         streams,
         /* streamResetFlags= */ new boolean[] {false, false, false, false},
         /* positionUs= */ 0);
+    mergingMediaPeriod.continueLoading(/* positionUs= */ 0);
 
     assertThat(streams[0]).isNull();
     assertThat(streams[3]).isNull();
@@ -126,6 +128,7 @@ public final class MergingMediaPeriodTest {
         streams,
         /* streamResetFlags= */ new boolean[] {false, false},
         /* positionUs= */ 0);
+    mergingMediaPeriod.continueLoading(/* positionUs= */ 0);
     FormatHolder formatHolder = new FormatHolder();
     DecoderInputBuffer inputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
@@ -168,7 +171,8 @@ public final class MergingMediaPeriodTest {
                       /* mediaTimeOffsetMs= */ 0),
               /* trackDataFactory= */ (unusedFormat, unusedMediaPeriodId) ->
                   ImmutableList.of(
-                      oneByteSample(definition.singleSampleTimeUs), END_OF_STREAM_ITEM));
+                      oneByteSample(definition.singleSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME),
+                      END_OF_STREAM_ITEM));
     }
     MergingMediaPeriod mergingMediaPeriod =
         new MergingMediaPeriod(
@@ -203,6 +207,7 @@ public final class MergingMediaPeriodTest {
         TrackDataFactory trackDataFactory) {
       super(
           trackGroupArray,
+          new DefaultAllocator(/* trimOnReset= */ false, /* individualAllocationSize= */ 1024),
           trackDataFactory,
           mediaSourceEventDispatcher,
           DrmSessionManager.DUMMY,

@@ -152,7 +152,7 @@ public final class PlaybackStatsListenerTest {
   }
 
   @Test
-  public void finishAllSessions_callsAllPendingCallbacks() throws Exception {
+  public void playerRelease_callsAllPendingCallbacks() throws Exception {
     PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
     PlaybackStatsListener playbackStatsListener =
         new PlaybackStatsListener(/* keepHistory= */ true, callback);
@@ -167,7 +167,8 @@ public final class PlaybackStatsListenerTest {
     TestPlayerRunHelper.playUntilPosition(
         player, /* windowIndex= */ 0, /* positionMs= */ player.getDuration());
     runMainLooperToNextTask();
-    playbackStatsListener.finishAllSessions();
+    player.release();
+    runMainLooperToNextTask();
 
     ArgumentCaptor<AnalyticsListener.EventTime> eventTimeCaptor =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
@@ -177,24 +178,5 @@ public final class PlaybackStatsListenerTest {
                 .map(eventTime -> eventTime.windowIndex)
                 .collect(Collectors.toList()))
         .containsExactly(0, 1);
-  }
-
-  @Test
-  public void finishAllSessions_doesNotCallCallbackAgainWhenSessionWouldBeAutomaticallyFinished() {
-    PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
-    PlaybackStatsListener playbackStatsListener =
-        new PlaybackStatsListener(/* keepHistory= */ true, callback);
-    player.addAnalyticsListener(playbackStatsListener);
-
-    player.setMediaItem(MediaItem.fromUri("http://test.org"));
-    runMainLooperToNextTask();
-    playbackStatsListener.finishAllSessions();
-
-    // Simulate removing the playback item to ensure the session would finish if it hadn't already.
-    player.clearMediaItems();
-    runMainLooperToNextTask();
-
-    // Verify the callback was called once only.
-    verify(callback).onPlaybackStatsReady(any(), any());
   }
 }

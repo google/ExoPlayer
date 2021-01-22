@@ -23,6 +23,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -53,6 +54,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -461,14 +463,18 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     List<Mp4Track> tracks = new ArrayList<>();
 
     // Process metadata.
-    @Nullable Metadata udtaMetadata = null;
+    @Nullable Metadata udtaMetaMetadata = null;
+    @Nullable Metadata smtaMetadata = null;
     boolean isQuickTime = fileType == FILE_TYPE_QUICKTIME;
     GaplessInfoHolder gaplessInfoHolder = new GaplessInfoHolder();
     @Nullable Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
-      udtaMetadata = AtomParsers.parseUdta(udta, isQuickTime);
-      if (udtaMetadata != null) {
-        gaplessInfoHolder.setFromMetadata(udtaMetadata);
+      Pair<@NullableType Metadata, @NullableType Metadata> udtaMetadata =
+          AtomParsers.parseUdta(udta, isQuickTime);
+      udtaMetaMetadata = udtaMetadata.first;
+      smtaMetadata = udtaMetadata.second;
+      if (udtaMetaMetadata != null) {
+        gaplessInfoHolder.setFromMetadata(udtaMetaMetadata);
       }
     }
     @Nullable Metadata mdtaMetadata = null;
@@ -517,10 +523,11 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       MetadataUtil.setFormatGaplessInfo(track.type, gaplessInfoHolder, formatBuilder);
       MetadataUtil.setFormatMetadata(
           track.type,
-          udtaMetadata,
+          udtaMetaMetadata,
           mdtaMetadata,
           formatBuilder,
-          /* additionalEntries...= */ slowMotionMetadataEntries.toArray(new Metadata.Entry[0]));
+          smtaMetadata,
+          slowMotionMetadataEntries.isEmpty() ? null : new Metadata(slowMotionMetadataEntries));
       mp4Track.trackOutput.format(formatBuilder.build());
 
       if (track.type == C.TRACK_TYPE_VIDEO && firstVideoTrackIndex == C.INDEX_UNSET) {
@@ -754,6 +761,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           new MotionPhotoMetadata(
               /* photoStartPosition= */ 0,
               /* photoSize= */ atomStartPosition,
+              /* photoPresentationTimestampUs= */ C.TIME_UNSET,
               /* videoStartPosition= */ atomStartPosition + atomHeaderBytesRead,
               /* videoSize= */ atomSize - atomHeaderBytesRead);
     }

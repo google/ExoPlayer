@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,6 +34,7 @@ public class MotionPhotoMetadataTest {
         new MotionPhotoMetadata(
             /* photoStartPosition= */ 0,
             /* photoSize= */ 10,
+            /* photoPresentationTimestampUs= */ C.TIME_UNSET,
             /* videoStartPosition= */ 15,
             /* videoSize= */ 35);
 

@@ -343,8 +343,7 @@ public final class DataSpec {
    *       header directly.
    *   <li>Other headers set at the {@link HttpDataSource} layer. I.e., headers set using {@link
    *       HttpDataSource#setRequestProperty(String, String)}, and using {@link
-   *       HttpDataSource.RequestProperties#set(String, String)} on the default properties obtained
-   *       from {@link HttpDataSource.Factory#getDefaultRequestProperties()}.
+   *       HttpDataSource.Factory#setDefaultRequestProperties(Map)}.
    * </ul>
    */
   public final Map<String, String> httpRequestHeaders;

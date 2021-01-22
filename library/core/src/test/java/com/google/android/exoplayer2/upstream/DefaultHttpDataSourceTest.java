@@ -57,19 +57,18 @@ public class DefaultHttpDataSourceTest {
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse());
 
-    String propertyFromConstructor = "fromConstructor";
-    HttpDataSource.RequestProperties constructorProperties = new HttpDataSource.RequestProperties();
-    constructorProperties.set("0", propertyFromConstructor);
-    constructorProperties.set("1", propertyFromConstructor);
-    constructorProperties.set("2", propertyFromConstructor);
-    constructorProperties.set("4", propertyFromConstructor);
+    String propertyFromFactory = "fromFactory";
+    Map<String, String> defaultRequestProperties = new HashMap<>();
+    defaultRequestProperties.put("0", propertyFromFactory);
+    defaultRequestProperties.put("1", propertyFromFactory);
+    defaultRequestProperties.put("2", propertyFromFactory);
+    defaultRequestProperties.put("4", propertyFromFactory);
     DefaultHttpDataSource dataSource =
-        new DefaultHttpDataSource(
-            /* userAgent= */ "testAgent",
-            /* connectTimeoutMillis= */ 1000,
-            /* readTimeoutMillis= */ 1000,
-            /* allowCrossProtocolRedirects= */ false,
-            constructorProperties);
+        new DefaultHttpDataSource.Factory()
+            .setConnectTimeoutMs(1000)
+            .setReadTimeoutMs(1000)
+            .setDefaultRequestProperties(defaultRequestProperties)
+            .createDataSource();
 
     String propertyFromSetter = "fromSetter";
     dataSource.setRequestProperty("1", propertyFromSetter);
@@ -92,7 +91,7 @@ public class DefaultHttpDataSourceTest {
     dataSource.open(dataSpec);
 
     Headers headers = mockWebServer.takeRequest(10, SECONDS).getHeaders();
-    assertThat(headers.get("0")).isEqualTo(propertyFromConstructor);
+    assertThat(headers.get("0")).isEqualTo(propertyFromFactory);
     assertThat(headers.get("1")).isEqualTo(propertyFromSetter);
     assertThat(headers.get("2")).isEqualTo(propertyFromDataSpec);
     assertThat(headers.get("3")).isEqualTo(propertyFromDataSpec);
@@ -102,14 +101,12 @@ public class DefaultHttpDataSourceTest {
   }
 
   @Test
-  public void open_invalidResponseCode() throws Exception {
+  public void open_invalidResponseCode() {
     DefaultHttpDataSource defaultHttpDataSource =
-        new DefaultHttpDataSource(
-            /* userAgent= */ "testAgent",
-            /* connectTimeoutMillis= */ 1000,
-            /* readTimeoutMillis= */ 1000,
-            /* allowCrossProtocolRedirects= */ false,
-            /* defaultRequestProperties= */ null);
+        new DefaultHttpDataSource.Factory()
+            .setConnectTimeoutMs(1000)
+            .setReadTimeoutMs(1000)
+            .createDataSource();
 
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(
@@ -127,5 +124,23 @@ public class DefaultHttpDataSourceTest {
 
     assertThat(exception.responseCode).isEqualTo(404);
     assertThat(exception.responseBody).isEqualTo(TestUtil.createByteArray(1, 2, 3));
+  }
+
+  @Test
+  public void factory_setRequestPropertyAfterCreation_setsCorrectHeaders() throws Exception {
+    MockWebServer mockWebServer = new MockWebServer();
+    mockWebServer.enqueue(new MockResponse());
+    DataSpec dataSpec =
+        new DataSpec.Builder().setUri(mockWebServer.url("/test-path").toString()).build();
+    DefaultHttpDataSource.Factory factory = new DefaultHttpDataSource.Factory();
+    HttpDataSource dataSource = factory.createDataSource();
+
+    Map<String, String> defaultRequestProperties = new HashMap<>();
+    defaultRequestProperties.put("0", "afterCreation");
+    factory.setDefaultRequestProperties(defaultRequestProperties);
+    dataSource.open(dataSpec);
+
+    Headers headers = mockWebServer.takeRequest(10, SECONDS).getHeaders();
+    assertThat(headers.get("0")).isEqualTo("afterCreation");
   }
 }

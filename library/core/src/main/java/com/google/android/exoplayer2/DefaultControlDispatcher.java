@@ -99,7 +99,7 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     int nextWindowIndex = player.getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       player.seekTo(nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window).isLive) {
+    } else if (timeline.getWindow(windowIndex, window).isLive()) {
       player.seekTo(windowIndex, C.TIME_UNSET);
     }
     return true;
@@ -136,6 +136,13 @@ public class DefaultControlDispatcher implements ControlDispatcher {
   @Override
   public boolean dispatchStop(Player player, boolean reset) {
     player.stop(reset);
+    return true;
+  }
+
+  @Override
+  public boolean dispatchSetPlaybackParameters(
+      Player player, PlaybackParameters playbackParameters) {
+    player.setPlaybackParameters(playbackParameters);
     return true;
   }
 

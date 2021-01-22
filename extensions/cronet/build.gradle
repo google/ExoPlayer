@@ -21,6 +21,7 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     testImplementation project(modulePrefix + 'library')
     testImplementation project(modulePrefix + 'testutils')
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
 

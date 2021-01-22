@@ -1,4 +1,4 @@
-MediaCodec (video/x-vnd.on2.vp9):
+MediaCodecAdapter (exotest.video.vp9):
   buffers.length = 81
   buffers[0] = length 2673, hash 35AEF916
   buffers[1] = length 5013, hash 3F74CFB8

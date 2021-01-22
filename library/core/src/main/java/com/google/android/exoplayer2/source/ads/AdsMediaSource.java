@@ -252,12 +252,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   @Override
   protected void releaseSourceInternal() {
     super.releaseSourceInternal();
-    checkNotNull(componentListener).release();
-    componentListener = null;
+    ComponentListener componentListener = checkNotNull(this.componentListener);
+    this.componentListener = null;
+    componentListener.stop();
     contentTimeline = null;
     adPlaybackState = null;
     adMediaSourceHolders = new AdMediaSourceHolder[0][];
-    mainHandler.post(() -> adsLoader.stop(/* adsMediaSource= */ this));
+    mainHandler.post(() -> adsLoader.stop(/* adsMediaSource= */ this, componentListener));
   }
 
   @Override
@@ -355,7 +356,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
     private final Handler playerHandler;
 
-    private volatile boolean released;
+    private volatile boolean stopped;
 
     /**
      * Creates new listener which forwards ad playback states on the creating thread and all other
@@ -365,20 +366,20 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       playerHandler = Util.createHandlerForCurrentLooper();
     }
 
-    /** Releases the component listener. */
-    public void release() {
-      released = true;
+    /** Stops event delivery from this instance. */
+    public void stop() {
+      stopped = true;
       playerHandler.removeCallbacksAndMessages(null);
     }
 
     @Override
     public void onAdPlaybackState(final AdPlaybackState adPlaybackState) {
-      if (released) {
+      if (stopped) {
         return;
       }
       playerHandler.post(
           () -> {
-            if (released) {
+            if (stopped) {
               return;
             }
             AdsMediaSource.this.onAdPlaybackState(adPlaybackState);
@@ -387,7 +388,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
     @Override
     public void onAdLoadError(final AdLoadException error, DataSpec dataSpec) {
-      if (released) {
+      if (stopped) {
         return;
       }
       createEventDispatcher(/* mediaPeriodId= */ null)

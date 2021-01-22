@@ -700,14 +700,34 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* partIndex */ C.INDEX_UNSET);
       }
       long targetPositionInPlaylistUs = targetPositionInPeriodUs - startOfPlaylistInPeriodUs;
-      long mediaSequence =
+      int segmentIndexInPlaylist =
           Util.binarySearchFloor(
-                  mediaPlaylist.segments,
-                  /* value= */ targetPositionInPlaylistUs,
-                  /* inclusive= */ true,
-                  /* stayInBounds= */ !playlistTracker.isLive() || previous == null)
-              + mediaPlaylist.mediaSequence;
-      return new Pair<>(mediaSequence, /* partIndex */ C.INDEX_UNSET);
+              mediaPlaylist.segments,
+              /* value= */ targetPositionInPlaylistUs,
+              /* inclusive= */ true,
+              /* stayInBounds= */ !playlistTracker.isLive() || previous == null);
+      long mediaSequence = segmentIndexInPlaylist + mediaPlaylist.mediaSequence;
+      int partIndex = C.INDEX_UNSET;
+      if (segmentIndexInPlaylist >= 0) {
+        // In case we are inside the live window, we try to pick a part if available.
+        Segment segment = mediaPlaylist.segments.get(segmentIndexInPlaylist);
+        List<HlsMediaPlaylist.Part> parts =
+            targetPositionInPlaylistUs < segment.relativeStartTimeUs + segment.durationUs
+                ? segment.parts
+                : mediaPlaylist.trailingParts;
+        for (int i = 0; i < parts.size(); i++) {
+          HlsMediaPlaylist.Part part = parts.get(i);
+          if (targetPositionInPlaylistUs < part.relativeStartTimeUs + part.durationUs) {
+            if (part.isIndependent) {
+              partIndex = i;
+              // Increase media sequence by one if the part is a trailing part.
+              mediaSequence += parts == mediaPlaylist.trailingParts ? 1 : 0;
+            }
+            break;
+          }
+        }
+      }
+      return new Pair<>(mediaSequence, partIndex);
     }
     // If loading has not completed, we return the previous chunk again.
     return (previous.isLoadCompleted()
