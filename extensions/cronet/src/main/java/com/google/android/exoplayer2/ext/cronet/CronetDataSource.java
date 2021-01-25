@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.ext.cronet;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -37,6 +36,7 @@ import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
+import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
@@ -655,14 +655,21 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         readBuffer.flip();
         Assertions.checkState(readBuffer.hasRemaining());
         if (bytesToSkip > 0) {
-          int bytesSkipped = (int) min(readBuffer.remaining(), bytesToSkip);
+          int bytesSkipped = (int) Math.min(readBuffer.remaining(), bytesToSkip);
           readBuffer.position(readBuffer.position() + bytesSkipped);
           bytesToSkip -= bytesSkipped;
         }
       }
     }
 
-    int bytesRead = min(readBuffer.remaining(), readLength);
+    // Ensure we read up to bytesRemaining, in case this was a Range request with finite end, but
+    // the server does not support Range requests and transmitted the entire resource.
+    int bytesRead =
+        Ints.min(
+            bytesRemaining != C.LENGTH_UNSET ? (int) bytesRemaining : Integer.MAX_VALUE,
+            readBuffer.remaining(),
+            readLength);
+
     readBuffer.get(buffer, offset, bytesRead);
 
     if (bytesRemaining != C.LENGTH_UNSET) {
@@ -1039,7 +1046,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   // Copy as much as possible from the src buffer into dst buffer.
   // Returns the number of bytes copied.
   private static int copyByteBuffer(ByteBuffer src, ByteBuffer dst) {
-    int remaining = min(src.remaining(), dst.remaining());
+    int remaining = Math.min(src.remaining(), dst.remaining());
     int limit = src.limit();
     src.limit(src.position() + remaining);
     dst.put(src);

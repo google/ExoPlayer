@@ -29,9 +29,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** {@link DataSource} contract tests for {@link CronetDataSource}. */
@@ -69,16 +67,6 @@ public class CronetDataSourceContractTest extends DataSourceContractTest {
   protected Uri getNotFoundUri() {
     return Uri.parse(httpDataSourceTestEnv.getNonexistentUrl());
   }
-
-  @Override
-  @Test
-  @Ignore
-  public void dataSpecWithLength_readExpectedRange() {}
-
-  @Override
-  @Test
-  @Ignore
-  public void dataSpecWithPositionAndLength_readExpectedRange() {}
 
   /**
    * An {@link HttpDataSource.Factory} that throws {@link UnsupportedOperationException} on every
