@@ -295,7 +295,7 @@ public final class DashMediaSource extends BaseMediaSource {
           manifest,
           new MediaItem.Builder()
               .setUri(Uri.EMPTY)
-              .setMediaId(DUMMY_MEDIA_ID)
+              .setMediaId(DEFAULT_MEDIA_ID)
               .setMimeType(MimeTypes.APPLICATION_MPD)
               .setStreamKeys(streamKeys)
               .setTag(tag)
@@ -427,8 +427,7 @@ public final class DashMediaSource extends BaseMediaSource {
   /** @deprecated Use {@link #DEFAULT_FALLBACK_TARGET_LIVE_OFFSET_MS} instead. */
   @Deprecated public static final long DEFAULT_LIVE_PRESENTATION_DELAY_MS = 30_000;
   /** The media id used by media items of dash media sources without a manifest URI. */
-  public static final String DUMMY_MEDIA_ID =
-      "com.google.android.exoplayer2.source.dash.DashMediaSource";
+  public static final String DEFAULT_MEDIA_ID = "DashMediaSource";
 
   /**
    * The interval in milliseconds between invocations of {@link
