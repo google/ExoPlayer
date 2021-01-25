@@ -2,6 +2,10 @@
 
 ### dev-v2 (not yet released)
 
+*   New release notes go here!
+
+### 2.13.0 (not yet released - targeted for 2021-02-TBD)
+
 *   Core library:
     *   Remove long deprecated symbols:
         *   `AdaptiveMediaSourceEventListener`. Use `MediaSourceEventListener`
