@@ -15,8 +15,9 @@
  */
 package com.google.android.exoplayer2.device;
 
-// TODO(b/172315872) change back to @link after player migration to common.
-/** A listener for changes of {@code Player.DeviceComponent}. */
+import com.google.android.exoplayer2.Player;
+
+/** A listener for changes of {@link Player.DeviceComponent}. */
 public interface DeviceListener {
 
   /** Called when the device information changes. */

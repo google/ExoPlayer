@@ -617,11 +617,14 @@ public interface Player {
     default void onSeekProcessed() {}
 
     /**
-     * Called when the player has started or stopped offload scheduling after a call to {@link
+     * Called when the player has started or stopped offload scheduling.
+     *
+     * <p>If using ExoPlayer, this is done by calling {@code
      * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean)}.
      *
      * <p>This method is experimental, and will be renamed or removed in a future release.
      */
+    // TODO(b/172315872) Move this method in a new ExoPlayer.EventListener.
     default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
 
     /**
@@ -739,9 +742,7 @@ public interface Player {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
   @interface State {}
-  /**
-   * The player does not have any media to play.
-   */
+  /** The player does not have any media to play. */
   int STATE_IDLE = 1;
   /**
    * The player is not able to immediately play from its current position. This state typically
@@ -753,9 +754,7 @@ public interface Player {
    * {@link #getPlayWhenReady()} is true, and paused otherwise.
    */
   int STATE_READY = 3;
-  /**
-   * The player has finished playing the media.
-   */
+  /** The player has finished playing the media. */
   int STATE_ENDED = 4;
 
   /**
@@ -816,20 +815,20 @@ public interface Player {
    * Normal playback without repetition. "Previous" and "Next" actions move to the previous and next
    * windows respectively, and do nothing when there is no previous or next window to move to.
    */
-  int REPEAT_MODE_OFF = C.REPEAT_MODE_OFF;
+  int REPEAT_MODE_OFF = 0;
   /**
    * Repeats the currently playing window infinitely during ongoing playback. "Previous" and "Next"
    * actions behave as they do in {@link #REPEAT_MODE_OFF}, moving to the previous and next windows
    * respectively, and doing nothing when there is no previous or next window to move to.
    */
-  int REPEAT_MODE_ONE = C.REPEAT_MODE_ONE;
+  int REPEAT_MODE_ONE = 1;
   /**
    * Repeats the entire timeline infinitely. "Previous" and "Next" actions behave as they do in
    * {@link #REPEAT_MODE_OFF}, but with looping at the ends so that "Previous" when playing the
    * first window will move to the last window, and "Next" when playing the last window will move to
    * the first window.
    */
-  int REPEAT_MODE_ALL = C.REPEAT_MODE_ALL;
+  int REPEAT_MODE_ALL = 2;
 
   /**
    * Reasons for position discontinuities. One of {@link #DISCONTINUITY_REASON_PERIOD_TRANSITION},
@@ -1217,7 +1216,8 @@ public interface Player {
    *
    * @return The current repeat mode.
    */
-  @RepeatMode int getRepeatMode();
+  @RepeatMode
+  int getRepeatMode();
 
   /**
    * Sets whether shuffling of windows is enabled.
@@ -1226,9 +1226,7 @@ public interface Player {
    */
   void setShuffleModeEnabled(boolean shuffleModeEnabled);
 
-  /**
-   * Returns whether shuffling of windows is enabled.
-   */
+  /** Returns whether shuffling of windows is enabled. */
   boolean getShuffleModeEnabled();
 
   /**
@@ -1363,9 +1361,7 @@ public interface Player {
    */
   void release();
 
-  /**
-   * Returns the number of renderers.
-   */
+  /** Returns the number of renderers. */
   int getRendererCount();
 
   /**
@@ -1404,14 +1400,10 @@ public interface Player {
   @Nullable
   Object getCurrentManifest();
 
-  /**
-   * Returns the current {@link Timeline}. Never null, but may be empty.
-   */
+  /** Returns the current {@link Timeline}. Never null, but may be empty. */
   Timeline getCurrentTimeline();
 
-  /**
-   * Returns the index of the period currently being played.
-   */
+  /** Returns the index of the period currently being played. */
   int getCurrentPeriodIndex();
 
   /**
@@ -1531,9 +1523,7 @@ public interface Player {
    */
   boolean isCurrentWindowSeekable();
 
-  /**
-   * Returns whether the player is currently playing an ad.
-   */
+  /** Returns whether the player is currently playing an ad. */
   boolean isPlayingAd();
 
   /**

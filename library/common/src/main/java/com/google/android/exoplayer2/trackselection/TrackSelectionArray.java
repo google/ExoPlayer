@@ -73,5 +73,4 @@ public final class TrackSelectionArray {
     TrackSelectionArray other = (TrackSelectionArray) obj;
     return Arrays.equals(trackSelections, other.trackSelections);
   }
-
 }
