@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.util;
 
 import static android.graphics.Color.BLACK;
+import static android.graphics.Color.BLUE;
+import static android.graphics.Color.GREEN;
 import static android.graphics.Color.RED;
 import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
@@ -66,9 +68,21 @@ public final class ColorParserTest {
     // Hex colors in ColorParser are RGBA, where-as {@link Color#parseColor} takes ARGB.
     assertThat(parseTtmlColor("#FFFFFF00")).isEqualTo(parseColor("#00FFFFFF"));
     assertThat(parseTtmlColor("#12345678")).isEqualTo(parseColor("#78123456"));
-    // SSA colors are in &HAABBGGRR format.
-    assertThat(parseSsaColor("&HFF0000FF")).isEqualTo(RED);
-    assertThat(parseSsaColor("&HFF00FFFF")).isEqualTo(YELLOW);
+  }
+
+  @Test
+  public void ssaColorParsing() {
+    // Hex format (&HAABBGGRR).
+    assertThat(parseSsaColor("&H000000FF")).isEqualTo(RED);
+    assertThat(parseSsaColor("&H0000FFFF")).isEqualTo(YELLOW);
+    assertThat(parseSsaColor("&H400000FF")).isEqualTo(parseColor("#BFFF0000"));
+    // Leading zeros.
+    assertThat(parseSsaColor("&HFF")).isEqualTo(RED);
+    assertThat(parseSsaColor("&HFF00")).isEqualTo(GREEN);
+    assertThat(parseSsaColor("&HFF0000")).isEqualTo(BLUE);
+    // Decimal format (AABBGGRR byte order).
+    assertThat(parseSsaColor(/*#000000FF*/"255")).isEqualTo(parseColor("#FFFF0000"));
+    assertThat(parseSsaColor(/*#FF0000FF*/"4278190335")).isEqualTo(parseColor("#00FF0000"));
   }
 
   @Test

@@ -89,9 +89,9 @@ import java.util.regex.Pattern;
 
   public final String name;
   @SsaAlignment public final int alignment;
-  @ColorInt public int primaryColor;
+  public SsaColor primaryColor;
 
-  private SsaStyle(String name, @SsaAlignment int alignment, @ColorInt int primaryColor) {
+  private SsaStyle(String name, @SsaAlignment int alignment, SsaColor primaryColor) {
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
@@ -152,14 +152,33 @@ import java.util.regex.Pattern;
     }
   }
 
-  @ColorInt
-  private static int parsePrimaryColor(String primaryColorStr) {
+  private static SsaColor parsePrimaryColor(String primaryColorStr) {
     try {
-      return ColorParser.parseSsaColor(primaryColorStr);
+      return SsaColor.from(ColorParser.parseSsaColor(primaryColorStr.trim()));
     } catch (IllegalArgumentException ex) {
       Log.w(TAG, "Failed parsing color value: " + primaryColorStr);
     }
-    return SSA_COLOR_UNKNOWN;
+    return SsaColor.UNSET;
+  }
+
+  /**
+   * Represents an SSA V4+ style color in ARGB format.
+   */
+  /* package */ static final class SsaColor {
+
+    public static SsaColor UNSET = new SsaColor(0, false);
+
+    public final @ColorInt int value;
+    public final boolean isSet;
+
+    private SsaColor(@ColorInt int value, boolean isSet) {
+      this.value = value;
+      this.isSet = isSet;
+    }
+
+    public static SsaColor from(@ColorInt int value) {
+      return new SsaColor(value, true);
+    }
   }
 
   /**

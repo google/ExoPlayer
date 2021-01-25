@@ -75,17 +75,35 @@ public final class ColorParser {
    */
   @ColorInt
   public static int parseSsaColor(String colorExpression) {
-    // SSA V4+ color format is &HAABBGGRR.
-    if (colorExpression.length() != 10 || !"&H".equals(colorExpression.substring(0, 2))) {
-      throw new IllegalArgumentException();
+    // The SSA V4+ color can be represented in hex (&HAABBGGRR) or in decimal format (byte order
+    // AABBGGRR) and in both cases the alpha channel's value needs to be inverted as in case of SSA
+    // the 0xFF alpha value means transparent and 0x00 means opaque which is the opposite from the
+    // @ColorInt representation.
+    int abgr;
+    try {
+      // Parse color from hex format (&HAABBGGRR).
+      if (colorExpression.startsWith("&H")) {
+        StringBuilder rgbaStringBuilder = new StringBuilder(colorExpression);
+        if (colorExpression.length() < 10) {
+          // Add leading zeros if necessary.
+          while (rgbaStringBuilder.length() != 10) {
+            rgbaStringBuilder.insert(2, "0");
+          }
+        }
+        abgr = (int) Long.parseLong(colorExpression.substring(2), 16);
+      } else {
+        // Parse color from decimal format (bytes order AABBGGRR).
+        abgr = (int) Long.parseLong(colorExpression);
+      }
+    } catch (NumberFormatException ex) {
+      throw new IllegalArgumentException(ex);
     }
-    // Convert &HAABBGGRR to #RRGGBBAA.
-    String rgba = new StringBuilder()
-        .append(colorExpression.substring(2))
-        .append("#")
-        .reverse()
-        .toString();
-    return parseColorInternal(rgba, true);
+    // Convert ABGR to ARGB.
+    int a = ((abgr >> 24) & 0xFF) ^ 0xFF; // Flip alpha.
+    int b = (abgr >> 16) & 0xFF;
+    int g = (abgr >> 8) & 0xFF;
+    int r = abgr & 0xff;
+    return Color.argb(a, r, g, b);
   }
 
   @ColorInt
