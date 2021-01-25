@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -2396,8 +2395,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void updateLoadControlTrackSelection(
       TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
-    TrackSelectionArray newSelection = new TrackSelectionArray(trackSelectorResult.selections);
-    loadControl.onTracksSelected(renderers, trackGroups, newSelection);
+    loadControl.onTracksSelected(renderers, trackGroups, trackSelectorResult.selections);
   }
 
   private boolean shouldPlayWhenReady() {

@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.DefaultLoadControl.Builder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import org.junit.Before;
 import org.junit.Test;
@@ -177,7 +177,7 @@ public class DefaultLoadControlTest {
   @Test
   public void shouldContinueLoading_withNoSelectedTracks_returnsTrue() {
     loadControl = builder.build();
-    loadControl.onTracksSelected(new Renderer[0], TrackGroupArray.EMPTY, new TrackSelectionArray());
+    loadControl.onTracksSelected(new Renderer[0], TrackGroupArray.EMPTY, new TrackSelection[0]);
 
     assertThat(
             loadControl.shouldContinueLoading(
@@ -321,5 +321,4 @@ public class DefaultLoadControlTest {
       allocator.allocate();
     }
   }
-
 }

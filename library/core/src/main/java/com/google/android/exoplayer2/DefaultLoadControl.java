@@ -21,16 +21,14 @@ import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * The default {@link LoadControl} implementation.
- */
+/** The default {@link LoadControl} implementation. */
 public class DefaultLoadControl implements LoadControl {
 
   /**
@@ -318,8 +316,8 @@ public class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
-      TrackSelectionArray trackSelections) {
+  public void onTracksSelected(
+      Renderer[] renderers, TrackGroupArray trackGroups, TrackSelection[] trackSelections) {
     targetBufferBytes =
         targetBufferBytesOverwrite == C.LENGTH_UNSET
             ? calculateTargetBufferBytes(renderers, trackSelections)
@@ -402,10 +400,10 @@ public class DefaultLoadControl implements LoadControl {
    * @return The target buffer size in bytes.
    */
   protected int calculateTargetBufferBytes(
-      Renderer[] renderers, TrackSelectionArray trackSelectionArray) {
+      Renderer[] renderers, TrackSelection[] trackSelectionArray) {
     int targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {
-      if (trackSelectionArray.get(i) != null) {
+      if (trackSelectionArray[i] != null) {
         targetBufferSize += getDefaultBufferSize(renderers[i].getTrackType());
       }
     }

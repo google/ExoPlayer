@@ -17,12 +17,10 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 
-/**
- * Controls buffering of media.
- */
+/** Controls buffering of media. */
 public interface LoadControl {
 
   /** Called by the player when prepared with a new source. */
@@ -35,33 +33,27 @@ public interface LoadControl {
    * @param trackGroups The {@link TrackGroup}s from which the selection was made.
    * @param trackSelections The track selections that were made.
    */
-  void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
-      TrackSelectionArray trackSelections);
+  void onTracksSelected(
+      Renderer[] renderers, TrackGroupArray trackGroups, TrackSelection[] trackSelections);
 
-  /**
-   * Called by the player when stopped.
-   */
+  /** Called by the player when stopped. */
   void onStopped();
 
-  /**
-   * Called by the player when released.
-   */
+  /** Called by the player when released. */
   void onReleased();
 
-  /**
-   * Returns the {@link Allocator} that should be used to obtain media buffer allocations.
-   */
+  /** Returns the {@link Allocator} that should be used to obtain media buffer allocations. */
   Allocator getAllocator();
 
   /**
    * Returns the duration of media to retain in the buffer prior to the current playback position,
    * for fast backward seeking.
-   * <p>
-   * Note: If {@link #retainBackBufferFromKeyframe()} is false then seeking in the back-buffer will
-   * only be fast if the back-buffer contains a keyframe prior to the seek position.
-   * <p>
-   * Note: Implementations should return a single value. Dynamic changes to the back-buffer are not
-   * currently supported.
+   *
+   * <p>Note: If {@link #retainBackBufferFromKeyframe()} is false then seeking in the back-buffer
+   * will only be fast if the back-buffer contains a keyframe prior to the seek position.
+   *
+   * <p>Note: Implementations should return a single value. Dynamic changes to the back-buffer are
+   * not currently supported.
    *
    * @return The duration of media to retain in the buffer prior to the current playback position,
    *     in microseconds.
@@ -71,17 +63,19 @@ public interface LoadControl {
   /**
    * Returns whether media should be retained from the keyframe before the current playback position
    * minus {@link #getBackBufferDurationUs()}, rather than any sample before or at that position.
-   * <p>
-   * Warning: Returning true will cause the back-buffer size to depend on the spacing of keyframes
-   * in the media being played. Returning true is not recommended unless you control the media and
-   * are comfortable with the back-buffer size exceeding {@link #getBackBufferDurationUs()} by as
-   * much as the maximum duration between adjacent keyframes in the media.
-   * <p>
-   * Note: Implementations should return a single value. Dynamic changes to the back-buffer are not
-   * currently supported.
+   *
+   * <p>Warning: Returning true will cause the back-buffer size to depend on the spacing of
+   * keyframes in the media being played. Returning true is not recommended unless you control the
+   * media and are comfortable with the back-buffer size exceeding {@link
+   * #getBackBufferDurationUs()} by as much as the maximum duration between adjacent keyframes in
+   * the media.
+   *
+   * <p>Note: Implementations should return a single value. Dynamic changes to the back-buffer are
+   * not currently supported.
    *
    * @return Whether media should be retained from the keyframe before the current playback position
-   * minus {@link #getBackBufferDurationUs()}, rather than any sample before or at that position.
+   *     minus {@link #getBackBufferDurationUs()}, rather than any sample before or at that
+   *     position.
    */
   boolean retainBackBufferFromKeyframe();
 
