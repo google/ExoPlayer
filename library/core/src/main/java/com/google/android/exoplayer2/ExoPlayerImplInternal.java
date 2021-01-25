@@ -726,8 +726,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionPlayWhenReadyChanged(boolean playWhenReady) {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onPlayWhenReadyChanged(playWhenReady);
         }
@@ -901,8 +900,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionRebuffer() {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onRebuffer();
         }
@@ -1692,8 +1690,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void updateTrackSelectionPlaybackSpeed(float playbackSpeed) {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onPlaybackSpeed(playbackSpeed);
         }
@@ -1705,8 +1702,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionDiscontinuity() {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onDiscontinuity();
         }
@@ -2018,7 +2014,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       if (!renderer.isCurrentStreamFinal()) {
         // The renderer stream is not final, so we can replace the sample streams immediately.
-        Format[] formats = getFormats(newTrackSelectorResult.selections.get(i));
+        Format[] formats = getFormats(newTrackSelectorResult.selections[i]);
         renderer.replaceStream(
             formats,
             readingPeriodHolder.sampleStreams[i],
@@ -2268,11 +2264,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private ImmutableList<Metadata> extractMetadataFromTrackSelectionArray(
-      TrackSelectionArray trackSelectionArray) {
+      TrackSelection[] trackSelections) {
     ImmutableList.Builder<Metadata> result = new ImmutableList.Builder<>();
     boolean seenNonEmptyMetadata = false;
-    for (int i = 0; i < trackSelectionArray.length; i++) {
-      @Nullable TrackSelection trackSelection = trackSelectionArray.get(i);
+    for (TrackSelection trackSelection : trackSelections) {
       if (trackSelection != null) {
         Format format = trackSelection.getFormat(/* index= */ 0);
         if (format.metadata == null) {
@@ -2320,7 +2315,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     TrackSelectorResult trackSelectorResult = periodHolder.getTrackSelectorResult();
     RendererConfiguration rendererConfiguration =
         trackSelectorResult.rendererConfigurations[rendererIndex];
-    TrackSelection newSelection = trackSelectorResult.selections.get(rendererIndex);
+    TrackSelection newSelection = trackSelectorResult.selections[rendererIndex];
     Format[] formats = getFormats(newSelection);
     // The renderer needs enabling with its new track selection.
     boolean playing = shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY;
@@ -2401,7 +2396,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private void updateLoadControlTrackSelection(
       TrackGroupArray trackGroups, TrackSelectorResult trackSelectorResult) {
-    loadControl.onTracksSelected(renderers, trackGroups, trackSelectorResult.selections);
+    TrackSelectionArray newSelection = new TrackSelectionArray(trackSelectorResult.selections);
+    loadControl.onTracksSelected(renderers, trackGroups, newSelection);
   }
 
   private boolean shouldPlayWhenReady() {

@@ -847,7 +847,7 @@ public final class DownloadHelper {
               new MediaPeriodId(mediaPreparer.timeline.getUidOfPeriod(periodIndex)),
               mediaPreparer.timeline);
       for (int i = 0; i < trackSelectorResult.length; i++) {
-        @Nullable TrackSelection newSelection = trackSelectorResult.selections.get(i);
+        @Nullable TrackSelection newSelection = trackSelectorResult.selections[i];
         if (newSelection == null) {
           continue;
         }

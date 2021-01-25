@@ -138,8 +138,15 @@ import java.util.List;
       Clock clock,
       Looper applicationLooper,
       @Nullable Player wrappingPlayer) {
-    Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
-        + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
+    Log.i(
+        TAG,
+        "Init "
+            + Integer.toHexString(System.identityHashCode(this))
+            + " ["
+            + ExoPlayerLibraryInfo.VERSION_SLASHY
+            + "] ["
+            + Util.DEVICE_DEBUG_INFO
+            + "]");
     checkState(renderers.length > 0);
     this.renderers = checkNotNull(renderers);
     this.trackSelector = checkNotNull(trackSelector);
@@ -731,9 +738,17 @@ import java.util.List;
 
   @Override
   public void release() {
-    Log.i(TAG, "Release " + Integer.toHexString(System.identityHashCode(this)) + " ["
-        + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
-        + ExoPlayerLibraryInfo.registeredModules() + "]");
+    Log.i(
+        TAG,
+        "Release "
+            + Integer.toHexString(System.identityHashCode(this))
+            + " ["
+            + ExoPlayerLibraryInfo.VERSION_SLASHY
+            + "] ["
+            + Util.DEVICE_DEBUG_INFO
+            + "] ["
+            + ExoPlayerLibraryInfo.registeredModules()
+            + "]");
     if (!internalPlayer.release()) {
       // One of the renderers timed out releasing its resources.
       listeners.sendEvent(
@@ -890,7 +905,7 @@ import java.util.List;
 
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
-    return playbackInfo.trackSelectorResult.selections;
+    return new TrackSelectionArray(playbackInfo.trackSelectorResult.selections);
   }
 
   @Override
@@ -1013,11 +1028,11 @@ import java.util.List;
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
+      TrackSelectionArray newSelection =
+          new TrackSelectionArray(newPlaybackInfo.trackSelectorResult.selections);
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
-          listener ->
-              listener.onTracksChanged(
-                  newPlaybackInfo.trackGroups, newPlaybackInfo.trackSelectorResult.selections));
+          listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
     }
     if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       listeners.queueEvent(

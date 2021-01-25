@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -233,7 +232,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       throws ExoPlaybackException {
     TrackSelectorResult selectorResult =
         trackSelector.selectTracks(rendererCapabilities, getTrackGroups(), info.id, timeline);
-    for (TrackSelection trackSelection : selectorResult.selections.getAll()) {
+    for (TrackSelection trackSelection : selectorResult.selections) {
       if (trackSelection != null) {
         trackSelection.onPlaybackSpeed(playbackSpeed);
       }
@@ -289,10 +288,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     trackSelectorResult = newTrackSelectorResult;
     enableTrackSelectionsInResult();
     // Disable streams on the period and get new streams for updated/newly-enabled tracks.
-    TrackSelectionArray trackSelections = newTrackSelectorResult.selections;
     positionUs =
         mediaPeriod.selectTracks(
-            trackSelections.getAll(),
+            newTrackSelectorResult.selections,
             mayRetainStreamFlags,
             sampleStreams,
             streamResetFlags,
@@ -309,7 +307,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           hasEnabledTracks = true;
         }
       } else {
-        Assertions.checkState(trackSelections.get(i) == null);
+        Assertions.checkState(newTrackSelectorResult.selections[i] == null);
       }
     }
     return positionUs;
@@ -361,7 +359,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     for (int i = 0; i < trackSelectorResult.length; i++) {
       boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
-      TrackSelection trackSelection = trackSelectorResult.selections.get(i);
+      TrackSelection trackSelection = trackSelectorResult.selections[i];
       if (rendererEnabled && trackSelection != null) {
         trackSelection.enable();
       }
@@ -374,7 +372,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     for (int i = 0; i < trackSelectorResult.length; i++) {
       boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
-      TrackSelection trackSelection = trackSelectorResult.selections.get(i);
+      TrackSelection trackSelection = trackSelectorResult.selections[i];
       if (rendererEnabled && trackSelection != null) {
         trackSelection.disable();
       }
