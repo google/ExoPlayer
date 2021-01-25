@@ -85,8 +85,6 @@ import java.util.regex.Pattern;
   public static final int SSA_ALIGNMENT_TOP_CENTER = 8;
   public static final int SSA_ALIGNMENT_TOP_RIGHT = 9;
 
-  public static final int SSA_COLOR_UNKNOWN = -1;
-
   public final String name;
   @SsaAlignment public final int alignment;
   public SsaColor primaryColor;
