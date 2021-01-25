@@ -40,7 +40,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -725,7 +725,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionPlayWhenReadyChanged(boolean playWhenReady) {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onPlayWhenReadyChanged(playWhenReady);
         }
@@ -899,7 +899,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionRebuffer() {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onRebuffer();
         }
@@ -1689,7 +1689,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void updateTrackSelectionPlaybackSpeed(float playbackSpeed) {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onPlaybackSpeed(playbackSpeed);
         }
@@ -1701,7 +1701,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionDiscontinuity() {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      for (TrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onDiscontinuity();
         }
@@ -2268,10 +2268,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private ImmutableList<Metadata> extractMetadataFromTrackSelectionArray(
-      TrackSelection[] trackSelections) {
+      ExoTrackSelection[] trackSelections) {
     ImmutableList.Builder<Metadata> result = new ImmutableList.Builder<>();
     boolean seenNonEmptyMetadata = false;
-    for (TrackSelection trackSelection : trackSelections) {
+    for (ExoTrackSelection trackSelection : trackSelections) {
       if (trackSelection != null) {
         Format format = trackSelection.getFormat(/* index= */ 0);
         if (format.metadata == null) {
@@ -2319,7 +2319,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     TrackSelectorResult trackSelectorResult = periodHolder.getTrackSelectorResult();
     RendererConfiguration rendererConfiguration =
         trackSelectorResult.rendererConfigurations[rendererIndex];
-    TrackSelection newSelection = trackSelectorResult.selections[rendererIndex];
+    ExoTrackSelection newSelection = trackSelectorResult.selections[rendererIndex];
     Format[] formats = getFormats(newSelection);
     // The renderer needs enabling with its new track selection.
     boolean playing = shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY;
@@ -2793,7 +2793,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return newPeriodIndex == C.INDEX_UNSET ? null : newTimeline.getUidOfPeriod(newPeriodIndex);
   }
 
-  private static Format[] getFormats(TrackSelection newSelection) {
+  private static Format[] getFormats(ExoTrackSelection newSelection) {
     // Build an array of formats contained by the selection.
     int length = newSelection != null ? newSelection.length() : 0;
     Format[] formats = new Format[length];

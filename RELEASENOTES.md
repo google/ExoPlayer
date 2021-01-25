@@ -167,6 +167,10 @@
         ([#8320](https://github.com/google/ExoPlayer/issues/8320)).
     *   Add option to specify preferred audio role flags.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
+    *   In order to make it immutable, `TrackSelection` in the `Player` API now
+        only contains methods related to static selection.
+        The rest of the methods have been moved to the child
+        class `ExoTrackSelection` which is used by all ExoPlayer components.
 *   DASH:
     *   Support low-latency DASH playback (`availabilityTimeOffset` and
         `ServiceDescription` tags)

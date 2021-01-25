@@ -29,8 +29,8 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.common.collect.ImmutableList;
 import java.util.concurrent.CountDownLatch;
@@ -72,13 +72,15 @@ public final class MergingMediaPeriodTest {
             new MergingPeriodDefinition(
                 /* timeOffsetUs= */ 0, /* singleSampleTimeUs= */ 0, childFormat21, childFormat22));
 
-    TrackSelection selectionForChild1 =
+    ExoTrackSelection selectionForChild1 =
         new FixedTrackSelection(mergingMediaPeriod.getTrackGroups().get(1), /* track= */ 0);
-    TrackSelection selectionForChild2 =
+    ExoTrackSelection selectionForChild2 =
         new FixedTrackSelection(mergingMediaPeriod.getTrackGroups().get(2), /* track= */ 0);
     SampleStream[] streams = new SampleStream[4];
     mergingMediaPeriod.selectTracks(
-        /* selections= */ new TrackSelection[] {null, selectionForChild1, selectionForChild2, null},
+        /* selections= */ new ExoTrackSelection[] {
+          null, selectionForChild1, selectionForChild2, null
+        },
         /* mayRetainStreamFlags= */ new boolean[] {false, false, false, false},
         streams,
         /* streamResetFlags= */ new boolean[] {false, false, false, false},
@@ -117,13 +119,13 @@ public final class MergingMediaPeriodTest {
                 childFormat21,
                 childFormat22));
 
-    TrackSelection selectionForChild1 =
+    ExoTrackSelection selectionForChild1 =
         new FixedTrackSelection(mergingMediaPeriod.getTrackGroups().get(0), /* track= */ 0);
-    TrackSelection selectionForChild2 =
+    ExoTrackSelection selectionForChild2 =
         new FixedTrackSelection(mergingMediaPeriod.getTrackGroups().get(2), /* track= */ 0);
     SampleStream[] streams = new SampleStream[2];
     mergingMediaPeriod.selectTracks(
-        /* selections= */ new TrackSelection[] {selectionForChild1, selectionForChild2},
+        /* selections= */ new ExoTrackSelection[] {selectionForChild1, selectionForChild2},
         /* mayRetainStreamFlags= */ new boolean[] {false, false},
         streams,
         /* streamResetFlags= */ new boolean[] {false, false},
@@ -218,7 +220,7 @@ public final class MergingMediaPeriodTest {
 
     @Override
     public long selectTracks(
-        @NullableType TrackSelection[] selections,
+        @NullableType ExoTrackSelection[] selections,
         boolean[] mayRetainStreamFlags,
         @NullableType SampleStream[] streams,
         boolean[] streamResetFlags,

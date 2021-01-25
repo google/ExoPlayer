@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
@@ -123,7 +123,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -156,10 +156,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
-  public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+  public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
     List<StreamKey> streamKeys = new ArrayList<>();
     for (int selectionIndex = 0; selectionIndex < trackSelections.size(); selectionIndex++) {
-      TrackSelection trackSelection = trackSelections.get(selectionIndex);
+      ExoTrackSelection trackSelection = trackSelections.get(selectionIndex);
       int streamElementIndex = trackGroups.indexOf(trackSelection.getTrackGroup());
       for (int i = 0; i < trackSelection.length(); i++) {
         streamKeys.add(new StreamKey(streamElementIndex, trackSelection.getIndexInTrackGroup(i)));
@@ -232,16 +232,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   // Private methods.
 
-  private ChunkSampleStream<SsChunkSource> buildSampleStream(TrackSelection selection,
-      long positionUs) {
+  private ChunkSampleStream<SsChunkSource> buildSampleStream(
+      ExoTrackSelection selection, long positionUs) {
     int streamElementIndex = trackGroups.indexOf(selection.getTrackGroup());
     SsChunkSource chunkSource =
         chunkSourceFactory.createChunkSource(
-            manifestLoaderErrorThrower,
-            manifest,
-            streamElementIndex,
-            selection,
-            transferListener);
+            manifestLoaderErrorThrower, manifest, streamElementIndex, selection, transferListener);
     return new ChunkSampleStream<>(
         manifest.streamElements[streamElementIndex].type,
         null,

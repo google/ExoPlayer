@@ -47,7 +47,7 @@ import com.google.android.exoplayer2.source.dash.manifest.Descriptor;
 import com.google.android.exoplayer2.source.dash.manifest.EventStream;
 import com.google.android.exoplayer2.source.dash.manifest.Period;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
@@ -213,10 +213,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   @Override
-  public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+  public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
     List<AdaptationSet> manifestAdaptationSets = manifest.getPeriod(periodIndex).adaptationSets;
     List<StreamKey> streamKeys = new ArrayList<>();
-    for (TrackSelection trackSelection : trackSelections) {
+    for (ExoTrackSelection trackSelection : trackSelections) {
       int trackGroupIndex = trackGroups.indexOf(trackSelection.getTrackGroup());
       TrackGroupInfo trackGroupInfo = trackGroupInfos[trackGroupIndex];
       if (trackGroupInfo.trackGroupCategory != TrackGroupInfo.CATEGORY_PRIMARY) {
@@ -256,7 +256,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Override
   public long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -356,7 +356,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   // Internal methods.
 
-  private int[] getStreamIndexToTrackGroupIndex(TrackSelection[] selections) {
+  private int[] getStreamIndexToTrackGroupIndex(ExoTrackSelection[] selections) {
     int[] streamIndexToTrackGroupIndex = new int[selections.length];
     for (int i = 0; i < selections.length; i++) {
       if (selections[i] != null) {
@@ -369,7 +369,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void releaseDisabledStreams(
-      TrackSelection[] selections, boolean[] mayRetainStreamFlags, SampleStream[] streams) {
+      ExoTrackSelection[] selections, boolean[] mayRetainStreamFlags, SampleStream[] streams) {
     for (int i = 0; i < selections.length; i++) {
       if (selections[i] == null || !mayRetainStreamFlags[i]) {
         if (streams[i] instanceof ChunkSampleStream) {
@@ -386,7 +386,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void releaseOrphanEmbeddedStreams(
-      TrackSelection[] selections, SampleStream[] streams, int[] streamIndexToTrackGroupIndex) {
+      ExoTrackSelection[] selections, SampleStream[] streams, int[] streamIndexToTrackGroupIndex) {
     for (int i = 0; i < selections.length; i++) {
       if (streams[i] instanceof EmptySampleStream || streams[i] instanceof EmbeddedSampleStream) {
         // We need to release an embedded stream if the corresponding primary stream is released.
@@ -414,14 +414,14 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   private void selectNewStreams(
-      TrackSelection[] selections,
+      ExoTrackSelection[] selections,
       SampleStream[] streams,
       boolean[] streamResetFlags,
       long positionUs,
       int[] streamIndexToTrackGroupIndex) {
     // Create newly selected primary and event streams.
     for (int i = 0; i < selections.length; i++) {
-      TrackSelection selection = selections[i];
+      ExoTrackSelection selection = selections[i];
       if (selection == null) {
         continue;
       }
@@ -703,8 +703,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return trackGroupCount;
   }
 
-  private static void buildManifestEventTrackGroupInfos(List<EventStream> eventStreams,
-      TrackGroup[] trackGroups, TrackGroupInfo[] trackGroupInfos, int existingTrackGroupCount) {
+  private static void buildManifestEventTrackGroupInfos(
+      List<EventStream> eventStreams,
+      TrackGroup[] trackGroups,
+      TrackGroupInfo[] trackGroupInfos,
+      int existingTrackGroupCount) {
     for (int i = 0; i < eventStreams.size(); i++) {
       EventStream eventStream = eventStreams.get(i);
       Format format =
@@ -717,8 +720,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
   }
 
-  private ChunkSampleStream<DashChunkSource> buildSampleStream(TrackGroupInfo trackGroupInfo,
-      TrackSelection selection, long positionUs) {
+  private ChunkSampleStream<DashChunkSource> buildSampleStream(
+      TrackGroupInfo trackGroupInfo, ExoTrackSelection selection, long positionUs) {
     int embeddedTrackCount = 0;
     boolean enableEventMessageTrack =
         trackGroupInfo.embeddedEventMessageTrackGroupIndex != C.INDEX_UNSET;
@@ -813,8 +816,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return null;
   }
 
-  private static boolean hasEventMessageTrack(List<AdaptationSet> adaptationSets,
-      int[] adaptationSetIndices) {
+  private static boolean hasEventMessageTrack(
+      List<AdaptationSet> adaptationSets, int[] adaptationSetIndices) {
     for (int i : adaptationSetIndices) {
       List<Representation> representations = adaptationSets.get(i).representations;
       for (int j = 0; j < representations.size(); j++) {
@@ -897,8 +900,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     public @interface TrackGroupCategory {}
 
     /**
-     * A normal track group that has its samples drawn from the stream.
-     * For example: a video Track Group or an audio Track Group.
+     * A normal track group that has its samples drawn from the stream. For example: a video Track
+     * Group or an audio Track Group.
      */
     private static final int CATEGORY_PRIMARY = 0;
 
@@ -909,9 +912,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     private static final int CATEGORY_EMBEDDED = 1;
 
     /**
-     * A track group that has its samples listed explicitly in the DASH manifest file.
-     * For example: an EventStream track has its sample (Events) included directly in the DASH
-     * manifest file.
+     * A track group that has its samples listed explicitly in the DASH manifest file. For example:
+     * an EventStream track has its sample (Events) included directly in the DASH manifest file.
      */
     private static final int CATEGORY_MANIFEST_EVENTS = 2;
 
@@ -940,8 +942,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           /* eventStreamGroupIndex= */ -1);
     }
 
-    public static TrackGroupInfo embeddedEmsgTrack(int[] adaptationSetIndices,
-        int primaryTrackGroupIndex) {
+    public static TrackGroupInfo embeddedEmsgTrack(
+        int[] adaptationSetIndices, int primaryTrackGroupIndex) {
       return new TrackGroupInfo(
           C.TRACK_TYPE_METADATA,
           CATEGORY_EMBEDDED,
@@ -992,5 +994,4 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       this.eventStreamGroupIndex = eventStreamGroupIndex;
     }
   }
-
 }

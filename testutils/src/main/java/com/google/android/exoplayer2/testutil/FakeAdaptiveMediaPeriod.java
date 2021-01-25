@@ -33,7 +33,7 @@ import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.ChunkSampleStream;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultLoadErrorHandlingPolicy;
@@ -143,7 +143,7 @@ public class FakeAdaptiveMediaPeriod
   @SuppressWarnings({"unchecked", "rawtypes"}) // Casting sample streams created by this class.
   @Override
   public long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -157,7 +157,7 @@ public class FakeAdaptiveMediaPeriod
         streams[i] = null;
       }
       if (streams[i] == null && selections[i] != null) {
-        TrackSelection selection = selections[i];
+        ExoTrackSelection selection = selections[i];
         assertThat(selection.length()).isAtLeast(1);
         TrackGroup trackGroup = selection.getTrackGroup();
         assertThat(trackGroupArray.indexOf(trackGroup)).isNotEqualTo(C.INDEX_UNSET);

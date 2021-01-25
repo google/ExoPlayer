@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -232,7 +232,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       throws ExoPlaybackException {
     TrackSelectorResult selectorResult =
         trackSelector.selectTracks(rendererCapabilities, getTrackGroups(), info.id, timeline);
-    for (TrackSelection trackSelection : selectorResult.selections) {
+    for (ExoTrackSelection trackSelection : selectorResult.selections) {
       if (trackSelection != null) {
         trackSelection.onPlaybackSpeed(playbackSpeed);
       }
@@ -359,7 +359,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     for (int i = 0; i < trackSelectorResult.length; i++) {
       boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
-      TrackSelection trackSelection = trackSelectorResult.selections[i];
+      ExoTrackSelection trackSelection = trackSelectorResult.selections[i];
       if (rendererEnabled && trackSelection != null) {
         trackSelection.enable();
       }
@@ -372,7 +372,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     }
     for (int i = 0; i < trackSelectorResult.length; i++) {
       boolean rendererEnabled = trackSelectorResult.isRendererEnabled(i);
-      TrackSelection trackSelection = trackSelectorResult.selections[i];
+      ExoTrackSelection trackSelection = trackSelectorResult.selections[i];
       if (rendererEnabled && trackSelection != null) {
         trackSelection.disable();
       }

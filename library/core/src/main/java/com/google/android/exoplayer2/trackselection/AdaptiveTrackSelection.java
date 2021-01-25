@@ -38,13 +38,13 @@ import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
- * A bandwidth based adaptive {@link TrackSelection}, whose selected track is updated to be the one
- * of highest quality given the current network conditions and the state of the buffer.
+ * A bandwidth based adaptive {@link ExoTrackSelection}, whose selected track is updated to be the
+ * one of highest quality given the current network conditions and the state of the buffer.
  */
 public class AdaptiveTrackSelection extends BaseTrackSelection {
 
   /** Factory for {@link AdaptiveTrackSelection} instances. */
-  public static class Factory implements TrackSelection.Factory {
+  public static class Factory implements ExoTrackSelection.Factory {
 
     private final int minDurationForQualityIncreaseMs;
     private final int maxDurationForQualityDecreaseMs;
@@ -132,14 +132,14 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     }
 
     @Override
-    public final @NullableType TrackSelection[] createTrackSelections(
+    public final @NullableType ExoTrackSelection[] createTrackSelections(
         @NullableType Definition[] definitions,
         BandwidthMeter bandwidthMeter,
         MediaPeriodId mediaPeriodId,
         Timeline timeline) {
       ImmutableList<ImmutableList<AdaptationCheckpoint>> adaptationCheckpoints =
           getAdaptationCheckpoints(definitions);
-      TrackSelection[] selections = new TrackSelection[definitions.length];
+      ExoTrackSelection[] selections = new ExoTrackSelection[definitions.length];
       for (int i = 0; i < definitions.length; i++) {
         @Nullable Definition definition = definitions[i];
         if (definition == null || definition.tracks.length == 0) {

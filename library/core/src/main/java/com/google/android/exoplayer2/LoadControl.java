@@ -17,7 +17,7 @@ package com.google.android.exoplayer2;
 
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 
 /** Controls buffering of media. */
@@ -34,7 +34,7 @@ public interface LoadControl {
    * @param trackSelections The track selections that were made.
    */
   void onTracksSelected(
-      Renderer[] renderers, TrackGroupArray trackGroups, TrackSelection[] trackSelections);
+      Renderer[] renderers, TrackGroupArray trackGroups, ExoTrackSelection[] trackSelections);
 
   /** Called by the player when stopped. */
   void onStopped();

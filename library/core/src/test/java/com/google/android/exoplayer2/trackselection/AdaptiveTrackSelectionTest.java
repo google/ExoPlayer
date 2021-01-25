@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaChunk;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.AdaptationCheckpoint;
-import com.google.android.exoplayer2.trackselection.TrackSelection.Definition;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection.Definition;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;

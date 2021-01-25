@@ -48,8 +48,8 @@ import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -465,8 +465,9 @@ public final class DownloadHelper {
   private @MonotonicNonNull MediaPreparer mediaPreparer;
   private TrackGroupArray @MonotonicNonNull [] trackGroupArrays;
   private MappedTrackInfo @MonotonicNonNull [] mappedTrackInfos;
-  private List<TrackSelection> @MonotonicNonNull [][] trackSelectionsByPeriodAndRenderer;
-  private List<TrackSelection> @MonotonicNonNull [][] immutableTrackSelectionsByPeriodAndRenderer;
+  private List<ExoTrackSelection> @MonotonicNonNull [][] trackSelectionsByPeriodAndRenderer;
+  private List<ExoTrackSelection> @MonotonicNonNull [][]
+      immutableTrackSelectionsByPeriodAndRenderer;
 
   /**
    * Creates download helper.
@@ -573,14 +574,14 @@ public final class DownloadHelper {
   }
 
   /**
-   * Returns all {@link TrackSelection track selections} for a period and renderer. Must not be
+   * Returns all {@link ExoTrackSelection track selections} for a period and renderer. Must not be
    * called until after preparation completes.
    *
    * @param periodIndex The period index.
    * @param rendererIndex The renderer index.
-   * @return A list of selected {@link TrackSelection track selections}.
+   * @return A list of selected {@link ExoTrackSelection track selections}.
    */
-  public List<TrackSelection> getTrackSelections(int periodIndex, int rendererIndex) {
+  public List<ExoTrackSelection> getTrackSelections(int periodIndex, int rendererIndex) {
     assertPreparedWithMedia();
     return immutableTrackSelectionsByPeriodAndRenderer[periodIndex][rendererIndex];
   }
@@ -751,7 +752,7 @@ public final class DownloadHelper {
     }
     assertPreparedWithMedia();
     List<StreamKey> streamKeys = new ArrayList<>();
-    List<TrackSelection> allSelections = new ArrayList<>();
+    List<ExoTrackSelection> allSelections = new ArrayList<>();
     int periodCount = trackSelectionsByPeriodAndRenderer.length;
     for (int periodIndex = 0; periodIndex < periodCount; periodIndex++) {
       allSelections.clear();
@@ -773,9 +774,9 @@ public final class DownloadHelper {
     int periodCount = mediaPreparer.mediaPeriods.length;
     int rendererCount = rendererCapabilities.length;
     trackSelectionsByPeriodAndRenderer =
-        (List<TrackSelection>[][]) new List<?>[periodCount][rendererCount];
+        (List<ExoTrackSelection>[][]) new List<?>[periodCount][rendererCount];
     immutableTrackSelectionsByPeriodAndRenderer =
-        (List<TrackSelection>[][]) new List<?>[periodCount][rendererCount];
+        (List<ExoTrackSelection>[][]) new List<?>[periodCount][rendererCount];
     for (int i = 0; i < periodCount; i++) {
       for (int j = 0; j < rendererCount; j++) {
         trackSelectionsByPeriodAndRenderer[i][j] = new ArrayList<>();
@@ -847,15 +848,15 @@ public final class DownloadHelper {
               new MediaPeriodId(mediaPreparer.timeline.getUidOfPeriod(periodIndex)),
               mediaPreparer.timeline);
       for (int i = 0; i < trackSelectorResult.length; i++) {
-        @Nullable TrackSelection newSelection = trackSelectorResult.selections[i];
+        @Nullable ExoTrackSelection newSelection = trackSelectorResult.selections[i];
         if (newSelection == null) {
           continue;
         }
-        List<TrackSelection> existingSelectionList =
+        List<ExoTrackSelection> existingSelectionList =
             trackSelectionsByPeriodAndRenderer[periodIndex][i];
         boolean mergedWithExistingSelection = false;
         for (int j = 0; j < existingSelectionList.size(); j++) {
-          TrackSelection existingSelection = existingSelectionList.get(j);
+          ExoTrackSelection existingSelection = existingSelectionList.get(j);
           if (existingSelection.getTrackGroup() == newSelection.getTrackGroup()) {
             // Merge with existing selection.
             scratchSet.clear();
@@ -1066,15 +1067,15 @@ public final class DownloadHelper {
 
   private static final class DownloadTrackSelection extends BaseTrackSelection {
 
-    private static final class Factory implements TrackSelection.Factory {
+    private static final class Factory implements ExoTrackSelection.Factory {
 
       @Override
-      public @NullableType TrackSelection[] createTrackSelections(
+      public @NullableType ExoTrackSelection[] createTrackSelections(
           @NullableType Definition[] definitions,
           BandwidthMeter bandwidthMeter,
           MediaPeriodId mediaPeriodId,
           Timeline timeline) {
-        @NullableType TrackSelection[] selections = new TrackSelection[definitions.length];
+        @NullableType ExoTrackSelection[] selections = new ExoTrackSelection[definitions.length];
         for (int i = 0; i < definitions.length; i++) {
           selections[i] =
               definitions[i] == null

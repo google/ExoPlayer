@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +45,7 @@ public interface MediaPeriod extends SequenceableLoader {
      * Called when preparation completes.
      *
      * <p>Called on the playback thread. After invoking this method, the {@link MediaPeriod} can
-     * expect for {@link #selectTracks(TrackSelection[], boolean[], SampleStream[], boolean[],
+     * expect for {@link #selectTracks(ExoTrackSelection[], boolean[], SampleStream[], boolean[],
      * long)} to be called with the initial track selection.
      *
      * @param mediaPeriod The prepared {@link MediaPeriod}.
@@ -90,17 +90,17 @@ public interface MediaPeriod extends SequenceableLoader {
 
   /**
    * Returns a list of {@link StreamKey StreamKeys} which allow to filter the media in this period
-   * to load only the parts needed to play the provided {@link TrackSelection TrackSelections}.
+   * to load only the parts needed to play the provided {@link ExoTrackSelection TrackSelections}.
    *
    * <p>This method is only called after the period has been prepared.
    *
-   * @param trackSelections The {@link TrackSelection TrackSelections} describing the tracks for
+   * @param trackSelections The {@link ExoTrackSelection TrackSelections} describing the tracks for
    *     which stream keys are requested.
    * @return The corresponding {@link StreamKey StreamKeys} for the selected tracks, or an empty
    *     list if filtering is not possible and the entire media needs to be loaded to play the
    *     selected tracks.
    */
-  default List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+  default List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
     return Collections.emptyList();
   }
 
@@ -115,8 +115,8 @@ public interface MediaPeriod extends SequenceableLoader {
    * corresponding flag in {@code streamResetFlags} will be set to true. This flag will also be set
    * if a new sample stream is created.
    *
-   * <p>Note that previously passed {@link TrackSelection TrackSelections} are no longer valid, and
-   * any references to them must be updated to point to the new selections.
+   * <p>Note that previously passed {@link ExoTrackSelection TrackSelections} are no longer valid,
+   * and any references to them must be updated to point to the new selections.
    *
    * <p>This method is only called after the period has been prepared.
    *
@@ -135,7 +135,7 @@ public interface MediaPeriod extends SequenceableLoader {
    * @return The actual position at which the tracks were enabled, in microseconds.
    */
   long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,

@@ -21,7 +21,7 @@ import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -317,7 +317,7 @@ public class DefaultLoadControl implements LoadControl {
 
   @Override
   public void onTracksSelected(
-      Renderer[] renderers, TrackGroupArray trackGroups, TrackSelection[] trackSelections) {
+      Renderer[] renderers, TrackGroupArray trackGroups, ExoTrackSelection[] trackSelections) {
     targetBufferBytes =
         targetBufferBytesOverwrite == C.LENGTH_UNSET
             ? calculateTargetBufferBytes(renderers, trackSelections)
@@ -400,7 +400,7 @@ public class DefaultLoadControl implements LoadControl {
    * @return The target buffer size in bytes.
    */
   protected int calculateTargetBufferBytes(
-      Renderer[] renderers, TrackSelection[] trackSelectionArray) {
+      Renderer[] renderers, ExoTrackSelection[] trackSelectionArray) {
     int targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {
       if (trackSelectionArray[i] != null) {

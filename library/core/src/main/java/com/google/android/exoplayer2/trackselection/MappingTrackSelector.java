@@ -43,14 +43,12 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /**
  * Base class for {@link TrackSelector}s that first establish a mapping between {@link TrackGroup}s
- * and {@link Renderer}s, and then from that mapping create a {@link TrackSelection} for each
+ * and {@link Renderer}s, and then from that mapping create a {@link ExoTrackSelection} for each
  * renderer.
  */
 public abstract class MappingTrackSelector extends TrackSelector {
 
-  /**
-   * Provides mapped track information for each renderer.
-   */
+  /** Provides mapped track information for each renderer. */
   public static final class MappedTrackInfo {
 
     /**
@@ -401,7 +399,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
             rendererFormatSupports,
             unmappedTrackGroupArray);
 
-    Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]> result =
+    Pair<@NullableType RendererConfiguration[], @NullableType ExoTrackSelection[]> result =
         selectTracks(
             mappedTrackInfo,
             rendererFormatSupports,
@@ -428,7 +426,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
    *     RendererCapabilities#getTrackType()} is {@link C#TRACK_TYPE_NONE}.
    * @throws ExoPlaybackException If an error occurs while selecting the tracks.
    */
-  protected abstract Pair<@NullableType RendererConfiguration[], @NullableType TrackSelection[]>
+  protected abstract Pair<@NullableType RendererConfiguration[], @NullableType ExoTrackSelection[]>
       selectTracks(
           MappedTrackInfo mappedTrackInfo,
           @Capabilities int[][][] rendererFormatSupports,
@@ -538,5 +536,4 @@ public abstract class MappingTrackSelector extends TrackSelector {
     }
     return mixedMimeTypeAdaptationSupport;
   }
-
 }

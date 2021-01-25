@@ -30,8 +30,8 @@ public final class TrackSelectorResult {
    * renderer should be disabled.
    */
   public final @NullableType RendererConfiguration[] rendererConfigurations;
-  /** A {@link TrackSelection} array containing the track selection for each renderer. */
-  public final @NullableType TrackSelection[] selections;
+  /** A {@link ExoTrackSelection} array containing the track selection for each renderer. */
+  public final @NullableType ExoTrackSelection[] selections;
   /**
    * An opaque object that will be returned to {@link TrackSelector#onSelectionActivated(Object)}
    * should the selections be activated.
@@ -41,14 +41,14 @@ public final class TrackSelectorResult {
   /**
    * @param rendererConfigurations A {@link RendererConfiguration} for each renderer. A null entry
    *     indicates the corresponding renderer should be disabled.
-   * @param selections A {@link TrackSelection} array containing the selection for each renderer.
+   * @param selections A {@link ExoTrackSelection} array containing the selection for each renderer.
    * @param info An opaque object that will be returned to {@link
    *     TrackSelector#onSelectionActivated(Object)} should the selection be activated. May be
    *     {@code null}.
    */
   public TrackSelectorResult(
       @NullableType RendererConfiguration[] rendererConfigurations,
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       @Nullable Object info) {
     this.rendererConfigurations = rendererConfigurations;
     this.selections = selections.clone();

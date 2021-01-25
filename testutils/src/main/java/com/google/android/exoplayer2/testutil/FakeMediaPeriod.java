@@ -38,7 +38,7 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
@@ -187,8 +187,8 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   /**
-   * Sets a discontinuity position to be returned from the next call to
-   * {@link #readDiscontinuity()}.
+   * Sets a discontinuity position to be returned from the next call to {@link
+   * #readDiscontinuity()}.
    *
    * @param discontinuityPositionUs The position to be returned, in microseconds.
    */
@@ -196,9 +196,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     this.discontinuityPositionUs = discontinuityPositionUs;
   }
 
-  /**
-   * Allows the fake media period to complete preparation. May be called on any thread.
-   */
+  /** Allows the fake media period to complete preparation. May be called on any thread. */
   public synchronized void setPreparationComplete() {
     deferOnPrepared = false;
     if (playerHandler != null && prepareCallback != null) {
@@ -256,7 +254,7 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -270,7 +268,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         streams[i] = null;
       }
       if (streams[i] == null && selections[i] != null) {
-        TrackSelection selection = selections[i];
+        ExoTrackSelection selection = selections[i];
         assertThat(selection.length()).isAtLeast(1);
         TrackGroup trackGroup = selection.getTrackGroup();
         assertThat(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET).isTrue();
