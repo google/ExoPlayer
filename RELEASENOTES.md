@@ -252,6 +252,9 @@
         skipped but only after the preload timeout rather than instantly
         ([#8428](https://github.com/google/ExoPlayer/issues/8428)),
         ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
+    *   Fix a regression that caused a short ad followed by another ad to be
+        skipped due to playback being stuck buffering waiting for the second ad
+        to load ([#8492](https://github.com/google/ExoPlayer/issues/8492)).
 *   FFmpeg extension:
     *   Link the FFmpeg library statically, saving 350KB in binary size on
         average.

@@ -4817,6 +4817,53 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void shortAdFollowedByUnpreparedAd_playbackDoesNotGetStuck() throws Exception {
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(/* adsPerAdGroup= */ 2, /* adGroupTimesUs...= */ 0);
+    long shortAdDurationMs = 1_000;
+    adPlaybackState =
+        adPlaybackState.withAdDurationsUs(new long[][] {{shortAdDurationMs, shortAdDurationMs}});
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* durationUs= */ C.msToUs(10000),
+                adPlaybackState));
+    // Simulate the second ad not being prepared.
+    FakeMediaSource mediaSource =
+        new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
+          @Override
+          protected MediaPeriod createMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+              DrmSessionManager drmSessionManager,
+              DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+              @Nullable TransferListener transferListener) {
+            return new FakeMediaPeriod(
+                trackGroupArray,
+                allocator,
+                FakeMediaPeriod.TrackDataFactory.singleSampleWithTimeUs(0),
+                mediaSourceEventDispatcher,
+                drmSessionManager,
+                drmEventDispatcher,
+                /* deferOnPrepared= */ id.adIndexInAdGroup == 1);
+          }
+        };
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setMediaSource(mediaSource);
+    player.prepare();
+    player.play();
+
+    // The player is not stuck in the buffering state.
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+  }
+
+  @Test
   public void moveMediaItem() throws Exception {
     TimelineWindowDefinition firstWindowDefinition =
         new TimelineWindowDefinition(

@@ -1729,8 +1729,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
             ? livePlaybackSpeedControl.getTargetLiveOffsetUs()
             : C.TIME_UNSET;
     MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
-    boolean bufferedToEnd = loadingHolder.isFullyBuffered() && loadingHolder.info.isFinal;
-    return bufferedToEnd
+    boolean isBufferedToEnd = loadingHolder.isFullyBuffered() && loadingHolder.info.isFinal;
+    // Ad loader implementations may only load ad media once playback has nearly reached the ad, but
+    // it is possible for playback to be stuck buffering waiting for this. Therefore, we start
+    // playback regardless of buffered duration if we are waiting for an ad media period to prepare.
+    boolean isAdPendingPreparation = loadingHolder.info.id.isAd() && !loadingHolder.prepared;
+    return isBufferedToEnd
+        || isAdPendingPreparation
         || loadControl.shouldStartPlayback(
             getTotalBufferedDurationUs(),
             mediaClock.getPlaybackParameters().speed,
