@@ -1457,28 +1457,69 @@ public final class DefaultAudioSink implements AudioSink {
     if (!supportedEncoding) {
       return null;
     }
-
-    // E-AC3 JOC is object based, so any channel count specified in the format is arbitrary. Use 6,
-    // since the E-AC3 compatible part of the stream is 5.1.
-    int channelCount = encoding == C.ENCODING_E_AC3_JOC ? 6 : format.channelCount;
-    if (channelCount > audioCapabilities.getMaxChannelCount()) {
+    if (encoding == C.ENCODING_E_AC3_JOC
+        && !audioCapabilities.supportsEncoding(C.ENCODING_E_AC3_JOC)) {
+      // E-AC3 receivers support E-AC3 JOC streams (but decode only the base layer).
+      encoding = C.ENCODING_E_AC3;
+    }
+    if (!audioCapabilities.supportsEncoding(encoding)) {
       return null;
     }
 
+    int channelCount;
+    if (encoding == C.ENCODING_E_AC3_JOC) {
+      // E-AC3 JOC is object based so the format channel count is arbitrary. From API 29 we can get
+      // the channel count for this encoding, but before then there is no way to query it so we
+      // assume 6 channel audio is supported.
+      if (Util.SDK_INT >= 29) {
+        channelCount =
+            getMaxSupportedChannelCountForPassthroughV29(C.ENCODING_E_AC3_JOC, format.sampleRate);
+        if (channelCount == 0) {
+          Log.w(TAG, "E-AC3 JOC encoding supported but no channel count supported");
+          return null;
+        }
+      } else {
+        channelCount = 6;
+      }
+    } else {
+      channelCount = format.channelCount;
+      if (channelCount > audioCapabilities.getMaxChannelCount()) {
+        return null;
+      }
+    }
     int channelConfig = getChannelConfigForPassthrough(channelCount);
     if (channelConfig == AudioFormat.CHANNEL_INVALID) {
       return null;
     }
 
-    if (audioCapabilities.supportsEncoding(encoding)) {
-      return Pair.create(encoding, channelConfig);
-    } else if (encoding == C.ENCODING_E_AC3_JOC
-        && audioCapabilities.supportsEncoding(C.ENCODING_E_AC3)) {
-      // E-AC3 receivers support E-AC3 JOC streams (but decode in 2-D rather than 3-D).
-      return Pair.create(C.ENCODING_E_AC3, channelConfig);
-    }
+    return Pair.create(encoding, channelConfig);
+  }
 
-    return null;
+  /**
+   * Returns the maximum number of channels supported for passthrough playback of audio in the given
+   * format, or 0 if the format is unsupported.
+   */
+  @RequiresApi(29)
+  private static int getMaxSupportedChannelCountForPassthroughV29(
+      @C.Encoding int encoding, int sampleRate) {
+    android.media.AudioAttributes audioAttributes =
+        new android.media.AudioAttributes.Builder()
+            .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MOVIE)
+            .build();
+    // TODO(internal b/25994457): Query supported channel masks directly once it's supported.
+    for (int channelCount = 8; channelCount > 0; channelCount--) {
+      AudioFormat audioFormat =
+          new AudioFormat.Builder()
+              .setEncoding(encoding)
+              .setSampleRate(sampleRate)
+              .setChannelMask(Util.getAudioTrackChannelConfig(channelCount))
+              .build();
+      if (AudioTrack.isDirectPlaybackSupported(audioFormat, audioAttributes)) {
+        return channelCount;
+      }
+    }
+    return 0;
   }
 
   private static int getChannelConfigForPassthrough(int channelCount) {

@@ -226,6 +226,8 @@
         `onAudioSessionId` was called, due to the improved handling of audio
         session IDs as described above.
     *   Retry playback after some types of `AudioTrack` error.
+    *   Create E-AC3 JOC passthrough `AudioTrack`s using the maximum supported
+        channel count (instead of assuming 6 channels) from API 29.
 *   Text:
     *   Gracefully handle null-terminated subtitle content in Matroska
         containers.
