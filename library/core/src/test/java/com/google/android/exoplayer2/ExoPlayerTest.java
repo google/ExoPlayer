@@ -4885,8 +4885,8 @@ public final class ExoPlayerTest {
     MediaSource mediaSource2 = new FakeMediaSource(timeline2);
     Timeline expectedPlaceholderTimeline =
         new FakeTimeline(
-            TimelineWindowDefinition.createDummy(/* tag= */ 1),
-            TimelineWindowDefinition.createDummy(/* tag= */ 2));
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 1),
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 2));
     ActionSchedule actionSchedule =
         new ActionSchedule.Builder(TAG)
             .waitForTimelineChanged(
@@ -4958,9 +4958,9 @@ public final class ExoPlayerTest {
 
     Timeline expectedPlaceholderTimeline =
         new FakeTimeline(
-            TimelineWindowDefinition.createDummy(/* tag= */ 1),
-            TimelineWindowDefinition.createDummy(/* tag= */ 2),
-            TimelineWindowDefinition.createDummy(/* tag= */ 3));
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 1),
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 2),
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 3));
     Timeline expectedRealTimeline =
         new FakeTimeline(firstWindowDefinition, secondWindowDefinition, thirdWindowDefinition);
     Timeline expectedRealTimelineAfterRemove =
@@ -5018,9 +5018,9 @@ public final class ExoPlayerTest {
 
     Timeline expectedPlaceholderTimeline =
         new FakeTimeline(
-            TimelineWindowDefinition.createDummy(/* tag= */ 1),
-            TimelineWindowDefinition.createDummy(/* tag= */ 2),
-            TimelineWindowDefinition.createDummy(/* tag= */ 3));
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 1),
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 2),
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 3));
     Timeline expectedRealTimeline =
         new FakeTimeline(firstWindowDefinition, secondWindowDefinition, thirdWindowDefinition);
     Timeline expectedRealTimelineAfterRemove = new FakeTimeline(firstWindowDefinition);
@@ -5155,8 +5155,8 @@ public final class ExoPlayerTest {
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE /* source update after prepare */);
     Timeline expectedSecondPlaceholderTimeline =
         new FakeTimeline(
-            TimelineWindowDefinition.createDummy(/* tag= */ 0),
-            TimelineWindowDefinition.createDummy(/* tag= */ 0));
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 0),
+            TimelineWindowDefinition.createPlaceholder(/* tag= */ 0));
     Timeline expectedSecondRealTimeline =
         new FakeTimeline(
             new TimelineWindowDefinition(

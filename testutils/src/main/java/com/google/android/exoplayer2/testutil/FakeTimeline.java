@@ -58,7 +58,7 @@ public final class FakeTimeline extends Timeline {
      *
      * @param tag The tag to use in the timeline.
      */
-    public static TimelineWindowDefinition createDummy(Object tag) {
+    public static TimelineWindowDefinition createPlaceholder(Object tag) {
       return new TimelineWindowDefinition(
           /* periodCount= */ 1,
           /* id= */ tag,
