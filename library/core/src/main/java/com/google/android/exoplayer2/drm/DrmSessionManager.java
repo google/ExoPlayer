@@ -22,13 +22,8 @@ import com.google.android.exoplayer2.Format;
 /** Manages a DRM session. */
 public interface DrmSessionManager {
 
-  /** Returns {@link #DUMMY}. */
-  static DrmSessionManager getDummyDrmSessionManager() {
-    return DUMMY;
-  }
-
-  /** {@link DrmSessionManager} that supports no DRM schemes. */
-  DrmSessionManager DUMMY =
+  /** An instance that supports no DRM schemes. */
+  DrmSessionManager DRM_UNSUPPORTED =
       new DrmSessionManager() {
 
         @Override
@@ -53,6 +48,23 @@ public interface DrmSessionManager {
           return format.drmInitData != null ? UnsupportedMediaCrypto.class : null;
         }
       };
+
+  /**
+   * An instance that supports no DRM schemes.
+   *
+   * @deprecated Use {@link #DRM_UNSUPPORTED}.
+   */
+  @Deprecated DrmSessionManager DUMMY = DRM_UNSUPPORTED;
+
+  /**
+   * Returns {@link #DRM_UNSUPPORTED}.
+   *
+   * @deprecated Use {@link #DRM_UNSUPPORTED}.
+   */
+  @Deprecated
+  static DrmSessionManager getDummyDrmSessionManager() {
+    return DRM_UNSUPPORTED;
+  }
 
   /**
    * Acquires any required resources.

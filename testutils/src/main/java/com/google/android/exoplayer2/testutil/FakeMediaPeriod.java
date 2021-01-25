@@ -116,7 +116,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         allocator,
         TrackDataFactory.singleSampleWithTimeUs(singleSampleTimeUs),
         mediaSourceEventDispatcher,
-        DrmSessionManager.DUMMY,
+        DrmSessionManager.DRM_UNSUPPORTED,
         new DrmSessionEventListener.EventDispatcher(),
         /* deferOnPrepared */ false);
   }

@@ -175,7 +175,7 @@ public class FakeAdaptiveMediaPeriod
                 /* callback= */ this,
                 allocator,
                 positionUs,
-                DrmSessionManager.DUMMY,
+                DrmSessionManager.DRM_UNSUPPORTED,
                 new DrmSessionEventListener.EventDispatcher(),
                 new DefaultLoadErrorHandlingPolicy(/* minimumLoadableRetryCount= */ 3),
                 mediaSourceEventDispatcher);

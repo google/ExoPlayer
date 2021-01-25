@@ -42,6 +42,6 @@ public final class DownloadHelperTest {
         DownloadHelper.DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT,
         (handler, videoListener, audioListener, text, metadata) -> new Renderer[0],
         new FakeDataSource.Factory(),
-        /* drmSessionManager= */ DrmSessionManager.getDummyDrmSessionManager());
+        /* drmSessionManager= */ DrmSessionManager.DRM_UNSUPPORTED);
   }
 }

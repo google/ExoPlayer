@@ -107,7 +107,7 @@ public class DecoderAudioRendererTest {
         new FakeSampleStream(
             new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
             /* mediaSourceEventDispatcher= */ null,
-            DrmSessionManager.DUMMY,
+            DrmSessionManager.DRM_UNSUPPORTED,
             new DrmSessionEventListener.EventDispatcher(),
             FORMAT,
             ImmutableList.of(END_OF_STREAM_ITEM));

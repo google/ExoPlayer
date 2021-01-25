@@ -35,7 +35,7 @@ public class DefaultDrmSessionManagerProviderTest {
     DrmSessionManager drmSessionManager =
         new DefaultDrmSessionManagerProvider().get(MediaItem.fromUri(Uri.EMPTY));
 
-    assertThat(drmSessionManager).isEqualTo(DrmSessionManager.DUMMY);
+    assertThat(drmSessionManager).isEqualTo(DrmSessionManager.DRM_UNSUPPORTED);
   }
 
   @Test
@@ -49,6 +49,6 @@ public class DefaultDrmSessionManagerProviderTest {
 
     DrmSessionManager drmSessionManager = new DefaultDrmSessionManagerProvider().get(mediaItem);
 
-    assertThat(drmSessionManager).isNotEqualTo(DrmSessionManager.DUMMY);
+    assertThat(drmSessionManager).isNotEqualTo(DrmSessionManager.DRM_UNSUPPORTED);
   }
 }

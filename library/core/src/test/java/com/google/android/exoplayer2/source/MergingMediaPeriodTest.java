@@ -212,7 +212,7 @@ public final class MergingMediaPeriodTest {
           new DefaultAllocator(/* trimOnReset= */ false, /* individualAllocationSize= */ 1024),
           trackDataFactory,
           mediaSourceEventDispatcher,
-          DrmSessionManager.DUMMY,
+          DrmSessionManager.DRM_UNSUPPORTED,
           new DrmSessionEventListener.EventDispatcher(),
           /* deferOnPrepared= */ false);
       selectTracksPositionUs = C.TIME_UNSET;

@@ -337,7 +337,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
                 .build(),
             dataSourceFactory,
             extractorsFactory,
-            DrmSessionManager.getDummyDrmSessionManager(),
+            DrmSessionManager.DRM_UNSUPPORTED,
             loadableLoadErrorHandlingPolicy,
             continueLoadingCheckIntervalBytes);
   }

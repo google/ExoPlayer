@@ -1005,7 +1005,7 @@ public final class AnalyticsCollectorTest {
     FakeMediaSource fakeMediaSource =
         new FakeMediaSource(
             adTimeline,
-            DrmSessionManager.DUMMY,
+            DrmSessionManager.DRM_UNSUPPORTED,
             (unusedFormat, mediaPeriodId) -> {
               if (mediaPeriodId.isAd()) {
                 return ImmutableList.of(
@@ -1265,7 +1265,7 @@ public final class AnalyticsCollectorTest {
     FakeMediaSource fakeMediaSource =
         new FakeMediaSource(
             adTimeline,
-            DrmSessionManager.DUMMY,
+            DrmSessionManager.DRM_UNSUPPORTED,
             (unusedFormat, mediaPeriodId) -> {
               if (mediaPeriodId.isAd()) {
                 return ImmutableList.of(

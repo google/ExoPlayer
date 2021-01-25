@@ -104,7 +104,7 @@ public class FakeMediaSource extends BaseMediaSource {
    * can be manually set later using {@link #setNewSourceInfo(Timeline)}.
    */
   public FakeMediaSource(@Nullable Timeline timeline, Format... formats) {
-    this(timeline, DrmSessionManager.DUMMY, formats);
+    this(timeline, DrmSessionManager.DRM_UNSUPPORTED, formats);
   }
 
   /**

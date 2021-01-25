@@ -64,7 +64,7 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
     @Nullable
     MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;
     if (drmConfiguration == null || Util.SDK_INT < 18) {
-      return DrmSessionManager.getDummyDrmSessionManager();
+      return DrmSessionManager.DRM_UNSUPPORTED;
     }
     HttpDataSource.Factory dataSourceFactory =
         drmHttpDataSourceFactory != null

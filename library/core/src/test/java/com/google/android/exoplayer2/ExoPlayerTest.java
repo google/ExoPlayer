@@ -7613,7 +7613,7 @@ public final class ExoPlayerTest {
     FakeMediaSource firstMediaSource =
         new FakeMediaSource(
             /* timeline= */ null,
-            DrmSessionManager.DUMMY,
+            DrmSessionManager.DRM_UNSUPPORTED,
             (unusedFormat, unusedMediaPeriodId) ->
                 ImmutableList.of(
                     oneByteSample(firstSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM),
@@ -7621,7 +7621,7 @@ public final class ExoPlayerTest {
     FakeMediaSource secondMediaSource =
         new FakeMediaSource(
             timelineWithOffsets,
-            DrmSessionManager.DUMMY,
+            DrmSessionManager.DRM_UNSUPPORTED,
             (unusedFormat, unusedMediaPeriodId) ->
                 ImmutableList.of(
                     oneByteSample(firstSampleTimeUs, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM),
@@ -8155,7 +8155,7 @@ public final class ExoPlayerTest {
                 allocator,
                 /* singleSampleTimeUs= */ 0,
                 mediaSourceEventDispatcher,
-                DrmSessionManager.DUMMY,
+                DrmSessionManager.DRM_UNSUPPORTED,
                 drmEventDispatcher,
                 /* deferOnPrepared= */ true) {
               @Override

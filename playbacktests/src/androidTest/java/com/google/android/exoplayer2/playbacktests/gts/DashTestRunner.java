@@ -260,7 +260,7 @@ import java.util.List;
     @Override
     protected DrmSessionManager buildDrmSessionManager() {
       if (widevineLicenseUrl == null) {
-        return DrmSessionManager.getDummyDrmSessionManager();
+        return DrmSessionManager.DRM_UNSUPPORTED;
       }
       MediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSourceFactory());
