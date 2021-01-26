@@ -43,9 +43,6 @@ public interface Clock {
   /** @see android.os.SystemClock#uptimeMillis() */
   long uptimeMillis();
 
-  /** @see android.os.SystemClock#sleep(long) */
-  void sleep(long sleepTimeMs);
-
   /**
    * Creates a {@link HandlerWrapper} using a specified looper and a specified callback for handling
    * messages.

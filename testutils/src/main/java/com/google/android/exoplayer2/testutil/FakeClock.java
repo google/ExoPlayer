@@ -38,7 +38,6 @@ import java.util.List;
  */
 public class FakeClock implements Clock {
 
-  private final List<Long> wakeUpTimes;
   private final List<HandlerMessageData> handlerMessages;
   private final long bootTimeMs;
 
@@ -65,7 +64,6 @@ public class FakeClock implements Clock {
   public FakeClock(long bootTimeMs, long initialTimeMs) {
     this.bootTimeMs = bootTimeMs;
     this.timeSinceBootMs = initialTimeMs;
-    this.wakeUpTimes = new ArrayList<>();
     this.handlerMessages = new ArrayList<>();
     SystemClock.setCurrentTimeMillis(initialTimeMs);
   }
@@ -78,12 +76,6 @@ public class FakeClock implements Clock {
   public synchronized void advanceTime(long timeDiffMs) {
     timeSinceBootMs += timeDiffMs;
     SystemClock.setCurrentTimeMillis(timeSinceBootMs);
-    for (Long wakeUpTime : wakeUpTimes) {
-      if (wakeUpTime <= timeSinceBootMs) {
-        notifyAll();
-        break;
-      }
-    }
     for (int i = handlerMessages.size() - 1; i >= 0; i--) {
       if (handlerMessages.get(i).maybeSendToTarget(timeSinceBootMs)) {
         handlerMessages.remove(i);
@@ -104,23 +96,6 @@ public class FakeClock implements Clock {
   @Override
   public long uptimeMillis() {
     return elapsedRealtime();
-  }
-
-  @Override
-  public synchronized void sleep(long sleepTimeMs) {
-    if (sleepTimeMs <= 0) {
-      return;
-    }
-    Long wakeUpTimeMs = timeSinceBootMs + sleepTimeMs;
-    wakeUpTimes.add(wakeUpTimeMs);
-    while (timeSinceBootMs < wakeUpTimeMs) {
-      try {
-        wait();
-      } catch (InterruptedException e) {
-        // Ignore InterruptedException as SystemClock.sleep does too.
-      }
-    }
-    wakeUpTimes.remove(wakeUpTimeMs);
   }
 
   @Override
