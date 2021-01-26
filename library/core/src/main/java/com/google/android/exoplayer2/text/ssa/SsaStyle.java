@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -166,12 +167,23 @@ import java.util.regex.Pattern;
 
     public static SsaColor UNSET = new SsaColor(0, false);
 
-    public final @ColorInt int value;
-    public final boolean isSet;
+    private final @ColorInt int color;
+    private final boolean isSet;
 
-    private SsaColor(@ColorInt int value, boolean isSet) {
-      this.value = value;
+    private SsaColor(@ColorInt int color, boolean isSet) {
+      this.color = color;
       this.isSet = isSet;
+    }
+
+    public @ColorInt int getColor() {
+      if (!isSet) {
+        throw new NoSuchElementException("No color is present");
+      }
+      return color;
+    }
+
+    public boolean isSet() {
+      return isSet;
     }
 
     public static SsaColor from(@ColorInt int value) {

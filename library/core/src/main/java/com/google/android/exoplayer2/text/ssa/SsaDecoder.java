@@ -308,8 +308,8 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
 
     // Apply primary color.
     if (style != null) {
-      if (style.primaryColor.isSet) {
-        spannableText.setSpan(new ForegroundColorSpan(style.primaryColor.value),
+      if (style.primaryColor.isSet()) {
+        spannableText.setSpan(new ForegroundColorSpan(style.primaryColor.getColor()),
             0, spannableText.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
     }

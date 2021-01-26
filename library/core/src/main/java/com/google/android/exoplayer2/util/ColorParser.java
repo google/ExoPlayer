@@ -90,7 +90,7 @@ public final class ColorParser {
             rgbaStringBuilder.insert(2, "0");
           }
         }
-        abgr = (int) Long.parseLong(colorExpression.substring(2), 16);
+        abgr = (int) Long.parseLong(rgbaStringBuilder.substring(2), 16);
       } else {
         // Parse color from decimal format (bytes order AABBGGRR).
         abgr = (int) Long.parseLong(colorExpression);
