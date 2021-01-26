@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.testutil;
 import static com.google.common.truth.Truth.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
+import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -184,6 +185,87 @@ public final class FakeClockTest {
     fakeClock.advanceTime(1000);
     shadowOf(handler.getLooper()).idle();
     assertTestRunnableStates(new boolean[] {true, true, true, true, true}, testRunnables);
+  }
+
+  @Test
+  public void createHandler_removeMessages_removesMessages() {
+    HandlerThread handlerThread = new HandlerThread("FakeClockTest");
+    handlerThread.start();
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0);
+    TestCallback callback = new TestCallback();
+    HandlerWrapper handler = fakeClock.createHandler(handlerThread.getLooper(), callback);
+    TestCallback otherCallback = new TestCallback();
+    HandlerWrapper otherHandler = fakeClock.createHandler(handlerThread.getLooper(), otherCallback);
+
+    // Block any further execution on the HandlerThread until we had a chance to remove messages.
+    ConditionVariable startCondition = new ConditionVariable();
+    handler.post(startCondition::block);
+    TestRunnable testRunnable1 = new TestRunnable();
+    TestRunnable testRunnable2 = new TestRunnable();
+    Object messageToken = new Object();
+    handler.obtainMessage(/* what= */ 1, /* obj= */ messageToken).sendToTarget();
+    handler.sendEmptyMessageDelayed(/* what= */ 2, /* delayMs= */ 50);
+    handler.post(testRunnable1);
+    handler.postDelayed(testRunnable2, /* delayMs= */ 25);
+    handler.sendEmptyMessage(/* what= */ 3);
+    otherHandler.sendEmptyMessage(/* what= */ 2);
+
+    handler.removeMessages(/* what= */ 2);
+    handler.removeCallbacksAndMessages(messageToken);
+
+    startCondition.open();
+    fakeClock.advanceTime(50);
+    shadowOf(handlerThread.getLooper()).idle();
+
+    assertThat(callback.messages)
+        .containsExactly(
+            new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
+    assertThat(testRunnable1.hasRun).isTrue();
+    assertThat(testRunnable2.hasRun).isTrue();
+
+    // Assert that message with same "what" on other handler wasn't removed.
+    assertThat(otherCallback.messages)
+        .containsExactly(
+            new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
+  }
+
+  @Test
+  public void createHandler_removeAllMessages_removesAllMessages() {
+    HandlerThread handlerThread = new HandlerThread("FakeClockTest");
+    handlerThread.start();
+    FakeClock fakeClock = new FakeClock(/* initialTimeMs= */ 0);
+    TestCallback callback = new TestCallback();
+    HandlerWrapper handler = fakeClock.createHandler(handlerThread.getLooper(), callback);
+    TestCallback otherCallback = new TestCallback();
+    HandlerWrapper otherHandler = fakeClock.createHandler(handlerThread.getLooper(), otherCallback);
+
+    // Block any further execution on the HandlerThread until we had a chance to remove messages.
+    ConditionVariable startCondition = new ConditionVariable();
+    handler.post(startCondition::block);
+    TestRunnable testRunnable1 = new TestRunnable();
+    TestRunnable testRunnable2 = new TestRunnable();
+    Object messageToken = new Object();
+    handler.obtainMessage(/* what= */ 1, /* obj= */ messageToken).sendToTarget();
+    handler.sendEmptyMessageDelayed(/* what= */ 2, /* delayMs= */ 50);
+    handler.post(testRunnable1);
+    handler.postDelayed(testRunnable2, /* delayMs= */ 25);
+    handler.sendEmptyMessage(/* what= */ 3);
+    otherHandler.sendEmptyMessage(/* what= */ 1);
+
+    handler.removeCallbacksAndMessages(/* token= */ null);
+
+    startCondition.open();
+    fakeClock.advanceTime(50);
+    shadowOf(handlerThread.getLooper()).idle();
+
+    assertThat(callback.messages).isEmpty();
+    assertThat(testRunnable1.hasRun).isFalse();
+    assertThat(testRunnable2.hasRun).isFalse();
+
+    // Assert that message on other handler wasn't removed.
+    assertThat(otherCallback.messages)
+        .containsExactly(
+            new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null));
   }
 
   private static void assertTestRunnableStates(boolean[] states, TestRunnable[] testRunnables) {

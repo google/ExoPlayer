@@ -108,6 +108,27 @@ public class FakeClock implements Clock {
     maybeTriggerMessages();
   }
 
+  private synchronized void removePendingHandlerMessages(ClockHandler handler, int what) {
+    for (int i = handlerMessages.size() - 1; i >= 0; i--) {
+      HandlerMessage message = handlerMessages.get(i);
+      if (message.handler.equals(handler) && message.what == what) {
+        handlerMessages.remove(i);
+      }
+    }
+    handler.handler.removeMessages(what);
+  }
+
+  private synchronized void removePendingHandlerMessages(
+      ClockHandler handler, @Nullable Object token) {
+    for (int i = handlerMessages.size() - 1; i >= 0; i--) {
+      HandlerMessage message = handlerMessages.get(i);
+      if (message.handler.equals(handler) && (token == null || message.obj == token)) {
+        handlerMessages.remove(i);
+      }
+    }
+    handler.handler.removeCallbacksAndMessages(token);
+  }
+
   private synchronized boolean hasPendingMessage(ClockHandler handler, int what) {
     for (int i = 0; i < handlerMessages.size(); i++) {
       HandlerMessage message = handlerMessages.get(i);
@@ -261,12 +282,12 @@ public class FakeClock implements Clock {
 
     @Override
     public void removeMessages(int what) {
-      handler.removeMessages(what);
+      removePendingHandlerMessages(/* handler= */ this, what);
     }
 
     @Override
     public void removeCallbacksAndMessages(@Nullable Object token) {
-      handler.removeCallbacksAndMessages(token);
+      removePendingHandlerMessages(/* handler= */ this, token);
     }
 
     @Override
