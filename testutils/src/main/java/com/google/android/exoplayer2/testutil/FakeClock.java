@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
-import android.os.Message;
 import android.os.SystemClock;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -38,7 +38,10 @@ import java.util.List;
  */
 public class FakeClock implements Clock {
 
-  private final List<HandlerMessageData> handlerMessages;
+  @GuardedBy("this")
+  private final List<HandlerMessage> handlerMessages;
+
+  @GuardedBy("this")
   private final long bootTimeMs;
 
   @GuardedBy("this")
@@ -76,11 +79,7 @@ public class FakeClock implements Clock {
   public synchronized void advanceTime(long timeDiffMs) {
     timeSinceBootMs += timeDiffMs;
     SystemClock.setCurrentTimeMillis(timeSinceBootMs);
-    for (int i = handlerMessages.size() - 1; i >= 0; i--) {
-      if (handlerMessages.get(i).maybeSendToTarget(timeSinceBootMs)) {
-        handlerMessages.remove(i);
-      }
-    }
+    maybeTriggerMessages();
   }
 
   @Override
@@ -103,79 +102,91 @@ public class FakeClock implements Clock {
     return new ClockHandler(looper, callback);
   }
 
-  /** Adds a handler post to list of pending messages. */
-  protected synchronized boolean addHandlerMessageAtTime(
-      HandlerWrapper handler, Runnable runnable, long timeMs) {
-    if (timeMs <= timeSinceBootMs) {
-      return handler.post(runnable);
-    }
-    handlerMessages.add(new HandlerMessageData(timeMs, handler, runnable));
-    return true;
-  }
-
-  /** Adds an empty handler message to list of pending messages. */
-  protected synchronized boolean addHandlerMessageAtTime(
-      HandlerWrapper handler, int message, long timeMs) {
-    if (timeMs <= timeSinceBootMs) {
-      return handler.sendEmptyMessage(message);
-    }
-    handlerMessages.add(new HandlerMessageData(timeMs, handler, message));
-    return true;
+  /** Adds a message to the list of pending messages. */
+  protected synchronized void addPendingHandlerMessage(HandlerMessage message) {
+    handlerMessages.add(message);
+    maybeTriggerMessages();
   }
 
   private synchronized boolean hasPendingMessage(ClockHandler handler, int what) {
     for (int i = 0; i < handlerMessages.size(); i++) {
-      HandlerMessageData message = handlerMessages.get(i);
-      if (message.handler.equals(handler) && message.message == what) {
+      HandlerMessage message = handlerMessages.get(i);
+      if (message.handler.equals(handler) && message.what == what) {
         return true;
       }
     }
     return handler.handler.hasMessages(what);
   }
 
+  private synchronized void maybeTriggerMessages() {
+    for (int i = handlerMessages.size() - 1; i >= 0; i--) {
+      HandlerMessage message = handlerMessages.get(i);
+      if (message.timeMs <= timeSinceBootMs) {
+        if (message.runnable != null) {
+          message.handler.handler.post(message.runnable);
+        } else {
+          message
+              .handler
+              .handler
+              .obtainMessage(message.what, message.arg1, message.arg2, message.obj)
+              .sendToTarget();
+        }
+        handlerMessages.remove(i);
+      }
+    }
+  }
+
   /** Message data saved to send messages or execute runnables at a later time on a Handler. */
-  private static final class HandlerMessageData {
+  protected final class HandlerMessage implements HandlerWrapper.Message {
 
-    private final long postTime;
-    private final HandlerWrapper handler;
+    private final long timeMs;
+    private final ClockHandler handler;
     @Nullable private final Runnable runnable;
-    private final int message;
+    private final int what;
+    private final int arg1;
+    private final int arg2;
+    @Nullable private final Object obj;
 
-    public HandlerMessageData(long postTime, HandlerWrapper handler, Runnable runnable) {
-      this.postTime = postTime;
+    public HandlerMessage(
+        long timeMs,
+        ClockHandler handler,
+        int what,
+        int arg1,
+        int arg2,
+        @Nullable Object obj,
+        @Nullable Runnable runnable) {
+      this.timeMs = timeMs;
       this.handler = handler;
       this.runnable = runnable;
-      this.message = 0;
+      this.what = what;
+      this.arg1 = arg1;
+      this.arg2 = arg2;
+      this.obj = obj;
     }
 
-    public HandlerMessageData(long postTime, HandlerWrapper handler, int message) {
-      this.postTime = postTime;
-      this.handler = handler;
-      this.runnable = null;
-      this.message = message;
+    /** Returns the time of the message, in milliseconds since boot. */
+    /* package */ long getTimeMs() {
+      return timeMs;
     }
 
-    /** Sends the message and returns whether the message was sent to its target. */
-    public boolean maybeSendToTarget(long currentTimeMs) {
-      if (postTime <= currentTimeMs) {
-        if (runnable != null) {
-          handler.post(runnable);
-        } else {
-          handler.sendEmptyMessage(message);
-        }
-        return true;
-      }
-      return false;
+    @Override
+    public void sendToTarget() {
+      addPendingHandlerMessage(/* message= */ this);
+    }
+
+    @Override
+    public HandlerWrapper getTarget() {
+      return handler;
     }
   }
 
   /** HandlerWrapper implementation using the enclosing Clock to schedule delayed messages. */
   private final class ClockHandler implements HandlerWrapper {
 
-    private final android.os.Handler handler;
+    public final Handler handler;
 
     public ClockHandler(Looper looper, @Nullable Callback callback) {
-      handler = new android.os.Handler(looper, callback);
+      handler = new Handler(looper, callback);
     }
 
     @Override
@@ -190,37 +201,62 @@ public class FakeClock implements Clock {
 
     @Override
     public Message obtainMessage(int what) {
-      return handler.obtainMessage(what);
+      return obtainMessage(what, /* obj= */ null);
     }
 
     @Override
     public Message obtainMessage(int what, @Nullable Object obj) {
-      return handler.obtainMessage(what, obj);
+      return obtainMessage(what, /* arg1= */ 0, /* arg2= */ 0, obj);
     }
 
     @Override
     public Message obtainMessage(int what, int arg1, int arg2) {
-      return handler.obtainMessage(what, arg1, arg2);
+      return obtainMessage(what, arg1, arg2, /* obj= */ null);
     }
 
     @Override
     public Message obtainMessage(int what, int arg1, int arg2, @Nullable Object obj) {
-      return handler.obtainMessage(what, arg1, arg2, obj);
+      return new HandlerMessage(
+          uptimeMillis(), /* handler= */ this, what, arg1, arg2, obj, /* runnable= */ null);
+    }
+
+    @Override
+    public boolean sendMessageAtFrontOfQueue(Message msg) {
+      HandlerMessage message = (HandlerMessage) msg;
+      new HandlerMessage(
+              /* timeMs= */ Long.MIN_VALUE,
+              /* handler= */ this,
+              message.what,
+              message.arg1,
+              message.arg2,
+              message.obj,
+              message.runnable)
+          .sendToTarget();
+      return true;
     }
 
     @Override
     public boolean sendEmptyMessage(int what) {
-      return handler.sendEmptyMessage(what);
+      return sendEmptyMessageAtTime(what, uptimeMillis());
     }
 
     @Override
     public boolean sendEmptyMessageDelayed(int what, int delayMs) {
-      return addHandlerMessageAtTime(this, what, uptimeMillis() + delayMs);
+      return sendEmptyMessageAtTime(what, uptimeMillis() + delayMs);
     }
 
     @Override
     public boolean sendEmptyMessageAtTime(int what, long uptimeMs) {
-      return addHandlerMessageAtTime(this, what, uptimeMs);
+      new HandlerMessage(
+              uptimeMs,
+              /* handler= */ this,
+              what,
+              /* arg1= */ 0,
+              /* arg2= */ 0,
+              /* obj= */ null,
+              /* runnable= */ null)
+          .sendToTarget();
+      return true;
     }
 
     @Override
@@ -235,12 +271,21 @@ public class FakeClock implements Clock {
 
     @Override
     public boolean post(Runnable runnable) {
-      return handler.post(runnable);
+      return postDelayed(runnable, /* delayMs= */ 0);
     }
 
     @Override
     public boolean postDelayed(Runnable runnable, long delayMs) {
-      return addHandlerMessageAtTime(this, runnable, uptimeMillis() + delayMs);
+      new HandlerMessage(
+              uptimeMillis() + delayMs,
+              /* handler= */ this,
+              /* what= */ 0,
+              /* arg1= */ 0,
+              /* arg2= */ 0,
+              /* obj= */ null,
+              runnable)
+          .sendToTarget();
+      return true;
     }
   }
 }

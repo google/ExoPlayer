@@ -47,17 +47,16 @@ public final class AutoAdvancingFakeClock extends FakeClock {
   }
 
   @Override
-  protected synchronized boolean addHandlerMessageAtTime(
-      HandlerWrapper handler, int message, long timeMs) {
-    boolean result = super.addHandlerMessageAtTime(handler, message, timeMs);
-    if (autoAdvancingHandler == null || autoAdvancingHandler == handler) {
+  protected synchronized void addPendingHandlerMessage(HandlerMessage message) {
+    super.addPendingHandlerMessage(message);
+    HandlerWrapper handler = message.getTarget();
+    long currentTimeMs = elapsedRealtime();
+    long messageTimeMs = message.getTimeMs();
+    if (currentTimeMs < messageTimeMs
+        && (autoAdvancingHandler == null || autoAdvancingHandler == handler)) {
       autoAdvancingHandler = handler;
-      long currentTimeMs = elapsedRealtime();
-      if (currentTimeMs < timeMs) {
-        advanceTime(timeMs - currentTimeMs);
-      }
+      advanceTime(messageTimeMs - currentTimeMs);
     }
-    return result;
   }
 
   /** Resets the internal handler, so that this clock can later be used with another handler. */

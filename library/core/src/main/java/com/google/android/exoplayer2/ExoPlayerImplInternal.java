@@ -557,7 +557,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (e.isRecoverable && pendingRecoverableError == null) {
         Log.w(TAG, "Recoverable playback error", e);
         pendingRecoverableError = e;
-        Message message = handler.obtainMessage(MSG_ATTEMPT_ERROR_RECOVERY, e);
+        HandlerWrapper.Message message = handler.obtainMessage(MSG_ATTEMPT_ERROR_RECOVERY, e);
         // Given that the player is now in an unhandled exception state, the error needs to be
         // recovered or the player stopped before any other message is handled.
         message.getTarget().sendMessageAtFrontOfQueue(message);
