@@ -35,7 +35,7 @@ public interface BandwidthMeter {
      * changed.
      *
      * <p>Note: The estimated bitrate is typically derived from more information than just {@code
-     * bytes} and {@code elapsedMs}.
+     * bytesTransferred} and {@code elapsedMs}.
      *
      * @param elapsedMs The time taken to transfer {@code bytesTransferred}, in milliseconds. This
      *     is at most the elapsed time since the last callback, but may be less if there were
