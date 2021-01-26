@@ -47,4 +47,9 @@ public class SystemClock implements Clock {
   public HandlerWrapper createHandler(Looper looper, @Nullable Callback callback) {
     return new SystemHandlerWrapper(new Handler(looper, callback));
   }
+
+  @Override
+  public void onThreadBlocked() {
+    // Do nothing.
+  }
 }

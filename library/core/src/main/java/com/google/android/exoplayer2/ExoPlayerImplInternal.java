@@ -624,6 +624,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     boolean wasInterrupted = false;
     while (!condition.get() && remainingMs > 0) {
       try {
+        clock.onThreadBlocked();
         wait(remainingMs);
       } catch (InterruptedException e) {
         wasInterrupted = true;

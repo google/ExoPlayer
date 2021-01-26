@@ -130,7 +130,6 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.robolectric.shadows.ShadowAudioManager;
-import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link ExoPlayer}. */
 @RunWith(AndroidJUnit4.class)
@@ -1003,11 +1002,15 @@ public final class ExoPlayerTest {
             .waitForPlaybackState(Player.STATE_BUFFERING)
             // Block until createPeriod has been called on the fake media source.
             .executeRunnable(
-                () -> {
-                  try {
-                    createPeriodCalledCountDownLatch.await();
-                  } catch (InterruptedException e) {
-                    throw new IllegalStateException(e);
+                new PlayerRunnable() {
+                  @Override
+                  public void run(SimpleExoPlayer player) {
+                    try {
+                      player.getClock().onThreadBlocked();
+                      createPeriodCalledCountDownLatch.await();
+                    } catch (InterruptedException e) {
+                      throw new IllegalStateException(e);
+                    }
                   }
                 })
             // Set playback speed (while the fake media period is not yet prepared).
@@ -1023,7 +1026,6 @@ public final class ExoPlayerTest {
         .blockUntilEnded(TIMEOUT_MS);
   }
 
-  @Ignore // Temporarily disabled because the AutoAdvancingFakeClock picks up the wrong thread.
   @Test
   public void seekBeforePreparationCompletes_seeksToCorrectPosition() throws Exception {
     CountDownLatch createPeriodCalledCountDownLatch = new CountDownLatch(1);
@@ -2043,7 +2045,6 @@ public final class ExoPlayerTest {
     assertThat(target80.positionMs).isAtLeast(target50.positionMs);
   }
 
-  @Ignore // Temporarily disabled because the AutoAdvancingFakeClock picks up the wrong thread.
   @Test
   public void sendMessagesFromStartPositionOnlyOnce() throws Exception {
     AtomicInteger counter = new AtomicInteger();
@@ -2820,6 +2821,7 @@ public final class ExoPlayerTest {
                       // seek in the timeline which still has two windows in EPI, but when the seek
                       // arrives in EPII the actual timeline has one window only. Hence it tries to
                       // find the subsequent period of the removed period and finds it.
+                      player.getClock().onThreadBlocked();
                       sourceReleasedCountDownLatch.await();
                     } catch (InterruptedException e) {
                       throw new IllegalStateException(e);
@@ -2961,7 +2963,6 @@ public final class ExoPlayerTest {
     assertThat(sequence).containsExactly(0, 1, 2).inOrder();
   }
 
-  @Ignore // Temporarily disabled because the AutoAdvancingFakeClock picks up the wrong thread.
   @Test
   public void recursiveTimelineChangeInStopAreReportedInCorrectOrder() throws Exception {
     Timeline firstTimeline = new FakeTimeline(/* windowCount= */ 2);
@@ -4243,7 +4244,7 @@ public final class ExoPlayerTest {
         createPartiallyBufferedMediaSource(/* maxBufferedPositionMs= */ 4000));
 
     assertThat(windowIndex[0]).isEqualTo(0);
-    assertThat(positionMs[0]).isGreaterThan(8000);
+    assertThat(positionMs[0]).isEqualTo(8000);
     assertThat(bufferedPositions[0]).isEqualTo(10_000);
     assertThat(totalBufferedDuration[0]).isEqualTo(10_000 - positionMs[0]);
 
@@ -4470,7 +4471,7 @@ public final class ExoPlayerTest {
 
     assertThat(windowIndex[2]).isEqualTo(0);
     assertThat(isPlayingAd[2]).isFalse();
-    assertThat(positionMs[2]).isGreaterThan(8000);
+    assertThat(positionMs[2]).isEqualTo(8000);
     assertThat(bufferedPositionMs[2]).isEqualTo(contentDurationMs);
     assertThat(totalBufferedDurationMs[2]).isAtLeast(contentDurationMs - positionMs[2]);
   }
@@ -4592,68 +4593,32 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_ENDED);
   }
 
-  @Ignore // Temporarily disabled because the AutoAdvancingFakeClock picks up the wrong thread.
   @Test
   public void becomingNoisyIgnoredIfBecomingNoisyHandlingIsDisabled() throws Exception {
-    CountDownLatch becomingNoisyHandlingDisabled = new CountDownLatch(1);
-    CountDownLatch becomingNoisyDelivered = new CountDownLatch(1);
-    PlayerStateGrabber playerStateGrabber = new PlayerStateGrabber();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    player.setHandleAudioBecomingNoisy(false);
-                    becomingNoisyHandlingDisabled.countDown();
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.play();
 
-                    // Wait for the broadcast to be delivered from the main thread.
-                    try {
-                      becomingNoisyDelivered.await();
-                    } catch (InterruptedException e) {
-                      throw new IllegalStateException(e);
-                    }
-                  }
-                })
-            .delay(1) // Handle pending messages on the playback thread.
-            .executeRunnable(playerStateGrabber)
-            .build();
-
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context).setActionSchedule(actionSchedule).build().start();
-    becomingNoisyHandlingDisabled.await();
+    player.setHandleAudioBecomingNoisy(false);
     deliverBroadcast(new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-    becomingNoisyDelivered.countDown();
+    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    boolean playWhenReadyAfterBroadcast = player.getPlayWhenReady();
+    player.release();
 
-    testRunner.blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
-    assertThat(playerStateGrabber.playWhenReady).isTrue();
+    assertThat(playWhenReadyAfterBroadcast).isTrue();
   }
 
   @Test
   public void pausesWhenBecomingNoisyIfBecomingNoisyHandlingIsEnabled() throws Exception {
-    CountDownLatch becomingNoisyHandlingEnabled = new CountDownLatch(1);
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    player.setHandleAudioBecomingNoisy(true);
-                    becomingNoisyHandlingEnabled.countDown();
-                  }
-                })
-            .waitForPlayWhenReady(false) // Becoming noisy should set playWhenReady = false
-            .play()
-            .build();
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.play();
 
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context).setActionSchedule(actionSchedule).build().start();
-    becomingNoisyHandlingEnabled.await();
+    player.setHandleAudioBecomingNoisy(true);
     deliverBroadcast(new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    boolean playWhenReadyAfterBroadcast = player.getPlayWhenReady();
+    player.release();
 
-    // If the player fails to handle becoming noisy, blockUntilActionScheduleFinished will time out
-    // and throw, causing the test to fail.
-    testRunner.blockUntilActionScheduleFinished(TIMEOUT_MS).blockUntilEnded(TIMEOUT_MS);
+    assertThat(playWhenReadyAfterBroadcast).isFalse();
   }
 
   @Test
@@ -7003,7 +6968,7 @@ public final class ExoPlayerTest {
         }, // buffers after set items with seek
         maskingPlaybackStates);
     assertArrayEquals(new int[] {2, 0, 0, 1, 1, 0, 0, 0, 0}, currentWindowIndices);
-    assertThat(currentPositions[0]).isGreaterThan(0);
+    assertThat(currentPositions[0]).isEqualTo(0);
     assertThat(currentPositions[1]).isEqualTo(0);
     assertThat(currentPositions[2]).isEqualTo(0);
     assertThat(bufferedPositions[0]).isGreaterThan(0);
@@ -8891,7 +8856,7 @@ public final class ExoPlayerTest {
     player.setMediaSource(new FakeMediaSource(new FakeTimeline(), formatWithStaticMetadata));
     player.seekTo(2_000);
     player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f));
-    ShadowLooper.runMainLooperToNextTask();
+    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
 
     verify(listener).onTimelineChanged(any(), anyInt());
     verify(listener).onMediaItemTransition(any(), anyInt());
@@ -8914,7 +8879,7 @@ public final class ExoPlayerTest {
           }
         });
     player.setRepeatMode(Player.REPEAT_MODE_ONE);
-    ShadowLooper.runMainLooperToNextTask();
+    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
 
     verify(listener).onRepeatModeChanged(anyInt());
     verify(listener).onShuffleModeEnabledChanged(anyBoolean());
@@ -8930,7 +8895,7 @@ public final class ExoPlayerTest {
     player.play();
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
-    ShadowLooper.runMainLooperToNextTask();
+    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
     player.release();
 
     // Verify that all callbacks have been called at least once.

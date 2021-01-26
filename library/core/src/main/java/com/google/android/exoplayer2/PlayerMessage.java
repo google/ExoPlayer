@@ -341,6 +341,7 @@ public final class PlayerMessage {
     long deadlineMs = clock.elapsedRealtime() + timeoutMs;
     long remainingMs = timeoutMs;
     while (!isProcessed && remainingMs > 0) {
+      clock.onThreadBlocked();
       wait(remainingMs);
       remainingMs = deadlineMs - clock.elapsedRealtime();
     }

@@ -313,6 +313,7 @@ public class TestPlayerRunHelper {
                         blockPlaybackThreadCondition.open();
                       });
               try {
+                player.getClock().onThreadBlocked();
                 blockPlaybackThreadCondition.block();
               } catch (InterruptedException e) {
                 // Ignore.

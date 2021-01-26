@@ -143,9 +143,6 @@ public final class TransformerTest {
     TransformerTestRunner.runUntilCompleted(transformer);
     Files.delete(Paths.get(outputPath));
 
-    // Transformer.startTransformation() will create a new SimpleExoPlayer instance. Reset the
-    // clock's handler so that the clock advances with the new SimpleExoPlayer instance.
-    clock.resetHandler();
     // Transform second media item.
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
@@ -236,9 +233,7 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     transformer.cancel();
     Files.delete(Paths.get(outputPath));
-    // Transformer.startTransformation() will create a new SimpleExoPlayer instance. Reset the
-    // clock's handler so that the clock advances with the new SimpleExoPlayer instance.
-    clock.resetHandler();
+
     // This would throw if the previous transformation had not been cancelled.
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);

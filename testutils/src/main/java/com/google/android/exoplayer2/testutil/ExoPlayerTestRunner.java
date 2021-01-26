@@ -351,6 +351,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   @Nullable private final Player.EventListener eventListener;
   @Nullable private final AnalyticsListener analyticsListener;
 
+  private final Clock clock;
   private final HandlerThread playerThread;
   private final HandlerWrapper handler;
   private final CountDownLatch endedCountDownLatch;
@@ -388,6 +389,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     this.actionSchedule = actionSchedule;
     this.eventListener = eventListener;
     this.analyticsListener = analyticsListener;
+    this.clock = playerBuilder.getClock();
     timelines = new ArrayList<>();
     timelineChangeReasons = new ArrayList<>();
     mediaItems = new ArrayList<>();
@@ -399,8 +401,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     actionScheduleFinishedCountDownLatch = new CountDownLatch(actionSchedule != null ? 1 : 0);
     playerThread = new HandlerThread("ExoPlayerTest thread");
     playerThread.start();
-    handler =
-        playerBuilder.getClock().createHandler(playerThread.getLooper(), /* callback= */ null);
+    handler = clock.createHandler(playerThread.getLooper(), /* callback= */ null);
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
   }
 
@@ -476,6 +477,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    * @throws Exception If any exception occurred during playback, release, or due to a timeout.
    */
   public ExoPlayerTestRunner blockUntilEnded(long timeoutMs) throws Exception {
+    clock.onThreadBlocked();
     if (!endedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       exception = new TimeoutException("Test playback timed out waiting for playback to end.");
     }
@@ -498,6 +500,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    */
   public ExoPlayerTestRunner blockUntilActionScheduleFinished(long timeoutMs)
       throws TimeoutException, InterruptedException {
+    clock.onThreadBlocked();
     if (!actionScheduleFinishedCountDownLatch.await(timeoutMs, MILLISECONDS)) {
       throw new TimeoutException("Test playback timed out waiting for action schedule to finish.");
     }
@@ -619,6 +622,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
             playerThread.quit();
           }
         });
+    clock.onThreadBlocked();
     playerThread.join();
   }
 
