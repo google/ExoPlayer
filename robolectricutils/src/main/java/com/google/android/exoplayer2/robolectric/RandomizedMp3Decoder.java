@@ -20,6 +20,7 @@ import android.media.AudioFormat;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.view.Surface;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.audio.MpegAudioUtil;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Assertions;
@@ -41,6 +42,7 @@ import org.robolectric.shadows.ShadowMediaCodec;
  *
  * <p>All the data written to the output by the decoder can be obtained by getAllOutputBytes().
  */
+@RequiresApi(29)
 public final class RandomizedMp3Decoder implements ShadowMediaCodec.CodecConfig.Codec {
   private final List<byte[]> decoderOutput = new ArrayList<>();
   private int frameSizeInBytes;
@@ -70,9 +72,6 @@ public final class RandomizedMp3Decoder implements ShadowMediaCodec.CodecConfig.
 
   @Override
   public void onConfigured(MediaFormat format, Surface surface, MediaCrypto crypto, int flags) {
-    // Both getInteger and getString require API29. This class is only used in EndToEndGaplessTest
-    // that only runs on
-    // API29.
     int pcmEncoding =
         format.getInteger(
             MediaFormat.KEY_PCM_ENCODING, /* defaultValue= */ AudioFormat.ENCODING_PCM_16BIT);
