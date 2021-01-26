@@ -2,7 +2,9 @@
 
 ### dev-v2 (not yet released)
 
-*   New release notes go here!
+*   Extractors:
+    *   Fix Vorbis private codec data parsing in the Matroska extractor
+        ([#8496](https://github.com/google/ExoPlayer/issues/8496)).
 
 ### 2.13.0 (not yet released - targeted for 2021-02-TBD)
 
