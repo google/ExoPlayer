@@ -130,11 +130,6 @@
     *   Add option to `MergingMediaSource` to clip the durations of all sources
         to have the same length
         ([#8422](https://github.com/google/ExoPlayer/issues/8422)).
-    *   Fix propagation of `LoadErrorHandlingPolicy` from
-        `DefaultMediaSourceFactory` into `SingleSampleMediaSource.Factory` when
-        creating subtitle media sources from
-        `MediaItem.playbackProperties.subtitles`
-        ([#8430](https://github.com/google/ExoPlayer/issues/8430)).
     *   Remove `ExoPlaybackException.OutOfMemoryError`.
     *   Remove `setVideoDecoderOutputBufferRenderer` from Player API. Clients
         should use `setOutputSurface` directly instead.
@@ -233,10 +228,6 @@
     *   Create E-AC3 JOC passthrough `AudioTrack`s using the maximum supported
         channel count (instead of assuming 6 channels) from API 29.
 *   Text:
-    *   Gracefully handle null-terminated subtitle content in Matroska
-        containers.
-    *   Fix CEA-708 anchor positioning
-        ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
     *   Fix CEA-708 sequence number discontinuity handling
         ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
     *   Fix CEA-708 handling of unexpectedly small packets
