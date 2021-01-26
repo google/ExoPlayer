@@ -115,6 +115,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -4644,7 +4645,7 @@ public final class ExoPlayerTest {
     // Use chunked data to ensure the player actually needs to continue loading and playing.
     FakeAdaptiveDataSet.Factory dataSetFactory =
         new FakeAdaptiveDataSet.Factory(
-            /* chunkDurationUs= */ 500_000, /* bitratePercentStdDev= */ 10.0);
+            /* chunkDurationUs= */ 500_000, /* bitratePercentStdDev= */ 10.0, new Random(0));
     MediaSource chunkedMediaSource =
         new FakeAdaptiveMediaSource(
             new FakeTimeline(),
@@ -4769,7 +4770,7 @@ public final class ExoPlayerTest {
     // Use chunked data to ensure the player actually needs to continue loading and playing.
     FakeAdaptiveDataSet.Factory dataSetFactory =
         new FakeAdaptiveDataSet.Factory(
-            /* chunkDurationUs= */ 500_000, /* bitratePercentStdDev= */ 10.0);
+            /* chunkDurationUs= */ 500_000, /* bitratePercentStdDev= */ 10.0, new Random(0));
     MediaSource chunkedMediaSource =
         new FakeAdaptiveMediaSource(
             new FakeTimeline(),
