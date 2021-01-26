@@ -114,9 +114,10 @@ import java.nio.ByteBuffer;
       return;
     }
 
-    if (!setupDecoder() || !setupEncoderAndMaybeSonic()) {
+    if (!setupDecoder()) {
       return;
     }
+    setupEncoderAndMaybeSonic();
 
     while (drainEncoderToFeedMuxer()) {}
     if (sonicAudioProcessor.isActive()) {
@@ -128,7 +129,10 @@ import java.nio.ByteBuffer;
     while (feedDecoderInputFromSource()) {}
   }
 
-  /** Returns whether it may be possible to process more data with this method. */
+  /**
+   * Attempts to write encoder output data to the muxer, and returns whether it may be possible to
+   * write more data immediately by calling this method again.
+   */
   private boolean drainEncoderToFeedMuxer() {
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     if (!hasEncoderOutputFormat) {
@@ -167,7 +171,10 @@ import java.nio.ByteBuffer;
     return true;
   }
 
-  /** Returns whether it may be possible to process more data with this method. */
+  /**
+   * Attempts to pass decoder output data to the encoder, and returns whether it may be possible to
+   * pass more data immediately by calling this method again.
+   */
   private boolean drainDecoderToFeedEncoder() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
@@ -199,7 +206,10 @@ import java.nio.ByteBuffer;
     return true;
   }
 
-  /** Returns whether it may be possible to process more data with this method. */
+  /**
+   * Attempts to pass audio processor output data to the encoder, and returns whether it may be
+   * possible to pass more data immediately by calling this method again.
+   */
   private boolean drainSonicToFeedEncoder() {
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
@@ -219,7 +229,10 @@ import java.nio.ByteBuffer;
     return feedEncoder(sonicOutputBuffer);
   }
 
-  /** Returns whether it may be possible to process more data with this method. */
+  /**
+   * Attempts to process decoder output audio, and returns whether it may be possible to process
+   * more data immediately by calling this method again.
+   */
   private boolean drainDecoderToFeedSonic() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
 
@@ -263,7 +276,10 @@ import java.nio.ByteBuffer;
     return true;
   }
 
-  /** Returns whether it may be possible to process more data with this method. */
+  /**
+   * Attempts to pass input data to the decoder, and returns whether it may be possible to pass more
+   * data immediately by calling this method again.
+   */
   private boolean feedDecoderInputFromSource() {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
     if (!decoder.maybeDequeueInputBuffer(decoderInputBuffer)) {
@@ -287,10 +303,8 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Feeds the encoder the {@link ByteBuffer inputBuffer} with the correct {@code timeUs}.
-   *
-   * @param inputBuffer The buffer to be fed.
-   * @return Whether more input buffers can be queued to the encoder.
+   * Feeds the encoder the {@link ByteBuffer inputBuffer} with the correct {@code timeUs}, and
+   * returns whether it may be possible to write more data.
    */
   private boolean feedEncoder(ByteBuffer inputBuffer) {
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
@@ -323,12 +337,15 @@ import java.nio.ByteBuffer;
     encoder.queueInputBuffer(encoderInputBuffer);
   }
 
-  /** Returns whether the encoder has been setup. */
-  private boolean setupEncoderAndMaybeSonic() throws ExoPlaybackException {
+  /**
+   * Configures the {@link #encoder} and Sonic (if applicable), if they have not been configured
+   * yet.
+   */
+  private void setupEncoderAndMaybeSonic() throws ExoPlaybackException {
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
 
     if (encoder != null) {
-      return true;
+      return;
     }
 
     Format decoderFormat = decoder.getConfigFormat();
@@ -349,10 +366,12 @@ import java.nio.ByteBuffer;
       throw ExoPlaybackException.createForRenderer(
           e, TAG, getIndex(), encoderFormat, /* rendererFormatSupport= */ C.FORMAT_HANDLED);
     }
-    return true;
   }
 
-  /** Returns whether the decoder has been setup. */
+  /**
+   * Attempts to configure the {@link #decoder} if it has not been configured yet, and returns
+   * whether the decoder has been configured.
+   */
   private boolean setupDecoder() throws ExoPlaybackException {
     if (decoder != null) {
       return true;
