@@ -149,10 +149,16 @@ public class FakeClock implements Clock {
   protected synchronized void addPendingHandlerMessage(HandlerMessage message) {
     handlerMessages.add(message);
     if (!waitingForMessage) {
-      // If this isn't executed from inside a message created by this class, make sure the current
-      // looper message is finished before handling the new message.
-      waitingForMessage = true;
-      new Handler(checkNotNull(Looper.myLooper())).post(this::onMessageHandled);
+      // This method isn't executed from inside a looper message created by this class.
+      @Nullable Looper currentLooper = Looper.myLooper();
+      if (currentLooper == null) {
+        // This message is triggered from a non-looper thread, so just execute it directly.
+        maybeTriggerMessage();
+      } else {
+        // Make sure the current looper message is finished before handling the new message.
+        waitingForMessage = true;
+        new Handler(checkNotNull(Looper.myLooper())).post(this::onMessageHandled);
+      }
     }
   }
 
