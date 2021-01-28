@@ -140,6 +140,11 @@ public class FakeClock implements Clock {
 
   @Override
   public synchronized void onThreadBlocked() {
+    @Nullable Looper currentLooper = Looper.myLooper();
+    if (currentLooper == null || !waitingForMessage) {
+      // This isn't a looper message created by this class, so no need to handle the blocking.
+      return;
+    }
     busyLoopers.add(checkNotNull(Looper.myLooper()));
     waitingForMessage = false;
     maybeTriggerMessage();
