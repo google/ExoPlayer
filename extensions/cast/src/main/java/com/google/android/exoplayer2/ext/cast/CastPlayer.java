@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
@@ -766,7 +765,7 @@ public final class CastPlayer extends BasePlayer {
       int rendererIndex = getRendererIndexForTrackType(trackType);
       if (isTrackActive(id, activeTrackIds) && rendererIndex != C.INDEX_UNSET
           && trackSelections[rendererIndex] == null) {
-        trackSelections[rendererIndex] = new FixedTrackSelection(trackGroups[i], 0);
+        trackSelections[rendererIndex] = new CastTrackSelection(trackGroups[i]);
       }
     }
     TrackGroupArray newTrackGroups = new TrackGroupArray(trackGroups);
