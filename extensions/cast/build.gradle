@@ -16,7 +16,7 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 dependencies {
     api 'com.google.android.gms:play-services-cast-framework:18.1.0'
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
-    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-common')
     implementation project(modulePrefix + 'library-ui')
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
