@@ -32,8 +32,8 @@ public class TransformerBuilderTest {
   @Test
   public void setOutputMimeType_unsupportedMimeType_throws() {
     assertThrows(
-        IllegalArgumentException.class,
-        () -> new Transformer.Builder().setOutputMimeType(MimeTypes.VIDEO_FLV));
+        IllegalStateException.class,
+        () -> new Transformer.Builder().setOutputMimeType(MimeTypes.VIDEO_FLV).build());
   }
 
   @Test

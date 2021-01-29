@@ -17,25 +17,15 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Util.SDK_INT;
-import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.android.exoplayer2.util.Util.minValue;
 
-import android.media.MediaCodec;
-import android.media.MediaFormat;
-import android.media.MediaMuxer;
-import android.os.ParcelFileDescriptor;
 import android.util.SparseIntArray;
 import android.util.SparseLongArray;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /**
@@ -54,11 +44,9 @@ import java.nio.ByteBuffer;
    */
   private static final long MAX_TRACK_WRITE_AHEAD_US = C.msToUs(500);
 
-  private final MediaMuxer mediaMuxer;
-  private final String outputMimeType;
+  private final Muxer muxer;
   private final SparseIntArray trackTypeToIndex;
   private final SparseLongArray trackTypeToTimeUs;
-  private final MediaCodec.BufferInfo bufferInfo;
 
   private int trackCount;
   private int trackFormatCount;
@@ -66,45 +54,10 @@ import java.nio.ByteBuffer;
   private int previousTrackType;
   private long minTrackTimeUs;
 
-  /**
-   * Constructs an instance.
-   *
-   * @param path The path to the output file.
-   * @param outputMimeType The {@link MimeTypes MIME type} of the output.
-   * @throws IllegalArgumentException If the path is invalid or the MIME type is not supported.
-   * @throws IOException If an error occurs opening the output file for writing.
-   */
-  public MuxerWrapper(String path, String outputMimeType) throws IOException {
-    this(new MediaMuxer(path, mimeTypeToMuxerOutputFormat(outputMimeType)), outputMimeType);
-  }
-
-  /**
-   * Constructs an instance.
-   *
-   * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the output.
-   *     The file referenced by this ParcelFileDescriptor should not be used before the muxer is
-   *     released. It is the responsibility of the caller to close the ParcelFileDescriptor. This
-   *     can be done after this constructor returns.
-   * @param outputMimeType The {@link MimeTypes MIME type} of the output.
-   * @throws IllegalArgumentException If the file descriptor is invalid or the MIME type is not
-   *     supported.
-   * @throws IOException If an error occurs opening the output file for writing.
-   */
-  @RequiresApi(26)
-  public MuxerWrapper(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
-      throws IOException {
-    this(
-        new MediaMuxer(
-            parcelFileDescriptor.getFileDescriptor(), mimeTypeToMuxerOutputFormat(outputMimeType)),
-        outputMimeType);
-  }
-
-  private MuxerWrapper(MediaMuxer mediaMuxer, String outputMimeType) {
-    this.mediaMuxer = mediaMuxer;
-    this.outputMimeType = outputMimeType;
+  public MuxerWrapper(Muxer muxer) {
+    this.muxer = muxer;
     trackTypeToIndex = new SparseIntArray();
     trackTypeToTimeUs = new SparseLongArray();
-    bufferInfo = new MediaCodec.BufferInfo();
     previousTrackType = C.TRACK_TYPE_NONE;
   }
 
@@ -123,6 +76,11 @@ import java.nio.ByteBuffer;
     trackCount++;
   }
 
+  /** Returns whether the sample {@link MimeTypes MIME type} is supported. */
+  public boolean supportsSampleMimeType(@Nullable String mimeType) {
+    return muxer.supportsSampleMimeType(mimeType);
+  }
+
   /**
    * Adds a track format to the muxer.
    *
@@ -131,9 +89,8 @@ import java.nio.ByteBuffer;
    * long) written}.
    *
    * @param format The {@link Format} to be added.
-   * @throws IllegalArgumentException If the format is invalid.
-   * @throws IllegalStateException If the format is unsupported, if there is already a track format
-   *     of the same type (audio or video) or if the muxer is in the wrong state.
+   * @throws IllegalStateException If the format is unsupported or if there is already a track
+   *     format of the same type (audio or video).
    */
   public void addTrackFormat(Format format) {
     checkState(trackCount > 0, "All tracks should be registered before the formats are added.");
@@ -147,23 +104,11 @@ import java.nio.ByteBuffer;
         trackTypeToIndex.get(trackType, /* valueIfKeyNotFound= */ C.INDEX_UNSET) == C.INDEX_UNSET,
         "There is already a track of type " + trackType);
 
-    MediaFormat mediaFormat;
-    if (isAudio) {
-      mediaFormat =
-          MediaFormat.createAudioFormat(
-              castNonNull(sampleMimeType), format.sampleRate, format.channelCount);
-    } else {
-      mediaFormat =
-          MediaFormat.createVideoFormat(castNonNull(sampleMimeType), format.width, format.height);
-      mediaMuxer.setOrientationHint(format.rotationDegrees);
-    }
-    MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-    int trackIndex = mediaMuxer.addTrack(mediaFormat);
+    int trackIndex = muxer.addTrack(format);
     trackTypeToIndex.put(trackType, trackIndex);
     trackTypeToTimeUs.put(trackType, 0L);
     trackFormatCount++;
     if (trackFormatCount == trackCount) {
-      mediaMuxer.start();
       isReady = true;
     }
   }
@@ -180,9 +125,8 @@ import java.nio.ByteBuffer;
    *     {@link #addTrackFormat(Format) received a format} for every {@link #registerTrack()
    *     registered track}, or if it should write samples of other track types first to ensure a
    *     good interleaving.
-   * @throws IllegalArgumentException If the sample in {@code buffer} is invalid.
    * @throws IllegalStateException If the muxer doesn't have any {@link #endTrack(int) non-ended}
-   *     track of the given track type or if the muxer is in the wrong state.
+   *     track of the given track type.
    */
   public boolean writeSample(
       int trackType, @Nullable ByteBuffer data, boolean isKeyFrame, long presentationTimeUs) {
@@ -197,11 +141,7 @@ import java.nio.ByteBuffer;
       return true;
     }
 
-    int offset = data.position();
-    int size = data.limit() - offset;
-    int flags = isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0;
-    bufferInfo.set(offset, size, presentationTimeUs, flags);
-    mediaMuxer.writeSampleData(trackIndex, data, bufferInfo);
+    muxer.writeSampleData(trackIndex, data, isKeyFrame, presentationTimeUs);
     trackTypeToTimeUs.put(trackType, presentationTimeUs);
     previousTrackType = trackType;
     return true;
@@ -222,35 +162,10 @@ import java.nio.ByteBuffer;
    * Stops the muxer.
    *
    * <p>The muxer cannot be used anymore once it is stopped.
-   *
-   * @throws IllegalStateException If the muxer is in the wrong state (for example if it didn't
-   *     receive any samples).
    */
   public void stop() {
-    if (!isReady) {
-      return;
-    }
-    isReady = false;
-    try {
-      mediaMuxer.stop();
-    } catch (IllegalStateException e) {
-      if (SDK_INT < 30) {
-        // Set the muxer state to stopped even if mediaMuxer.stop() failed so that
-        // mediaMuxer.release() doesn't attempt to stop the muxer and therefore doesn't throw the
-        // same exception without releasing its resources. This is already implemented in MediaMuxer
-        // from API level 30.
-        try {
-          Field muxerStoppedStateField = MediaMuxer.class.getDeclaredField("MUXER_STATE_STOPPED");
-          muxerStoppedStateField.setAccessible(true);
-          int muxerStoppedState = castNonNull((Integer) muxerStoppedStateField.get(mediaMuxer));
-          Field muxerStateField = MediaMuxer.class.getDeclaredField("mState");
-          muxerStateField.setAccessible(true);
-          muxerStateField.set(mediaMuxer, muxerStoppedState);
-        } catch (Exception reflectionException) {
-          // Do nothing.
-        }
-      }
-      throw e;
+    if (isReady) {
+      isReady = false;
     }
   }
 
@@ -261,54 +176,12 @@ import java.nio.ByteBuffer;
    */
   public void release() {
     isReady = false;
-    mediaMuxer.release();
+    muxer.release();
   }
 
   /** Returns the number of {@link #registerTrack() registered} tracks. */
   public int getTrackCount() {
     return trackCount;
-  }
-
-  /**
-   * Returns whether the sample {@link MimeTypes MIME type} is supported.
-   *
-   * <p>Supported sample formats are documented in {@link MediaMuxer#addTrack(MediaFormat)}.
-   */
-  public boolean supportsSampleMimeType(@Nullable String mimeType) {
-    boolean isAudio = MimeTypes.isAudio(mimeType);
-    boolean isVideo = MimeTypes.isVideo(mimeType);
-    if (outputMimeType.equals(MimeTypes.VIDEO_MP4)) {
-      if (isVideo) {
-        return MimeTypes.VIDEO_H263.equals(mimeType)
-            || MimeTypes.VIDEO_H264.equals(mimeType)
-            || MimeTypes.VIDEO_MP4V.equals(mimeType)
-            || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_H265.equals(mimeType));
-      } else if (isAudio) {
-        return MimeTypes.AUDIO_AAC.equals(mimeType)
-            || MimeTypes.AUDIO_AMR_NB.equals(mimeType)
-            || MimeTypes.AUDIO_AMR_WB.equals(mimeType);
-      }
-    } else if (outputMimeType.equals(MimeTypes.VIDEO_WEBM) && SDK_INT >= 21) {
-      if (isVideo) {
-        return MimeTypes.VIDEO_VP8.equals(mimeType)
-            || (Util.SDK_INT >= 24 && MimeTypes.VIDEO_VP9.equals(mimeType));
-      } else if (isAudio) {
-        return MimeTypes.AUDIO_VORBIS.equals(mimeType);
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Returns whether the {@link MimeTypes MIME type} provided is a supported muxer output format.
-   */
-  public static boolean supportsOutputMimeType(String mimeType) {
-    try {
-      mimeTypeToMuxerOutputFormat(mimeType);
-    } catch (IllegalStateException e) {
-      return false;
-    }
-    return true;
   }
 
   /**
@@ -337,22 +210,4 @@ import java.nio.ByteBuffer;
     return trackTimeUs - minTrackTimeUs <= MAX_TRACK_WRITE_AHEAD_US;
   }
 
-  /**
-   * Converts a {@link MimeTypes MIME type} into a {@link MediaMuxer.OutputFormat MediaMuxer output
-   * format}.
-   *
-   * @param mimeType The {@link MimeTypes MIME type} to convert.
-   * @return The corresponding {@link MediaMuxer.OutputFormat MediaMuxer output format}.
-   * @throws IllegalArgumentException If the {@link MimeTypes MIME type} is not supported as output
-   *     format.
-   */
-  private static int mimeTypeToMuxerOutputFormat(String mimeType) {
-    if (mimeType.equals(MimeTypes.VIDEO_MP4)) {
-      return MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4;
-    } else if (SDK_INT >= 21 && mimeType.equals(MimeTypes.VIDEO_WEBM)) {
-      return MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM;
-    } else {
-      throw new IllegalArgumentException("Unsupported output MIME type: " + mimeType);
-    }
-  }
 }
