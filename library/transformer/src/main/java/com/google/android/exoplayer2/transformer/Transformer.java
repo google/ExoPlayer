@@ -79,7 +79,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * of the application's main thread is used. In all cases the Looper of the thread from which the
  * transformer must be accessed can be queried using {@link #getApplicationLooper()}.
  */
-
 @RequiresApi(18)
 public final class Transformer {
 
@@ -88,6 +87,7 @@ public final class Transformer {
 
     private @MonotonicNonNull Context context;
     private @MonotonicNonNull MediaSourceFactory mediaSourceFactory;
+    private Muxer.Factory muxerFactory;
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
@@ -98,6 +98,7 @@ public final class Transformer {
 
     /** Creates a builder with default values. */
     public Builder() {
+      muxerFactory = new FrameworkMuxer.Factory();
       outputMimeType = MimeTypes.VIDEO_MP4;
       listener = new Listener() {};
       looper = Util.getCurrentOrMainLooper();
@@ -108,6 +109,7 @@ public final class Transformer {
     private Builder(Transformer transformer) {
       this.context = transformer.context;
       this.mediaSourceFactory = transformer.mediaSourceFactory;
+      this.muxerFactory = transformer.muxerFactory;
       this.removeAudio = transformer.transformation.removeAudio;
       this.removeVideo = transformer.transformation.removeVideo;
       this.flattenForSlowMotion = transformer.transformation.flattenForSlowMotion;
@@ -212,12 +214,8 @@ public final class Transformer {
      *
      * @param outputMimeType The MIME type of the output.
      * @return This builder.
-     * @throws IllegalArgumentException If the MIME type is not supported.
      */
     public Builder setOutputMimeType(String outputMimeType) {
-      if (!MuxerWrapper.supportsOutputMimeType(outputMimeType)) {
-        throw new IllegalArgumentException("Unsupported output MIME type: " + outputMimeType);
-      }
       this.outputMimeType = outputMimeType;
       return this;
     }
@@ -263,11 +261,24 @@ public final class Transformer {
     }
 
     /**
+     * Sets the factory for muxers that write the media container.
+     *
+     * @param muxerFactory A {@link Muxer.Factory}.
+     * @return This builder.
+     */
+    @VisibleForTesting
+    /* package */ Builder setMuxerFactory(Muxer.Factory muxerFactory) {
+      this.muxerFactory = muxerFactory;
+      return this;
+    }
+
+    /**
      * Builds a {@link Transformer} instance.
      *
      * @throws IllegalStateException If the {@link Context} has not been provided.
      * @throws IllegalStateException If both audio and video have been removed (otherwise the output
      *     would not contain any samples).
+     * @throws IllegalStateException If the muxer doesn't support the requested output MIME type.
      */
     public Transformer build() {
       checkStateNotNull(context);
@@ -278,9 +289,13 @@ public final class Transformer {
         }
         mediaSourceFactory = new DefaultMediaSourceFactory(context, defaultExtractorsFactory);
       }
+      checkState(
+          muxerFactory.supportsOutputMimeType(outputMimeType),
+          "Unsupported output MIME type: " + outputMimeType);
       Transformation transformation =
           new Transformation(removeAudio, removeVideo, flattenForSlowMotion, outputMimeType);
-      return new Transformer(context, mediaSourceFactory, transformation, listener, looper, clock);
+      return new Transformer(
+          context, mediaSourceFactory, muxerFactory, transformation, listener, looper, clock);
     }
   }
 
@@ -332,6 +347,7 @@ public final class Transformer {
 
   private final Context context;
   private final MediaSourceFactory mediaSourceFactory;
+  private final Muxer.Factory muxerFactory;
   private final Transformation transformation;
   private final Looper looper;
   private final Clock clock;
@@ -344,6 +360,7 @@ public final class Transformer {
   private Transformer(
       Context context,
       MediaSourceFactory mediaSourceFactory,
+      Muxer.Factory muxerFactory,
       Transformation transformation,
       Transformer.Listener listener,
       Looper looper,
@@ -353,6 +370,7 @@ public final class Transformer {
         "Audio and video cannot both be removed.");
     this.context = context;
     this.mediaSourceFactory = mediaSourceFactory;
+    this.muxerFactory = muxerFactory;
     this.transformation = transformation;
     this.listener = listener;
     this.looper = looper;
@@ -397,7 +415,7 @@ public final class Transformer {
    * @throws IOException If an error occurs opening the output file for writing.
    */
   public void startTransformation(MediaItem mediaItem, String path) throws IOException {
-    startTransformation(mediaItem, new MuxerWrapper(path, transformation.outputMimeType));
+    startTransformation(mediaItem, muxerFactory.create(path, transformation.outputMimeType));
   }
 
   /**
@@ -427,17 +445,17 @@ public final class Transformer {
   public void startTransformation(MediaItem mediaItem, ParcelFileDescriptor parcelFileDescriptor)
       throws IOException {
     startTransformation(
-        mediaItem, new MuxerWrapper(parcelFileDescriptor, transformation.outputMimeType));
+        mediaItem, muxerFactory.create(parcelFileDescriptor, transformation.outputMimeType));
   }
 
-  private void startTransformation(MediaItem mediaItem, MuxerWrapper muxerWrapper) {
+  private void startTransformation(MediaItem mediaItem, Muxer muxer) {
     verifyApplicationThread();
     if (player != null) {
       throw new IllegalStateException("There is already a transformation in progress.");
     }
 
+    MuxerWrapper muxerWrapper = new MuxerWrapper(muxer);
     this.muxerWrapper = muxerWrapper;
-
     DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
     trackSelector.setParameters(
         new DefaultTrackSelector.ParametersBuilder(context)

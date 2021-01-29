@@ -28,15 +28,16 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.Iterables;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -56,18 +57,20 @@ import org.robolectric.shadows.ShadowMediaCodec;
 @RunWith(AndroidJUnit4.class)
 public final class TransformerTest {
 
-  private static final String FILE_VIDEO_ONLY = "asset:///media/mkv/sample.mkv";
-  private static final String FILE_AUDIO_ONLY = "asset:///media/amr/sample_nb.amr";
-  private static final String FILE_AUDIO_VIDEO = "asset:///media/mp4/sample.mp4";
-
-  // The ShadowMediaMuxer only outputs sample data to the output file.
-  private static final int FILE_VIDEO_ONLY_SAMPLE_DATA_LENGTH = 89_502;
-  private static final int FILE_AUDIO_ONLY_SAMPLE_DATA_LENGTH = 2834;
-  private static final int FILE_AUDIO_VIDEO_AUDIO_SAMPLE_DATA_LENGTH = 9529;
-  private static final int FILE_AUDIO_VIDEO_VIDEO_SAMPLE_DATA_LENGTH = 89_876;
+  private static final String URI_PREFIX = "asset:///media/";
+  private static final String FILE_VIDEO_ONLY = "mkv/sample.mkv";
+  private static final String FILE_AUDIO_ONLY = "amr/sample_nb.amr";
+  private static final String FILE_AUDIO_VIDEO = "mp4/sample.mp4";
+  private static final String FILE_WITH_SUBTITLES = "mkv/sample_with_srt.mkv";
+  private static final String FILE_WITH_SEF_SLOW_MOTION = "mp4/sample_sef_slow_motion.mp4";
+  private static final String FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED = "mp4/sample_ac3.mp4";
+  private static final String FILE_UNKNOWN_DURATION = "mp4/sample_fragmented.mp4";
+  public static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
+  public static final String DUMP_FILE_EXTENSION = "dump";
 
   private Context context;
   private String outputPath;
+  private TestMuxer testMuxer;
   private AutoAdvancingFakeClock clock;
   private ProgressHolder progressHolder;
 
@@ -88,55 +91,78 @@ public final class TransformerTest {
 
   @Test
   public void startTransformation_videoOnly_completesSuccessfully() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    Transformer transformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(FILE_VIDEO_ONLY_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
   }
 
   @Test
   public void startTransformation_audioOnly_completesSuccessfully() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_AUDIO_ONLY);
+    Transformer transformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(FILE_AUDIO_ONLY_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_ONLY));
   }
 
   @Test
   public void startTransformation_audioAndVideo_completesSuccessfully() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_AUDIO_VIDEO);
+    Transformer transformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length())
-        .isEqualTo(
-            FILE_AUDIO_VIDEO_VIDEO_SAMPLE_DATA_LENGTH + FILE_AUDIO_VIDEO_AUDIO_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO));
   }
 
   @Test
   public void startTransformation_withSubtitles_completesSuccessfully() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri("asset:///media/mkv/sample_with_srt.mkv");
+    Transformer transformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_SUBTITLES);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(89_502);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_WITH_SUBTITLES));
   }
 
   @Test
   public void startTransformation_successiveTransformations_completesSuccessfully()
       throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    Transformer transformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     // Transform first media item.
     transformer.startTransformation(mediaItem, outputPath);
@@ -150,13 +176,13 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(FILE_VIDEO_ONLY_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
   }
 
   @Test
   public void startTransformation_concurrentTransformations_throwsError() throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     transformer.startTransformation(mediaItem, outputPath);
 
@@ -167,25 +193,37 @@ public final class TransformerTest {
   @Test
   public void startTransformation_removeAudio_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder().setContext(context).setRemoveAudio(true).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_AUDIO_VIDEO);
+        new Transformer.Builder()
+            .setContext(context)
+            .setRemoveAudio(true)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(FILE_AUDIO_VIDEO_VIDEO_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".noaudio"));
   }
 
   @Test
   public void startTransformation_removeVideo_completesSuccessfully() throws Exception {
     Transformer transformer =
-        new Transformer.Builder().setContext(context).setRemoveVideo(true).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_AUDIO_VIDEO);
+        new Transformer.Builder()
+            .setContext(context)
+            .setRemoveVideo(true)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_VIDEO);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(FILE_AUDIO_VIDEO_AUDIO_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(
+        context, testMuxer, getDumpFileName(FILE_AUDIO_VIDEO + ".novideo"));
   }
 
   @Test
@@ -195,13 +233,14 @@ public final class TransformerTest {
             .setContext(context)
             .setFlattenForSlowMotion(true)
             .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
             .build();
-    MediaItem mediaItem = MediaItem.fromUri("asset:///media/mp4/sample_sef_slow_motion.mp4");
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_SEF_SLOW_MOTION);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(18_172);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_WITH_SEF_SLOW_MOTION));
   }
 
   @Test
@@ -220,7 +259,7 @@ public final class TransformerTest {
   public void startTransformation_withAllSampleFormatsUnsupported_completesWithError()
       throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri("asset:///media/mp4/sample_ac3.mp4");
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_WITH_ALL_SAMPLE_FORMATS_UNSUPPORTED);
 
     transformer.startTransformation(mediaItem, outputPath);
     Exception exception = TransformerTestRunner.runUntilError(transformer);
@@ -230,8 +269,13 @@ public final class TransformerTest {
 
   @Test
   public void startTransformation_afterCancellation_completesSuccessfully() throws Exception {
-    Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    Transformer transformer =
+        new Transformer.Builder()
+            .setContext(context)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     transformer.startTransformation(mediaItem, outputPath);
     transformer.cancel();
@@ -243,7 +287,7 @@ public final class TransformerTest {
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
 
-    assertThat(new File(outputPath).length()).isEqualTo(FILE_VIDEO_ONLY_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_VIDEO_ONLY));
   }
 
   @Test
@@ -252,8 +296,13 @@ public final class TransformerTest {
     anotherThread.start();
     Looper looper = anotherThread.getLooper();
     Transformer transformer =
-        new Transformer.Builder().setContext(context).setLooper(looper).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_AUDIO_ONLY);
+        new Transformer.Builder()
+            .setContext(context)
+            .setLooper(looper)
+            .setClock(clock)
+            .setMuxerFactory(new TestMuxerFactory())
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
     AtomicReference<Exception> exception = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
 
@@ -272,13 +321,13 @@ public final class TransformerTest {
     countDownLatch.await();
 
     assertThat(exception.get()).isNull();
-    assertThat(new File(outputPath).length()).isEqualTo(FILE_AUDIO_ONLY_SAMPLE_DATA_LENGTH);
+    DumpFileAsserts.assertOutput(context, testMuxer, getDumpFileName(FILE_AUDIO_ONLY));
   }
 
   @Test
   public void startTransformation_fromWrongThread_throwsError() throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_AUDIO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_AUDIO_ONLY);
     HandlerThread anotherThread = new HandlerThread("AnotherThread");
     AtomicReference<IllegalStateException> illegalStateException = new AtomicReference<>();
     CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -305,7 +354,7 @@ public final class TransformerTest {
   @Test
   public void getProgress_knownDuration_returnsConsistentStates() throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
     AtomicInteger previousProgressState =
         new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
     AtomicBoolean foundInconsistentState = new AtomicBoolean();
@@ -351,7 +400,7 @@ public final class TransformerTest {
   @Test
   public void getProgress_knownDuration_givesIncreasingPercentages() throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
     List<Integer> progresses = new ArrayList<>();
     Handler progressHandler =
         new Handler(Looper.myLooper()) {
@@ -386,7 +435,7 @@ public final class TransformerTest {
   @Test
   public void getProgress_noCurrentTransformation_returnsNoTransformation() throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     @Transformer.ProgressState int stateBeforeTransform = transformer.getProgress(progressHolder);
     transformer.startTransformation(mediaItem, outputPath);
@@ -400,7 +449,7 @@ public final class TransformerTest {
   @Test
   public void getProgress_unknownDuration_returnsConsistentStates() throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri("asset:///media/mp4/sample_fragmented.mp4");
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_UNKNOWN_DURATION);
     AtomicInteger previousProgressState =
         new AtomicInteger(PROGRESS_STATE_WAITING_FOR_AVAILABILITY);
     AtomicBoolean foundInconsistentState = new AtomicBoolean();
@@ -467,7 +516,7 @@ public final class TransformerTest {
   @Test
   public void cancel_afterCompletion_doesNotThrow() throws Exception {
     Transformer transformer = new Transformer.Builder().setContext(context).setClock(clock).build();
-    MediaItem mediaItem = MediaItem.fromUri(FILE_VIDEO_ONLY);
+    MediaItem mediaItem = MediaItem.fromUri(URI_PREFIX + FILE_VIDEO_ONLY);
 
     transformer.startTransformation(mediaItem, outputPath);
     TransformerTestRunner.runUntilCompleted(transformer);
@@ -511,5 +560,29 @@ public final class TransformerTest {
 
   private static void removeEncodersAndDecoders() {
     ShadowMediaCodec.clearCodecs();
+  }
+
+  private static String getDumpFileName(String originalFileName) {
+    return DUMP_FILE_OUTPUT_DIRECTORY + '/' + originalFileName + '.' + DUMP_FILE_EXTENSION;
+  }
+
+  private final class TestMuxerFactory implements Muxer.Factory {
+    @Override
+    public Muxer create(String path, String outputMimeType) throws IOException {
+      testMuxer = new TestMuxer(path, outputMimeType);
+      return testMuxer;
+    }
+
+    @Override
+    public Muxer create(ParcelFileDescriptor parcelFileDescriptor, String outputMimeType)
+        throws IOException {
+      testMuxer = new TestMuxer("FD:" + parcelFileDescriptor.getFd(), outputMimeType);
+      return testMuxer;
+    }
+
+    @Override
+    public boolean supportsOutputMimeType(String mimeType) {
+      return true;
+    }
   }
 }

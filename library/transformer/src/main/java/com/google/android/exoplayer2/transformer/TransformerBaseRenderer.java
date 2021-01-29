@@ -50,7 +50,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
   @C.FormatSupport
   public final int supportsFormat(Format format) {
     @Nullable String sampleMimeType = format.sampleMimeType;
-    if (MimeTypes.getTrackType(format.sampleMimeType) != getTrackType()) {
+    if (MimeTypes.getTrackType(sampleMimeType) != getTrackType()) {
       return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     } else if (muxerWrapper.supportsSampleMimeType(sampleMimeType)) {
       return RendererCapabilities.create(C.FORMAT_HANDLED);
