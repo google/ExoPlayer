@@ -3,6 +3,7 @@ format 0:
   sampleMimeType = audio/mp4a-latm
   channelCount = 1
   sampleRate = 44100
+  pcmEncoding = 2
 sample:
   trackIndex = 0
   dataHashCode = 1205768497

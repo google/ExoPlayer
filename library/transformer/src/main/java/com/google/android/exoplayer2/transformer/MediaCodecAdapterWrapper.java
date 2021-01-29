@@ -29,11 +29,12 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecAdapter;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
 import com.google.android.exoplayer2.mediacodec.SynchronousMediaCodecAdapter;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A wrapper around {@link MediaCodecAdapter}.
@@ -44,17 +45,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 /* package */ final class MediaCodecAdapterWrapper {
 
+  // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
+  // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
+  private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
+
   private final BufferInfo outputBufferInfo;
   private final MediaCodecAdapter codec;
-  private final Format format;
 
+  private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
 
   private int inputBufferIndex;
   private int outputBufferIndex;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private boolean hasOutputFormat;
 
   /**
    * Returns a {@link MediaCodecAdapterWrapper} for a configured and started {@link
@@ -65,12 +69,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return A configured and started decoder wrapper.
    * @throws IOException If the underlying codec cannot be created.
    */
-  @RequiresNonNull("#1.sampleMimeType")
   public static MediaCodecAdapterWrapper createForAudioDecoding(Format format) throws IOException {
     @Nullable MediaCodec decoder = null;
     @Nullable MediaCodecAdapter adapter = null;
     try {
-      decoder = MediaCodec.createDecoderByType(format.sampleMimeType);
+      decoder = MediaCodec.createDecoderByType(checkNotNull(format.sampleMimeType));
       MediaFormat mediaFormat =
           MediaFormat.createAudioFormat(
               format.sampleMimeType, format.sampleRate, format.channelCount);
@@ -78,7 +81,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       adapter = new SynchronousMediaCodecAdapter.Factory().createAdapter(decoder);
       adapter.configure(mediaFormat, /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
       adapter.start();
-      return new MediaCodecAdapterWrapper(adapter, format);
+      return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
         adapter.release();
@@ -98,12 +101,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @return A configured and started encoder wrapper.
    * @throws IOException If the underlying codec cannot be created.
    */
-  @RequiresNonNull("#1.sampleMimeType")
   public static MediaCodecAdapterWrapper createForAudioEncoding(Format format) throws IOException {
     @Nullable MediaCodec encoder = null;
     @Nullable MediaCodecAdapter adapter = null;
     try {
-      encoder = MediaCodec.createEncoderByType(format.sampleMimeType);
+      encoder = MediaCodec.createEncoderByType(checkNotNull(format.sampleMimeType));
       MediaFormat mediaFormat =
           MediaFormat.createAudioFormat(
               format.sampleMimeType, format.sampleRate, format.channelCount);
@@ -115,7 +117,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           /* crypto= */ null,
           /* flags= */ MediaCodec.CONFIGURE_FLAG_ENCODE);
       adapter.start();
-      return new MediaCodecAdapterWrapper(adapter, format);
+      return new MediaCodecAdapterWrapper(adapter);
     } catch (Exception e) {
       if (adapter != null) {
         adapter.release();
@@ -126,9 +128,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
   }
 
-  private MediaCodecAdapterWrapper(MediaCodecAdapter codec, Format format) {
+  private MediaCodecAdapterWrapper(MediaCodecAdapter codec) {
     this.codec = codec;
-    this.format = format;
     outputBufferInfo = new BufferInfo();
     inputBufferIndex = C.INDEX_UNSET;
     outputBufferIndex = C.INDEX_UNSET;
@@ -202,8 +203,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     outputBufferIndex = codec.dequeueOutputBufferIndex(outputBufferInfo);
     if (outputBufferIndex < 0) {
-      if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED && !hasOutputFormat) {
-        hasOutputFormat = true;
+      if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+        outputFormat = getFormat(codec.getOutputFormat());
       }
       return false;
     }
@@ -228,41 +229,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return true;
   }
 
-  /**
-   * Returns a {@link Format} based on the {@link MediaCodecAdapter#getOutputFormat() mediaFormat},
-   * if available.
-   */
+  /** Returns the current output format, if available. */
   @Nullable
   public Format getOutputFormat() {
-    @Nullable MediaFormat mediaFormat = hasOutputFormat ? codec.getOutputFormat() : null;
-    if (mediaFormat == null) {
-      return null;
-    }
-
-    ImmutableList.Builder<byte[]> csdBuffers = new ImmutableList.Builder<>();
-    int csdIndex = 0;
-    while (true) {
-      @Nullable ByteBuffer csdByteBuffer = mediaFormat.getByteBuffer("csd-" + csdIndex);
-      if (csdByteBuffer == null) {
-        break;
-      }
-      byte[] csdBufferData = new byte[csdByteBuffer.remaining()];
-      csdByteBuffer.get(csdBufferData);
-      csdBuffers.add(csdBufferData);
-      csdIndex++;
-    }
-
-    return new Format.Builder()
-        .setSampleMimeType(mediaFormat.getString(MediaFormat.KEY_MIME))
-        .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
-        .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
-        .setInitializationData(csdBuffers.build())
-        .build();
-  }
-
-  /** Returns the {@link Format} used to create and configure the underlying {@link MediaCodec}. */
-  public Format getConfigFormat() {
-    return format;
+    return outputFormat;
   }
 
   /** Returns the current output {@link ByteBuffer}, if available. */
@@ -298,5 +268,38 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public void release() {
     outputBuffer = null;
     codec.release();
+  }
+
+  private static Format getFormat(MediaFormat mediaFormat) {
+    ImmutableList.Builder<byte[]> csdBuffers = new ImmutableList.Builder<>();
+    int csdIndex = 0;
+    while (true) {
+      @Nullable ByteBuffer csdByteBuffer = mediaFormat.getByteBuffer("csd-" + csdIndex);
+      if (csdByteBuffer == null) {
+        break;
+      }
+      byte[] csdBufferData = new byte[csdByteBuffer.remaining()];
+      csdByteBuffer.get(csdBufferData);
+      csdBuffers.add(csdBufferData);
+      csdIndex++;
+    }
+    String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
+    Format.Builder formatBuilder =
+        new Format.Builder()
+            .setSampleMimeType(mediaFormat.getString(MediaFormat.KEY_MIME))
+            .setInitializationData(csdBuffers.build());
+    if (MimeTypes.isVideo(mimeType)) {
+      formatBuilder
+          .setWidth(mediaFormat.getInteger(MediaFormat.KEY_WIDTH))
+          .setHeight(mediaFormat.getInteger(MediaFormat.KEY_HEIGHT));
+    } else if (MimeTypes.isAudio(mimeType)) {
+      // TODO(internal b/178685617): Only set the PCM encoding for audio/raw, once we have a way to
+      // simulate more realistic codec input/output formats in tests.
+      formatBuilder
+          .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
+          .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
+          .setPcmEncoding(MEDIA_CODEC_PCM_ENCODING);
+    }
+    return formatBuilder.build();
   }
 }

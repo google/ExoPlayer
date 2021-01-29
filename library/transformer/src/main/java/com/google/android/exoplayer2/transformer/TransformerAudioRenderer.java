@@ -32,7 +32,6 @@ import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.SampleStream;
-import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -40,9 +39,6 @@ import java.nio.ByteBuffer;
 /* package */ final class TransformerAudioRenderer extends TransformerBaseRenderer {
 
   private static final String TAG = "TransformerAudioRenderer";
-  // MediaCodec decoders always output 16 bit PCM, unless configured to output PCM float.
-  // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
-  private static final int MEDIA_CODEC_PCM_ENCODING = C.ENCODING_PCM_16BIT;
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
   private static final float SPEED_UNSET = -1f;
 
@@ -53,6 +49,8 @@ import java.nio.ByteBuffer;
   @Nullable private MediaCodecAdapterWrapper decoder;
   @Nullable private MediaCodecAdapterWrapper encoder;
   @Nullable private SpeedProvider speedProvider;
+  @Nullable private Format inputFormat;
+  @Nullable private AudioFormat encoderInputAudioFormat;
 
   private ByteBuffer sonicOutputBuffer;
   private long nextEncoderInputBufferTimeUs;
@@ -100,6 +98,8 @@ import java.nio.ByteBuffer;
       encoder = null;
     }
     speedProvider = null;
+    inputFormat = null;
+    encoderInputAudioFormat = null;
     sonicOutputBuffer = AudioProcessor.EMPTY_BUFFER;
     nextEncoderInputBufferTimeUs = 0;
     currentSpeed = SPEED_UNSET;
@@ -307,6 +307,7 @@ import java.nio.ByteBuffer;
    * returns whether it may be possible to write more data.
    */
   private boolean feedEncoder(ByteBuffer inputBuffer) {
+    AudioFormat encoderInputAudioFormat = checkNotNull(this.encoderInputAudioFormat);
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     ByteBuffer encoderInputBufferData = checkNotNull(encoderInputBuffer.data);
     int bufferLimit = inputBuffer.limit();
@@ -317,9 +318,8 @@ import java.nio.ByteBuffer;
     nextEncoderInputBufferTimeUs +=
         getBufferDurationUs(
             /* bytesWritten= */ encoderInputBufferData.position(),
-            /* bytesPerFrame= */ Util.getPcmFrameSize(
-                MEDIA_CODEC_PCM_ENCODING, encoder.getConfigFormat().channelCount),
-            encoder.getConfigFormat().sampleRate);
+            encoderInputAudioFormat.bytesPerFrame,
+            encoderInputAudioFormat.sampleRate);
 
     encoderInputBuffer.setFlags(0);
     encoderInputBuffer.flip();
@@ -342,30 +342,35 @@ import java.nio.ByteBuffer;
    * yet.
    */
   private void setupEncoderAndMaybeSonic() throws ExoPlaybackException {
-    MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
-
     if (encoder != null) {
       return;
     }
-
-    Format decoderFormat = decoder.getConfigFormat();
+    // TODO(b/161127201): Use the decoder output format once the decoder is fed before setting up
+    // the encoder.
+    AudioFormat outputAudioFormat =
+        new AudioFormat(
+            checkNotNull(inputFormat).sampleRate, inputFormat.channelCount, C.ENCODING_PCM_16BIT);
     if (transformation.flattenForSlowMotion) {
       try {
-        configureSonic(decoderFormat);
+        outputAudioFormat = sonicAudioProcessor.configure(outputAudioFormat);
+        flushSonicAndSetSpeed(currentSpeed);
       } catch (AudioProcessor.UnhandledAudioFormatException e) {
-        throw ExoPlaybackException.createForRenderer(
-            e, TAG, getIndex(), /* rendererFormat= */ null, C.FORMAT_HANDLED);
+        throw createRendererException(e);
       }
     }
-    Format encoderFormat =
-        decoderFormat.buildUpon().setAverageBitrate(DEFAULT_ENCODER_BITRATE).build();
-    checkNotNull(encoderFormat.sampleMimeType);
     try {
-      encoder = MediaCodecAdapterWrapper.createForAudioEncoding(encoderFormat);
+      encoder =
+          MediaCodecAdapterWrapper.createForAudioEncoding(
+              new Format.Builder()
+                  .setSampleMimeType(checkNotNull(inputFormat).sampleMimeType)
+                  .setSampleRate(outputAudioFormat.sampleRate)
+                  .setChannelCount(outputAudioFormat.channelCount)
+                  .setAverageBitrate(DEFAULT_ENCODER_BITRATE)
+                  .build());
     } catch (IOException e) {
-      throw ExoPlaybackException.createForRenderer(
-          e, TAG, getIndex(), encoderFormat, /* rendererFormatSupport= */ C.FORMAT_HANDLED);
+      throw createRendererException(e);
     }
+    encoderInputAudioFormat = outputAudioFormat;
   }
 
   /**
@@ -383,15 +388,13 @@ import java.nio.ByteBuffer;
     if (result != C.RESULT_FORMAT_READ) {
       return false;
     }
-    Format decoderFormat = checkNotNull(formatHolder.format);
-    checkNotNull(decoderFormat.sampleMimeType);
+    inputFormat = checkNotNull(formatHolder.format);
     try {
-      decoder = MediaCodecAdapterWrapper.createForAudioDecoding(decoderFormat);
+      decoder = MediaCodecAdapterWrapper.createForAudioDecoding(inputFormat);
     } catch (IOException e) {
-      throw ExoPlaybackException.createForRenderer(
-          e, TAG, getIndex(), decoderFormat, /* rendererFormatSupport= */ C.FORMAT_HANDLED);
+      throw createRendererException(e);
     }
-    speedProvider = new SegmentSpeedProvider(decoderFormat);
+    speedProvider = new SegmentSpeedProvider(inputFormat);
     currentSpeed = speedProvider.getSpeed(0);
     return true;
   }
@@ -406,16 +409,15 @@ import java.nio.ByteBuffer;
     return speedChanging;
   }
 
-  private void configureSonic(Format format) throws AudioProcessor.UnhandledAudioFormatException {
-    sonicAudioProcessor.configure(
-        new AudioFormat(format.sampleRate, format.channelCount, MEDIA_CODEC_PCM_ENCODING));
-    flushSonicAndSetSpeed(currentSpeed);
-  }
-
   private void flushSonicAndSetSpeed(float speed) {
     sonicAudioProcessor.setSpeed(speed);
     sonicAudioProcessor.setPitch(speed);
     sonicAudioProcessor.flush();
+  }
+
+  private ExoPlaybackException createRendererException(Throwable cause) {
+    return ExoPlaybackException.createForRenderer(
+        cause, TAG, getIndex(), inputFormat, /* rendererFormatSupport= */ C.FORMAT_HANDLED);
   }
 
   private static long getBufferDurationUs(long bytesWritten, int bytesPerFrame, int sampleRate) {
