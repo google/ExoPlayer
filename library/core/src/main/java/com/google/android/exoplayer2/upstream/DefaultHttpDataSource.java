@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -24,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
@@ -42,10 +43,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * An {@link HttpDataSource} that uses Android's {@link HttpURLConnection}.
@@ -208,7 +209,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private static final long MAX_BYTES_TO_DRAIN = 2048;
   private static final Pattern CONTENT_RANGE_HEADER =
       Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
-  private static final AtomicReference<byte[]> skipBufferReference = new AtomicReference<>();
 
   private final boolean allowCrossProtocolRedirects;
   private final int connectTimeoutMillis;
@@ -221,6 +221,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Nullable private DataSpec dataSpec;
   @Nullable private HttpURLConnection connection;
   @Nullable private InputStream inputStream;
+  private byte @MonotonicNonNull [] skipBuffer;
   private boolean opened;
   private int responseCode;
 
@@ -318,14 +319,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
   @Override
   public void setRequestProperty(String name, String value) {
-    Assertions.checkNotNull(name);
-    Assertions.checkNotNull(value);
+    checkNotNull(name);
+    checkNotNull(value);
     requestProperties.set(name, value);
   }
 
   @Override
   public void clearRequestProperty(String name) {
-    Assertions.checkNotNull(name);
+    checkNotNull(name);
     requestProperties.remove(name);
   }
 
@@ -343,6 +344,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     this.bytesRead = 0;
     this.bytesSkipped = 0;
     transferInitializing(dataSpec);
+
     try {
       connection = makeConnection(dataSpec);
     } catch (IOException e) {
@@ -355,6 +357,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           "Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
     }
 
+    HttpURLConnection connection = this.connection;
     String responseMessage;
     try {
       responseCode = connection.getResponseCode();
@@ -438,19 +441,22 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       skipInternal();
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
-      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_READ);
+      throw new HttpDataSourceException(
+          e, castNonNull(dataSpec), HttpDataSourceException.TYPE_READ);
     }
   }
 
   @Override
   public void close() throws HttpDataSourceException {
     try {
+      @Nullable InputStream inputStream = this.inputStream;
       if (inputStream != null) {
         maybeTerminateInputStream(connection, bytesRemaining());
         try {
           inputStream.close();
         } catch (IOException e) {
-          throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_CLOSE);
+          throw new HttpDataSourceException(
+              e, castNonNull(dataSpec), HttpDataSourceException.TYPE_CLOSE);
         }
       }
     } finally {
@@ -694,7 +700,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       if (matcher.find()) {
         try {
           long contentLengthFromRange =
-              Long.parseLong(matcher.group(2)) - Long.parseLong(matcher.group(1)) + 1;
+              Long.parseLong(checkNotNull(matcher.group(2)))
+                  - Long.parseLong(checkNotNull(matcher.group(1)))
+                  + 1;
           if (contentLength < 0) {
             // Some proxy servers strip the Content-Length header. Fall back to the length
             // calculated here in this case.
@@ -729,15 +737,13 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       return;
     }
 
-    // Acquire the shared skip buffer.
-    byte[] skipBuffer = skipBufferReference.getAndSet(null);
     if (skipBuffer == null) {
       skipBuffer = new byte[4096];
     }
 
     while (bytesSkipped != bytesToSkip) {
       int readLength = (int) min(bytesToSkip - bytesSkipped, skipBuffer.length);
-      int read = inputStream.read(skipBuffer, 0, readLength);
+      int read = castNonNull(inputStream).read(skipBuffer, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
       }
@@ -747,9 +753,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       bytesSkipped += read;
       bytesTransferred(read);
     }
-
-    // Release the shared skip buffer.
-    skipBufferReference.set(skipBuffer);
   }
 
   /**
@@ -778,7 +781,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       readLength = (int) min(readLength, bytesRemaining);
     }
 
-    int read = inputStream.read(buffer, offset, readLength);
+    int read = castNonNull(inputStream).read(buffer, offset, readLength);
     if (read == -1) {
       if (bytesToRead != C.LENGTH_UNSET) {
         // End of stream reached having not read sufficient data.
@@ -803,8 +806,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
    * @param bytesRemaining The number of bytes remaining to be read from the input stream if its
    *     length is known. {@link C#LENGTH_UNSET} otherwise.
    */
-  private static void maybeTerminateInputStream(HttpURLConnection connection, long bytesRemaining) {
-    if (Util.SDK_INT != 19 && Util.SDK_INT != 20) {
+  private static void maybeTerminateInputStream(
+      @Nullable HttpURLConnection connection, long bytesRemaining) {
+    if (connection == null || Util.SDK_INT < 19 || Util.SDK_INT > 20) {
       return;
     }
 
@@ -825,7 +829,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
           || "com.android.okhttp.internal.http.HttpTransport$FixedLengthInputStream"
               .equals(className)) {
         Class<?> superclass = inputStream.getClass().getSuperclass();
-        Method unexpectedEndOfInput = superclass.getDeclaredMethod("unexpectedEndOfInput");
+        Method unexpectedEndOfInput =
+            checkNotNull(superclass).getDeclaredMethod("unexpectedEndOfInput");
         unexpectedEndOfInput.setAccessible(true);
         unexpectedEndOfInput.invoke(inputStream);
       }
@@ -835,7 +840,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       // isn't using okhttp.
     }
   }
-
 
   /**
    * Closes the current connection quietly, if there is one.
