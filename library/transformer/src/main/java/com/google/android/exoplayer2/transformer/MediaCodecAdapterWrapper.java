@@ -159,12 +159,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   /**
-   * Queues an input buffer.
-   *
-   * @param inputBuffer The buffer to be queued.
-   * @return Whether more input buffers can be queued.
+   * Queues an input buffer to the decoder. No buffers may be queued after an {@link
+   * DecoderInputBuffer#isEndOfStream() end of stream} buffer has been queued.
    */
-  public boolean queueInputBuffer(DecoderInputBuffer inputBuffer) {
+  public void queueInputBuffer(DecoderInputBuffer inputBuffer) {
     checkState(
         !inputStreamEnded, "Input buffer can not be queued after the input stream has ended.");
 
@@ -182,7 +180,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     codec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
     inputBufferIndex = C.INDEX_UNSET;
     inputBuffer.data = null;
-    return !inputStreamEnded;
   }
 
   /**
