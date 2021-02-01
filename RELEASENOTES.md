@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released)
 
+*   Core library:
+    *   Log a warning when `SingleSampleMediaPeriod` transforms a load error
+        into end-of-stream.
 *   Extractors:
     *   Fix Vorbis private codec data parsing in the Matroska extractor
         ([#8496](https://github.com/google/ExoPlayer/issues/8496)).

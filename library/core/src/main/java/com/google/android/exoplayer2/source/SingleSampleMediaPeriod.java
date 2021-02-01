@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -44,6 +45,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** A {@link MediaPeriod} with a single sample. */
 /* package */ final class SingleSampleMediaPeriod
     implements MediaPeriod, Loader.Callback<SingleSampleMediaPeriod.SourceLoadable> {
+
+  private static final String TAG = "SingleSampleMediaPeriod";
 
   /** The initial size of the allocation used to hold the sample data. */
   private static final int INITIAL_SAMPLE_SIZE = 1024;
@@ -290,6 +293,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     LoadErrorAction action;
     if (treatLoadErrorsAsEndOfStream && errorCanBePropagated) {
+      Log.w(TAG, "Loading failed, treating as end-of-stream.", error);
       loadingFinished = true;
       action = Loader.DONT_RETRY;
     } else {
