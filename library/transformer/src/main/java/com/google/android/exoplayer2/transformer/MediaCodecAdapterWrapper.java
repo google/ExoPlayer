@@ -182,66 +182,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     inputBuffer.data = null;
   }
 
-  /**
-   * Dequeues an output buffer, if available.
-   *
-   * <p>Once this method returns {@code true}, call {@link #getOutputBuffer()} to access the
-   * dequeued buffer.
-   *
-   * @return Whether an output buffer is available.
-   */
-  public boolean maybeDequeueOutputBuffer() {
-    if (outputBufferIndex >= 0) {
-      return true;
-    }
-    if (outputStreamEnded) {
-      return false;
-    }
-
-    outputBufferIndex = codec.dequeueOutputBufferIndex(outputBufferInfo);
-    if (outputBufferIndex < 0) {
-      if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-        outputFormat = getFormat(codec.getOutputFormat());
-      }
-      return false;
-    }
-    if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
-      outputStreamEnded = true;
-      if (outputBufferInfo.size == 0) {
-        releaseOutputBuffer();
-        return false;
-      }
-    }
-
-    if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
-      // Encountered a CSD buffer, skip it.
-      releaseOutputBuffer();
-      return false;
-    }
-
-    outputBuffer = checkNotNull(codec.getOutputBuffer(outputBufferIndex));
-    outputBuffer.position(outputBufferInfo.offset);
-    outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
-
-    return true;
-  }
-
   /** Returns the current output format, if available. */
   @Nullable
   public Format getOutputFormat() {
+    // The format is updated when dequeueing a 'special' buffer index, so attempt to dequeue now.
+    maybeDequeueOutputBuffer();
     return outputFormat;
   }
 
   /** Returns the current output {@link ByteBuffer}, if available. */
   @Nullable
   public ByteBuffer getOutputBuffer() {
-    return outputBuffer;
+    return maybeDequeueOutputBuffer() ? outputBuffer : null;
   }
 
   /** Returns the {@link BufferInfo} associated with the current output buffer, if available. */
   @Nullable
   public BufferInfo getOutputBufferInfo() {
-    return outputBuffer == null ? null : outputBufferInfo;
+    return maybeDequeueOutputBuffer() ? outputBufferInfo : null;
   }
 
   /**
@@ -265,6 +223,45 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void release() {
     outputBuffer = null;
     codec.release();
+  }
+
+  /**
+   * Returns true if there is already an output buffer pending. Otherwise attempts to dequeue an
+   * output buffer and returns whether there is a new output buffer.
+   */
+  private boolean maybeDequeueOutputBuffer() {
+    if (outputBufferIndex >= 0) {
+      return true;
+    }
+    if (outputStreamEnded) {
+      return false;
+    }
+
+    outputBufferIndex = codec.dequeueOutputBufferIndex(outputBufferInfo);
+    if (outputBufferIndex < 0) {
+      if (outputBufferIndex == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+        outputFormat = getFormat(codec.getOutputFormat());
+      }
+      return false;
+    }
+    if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+      outputStreamEnded = true;
+      if (outputBufferInfo.size == 0) {
+        releaseOutputBuffer();
+        return false;
+      }
+    }
+    if ((outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
+      // Encountered a CSD buffer, skip it.
+      releaseOutputBuffer();
+      return false;
+    }
+
+    outputBuffer = checkNotNull(codec.getOutputBuffer(outputBufferIndex));
+    outputBuffer.position(outputBufferInfo.offset);
+    outputBuffer.limit(outputBufferInfo.offset + outputBufferInfo.size);
+
+    return true;
   }
 
   private static Format getFormat(MediaFormat mediaFormat) {
