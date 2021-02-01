@@ -114,19 +114,18 @@ import java.nio.ByteBuffer;
       return;
     }
 
-    if (!setupDecoder()) {
-      return;
+    if (ensureDecoderConfigured()) {
+      if (ensureEncoderAndAudioProcessingConfigured()) {
+        while (drainEncoderToFeedMuxer()) {}
+        if (sonicAudioProcessor.isActive()) {
+          while (drainSonicToFeedEncoder()) {}
+          while (drainDecoderToFeedSonic()) {}
+        } else {
+          while (drainDecoderToFeedEncoder()) {}
+        }
+      }
+      while (feedDecoderInputFromSource()) {}
     }
-    setupEncoderAndMaybeSonic();
-
-    while (drainEncoderToFeedMuxer()) {}
-    if (sonicAudioProcessor.isActive()) {
-      while (drainSonicToFeedEncoder()) {}
-      while (drainDecoderToFeedSonic()) {}
-    } else {
-      while (drainDecoderToFeedEncoder()) {}
-    }
-    while (feedDecoderInputFromSource()) {}
   }
 
   /**
@@ -136,8 +135,6 @@ import java.nio.ByteBuffer;
   private boolean drainEncoderToFeedMuxer() {
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     if (!hasEncoderOutputFormat) {
-      // Dequeue output format change.
-      encoder.maybeDequeueOutputBuffer();
       @Nullable Format encoderOutputFormat = encoder.getOutputFormat();
       if (encoderOutputFormat == null) {
         return false;
@@ -147,19 +144,15 @@ import java.nio.ByteBuffer;
     }
 
     if (encoder.isEnded()) {
-      // Encoder output stream ended and output is empty or null so end muxer track.
       muxerWrapper.endTrack(getTrackType());
       muxerWrapperTrackEnded = true;
       return false;
     }
-
-    if (!encoder.maybeDequeueOutputBuffer()) {
+    @Nullable ByteBuffer encoderOutputBuffer = encoder.getOutputBuffer();
+    if (encoderOutputBuffer == null) {
       return false;
     }
-
-    ByteBuffer encoderOutputBuffer = checkNotNull(encoder.getOutputBuffer());
     BufferInfo encoderOutputBufferInfo = checkNotNull(encoder.getOutputBufferInfo());
-
     if (!muxerWrapper.writeSample(
         getTrackType(),
         encoderOutputBuffer,
@@ -187,19 +180,15 @@ import java.nio.ByteBuffer;
       return false;
     }
 
-    if (!decoder.maybeDequeueOutputBuffer()) {
+    @Nullable ByteBuffer decoderOutputBuffer = decoder.getOutputBuffer();
+    if (decoderOutputBuffer == null) {
       return false;
     }
-
     if (isSpeedChanging(checkNotNull(decoder.getOutputBufferInfo()))) {
       flushSonicAndSetSpeed(currentSpeed);
       return false;
     }
-
-    ByteBuffer decoderOutputBuffer = checkNotNull(decoder.getOutputBuffer());
-
     feedEncoder(decoderOutputBuffer);
-
     if (!decoderOutputBuffer.hasRemaining()) {
       decoder.releaseOutputBuffer();
     }
@@ -246,8 +235,8 @@ import java.nio.ByteBuffer;
       drainingSonicForSpeedChange = false;
     }
 
-    // Sonic invalidates the output buffer when more input is queued, so we don't queue if there is
-    // output still to be processed.
+    // Sonic invalidates any previous output buffer when more input is queued, so we don't queue if
+    // there is output still to be processed.
     if (sonicOutputBuffer.hasRemaining()) {
       return false;
     }
@@ -256,20 +245,17 @@ import java.nio.ByteBuffer;
       sonicAudioProcessor.queueEndOfStream();
       return false;
     }
-
     checkState(!sonicAudioProcessor.isEnded());
 
-    if (!decoder.maybeDequeueOutputBuffer()) {
+    @Nullable ByteBuffer decoderOutputBuffer = decoder.getOutputBuffer();
+    if (decoderOutputBuffer == null) {
       return false;
     }
-
     if (isSpeedChanging(checkNotNull(decoder.getOutputBufferInfo()))) {
       sonicAudioProcessor.queueEndOfStream();
       drainingSonicForSpeedChange = true;
       return false;
     }
-
-    ByteBuffer decoderOutputBuffer = checkNotNull(decoder.getOutputBuffer());
     sonicAudioProcessor.queueInput(decoderOutputBuffer);
     if (!decoderOutputBuffer.hasRemaining()) {
       decoder.releaseOutputBuffer();
@@ -337,18 +323,23 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Configures the {@link #encoder} and Sonic (if applicable), if they have not been configured
-   * yet.
+   * Attempts to configure the {@link #encoder} and Sonic (if applicable), if they have not been
+   * configured yet, and returns whether they have been configured.
    */
-  private void setupEncoderAndMaybeSonic() throws ExoPlaybackException {
+  private boolean ensureEncoderAndAudioProcessingConfigured() throws ExoPlaybackException {
     if (encoder != null) {
-      return;
+      return true;
     }
-    // TODO(b/161127201): Use the decoder output format once the decoder is fed before setting up
-    // the encoder.
+    MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
+    @Nullable Format decoderOutputFormat = decoder.getOutputFormat();
+    if (decoderOutputFormat == null) {
+      return false;
+    }
     AudioFormat outputAudioFormat =
         new AudioFormat(
-            checkNotNull(inputFormat).sampleRate, inputFormat.channelCount, C.ENCODING_PCM_16BIT);
+            decoderOutputFormat.sampleRate,
+            decoderOutputFormat.channelCount,
+            decoderOutputFormat.pcmEncoding);
     if (transformation.flattenForSlowMotion) {
       try {
         outputAudioFormat = sonicAudioProcessor.configure(outputAudioFormat);
@@ -370,13 +361,14 @@ import java.nio.ByteBuffer;
       throw createRendererException(e);
     }
     encoderInputAudioFormat = outputAudioFormat;
+    return true;
   }
 
   /**
    * Attempts to configure the {@link #decoder} if it has not been configured yet, and returns
    * whether the decoder has been configured.
    */
-  private boolean setupDecoder() throws ExoPlaybackException {
+  private boolean ensureDecoderConfigured() throws ExoPlaybackException {
     if (decoder != null) {
       return true;
     }
