@@ -226,7 +226,8 @@ import java.nio.ByteBuffer;
       }
     }
 
-    return feedEncoder(sonicOutputBuffer);
+    feedEncoder(sonicOutputBuffer);
+    return true;
   }
 
   /**
@@ -293,7 +294,8 @@ import java.nio.ByteBuffer;
       case C.RESULT_BUFFER_READ:
         mediaClock.updateTimeForTrackType(getTrackType(), decoderInputBuffer.timeUs);
         decoderInputBuffer.flip();
-        return decoder.queueInputBuffer(decoderInputBuffer);
+        decoder.queueInputBuffer(decoderInputBuffer);
+        return !decoderInputBuffer.isEndOfStream();
       case C.RESULT_FORMAT_READ:
         throw new IllegalStateException("Format changes are not supported.");
       case C.RESULT_NOTHING_READ:
@@ -303,16 +305,15 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Feeds the encoder the {@link ByteBuffer inputBuffer} with the correct {@code timeUs}, and
-   * returns whether it may be possible to write more data.
+   * Feeds as much data as possible between the current position and limit of the specified {@link
+   * ByteBuffer} to the encoder, and advances its position by the number of bytes fed.
    */
-  private boolean feedEncoder(ByteBuffer inputBuffer) {
+  private void feedEncoder(ByteBuffer inputBuffer) {
     AudioFormat encoderInputAudioFormat = checkNotNull(this.encoderInputAudioFormat);
     MediaCodecAdapterWrapper encoder = checkNotNull(this.encoder);
     ByteBuffer encoderInputBufferData = checkNotNull(encoderInputBuffer.data);
     int bufferLimit = inputBuffer.limit();
     inputBuffer.limit(min(bufferLimit, inputBuffer.position() + encoderInputBufferData.capacity()));
-
     encoderInputBufferData.put(inputBuffer);
     encoderInputBuffer.timeUs = nextEncoderInputBufferTimeUs;
     nextEncoderInputBufferTimeUs +=
@@ -320,12 +321,10 @@ import java.nio.ByteBuffer;
             /* bytesWritten= */ encoderInputBufferData.position(),
             encoderInputAudioFormat.bytesPerFrame,
             encoderInputAudioFormat.sampleRate);
-
     encoderInputBuffer.setFlags(0);
     encoderInputBuffer.flip();
     inputBuffer.limit(bufferLimit);
-
-    return encoder.queueInputBuffer(encoderInputBuffer);
+    encoder.queueInputBuffer(encoderInputBuffer);
   }
 
   private void queueEndOfStreamToEncoder() {
