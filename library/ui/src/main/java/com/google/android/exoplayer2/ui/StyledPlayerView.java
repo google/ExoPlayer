@@ -595,7 +595,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       subtitleView.setCues(null);
     }
     this.player = player;
-    Log.d("test track", this.player.getTrackSelector().toString());
+
     if (useController()) {
       controller.setPlayer(player);
     }
