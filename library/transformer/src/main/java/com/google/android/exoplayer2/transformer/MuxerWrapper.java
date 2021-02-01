@@ -159,24 +159,16 @@ import java.nio.ByteBuffer;
   }
 
   /**
-   * Stops the muxer.
+   * Releases any resources associated with muxing.
    *
-   * <p>The muxer cannot be used anymore once it is stopped.
-   */
-  public void stop() {
-    if (isReady) {
-      isReady = false;
-    }
-  }
-
-  /**
-   * Releases the muxer.
+   * <p>The muxer cannot be used anymore once this method has been called.
    *
-   * <p>The muxer cannot be used anymore once it is released.
+   * @param forCancellation Whether the reason for releasing the resources is the transformation
+   *     cancellation.
    */
-  public void release() {
+  public void release(boolean forCancellation) {
     isReady = false;
-    muxer.release();
+    muxer.release(forCancellation);
   }
 
   /** Returns the number of {@link #registerTrack() registered} tracks. */

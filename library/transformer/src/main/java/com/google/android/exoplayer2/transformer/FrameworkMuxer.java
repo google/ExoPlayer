@@ -138,33 +138,39 @@ import java.nio.ByteBuffer;
   }
 
   @Override
-  public void release() {
-    if (isStarted) {
-      isStarted = false;
-      try {
-        mediaMuxer.stop();
-      } catch (IllegalStateException e) {
-        if (SDK_INT < 30) {
-          // Set the muxer state to stopped even if mediaMuxer.stop() failed so that
-          // mediaMuxer.release() doesn't attempt to stop the muxer and therefore doesn't throw the
-          // same exception without releasing its resources. This is already implemented in
-          // MediaMuxer
-          // from API level 30.
-          try {
-            Field muxerStoppedStateField = MediaMuxer.class.getDeclaredField("MUXER_STATE_STOPPED");
-            muxerStoppedStateField.setAccessible(true);
-            int muxerStoppedState = castNonNull((Integer) muxerStoppedStateField.get(mediaMuxer));
-            Field muxerStateField = MediaMuxer.class.getDeclaredField("mState");
-            muxerStateField.setAccessible(true);
-            muxerStateField.set(mediaMuxer, muxerStoppedState);
-          } catch (Exception reflectionException) {
-            // Do nothing.
-          }
+  public void release(boolean forCancellation) {
+    if (!isStarted) {
+      mediaMuxer.release();
+      return;
+    }
+
+    isStarted = false;
+    try {
+      mediaMuxer.stop();
+    } catch (IllegalStateException e) {
+      if (SDK_INT < 30) {
+        // Set the muxer state to stopped even if mediaMuxer.stop() failed so that
+        // mediaMuxer.release() doesn't attempt to stop the muxer and therefore doesn't throw the
+        // same exception without releasing its resources. This is already implemented in MediaMuxer
+        // from API level 30.
+        try {
+          Field muxerStoppedStateField = MediaMuxer.class.getDeclaredField("MUXER_STATE_STOPPED");
+          muxerStoppedStateField.setAccessible(true);
+          int muxerStoppedState = castNonNull((Integer) muxerStoppedStateField.get(mediaMuxer));
+          Field muxerStateField = MediaMuxer.class.getDeclaredField("mState");
+          muxerStateField.setAccessible(true);
+          muxerStateField.set(mediaMuxer, muxerStoppedState);
+        } catch (Exception reflectionException) {
+          // Do nothing.
         }
+      }
+      // It doesn't matter that stopping the muxer throws if the transformation is being cancelled.
+      if (!forCancellation) {
         throw e;
       }
+    } finally {
+      mediaMuxer.release();
     }
-    mediaMuxer.release();
   }
 
   /**

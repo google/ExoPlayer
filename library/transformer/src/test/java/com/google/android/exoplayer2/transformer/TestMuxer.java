@@ -62,9 +62,9 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
   }
 
   @Override
-  public void release() {
+  public void release(boolean forCancellation) {
     dumpables.add(dumper -> dumper.add("released", true));
-    frameworkMuxer.release();
+    frameworkMuxer.release(forCancellation);
   }
 
   // Dumper.Dumpable implementation.
