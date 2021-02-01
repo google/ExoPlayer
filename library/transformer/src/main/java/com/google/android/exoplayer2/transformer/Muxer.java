@@ -84,6 +84,11 @@ import java.nio.ByteBuffer;
   void writeSampleData(
       int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs);
 
-  /** Releases any resources associated with muxing. */
-  void release();
+  /**
+   * Releases any resources associated with muxing.
+   *
+   * @param forCancellation Whether the reason for releasing the resources is the transformation
+   *     cancellation.
+   */
+  void release(boolean forCancellation);
 }

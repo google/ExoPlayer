@@ -525,36 +525,27 @@ public final class Transformer {
    * @throws IllegalStateException If this method is called from the wrong thread.
    */
   public void cancel() {
-    // It doesn't matter that stopping the muxer throws, because the transformation is cancelled
-    // anyway.
-    releaseResources(/* swallowStopMuxerException= */ true);
+    releaseResources(/* forCancellation= */ true);
   }
 
   /**
    * Releases the resources.
    *
-   * @param swallowStopMuxerException Whether to swallow exceptions thrown by stopping the muxer.
+   * @param forCancellation Whether the reason for releasing the resources is the transformation
+   *     cancellation.
    * @throws IllegalStateException If this method is called from the wrong thread.
-   * @throws IllegalStateException If the muxer is in the wrong state when stopping it and {@code
-   *     swallowStopMuxerException} is false.
+   * @throws IllegalStateException If the muxer is in the wrong state and {@code forCancellation} is
+   *     false.
    */
-  private void releaseResources(boolean swallowStopMuxerException) {
+  private void releaseResources(boolean forCancellation) {
     verifyApplicationThread();
     if (player != null) {
       player.release();
       player = null;
     }
     if (muxerWrapper != null) {
-      try {
-        muxerWrapper.stop();
-      } catch (IllegalStateException e) {
-        if (!swallowStopMuxerException) {
-          throw e;
-        }
-      } finally {
-        muxerWrapper.release();
-        muxerWrapper = null;
-      }
+      muxerWrapper.release(forCancellation);
+      muxerWrapper = null;
     }
     progressState = PROGRESS_STATE_NO_TRANSFORMATION;
   }
@@ -654,7 +645,7 @@ public final class Transformer {
 
     private void handleTransformationEnded(@Nullable Exception exception) {
       try {
-        releaseResources(/* swallowStopMuxerException= */ false);
+        releaseResources(/* forCancellation= */ false);
       } catch (IllegalStateException e) {
         if (exception == null) {
           exception = e;
