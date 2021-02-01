@@ -41,4 +41,7 @@
   <item name="exo_vr" type="id"/>
   <item name="exo_subtitle" type="id"/>
   <item name="exo_fullscreen" type="id"/>
+  <item name="exo_settings" type="id"/>
+  <item name="exo_playback_speed" type="id"/>
+  <item name="exo_audio_track" type="id"/>
 </resources>

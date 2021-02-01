@@ -65,6 +65,7 @@ import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderGLSurfaceView;
@@ -594,6 +595,7 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       subtitleView.setCues(null);
     }
     this.player = player;
+    Log.d("test track", this.player.getTrackSelector().toString());
     if (useController()) {
       controller.setPlayer(player);
     }

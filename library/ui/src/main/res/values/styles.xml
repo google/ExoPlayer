@@ -192,6 +192,16 @@
     <item name="android:contentDescription">@string/exo_controls_settings_description</item>
   </style>
 
+  <style name="ExoStyledControls.Button.Bottom.PlaybackSpeed">
+    <item name="android:src">@drawable/exo_styled_controls_speed</item>
+    <item name="android:contentDescription">@string/exo_controls_playback_speed</item>
+  </style>
+
+  <style name="ExoStyledControls.Button.Bottom.AudioTrack">
+    <item name="android:src">@drawable/exo_styled_controls_audiotrack</item>
+    <item name="android:contentDescription">@string/exo_track_selection_title_audio</item>
+  </style>
+
   <style name="ExoStyledControls.TimeBar">
     <item name="bar_height">@dimen/exo_styled_progress_bar_height</item>
     <item name="bar_gravity">bottom</item>
