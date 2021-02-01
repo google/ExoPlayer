@@ -19,6 +19,8 @@ import static com.google.android.exoplayer2.text.Cue.LINE_TYPE_FRACTION;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.text.Layout;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
@@ -301,7 +303,18 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       SsaStyle.Overrides styleOverrides,
       float screenWidth,
       float screenHeight) {
-    Cue.Builder cue = new Cue.Builder().setText(text);
+    SpannableString spannableText = new SpannableString(text);
+    Cue.Builder cue = new Cue.Builder().setText(spannableText);
+
+    if (style != null) {
+      if (style.primaryColor != null) {
+        spannableText.setSpan(
+            new ForegroundColorSpan(style.primaryColor),
+            /* start= */ 0,
+            /* end= */ spannableText.length(),
+            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+    }
 
     @SsaStyle.SsaAlignment int alignment;
     if (styleOverrides.alignment != SsaStyle.SSA_ALIGNMENT_UNKNOWN) {

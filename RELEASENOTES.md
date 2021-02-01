@@ -5,6 +5,9 @@
 *   Extractors:
     *   Fix Vorbis private codec data parsing in the Matroska extractor
         ([#8496](https://github.com/google/ExoPlayer/issues/8496)).
+*   Text:
+    *   Add support for the SSA `primaryColour` style attribute
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
 
 ### 2.13.0 (not yet released - targeted for 2021-02-TBD)
 
