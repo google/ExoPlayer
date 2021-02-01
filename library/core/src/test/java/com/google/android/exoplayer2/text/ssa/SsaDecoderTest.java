@@ -18,10 +18,13 @@ package com.google.android.exoplayer2.text.ssa;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.graphics.Color;
 import android.text.Layout;
+import android.text.Spanned;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.testutil.truth.SpannedSubject;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.common.collect.Iterables;
@@ -44,6 +47,7 @@ public final class SsaDecoderTest {
   private static final String INVALID_TIMECODES = "media/ssa/invalid_timecodes";
   private static final String INVALID_POSITIONS = "media/ssa/invalid_positioning";
   private static final String POSITIONS_WITHOUT_PLAYRES = "media/ssa/positioning_without_playres";
+  private static final String COLORS = "media/ssa/colors";
 
   @Test
   public void decodeEmpty() throws IOException {
@@ -265,6 +269,54 @@ public final class SsaDecoderTest {
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
     assertTypicalCue3(subtitle, 0);
+  }
+
+  @Test
+  public void decodeColors() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), COLORS);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(14);
+    // &H000000FF (AABBGGRR) -> #FFFF0000 (AARRGGBB)
+    Spanned firstCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0))).text;
+    SpannedSubject.assertThat(firstCueText)
+        .hasForegroundColorSpanBetween(0, firstCueText.length())
+        .withColor(Color.RED);
+    // &H0000FFFF (AABBGGRR) -> #FFFFFF00 (AARRGGBB)
+    Spanned secondCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2))).text;
+    SpannedSubject.assertThat(secondCueText)
+        .hasForegroundColorSpanBetween(0, secondCueText.length())
+        .withColor(Color.YELLOW);
+    // &HFF00 (GGRR) -> #FF00FF00 (AARRGGBB)
+    Spanned thirdCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(4))).text;
+    SpannedSubject.assertThat(thirdCueText)
+        .hasForegroundColorSpanBetween(0, thirdCueText.length())
+        .withColor(Color.GREEN);
+    // &HA00000FF (AABBGGRR) -> #5FFF0000 (AARRGGBB)
+    Spanned fourthCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(6))).text;
+    SpannedSubject.assertThat(fourthCueText)
+        .hasForegroundColorSpanBetween(0, fourthCueText.length())
+        .withColor(0x5FFF0000);
+    // 16711680 (AABBGGRR) -> &H00FF0000 (AABBGGRR) -> #FF0000FF (AARRGGBB)
+    Spanned fifthCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(8))).text;
+    SpannedSubject.assertThat(fifthCueText)
+        .hasForegroundColorSpanBetween(0, fifthCueText.length())
+        .withColor(0xFF0000FF);
+    // 2164195328 (AABBGGRR) -> &H80FF0000 (AABBGGRR) -> #7F0000FF (AARRGGBB)
+    Spanned sixthCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(10))).text;
+    SpannedSubject.assertThat(sixthCueText)
+        .hasForegroundColorSpanBetween(0, sixthCueText.length())
+        .withColor(0x7F0000FF);
+    Spanned seventhCueText =
+        (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12))).text;
+    SpannedSubject.assertThat(seventhCueText)
+        .hasNoForegroundColorSpanBetween(0, seventhCueText.length());
   }
 
   private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {
