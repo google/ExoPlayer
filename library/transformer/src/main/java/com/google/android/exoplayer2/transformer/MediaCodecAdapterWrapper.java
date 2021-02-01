@@ -77,6 +77,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       MediaFormat mediaFormat =
           MediaFormat.createAudioFormat(
               format.sampleMimeType, format.sampleRate, format.channelCount);
+      MediaFormatUtil.maybeSetInteger(
+          mediaFormat, MediaFormat.KEY_MAX_INPUT_SIZE, format.maxInputSize);
       MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
       adapter = new SynchronousMediaCodecAdapter.Factory().createAdapter(decoder);
       adapter.configure(mediaFormat, /* surface= */ null, /* crypto= */ null, /* flags= */ 0);
