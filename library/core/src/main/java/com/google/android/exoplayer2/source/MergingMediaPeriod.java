@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.offline.StreamKey;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.util.Assertions;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,9 +33,7 @@ import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Merges multiple {@link MediaPeriod}s.
- */
+/** Merges multiple {@link MediaPeriod}s. */
 /* package */ final class MergingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
   private final MediaPeriod[] periods;
@@ -100,7 +98,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -126,15 +124,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     // Select tracks for each child, copying the resulting streams back into a new streams array.
     @NullableType SampleStream[] newStreams = new SampleStream[selections.length];
     @NullableType SampleStream[] childStreams = new SampleStream[selections.length];
-    @NullableType TrackSelection[] childSelections = new TrackSelection[selections.length];
+    @NullableType ExoTrackSelection[] childSelections = new ExoTrackSelection[selections.length];
     ArrayList<MediaPeriod> enabledPeriodsList = new ArrayList<>(periods.length);
     for (int i = 0; i < periods.length; i++) {
       for (int j = 0; j < selections.length; j++) {
         childStreams[j] = streamChildIndices[j] == i ? streams[j] : null;
         childSelections[j] = selectionChildIndices[j] == i ? selections[j] : null;
       }
-      long selectPositionUs = periods[i].selectTracks(childSelections, mayRetainStreamFlags,
-          childStreams, streamResetFlags, positionUs);
+      long selectPositionUs =
+          periods[i].selectTracks(
+              childSelections, mayRetainStreamFlags, childStreams, streamResetFlags, positionUs);
       if (i == 0) {
         positionUs = selectPositionUs;
       } else if (selectPositionUs != positionUs) {
@@ -314,13 +313,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+    public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
       return mediaPeriod.getStreamKeys(trackSelections);
     }
 
     @Override
     public long selectTracks(
-        @NullableType TrackSelection[] selections,
+        @NullableType ExoTrackSelection[] selections,
         boolean[] mayRetainStreamFlags,
         @NullableType SampleStream[] streams,
         boolean[] streamResetFlags,

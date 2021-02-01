@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.robolectric;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 
-import android.os.Handler;
 import android.os.Looper;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -297,21 +296,24 @@ public class TestPlayerRunHelper {
   public static void playUntilPosition(ExoPlayer player, int windowIndex, long positionMs)
       throws TimeoutException {
     verifyMainTestThread(player);
-    Handler testHandler = Util.createHandlerForCurrentOrMainLooper();
-
+    Looper applicationLooper = Util.getCurrentOrMainLooper();
     AtomicBoolean messageHandled = new AtomicBoolean(false);
     player
         .createMessage(
             (messageType, payload) -> {
               // Block playback thread until pause command has been sent from test thread.
               ConditionVariable blockPlaybackThreadCondition = new ConditionVariable();
-              testHandler.post(
-                  () -> {
-                    player.pause();
-                    messageHandled.set(true);
-                    blockPlaybackThreadCondition.open();
-                  });
+              player
+                  .getClock()
+                  .createHandler(applicationLooper, /* callback= */ null)
+                  .post(
+                      () -> {
+                        player.pause();
+                        messageHandled.set(true);
+                        blockPlaybackThreadCondition.open();
+                      });
               try {
+                player.getClock().onThreadBlocked();
                 blockPlaybackThreadCondition.block();
               } catch (InterruptedException e) {
                 // Ignore.
@@ -354,7 +356,7 @@ public class TestPlayerRunHelper {
     AtomicBoolean receivedMessageCallback = new AtomicBoolean(false);
     player
         .createMessage((type, data) -> receivedMessageCallback.set(true))
-        .setHandler(Util.createHandlerForCurrentOrMainLooper())
+        .setLooper(Util.getCurrentOrMainLooper())
         .send();
     runMainLooperUntil(receivedMessageCallback::get);
   }

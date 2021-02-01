@@ -227,7 +227,7 @@ public abstract class ExoHostedTest implements AnalyticsListener, HostedTest {
 
   protected DrmSessionManager buildDrmSessionManager() {
     // Do nothing. Interested subclasses may override.
-    return DrmSessionManager.getDummyDrmSessionManager();
+    return DrmSessionManager.DRM_UNSUPPORTED;
   }
 
   protected DefaultTrackSelector buildTrackSelector(HostActivity host) {

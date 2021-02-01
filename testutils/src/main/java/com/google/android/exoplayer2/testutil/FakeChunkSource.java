@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.SingleSampleMediaChunk;
 import com.google.android.exoplayer2.testutil.FakeDataSet.FakeData.Segment;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -55,7 +55,7 @@ public final class FakeChunkSource implements ChunkSource {
     }
 
     public FakeChunkSource createChunkSource(
-        TrackSelection trackSelection,
+        ExoTrackSelection trackSelection,
         long durationUs,
         @Nullable TransferListener transferListener) {
       FakeAdaptiveDataSet dataSet =
@@ -70,12 +70,12 @@ public final class FakeChunkSource implements ChunkSource {
 
   }
 
-  private final TrackSelection trackSelection;
+  private final ExoTrackSelection trackSelection;
   private final DataSource dataSource;
   private final FakeAdaptiveDataSet dataSet;
 
-  public FakeChunkSource(TrackSelection trackSelection, DataSource dataSource,
-      FakeAdaptiveDataSet dataSet) {
+  public FakeChunkSource(
+      ExoTrackSelection trackSelection, DataSource dataSource, FakeAdaptiveDataSet dataSet) {
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
     this.dataSet = dataSet;

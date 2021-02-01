@@ -734,14 +734,14 @@ public abstract class Timeline {
    * @return The index of the next window, or {@link C#INDEX_UNSET} if this is the last window.
    */
   public int getNextWindowIndex(
-      int windowIndex, @C.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+      int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
-      case C.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
         return windowIndex == getLastWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
             : windowIndex + 1;
-      case C.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         return windowIndex;
-      case C.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         return windowIndex == getLastWindowIndex(shuffleModeEnabled)
             ? getFirstWindowIndex(shuffleModeEnabled) : windowIndex + 1;
       default:
@@ -759,14 +759,14 @@ public abstract class Timeline {
    * @return The index of the previous window, or {@link C#INDEX_UNSET} if this is the first window.
    */
   public int getPreviousWindowIndex(
-      int windowIndex, @C.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
+      int windowIndex, @Player.RepeatMode int repeatMode, boolean shuffleModeEnabled) {
     switch (repeatMode) {
-      case C.REPEAT_MODE_OFF:
+      case Player.REPEAT_MODE_OFF:
         return windowIndex == getFirstWindowIndex(shuffleModeEnabled) ? C.INDEX_UNSET
             : windowIndex - 1;
-      case C.REPEAT_MODE_ONE:
+      case Player.REPEAT_MODE_ONE:
         return windowIndex;
-      case C.REPEAT_MODE_ALL:
+      case Player.REPEAT_MODE_ALL:
         return windowIndex == getFirstWindowIndex(shuffleModeEnabled)
             ? getLastWindowIndex(shuffleModeEnabled) : windowIndex - 1;
       default:
@@ -847,7 +847,7 @@ public abstract class Timeline {
       int periodIndex,
       Period period,
       Window window,
-      @C.RepeatMode int repeatMode,
+      @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled) {
     int windowIndex = getPeriod(periodIndex, period).windowIndex;
     if (getWindow(windowIndex, window).lastPeriodIndex == periodIndex) {
@@ -875,7 +875,7 @@ public abstract class Timeline {
       int periodIndex,
       Period period,
       Window window,
-      @C.RepeatMode int repeatMode,
+      @Player.RepeatMode int repeatMode,
       boolean shuffleModeEnabled) {
     return getNextPeriodIndex(periodIndex, period, window, repeatMode, shuffleModeEnabled)
         == C.INDEX_UNSET;

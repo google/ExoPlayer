@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.upstream.Loader.Loadable;
 import com.google.android.exoplayer2.upstream.StatsDataSource;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -41,15 +42,13 @@ import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * A {@link MediaPeriod} with a single sample.
- */
-/* package */ final class SingleSampleMediaPeriod implements MediaPeriod,
-    Loader.Callback<SingleSampleMediaPeriod.SourceLoadable>  {
+/** A {@link MediaPeriod} with a single sample. */
+/* package */ final class SingleSampleMediaPeriod
+    implements MediaPeriod, Loader.Callback<SingleSampleMediaPeriod.SourceLoadable> {
 
-  /**
-   * The initial size of the allocation used to hold the sample data.
-   */
+  private static final String TAG = "SingleSampleMediaPeriod";
+
+  /** The initial size of the allocation used to hold the sample data. */
   private static final int INITIAL_SAMPLE_SIZE = 1024;
 
   private final DataSpec dataSpec;
@@ -113,7 +112,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -294,6 +293,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     LoadErrorAction action;
     if (treatLoadErrorsAsEndOfStream && errorCanBePropagated) {
+      Log.w(TAG, "Loading failed, treating as end-of-stream.", error);
       loadingFinished = true;
       action = Loader.DONT_RETRY;
     } else {
@@ -348,8 +348,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public int readData(FormatHolder formatHolder, DecoderInputBuffer buffer,
-        boolean requireFormat) {
+    public int readData(
+        FormatHolder formatHolder, DecoderInputBuffer buffer, boolean requireFormat) {
       maybeNotifyDownstreamFormat();
       if (streamState == STREAM_STATE_END_OF_STREAM) {
         buffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);

@@ -40,8 +40,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
@@ -558,7 +557,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       if (e.isRecoverable && pendingRecoverableError == null) {
         Log.w(TAG, "Recoverable playback error", e);
         pendingRecoverableError = e;
-        Message message = handler.obtainMessage(MSG_ATTEMPT_ERROR_RECOVERY, e);
+        HandlerWrapper.Message message = handler.obtainMessage(MSG_ATTEMPT_ERROR_RECOVERY, e);
         // Given that the player is now in an unhandled exception state, the error needs to be
         // recovered or the player stopped before any other message is handled.
         message.getTarget().sendMessageAtFrontOfQueue(message);
@@ -625,6 +624,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     boolean wasInterrupted = false;
     while (!condition.get() && remainingMs > 0) {
       try {
+        clock.onThreadBlocked();
         wait(remainingMs);
       } catch (InterruptedException e) {
         wasInterrupted = true;
@@ -726,8 +726,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionPlayWhenReadyChanged(boolean playWhenReady) {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onPlayWhenReadyChanged(playWhenReady);
         }
@@ -901,8 +900,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionRebuffer() {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onRebuffer();
         }
@@ -1468,7 +1466,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void sendMessageToTarget(PlayerMessage message) throws ExoPlaybackException {
-    if (message.getHandler().getLooper() == playbackLooper) {
+    if (message.getLooper() == playbackLooper) {
       deliverMessage(message);
       if (playbackInfo.playbackState == Player.STATE_READY
           || playbackInfo.playbackState == Player.STATE_BUFFERING) {
@@ -1481,21 +1479,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void sendMessageToTargetThread(final PlayerMessage message) {
-    Handler handler = message.getHandler();
-    if (!handler.getLooper().getThread().isAlive()) {
+    Looper looper = message.getLooper();
+    if (!looper.getThread().isAlive()) {
       Log.w("TAG", "Trying to send message on a dead thread.");
       message.markAsProcessed(/* isDelivered= */ false);
       return;
     }
-    handler.post(
-        () -> {
-          try {
-            deliverMessage(message);
-          } catch (ExoPlaybackException e) {
-            Log.e(TAG, "Unexpected error delivering message on external thread.", e);
-            throw new RuntimeException(e);
-          }
-        });
+    clock
+        .createHandler(looper, /* callback= */ null)
+        .post(
+            () -> {
+              try {
+                deliverMessage(message);
+              } catch (ExoPlaybackException e) {
+                Log.e(TAG, "Unexpected error delivering message on external thread.", e);
+                throw new RuntimeException(e);
+              }
+            });
   }
 
   private void deliverMessage(PlayerMessage message) throws ExoPlaybackException {
@@ -1690,8 +1690,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void updateTrackSelectionPlaybackSpeed(float playbackSpeed) {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onPlaybackSpeed(playbackSpeed);
         }
@@ -1703,8 +1702,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void notifyTrackSelectionDiscontinuity() {
     MediaPeriodHolder periodHolder = queue.getPlayingPeriod();
     while (periodHolder != null) {
-      TrackSelection[] trackSelections = periodHolder.getTrackSelectorResult().selections.getAll();
-      for (TrackSelection trackSelection : trackSelections) {
+      for (ExoTrackSelection trackSelection : periodHolder.getTrackSelectorResult().selections) {
         if (trackSelection != null) {
           trackSelection.onDiscontinuity();
         }
@@ -1732,8 +1730,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
             ? livePlaybackSpeedControl.getTargetLiveOffsetUs()
             : C.TIME_UNSET;
     MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
-    boolean bufferedToEnd = loadingHolder.isFullyBuffered() && loadingHolder.info.isFinal;
-    return bufferedToEnd
+    boolean isBufferedToEnd = loadingHolder.isFullyBuffered() && loadingHolder.info.isFinal;
+    // Ad loader implementations may only load ad media once playback has nearly reached the ad, but
+    // it is possible for playback to be stuck buffering waiting for this. Therefore, we start
+    // playback regardless of buffered duration if we are waiting for an ad media period to prepare.
+    boolean isAdPendingPreparation = loadingHolder.info.id.isAd() && !loadingHolder.prepared;
+    return isBufferedToEnd
+        || isAdPendingPreparation
         || loadControl.shouldStartPlayback(
             getTotalBufferedDurationUs(),
             mediaClock.getPlaybackParameters().speed,
@@ -2016,7 +2019,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
       if (!renderer.isCurrentStreamFinal()) {
         // The renderer stream is not final, so we can replace the sample streams immediately.
-        Format[] formats = getFormats(newTrackSelectorResult.selections.get(i));
+        Format[] formats = getFormats(newTrackSelectorResult.selections[i]);
         renderer.replaceStream(
             formats,
             readingPeriodHolder.sampleStreams[i],
@@ -2266,11 +2269,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private ImmutableList<Metadata> extractMetadataFromTrackSelectionArray(
-      TrackSelectionArray trackSelectionArray) {
+      ExoTrackSelection[] trackSelections) {
     ImmutableList.Builder<Metadata> result = new ImmutableList.Builder<>();
     boolean seenNonEmptyMetadata = false;
-    for (int i = 0; i < trackSelectionArray.length; i++) {
-      @Nullable TrackSelection trackSelection = trackSelectionArray.get(i);
+    for (ExoTrackSelection trackSelection : trackSelections) {
       if (trackSelection != null) {
         Format format = trackSelection.getFormat(/* index= */ 0);
         if (format.metadata == null) {
@@ -2318,7 +2320,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     TrackSelectorResult trackSelectorResult = periodHolder.getTrackSelectorResult();
     RendererConfiguration rendererConfiguration =
         trackSelectorResult.rendererConfigurations[rendererIndex];
-    TrackSelection newSelection = trackSelectorResult.selections.get(rendererIndex);
+    ExoTrackSelection newSelection = trackSelectorResult.selections[rendererIndex];
     Format[] formats = getFormats(newSelection);
     // The renderer needs enabling with its new track selection.
     boolean playing = shouldPlayWhenReady() && playbackInfo.playbackState == Player.STATE_READY;
@@ -2792,7 +2794,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return newPeriodIndex == C.INDEX_UNSET ? null : newTimeline.getUidOfPeriod(newPeriodIndex);
   }
 
-  private static Format[] getFormats(TrackSelection newSelection) {
+  private static Format[] getFormats(ExoTrackSelection newSelection) {
     // Build an array of formats contained by the selection.
     int length = newSelection != null ? newSelection.length() : 0;
     Format[] formats = new Format[length];

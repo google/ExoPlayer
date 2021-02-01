@@ -2445,18 +2445,18 @@ public class MatroskaExtractor implements Extractor {
         }
         int offset = 1;
         int vorbisInfoLength = 0;
-        while (codecPrivate[offset] == (byte) 0xFF) {
+        while ((codecPrivate[offset] & 0xFF) == 0xFF) {
           vorbisInfoLength += 0xFF;
           offset++;
         }
-        vorbisInfoLength += codecPrivate[offset++];
+        vorbisInfoLength += codecPrivate[offset++] & 0xFF;
 
         int vorbisSkipLength = 0;
-        while (codecPrivate[offset] == (byte) 0xFF) {
+        while ((codecPrivate[offset] & 0xFF) == 0xFF) {
           vorbisSkipLength += 0xFF;
           offset++;
         }
-        vorbisSkipLength += codecPrivate[offset++];
+        vorbisSkipLength += codecPrivate[offset++] & 0xFF;
 
         if (codecPrivate[offset] != 0x01) {
           throw new ParserException("Error parsing vorbis codec private");

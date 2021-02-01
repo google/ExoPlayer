@@ -31,10 +31,7 @@ public final class SinglePeriodTimeline extends Timeline {
 
   private static final Object UID = new Object();
   private static final MediaItem MEDIA_ITEM =
-      new MediaItem.Builder()
-          .setMediaId("com.google.android.exoplayer2.source.SinglePeriodTimeline")
-          .setUri(Uri.EMPTY)
-          .build();
+      new MediaItem.Builder().setMediaId("SinglePeriodTimeline").setUri(Uri.EMPTY).build();
 
   private final long presentationStartTimeMs;
   private final long windowStartTimeMs;

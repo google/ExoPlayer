@@ -451,25 +451,10 @@ import java.util.Map;
       return;
     }
 
-    if (playbackState == Player.STATE_BUFFERING && !player.isPlayingAd()) {
-      // Check whether we are waiting for an ad to preload.
-      int adGroupIndex = getLoadingAdGroupIndex();
-      if (adGroupIndex == C.INDEX_UNSET) {
-        return;
-      }
-      AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
-      if (adGroup.count != C.LENGTH_UNSET
-          && adGroup.count != 0
-          && adGroup.states[0] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
-        // An ad is available already so we must be buffering for some other reason.
-        return;
-      }
-      long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
-      long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
-      long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
-      if (timeUntilAdMs < configuration.adPreloadTimeoutMs) {
-        waitingForPreloadElapsedRealtimeMs = SystemClock.elapsedRealtime();
-      }
+    if (playbackState == Player.STATE_BUFFERING
+        && !player.isPlayingAd()
+        && isWaitingForAdToLoad()) {
+      waitingForPreloadElapsedRealtimeMs = SystemClock.elapsedRealtime();
     } else if (playbackState == Player.STATE_READY) {
       waitingForPreloadElapsedRealtimeMs = C.TIME_UNSET;
     }
@@ -759,25 +744,33 @@ import java.util.Map;
     if (imaAdInfo != null) {
       adPlaybackState = adPlaybackState.withSkippedAdGroup(imaAdInfo.adGroupIndex);
       updateAdPlaybackState();
-    } else {
-      // Mark any ads for the current/reported player position that haven't loaded as being in the
-      // error state, to force resuming content. This includes VPAID ads that never load.
-      long playerPositionUs;
-      if (player != null) {
-        playerPositionUs = C.msToUs(getContentPeriodPositionMs(player, timeline, period));
-      } else if (!VideoProgressUpdate.VIDEO_TIME_NOT_READY.equals(lastContentProgress)) {
-        // Playback is backgrounded so use the last reported content position.
-        playerPositionUs = C.msToUs(lastContentProgress.getCurrentTimeMs());
-      } else {
-        return;
-      }
-      int adGroupIndex =
-          adPlaybackState.getAdGroupIndexForPositionUs(
-              playerPositionUs, C.msToUs(contentDurationMs));
-      if (adGroupIndex != C.INDEX_UNSET) {
-        markAdGroupInErrorStateAndClearPendingContentPosition(adGroupIndex);
-      }
     }
+  }
+
+  /**
+   * Returns whether this instance is expecting the first ad in an the upcoming ad group to load
+   * within the {@link ImaUtil.Configuration#adPreloadTimeoutMs preload timeout}.
+   */
+  private boolean isWaitingForAdToLoad() {
+    @Nullable Player player = this.player;
+    if (player == null) {
+      return false;
+    }
+    int adGroupIndex = getLoadingAdGroupIndex();
+    if (adGroupIndex == C.INDEX_UNSET) {
+      return false;
+    }
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+    if (adGroup.count != C.LENGTH_UNSET
+        && adGroup.count != 0
+        && adGroup.states[0] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
+      // An ad is available already.
+      return false;
+    }
+    long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+    long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
+    long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
+    return timeUntilAdMs < configuration.adPreloadTimeoutMs;
   }
 
   private void handlePlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
@@ -1305,6 +1298,12 @@ import java.util.Map;
           handleAdGroupLoadError(new IOException("Ad preloading timed out"));
           maybeNotifyPendingAdLoadError();
         }
+      } else if (pendingContentPositionMs != C.TIME_UNSET
+          && player != null
+          && player.getPlaybackState() == Player.STATE_BUFFERING
+          && isWaitingForAdToLoad()) {
+        // Prepare to timeout the load of an ad for the pending seek operation.
+        waitingForPreloadElapsedRealtimeMs = SystemClock.elapsedRealtime();
       }
 
       return videoProgressUpdate;

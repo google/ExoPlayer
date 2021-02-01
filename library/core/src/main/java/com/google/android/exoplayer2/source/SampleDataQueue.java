@@ -115,39 +115,25 @@ import java.util.Arrays;
   }
 
   /**
-   * Reads data from the rolling buffer to populate a decoder input buffer.
+   * Reads data from the rolling buffer to populate a decoder input buffer, and advances the read
+   * position.
    *
    * @param buffer The buffer to populate.
    * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
    */
   public void readToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
-    // Read encryption data if the sample is encrypted.
-    if (buffer.isEncrypted()) {
-      readEncryptionData(buffer, extrasHolder);
-    }
-    // Read sample data, extracting supplemental data into a separate buffer if needed.
-    if (buffer.hasSupplementalData()) {
-      // If there is supplemental data, the sample data is prefixed by its size.
-      scratch.reset(4);
-      readData(extrasHolder.offset, scratch.getData(), 4);
-      int sampleSize = scratch.readUnsignedIntToInt();
-      extrasHolder.offset += 4;
-      extrasHolder.size -= 4;
+    readAllocationNode = readSampleData(readAllocationNode, buffer, extrasHolder, scratch);
+  }
 
-      // Write the sample data.
-      buffer.ensureSpaceForWrite(sampleSize);
-      readData(extrasHolder.offset, buffer.data, sampleSize);
-      extrasHolder.offset += sampleSize;
-      extrasHolder.size -= sampleSize;
-
-      // Write the remaining data as supplemental data.
-      buffer.resetSupplementalData(extrasHolder.size);
-      readData(extrasHolder.offset, buffer.supplementalData, extrasHolder.size);
-    } else {
-      // Write the sample data.
-      buffer.ensureSpaceForWrite(extrasHolder.size);
-      readData(extrasHolder.offset, buffer.data, extrasHolder.size);
-    }
+  /**
+   * Peeks data from the rolling buffer to populate a decoder input buffer, without advancing the
+   * read position.
+   *
+   * @param buffer The buffer to populate.
+   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   */
+  public void peekToBuffer(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
+    readSampleData(readAllocationNode, buffer, extrasHolder, scratch);
   }
 
   /**
@@ -211,151 +197,6 @@ import java.util.Arrays;
   // Private methods.
 
   /**
-   * Reads encryption data for the current sample.
-   *
-   * <p>The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and {@link
-   * SampleExtrasHolder#size} is adjusted to subtract the number of bytes that were read. The same
-   * value is added to {@link SampleExtrasHolder#offset}.
-   *
-   * @param buffer The buffer into which the encryption data should be written.
-   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
-   */
-  private void readEncryptionData(DecoderInputBuffer buffer, SampleExtrasHolder extrasHolder) {
-    long offset = extrasHolder.offset;
-
-    // Read the signal byte.
-    scratch.reset(1);
-    readData(offset, scratch.getData(), 1);
-    offset++;
-    byte signalByte = scratch.getData()[0];
-    boolean subsampleEncryption = (signalByte & 0x80) != 0;
-    int ivSize = signalByte & 0x7F;
-
-    // Read the initialization vector.
-    CryptoInfo cryptoInfo = buffer.cryptoInfo;
-    if (cryptoInfo.iv == null) {
-      cryptoInfo.iv = new byte[16];
-    } else {
-      // Zero out cryptoInfo.iv so that if ivSize < 16, the remaining bytes are correctly set to 0.
-      Arrays.fill(cryptoInfo.iv, (byte) 0);
-    }
-    readData(offset, cryptoInfo.iv, ivSize);
-    offset += ivSize;
-
-    // Read the subsample count, if present.
-    int subsampleCount;
-    if (subsampleEncryption) {
-      scratch.reset(2);
-      readData(offset, scratch.getData(), 2);
-      offset += 2;
-      subsampleCount = scratch.readUnsignedShort();
-    } else {
-      subsampleCount = 1;
-    }
-
-    // Write the clear and encrypted subsample sizes.
-    @Nullable int[] clearDataSizes = cryptoInfo.numBytesOfClearData;
-    if (clearDataSizes == null || clearDataSizes.length < subsampleCount) {
-      clearDataSizes = new int[subsampleCount];
-    }
-    @Nullable int[] encryptedDataSizes = cryptoInfo.numBytesOfEncryptedData;
-    if (encryptedDataSizes == null || encryptedDataSizes.length < subsampleCount) {
-      encryptedDataSizes = new int[subsampleCount];
-    }
-    if (subsampleEncryption) {
-      int subsampleDataLength = 6 * subsampleCount;
-      scratch.reset(subsampleDataLength);
-      readData(offset, scratch.getData(), subsampleDataLength);
-      offset += subsampleDataLength;
-      scratch.setPosition(0);
-      for (int i = 0; i < subsampleCount; i++) {
-        clearDataSizes[i] = scratch.readUnsignedShort();
-        encryptedDataSizes[i] = scratch.readUnsignedIntToInt();
-      }
-    } else {
-      clearDataSizes[0] = 0;
-      encryptedDataSizes[0] = extrasHolder.size - (int) (offset - extrasHolder.offset);
-    }
-
-    // Populate the cryptoInfo.
-    CryptoData cryptoData = Util.castNonNull(extrasHolder.cryptoData);
-    cryptoInfo.set(
-        subsampleCount,
-        clearDataSizes,
-        encryptedDataSizes,
-        cryptoData.encryptionKey,
-        cryptoInfo.iv,
-        cryptoData.cryptoMode,
-        cryptoData.encryptedBlocks,
-        cryptoData.clearBlocks);
-
-    // Adjust the offset and size to take into account the bytes read.
-    int bytesRead = (int) (offset - extrasHolder.offset);
-    extrasHolder.offset += bytesRead;
-    extrasHolder.size -= bytesRead;
-  }
-
-  /**
-   * Reads data from the front of the rolling buffer.
-   *
-   * @param absolutePosition The absolute position from which data should be read.
-   * @param target The buffer into which data should be written.
-   * @param length The number of bytes to read.
-   */
-  private void readData(long absolutePosition, ByteBuffer target, int length) {
-    advanceReadTo(absolutePosition);
-    int remaining = length;
-    while (remaining > 0) {
-      int toCopy = min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
-      Allocation allocation = readAllocationNode.allocation;
-      target.put(allocation.data, readAllocationNode.translateOffset(absolutePosition), toCopy);
-      remaining -= toCopy;
-      absolutePosition += toCopy;
-      if (absolutePosition == readAllocationNode.endPosition) {
-        readAllocationNode = readAllocationNode.next;
-      }
-    }
-  }
-
-  /**
-   * Reads data from the front of the rolling buffer.
-   *
-   * @param absolutePosition The absolute position from which data should be read.
-   * @param target The array into which data should be written.
-   * @param length The number of bytes to read.
-   */
-  private void readData(long absolutePosition, byte[] target, int length) {
-    advanceReadTo(absolutePosition);
-    int remaining = length;
-    while (remaining > 0) {
-      int toCopy = min(remaining, (int) (readAllocationNode.endPosition - absolutePosition));
-      Allocation allocation = readAllocationNode.allocation;
-      System.arraycopy(
-          allocation.data,
-          readAllocationNode.translateOffset(absolutePosition),
-          target,
-          length - remaining,
-          toCopy);
-      remaining -= toCopy;
-      absolutePosition += toCopy;
-      if (absolutePosition == readAllocationNode.endPosition) {
-        readAllocationNode = readAllocationNode.next;
-      }
-    }
-  }
-
-  /**
-   * Advances the read position to the specified absolute position.
-   *
-   * @param absolutePosition The position to which {@link #readAllocationNode} should be advanced.
-   */
-  private void advanceReadTo(long absolutePosition) {
-    while (absolutePosition >= readAllocationNode.endPosition) {
-      readAllocationNode = readAllocationNode.next;
-    }
-  }
-
-  /**
    * Clears allocation nodes starting from {@code fromNode}.
    *
    * @param fromNode The node from which to clear.
@@ -407,6 +248,214 @@ import java.util.Arrays;
     if (totalBytesWritten == writeAllocationNode.endPosition) {
       writeAllocationNode = writeAllocationNode.next;
     }
+  }
+
+  /**
+   * Reads data from the rolling buffer to populate a decoder input buffer.
+   *
+   * @param allocationNode The first {@link AllocationNode} containing data yet to be read.
+   * @param buffer The buffer to populate.
+   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   * @param scratch A scratch {@link ParsableByteArray}.
+   * @return The first {@link AllocationNode} that contains unread bytes after the last byte that
+   *     the invocation read.
+   */
+  private static AllocationNode readSampleData(
+      AllocationNode allocationNode,
+      DecoderInputBuffer buffer,
+      SampleExtrasHolder extrasHolder,
+      ParsableByteArray scratch) {
+    if (buffer.isEncrypted()) {
+      allocationNode = readEncryptionData(allocationNode, buffer, extrasHolder, scratch);
+    }
+    // Read sample data, extracting supplemental data into a separate buffer if needed.
+    if (buffer.hasSupplementalData()) {
+      // If there is supplemental data, the sample data is prefixed by its size.
+      scratch.reset(4);
+      allocationNode = readData(allocationNode, extrasHolder.offset, scratch.getData(), 4);
+      int sampleSize = scratch.readUnsignedIntToInt();
+      extrasHolder.offset += 4;
+      extrasHolder.size -= 4;
+
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(sampleSize);
+      allocationNode = readData(allocationNode, extrasHolder.offset, buffer.data, sampleSize);
+      extrasHolder.offset += sampleSize;
+      extrasHolder.size -= sampleSize;
+
+      // Write the remaining data as supplemental data.
+      buffer.resetSupplementalData(extrasHolder.size);
+      allocationNode =
+          readData(allocationNode, extrasHolder.offset, buffer.supplementalData, extrasHolder.size);
+    } else {
+      // Write the sample data.
+      buffer.ensureSpaceForWrite(extrasHolder.size);
+      allocationNode =
+          readData(allocationNode, extrasHolder.offset, buffer.data, extrasHolder.size);
+    }
+    return allocationNode;
+  }
+
+  /**
+   * Reads encryption data for the sample described by {@code extrasHolder}.
+   *
+   * <p>The encryption data is written into {@link DecoderInputBuffer#cryptoInfo}, and {@link
+   * SampleExtrasHolder#size} is adjusted to subtract the number of bytes that were read. The same
+   * value is added to {@link SampleExtrasHolder#offset}.
+   *
+   * @param allocationNode The first {@link AllocationNode} containing data yet to be read.
+   * @param buffer The buffer into which the encryption data should be written.
+   * @param extrasHolder The extras holder whose offset should be read and subsequently adjusted.
+   * @param scratch A scratch {@link ParsableByteArray}.
+   * @return The first {@link AllocationNode} that contains unread bytes after this method returns.
+   */
+  private static AllocationNode readEncryptionData(
+      AllocationNode allocationNode,
+      DecoderInputBuffer buffer,
+      SampleExtrasHolder extrasHolder,
+      ParsableByteArray scratch) {
+    long offset = extrasHolder.offset;
+
+    // Read the signal byte.
+    scratch.reset(1);
+    allocationNode = readData(allocationNode, offset, scratch.getData(), 1);
+    offset++;
+    byte signalByte = scratch.getData()[0];
+    boolean subsampleEncryption = (signalByte & 0x80) != 0;
+    int ivSize = signalByte & 0x7F;
+
+    // Read the initialization vector.
+    CryptoInfo cryptoInfo = buffer.cryptoInfo;
+    if (cryptoInfo.iv == null) {
+      cryptoInfo.iv = new byte[16];
+    } else {
+      // Zero out cryptoInfo.iv so that if ivSize < 16, the remaining bytes are correctly set to 0.
+      Arrays.fill(cryptoInfo.iv, (byte) 0);
+    }
+    allocationNode = readData(allocationNode, offset, cryptoInfo.iv, ivSize);
+    offset += ivSize;
+
+    // Read the subsample count, if present.
+    int subsampleCount;
+    if (subsampleEncryption) {
+      scratch.reset(2);
+      allocationNode = readData(allocationNode, offset, scratch.getData(), 2);
+      offset += 2;
+      subsampleCount = scratch.readUnsignedShort();
+    } else {
+      subsampleCount = 1;
+    }
+
+    // Write the clear and encrypted subsample sizes.
+    @Nullable int[] clearDataSizes = cryptoInfo.numBytesOfClearData;
+    if (clearDataSizes == null || clearDataSizes.length < subsampleCount) {
+      clearDataSizes = new int[subsampleCount];
+    }
+    @Nullable int[] encryptedDataSizes = cryptoInfo.numBytesOfEncryptedData;
+    if (encryptedDataSizes == null || encryptedDataSizes.length < subsampleCount) {
+      encryptedDataSizes = new int[subsampleCount];
+    }
+    if (subsampleEncryption) {
+      int subsampleDataLength = 6 * subsampleCount;
+      scratch.reset(subsampleDataLength);
+      allocationNode = readData(allocationNode, offset, scratch.getData(), subsampleDataLength);
+      offset += subsampleDataLength;
+      scratch.setPosition(0);
+      for (int i = 0; i < subsampleCount; i++) {
+        clearDataSizes[i] = scratch.readUnsignedShort();
+        encryptedDataSizes[i] = scratch.readUnsignedIntToInt();
+      }
+    } else {
+      clearDataSizes[0] = 0;
+      encryptedDataSizes[0] = extrasHolder.size - (int) (offset - extrasHolder.offset);
+    }
+
+    // Populate the cryptoInfo.
+    CryptoData cryptoData = Util.castNonNull(extrasHolder.cryptoData);
+    cryptoInfo.set(
+        subsampleCount,
+        clearDataSizes,
+        encryptedDataSizes,
+        cryptoData.encryptionKey,
+        cryptoInfo.iv,
+        cryptoData.cryptoMode,
+        cryptoData.encryptedBlocks,
+        cryptoData.clearBlocks);
+
+    // Adjust the offset and size to take into account the bytes read.
+    int bytesRead = (int) (offset - extrasHolder.offset);
+    extrasHolder.offset += bytesRead;
+    extrasHolder.size -= bytesRead;
+    return allocationNode;
+  }
+
+  /**
+   * Reads data from {@code allocationNode} and its following nodes.
+   *
+   * @param allocationNode The first {@link AllocationNode} containing data yet to be read.
+   * @param absolutePosition The absolute position from which data should be read.
+   * @param target The buffer into which data should be written.
+   * @param length The number of bytes to read.
+   * @return The first {@link AllocationNode} that contains unread bytes after this method returns.
+   */
+  private static AllocationNode readData(
+      AllocationNode allocationNode, long absolutePosition, ByteBuffer target, int length) {
+    allocationNode = getNodeContainingPosition(allocationNode, absolutePosition);
+    int remaining = length;
+    while (remaining > 0) {
+      int toCopy = min(remaining, (int) (allocationNode.endPosition - absolutePosition));
+      Allocation allocation = allocationNode.allocation;
+      target.put(allocation.data, allocationNode.translateOffset(absolutePosition), toCopy);
+      remaining -= toCopy;
+      absolutePosition += toCopy;
+      if (absolutePosition == allocationNode.endPosition) {
+        allocationNode = allocationNode.next;
+      }
+    }
+    return allocationNode;
+  }
+
+  /**
+   * Reads data from {@code allocationNode} and its following nodes.
+   *
+   * @param allocationNode The first {@link AllocationNode} containing data yet to be read.
+   * @param absolutePosition The absolute position from which data should be read.
+   * @param target The array into which data should be written.
+   * @param length The number of bytes to read.
+   * @return The first {@link AllocationNode} that contains unread bytes after this method returns.
+   */
+  private static AllocationNode readData(
+      AllocationNode allocationNode, long absolutePosition, byte[] target, int length) {
+    allocationNode = getNodeContainingPosition(allocationNode, absolutePosition);
+    int remaining = length;
+    while (remaining > 0) {
+      int toCopy = min(remaining, (int) (allocationNode.endPosition - absolutePosition));
+      Allocation allocation = allocationNode.allocation;
+      System.arraycopy(
+          allocation.data,
+          allocationNode.translateOffset(absolutePosition),
+          target,
+          length - remaining,
+          toCopy);
+      remaining -= toCopy;
+      absolutePosition += toCopy;
+      if (absolutePosition == allocationNode.endPosition) {
+        allocationNode = allocationNode.next;
+      }
+    }
+    return allocationNode;
+  }
+
+  /**
+   * Returns the {@link AllocationNode} in {@code allocationNode}'s chain which contains the given
+   * {@code absolutePosition}.
+   */
+  private static AllocationNode getNodeContainingPosition(
+      AllocationNode allocationNode, long absolutePosition) {
+    while (absolutePosition >= allocationNode.endPosition) {
+      allocationNode = allocationNode.next;
+    }
+    return allocationNode;
   }
 
   /** A node in a linked list of {@link Allocation}s held by the output. */

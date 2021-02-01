@@ -48,6 +48,7 @@ public final class JpegExtractor implements Extractor {
     STATE_READING_SEGMENT_LENGTH,
     STATE_READING_SEGMENT,
     STATE_SNIFFING_MOTION_PHOTO_VIDEO,
+    STATE_READING_MOTION_PHOTO_VIDEO,
     STATE_ENDED,
   })
   private @interface State {}
@@ -56,7 +57,8 @@ public final class JpegExtractor implements Extractor {
   private static final int STATE_READING_SEGMENT_LENGTH = 1;
   private static final int STATE_READING_SEGMENT = 2;
   private static final int STATE_SNIFFING_MOTION_PHOTO_VIDEO = 4;
-  private static final int STATE_ENDED = 5;
+  private static final int STATE_READING_MOTION_PHOTO_VIDEO = 5;
+  private static final int STATE_ENDED = 6;
 
   private static final int JPEG_EXIF_HEADER_LENGTH = 12;
   private static final long EXIF_HEADER = 0x45786966; // Exif
@@ -65,6 +67,12 @@ public final class JpegExtractor implements Extractor {
   private static final int MARKER_APP1 = 0xFFE1; // Application data 1 marker
   private static final String HEADER_XMP_APP1 = "http://ns.adobe.com/xap/1.0/";
 
+  /**
+   * The identifier to use for the image track. Chosen to avoid colliding with track IDs used by
+   * {@link Mp4Extractor} for motion photos.
+   */
+  private static final int IMAGE_TRACK_ID = 1024;
+
   private final ParsableByteArray scratch;
 
   private @MonotonicNonNull ExtractorOutput extractorOutput;
@@ -72,11 +80,16 @@ public final class JpegExtractor implements Extractor {
   @State private int state;
   private int marker;
   private int segmentLength;
+  private long mp4StartPosition;
 
   @Nullable private MotionPhotoMetadata motionPhotoMetadata;
+  private @MonotonicNonNull ExtractorInput lastExtractorInput;
+  private @MonotonicNonNull StartOffsetExtractorInput mp4ExtractorStartOffsetExtractorInput;
+  private @MonotonicNonNull Mp4Extractor mp4Extractor;
 
   public JpegExtractor() {
     scratch = new ParsableByteArray(JPEG_EXIF_HEADER_LENGTH);
+    mp4StartPosition = C.POSITION_UNSET;
   }
 
   @Override
@@ -109,12 +122,25 @@ public final class JpegExtractor implements Extractor {
         readSegment(input);
         return RESULT_CONTINUE;
       case STATE_SNIFFING_MOTION_PHOTO_VIDEO:
-        if (input.getPosition() != checkNotNull(motionPhotoMetadata).videoStartPosition) {
-          seekPosition.position = motionPhotoMetadata.videoStartPosition;
+        if (input.getPosition() != mp4StartPosition) {
+          seekPosition.position = mp4StartPosition;
           return RESULT_SEEK;
         }
         sniffMotionPhotoVideo(input);
         return RESULT_CONTINUE;
+      case STATE_READING_MOTION_PHOTO_VIDEO:
+        if (mp4ExtractorStartOffsetExtractorInput == null || input != lastExtractorInput) {
+          lastExtractorInput = input;
+          mp4ExtractorStartOffsetExtractorInput =
+              new StartOffsetExtractorInput(input, mp4StartPosition);
+        }
+        @ReadResult
+        int readResult =
+            checkNotNull(mp4Extractor).read(mp4ExtractorStartOffsetExtractorInput, seekPosition);
+        if (readResult == RESULT_SEEK) {
+          seekPosition.position += mp4StartPosition;
+        }
+        return readResult;
       case STATE_ENDED:
         return RESULT_END_OF_INPUT;
       default:
@@ -124,24 +150,29 @@ public final class JpegExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    state = STATE_READING_MARKER;
+    if (position == 0) {
+      state = STATE_READING_MARKER;
+    } else if (state == STATE_READING_MOTION_PHOTO_VIDEO) {
+      checkNotNull(mp4Extractor).seek(position, timeUs);
+    }
   }
 
   @Override
   public void release() {
-    // Do nothing.
+    if (mp4Extractor != null) {
+      mp4Extractor.release();
+    }
   }
 
   private void readMarker(ExtractorInput input) throws IOException {
-    scratch.reset(2);
+    scratch.reset(/* limit= */ 2);
     input.readFully(scratch.getData(), /* offset= */ 0, /* length= */ 2);
     marker = scratch.readUnsignedShort();
     if (marker == MARKER_SOS) { // Start of scan.
-      if (motionPhotoMetadata != null) {
+      if (mp4StartPosition != C.POSITION_UNSET) {
         state = STATE_SNIFFING_MOTION_PHOTO_VIDEO;
       } else {
-        outputTracks();
-        state = STATE_ENDED;
+        endReadingWithImageTrack();
       }
     } else if ((marker < 0xFFD0 || marker > 0xFFD9) && marker != 0xFF01) {
       state = STATE_READING_SEGMENT_LENGTH;
@@ -164,6 +195,9 @@ public final class JpegExtractor implements Extractor {
         @Nullable String xmpString = payload.readNullTerminatedString();
         if (xmpString != null) {
           motionPhotoMetadata = getMotionPhotoMetadata(xmpString, input.getLength());
+          if (motionPhotoMetadata != null) {
+            mp4StartPosition = motionPhotoMetadata.videoStartPosition;
+          }
         }
       }
     } else {
@@ -178,29 +212,41 @@ public final class JpegExtractor implements Extractor {
         input.peekFully(
             scratch.getData(), /* offset= */ 0, /* length= */ 1, /* allowEndOfInput= */ true);
     if (!peekedData) {
-      outputTracks();
+      endReadingWithImageTrack();
     } else {
       input.resetPeekPosition();
-      long mp4StartPosition = input.getPosition();
-      StartOffsetExtractorInput mp4ExtractorInput =
+      if (mp4Extractor == null) {
+        mp4Extractor = new Mp4Extractor();
+      }
+      mp4ExtractorStartOffsetExtractorInput =
           new StartOffsetExtractorInput(input, mp4StartPosition);
-      Mp4Extractor mp4Extractor = new Mp4Extractor();
-      if (mp4Extractor.sniff(mp4ExtractorInput)) {
-        outputTracks(checkNotNull(motionPhotoMetadata));
+      if (mp4Extractor.sniff(mp4ExtractorStartOffsetExtractorInput)) {
+        mp4Extractor.init(
+            new StartOffsetExtractorOutput(mp4StartPosition, checkNotNull(extractorOutput)));
+        startReadingMotionPhoto();
       } else {
-        outputTracks();
+        endReadingWithImageTrack();
       }
     }
+  }
+
+  private void startReadingMotionPhoto() {
+    outputImageTrack(checkNotNull(motionPhotoMetadata));
+    state = STATE_READING_MOTION_PHOTO_VIDEO;
+  }
+
+  private void endReadingWithImageTrack() {
+    outputImageTrack();
+    checkNotNull(extractorOutput).endTracks();
+    extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
     state = STATE_ENDED;
   }
 
-  private void outputTracks(Metadata.Entry... metadataEntries) {
+  private void outputImageTrack(Metadata.Entry... metadataEntries) {
     TrackOutput imageTrackOutput =
-        checkNotNull(extractorOutput).track(/* id= */ 0, C.TRACK_TYPE_IMAGE);
+        checkNotNull(extractorOutput).track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
     imageTrackOutput.format(
         new Format.Builder().setMetadata(new Metadata(metadataEntries)).build());
-    extractorOutput.endTracks();
-    extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
   }
 
   /**

@@ -23,14 +23,14 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import java.util.List;
 
 /**
- * A fake {@link TrackSelection} that only returns 1 fixed track, and allows querying the number of
- * calls to its methods.
+ * A fake {@link ExoTrackSelection} that only returns 1 fixed track, and allows querying the number
+ * of calls to its methods.
  */
-public final class FakeTrackSelection implements TrackSelection {
+public final class FakeTrackSelection implements ExoTrackSelection {
 
   private final TrackGroup rendererTrackGroup;
 

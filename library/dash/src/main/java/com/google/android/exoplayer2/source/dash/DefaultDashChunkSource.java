@@ -47,7 +47,7 @@ import com.google.android.exoplayer2.source.dash.manifest.AdaptationSet;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.RangedUri;
 import com.google.android.exoplayer2.source.dash.manifest.Representation;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
@@ -84,7 +84,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         DashManifest manifest,
         int periodIndex,
         int[] adaptationSetIndices,
-        TrackSelection trackSelection,
+        ExoTrackSelection trackSelection,
         int trackType,
         long elapsedRealtimeOffsetMs,
         boolean enableEventMessageTrack,
@@ -122,7 +122,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   protected final RepresentationHolder[] representationHolders;
 
-  private TrackSelection trackSelection;
+  private ExoTrackSelection trackSelection;
   private DashManifest manifest;
   private int periodIndex;
   @Nullable private IOException fatalError;
@@ -152,7 +152,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       DashManifest manifest,
       int periodIndex,
       int[] adaptationSetIndices,
-      TrackSelection trackSelection,
+      ExoTrackSelection trackSelection,
       int trackType,
       DataSource dataSource,
       long elapsedRealtimeOffsetMs,
@@ -228,7 +228,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
   }
 
   @Override
-  public void updateTrackSelection(TrackSelection trackSelection) {
+  public void updateTrackSelection(ExoTrackSelection trackSelection) {
     this.trackSelection = trackSelection;
   }
 

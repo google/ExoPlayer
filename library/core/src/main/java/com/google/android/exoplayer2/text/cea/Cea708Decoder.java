@@ -145,6 +145,7 @@ public final class Cea708Decoder extends CeaDecoder {
 
   private final ParsableByteArray ccData;
   private final ParsableBitArray serviceBlockPacket;
+  private int previousSequenceNumber;
   // TODO: Use isWideAspectRatio in decoding.
   @SuppressWarnings({"unused", "FieldCanBeLocal"})
   private final boolean isWideAspectRatio;
@@ -162,6 +163,7 @@ public final class Cea708Decoder extends CeaDecoder {
   public Cea708Decoder(int accessibilityChannel, @Nullable List<byte[]> initializationData) {
     ccData = new ParsableByteArray();
     serviceBlockPacket = new ParsableBitArray();
+    previousSequenceNumber = C.INDEX_UNSET;
     selectedServiceNumber = accessibilityChannel == Format.NO_VALUE ? 1 : accessibilityChannel;
     isWideAspectRatio =
         initializationData != null
@@ -231,6 +233,18 @@ public final class Cea708Decoder extends CeaDecoder {
         finalizeCurrentPacket();
 
         int sequenceNumber = (ccData1 & 0xC0) >> 6; // first 2 bits
+        if (previousSequenceNumber != C.INDEX_UNSET
+            && sequenceNumber != (previousSequenceNumber + 1) % 4) {
+          resetCueBuilders();
+          Log.w(
+              TAG,
+              "Sequence number discontinuity. previous="
+                  + previousSequenceNumber
+                  + " current="
+                  + sequenceNumber);
+        }
+        previousSequenceNumber = sequenceNumber;
+
         int packetSize = ccData1 & 0x3F; // last 6 bits
         if (packetSize == 0) {
           packetSize = 64;
@@ -270,10 +284,18 @@ public final class Cea708Decoder extends CeaDecoder {
   @RequiresNonNull("currentDtvCcPacket")
   private void processCurrentPacket() {
     if (currentDtvCcPacket.currentIndex != (currentDtvCcPacket.packetSize * 2 - 1)) {
-      Log.w(TAG, "DtvCcPacket ended prematurely; size is " + (currentDtvCcPacket.packetSize * 2 - 1)
-          + ", but current index is " + currentDtvCcPacket.currentIndex + " (sequence number "
-          + currentDtvCcPacket.sequenceNumber + "); ignoring packet");
-      return;
+      Log.d(
+          TAG,
+          "DtvCcPacket ended prematurely; size is "
+              + (currentDtvCcPacket.packetSize * 2 - 1)
+              + ", but current index is "
+              + currentDtvCcPacket.currentIndex
+              + " (sequence number "
+              + currentDtvCcPacket.sequenceNumber
+              + ");");
+      // We've received cc_type=0x03 (packet start) before receiving packetSize byte pairs of data.
+      // This might indicate a byte pair has been lost, but we'll still attempt to process the data
+      // we have received.
     }
 
     serviceBlockPacket.reset(currentDtvCcPacket.packetData, currentDtvCcPacket.currentIndex);

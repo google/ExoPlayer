@@ -60,7 +60,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -700,7 +699,7 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     @Override
     public ImaSdkSettings createImaSdkSettings() {
       ImaSdkSettings settings = ImaSdkFactory.getInstance().createImaSdkSettings();
-      settings.setLanguage(getImaLanguageCodeForDefaultLocale());
+      settings.setLanguage(Util.getSystemLanguageCodes()[0]);
       return settings;
     }
 
@@ -741,18 +740,6 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer) {
       return ImaSdkFactory.getInstance()
           .createAdsLoader(context, imaSdkSettings, adDisplayContainer);
-    }
-
-    /**
-     * Returns a language code that's suitable for passing to {@link ImaSdkSettings#setLanguage} and
-     * corresponds to the device's {@link Locale#getDefault() default Locale}. IMA will fall back to
-     * its default language code ("en") if the value returned is unsupported.
-     */
-    // TODO: It may be possible to define a better mapping onto IMA's supported language codes. See:
-    // https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/localization.
-    // [Internal ref: b/174042000] will help if implemented.
-    private static String getImaLanguageCodeForDefaultLocale() {
-      return Util.splitAtFirst(Util.getSystemLanguageCodes()[0], "-")[0];
     }
   }
 }

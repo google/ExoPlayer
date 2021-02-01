@@ -91,6 +91,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.Inflater;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
@@ -2045,8 +2046,6 @@ public final class Util {
 
   /** Returns a data URI with the specified MIME type and data. */
   public static Uri getDataUriForString(String mimeType, String data) {
-    // TODO(internal: b/169937045): For now we don't pass the URL_SAFE flag as DataSchemeDataSource
-    // doesn't decode using it.
     return Uri.parse(
         "data:" + mimeType + ";base64," + Base64.encodeToString(data.getBytes(), Base64.NO_WRAP));
   }
@@ -2085,7 +2084,7 @@ public final class Util {
 
   /** Creates a new empty file in the directory returned by {@link Context#getCacheDir()}. */
   public static File createTempFile(Context context, String prefix) throws IOException {
-    return File.createTempFile(prefix, null, context.getCacheDir());
+    return File.createTempFile(prefix, null, checkNotNull(context.getCacheDir()));
   }
 
   /**
@@ -2121,6 +2120,17 @@ public final class Util {
       initialValue = CRC8_BYTES_MSBF[initialValue ^ (bytes[i] & 0xFF)];
     }
     return initialValue;
+  }
+
+  /** Compresses {@code input} using gzip and returns the result in a newly allocated byte array. */
+  public static byte[] gzip(byte[] input) {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    try (GZIPOutputStream os = new GZIPOutputStream(output)) {
+      os.write(input);
+    } catch (IOException e) {
+      throw new AssertionError(e);
+    }
+    return output.toByteArray();
   }
 
   /**
@@ -2179,7 +2189,7 @@ public final class Util {
         return getMobileNetworkType(networkInfo);
       case ConnectivityManager.TYPE_ETHERNET:
         return C.NETWORK_TYPE_ETHERNET;
-      default: // VPN, Bluetooth, Dummy.
+      default:
         return C.NETWORK_TYPE_OTHER;
     }
   }
@@ -2610,7 +2620,7 @@ public final class Util {
         "hsn", "zh-hsn"
       };
 
-  // Legacy ("grandfathered") tags, replaced by modern equivalents (including macrolanguage)
+  // Legacy tags that have been replaced by modern equivalents (including macrolanguage)
   // See https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry.
   private static final String[] isoLegacyTagReplacements =
       new String[] {

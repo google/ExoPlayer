@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 
 /** A fake player for testing content/ad playback. */
@@ -43,6 +44,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
     listeners =
         new ListenerSet<>(
             Looper.getMainLooper(),
+            Clock.DEFAULT,
             Player.Events::new,
             (listener, eventFlags) -> listener.onEvents(/* player= */ this, eventFlags));
     period = new Timeline.Period();

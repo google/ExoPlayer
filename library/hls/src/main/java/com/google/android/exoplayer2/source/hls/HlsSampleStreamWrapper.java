@@ -53,7 +53,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
@@ -331,7 +331,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     part of the track selection.
    */
   public boolean selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -358,11 +358,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 : positionUs != lastSeekPositionUs);
     // Get the old (i.e. current before the loop below executes) primary track selection. The new
     // primary selection will equal the old one unless it's changed in the loop.
-    TrackSelection oldPrimaryTrackSelection = chunkSource.getTrackSelection();
-    TrackSelection primaryTrackSelection = oldPrimaryTrackSelection;
+    ExoTrackSelection oldPrimaryTrackSelection = chunkSource.getTrackSelection();
+    ExoTrackSelection primaryTrackSelection = oldPrimaryTrackSelection;
     // Select new tracks.
     for (int i = 0; i < selections.length; i++) {
-      TrackSelection selection = selections[i];
+      ExoTrackSelection selection = selections[i];
       if (selection == null) {
         continue;
       }

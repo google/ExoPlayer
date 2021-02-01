@@ -42,7 +42,7 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
       FakeChunkSource.Factory chunkSourceFactory) {
     super(
         timeline,
-        DrmSessionManager.DUMMY,
+        DrmSessionManager.DRM_UNSUPPORTED,
         /* trackDataFactory= */ (unusedFormat, unusedMediaPeriodId) -> {
           throw new RuntimeException("Unused TrackDataFactory");
         },

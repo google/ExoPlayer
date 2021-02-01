@@ -115,7 +115,7 @@ import java.io.IOException;
     input.resetPeekPosition();
 
     ParsableByteArray scratch = new ParsableByteArray(ChunkHeader.SIZE_IN_BYTES);
-    // Skip all chunks until we hit the data header.
+    // Skip all chunks until we find the data header.
     ChunkHeader chunkHeader = ChunkHeader.peek(input, scratch);
     while (chunkHeader.id != WavUtil.DATA_FOURCC) {
       if (chunkHeader.id != WavUtil.RIFF_FOURCC && chunkHeader.id != WavUtil.FMT_FOURCC) {

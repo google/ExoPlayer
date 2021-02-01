@@ -194,6 +194,43 @@ public abstract class DataSourceContractTest {
     }
   }
 
+  /**
+   * {@link DataSpec#FLAG_ALLOW_GZIP} should either be ignored by {@link DataSource}
+   * implementations, or correctly handled (i.e. the data is decompressed before being returned from
+   * {@link DataSource#read(byte[], int, int)}).
+   */
+  @Test
+  public void gzipFlagDoesntAffectReturnedData() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(
+                new DataSpec.Builder()
+                    .setUri(resource.getUri())
+                    .setFlags(DataSpec.FLAG_ALLOW_GZIP)
+                    .build());
+        byte[] data =
+            resource.isEndOfInputExpected()
+                ? Util.readToEnd(dataSource)
+                : Util.readExactly(dataSource, resource.getExpectedBytes().length);
+
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(resource.getExpectedBytes().length);
+        }
+        assertThat(data).isEqualTo(resource.getExpectedBytes());
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
   @Test
   public void resourceNotFound() throws Exception {
     DataSource dataSource = createDataSource();

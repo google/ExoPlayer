@@ -34,13 +34,14 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -67,10 +68,9 @@ import java.util.List;
 
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
-  private final Handler playbackInfoUpdateHandler;
+  private final HandlerWrapper playbackInfoUpdateHandler;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
-  private final Handler internalPlayerHandler;
   private final ListenerSet<Player.EventListener, Player.Events> listeners;
   private final Timeline.Period period;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
@@ -79,6 +79,7 @@ import java.util.List;
   @Nullable private final AnalyticsCollector analyticsCollector;
   private final Looper applicationLooper;
   private final BandwidthMeter bandwidthMeter;
+  private final Clock clock;
 
   @RepeatMode private int repeatMode;
   private boolean shuffleModeEnabled;
@@ -137,8 +138,15 @@ import java.util.List;
       Clock clock,
       Looper applicationLooper,
       @Nullable Player wrappingPlayer) {
-    Log.i(TAG, "Init " + Integer.toHexString(System.identityHashCode(this)) + " ["
-        + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "]");
+    Log.i(
+        TAG,
+        "Init "
+            + Integer.toHexString(System.identityHashCode(this))
+            + " ["
+            + ExoPlayerLibraryInfo.VERSION_SLASHY
+            + "] ["
+            + Util.DEVICE_DEBUG_INFO
+            + "]");
     checkState(renderers.length > 0);
     this.renderers = checkNotNull(renderers);
     this.trackSelector = checkNotNull(trackSelector);
@@ -149,11 +157,13 @@ import java.util.List;
     this.seekParameters = seekParameters;
     this.pauseAtEndOfMediaItems = pauseAtEndOfMediaItems;
     this.applicationLooper = applicationLooper;
+    this.clock = clock;
     repeatMode = Player.REPEAT_MODE_OFF;
     Player playerForListeners = wrappingPlayer != null ? wrappingPlayer : this;
     listeners =
         new ListenerSet<>(
             applicationLooper,
+            clock,
             Player.Events::new,
             (listener, eventFlags) -> listener.onEvents(playerForListeners, eventFlags));
     mediaSourceHolderSnapshots = new ArrayList<>();
@@ -161,11 +171,11 @@ import java.util.List;
     emptyTrackSelectorResult =
         new TrackSelectorResult(
             new RendererConfiguration[renderers.length],
-            new TrackSelection[renderers.length],
+            new ExoTrackSelection[renderers.length],
             /* info= */ null);
     period = new Timeline.Period();
     maskingWindowIndex = C.INDEX_UNSET;
-    playbackInfoUpdateHandler = new Handler(applicationLooper);
+    playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
         playbackInfoUpdate ->
             playbackInfoUpdateHandler.post(() -> handlePlaybackInfo(playbackInfoUpdate));
@@ -192,7 +202,6 @@ import java.util.List;
             applicationLooper,
             clock,
             playbackInfoUpdateListener);
-    internalPlayerHandler = new Handler(internalPlayer.getPlaybackLooper());
   }
 
   /**
@@ -257,6 +266,11 @@ import java.util.List;
   @Override
   public Looper getApplicationLooper() {
     return applicationLooper;
+  }
+
+  @Override
+  public Clock getClock() {
+    return clock;
   }
 
   @Override
@@ -724,9 +738,17 @@ import java.util.List;
 
   @Override
   public void release() {
-    Log.i(TAG, "Release " + Integer.toHexString(System.identityHashCode(this)) + " ["
-        + ExoPlayerLibraryInfo.VERSION_SLASHY + "] [" + Util.DEVICE_DEBUG_INFO + "] ["
-        + ExoPlayerLibraryInfo.registeredModules() + "]");
+    Log.i(
+        TAG,
+        "Release "
+            + Integer.toHexString(System.identityHashCode(this))
+            + " ["
+            + ExoPlayerLibraryInfo.VERSION_SLASHY
+            + "] ["
+            + Util.DEVICE_DEBUG_INFO
+            + "] ["
+            + ExoPlayerLibraryInfo.registeredModules()
+            + "]");
     if (!internalPlayer.release()) {
       // One of the renderers timed out releasing its resources.
       listeners.sendEvent(
@@ -754,7 +776,8 @@ import java.util.List;
         target,
         playbackInfo.timeline,
         getCurrentWindowIndex(),
-        internalPlayerHandler);
+        clock,
+        internalPlayer.getPlaybackLooper());
   }
 
   @Override
@@ -882,7 +905,7 @@ import java.util.List;
 
   @Override
   public TrackSelectionArray getCurrentTrackSelections() {
-    return playbackInfo.trackSelectorResult.selections;
+    return new TrackSelectionArray(playbackInfo.trackSelectorResult.selections);
   }
 
   @Override
@@ -1005,11 +1028,11 @@ import java.util.List;
     }
     if (previousPlaybackInfo.trackSelectorResult != newPlaybackInfo.trackSelectorResult) {
       trackSelector.onSelectionActivated(newPlaybackInfo.trackSelectorResult.info);
+      TrackSelectionArray newSelection =
+          new TrackSelectionArray(newPlaybackInfo.trackSelectorResult.selections);
       listeners.queueEvent(
           Player.EVENT_TRACKS_CHANGED,
-          listener ->
-              listener.onTracksChanged(
-                  newPlaybackInfo.trackGroups, newPlaybackInfo.trackSelectorResult.selections));
+          listener -> listener.onTracksChanged(newPlaybackInfo.trackGroups, newSelection));
     }
     if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       listeners.queueEvent(

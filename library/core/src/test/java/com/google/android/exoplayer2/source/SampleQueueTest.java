@@ -204,6 +204,22 @@ public final class SampleQueueTest {
   }
 
   @Test
+  public void peekConsumesDownstreamFormat() {
+    sampleQueue.format(FORMAT_1);
+    clearFormatHolderAndInputBuffer();
+    int result =
+        sampleQueue.peek(
+            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_FORMAT_READ);
+    // formatHolder should be populated.
+    assertThat(formatHolder.format).isEqualTo(FORMAT_1);
+    result =
+        sampleQueue.peek(
+            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+    assertThat(result).isEqualTo(RESULT_NOTHING_READ);
+  }
+
+  @Test
   public void equalFormatsDeduplicated() {
     sampleQueue.format(FORMAT_1);
     assertReadFormat(false, FORMAT_1);
@@ -1625,10 +1641,32 @@ public final class SampleQueueTest {
       byte[] sampleData,
       int offset,
       int length) {
+    // Check that peeks yields the expected values.
     clearFormatHolderAndInputBuffer();
     int result =
+        sampleQueue.peek(
+            formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+    assertBufferReadResult(
+        result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
+
+    // Check that read yields the expected values.
+    clearFormatHolderAndInputBuffer();
+    result =
         sampleQueue.read(
             formatHolder, inputBuffer, /* formatRequired= */ false, /* loadingFinished= */ false);
+    assertBufferReadResult(
+        result, timeUs, isKeyFrame, isDecodeOnly, isEncrypted, sampleData, offset, length);
+  }
+
+  private void assertBufferReadResult(
+      int result,
+      long timeUs,
+      boolean isKeyFrame,
+      boolean isDecodeOnly,
+      boolean isEncrypted,
+      byte[] sampleData,
+      int offset,
+      int length) {
     assertThat(result).isEqualTo(RESULT_BUFFER_READ);
     // formatHolder should not be populated.
     assertThat(formatHolder.format).isNull();

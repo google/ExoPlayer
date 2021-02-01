@@ -28,15 +28,11 @@ import java.util.List;
 import java.util.Random;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * A {@link TrackSelection} whose selected track is updated randomly.
- */
+/** An {@link ExoTrackSelection} whose selected track is updated randomly. */
 public final class RandomTrackSelection extends BaseTrackSelection {
 
-  /**
-   * Factory for {@link RandomTrackSelection} instances.
-   */
-  public static final class Factory implements TrackSelection.Factory {
+  /** Factory for {@link RandomTrackSelection} instances. */
+  public static final class Factory implements ExoTrackSelection.Factory {
 
     private final Random random;
 
@@ -44,15 +40,13 @@ public final class RandomTrackSelection extends BaseTrackSelection {
       random = new Random();
     }
 
-    /**
-     * @param seed A seed for the {@link Random} instance used by the factory.
-     */
+    /** @param seed A seed for the {@link Random} instance used by the factory. */
     public Factory(int seed) {
       random = new Random(seed);
     }
 
     @Override
-    public @NullableType TrackSelection[] createTrackSelections(
+    public @NullableType ExoTrackSelection[] createTrackSelections(
         @NullableType Definition[] definitions,
         BandwidthMeter bandwidthMeter,
         MediaPeriodId mediaPeriodId,
@@ -144,5 +138,4 @@ public final class RandomTrackSelection extends BaseTrackSelection {
   public Object getSelectionData() {
     return null;
   }
-
 }

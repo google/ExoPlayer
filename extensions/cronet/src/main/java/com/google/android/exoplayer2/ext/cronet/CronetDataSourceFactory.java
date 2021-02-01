@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.ext.cronet;
 
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -25,8 +25,6 @@ import java.util.concurrent.Executor;
 import org.chromium.net.CronetEngine;
 
 /** @deprecated Use {@link CronetDataSource.Factory} instead. */
-// Uses deprecated DefaultHttpDataSourceFactory
-@SuppressWarnings("deprecation")
 @Deprecated
 public final class CronetDataSourceFactory extends BaseFactory {
 
@@ -82,7 +80,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
-   * DefaultHttpDataSourceFactory} will be used instead.
+   * DefaultHttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
    * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
@@ -98,7 +96,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
-   * DefaultHttpDataSourceFactory} will be used instead.
+   * DefaultHttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
    * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
@@ -118,19 +116,14 @@ public final class CronetDataSourceFactory extends BaseFactory {
         DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS,
         false,
-        new DefaultHttpDataSourceFactory(
-            userAgent,
-            /* listener= */ null,
-            DEFAULT_CONNECT_TIMEOUT_MILLIS,
-            DEFAULT_READ_TIMEOUT_MILLIS,
-            false));
+        new DefaultHttpDataSource.Factory().setUserAgent(userAgent));
   }
 
   /**
    * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
-   * DefaultHttpDataSourceFactory} will be used instead.
+   * DefaultHttpDataSource.Factory} will be used instead.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -152,15 +145,13 @@ public final class CronetDataSourceFactory extends BaseFactory {
         cronetEngineWrapper,
         executor,
         /* transferListener= */ null,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS,
+        connectTimeoutMs,
+        readTimeoutMs,
         resetTimeoutOnRedirects,
-        new DefaultHttpDataSourceFactory(
-            userAgent,
-            /* listener= */ null,
-            connectTimeoutMs,
-            readTimeoutMs,
-            resetTimeoutOnRedirects));
+        new DefaultHttpDataSource.Factory()
+            .setUserAgent(userAgent)
+            .setConnectTimeoutMs(connectTimeoutMs)
+            .setReadTimeoutMs(readTimeoutMs));
   }
 
   /**
@@ -228,7 +219,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
-   * DefaultHttpDataSourceFactory} will be used instead.
+   * DefaultHttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
    * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
@@ -248,7 +239,7 @@ public final class CronetDataSourceFactory extends BaseFactory {
    * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
-   * DefaultHttpDataSourceFactory} will be used instead.
+   * DefaultHttpDataSource.Factory} will be used instead.
    *
    * <p>Sets {@link CronetDataSource#DEFAULT_CONNECT_TIMEOUT_MILLIS} as the connection timeout,
    * {@link CronetDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read timeout.
@@ -272,19 +263,16 @@ public final class CronetDataSourceFactory extends BaseFactory {
         DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DEFAULT_READ_TIMEOUT_MILLIS,
         false,
-        new DefaultHttpDataSourceFactory(
-            userAgent,
-            transferListener,
-            DEFAULT_CONNECT_TIMEOUT_MILLIS,
-            DEFAULT_READ_TIMEOUT_MILLIS,
-            false));
+        new DefaultHttpDataSource.Factory()
+            .setUserAgent(userAgent)
+            .setTransferListener(transferListener));
   }
 
   /**
    * Creates an instance.
    *
    * <p>If the {@link CronetEngineWrapper} fails to provide a {@link CronetEngine}, a {@link
-   * DefaultHttpDataSourceFactory} will be used instead.
+   * DefaultHttpDataSource.Factory} will be used instead.
    *
    * @param cronetEngineWrapper A {@link CronetEngineWrapper}.
    * @param executor The {@link java.util.concurrent.Executor} that will perform the requests.
@@ -308,11 +296,14 @@ public final class CronetDataSourceFactory extends BaseFactory {
         cronetEngineWrapper,
         executor,
         transferListener,
-        DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DEFAULT_READ_TIMEOUT_MILLIS,
+        connectTimeoutMs,
+        readTimeoutMs,
         resetTimeoutOnRedirects,
-        new DefaultHttpDataSourceFactory(
-            userAgent, transferListener, connectTimeoutMs, readTimeoutMs, resetTimeoutOnRedirects));
+        new DefaultHttpDataSource.Factory()
+            .setUserAgent(userAgent)
+            .setTransferListener(transferListener)
+            .setConnectTimeoutMs(connectTimeoutMs)
+            .setReadTimeoutMs(readTimeoutMs));
   }
 
   /**

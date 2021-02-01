@@ -138,7 +138,7 @@ public final class MappingTrackSelectorTest {
     private MappedTrackInfo lastMappedTrackInfo;
 
     @Override
-    protected Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
+    protected Pair<RendererConfiguration[], ExoTrackSelection[]> selectTracks(
         MappedTrackInfo mappedTrackInfo,
         @Capabilities int[][][] rendererFormatSupports,
         @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports,
@@ -147,7 +147,7 @@ public final class MappingTrackSelectorTest {
       int rendererCount = mappedTrackInfo.getRendererCount();
       lastMappedTrackInfo = mappedTrackInfo;
       return Pair.create(
-          new RendererConfiguration[rendererCount], new TrackSelection[rendererCount]);
+          new RendererConfiguration[rendererCount], new ExoTrackSelection[rendererCount]);
     }
 
     public void assertMappedTrackGroups(int rendererIndex, TrackGroup... expected) {

@@ -2206,8 +2206,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     if (bypassBatchBuffer.hasSamples()) {
       bypassBatchBuffer.flip();
     }
-    // We can make more progress if we have batched data or the EOS to process.
-    return bypassBatchBuffer.hasSamples() || inputStreamEnded;
+
+    // We can make more progress if we have batched data, an EOS, or a re-initialization to process
+    // (note that one or more of the code blocks above will be executed during the next call).
+    return bypassBatchBuffer.hasSamples() || inputStreamEnded || bypassDrainAndReinitialize;
   }
 
   private void bypassRead() throws ExoPlaybackException {
@@ -2221,7 +2223,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       switch (result) {
         case C.RESULT_FORMAT_READ:
           onInputFormatChanged(formatHolder);
-          break;
+          return;
         case C.RESULT_NOTHING_READ:
           return;
         case C.RESULT_BUFFER_READ:

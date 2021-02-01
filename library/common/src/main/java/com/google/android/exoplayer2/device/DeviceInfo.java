@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.device;
 
+import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import java.lang.annotation.Documented;
@@ -25,6 +26,10 @@ import java.lang.annotation.Target;
 
 /** Information about the playback device. */
 public final class DeviceInfo {
+
+  private static final String FIELD_PLAYBACK_TYPE = "playbackType";
+  private static final String FIELD_MIN_VOLUME = "minVolume";
+  private static final String FIELD_MAX_VOLUME = "maxVolume";
 
   /** Types of playback. One of {@link #PLAYBACK_TYPE_LOCAL} or {@link #PLAYBACK_TYPE_REMOTE}. */
   @Documented
@@ -79,5 +84,22 @@ public final class DeviceInfo {
     result = 31 * result + minVolume;
     result = 31 * result + maxVolume;
     return result;
+  }
+
+  /** Converts this instance into a {@link Bundle}. */
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putInt(FIELD_PLAYBACK_TYPE, playbackType);
+    bundle.putInt(FIELD_MIN_VOLUME, minVolume);
+    bundle.putInt(FIELD_MAX_VOLUME, maxVolume);
+    return bundle;
+  }
+
+  /** Creates an {@link DeviceInfo} instance from a {@link Bundle}. */
+  public static DeviceInfo fromBundle(Bundle bundle) {
+    int playbackType = bundle.getInt(FIELD_PLAYBACK_TYPE, /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
+    int minVolume = bundle.getInt(FIELD_MIN_VOLUME, /* defaultValue= */ 0);
+    int maxVolume = bundle.getInt(FIELD_MAX_VOLUME, /* defaultValue= */ 0);
+    return new DeviceInfo(playbackType, minVolume, maxVolume);
   }
 }

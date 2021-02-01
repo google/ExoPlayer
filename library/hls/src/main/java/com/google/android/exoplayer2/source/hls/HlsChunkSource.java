@@ -37,7 +37,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segment;
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -137,8 +137,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Note: The track group in the selection is typically *not* equal to trackGroup. This is due to
   // the way in which HlsSampleStreamWrapper generates track groups. Use only index based methods
-  // in TrackSelection to avoid unexpected behavior.
-  private TrackSelection trackSelection;
+  // in ExoTrackSelection to avoid unexpected behavior.
+  private ExoTrackSelection trackSelection;
   private long liveEdgeInPeriodTimeUs;
   private boolean seenExpectedPlaylistError;
 
@@ -219,14 +219,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Sets the current track selection.
    *
-   * @param trackSelection The {@link TrackSelection}.
+   * @param trackSelection The {@link ExoTrackSelection}.
    */
-  public void setTrackSelection(TrackSelection trackSelection) {
+  public void setTrackSelection(ExoTrackSelection trackSelection) {
     this.trackSelection = trackSelection;
   }
 
-  /** Returns the current {@link TrackSelection}. */
-  public TrackSelection getTrackSelection() {
+  /** Returns the current {@link ExoTrackSelection}. */
+  public ExoTrackSelection getTrackSelection() {
     return trackSelection;
   }
 
@@ -810,9 +810,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Private classes.
 
-  /**
-   * A {@link TrackSelection} to use for initialization.
-   */
+  /** A {@link ExoTrackSelection} to use for initialization. */
   private static final class InitializationTrackSelection extends BaseTrackSelection {
 
     private int selectedIndex;

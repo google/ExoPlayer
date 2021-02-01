@@ -298,8 +298,16 @@ public final class MediaCodecInfo {
       // which may not be widely supported. See https://github.com/google/ExoPlayer/issues/5145.
       return true;
     }
-    for (CodecProfileLevel capabilities : getProfileLevels()) {
-      if (capabilities.profile == profile && capabilities.level >= level) {
+
+    CodecProfileLevel[] profileLevels = getProfileLevels();
+    if (Util.SDK_INT <= 23 && MimeTypes.VIDEO_VP9.equals(mimeType) && profileLevels.length == 0) {
+      // Some older devices don't report profile levels for VP9. Estimate them using other data in
+      // the codec capabilities.
+      profileLevels = estimateLegacyVp9ProfileLevels(capabilities);
+    }
+
+    for (CodecProfileLevel profileLevel : profileLevels) {
+      if (profileLevel.profile == profile && profileLevel.level >= level) {
         return true;
       }
     }
@@ -334,8 +342,8 @@ public final class MediaCodecInfo {
     if (isVideo) {
       return adaptive;
     } else {
-      Pair<Integer, Integer> codecProfileLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
-      return codecProfileLevel != null && codecProfileLevel.first == CodecProfileLevel.AACObjectXHE;
+      Pair<Integer, Integer> profileLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
+      return profileLevel != null && profileLevel.first == CodecProfileLevel.AACObjectXHE;
     }
   }
 
@@ -676,6 +684,60 @@ public final class MediaCodecInfo {
   @RequiresApi(23)
   private static int getMaxSupportedInstancesV23(CodecCapabilities capabilities) {
     return capabilities.getMaxSupportedInstances();
+  }
+
+  /**
+   * Called on devices with {@link Util#SDK_INT} 23 and below, for VP9 decoders whose {@link
+   * CodecCapabilities} do not correctly report profile levels. The returned {@link
+   * CodecProfileLevel CodecProfileLevels} are estimated based on other data in the {@link
+   * CodecCapabilities}.
+   *
+   * @param capabilities The {@link CodecCapabilities} for a VP9 decoder, or {@code null} if not
+   *     known.
+   * @return The estimated {@link CodecProfileLevel CodecProfileLevels} for the decoder.
+   */
+  private static CodecProfileLevel[] estimateLegacyVp9ProfileLevels(
+      @Nullable CodecCapabilities capabilities) {
+    int maxBitrate = 0;
+    if (capabilities != null) {
+      @Nullable VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
+      if (videoCapabilities != null) {
+        maxBitrate = videoCapabilities.getBitrateRange().getUpper();
+      }
+    }
+
+    // Values taken from https://www.webmproject.org/vp9/levels.
+    int level;
+    if (maxBitrate >= 180_000_000) {
+      level = CodecProfileLevel.VP9Level52;
+    } else if (maxBitrate >= 120_000_000) {
+      level = CodecProfileLevel.VP9Level51;
+    } else if (maxBitrate >= 60_000_000) {
+      level = CodecProfileLevel.VP9Level5;
+    } else if (maxBitrate >= 30_000_000) {
+      level = CodecProfileLevel.VP9Level41;
+    } else if (maxBitrate >= 18_000_000) {
+      level = CodecProfileLevel.VP9Level4;
+    } else if (maxBitrate >= 12_000_000) {
+      level = CodecProfileLevel.VP9Level31;
+    } else if (maxBitrate >= 7_200_000) {
+      level = CodecProfileLevel.VP9Level3;
+    } else if (maxBitrate >= 3_600_000) {
+      level = CodecProfileLevel.VP9Level21;
+    } else if (maxBitrate >= 1_800_000) {
+      level = CodecProfileLevel.VP9Level2;
+    } else if (maxBitrate >= 800_000) {
+      level = CodecProfileLevel.VP9Level11;
+    } else { // Assume level 1 is always supported.
+      level = CodecProfileLevel.VP9Level1;
+    }
+
+    CodecProfileLevel profileLevel = new CodecProfileLevel();
+    // Since this method is for legacy devices only, assume that only profile 0 is supported.
+    profileLevel.profile = CodecProfileLevel.VP9Profile0;
+    profileLevel.level = level;
+
+    return new CodecProfileLevel[] {profileLevel};
   }
 
   /**

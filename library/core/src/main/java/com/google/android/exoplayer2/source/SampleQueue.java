@@ -377,6 +377,20 @@ public class SampleQueue implements TrackOutput {
     return mayReadSample(relativeReadIndex);
   }
 
+  /** Equivalent to {@link #read}, except it never advances the read position. */
+  public final int peek(
+      FormatHolder formatHolder,
+      DecoderInputBuffer buffer,
+      boolean formatRequired,
+      boolean loadingFinished) {
+    int result =
+        peekSampleMetadata(formatHolder, buffer, formatRequired, loadingFinished, extrasHolder);
+    if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream() && !buffer.isFlagsOnly()) {
+      sampleDataQueue.peekToBuffer(buffer, extrasHolder);
+    }
+    return result;
+  }
+
   /**
    * Attempts to read from the queue.
    *
