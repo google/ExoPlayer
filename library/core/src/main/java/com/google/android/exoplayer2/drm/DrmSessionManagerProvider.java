@@ -23,6 +23,12 @@ import com.google.android.exoplayer2.MediaItem;
  */
 public interface DrmSessionManagerProvider {
 
-  /** Returns a {@link DrmSessionManager} for the given media item. */
+  /**
+   * Returns a {@link DrmSessionManager} for the given media item.
+   *
+   * <p>The caller is responsible for {@link DrmSessionManager#prepare() preparing} the {@link
+   * DrmSessionManager} before use, and subsequently {@link DrmSessionManager#release() releasing}
+   * it.
+   */
   DrmSessionManager get(MediaItem mediaItem);
 }
