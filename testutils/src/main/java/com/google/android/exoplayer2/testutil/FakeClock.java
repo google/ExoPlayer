@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -50,6 +51,7 @@ public class FakeClock implements Clock {
 
   private static long messageIdProvider = 0;
 
+  private final boolean isRobolectric;
   private final boolean isAutoAdvancing;
 
   @GuardedBy("this")
@@ -105,7 +107,10 @@ public class FakeClock implements Clock {
     this.isAutoAdvancing = isAutoAdvancing;
     this.handlerMessages = new ArrayList<>();
     this.busyLoopers = new HashSet<>();
-    SystemClock.setCurrentTimeMillis(initialTimeMs);
+    this.isRobolectric = "robolectric".equals(Build.FINGERPRINT);
+    if (isRobolectric) {
+      SystemClock.setCurrentTimeMillis(initialTimeMs);
+    }
   }
 
   /**
@@ -245,7 +250,9 @@ public class FakeClock implements Clock {
 
   private synchronized void advanceTimeInternal(long timeDiffMs) {
     timeSinceBootMs += timeDiffMs;
-    SystemClock.setCurrentTimeMillis(timeSinceBootMs);
+    if (isRobolectric) {
+      SystemClock.setCurrentTimeMillis(timeSinceBootMs);
+    }
   }
 
   private static synchronized long getNextMessageId() {
