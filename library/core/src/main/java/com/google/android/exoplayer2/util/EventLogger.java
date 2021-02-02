@@ -301,8 +301,9 @@ public class EventLogger implements AnalyticsListener {
     for (int i = 0; i < metadataList.size(); i++) {
       Metadata metadata = metadataList.get(i);
       if (metadata.length() != 0) {
-        logd("  " + i);
+        logd("  Metadata:" + i + " [");
         printMetadata(metadata, "    ");
+        logd("  ]");
       }
     }
     logd("]");
