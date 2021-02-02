@@ -2,15 +2,7 @@
 
 ### dev-v2 (not yet released)
 
-*   Core library:
-    *   Log a warning when `SingleSampleMediaPeriod` transforms a load error
-        into end-of-stream.
-*   Extractors:
-    *   Fix Vorbis private codec data parsing in the Matroska extractor
-        ([#8496](https://github.com/google/ExoPlayer/issues/8496)).
-*   Text:
-    *   Add support for the SSA `primaryColour` style attribute
-        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+*   New release notes go here!
 
 ### 2.13.0 (not yet released - targeted for 2021-02-TBD)
 
@@ -146,10 +138,14 @@
     *   Remove `setVideoDecoderOutputBufferRenderer` from Player API. Use
         `setVideoSurfaceView` and `clearVideoSurfaceView` instead.
     *   Replace `PlayerMessage.setHandler` with `PlayerMessage.setLooper`.
+    *   Log a warning when `SingleSampleMediaPeriod` transforms a load error
+        into end-of-stream.
 *   Transformer:
-    *   Add a library to transform media inputs. Available transformations are:
-        configuration of output container format, removal of audio or video
-        track and slow motion flattening.
+    *   Add a library to transform media inputs. The available transformations
+        are:
+        *   Configuration of output container format.
+        *   Removal of audio or video tracks.
+        *   Slow motion flattening.
 *   Extractors:
     *   Populate codecs string for H.264/AVC in MP4, Matroska and FLV streams to
         allow decoder capability checks based on codec profile/level
@@ -161,23 +157,25 @@
         `stsz` fixed sample size in MP4 extractors.
     *   Add support for playing JPEG motion photos
         ([#5405](https://github.com/google/ExoPlayer/issues/5405)).
+    *   Fix Vorbis private codec data parsing in the Matroska extractor
+        ([#8496](https://github.com/google/ExoPlayer/issues/8496)).
 *   Track selection:
-    *   Moved `Player.getTrackSelector` to the `ExoPlayer` interface.
+    *   Move `Player.getTrackSelector` to the `ExoPlayer` interface.
     *   Allow parallel adaptation for video and audio
         ([#5111](https://github.com/google/ExoPlayer/issues/5111)).
-    *   Simplified enabling tunneling with `DefaultTrackSelector`.
+    *   Simplify enabling tunneling with `DefaultTrackSelector`.
         `ParametersBuilder.setTunnelingAudioSessionId` has been replaced with
         `ParametersBuilder.setTunnelingEnabled`. The player's audio session ID
-        will be used, and so a tunneling specified ID is no longer needed.
+        will be used, and so a tunneling specific ID is no longer needed.
     *   Add option to specify multiple preferred audio or text languages.
     *   Add option to specify preferred MIME type(s) for video and audio
         ([#8320](https://github.com/google/ExoPlayer/issues/8320)).
     *   Add option to specify preferred audio role flags.
     *   Forward `Timeline` and `MediaPeriodId` to `TrackSelection.Factory`.
     *   In order to make it immutable, `TrackSelection` in the `Player` API now
-        only contains methods related to static selection.
-        The rest of the methods have been moved to the child
-        class `ExoTrackSelection` which is used by all ExoPlayer components.
+        only contains methods related to static selection. The rest of the
+        methods have been moved to the child class `ExoTrackSelection` which is
+        used by all ExoPlayer components.
 *   DASH:
     *   Support low-latency DASH playback (`availabilityTimeOffset` and
         `ServiceDescription` tags)
@@ -188,7 +186,7 @@
 *   HLS:
     *   Support playlist delta updates, blocking playlist reloads and rendition
         reports.
-    *   Support low-latency HLS playback (`EXT-X-PART`s and preload hints)
+    *   Support low-latency HLS playback (`EXT-X-PART` and preload hints)
         ([#5011](https://github.com/google/ExoPlayer/issues/5011)).
 *   UI:
     *   Miscellaneous fixes for `StyledPlayerControlView` in minimal mode.
@@ -203,8 +201,8 @@
     *   Add `ExoMediaDrm.KeyRequest.getRequestType`
         ([#7847](https://github.com/google/ExoPlayer/issues/7847)).
     *   Drop key & provision responses if `DefaultDrmSession` is released while
-        waiting for the response. This fixes (harmless) `IllegalStateException:
-        sending message to a Handler on a dead thread` log messages
+        waiting for the response. This prevents these (harmless) log messages:
+        `IllegalStateException: sending message to a Handler on a dead thread`
         ([#8328](https://github.com/google/ExoPlayer/issues/8328)).
     *   Allow apps to fully customize DRM behaviour per-`MediaItem` by passing a
         `DrmSessionManagerProvider` to `MediaSourceFactory`
@@ -227,19 +225,21 @@
         which can be immediately queried by calling
         `SimpleExoPlayer.getAudioSessionId`. The audio session ID will only
         change if application code calls `SimpleExoPlayer.setAudioSessionId`.
-    *   `onAudioSessionId` is replaced with `onAudioSessionIdChanged` in
+    *   Replace `onAudioSessionId` with `onAudioSessionIdChanged` in
         `AudioListener` and `AnalyticsListener`. Note that
         `onAudioSessionIdChanged` is called in fewer cases than
         `onAudioSessionId` was called, due to the improved handling of audio
         session IDs as described above.
     *   Retry playback after some types of `AudioTrack` error.
-    *   Create E-AC3 JOC passthrough `AudioTrack`s using the maximum supported
-        channel count (instead of assuming 6 channels) from API 29.
+    *   Create E-AC3 JOC passthrough `AudioTrack` instances using the maximum
+        supported channel count (instead of assuming 6 channels) from API 29.
 *   Text:
     *   Fix CEA-708 sequence number discontinuity handling
         ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
     *   Fix CEA-708 handling of unexpectedly small packets
         ([#1807](https://github.com/google/ExoPlayer/issues/1807)).
+    *   Add support for the SSA `primaryColour` style attribute
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
 *   Data sources:
     *   Use the user agent of the underlying network stack by default.
 *   Metadata retriever:
@@ -250,17 +250,16 @@
     *   Add `ImaAdsLoader.Builder.setEnableContinuousPlayback` for setting
         whether to request ads for continuous playback.
     *   Upgrade IMA SDK dependency to 3.22.0, bringing in a fix for leaking the
-        ad view group
-        ([#7344](https://github.com/google/ExoPlayer/issues/7344)),
-        ([#8339](https://github.com/google/ExoPlayer/issues/8339)).
+        ad view group ([#7344](https://github.com/google/ExoPlayer/issues/7344),
+        [#8339](https://github.com/google/ExoPlayer/issues/8339)).
     *   Fix a bug that could cause the next content position played after a seek
         to snap back to the cue point of the preceding ad, rather than the
         requested content position.
     *   Fix a regression that caused an ad group to be skipped after an initial
         seek to a non-zero position. Unsupported VPAID ads will still be
-        skipped but only after the preload timeout rather than instantly
-        ([#8428](https://github.com/google/ExoPlayer/issues/8428)),
-        ([#7832](https://github.com/google/ExoPlayer/issues/7832)).
+        skipped, but only after the preload timeout rather than instantly
+        ([#8428](https://github.com/google/ExoPlayer/issues/8428),
+        [#7832](https://github.com/google/ExoPlayer/issues/7832)).
     *   Fix a regression that caused a short ad followed by another ad to be
         skipped due to playback being stuck buffering waiting for the second ad
         to load ([#8492](https://github.com/google/ExoPlayer/issues/8492)).
