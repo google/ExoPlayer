@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
@@ -143,6 +144,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     fileTypes.add(fileType);
   }
 
+  @SuppressLint("SwitchIntDef") // HLS only supports a small subset of the defined file types.
   @Nullable
   private Extractor createExtractorByFileType(
       @FileTypes.Type int fileType,
