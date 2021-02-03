@@ -275,6 +275,12 @@ import java.util.ArrayList;
       }
     }
 
+    @Override
+    protected boolean codecNeedsSetOutputSurfaceWorkaround(String name) {
+      // Disable all workarounds for testing - devices that require the workaround should fail GTS.
+      return false;
+    }
+
     private void clearTimestamps() {
       startIndex = 0;
       queueSize = 0;
