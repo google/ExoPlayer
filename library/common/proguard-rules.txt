@@ -19,4 +19,4 @@
 
 # Workaround for https://issuetracker.google.com/issues/112297269
 # This is needed for ProGuard but not R8.
--keepnames class com.google.common.base.Function { *; }
+-keepclassmembernames class com.google.common.base.Function { *; }
