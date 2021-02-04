@@ -1,9 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>MediaSource.MediaPeriodId (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="dc.created" content="2021-02-04">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
@@ -12,7 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +26,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var data = {"i0":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = true;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +60,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" target="_top">Frames</a></li>
-<li><a href="MediaSource.MediaPeriodId.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -97,12 +94,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +109,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/package-summary.html">com.google.android.exoplayer2.source</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.source</a></div>
 <h2 title="Class MediaSource.MediaPeriodId" class="title">Class MediaSource.MediaPeriodId</h2>
 </div>
 <div class="contentContainer">
@@ -122,7 +122,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
+<li><a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">com.google.android.exoplayer2.source.MediaPeriodId</a></li>
+<li>
+<ul class="inheritance">
 <li>com.google.android.exoplayer2.source.MediaSource.MediaPeriodId</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -131,12 +136,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>Enclosing interface:</dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></dd>
+<dd><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">MediaSource.MediaPeriodId</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Identifier for a <a href="../../../../../com/google/android/exoplayer2/source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
+extends <a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a></pre>
+<div class="block">Identifier for a <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.
+
+ <p>Extends for backward-compatibility <a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaPeriodId</code></a>.</div>
 </li>
 </ul>
 </div>
@@ -144,111 +151,85 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="field.summary">
+<li class="blockList"><a id="field.summary">
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<table class="memberSummary" summary="Field Summary table, listing fields, and an explanation">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Field</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#adGroupIndex">adGroupIndex</a></span></code></th>
-<td class="colLast">
-<div class="block">If the media period is in an ad group, the index of the ad group in the period.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#adIndexInAdGroup">adIndexInAdGroup</a></span></code></th>
-<td class="colLast">
-<div class="block">If the media period is in an ad group, the index of the ad in its ad group in the period.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#nextAdGroupIndex">nextAdGroupIndex</a></span></code></th>
-<td class="colLast">
-<div class="block">The index of the next ad group to which the media period's content is clipped, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no following ad group or if this media period is an ad.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#periodUid">periodUid</a></span></code></th>
-<td class="colLast">
-<div class="block">The unique id of the timeline period.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#windowSequenceNumber">windowSequenceNumber</a></span></code></th>
-<td class="colLast">
-<div class="block">The sequence number of the window in the buffered sequence of windows this media period is
- part of.</div>
-</td>
-</tr>
-</table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.source.MediaPeriodId">
+<!--   -->
+</a>
+<h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a></h3>
+<code><a href="MediaPeriodId.html#adGroupIndex">adGroupIndex</a>, <a href="MediaPeriodId.html#adIndexInAdGroup">adIndexInAdGroup</a>, <a href="MediaPeriodId.html#nextAdGroupIndex">nextAdGroupIndex</a>, <a href="MediaPeriodId.html#periodUid">periodUid</a>, <a href="MediaPeriodId.html#windowSequenceNumber">windowSequenceNumber</a></code></li>
+</ul>
 </li>
 </ul>
+</section>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.summary">
+<li class="blockList"><a id="constructor.summary">
 <!--   -->
 </a>
 <h3>Constructor Summary</h3>
-<table class="memberSummary" summary="Constructor Summary table, listing constructors, and an explanation">
+<table class="memberSummary">
 <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
 <tr>
 <th class="colFirst" scope="col">Constructor</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#MediaPeriodId-java.lang.Object-">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid)</code></th>
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.MediaPeriodId)">MediaPeriodId</a></span>&#8203;(<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
-<div class="block">Creates a media period identifier for a period which is not part of a buffered sequence of
- windows.</div>
+<div class="block">Wraps an <a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaPeriodId</code></a> into a MediaPeriodId.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#MediaPeriodId-java.lang.Object-int-int-long-">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object)">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid)</code></th>
+<td class="colLast">
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object)"><code>MediaPeriodId(Object)</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,int,int,long)">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
              int&nbsp;adGroupIndex,
              int&nbsp;adIndexInAdGroup,
              long&nbsp;windowSequenceNumber)</code></th>
 <td class="colLast">
-<div class="block">Creates a media period identifier that identifies an ad within an ad group at the specified
- timeline period.</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#MediaPeriodId-java.lang.Object-long-">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
-             long&nbsp;windowSequenceNumber)</code></th>
-<td class="colLast">
-<div class="block">Creates a media period identifier for the specified period in the timeline.</div>
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object,int,int,long)"><code>MediaPeriodId(Object, int, int,
+ long)</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#MediaPeriodId-java.lang.Object-long-int-">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,long)">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
+             long&nbsp;windowSequenceNumber)</code></th>
+<td class="colLast">
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object,long)"><code>MediaPeriodId(Object, long)</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,long,int)">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
              long&nbsp;windowSequenceNumber,
              int&nbsp;nextAdGroupIndex)</code></th>
 <td class="colLast">
-<div class="block">Creates a media period identifier for the specified clipped period in the timeline.</div>
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object,long,int)"><code>MediaPeriodId(Object, long,
+ int)</code></a>.</div>
 </td>
 </tr>
 </table>
 </li>
 </ul>
+</section>
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -256,129 +237,54 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#copyWithPeriodUid-java.lang.Object-">copyWithPeriodUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;newPeriodUid)</code></th>
+<td class="colFirst"><code><a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithPeriodUid(java.lang.Object)">copyWithPeriodUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;newPeriodUid)</code></th>
 <td class="colLast">
-<div class="block">Returns a copy of this period identifier but with <code>newPeriodUid</code> as its period uid.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#equals-java.lang.Object-">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#hashCode--">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html#isAd--">isAd</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns whether this period identifier identifies an ad in an ad group in a period.</div>
+<div class="block">See <a href="MediaPeriodId.html#copyWithPeriodUid(java.lang.Object)"><code>MediaPeriodId.copyWithPeriodUid(Object)</code></a>.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.source.MediaPeriodId">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a></h3>
+<code><a href="MediaPeriodId.html#equals(java.lang.Object)">equals</a>, <a href="MediaPeriodId.html#hashCode()">hashCode</a>, <a href="MediaPeriodId.html#isAd()">isAd</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<ul class="blockList">
-<li class="blockList"><a name="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a name="periodUid">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>periodUid</h4>
-<pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> periodUid</pre>
-<div class="block">The unique id of the timeline period.</div>
-</li>
-</ul>
-<a name="adGroupIndex">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>adGroupIndex</h4>
-<pre>public final&nbsp;int adGroupIndex</pre>
-<div class="block">If the media period is in an ad group, the index of the ad group in the period.
- <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> otherwise.</div>
-</li>
-</ul>
-<a name="adIndexInAdGroup">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>adIndexInAdGroup</h4>
-<pre>public final&nbsp;int adIndexInAdGroup</pre>
-<div class="block">If the media period is in an ad group, the index of the ad in its ad group in the period.
- <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> otherwise.</div>
-</li>
-</ul>
-<a name="windowSequenceNumber">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>windowSequenceNumber</h4>
-<pre>public final&nbsp;long windowSequenceNumber</pre>
-<div class="block">The sequence number of the window in the buffered sequence of windows this media period is
- part of. <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the media period id is not part of a buffered sequence of
- windows.</div>
-</li>
-</ul>
-<a name="nextAdGroupIndex">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>nextAdGroupIndex</h4>
-<pre>public final&nbsp;int nextAdGroupIndex</pre>
-<div class="block">The index of the next ad group to which the media period's content is clipped, or <a href="../../../../../com/google/android/exoplayer2/C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no following ad group or if this media period is an ad.</div>
-</li>
-</ul>
-</li>
-</ul>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="constructor.detail">
+<li class="blockList"><a id="constructor.detail">
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a name="MediaPeriodId-java.lang.Object-">
+<a id="&lt;init&gt;(java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>MediaPeriodId</h4>
 <pre>public&nbsp;MediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid)</pre>
-<div class="block">Creates a media period identifier for a period which is not part of a buffered sequence of
- windows.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodUid</code> - The unique id of the timeline period.</dd>
-</dl>
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object)"><code>MediaPeriodId(Object)</code></a>.</div>
 </li>
 </ul>
-<a name="MediaPeriodId-java.lang.Object-long-">
+<a id="&lt;init&gt;(java.lang.Object,long)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -386,16 +292,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>MediaPeriodId</h4>
 <pre>public&nbsp;MediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
                      long&nbsp;windowSequenceNumber)</pre>
-<div class="block">Creates a media period identifier for the specified period in the timeline.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodUid</code> - The unique id of the timeline period.</dd>
-<dd><code>windowSequenceNumber</code> - The sequence number of the window in the buffered sequence of
-     windows this media period is part of.</dd>
-</dl>
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object,long)"><code>MediaPeriodId(Object, long)</code></a>.</div>
 </li>
 </ul>
-<a name="MediaPeriodId-java.lang.Object-long-int-">
+<a id="&lt;init&gt;(java.lang.Object,long,int)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -404,111 +304,79 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;MediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
                      long&nbsp;windowSequenceNumber,
                      int&nbsp;nextAdGroupIndex)</pre>
-<div class="block">Creates a media period identifier for the specified clipped period in the timeline.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodUid</code> - The unique id of the timeline period.</dd>
-<dd><code>windowSequenceNumber</code> - The sequence number of the window in the buffered sequence of
-     windows this media period is part of.</dd>
-<dd><code>nextAdGroupIndex</code> - The index of the next ad group to which the media period's content is
-     clipped.</dd>
-</dl>
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object,long,int)"><code>MediaPeriodId(Object, long,
+ int)</code></a>.</div>
 </li>
 </ul>
-<a name="MediaPeriodId-java.lang.Object-int-int-long-">
+<a id="&lt;init&gt;(java.lang.Object,int,int,long)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>MediaPeriodId</h4>
 <pre>public&nbsp;MediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
                      int&nbsp;adGroupIndex,
                      int&nbsp;adIndexInAdGroup,
                      long&nbsp;windowSequenceNumber)</pre>
-<div class="block">Creates a media period identifier that identifies an ad within an ad group at the specified
- timeline period.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>periodUid</code> - The unique id of the timeline period that contains the ad group.</dd>
-<dd><code>adGroupIndex</code> - The index of the ad group.</dd>
-<dd><code>adIndexInAdGroup</code> - The index of the ad in the ad group.</dd>
-<dd><code>windowSequenceNumber</code> - The sequence number of the window in the buffered sequence of
-     windows this media period is part of.</dd>
-</dl>
+<div class="block">See <a href="MediaPeriodId.html#%3Cinit%3E(java.lang.Object,int,int,long)"><code>MediaPeriodId(Object, int, int,
+ long)</code></a>.</div>
 </li>
 </ul>
-</li>
-</ul>
-<!-- ============ METHOD DETAIL ========== -->
-<ul class="blockList">
-<li class="blockList"><a name="method.detail">
-<!--   -->
-</a>
-<h3>Method Detail</h3>
-<a name="copyWithPeriodUid-java.lang.Object-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>copyWithPeriodUid</h4>
-<pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;copyWithPeriodUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;newPeriodUid)</pre>
-<div class="block">Returns a copy of this period identifier but with <code>newPeriodUid</code> as its period uid.</div>
-</li>
-</ul>
-<a name="isAd--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isAd</h4>
-<pre>public&nbsp;boolean&nbsp;isAd()</pre>
-<div class="block">Returns whether this period identifier identifies an ad in an ad group in a period.</div>
-</li>
-</ul>
-<a name="equals-java.lang.Object-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
-                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
-</dl>
-</li>
-</ul>
-<a name="hashCode--">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.MediaPeriodId)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>hashCode</h4>
-<pre>public&nbsp;int&nbsp;hashCode()</pre>
+<h4>MediaPeriodId</h4>
+<pre>public&nbsp;MediaPeriodId&#8203;(<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="block">Wraps an <a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaPeriodId</code></a> into a MediaPeriodId.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="copyWithPeriodUid(java.lang.Object)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>copyWithPeriodUid</h4>
+<pre class="methodSignature">public&nbsp;<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;copyWithPeriodUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;newPeriodUid)</pre>
+<div class="block">See <a href="MediaPeriodId.html#copyWithPeriodUid(java.lang.Object)"><code>MediaPeriodId.copyWithPeriodUid(Object)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+<dd><code><a href="MediaPeriodId.html#copyWithPeriodUid(java.lang.Object)">copyWithPeriodUid</a></code>&nbsp;in class&nbsp;<code><a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a></code></dd>
 </dl>
 </li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -518,16 +386,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/google/android/exoplayer2/source/MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/source/MediaSource.MediaPeriodId.html" target="_top">Frames</a></li>
-<li><a href="MediaSource.MediaPeriodId.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -554,14 +414,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>

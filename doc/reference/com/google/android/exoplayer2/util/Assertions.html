@@ -1,9 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en">
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>Assertions (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="dc.created" content="2021-02-04">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../script.js"></script>
@@ -12,7 +13,7 @@
 <!--[if IE]>
 <script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
 <![endif]-->
-<script type="text/javascript" src="../../../../../jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
 <script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
 </head>
 <body>
@@ -25,27 +26,31 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
 var activeTableTab = "activeTableTab";
-var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
+var pathtoroot = "../../../../../";
+var useModuleDirectories = true;
+loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
 </noscript>
+<header role="banner">
+<nav role="navigation">
 <div class="fixedNav">
 <!-- ========= START OF TOP NAVBAR ======= -->
-<div class="topNav"><a name="navbar.top">
+<div class="topNav"><a id="navbar.top">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.top.firstrow">
+<a id="navbar.top.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -55,16 +60,8 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/AtomicFile.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/Assertions.html" target="_top">Frames</a></li>
-<li><a href="Assertions.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_top">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <ul class="navListSearch">
 <li><label for="search">SEARCH:</label>
@@ -102,7 +99,7 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.top">
+<a id="skip.navbar.top">
 <!--   -->
 </a></div>
 <!-- ========= END OF TOP NAVBAR ========= -->
@@ -112,9 +109,12 @@ var pathtoroot = "../../../../../";loadScripts(document, 'script');</script>
 $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 //-->
 </script>
+</nav>
+</header>
 <!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
 <div class="header">
-<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="../../../../../com/google/android/exoplayer2/util/package-summary.html">com.google.android.exoplayer2.util</a></div>
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.util</a></div>
 <h2 title="Class Assertions" class="title">Class Assertions</h2>
 </div>
 <div class="contentContainer">
@@ -140,12 +140,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.summary">
+<li class="blockList"><a id="method.summary">
 <!--   -->
 </a>
 <h3>Method Summary</h3>
-<table class="memberSummary" summary="Method Summary table, listing methods, and an explanation">
+<table class="memberSummary">
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
@@ -154,14 +155,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkArgument-boolean-">checkArgument</a></span>&#8203;(boolean&nbsp;expression)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkArgument(boolean)">checkArgument</a></span>&#8203;(boolean&nbsp;expression)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a> if <code>expression</code> evaluates to false.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkArgument-boolean-java.lang.Object-">checkArgument</a></span>&#8203;(boolean&nbsp;expression,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkArgument(boolean,java.lang.Object)">checkArgument</a></span>&#8203;(boolean&nbsp;expression,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a> if <code>expression</code> evaluates to false.</div>
@@ -169,7 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkIndex-int-int-int-">checkIndex</a></span>&#8203;(int&nbsp;index,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkIndex(int,int,int)">checkIndex</a></span>&#8203;(int&nbsp;index,
           int&nbsp;start,
           int&nbsp;limit)</code></th>
 <td class="colLast">
@@ -178,7 +179,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkMainThread--">checkMainThread</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkMainThread()">checkMainThread</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if the calling thread is not the application's main
  thread.</div>
@@ -186,14 +187,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkNotEmpty-java.lang.String-">checkNotEmpty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;string)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkNotEmpty(java.lang.String)">checkNotEmpty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;string)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a> if <code>string</code> is null or zero length.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkNotEmpty-java.lang.String-java.lang.Object-">checkNotEmpty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;string,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkNotEmpty(java.lang.String,java.lang.Object)">checkNotEmpty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;string,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a> if <code>string</code> is null or zero length.</div>
@@ -201,14 +202,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkNotNull-T-">checkNotNull</a></span>&#8203;(T&nbsp;reference)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkNotNull(T)">checkNotNull</a></span>&#8203;(T&nbsp;reference)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>NullPointerException</code></a> if <code>reference</code> is null.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkNotNull-T-java.lang.Object-">checkNotNull</a></span>&#8203;(T&nbsp;reference,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkNotNull(T,java.lang.Object)">checkNotNull</a></span>&#8203;(T&nbsp;reference,
             <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>NullPointerException</code></a> if <code>reference</code> is null.</div>
@@ -216,14 +217,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkState-boolean-">checkState</a></span>&#8203;(boolean&nbsp;expression)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkState(boolean)">checkState</a></span>&#8203;(boolean&nbsp;expression)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if <code>expression</code> evaluates to false.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkState-boolean-java.lang.Object-">checkState</a></span>&#8203;(boolean&nbsp;expression,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkState(boolean,java.lang.Object)">checkState</a></span>&#8203;(boolean&nbsp;expression,
           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if <code>expression</code> evaluates to false.</div>
@@ -231,14 +232,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkStateNotNull-T-">checkStateNotNull</a></span>&#8203;(T&nbsp;reference)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkStateNotNull(T)">checkStateNotNull</a></span>&#8203;(T&nbsp;reference)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if <code>reference</code> is null.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/util/Assertions.html#checkStateNotNull-T-java.lang.Object-">checkStateNotNull</a></span>&#8203;(T&nbsp;reference,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkStateNotNull(T,java.lang.Object)">checkStateNotNull</a></span>&#8203;(T&nbsp;reference,
                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</code></th>
 <td class="colLast">
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if <code>reference</code> is null.</div>
@@ -246,14 +247,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 </table>
 <ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone--" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
@@ -261,18 +263,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <!-- ============ METHOD DETAIL ========== -->
+<section role="region">
 <ul class="blockList">
-<li class="blockList"><a name="method.detail">
+<li class="blockList"><a id="method.detail">
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="checkArgument-boolean-">
+<a id="checkArgument(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkArgument</h4>
-<pre>public static&nbsp;void&nbsp;checkArgument&#8203;(boolean&nbsp;expression)</pre>
+<pre class="methodSignature">@Pure
+public static&nbsp;void&nbsp;checkArgument&#8203;(boolean&nbsp;expression)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a> if <code>expression</code> evaluates to false.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -282,32 +286,34 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="checkArgument-boolean-java.lang.Object-">
+<a id="checkArgument(boolean,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkArgument</h4>
-<pre>public static&nbsp;void&nbsp;checkArgument&#8203;(boolean&nbsp;expression,
+<pre class="methodSignature">@Pure
+public static&nbsp;void&nbsp;checkArgument&#8203;(boolean&nbsp;expression,
                                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a> if <code>expression</code> evaluates to false.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>expression</code> - The expression to evaluate.</dd>
 <dd><code>errorMessage</code> - The exception message if an exception is thrown. The message is converted
-     to a <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> using <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true#valueOf-java.lang.Object-" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
+     to a <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> using <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true#valueOf(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalArgumentException</a></code> - If <code>expression</code> is false.</dd>
 </dl>
 </li>
 </ul>
-<a name="checkIndex-int-int-int-">
+<a id="checkIndex(int,int,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkIndex</h4>
-<pre>public static&nbsp;int&nbsp;checkIndex&#8203;(int&nbsp;index,
+<pre class="methodSignature">@Pure
+public static&nbsp;int&nbsp;checkIndex&#8203;(int&nbsp;index,
                              int&nbsp;start,
                              int&nbsp;limit)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IndexOutOfBoundsException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IndexOutOfBoundsException</code></a> if <code>index</code> falls outside the specified bounds.</div>
@@ -323,13 +329,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="checkState-boolean-">
+<a id="checkState(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkState</h4>
-<pre>public static&nbsp;void&nbsp;checkState&#8203;(boolean&nbsp;expression)</pre>
+<pre class="methodSignature">@Pure
+public static&nbsp;void&nbsp;checkState&#8203;(boolean&nbsp;expression)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if <code>expression</code> evaluates to false.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -339,34 +346,36 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
-<a name="checkState-boolean-java.lang.Object-">
+<a id="checkState(boolean,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkState</h4>
-<pre>public static&nbsp;void&nbsp;checkState&#8203;(boolean&nbsp;expression,
+<pre class="methodSignature">@Pure
+public static&nbsp;void&nbsp;checkState&#8203;(boolean&nbsp;expression,
                               <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if <code>expression</code> evaluates to false.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>expression</code> - The expression to evaluate.</dd>
 <dd><code>errorMessage</code> - The exception message if an exception is thrown. The message is converted
-     to a <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> using <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true#valueOf-java.lang.Object-" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
+     to a <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> using <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true#valueOf(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If <code>expression</code> is false.</dd>
 </dl>
 </li>
 </ul>
-<a name="checkStateNotNull-java.lang.Object-">
+<a id="checkStateNotNull(java.lang.Object)">
 <!--   -->
-</a><a name="checkStateNotNull-T-">
+</a><a id="checkStateNotNull(T)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkStateNotNull</h4>
-<pre>@EnsuresNonNull("#1")
+<pre class="methodSignature">@EnsuresNonNull("#1")
+@Pure
 public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkStateNotNull&#8203;(@Nullable
                                       T&nbsp;reference)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if <code>reference</code> is null.</div>
@@ -382,15 +391,16 @@ public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkStateNotNull&#8203;(@Nullable
 </dl>
 </li>
 </ul>
-<a name="checkStateNotNull-java.lang.Object-java.lang.Object-">
+<a id="checkStateNotNull(java.lang.Object,java.lang.Object)">
 <!--   -->
-</a><a name="checkStateNotNull-T-java.lang.Object-">
+</a><a id="checkStateNotNull(T,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkStateNotNull</h4>
-<pre>@EnsuresNonNull("#1")
+<pre class="methodSignature">@EnsuresNonNull("#1")
+@Pure
 public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkStateNotNull&#8203;(@Nullable
                                       T&nbsp;reference,
                                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</pre>
@@ -401,7 +411,7 @@ public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkStateNotNull&#8203;(@Nullable
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>reference</code> - The reference.</dd>
 <dd><code>errorMessage</code> - The exception message to use if the check fails. The message is converted
-     to a string using <a href="https://developer.android.com/reference/java/lang/String.html#valueOf-java.lang.Object-" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
+     to a string using <a href="https://developer.android.com/reference/java/lang/String.html#valueOf(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The non-null reference that was validated.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -409,15 +419,16 @@ public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkStateNotNull&#8203;(@Nullable
 </dl>
 </li>
 </ul>
-<a name="checkNotNull-java.lang.Object-">
+<a id="checkNotNull(java.lang.Object)">
 <!--   -->
-</a><a name="checkNotNull-T-">
+</a><a id="checkNotNull(T)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotNull</h4>
-<pre>@EnsuresNonNull("#1")
+<pre class="methodSignature">@EnsuresNonNull("#1")
+@Pure
 public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull&#8203;(@Nullable
                                  T&nbsp;reference)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>NullPointerException</code></a> if <code>reference</code> is null.</div>
@@ -433,15 +444,16 @@ public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull&#8203;(@Nullable
 </dl>
 </li>
 </ul>
-<a name="checkNotNull-java.lang.Object-java.lang.Object-">
+<a id="checkNotNull(java.lang.Object,java.lang.Object)">
 <!--   -->
-</a><a name="checkNotNull-T-java.lang.Object-">
+</a><a id="checkNotNull(T,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotNull</h4>
-<pre>@EnsuresNonNull("#1")
+<pre class="methodSignature">@EnsuresNonNull("#1")
+@Pure
 public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull&#8203;(@Nullable
                                  T&nbsp;reference,
                                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</pre>
@@ -452,7 +464,7 @@ public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull&#8203;(@Nullable
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>reference</code> - The reference.</dd>
 <dd><code>errorMessage</code> - The exception message to use if the check fails. The message is converted
-     to a string using <a href="https://developer.android.com/reference/java/lang/String.html#valueOf-java.lang.Object-" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
+     to a string using <a href="https://developer.android.com/reference/java/lang/String.html#valueOf(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The non-null reference that was validated.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -460,13 +472,14 @@ public static&nbsp;&lt;T&gt;&nbsp;T&nbsp;checkNotNull&#8203;(@Nullable
 </dl>
 </li>
 </ul>
-<a name="checkNotEmpty-java.lang.String-">
+<a id="checkNotEmpty(java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotEmpty</h4>
-<pre>@EnsuresNonNull("#1")
+<pre class="methodSignature">@EnsuresNonNull("#1")
+@Pure
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;checkNotEmpty&#8203;(@Nullable
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;string)</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalArgumentException</code></a> if <code>string</code> is null or zero length.</div>
@@ -480,13 +493,14 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="checkNotEmpty-java.lang.String-java.lang.Object-">
+<a id="checkNotEmpty(java.lang.String,java.lang.Object)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>checkNotEmpty</h4>
-<pre>@EnsuresNonNull("#1")
+<pre class="methodSignature">@EnsuresNonNull("#1")
+@Pure
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;checkNotEmpty&#8203;(@Nullable
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;string,
                                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;errorMessage)</pre>
@@ -495,7 +509,7 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>string</code> - The string to check.</dd>
 <dd><code>errorMessage</code> - The exception message to use if the check fails. The message is converted
-     to a string using <a href="https://developer.android.com/reference/java/lang/String.html#valueOf-java.lang.Object-" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
+     to a string using <a href="https://developer.android.com/reference/java/lang/String.html#valueOf(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>String.valueOf(Object)</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The non-null, non-empty string that was validated.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -503,13 +517,14 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </dl>
 </li>
 </ul>
-<a name="checkMainThread--">
+<a id="checkMainThread()">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>checkMainThread</h4>
-<pre>public static&nbsp;void&nbsp;checkMainThread()</pre>
+<pre class="methodSignature">@Pure
+public static&nbsp;void&nbsp;checkMainThread()</pre>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>IllegalStateException</code></a> if the calling thread is not the application's main
  thread.</div>
 <dl>
@@ -520,21 +535,25 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </ul>
 </li>
 </ul>
+</section>
 </li>
 </ul>
 </div>
 </div>
+</main>
 <!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
-<div class="bottomNav"><a name="navbar.bottom">
+<div class="bottomNav"><a id="navbar.bottom">
 <!--   -->
 </a>
 <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
-<a name="navbar.bottom.firstrow">
+<a id="navbar.bottom.firstrow">
 <!--   -->
 </a>
 <ul class="navList" title="Navigation">
-<li><a href="../../../../../overview-summary.html">Overview</a></li>
+<li><a href="../../../../../index.html">Overview</a></li>
 <li><a href="package-summary.html">Package</a></li>
 <li class="navBarCell1Rev">Class</li>
 <li><a href="package-tree.html">Tree</a></li>
@@ -544,16 +563,8 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 </ul>
 </div>
 <div class="subNav">
-<ul class="navList">
-<li>Prev&nbsp;Class</li>
-<li><a href="../../../../../com/google/android/exoplayer2/util/AtomicFile.html" title="class in com.google.android.exoplayer2.util"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
-</ul>
-<ul class="navList">
-<li><a href="../../../../../index.html?com/google/android/exoplayer2/util/Assertions.html" target="_top">Frames</a></li>
-<li><a href="Assertions.html" target="_top">No&nbsp;Frames</a></li>
-</ul>
 <ul class="navList" id="allclasses_navbar_bottom">
-<li><a href="../../../../../allclasses-noframe.html">All&nbsp;Classes</a></li>
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
 </ul>
 <div>
 <script type="text/javascript"><!--
@@ -585,9 +596,11 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/lang/St
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
-<a name="skip.navbar.bottom">
+<a id="skip.navbar.bottom">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
 </body>
 </html>
