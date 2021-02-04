@@ -30,7 +30,7 @@ import java.nio.ByteBuffer;
 /* package */ final class C2Mp3TimestampTracker {
 
   // Mirroring the actual codec, as can be found at
-  // https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.h;l=55;drc=3665390c9d32a917398b240c5a46ced07a3b65eb
+  // https://cs.android.com/android/platform/superproject/+/main:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.h;l=55;drc=3665390c9d32a917398b240c5a46ced07a3b65eb
   private static final long DECODER_DELAY_SAMPLES = 529;
   private static final String TAG = "C2Mp3TimestampTracker";
 
@@ -76,7 +76,7 @@ import java.nio.ByteBuffer;
     }
 
     // These calculations mirror the timestamp calculations in the Codec2 Mp3 Decoder.
-    // https://cs.android.com/android/platform/superproject/+/master:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.cpp;l=464;drc=ed134640332fea70ca4b05694289d91a5265bb46
+    // https://cs.android.com/android/platform/superproject/+/main:frameworks/av/media/codec2/components/mp3/C2SoftMp3Dec.cpp;l=464;drc=ed134640332fea70ca4b05694289d91a5265bb46
     if (processedSamples == 0) {
       anchorTimestampUs = buffer.timeUs;
       processedSamples = frameCount - DECODER_DELAY_SAMPLES;

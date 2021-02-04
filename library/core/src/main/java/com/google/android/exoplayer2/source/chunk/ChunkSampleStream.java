@@ -145,7 +145,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     SampleQueue[] sampleQueues = new SampleQueue[1 + embeddedTrackCount];
 
     primarySampleQueue =
-        new SampleQueue(
+        SampleQueue.createWithDrm(
             allocator,
             /* playbackLooper= */ checkNotNull(Looper.myLooper()),
             drmSessionManager,
@@ -154,12 +154,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     sampleQueues[0] = primarySampleQueue;
 
     for (int i = 0; i < embeddedTrackCount; i++) {
-      SampleQueue sampleQueue =
-          new SampleQueue(
-              allocator,
-              /* playbackLooper= */ checkNotNull(Looper.myLooper()),
-              DrmSessionManager.getDummyDrmSessionManager(),
-              drmEventDispatcher);
+      SampleQueue sampleQueue = SampleQueue.createWithoutDrm(allocator);
       embeddedSampleQueues[i] = sampleQueue;
       sampleQueues[i + 1] = sampleQueue;
       trackTypes[i + 1] = this.embeddedTrackTypes[i];

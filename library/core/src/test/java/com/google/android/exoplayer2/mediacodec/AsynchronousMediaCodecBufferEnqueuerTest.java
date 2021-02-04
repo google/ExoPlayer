@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.mediacodec;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doAnswer;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -28,7 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicLong;
+import java.nio.ByteBuffer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,7 +56,11 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     codec.start();
     handlerThread = new TestHandlerThread("TestHandlerThread");
     enqueuer =
-        new AsynchronousMediaCodecBufferEnqueuer(codec, handlerThread, mockConditionVariable);
+        new AsynchronousMediaCodecBufferEnqueuer(
+            codec,
+            handlerThread,
+            /* forceQueueingSynchronizationWorkaround= */ false,
+            mockConditionVariable);
   }
 
   @After
@@ -63,7 +68,34 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     enqueuer.shutdown();
     codec.stop();
     codec.release();
-    assertThat(TestHandlerThread.INSTANCES_STARTED.get()).isEqualTo(0);
+    assertThat(!handlerThread.hasStarted() || handlerThread.hasQuit()).isTrue();
+  }
+
+  @Test
+  public void queueInputBuffer_queuesInputBufferOnMediaCodec() {
+    enqueuer.start();
+    int inputBufferIndex = codec.dequeueInputBuffer(0);
+    assertThat(inputBufferIndex).isAtLeast(0);
+    byte[] inputData = new byte[] {0, 1, 2, 3};
+    codec.getInputBuffer(inputBufferIndex).put(inputData);
+
+    enqueuer.queueInputBuffer(
+        inputBufferIndex,
+        /* offset= */ 0,
+        /* size= */ 4,
+        /* presentationTimeUs= */ 0,
+        /* flags= */ 0);
+    shadowOf(handlerThread.getLooper()).idle();
+
+    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+    assertThat(codec.dequeueOutputBuffer(bufferInfo, 0))
+        .isEqualTo(MediaCodec.INFO_OUTPUT_FORMAT_CHANGED);
+    assertThat(codec.dequeueOutputBuffer(bufferInfo, 0)).isEqualTo(inputBufferIndex);
+    ByteBuffer outputBuffer = codec.getOutputBuffer(inputBufferIndex);
+    assertThat(outputBuffer.limit()).isEqualTo(4);
+    byte[] outputData = new byte[4];
+    outputBuffer.get(outputData);
+    assertThat(outputData).isEqualTo(inputData);
   }
 
   @Test
@@ -111,7 +143,7 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
             enqueuer.queueSecureInputBuffer(
                 /* index= */ 0,
                 /* offset= */ 0,
-                /* info= */ info,
+                info,
                 /* presentationTimeUs= */ 0,
                 /* flags= */ 0));
   }
@@ -191,29 +223,6 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
     assertThrows(IllegalStateException.class, () -> enqueuer.shutdown());
   }
 
-  private static class TestHandlerThread extends HandlerThread {
-    private static final AtomicLong INSTANCES_STARTED = new AtomicLong(0);
-
-    TestHandlerThread(String name) {
-      super(name);
-    }
-
-    @Override
-    public synchronized void start() {
-      super.start();
-      INSTANCES_STARTED.incrementAndGet();
-    }
-
-    @Override
-    public boolean quit() {
-      boolean quit = super.quit();
-      if (quit) {
-        INSTANCES_STARTED.decrementAndGet();
-      }
-      return quit;
-    }
-  }
-
   private static CryptoInfo createCryptoInfo() {
     CryptoInfo info = new CryptoInfo();
     int numSubSamples = 5;
@@ -234,5 +243,34 @@ public class AsynchronousMediaCodecBufferEnqueuerTest {
         encryptedBlocks,
         clearBlocks);
     return info;
+  }
+
+  private static class TestHandlerThread extends HandlerThread {
+    private boolean started;
+    private boolean quit;
+
+    TestHandlerThread(String label) {
+      super(label);
+    }
+
+    public boolean hasStarted() {
+      return started;
+    }
+
+    public boolean hasQuit() {
+      return quit;
+    }
+
+    @Override
+    public synchronized void start() {
+      super.start();
+      started = true;
+    }
+
+    @Override
+    public boolean quit() {
+      quit = true;
+      return super.quit();
+    }
   }
 }

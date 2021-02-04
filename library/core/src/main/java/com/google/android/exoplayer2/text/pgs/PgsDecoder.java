@@ -134,7 +134,7 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
 
     private void parsePaletteSection(ParsableByteArray buffer, int sectionLength) {
       if ((sectionLength % 5) != 2) {
-        // Section must be two bytes followed by a whole number of (index, y, cb, cr, a) entries.
+        // Section must be two bytes then a whole number of (index, Y, Cr, Cb, alpha) entries.
         return;
       }
       buffer.skipBytes(2);

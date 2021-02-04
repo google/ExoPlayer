@@ -28,12 +28,12 @@ import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
-/** Unit test for {@link FragmentedMp4Extractor}. */
+/** Tests for {@link FragmentedMp4Extractor} that test behaviours where sniffing must be tested. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public final class FragmentedMp4ExtractorTest {
 
   @Parameters(name = "{0}")
-  public static List<Object[]> params() {
+  public static ImmutableList<ExtractorAsserts.SimulationConfig> params() {
     return ExtractorAsserts.configs();
   }
 

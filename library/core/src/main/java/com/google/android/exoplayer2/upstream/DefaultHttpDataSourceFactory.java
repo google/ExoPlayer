@@ -15,17 +15,15 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.HttpDataSource.BaseFactory;
-import com.google.android.exoplayer2.upstream.HttpDataSource.Factory;
-import com.google.android.exoplayer2.util.Assertions;
 
-/** A {@link Factory} that produces {@link DefaultHttpDataSource} instances. */
+/** @deprecated Use {@link DefaultHttpDataSource.Factory} instead. */
+@Deprecated
 public final class DefaultHttpDataSourceFactory extends BaseFactory {
 
-  private final String userAgent;
+  @Nullable private final String userAgent;
   @Nullable private final TransferListener listener;
   private final int connectTimeoutMillis;
   private final int readTimeoutMillis;
@@ -37,7 +35,7 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
    * timeout and disables cross-protocol redirects.
    */
   public DefaultHttpDataSourceFactory() {
-    this(DEFAULT_USER_AGENT);
+    this(/* userAgent= */ null);
   }
 
   /**
@@ -45,9 +43,10 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
    * connection timeout, {@link DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read
    * timeout and disables cross-protocol redirects.
    *
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent The user agent that will be used, or {@code null} to use the default user
+   *     agent of the underlying platform.
    */
-  public DefaultHttpDataSourceFactory(String userAgent) {
+  public DefaultHttpDataSourceFactory(@Nullable String userAgent) {
     this(userAgent, null);
   }
 
@@ -56,17 +55,20 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
    * connection timeout, {@link DefaultHttpDataSource#DEFAULT_READ_TIMEOUT_MILLIS} as the read
    * timeout and disables cross-protocol redirects.
    *
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent The user agent that will be used, or {@code null} to use the default user
+   *     agent of the underlying platform.
    * @param listener An optional listener.
    * @see #DefaultHttpDataSourceFactory(String, TransferListener, int, int, boolean)
    */
-  public DefaultHttpDataSourceFactory(String userAgent, @Nullable TransferListener listener) {
+  public DefaultHttpDataSourceFactory(
+      @Nullable String userAgent, @Nullable TransferListener listener) {
     this(userAgent, listener, DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
         DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, false);
   }
 
   /**
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent The user agent that will be used, or {@code null} to use the default user
+   *     agent of the underlying platform.
    * @param connectTimeoutMillis The connection timeout that should be used when requesting remote
    *     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.
    * @param readTimeoutMillis The read timeout that should be used when requesting remote data, in
@@ -75,7 +77,7 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
    *     to HTTPS and vice versa) are enabled.
    */
   public DefaultHttpDataSourceFactory(
-      String userAgent,
+      @Nullable String userAgent,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects) {
@@ -88,7 +90,8 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
   }
 
   /**
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent The user agent that will be used, or {@code null} to use the default user
+   *     agent of the underlying platform.
    * @param listener An optional listener.
    * @param connectTimeoutMillis The connection timeout that should be used when requesting remote
    *     data, in milliseconds. A timeout of zero is interpreted as an infinite timeout.
@@ -98,18 +101,20 @@ public final class DefaultHttpDataSourceFactory extends BaseFactory {
    *     to HTTPS and vice versa) are enabled.
    */
   public DefaultHttpDataSourceFactory(
-      String userAgent,
+      @Nullable String userAgent,
       @Nullable TransferListener listener,
       int connectTimeoutMillis,
       int readTimeoutMillis,
       boolean allowCrossProtocolRedirects) {
-    this.userAgent = Assertions.checkNotEmpty(userAgent);
+    this.userAgent = userAgent;
     this.listener = listener;
     this.connectTimeoutMillis = connectTimeoutMillis;
     this.readTimeoutMillis = readTimeoutMillis;
     this.allowCrossProtocolRedirects = allowCrossProtocolRedirects;
   }
 
+  // Calls deprecated constructor.
+  @SuppressWarnings("deprecation")
   @Override
   protected DefaultHttpDataSource createDataSourceInternal(
       HttpDataSource.RequestProperties defaultRequestProperties) {

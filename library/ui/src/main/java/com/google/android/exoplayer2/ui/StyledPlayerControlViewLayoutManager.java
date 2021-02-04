@@ -24,6 +24,7 @@ import android.content.res.Resources;
 import android.view.View;
 import android.view.View.OnLayoutChangeListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.animation.LinearInterpolator;
 import androidx.annotation.Nullable;
@@ -49,7 +50,7 @@ import java.util.List;
 
   private final StyledPlayerControlView styledPlayerControlView;
 
-  @Nullable private final ViewGroup embeddedTransportControls;
+  @Nullable private final ViewGroup centerControls;
   @Nullable private final ViewGroup bottomBar;
   @Nullable private final ViewGroup minimalControls;
   @Nullable private final ViewGroup basicControls;
@@ -59,10 +60,10 @@ import java.util.List;
   @Nullable private final View timeBar;
   @Nullable private final View overflowShowButton;
 
-  private final AnimatorSet hideMainBarsAnimator;
+  private final AnimatorSet hideMainBarAnimator;
   private final AnimatorSet hideProgressBarAnimator;
   private final AnimatorSet hideAllBarsAnimator;
-  private final AnimatorSet showMainBarsAnimator;
+  private final AnimatorSet showMainBarAnimator;
   private final AnimatorSet showAllBarsAnimator;
   private final ValueAnimator overflowShowAnimator;
   private final ValueAnimator overflowHideAnimator;
@@ -70,7 +71,7 @@ import java.util.List;
   private final Runnable showAllBarsRunnable;
   private final Runnable hideAllBarsRunnable;
   private final Runnable hideProgressBarRunnable;
-  private final Runnable hideMainBarsRunnable;
+  private final Runnable hideMainBarRunnable;
   private final Runnable hideControllerRunnable;
   private final OnLayoutChangeListener onLayoutChangeListener;
 
@@ -90,7 +91,7 @@ import java.util.List;
     showAllBarsRunnable = this::showAllBars;
     hideAllBarsRunnable = this::hideAllBars;
     hideProgressBarRunnable = this::hideProgressBar;
-    hideMainBarsRunnable = this::hideMainBars;
+    hideMainBarRunnable = this::hideMainBar;
     hideControllerRunnable = this::hideController;
     onLayoutChangeListener = this::onLayoutChange;
     animationEnabled = true;
@@ -98,9 +99,8 @@ import java.util.List;
     shownButtons = new ArrayList<>();
 
     // Relating to Center View
-    ViewGroup centerView = styledPlayerControlView.findViewById(R.id.exo_center_view);
-    embeddedTransportControls =
-        styledPlayerControlView.findViewById(R.id.exo_embedded_transport_controls);
+    View controlsBackground = styledPlayerControlView.findViewById(R.id.exo_controls_background);
+    centerControls = styledPlayerControlView.findViewById(R.id.exo_center_controls);
 
     // Relating to Minimal Layout
     minimalControls = styledPlayerControlView.findViewById(R.id.exo_minimal_controls);
@@ -124,22 +124,16 @@ import java.util.List;
       overflowHideButton.setOnClickListener(this::onOverflowButtonClick);
     }
 
-    Resources resources = styledPlayerControlView.getResources();
-    float bottomBarHeight =
-        resources.getDimension(R.dimen.exo_bottom_bar_height)
-            - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
-    float progressBarHeight =
-        resources.getDimension(R.dimen.exo_styled_progress_margin_bottom)
-            + resources.getDimension(R.dimen.exo_styled_progress_layout_height)
-            - bottomBarHeight;
-
     ValueAnimator fadeOutAnimator = ValueAnimator.ofFloat(1.0f, 0.0f);
     fadeOutAnimator.setInterpolator(new LinearInterpolator());
     fadeOutAnimator.addUpdateListener(
         animation -> {
           float animatedValue = (float) animation.getAnimatedValue();
-          if (centerView != null) {
-            centerView.setAlpha(animatedValue);
+          if (controlsBackground != null) {
+            controlsBackground.setAlpha(animatedValue);
+          }
+          if (centerControls != null) {
+            centerControls.setAlpha(animatedValue);
           }
           if (minimalControls != null) {
             minimalControls.setAlpha(animatedValue);
@@ -156,8 +150,11 @@ import java.util.List;
 
           @Override
           public void onAnimationEnd(Animator animation) {
-            if (centerView != null) {
-              centerView.setVisibility(View.INVISIBLE);
+            if (controlsBackground != null) {
+              controlsBackground.setVisibility(View.INVISIBLE);
+            }
+            if (centerControls != null) {
+              centerControls.setVisibility(View.INVISIBLE);
             }
             if (minimalControls != null) {
               minimalControls.setVisibility(View.INVISIBLE);
@@ -170,8 +167,11 @@ import java.util.List;
     fadeInAnimator.addUpdateListener(
         animation -> {
           float animatedValue = (float) animation.getAnimatedValue();
-          if (centerView != null) {
-            centerView.setAlpha(animatedValue);
+          if (controlsBackground != null) {
+            controlsBackground.setAlpha(animatedValue);
+          }
+          if (centerControls != null) {
+            centerControls.setAlpha(animatedValue);
           }
           if (minimalControls != null) {
             minimalControls.setAlpha(animatedValue);
@@ -181,8 +181,11 @@ import java.util.List;
         new AnimatorListenerAdapter() {
           @Override
           public void onAnimationStart(Animator animation) {
-            if (centerView != null) {
-              centerView.setVisibility(View.VISIBLE);
+            if (controlsBackground != null) {
+              controlsBackground.setVisibility(View.VISIBLE);
+            }
+            if (centerControls != null) {
+              centerControls.setVisibility(View.VISIBLE);
             }
             if (minimalControls != null) {
               minimalControls.setVisibility(isMinimalMode ? View.VISIBLE : View.INVISIBLE);
@@ -193,9 +196,15 @@ import java.util.List;
           }
         });
 
-    hideMainBarsAnimator = new AnimatorSet();
-    hideMainBarsAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
-    hideMainBarsAnimator.addListener(
+    Resources resources = styledPlayerControlView.getResources();
+    float translationYForProgressBar =
+        resources.getDimension(R.dimen.exo_styled_bottom_bar_height)
+            - resources.getDimension(R.dimen.exo_styled_progress_bar_height);
+    float translationYForNoBars = resources.getDimension(R.dimen.exo_styled_bottom_bar_height);
+
+    hideMainBarAnimator = new AnimatorSet();
+    hideMainBarAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
+    hideMainBarAnimator.addListener(
         new AnimatorListenerAdapter() {
           @Override
           public void onAnimationStart(Animator animation) {
@@ -211,10 +220,10 @@ import java.util.List;
             }
           }
         });
-    hideMainBarsAnimator
+    hideMainBarAnimator
         .play(fadeOutAnimator)
-        .with(ofTranslationY(0, bottomBarHeight, timeBar))
-        .with(ofTranslationY(0, bottomBarHeight, bottomBar));
+        .with(ofTranslationY(0, translationYForProgressBar, timeBar))
+        .with(ofTranslationY(0, translationYForProgressBar, bottomBar));
 
     hideProgressBarAnimator = new AnimatorSet();
     hideProgressBarAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
@@ -235,8 +244,8 @@ import java.util.List;
           }
         });
     hideProgressBarAnimator
-        .play(ofTranslationY(bottomBarHeight, bottomBarHeight + progressBarHeight, timeBar))
-        .with(ofTranslationY(bottomBarHeight, bottomBarHeight + progressBarHeight, bottomBar));
+        .play(ofTranslationY(translationYForProgressBar, translationYForNoBars, timeBar))
+        .with(ofTranslationY(translationYForProgressBar, translationYForNoBars, bottomBar));
 
     hideAllBarsAnimator = new AnimatorSet();
     hideAllBarsAnimator.setDuration(DURATION_FOR_HIDING_ANIMATION_MS);
@@ -258,12 +267,12 @@ import java.util.List;
         });
     hideAllBarsAnimator
         .play(fadeOutAnimator)
-        .with(ofTranslationY(0, bottomBarHeight + progressBarHeight, timeBar))
-        .with(ofTranslationY(0, bottomBarHeight + progressBarHeight, bottomBar));
+        .with(ofTranslationY(0, translationYForNoBars, timeBar))
+        .with(ofTranslationY(0, translationYForNoBars, bottomBar));
 
-    showMainBarsAnimator = new AnimatorSet();
-    showMainBarsAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
-    showMainBarsAnimator.addListener(
+    showMainBarAnimator = new AnimatorSet();
+    showMainBarAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
+    showMainBarAnimator.addListener(
         new AnimatorListenerAdapter() {
           @Override
           public void onAnimationStart(Animator animation) {
@@ -275,10 +284,10 @@ import java.util.List;
             setUxState(UX_STATE_ALL_VISIBLE);
           }
         });
-    showMainBarsAnimator
+    showMainBarAnimator
         .play(fadeInAnimator)
-        .with(ofTranslationY(bottomBarHeight, 0, timeBar))
-        .with(ofTranslationY(bottomBarHeight, 0, bottomBar));
+        .with(ofTranslationY(translationYForProgressBar, 0, timeBar))
+        .with(ofTranslationY(translationYForProgressBar, 0, bottomBar));
 
     showAllBarsAnimator = new AnimatorSet();
     showAllBarsAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
@@ -296,8 +305,8 @@ import java.util.List;
         });
     showAllBarsAnimator
         .play(fadeInAnimator)
-        .with(ofTranslationY(bottomBarHeight + progressBarHeight, 0, timeBar))
-        .with(ofTranslationY(bottomBarHeight + progressBarHeight, 0, bottomBar));
+        .with(ofTranslationY(translationYForNoBars, 0, timeBar))
+        .with(ofTranslationY(translationYForNoBars, 0, bottomBar));
 
     overflowShowAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
     overflowShowAnimator.setDuration(DURATION_FOR_SHOWING_ANIMATION_MS);
@@ -395,7 +404,7 @@ import java.util.List;
       } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
         postDelayedRunnable(hideProgressBarRunnable, ANIMATION_INTERVAL_MS);
       } else {
-        postDelayedRunnable(hideMainBarsRunnable, showTimeoutMs);
+        postDelayedRunnable(hideMainBarRunnable, showTimeoutMs);
       }
     }
   }
@@ -403,7 +412,7 @@ import java.util.List;
   public void removeHideCallbacks() {
     styledPlayerControlView.removeCallbacks(hideControllerRunnable);
     styledPlayerControlView.removeCallbacks(hideAllBarsRunnable);
-    styledPlayerControlView.removeCallbacks(hideMainBarsRunnable);
+    styledPlayerControlView.removeCallbacks(hideMainBarRunnable);
     styledPlayerControlView.removeCallbacks(hideProgressBarRunnable);
   }
 
@@ -466,9 +475,9 @@ import java.util.List;
       int oldRight,
       int oldBottom) {
 
-    boolean shouldBeMinimalMode = shouldBeMinimalMode();
-    if (isMinimalMode != shouldBeMinimalMode) {
-      isMinimalMode = shouldBeMinimalMode;
+    boolean useMinimalMode = useMinimalMode();
+    if (isMinimalMode != useMinimalMode) {
+      isMinimalMode = useMinimalMode;
       v.post(this::updateLayoutForSizeChange);
     }
     boolean widthChanged = (right - left) != (oldRight - oldLeft);
@@ -498,7 +507,7 @@ import java.util.List;
         showAllBarsAnimator.start();
         break;
       case UX_STATE_ONLY_PROGRESS_VISIBLE:
-        showMainBarsAnimator.start();
+        showMainBarAnimator.start();
         break;
       case UX_STATE_ANIMATING_HIDE:
         needToShowBars = true;
@@ -519,8 +528,8 @@ import java.util.List;
     hideProgressBarAnimator.start();
   }
 
-  private void hideMainBars() {
-    hideMainBarsAnimator.start();
+  private void hideMainBar() {
+    hideMainBarAnimator.start();
     postDelayedRunnable(hideProgressBarRunnable, ANIMATION_INTERVAL_MS);
   }
 
@@ -553,7 +562,7 @@ import java.util.List;
     }
   }
 
-  private boolean shouldBeMinimalMode() {
+  private boolean useMinimalMode() {
     int width =
         styledPlayerControlView.getWidth()
             - styledPlayerControlView.getPaddingLeft()
@@ -562,13 +571,21 @@ import java.util.List;
         styledPlayerControlView.getHeight()
             - styledPlayerControlView.getPaddingBottom()
             - styledPlayerControlView.getPaddingTop();
-    int defaultModeWidth =
-        Math.max(
-            getWidth(embeddedTransportControls), getWidth(timeView) + getWidth(overflowShowButton));
-    int defaultModeHeight =
-        getHeight(embeddedTransportControls) + getHeight(timeBar) + getHeight(bottomBar);
 
-    return (width <= defaultModeWidth || height <= defaultModeHeight);
+    int centerControlWidth =
+        getWidthWithMargins(centerControls)
+            - (centerControls != null
+                ? (centerControls.getPaddingLeft() + centerControls.getPaddingRight())
+                : 0);
+
+    int defaultModeMinimumWidth =
+        Math.max(
+            centerControlWidth,
+            getWidthWithMargins(timeView) + getWidthWithMargins(overflowShowButton));
+    int defaultModeMinimumHeight =
+        getHeightWithMargins(centerControls) + 2 * getHeightWithMargins(bottomBar);
+
+    return width <= defaultModeMinimumWidth || height <= defaultModeMinimumHeight;
   }
 
   private void updateLayoutForSizeChange() {
@@ -576,20 +593,6 @@ import java.util.List;
       minimalControls.setVisibility(isMinimalMode ? View.VISIBLE : View.INVISIBLE);
     }
 
-    View fullScreenButton = styledPlayerControlView.findViewById(R.id.exo_fullscreen);
-    if (fullScreenButton != null) {
-      ViewGroup parent = (ViewGroup) fullScreenButton.getParent();
-      parent.removeView(fullScreenButton);
-
-      if (isMinimalMode && minimalControls != null) {
-        minimalControls.addView(fullScreenButton);
-      } else if (!isMinimalMode && basicControls != null) {
-        int index = Math.max(0, basicControls.getChildCount() - 1);
-        basicControls.addView(fullScreenButton, index);
-      } else {
-        parent.addView(fullScreenButton);
-      }
-    }
     if (timeBar != null) {
       MarginLayoutParams timeBarParams = (MarginLayoutParams) timeBar.getLayoutParams();
       int timeBarMarginBottom =
@@ -598,13 +601,14 @@ import java.util.List;
               .getDimensionPixelSize(R.dimen.exo_styled_progress_margin_bottom);
       timeBarParams.bottomMargin = (isMinimalMode ? 0 : timeBarMarginBottom);
       timeBar.setLayoutParams(timeBarParams);
-      if (timeBar instanceof DefaultTimeBar
-          && uxState != UX_STATE_ANIMATING_HIDE
-          && uxState != UX_STATE_ANIMATING_SHOW) {
-        if (isMinimalMode || uxState != UX_STATE_ALL_VISIBLE) {
-          ((DefaultTimeBar) timeBar).hideScrubber();
-        } else {
-          ((DefaultTimeBar) timeBar).showScrubber();
+      if (timeBar instanceof DefaultTimeBar) {
+        DefaultTimeBar defaultTimeBar = (DefaultTimeBar) timeBar;
+        if (isMinimalMode) {
+          defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ true);
+        } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
+          defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ false);
+        } else if (uxState != UX_STATE_ANIMATING_HIDE && uxState != UX_STATE_ANIMATING_SHOW) {
+          defaultTimeBar.showScrubber();
         }
       }
     }
@@ -634,68 +638,86 @@ import java.util.List;
         styledPlayerControlView.getWidth()
             - styledPlayerControlView.getPaddingLeft()
             - styledPlayerControlView.getPaddingRight();
-    int bottomBarWidth = getWidth(timeView);
-    for (int i = 0; i < basicControls.getChildCount(); ++i) {
-      bottomBarWidth += basicControls.getChildAt(i).getWidth();
+
+    // Reset back to all controls being basic controls and the overflow not being needed. The last
+    // child of extraControls is the overflow hide button, which shouldn't be moved back.
+    while (extraControls.getChildCount() > 1) {
+      int controlViewIndex = extraControls.getChildCount() - 2;
+      View controlView = extraControls.getChildAt(controlViewIndex);
+      extraControls.removeViewAt(controlViewIndex);
+      basicControls.addView(controlView, /* index= */ 0);
+    }
+    if (overflowShowButton != null) {
+      overflowShowButton.setVisibility(View.GONE);
     }
 
-    // BasicControls keeps overflow button at least.
-    int minBasicControlsChildCount = 1;
-    // ExtraControls keeps overflow button and settings button at least.
-    int minExtraControlsChildCount = 2;
+    // Calculate how much of the available width is occupied. The last child of basicControls is the
+    // overflow show button, which we're currently assuming will not be visible.
+    int occupiedWidth = getWidthWithMargins(timeView);
+    int endIndex = basicControls.getChildCount() - 1;
+    for (int i = 0; i < endIndex; i++) {
+      View controlView = basicControls.getChildAt(i);
+      occupiedWidth += getWidthWithMargins(controlView);
+    }
 
-    if (bottomBarWidth > width) {
-      // move control views from basicControls to extraControls
-      ArrayList<View> movingChildren = new ArrayList<>();
-      int movingWidth = 0;
-      int endIndex = basicControls.getChildCount() - minBasicControlsChildCount;
-      for (int index = 0; index < endIndex; index++) {
-        View child = basicControls.getChildAt(index);
-        movingWidth += child.getWidth();
-        movingChildren.add(child);
-        if (bottomBarWidth - movingWidth <= width) {
+    if (occupiedWidth > width) {
+      // We need to move some controls to extraControls.
+      if (overflowShowButton != null) {
+        overflowShowButton.setVisibility(View.VISIBLE);
+        occupiedWidth += getWidthWithMargins(overflowShowButton);
+      }
+      ArrayList<View> controlsToMove = new ArrayList<>();
+      // The last child of basicControls is the overflow show button, which shouldn't be moved.
+      for (int i = 0; i < endIndex; i++) {
+        View control = basicControls.getChildAt(i);
+        occupiedWidth -= getWidthWithMargins(control);
+        controlsToMove.add(control);
+        if (occupiedWidth <= width) {
           break;
         }
       }
-
-      if (!movingChildren.isEmpty()) {
-        basicControls.removeViews(0, movingChildren.size());
-
-        for (View child : movingChildren) {
-          int index = extraControls.getChildCount() - minExtraControlsChildCount;
-          extraControls.addView(child, index);
+      if (!controlsToMove.isEmpty()) {
+        basicControls.removeViews(/* start= */ 0, controlsToMove.size());
+        for (int i = 0; i < controlsToMove.size(); i++) {
+          // The last child of extraControls is the overflow hide button. Add controls before it.
+          int index = extraControls.getChildCount() - 1;
+          extraControls.addView(controlsToMove.get(i), index);
         }
       }
-
     } else {
-      // Move controls from extraControls to basicControls if possible, else do nothing.
-      ArrayList<View> movingChildren = new ArrayList<>();
-      int movingWidth = 0;
-      int startIndex = extraControls.getChildCount() - minExtraControlsChildCount - 1;
-      for (int index = startIndex; index >= 0; index--) {
-        View child = extraControls.getChildAt(index);
-        movingWidth += child.getWidth();
-        if (bottomBarWidth + movingWidth > width) {
-          break;
-        }
-        movingChildren.add(child);
-      }
-
-      if (!movingChildren.isEmpty()) {
-        extraControls.removeViews(startIndex - movingChildren.size() + 1, movingChildren.size());
-
-        for (View child : movingChildren) {
-          basicControls.addView(child, 0);
-        }
+      // If extraControls are visible, hide them since they're now empty.
+      if (extraControlsScrollView != null
+          && extraControlsScrollView.getVisibility() == View.VISIBLE
+          && !overflowHideAnimator.isStarted()) {
+        overflowShowAnimator.cancel();
+        overflowHideAnimator.start();
       }
     }
   }
 
-  private static int getWidth(@Nullable View v) {
-    return (v != null ? v.getWidth() : 0);
+  private static int getWidthWithMargins(@Nullable View v) {
+    if (v == null) {
+      return 0;
+    }
+    int width = v.getWidth();
+    LayoutParams layoutParams = v.getLayoutParams();
+    if (layoutParams instanceof MarginLayoutParams) {
+      MarginLayoutParams marginLayoutParams = (MarginLayoutParams) layoutParams;
+      width += marginLayoutParams.leftMargin + marginLayoutParams.rightMargin;
+    }
+    return width;
   }
 
-  private static int getHeight(@Nullable View v) {
-    return (v != null ? v.getHeight() : 0);
+  private static int getHeightWithMargins(@Nullable View v) {
+    if (v == null) {
+      return 0;
+    }
+    int height = v.getHeight();
+    LayoutParams layoutParams = v.getLayoutParams();
+    if (layoutParams instanceof MarginLayoutParams) {
+      MarginLayoutParams marginLayoutParams = (MarginLayoutParams) layoutParams;
+      height += marginLayoutParams.topMargin + marginLayoutParams.bottomMargin;
+    }
+    return height;
   }
 }

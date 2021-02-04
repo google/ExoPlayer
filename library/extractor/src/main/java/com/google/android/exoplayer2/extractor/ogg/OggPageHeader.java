@@ -104,9 +104,10 @@ import java.io.IOException;
    */
   public boolean skipToNextPage(ExtractorInput input, long limit) throws IOException {
     Assertions.checkArgument(input.getPosition() == input.getPeekPosition());
+    scratch.reset(/* limit= */ CAPTURE_PATTERN_SIZE);
     while ((limit == C.POSITION_UNSET || input.getPosition() + CAPTURE_PATTERN_SIZE < limit)
         && peekSafely(input, scratch.getData(), 0, CAPTURE_PATTERN_SIZE, /* quiet= */ true)) {
-      scratch.reset(/* limit= */ CAPTURE_PATTERN_SIZE);
+      scratch.setPosition(0);
       if (scratch.readUnsignedInt() == CAPTURE_PATTERN) {
         input.resetPeekPosition();
         return true;

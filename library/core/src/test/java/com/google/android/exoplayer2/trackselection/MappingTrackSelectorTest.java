@@ -52,7 +52,7 @@ public final class MappingTrackSelectorTest {
   private static final TrackGroup AUDIO_TRACK_GROUP = buildTrackGroup(MimeTypes.AUDIO_AAC);
   private static final TrackGroup METADATA_TRACK_GROUP = buildTrackGroup(MimeTypes.APPLICATION_ID3);
 
-  private static final Timeline TIMELINE = new FakeTimeline(/* windowCount= */ 1);
+  private static final Timeline TIMELINE = new FakeTimeline();
 
   private static MediaPeriodId periodId;
 
@@ -131,22 +131,23 @@ public final class MappingTrackSelectorTest {
 
   /**
    * A {@link MappingTrackSelector} that stashes the {@link MappedTrackInfo} passed to {@link
-   * #selectTracks(MappedTrackInfo, int[][][], int[])}.
+   * #selectTracks(MappedTrackInfo, int[][][], int[], MediaPeriodId, Timeline)}.
    */
   private static final class FakeMappingTrackSelector extends MappingTrackSelector {
 
     private MappedTrackInfo lastMappedTrackInfo;
 
     @Override
-    protected Pair<RendererConfiguration[], TrackSelection[]> selectTracks(
+    protected Pair<RendererConfiguration[], ExoTrackSelection[]> selectTracks(
         MappedTrackInfo mappedTrackInfo,
         @Capabilities int[][][] rendererFormatSupports,
-        @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports)
-        throws ExoPlaybackException {
+        @AdaptiveSupport int[] rendererMixedMimeTypeAdaptationSupports,
+        MediaPeriodId mediaPeriodId,
+        Timeline timeline) {
       int rendererCount = mappedTrackInfo.getRendererCount();
       lastMappedTrackInfo = mappedTrackInfo;
       return Pair.create(
-          new RendererConfiguration[rendererCount], new TrackSelection[rendererCount]);
+          new RendererConfiguration[rendererCount], new ExoTrackSelection[rendererCount]);
     }
 
     public void assertMappedTrackGroups(int rendererIndex, TrackGroup... expected) {
@@ -156,7 +157,6 @@ public final class MappingTrackSelectorTest {
         assertThat(rendererTrackGroupArray.get(i)).isEqualTo(expected[i]);
       }
     }
-
   }
 
   /**
@@ -184,8 +184,9 @@ public final class MappingTrackSelectorTest {
     @Capabilities
     public int supportsFormat(Format format) throws ExoPlaybackException {
       return MimeTypes.getTrackType(format.sampleMimeType) == trackType
-          ? RendererCapabilities.create(FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
-          : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+          ? RendererCapabilities.create(
+              C.FORMAT_HANDLED, ADAPTIVE_SEAMLESS, TUNNELING_NOT_SUPPORTED)
+          : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
     }
 
     @Override

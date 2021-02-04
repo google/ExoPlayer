@@ -223,6 +223,19 @@ import java.util.List;
     return true;
   }
 
+  public boolean movePlaylistItem(
+      @IntRange(from = 0) int fromIndex, @IntRange(from = 0) int toIndex) {
+    int itemCount = player.getMediaItemCount();
+    if (!(fromIndex < itemCount && toIndex < itemCount)) {
+      return false;
+    }
+    if (fromIndex == toIndex) {
+      return true;
+    }
+    player.moveMediaItem(fromIndex, toIndex);
+    return true;
+  }
+
   public boolean skipToPreviousPlaylistItem() {
     Timeline timeline = player.getCurrentTimeline();
     Assertions.checkState(!timeline.isEmpty());

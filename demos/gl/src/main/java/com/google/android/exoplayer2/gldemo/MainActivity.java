@@ -152,7 +152,7 @@ public final class MainActivity extends Activity {
               .setUuidAndExoMediaDrmProvider(drmSchemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
               .build(drmCallback);
     } else {
-      drmSessionManager = DrmSessionManager.getDummyDrmSessionManager();
+      drmSessionManager = DrmSessionManager.DRM_UNSUPPORTED;
     }
 
     DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this);

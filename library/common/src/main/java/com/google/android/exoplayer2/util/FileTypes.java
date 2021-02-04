@@ -33,11 +33,13 @@ public final class FileTypes {
   /**
    * File types. One of {@link #UNKNOWN}, {@link #AC3}, {@link #AC4}, {@link #ADTS}, {@link #AMR},
    * {@link #FLAC}, {@link #FLV}, {@link #MATROSKA}, {@link #MP3}, {@link #MP4}, {@link #OGG},
-   * {@link #PS}, {@link #TS}, {@link #WAV} and {@link #WEBVTT}.
+   * {@link #PS}, {@link #TS}, {@link #WAV}, {@link #WEBVTT} and {@link #JPEG}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT})
+  @IntDef({
+    UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG
+  })
   public @interface Type {}
   /** Unknown file type. */
   public static final int UNKNOWN = -1;
@@ -69,6 +71,8 @@ public final class FileTypes {
   public static final int WAV = 12;
   /** File type for the WebVTT format. */
   public static final int WEBVTT = 13;
+  /** File type for the JPEG format. */
+  public static final int JPEG = 14;
 
   @VisibleForTesting /* package */ static final String HEADER_CONTENT_TYPE = "Content-Type";
 
@@ -99,6 +103,8 @@ public final class FileTypes {
   private static final String EXTENSION_WAVE = ".wave";
   private static final String EXTENSION_VTT = ".vtt";
   private static final String EXTENSION_WEBVTT = ".webvtt";
+  private static final String EXTENSION_JPG = ".jpg";
+  private static final String EXTENSION_JPEG = ".jpeg";
 
   private FileTypes() {}
 
@@ -159,6 +165,8 @@ public final class FileTypes {
         return FileTypes.WAV;
       case MimeTypes.TEXT_VTT:
         return FileTypes.WEBVTT;
+      case MimeTypes.IMAGE_JPEG:
+        return FileTypes.JPEG;
       default:
         return FileTypes.UNKNOWN;
     }
@@ -219,6 +227,8 @@ public final class FileTypes {
       return FileTypes.WAV;
     } else if (filename.endsWith(EXTENSION_VTT) || filename.endsWith(EXTENSION_WEBVTT)) {
       return FileTypes.WEBVTT;
+    } else if (filename.endsWith(EXTENSION_JPG) || filename.endsWith(EXTENSION_JPEG)) {
+      return FileTypes.JPEG;
     } else {
       return FileTypes.UNKNOWN;
     }

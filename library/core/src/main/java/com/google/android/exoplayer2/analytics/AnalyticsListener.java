@@ -15,7 +15,12 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
+import android.os.Looper;
+import android.util.SparseArray;
 import android.view.Surface;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -28,15 +33,22 @@ import com.google.android.exoplayer2.Player.PlaybackSuppressionReason;
 import com.google.android.exoplayer2.Player.TimelineChangeReason;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.MutableFlags;
 import com.google.common.base.Objects;
 import java.io.IOException;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * A listener for analytics events.
@@ -45,8 +57,261 @@ import java.io.IOException;
  * time at the time of the event.
  *
  * <p>All methods have no-op default implementations to allow selective overrides.
+ *
+ * <p>Listeners can choose to implement individual events (e.g. {@link
+ * #onIsPlayingChanged(EventTime, boolean)}) or {@link #onEvents(Player, Events)}, which is called
+ * after one or more events occurred together.
  */
 public interface AnalyticsListener {
+
+  /** A set of {@link EventFlags}. */
+  final class Events extends MutableFlags {
+
+    private final SparseArray<EventTime> eventTimes;
+
+    /** Creates the set of event flags. */
+    public Events() {
+      eventTimes = new SparseArray<>(/* initialCapacity= */ 0);
+    }
+
+    /**
+     * Returns the {@link EventTime} for the specified event.
+     *
+     * @param event The {@link EventFlags event}.
+     * @return The {@link EventTime} of this event.
+     */
+    public EventTime getEventTime(@EventFlags int event) {
+      return checkNotNull(eventTimes.get(event));
+    }
+
+    /**
+     * Sets the {@link EventTime} values for events recorded in this set.
+     *
+     * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
+     *     all the events recorded in this set.
+     */
+    public void setEventTimes(SparseArray<EventTime> eventTimes) {
+      this.eventTimes.clear();
+      for (int i = 0; i < size(); i++) {
+        @EventFlags int eventFlag = get(i);
+        this.eventTimes.append(eventFlag, checkNotNull(eventTimes.get(eventFlag)));
+      }
+    }
+
+    /**
+     * Returns whether the given event occurred.
+     *
+     * @param event The {@link EventFlags event}.
+     * @return Whether the event occurred.
+     */
+    @Override
+    public boolean contains(@EventFlags int event) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.contains(event);
+    }
+
+    /**
+     * Returns whether any of the given events occurred.
+     *
+     * @param events The {@link EventFlags events}.
+     * @return Whether any of the events occurred.
+     */
+    @Override
+    public boolean containsAny(@EventFlags int... events) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.containsAny(events);
+    }
+
+    /**
+     * Returns the {@link EventFlags event} at the given index.
+     *
+     * <p>Although index-based access is possible, it doesn't imply a particular order of these
+     * events.
+     *
+     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
+     * @return The {@link EventFlags event} at the given index.
+     */
+    @Override
+    @EventFlags
+    public int get(int index) {
+      // Overridden to add IntDef compiler enforcement and new JavaDoc.
+      return super.get(index);
+    }
+  }
+
+  /**
+   * Events that can be reported via {@link #onEvents(Player, Events)}.
+   *
+   * <p>One of the {@link AnalyticsListener}{@code .EVENT_*} flags.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    EVENT_TIMELINE_CHANGED,
+    EVENT_MEDIA_ITEM_TRANSITION,
+    EVENT_TRACKS_CHANGED,
+    EVENT_STATIC_METADATA_CHANGED,
+    EVENT_IS_LOADING_CHANGED,
+    EVENT_PLAYBACK_STATE_CHANGED,
+    EVENT_PLAY_WHEN_READY_CHANGED,
+    EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED,
+    EVENT_IS_PLAYING_CHANGED,
+    EVENT_REPEAT_MODE_CHANGED,
+    EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+    EVENT_PLAYER_ERROR,
+    EVENT_POSITION_DISCONTINUITY,
+    EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_LOAD_STARTED,
+    EVENT_LOAD_COMPLETED,
+    EVENT_LOAD_CANCELED,
+    EVENT_LOAD_ERROR,
+    EVENT_DOWNSTREAM_FORMAT_CHANGED,
+    EVENT_UPSTREAM_DISCARDED,
+    EVENT_BANDWIDTH_ESTIMATE,
+    EVENT_METADATA,
+    EVENT_AUDIO_ENABLED,
+    EVENT_AUDIO_DECODER_INITIALIZED,
+    EVENT_AUDIO_INPUT_FORMAT_CHANGED,
+    EVENT_AUDIO_POSITION_ADVANCING,
+    EVENT_AUDIO_UNDERRUN,
+    EVENT_AUDIO_DECODER_RELEASED,
+    EVENT_AUDIO_DISABLED,
+    EVENT_AUDIO_SESSION_ID,
+    EVENT_AUDIO_ATTRIBUTES_CHANGED,
+    EVENT_SKIP_SILENCE_ENABLED_CHANGED,
+    EVENT_AUDIO_SINK_ERROR,
+    EVENT_VOLUME_CHANGED,
+    EVENT_VIDEO_ENABLED,
+    EVENT_VIDEO_DECODER_INITIALIZED,
+    EVENT_VIDEO_INPUT_FORMAT_CHANGED,
+    EVENT_DROPPED_VIDEO_FRAMES,
+    EVENT_VIDEO_DECODER_RELEASED,
+    EVENT_VIDEO_DISABLED,
+    EVENT_VIDEO_FRAME_PROCESSING_OFFSET,
+    EVENT_RENDERED_FIRST_FRAME,
+    EVENT_VIDEO_SIZE_CHANGED,
+    EVENT_SURFACE_SIZE_CHANGED,
+    EVENT_DRM_SESSION_ACQUIRED,
+    EVENT_DRM_KEYS_LOADED,
+    EVENT_DRM_SESSION_MANAGER_ERROR,
+    EVENT_DRM_KEYS_RESTORED,
+    EVENT_DRM_KEYS_REMOVED,
+    EVENT_DRM_SESSION_RELEASED,
+    EVENT_PLAYER_RELEASED,
+  })
+  @interface EventFlags {}
+  /** {@link Player#getCurrentTimeline()} changed. */
+  int EVENT_TIMELINE_CHANGED = Player.EVENT_TIMELINE_CHANGED;
+  /**
+   * {@link Player#getCurrentMediaItem()} changed or the player started repeating the current item.
+   */
+  int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
+  /**
+   * {@link Player#getCurrentTrackGroups()} or {@link Player#getCurrentTrackSelections()} changed.
+   */
+  int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
+  /** {@link Player#getCurrentStaticMetadata()} changed. */
+  int EVENT_STATIC_METADATA_CHANGED = Player.EVENT_STATIC_METADATA_CHANGED;
+  /** {@link Player#isLoading()} ()} changed. */
+  int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
+  /** {@link Player#getPlaybackState()} changed. */
+  int EVENT_PLAYBACK_STATE_CHANGED = Player.EVENT_PLAYBACK_STATE_CHANGED;
+  /** {@link Player#getPlayWhenReady()} changed. */
+  int EVENT_PLAY_WHEN_READY_CHANGED = Player.EVENT_PLAY_WHEN_READY_CHANGED;
+  /** {@link Player#getPlaybackSuppressionReason()} changed. */
+  int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED = Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED;
+  /** {@link Player#isPlaying()} changed. */
+  int EVENT_IS_PLAYING_CHANGED = Player.EVENT_IS_PLAYING_CHANGED;
+  /** {@link Player#getRepeatMode()} changed. */
+  int EVENT_REPEAT_MODE_CHANGED = Player.EVENT_REPEAT_MODE_CHANGED;
+  /** {@link Player#getShuffleModeEnabled()} changed. */
+  int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
+  /** {@link Player#getPlayerError()} changed. */
+  int EVENT_PLAYER_ERROR = Player.EVENT_PLAYER_ERROR;
+  /**
+   * A position discontinuity occurred. See {@link
+   * Player.EventListener#onPositionDiscontinuity(int)}.
+   */
+  int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
+  /** {@link Player#getPlaybackParameters()} changed. */
+  int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+  /** A source started loading data. */
+  int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
+  /** A source started completed loading data. */
+  int EVENT_LOAD_COMPLETED = 1001;
+  /** A source canceled loading data. */
+  int EVENT_LOAD_CANCELED = 1002;
+  /** A source had a non-fatal error loading data. */
+  int EVENT_LOAD_ERROR = 1003;
+  /** The downstream format sent to renderers changed. */
+  int EVENT_DOWNSTREAM_FORMAT_CHANGED = 1004;
+  /** Data was removed from the end of the media buffer. */
+  int EVENT_UPSTREAM_DISCARDED = 1005;
+  /** The bandwidth estimate has been updated. */
+  int EVENT_BANDWIDTH_ESTIMATE = 1006;
+  /** Metadata associated with the current playback time was reported. */
+  int EVENT_METADATA = 1007;
+  /** An audio renderer was enabled. */
+  int EVENT_AUDIO_ENABLED = 1008;
+  /** An audio renderer created a decoder. */
+  int EVENT_AUDIO_DECODER_INITIALIZED = 1009;
+  /** The format consumed by an audio renderer changed. */
+  int EVENT_AUDIO_INPUT_FORMAT_CHANGED = 1010;
+  /** The audio position has increased for the first time since the last pause or position reset. */
+  int EVENT_AUDIO_POSITION_ADVANCING = 1011;
+  /** An audio underrun occurred. */
+  int EVENT_AUDIO_UNDERRUN = 1012;
+  /** An audio renderer released a decoder. */
+  int EVENT_AUDIO_DECODER_RELEASED = 1013;
+  /** An audio renderer was disabled. */
+  int EVENT_AUDIO_DISABLED = 1014;
+  /** An audio session id was set. */
+  int EVENT_AUDIO_SESSION_ID = 1015;
+  /** Audio attributes changed. */
+  int EVENT_AUDIO_ATTRIBUTES_CHANGED = 1016;
+  /** Skipping silences was enabled or disabled in the audio stream. */
+  int EVENT_SKIP_SILENCE_ENABLED_CHANGED = 1017;
+  /** The audio sink encountered a non-fatal error. */
+  int EVENT_AUDIO_SINK_ERROR = 1018;
+  /** The volume changed. */
+  int EVENT_VOLUME_CHANGED = 1019;
+  /** A video renderer was enabled. */
+  int EVENT_VIDEO_ENABLED = 1020;
+  /** A video renderer created a decoder. */
+  int EVENT_VIDEO_DECODER_INITIALIZED = 1021;
+  /** The format consumed by a video renderer changed. */
+  int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 1022;
+  /** Video frames have been dropped. */
+  int EVENT_DROPPED_VIDEO_FRAMES = 1023;
+  /** A video renderer released a decoder. */
+  int EVENT_VIDEO_DECODER_RELEASED = 1024;
+  /** A video renderer was disabled. */
+  int EVENT_VIDEO_DISABLED = 1025;
+  /** Video frame processing offset data has been reported. */
+  int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 1026;
+  /**
+   * The first frame has been rendered since setting the surface, since the renderer was reset or
+   * since the stream changed.
+   */
+  int EVENT_RENDERED_FIRST_FRAME = 1027;
+  /** The video size changed. */
+  int EVENT_VIDEO_SIZE_CHANGED = 1028;
+  /** The surface size changed. */
+  int EVENT_SURFACE_SIZE_CHANGED = 1029;
+  /** A DRM session has been acquired. */
+  int EVENT_DRM_SESSION_ACQUIRED = 1030;
+  /** DRM keys were loaded. */
+  int EVENT_DRM_KEYS_LOADED = 1031;
+  /** A non-fatal DRM session manager error occurred. */
+  int EVENT_DRM_SESSION_MANAGER_ERROR = 1032;
+  /** DRM keys were restored. */
+  int EVENT_DRM_KEYS_RESTORED = 1033;
+  /** DRM keys were removed. */
+  int EVENT_DRM_KEYS_REMOVED = 1034;
+  /** A DRM session has been released. */
+  int EVENT_DRM_SESSION_RELEASED = 1035;
+  /** The player was released. */
+  int EVENT_PLAYER_RELEASED = 1036;
 
   /** Time information of an event. */
   final class EventTime {
@@ -337,6 +602,23 @@ public interface AnalyticsListener {
       EventTime eventTime, TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
 
   /**
+   * Called when the static metadata changes.
+   *
+   * <p>The provided {@code metadataList} is an immutable list of {@link Metadata} instances, where
+   * the elements correspond to the current track selections (as returned by {@link
+   * #onTracksChanged(EventTime, TrackGroupArray, TrackSelectionArray)}, or an empty list if there
+   * are no track selections or the selected tracks contain no static metadata.
+   *
+   * <p>The metadata is considered static in the sense that it comes from the tracks' declared
+   * Formats, rather than being timed (or dynamic) metadata, which is represented within a metadata
+   * track.
+   *
+   * @param eventTime The event time.
+   * @param metadataList The static metadata.
+   */
+  default void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
+
+  /**
    * Called when a media source started loading data.
    *
    * @param eventTime The event time.
@@ -433,8 +715,8 @@ public interface AnalyticsListener {
       EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
 
   /**
-   * @deprecated Use {@link #onAudioInputFormatChanged} and {@link #onVideoInputFormatChanged}
-   *     instead.
+   * @deprecated Use {@link #onAudioInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}
+   *     and {@link #onVideoInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}. instead.
    */
   @Deprecated
   default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
@@ -464,12 +746,25 @@ public interface AnalyticsListener {
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
 
   /**
+   * @deprecated Use {@link #onAudioInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}.
+   */
+  @Deprecated
+  default void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+
+  /**
    * Called when the format of the media being consumed by an audio renderer changes.
    *
    * @param eventTime The event time.
    * @param format The new format.
+   * @param decoderReuseEvaluation The result of the evaluation to determine whether an existing
+   *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
+   *     have a decoder.
    */
-  default void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+  @SuppressWarnings("deprecation")
+  default void onAudioInputFormatChanged(
+      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+    onAudioInputFormatChanged(eventTime, format);
+  }
 
   /**
    * Called when the audio position has increased for the first time since the last pause or
@@ -494,6 +789,14 @@ public interface AnalyticsListener {
       EventTime eventTime, int bufferSize, long bufferSizeMs, long elapsedSinceLastFeedMs) {}
 
   /**
+   * Called when an audio renderer releases a decoder.
+   *
+   * @param eventTime The event time.
+   * @param decoderName The decoder that was released.
+   */
+  default void onAudioDecoderReleased(EventTime eventTime, String decoderName) {}
+
+  /**
    * Called when an audio renderer is disabled.
    *
    * @param eventTime The event time.
@@ -502,12 +805,12 @@ public interface AnalyticsListener {
   default void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
 
   /**
-   * Called when the audio session id is set.
+   * Called when the audio session ID changes.
    *
    * @param eventTime The event time.
-   * @param audioSessionId The audio session id.
+   * @param audioSessionId The audio session ID.
    */
-  default void onAudioSessionId(EventTime eventTime, int audioSessionId) {}
+  default void onAudioSessionIdChanged(EventTime eventTime, int audioSessionId) {}
 
   /**
    * Called when the audio attributes change.
@@ -524,6 +827,16 @@ public interface AnalyticsListener {
    * @param skipSilenceEnabled Whether skipping silences in the audio stream is enabled.
    */
   default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  /**
+   * Called when {@link AudioSink} has encountered an error. These errors are just for informational
+   * purposes and the player may recover.
+   *
+   * @param eventTime The event time.
+   * @param audioSinkError Either a {@link AudioSink.InitializationException} or a {@link
+   *     AudioSink.WriteException} describing the error.
+   */
+  default void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
 
   /**
    * Called when the volume changes.
@@ -553,12 +866,25 @@ public interface AnalyticsListener {
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
 
   /**
+   * @deprecated Use {@link #onVideoInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}.
+   */
+  @Deprecated
+  default void onVideoInputFormatChanged(EventTime eventTime, Format format) {}
+
+  /**
    * Called when the format of the media being consumed by a video renderer changes.
    *
    * @param eventTime The event time.
    * @param format The new format.
+   * @param decoderReuseEvaluation The result of the evaluation to determine whether an existing
+   *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
+   *     have a decoder.
    */
-  default void onVideoInputFormatChanged(EventTime eventTime, Format format) {}
+  @SuppressWarnings("deprecation")
+  default void onVideoInputFormatChanged(
+      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
+    onVideoInputFormatChanged(eventTime, format);
+  }
 
   /**
    * Called after video frames have been dropped.
@@ -570,6 +896,14 @@ public interface AnalyticsListener {
    *     (whichever was more recent), and not from when the first of the reported drops occurred.
    */
   default void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
+
+  /**
+   * Called when a video renderer releases a decoder.
+   *
+   * @param eventTime The event time.
+   * @param decoderName The decoder that was released.
+   */
+  default void onVideoDecoderReleased(EventTime eventTime, String decoderName) {}
 
   /**
    * Called when a video renderer is disabled.
@@ -681,4 +1015,40 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    */
   default void onDrmSessionReleased(EventTime eventTime) {}
+
+  /**
+   * Called when the {@link Player} is released.
+   *
+   * @param eventTime The event time.
+   */
+  default void onPlayerReleased(EventTime eventTime) {}
+
+  /**
+   * Called after one or more events occurred.
+   *
+   * <p>State changes and events that happen within one {@link Looper} message queue iteration are
+   * reported together and only after all individual callbacks were triggered.
+   *
+   * <p>Listeners should prefer this method over individual callbacks in the following cases:
+   *
+   * <ul>
+   *   <li>They intend to trigger the same logic for multiple events (e.g. when updating a UI for
+   *       both {@link #onPlaybackStateChanged(EventTime, int)} and {@link
+   *       #onPlayWhenReadyChanged(EventTime, boolean, int)}).
+   *   <li>They need access to the {@link Player} object to trigger further events (e.g. to call
+   *       {@link Player#seekTo(long)} after a {@link
+   *       AnalyticsListener#onMediaItemTransition(EventTime, MediaItem, int)}).
+   *   <li>They intend to use multiple state values together or in combination with {@link Player}
+   *       getter methods. For example using {@link Player#getCurrentWindowIndex()} with the {@code
+   *       timeline} provided in {@link #onTimelineChanged(EventTime, int)} is only safe from within
+   *       this method.
+   *   <li>They are interested in events that logically happened together (e.g {@link
+   *       #onPlaybackStateChanged(EventTime, int)} to {@link Player#STATE_BUFFERING} because of
+   *       {@link #onMediaItemTransition(EventTime, MediaItem, int)}).
+   * </ul>
+   *
+   * @param player The {@link Player}.
+   * @param events The {@link Events} that occurred in this iteration.
+   */
+  default void onEvents(Player player, Events events) {}
 }

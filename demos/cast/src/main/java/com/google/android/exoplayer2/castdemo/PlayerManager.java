@@ -312,7 +312,8 @@ import java.util.ArrayList;
           windowIndex = currentItemIndex;
         }
       }
-      previousPlayer.stop(true);
+      previousPlayer.stop();
+      previousPlayer.clearMediaItems();
     }
 
     this.currentPlayer = currentPlayer;

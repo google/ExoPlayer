@@ -15,51 +15,88 @@
  */
 package com.google.android.exoplayer2.e2etest;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
+import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
+import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 import org.robolectric.annotation.Config;
 
 /** End-to-end tests using TS samples. */
 // TODO(b/143232359): Remove once https://issuetracker.google.com/143232359 is resolved.
 @Config(sdk = 29)
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public class TsPlaybackTest {
+
+  @Parameters(name = "{0}")
+  public static ImmutableList<String> mediaSamples() {
+    return ImmutableList.of(
+        "bbb_2500ms.ts",
+        "elephants_dream.mpg",
+        "sample.ac3",
+        "sample_ac3.ts",
+        "sample.ac4",
+        "sample_ac4.ts",
+        "sample.eac3",
+        "sample_eac3.ts",
+        "sample_eac3joc.ec3",
+        "sample_eac3joc.ts",
+        "sample.adts",
+        "sample_ait.ts",
+        "sample_cbs_truncated.adts",
+        "sample_h262_mpeg_audio.ps",
+        "sample_h262_mpeg_audio.ts",
+        "sample_h263.ts",
+        "sample_h264_dts_audio.ts",
+        "sample_h264_mpeg_audio.ts",
+        "sample_h264_no_access_unit_delimiters.ts",
+        "sample_h265.ts",
+        "sample_latm.ts",
+        "sample_scte35.ts",
+        "sample_with_id3.adts",
+        "sample_with_junk");
+  }
+
+  @Parameter public String inputFile;
 
   @Rule
   public ShadowMediaCodecConfig mediaCodecConfig =
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   @Test
-  public void mpegVideoMpegAudioScte35() throws Exception {
+  public void test() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
     SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext())
+        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new AutoAdvancingFakeClock())
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
-    PlaybackOutput playbackOutput = PlaybackOutput.register(player, mediaCodecConfig);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
-    player.setMediaItem(MediaItem.fromUri("asset:///media/ts/sample_scte35.ts"));
+    player.setMediaItem(MediaItem.fromUri("asset:///media/ts/" + inputFile));
     player.prepare();
     player.play();
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
     DumpFileAsserts.assertOutput(
-        ApplicationProvider.getApplicationContext(),
-        playbackOutput,
-        "playbackdumps/ts/sample_scte35.ts.dump");
+        applicationContext, playbackOutput, "playbackdumps/ts/" + inputFile + ".dump");
   }
 }

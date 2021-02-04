@@ -1,4 +1,4 @@
-MediaCodec (video/avc):
+MediaCodecAdapter (exotest.video.avc):
   buffers.length = 31
   buffers[0] = length 36692, hash D216076E
   buffers[1] = length 5312, hash D45D3CA0
@@ -31,28 +31,3 @@ MediaCodec (video/avc):
   buffers[28] = length 530, hash C98BC6A8
   buffers[29] = length 568, hash 4FE5C8EA
   buffers[30] = length 0, hash 1
-TextOutput:
-  Subtitle[0]:
-    Cues = []
-  Subtitle[1]:
-    Cue[0]:
-      text = This is the first subtitle.
-      textAlignment = ALIGN_CENTER
-      lineType = 1
-      lineAnchor = 0
-      position = 0.5
-      positionAnchor = 1
-      size = 1.0
-  Subtitle[2]:
-    Cues = []
-  Subtitle[3]:
-    Cue[0]:
-      text = This is the second subtitle.
-      textAlignment = ALIGN_CENTER
-      lineType = 1
-      lineAnchor = 0
-      position = 0.5
-      positionAnchor = 1
-      size = 1.0
-  Subtitle[4]:
-    Cues = []

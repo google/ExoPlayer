@@ -46,8 +46,8 @@ import java.util.Arrays;
 
     private ItemData() {
       this(
-          /* durationUs= */ C.TIME_UNSET, /* defaultPositionUs */
-          C.TIME_UNSET,
+          /* durationUs= */ C.TIME_UNSET,
+          /* defaultPositionUs= */ C.TIME_UNSET,
           /* isLive= */ false);
     }
 
@@ -126,16 +126,18 @@ import java.util.Arrays;
   public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
     long durationUs = durationsUs[windowIndex];
     boolean isDynamic = durationUs == C.TIME_UNSET;
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(Uri.EMPTY).setTag(ids[windowIndex]).build();
     return window.set(
         /* uid= */ ids[windowIndex],
-        /* mediaItem= */ new MediaItem.Builder().setUri(Uri.EMPTY).setTag(ids[windowIndex]).build(),
+        /* mediaItem= */ mediaItem,
         /* manifest= */ null,
         /* presentationStartTimeMs= */ C.TIME_UNSET,
         /* windowStartTimeMs= */ C.TIME_UNSET,
         /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
         /* isSeekable= */ !isDynamic,
         isDynamic,
-        isLive[windowIndex],
+        isLive[windowIndex] ? mediaItem.liveConfiguration : null,
         defaultPositionsUs[windowIndex],
         durationUs,
         /* firstPeriodIndex= */ windowIndex,

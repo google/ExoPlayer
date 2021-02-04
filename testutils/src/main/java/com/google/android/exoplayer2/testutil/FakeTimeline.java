@@ -58,7 +58,7 @@ public final class FakeTimeline extends Timeline {
      *
      * @param tag The tag to use in the timeline.
      */
-    public static TimelineWindowDefinition createDummy(Object tag) {
+    public static TimelineWindowDefinition createPlaceholder(Object tag) {
       return new TimelineWindowDefinition(
           /* periodCount= */ 1,
           /* id= */ tag,
@@ -246,7 +246,8 @@ public final class FakeTimeline extends Timeline {
    */
   public static AdPlaybackState createAdPlaybackState(int adsPerAdGroup, long... adGroupTimesUs) {
     int adGroupCount = adGroupTimesUs.length;
-    AdPlaybackState adPlaybackState = new AdPlaybackState(adGroupTimesUs);
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState(/* adsId= */ new Object(), adGroupTimesUs);
     long[][] adDurationsUs = new long[adGroupCount][];
     for (int i = 0; i < adGroupCount; i++) {
       adPlaybackState = adPlaybackState.withAdCount(/* adGroupIndex= */ i, adsPerAdGroup);
@@ -255,7 +256,7 @@ public final class FakeTimeline extends Timeline {
             adPlaybackState.withAdUri(
                 /* adGroupIndex= */ i,
                 /* adIndexInAdGroup= */ j,
-                Uri.parse("https://ad/" + i + "/" + j));
+                Uri.parse("https://example.com/ad/" + i + "/" + j));
       }
       adDurationsUs[i] = new long[adsPerAdGroup];
       Arrays.fill(adDurationsUs[i], AD_DURATION_US);
@@ -263,6 +264,14 @@ public final class FakeTimeline extends Timeline {
     adPlaybackState = adPlaybackState.withAdDurationsUs(adDurationsUs);
 
     return adPlaybackState;
+  }
+
+  /**
+   * Create a fake timeline with one seekable, non-dynamic window with one period and a duration of
+   * {@link TimelineWindowDefinition#DEFAULT_WINDOW_DURATION_US}.
+   */
+  public FakeTimeline() {
+    this(/* windowCount= */ 1);
   }
 
   /**
@@ -314,11 +323,13 @@ public final class FakeTimeline extends Timeline {
         windowDefinition.mediaItem,
         manifests[windowIndex],
         /* presentationStartTimeMs= */ C.TIME_UNSET,
-        /* windowStartTimeMs= */ C.TIME_UNSET,
-        /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+        /* windowStartTimeMs= */ windowDefinition.isLive
+            ? C.usToMs(windowDefinition.windowOffsetInFirstPeriodUs)
+            : C.TIME_UNSET,
+        /* elapsedRealtimeEpochOffsetMs= */ windowDefinition.isLive ? 0 : C.TIME_UNSET,
         windowDefinition.isSeekable,
         windowDefinition.isDynamic,
-        windowDefinition.isLive,
+        windowDefinition.isLive ? windowDefinition.mediaItem.liveConfiguration : null,
         windowDefinition.defaultPositionUs,
         windowDefinition.durationUs,
         periodOffsets[windowIndex],

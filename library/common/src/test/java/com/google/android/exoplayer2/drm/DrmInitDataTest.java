@@ -94,46 +94,16 @@ public class DrmInitDataTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
-  public void getByUuid() {
-    // Basic matching.
-    DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
-    assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
-    assertThat(testInitData.get(PLAYREADY_UUID)).isEqualTo(DATA_2);
-    assertThat(testInitData.get(UUID_NIL)).isNull();
-
-    // Basic matching including universal data.
-    testInitData = new DrmInitData(DATA_1, DATA_2, DATA_UNIVERSAL);
-    assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
-    assertThat(testInitData.get(PLAYREADY_UUID)).isEqualTo(DATA_2);
-    assertThat(testInitData.get(UUID_NIL)).isEqualTo(DATA_UNIVERSAL);
-
-    // Passing the scheme data in reverse order shouldn't affect equality.
-    testInitData = new DrmInitData(DATA_UNIVERSAL, DATA_2, DATA_1);
-    assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
-    assertThat(testInitData.get(PLAYREADY_UUID)).isEqualTo(DATA_2);
-    assertThat(testInitData.get(UUID_NIL)).isEqualTo(DATA_UNIVERSAL);
-
-    // Universal data should be returned in the absence of a specific match.
-    testInitData = new DrmInitData(DATA_1, DATA_UNIVERSAL);
-    assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
-    assertThat(testInitData.get(PLAYREADY_UUID)).isEqualTo(DATA_UNIVERSAL);
-    assertThat(testInitData.get(UUID_NIL)).isEqualTo(DATA_UNIVERSAL);
-  }
-
-  @Test
   public void getByIndex() {
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_2);
     assertThat(getAllSchemeData(testInitData)).containsAtLeast(DATA_1, DATA_2);
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void schemeDatasWithSameUuid() {
     DrmInitData testInitData = new DrmInitData(DATA_1, DATA_1B);
+
     assertThat(testInitData.schemeDataCount).isEqualTo(2);
-    // Deprecated get method should return first entry.
-    assertThat(testInitData.get(WIDEVINE_UUID)).isEqualTo(DATA_1);
     // Test retrieval of first and second entry.
     assertThat(testInitData.get(0)).isEqualTo(DATA_1);
     assertThat(testInitData.get(1)).isEqualTo(DATA_1B);

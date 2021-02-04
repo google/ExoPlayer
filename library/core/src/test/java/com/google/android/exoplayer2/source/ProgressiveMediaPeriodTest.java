@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
-import static com.google.android.exoplayer2.testutil.TestUtil.runMainLooperUntil;
+import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -49,7 +49,7 @@ public final class ProgressiveMediaPeriodTest {
             Uri.parse("asset://android_asset/media/mp4/sample.mp4"),
             new AssetDataSource(ApplicationProvider.getApplicationContext()),
             () -> new Extractor[] {new Mp4Extractor()},
-            DrmSessionManager.DUMMY,
+            DrmSessionManager.DRM_UNSUPPORTED,
             new DrmSessionEventListener.EventDispatcher()
                 .withParameters(/* windowIndex= */ 0, mediaPeriodId),
             new DefaultLoadErrorHandlingPolicy(),

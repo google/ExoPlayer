@@ -26,7 +26,7 @@
       tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
     <provider
       android:authorities="com.google.android.exoplayer2.core.test"
-      android:name="com.google.android.exoplayer2.upstream.ContentDataSourceTest$TestContentProvider"/>
+      android:name="com.google.android.exoplayer2.upstream.TestContentProvider"/>
   </application>
 
   <instrumentation

@@ -19,15 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertThrows;
 
-import android.content.ContentProvider;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.res.AssetFileDescriptor;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -35,7 +27,6 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.ContentDataSource.ContentDataSourceException;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Test;
@@ -45,7 +36,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class ContentDataSourceTest {
 
-  private static final String AUTHORITY = "com.google.android.exoplayer2.core.test";
   private static final String DATA_PATH = "media/mp3/1024_incrementing_bytes.mp3";
 
   @Test
@@ -139,100 +129,6 @@ public final class ContentDataSourceTest {
     } finally {
       dataSource.close();
     }
-  }
-
-  /**
-   * A {@link ContentProvider} for the test.
-   */
-  public static final class TestContentProvider extends ContentProvider
-      implements ContentProvider.PipeDataWriter<Object> {
-
-    private static final String PARAM_PIPE_MODE = "pipe-mode";
-
-    public static Uri buildUri(String filePath, boolean pipeMode) {
-      Uri.Builder builder = new Uri.Builder()
-          .scheme(ContentResolver.SCHEME_CONTENT)
-          .authority(AUTHORITY)
-          .path(filePath);
-      if (pipeMode) {
-        builder.appendQueryParameter(TestContentProvider.PARAM_PIPE_MODE, "1");
-      }
-      return builder.build();
-    }
-
-    @Override
-    public boolean onCreate() {
-      return true;
-    }
-
-    @Override
-    public Cursor query(
-        Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public AssetFileDescriptor openAssetFile(Uri uri, String mode) throws FileNotFoundException {
-      if (uri.getPath() == null) {
-        return null;
-      }
-      try {
-        String fileName = getFileName(uri);
-        boolean pipeMode = uri.getQueryParameter(PARAM_PIPE_MODE) != null;
-        if (pipeMode) {
-          ParcelFileDescriptor fileDescriptor = openPipeHelper(uri, null, null, null, this);
-          return new AssetFileDescriptor(fileDescriptor, 0, C.LENGTH_UNSET);
-        } else {
-          return getContext().getAssets().openFd(fileName);
-        }
-      } catch (IOException e) {
-        FileNotFoundException exception = new FileNotFoundException(e.getMessage());
-        exception.initCause(e);
-        throw exception;
-      }
-    }
-
-    @Override
-    public String getType(Uri uri) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Uri insert(Uri uri, ContentValues values) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void writeDataToPipe(
-        ParcelFileDescriptor output,
-        Uri uri,
-        String mimeType,
-        @Nullable Bundle opts,
-        @Nullable Object args) {
-      try {
-        byte[] data = TestUtil.getByteArray(getContext(), getFileName(uri));
-        FileOutputStream outputStream = new FileOutputStream(output.getFileDescriptor());
-        outputStream.write(data);
-        outputStream.close();
-      } catch (IOException e) {
-        throw new RuntimeException("Error writing to pipe", e);
-      }
-    }
-
-    private static String getFileName(Uri uri) {
-      return uri.getPath().replaceFirst("/", "");
-    }
-
   }
 
 }

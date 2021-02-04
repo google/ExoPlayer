@@ -15,12 +15,10 @@
     limitations under the License.
   -->
 <resources>
-    <color name="exo_gray">#808080</color>
-    <color name="exo_gray_ripple">#80808080</color>
     <color name="exo_white">#ffffff</color>
     <color name="exo_white_opacity_70">#B3ffffff</color>
     <color name="exo_black_opacity_70">#B3000000</color>
-    <color name="exo_black_opacity_30">#4D000000</color>
+    <color name="exo_black_opacity_60">#98000000</color>
     <color name="exo_styled_error_message_background">#80808080</color>
     <color name="exo_bottom_bar_background">#b0000000</color>
 </resources>

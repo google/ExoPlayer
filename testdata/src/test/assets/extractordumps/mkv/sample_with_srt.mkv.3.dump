@@ -12,6 +12,7 @@ track 1:
   format 0:
     id = 1
     sampleMimeType = video/avc
+    codecs = avc1.640034
     width = 1080
     height = 720
     selectionFlags = 1
@@ -271,6 +272,7 @@ track 3:
   format 0:
     id = 3
     sampleMimeType = application/x-subrip
+    selectionFlags = 1
     language = en
     label = Subs Label
   sample 0:

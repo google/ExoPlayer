@@ -173,7 +173,9 @@ public class IntentUtil {
         .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, playbackProperties.mimeType)
         .putExtra(
             AD_TAG_URI_EXTRA + extrasKeySuffix,
-            playbackProperties.adTagUri != null ? playbackProperties.adTagUri.toString() : null);
+            playbackProperties.adsConfiguration != null
+                ? playbackProperties.adsConfiguration.adTagUri.toString()
+                : null);
     if (playbackProperties.drmConfiguration != null) {
       addDrmConfigurationToIntent(playbackProperties.drmConfiguration, intent, extrasKeySuffix);
     }

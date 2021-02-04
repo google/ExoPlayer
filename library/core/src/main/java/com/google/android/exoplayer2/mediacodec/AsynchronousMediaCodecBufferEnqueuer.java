@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.media.MediaCodec;
 import android.os.Handler;
@@ -26,7 +27,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
@@ -37,17 +37,17 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link MediaCodecInputBufferEnqueuer} that defers queueing operations on a background thread.
+ * Performs {@link MediaCodec} input buffer queueing on a background thread.
  *
  * <p>The implementation of this class assumes that its public methods will be called from the same
  * thread.
  */
 @RequiresApi(23)
-class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnqueuer {
+class AsynchronousMediaCodecBufferEnqueuer {
 
   private static final int MSG_QUEUE_INPUT_BUFFER = 0;
   private static final int MSG_QUEUE_SECURE_INPUT_BUFFER = 1;
-  private static final int MSG_FLUSH = 2;
+  private static final int MSG_OPEN_CV = 2;
 
   @GuardedBy("MESSAGE_PARAMS_INSTANCE_POOL")
   private static final ArrayDeque<MessageParams> MESSAGE_PARAMS_INSTANCE_POOL = new ArrayDeque<>();
@@ -66,26 +66,38 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
    * Creates a new instance that submits input buffers on the specified {@link MediaCodec}.
    *
    * @param codec The {@link MediaCodec} to submit input buffers to.
-   * @param trackType The type of stream (used for debug logs).
+   * @param queueingThread The {@link HandlerThread} to use for queueing buffers.
    */
-  public AsynchronousMediaCodecBufferEnqueuer(MediaCodec codec, int trackType) {
+  public AsynchronousMediaCodecBufferEnqueuer(
+      MediaCodec codec,
+      HandlerThread queueingThread,
+      boolean forceQueueingSynchronizationWorkaround) {
     this(
         codec,
-        new HandlerThread(createThreadLabel(trackType)),
+        queueingThread,
+        forceQueueingSynchronizationWorkaround,
         /* conditionVariable= */ new ConditionVariable());
   }
 
   @VisibleForTesting
   /* package */ AsynchronousMediaCodecBufferEnqueuer(
-      MediaCodec codec, HandlerThread handlerThread, ConditionVariable conditionVariable) {
+      MediaCodec codec,
+      HandlerThread handlerThread,
+      boolean forceQueueingSynchronizationWorkaround,
+      ConditionVariable conditionVariable) {
     this.codec = codec;
     this.handlerThread = handlerThread;
     this.conditionVariable = conditionVariable;
     pendingRuntimeException = new AtomicReference<>();
-    needsSynchronizationWorkaround = needsSynchronizationWorkaround();
+    needsSynchronizationWorkaround =
+        forceQueueingSynchronizationWorkaround || needsSynchronizationWorkaround();
   }
 
-  @Override
+  /**
+   * Starts this instance.
+   *
+   * <p>Call this method after creating an instance and before queueing input buffers.
+   */
   public void start() {
     if (!started) {
       handlerThread.start();
@@ -100,18 +112,29 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     }
   }
 
-  @Override
+  /**
+   * Submits an input buffer for decoding.
+   *
+   * @see android.media.MediaCodec#queueInputBuffer
+   */
   public void queueInputBuffer(
       int index, int offset, int size, long presentationTimeUs, int flags) {
     maybeThrowException();
     MessageParams messageParams = getMessageParams();
     messageParams.setQueueParams(index, offset, size, presentationTimeUs, flags);
-    Message message =
-        Util.castNonNull(handler).obtainMessage(MSG_QUEUE_INPUT_BUFFER, messageParams);
+    Message message = castNonNull(handler).obtainMessage(MSG_QUEUE_INPUT_BUFFER, messageParams);
     message.sendToTarget();
   }
 
-  @Override
+  /**
+   * Submits an input buffer that potentially contains encrypted data for decoding.
+   *
+   * <p>Note: This method behaves as {@link MediaCodec#queueSecureInputBuffer} with the difference
+   * that {@code info} is of type {@link CryptoInfo} and not {@link
+   * android.media.MediaCodec.CryptoInfo}.
+   *
+   * @see android.media.MediaCodec#queueSecureInputBuffer
+   */
   public void queueSecureInputBuffer(
       int index, int offset, CryptoInfo info, long presentationTimeUs, int flags) {
     maybeThrowException();
@@ -119,11 +142,11 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     messageParams.setQueueParams(index, offset, /* size= */ 0, presentationTimeUs, flags);
     copy(info, messageParams.cryptoInfo);
     Message message =
-        Util.castNonNull(handler).obtainMessage(MSG_QUEUE_SECURE_INPUT_BUFFER, messageParams);
+        castNonNull(handler).obtainMessage(MSG_QUEUE_SECURE_INPUT_BUFFER, messageParams);
     message.sendToTarget();
   }
 
-  @Override
+  /** Flushes the instance. */
   public void flush() {
     if (started) {
       try {
@@ -137,7 +160,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     }
   }
 
-  @Override
+  /** Shut down the instance. Make sure to call this method to release its internal resources. */
   public void shutdown() {
     if (started) {
       flush();
@@ -146,8 +169,45 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     started = false;
   }
 
+  /** Blocks the current thread until all input buffers pending queueing are submitted. */
+  public void waitUntilQueueingComplete() throws InterruptedException {
+    blockUntilHandlerThreadIsIdle();
+  }
+
+  private void maybeThrowException() {
+    @Nullable RuntimeException exception = pendingRuntimeException.getAndSet(null);
+    if (exception != null) {
+      throw exception;
+    }
+  }
+
+  /**
+   * Empties all tasks enqueued on the {@link #handlerThread} via the {@link #handler}. This method
+   * blocks until the {@link #handlerThread} is idle.
+   */
+  private void flushHandlerThread() throws InterruptedException {
+    Handler handler = castNonNull(this.handler);
+    handler.removeCallbacksAndMessages(null);
+    blockUntilHandlerThreadIsIdle();
+    // Check if any exceptions happened during the last queueing action.
+    maybeThrowException();
+  }
+
+  private void blockUntilHandlerThreadIsIdle() throws InterruptedException {
+    conditionVariable.close();
+    castNonNull(handler).obtainMessage(MSG_OPEN_CV).sendToTarget();
+    conditionVariable.block();
+  }
+
+  // Called from the handler thread
+
+  @VisibleForTesting
+  /* package */ void setPendingRuntimeException(RuntimeException exception) {
+    pendingRuntimeException.set(exception);
+  }
+
   private void doHandleMessage(Message msg) {
-    MessageParams params = null;
+    @Nullable MessageParams params = null;
     switch (msg.what) {
       case MSG_QUEUE_INPUT_BUFFER:
         params = (MessageParams) msg.obj;
@@ -163,7 +223,7 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
             params.presentationTimeUs,
             params.flags);
         break;
-      case MSG_FLUSH:
+      case MSG_OPEN_CV:
         conditionVariable.open();
         break;
       default:
@@ -172,34 +232,6 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
     if (params != null) {
       recycleMessageParams(params);
     }
-  }
-
-  private void maybeThrowException() {
-    RuntimeException exception = pendingRuntimeException.getAndSet(null);
-    if (exception != null) {
-      throw exception;
-    }
-  }
-
-  /**
-   * Empties all tasks enqueued on the {@link #handlerThread} via the {@link #handler}. This method
-   * blocks until the {@link #handlerThread} is idle.
-   */
-  private void flushHandlerThread() throws InterruptedException {
-    Handler handler = Util.castNonNull(this.handler);
-    handler.removeCallbacksAndMessages(null);
-    conditionVariable.close();
-    handler.obtainMessage(MSG_FLUSH).sendToTarget();
-    conditionVariable.block();
-    // Check if any exceptions happened during the last queueing action.
-    maybeThrowException();
-  }
-
-  // Called from the handler thread
-
-  @VisibleForTesting
-  /* package */ void setPendingRuntimeException(RuntimeException exception) {
-    pendingRuntimeException.set(exception);
   }
 
   private void doQueueInputBuffer(
@@ -223,13 +255,6 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
       }
     } catch (RuntimeException e) {
       setPendingRuntimeException(e);
-    }
-  }
-
-  @VisibleForTesting
-  /* package */ static int getInstancePoolSize() {
-    synchronized (MESSAGE_PARAMS_INSTANCE_POOL) {
-      return MESSAGE_PARAMS_INSTANCE_POOL.size();
     }
   }
 
@@ -280,18 +305,6 @@ class AsynchronousMediaCodecBufferEnqueuer implements MediaCodecInputBufferEnque
   private static boolean needsSynchronizationWorkaround() {
     String manufacturer = Util.toLowerInvariant(Util.MANUFACTURER);
     return manufacturer.contains("samsung") || manufacturer.contains("motorola");
-  }
-
-  private static String createThreadLabel(int trackType) {
-    StringBuilder labelBuilder = new StringBuilder("ExoPlayer:MediaCodecBufferEnqueuer:");
-    if (trackType == C.TRACK_TYPE_AUDIO) {
-      labelBuilder.append("Audio");
-    } else if (trackType == C.TRACK_TYPE_VIDEO) {
-      labelBuilder.append("Video");
-    } else {
-      labelBuilder.append("Unknown(").append(trackType).append(")");
-    }
-    return labelBuilder.toString();
   }
 
   /** Performs a deep copy of {@code cryptoInfo} to {@code frameworkCryptoInfo}. */

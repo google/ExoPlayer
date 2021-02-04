@@ -26,6 +26,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Pair;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -257,6 +258,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
+  public final UUID getSchemeUuid() {
+    return uuid;
+  }
+
+  @Override
   public final @Nullable ExoMediaCrypto getMediaCrypto() {
     return mediaCrypto;
   }
@@ -303,7 +309,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       // Assigning null to various non-null variables for clean-up.
       state = STATE_RELEASED;
       Util.castNonNull(responseHandler).removeCallbacksAndMessages(null);
-      Util.castNonNull(requestHandler).removeCallbacksAndMessages(null);
+      Util.castNonNull(requestHandler).release();
       requestHandler = null;
       Util.castNonNull(requestHandlerThread).quit();
       requestHandlerThread = null;
@@ -565,6 +571,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @SuppressLint("HandlerLeak")
   private class RequestHandler extends Handler {
 
+    @GuardedBy("this")
+    private boolean isReleased;
+
     public RequestHandler(Looper backgroundLooper) {
       super(backgroundLooper);
     }
@@ -605,9 +614,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         response = e;
       }
       loadErrorHandlingPolicy.onLoadTaskConcluded(requestTask.taskId);
-      responseHandler
-          .obtainMessage(msg.what, Pair.create(requestTask.request, response))
-          .sendToTarget();
+      synchronized (this) {
+        if (!isReleased) {
+          responseHandler
+              .obtainMessage(msg.what, Pair.create(requestTask.request, response))
+              .sendToTarget();
+        }
+      }
     }
 
     private boolean maybeRetryRequest(Message originalMsg, MediaDrmCallbackException exception) {
@@ -642,8 +655,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         // The error is fatal.
         return false;
       }
-      sendMessageDelayed(Message.obtain(originalMsg), retryDelayMs);
-      return true;
+      synchronized (this) {
+        if (!isReleased) {
+          sendMessageDelayed(Message.obtain(originalMsg), retryDelayMs);
+          return true;
+        }
+      }
+      return false;
+    }
+
+    public synchronized void release() {
+      removeCallbacksAndMessages(/* token= */ null);
+      isReleased = true;
     }
   }
 

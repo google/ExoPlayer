@@ -15,6 +15,9 @@
  */
 package com.google.android.exoplayer2.video;
 
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_DRM_SESSION_CHANGED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
+import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static java.lang.Math.max;
 
 import android.os.Handler;
@@ -34,6 +37,7 @@ import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
@@ -97,9 +101,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   private Format inputFormat;
   private Format outputFormat;
+
+  @Nullable
   private Decoder<
           VideoDecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
       decoder;
+
   private VideoDecoderInputBuffer inputBuffer;
   private VideoDecoderOutputBuffer outputBuffer;
   @Nullable private Surface surface;
@@ -312,22 +319,6 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   }
 
   /**
-   * Called when a decoder has been created and configured.
-   *
-   * <p>The default implementation is a no-op.
-   *
-   * @param name The name of the decoder that was initialized.
-   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
-   *     finished.
-   * @param initializationDurationMs The time taken to initialize the decoder, in milliseconds.
-   */
-  @CallSuper
-  protected void onDecoderInitialized(
-      String name, long initializedTimestampMs, long initializationDurationMs) {
-    eventDispatcher.decoderInitialized(name, initializedTimestampMs, initializationDurationMs);
-  }
-
-  /**
    * Flushes the decoder.
    *
    * @throws ExoPlaybackException If an error occurs reinitializing a decoder.
@@ -358,9 +349,10 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     decoderReceivedBuffers = false;
     buffersInCodecCount = 0;
     if (decoder != null) {
-      decoder.release();
-      decoder = null;
       decoderCounters.decoderReleaseCount++;
+      decoder.release();
+      eventDispatcher.decoderReleased(decoder.getName());
+      decoder = null;
     }
     setDecoderDrmSession(null);
   }
@@ -381,7 +373,24 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
     if (decoder == null) {
       maybeInitDecoder();
-    } else if (sourceDrmSession != decoderDrmSession || !canKeepCodec(oldFormat, inputFormat)) {
+      eventDispatcher.inputFormatChanged(inputFormat, /* decoderReuseEvaluation= */ null);
+      return;
+    }
+
+    DecoderReuseEvaluation evaluation;
+    if (sourceDrmSession != decoderDrmSession) {
+      evaluation =
+          new DecoderReuseEvaluation(
+              decoder.getName(),
+              oldFormat,
+              newFormat,
+              REUSE_RESULT_NO,
+              DISCARD_REASON_DRM_SESSION_CHANGED);
+    } else {
+      evaluation = canReuseDecoder(decoder.getName(), oldFormat, newFormat);
+    }
+
+    if (evaluation.result == REUSE_RESULT_NO) {
       if (decoderReceivedBuffers) {
         // Signal end of stream and wait for any final output buffers before re-initialization.
         decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM;
@@ -391,8 +400,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         maybeInitDecoder();
       }
     }
-
-    eventDispatcher.inputFormatChanged(inputFormat);
+    eventDispatcher.inputFormatChanged(inputFormat, evaluation);
   }
 
   /**
@@ -641,14 +649,18 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   protected abstract void setDecoderOutputMode(@C.VideoOutputMode int outputMode);
 
   /**
-   * Returns whether the existing decoder can be kept for a new format.
+   * Evaluates whether the existing decoder can be reused for a new {@link Format}.
+   *
+   * <p>The default implementation does not allow decoder reuse.
    *
    * @param oldFormat The previous format.
    * @param newFormat The new format.
-   * @return Whether the existing decoder can be kept.
+   * @return The result of the evaluation.
    */
-  protected boolean canKeepCodec(Format oldFormat, Format newFormat) {
-    return false;
+  protected DecoderReuseEvaluation canReuseDecoder(
+      String decoderName, Format oldFormat, Format newFormat) {
+    return new DecoderReuseEvaluation(
+        decoderName, oldFormat, newFormat, REUSE_RESULT_NO, DISCARD_REASON_REUSE_NOT_IMPLEMENTED);
   }
 
   // Internal methods.
@@ -676,8 +688,8 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       if (mediaCrypto == null) {
         DrmSessionException drmError = decoderDrmSession.getError();
         if (drmError != null) {
-          // Continue for now. We may be able to avoid failure if the session recovers, or if a new
-          // input format causes the session to be replaced before it's used.
+          // Continue for now. We may be able to avoid failure if a new input format causes the
+          // session to be replaced without it having been used.
         } else {
           // The drm session isn't open yet.
           return;
@@ -690,12 +702,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       decoder = createDecoder(inputFormat, mediaCrypto);
       setDecoderOutputMode(outputMode);
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
-      onDecoderInitialized(
+      eventDispatcher.decoderInitialized(
           decoder.getName(),
           decoderInitializedTimestamp,
           decoderInitializedTimestamp - decoderInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (DecoderException e) {
+    } catch (DecoderException | OutOfMemoryError e) {
       throw createRendererException(e, inputFormat);
     }
   }

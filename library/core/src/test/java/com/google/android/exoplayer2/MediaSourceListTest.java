@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
-import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -528,11 +527,11 @@ public class MediaSourceListTest {
   }
 
   private static List<MediaSourceList.MediaSourceHolder> createFakeHolders() {
-    MediaSource fakeMediaSource = new FakeMediaSource(new FakeTimeline(1));
     List<MediaSourceList.MediaSourceHolder> holders = new ArrayList<>();
     for (int i = 0; i < MEDIA_SOURCE_LIST_SIZE; i++) {
       holders.add(
-          new MediaSourceList.MediaSourceHolder(fakeMediaSource, /* useLazyPreparation= */ true));
+          new MediaSourceList.MediaSourceHolder(
+              new FakeMediaSource(), /* useLazyPreparation= */ true));
     }
     return holders;
   }

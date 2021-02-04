@@ -57,7 +57,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
@@ -573,8 +572,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          oldVideoComponent.setVideoDecoderOutputBufferRenderer(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -601,9 +598,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          newVideoComponent.setVideoDecoderOutputBufferRenderer(
-              ((VideoDecoderGLSurfaceView) surfaceView).getVideoDecoderOutputBufferRenderer());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -676,19 +670,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
    * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
    * present in the media.
    *
-   * @param defaultArtwork the default artwork to display.
-   * @deprecated use (@link {@link #setDefaultArtwork(Drawable)} instead.
-   */
-  @Deprecated
-  public void setDefaultArtwork(@Nullable Bitmap defaultArtwork) {
-    setDefaultArtwork(
-        defaultArtwork == null ? null : new BitmapDrawable(getResources(), defaultArtwork));
-  }
-
-  /**
-   * Sets the default artwork to display if {@code useArtwork} is {@code true} and no artwork is
-   * present in the media.
-   *
    * @param defaultArtwork the default artwork to display
    */
   public void setDefaultArtwork(@Nullable Drawable defaultArtwork) {
@@ -738,9 +719,8 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   /**
    * Sets whether the currently displayed video frame or media artwork is kept visible when the
    * player is reset. A player reset is defined to mean the player being re-prepared with different
-   * media, the player transitioning to unprepared media, {@link Player#stop(boolean)} being called
-   * with {@code reset=true}, or the player being replaced or cleared by calling {@link
-   * #setPlayer(Player)}.
+   * media, the player transitioning to unprepared media or an empty list of media items, or the
+   * player being replaced or cleared by calling {@link #setPlayer(Player)}.
    *
    * <p>If enabled, the currently displayed video frame or media artwork will be kept visible until
    * the player set on the view has been successfully prepared with new media and loaded enough of
@@ -776,18 +756,6 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
         ((SphericalGLSurfaceView) surfaceView).setUseSensorRotation(useSensorRotation);
       }
     }
-  }
-
-  /**
-   * Sets whether a buffering spinner is displayed when the player is in the buffering state. The
-   * buffering spinner is not displayed by default.
-   *
-   * @deprecated Use {@link #setShowBuffering(int)}
-   * @param showBuffering Whether the buffering icon is displayed
-   */
-  @Deprecated
-  public void setShowBuffering(boolean showBuffering) {
-    setShowBuffering(showBuffering ? SHOW_BUFFERING_WHEN_PLAYING : SHOW_BUFFERING_NEVER);
   }
 
   /**
@@ -1378,15 +1346,9 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     closeShutter();
     // Display artwork if enabled and available, else hide it.
     if (useArtwork()) {
-      for (int i = 0; i < selections.length; i++) {
-        @Nullable TrackSelection selection = selections.get(i);
-        if (selection != null) {
-          for (int j = 0; j < selection.length(); j++) {
-            @Nullable Metadata metadata = selection.getFormat(j).metadata;
-            if (metadata != null && setArtworkFromMetadata(metadata)) {
-              return;
-            }
-          }
+      for (Metadata metadata : player.getCurrentStaticMetadata()) {
+        if (setArtworkFromMetadata(metadata)) {
+          return;
         }
       }
       if (setDrawableArtwork(defaultArtwork)) {

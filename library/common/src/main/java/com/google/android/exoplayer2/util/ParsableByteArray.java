@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 /**
  * Wraps a byte array, providing a set of methods for parsing data from it. Numerical values are
@@ -68,8 +69,8 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Resets the position to zero and the limit to the specified value. If the limit exceeds the
-   * capacity, {@code data} is replaced with a new array of sufficient size.
+   * Resets the position to zero and the limit to the specified value. This might replace or wipe
+   * the {@link #getData() underlying array}, potentially invalidating any local references.
    *
    * @param limit The limit to set.
    */
@@ -100,8 +101,21 @@ public final class ParsableByteArray {
   }
 
   /**
-   * Returns the number of bytes yet to be read.
+   * Ensures the backing array is at least {@code requiredCapacity} long.
+   *
+   * <p>{@link #getPosition() position}, {@link #limit() limit}, and all data in the underlying
+   * array (including that beyond {@link #limit()}) are preserved.
+   *
+   * <p>This might replace or wipe the {@link #getData() underlying array}, potentially invalidating
+   * any local references.
    */
+  public void ensureCapacity(int requiredCapacity) {
+    if (requiredCapacity > capacity()) {
+      data = Arrays.copyOf(data, requiredCapacity);
+    }
+  }
+
+  /** Returns the number of bytes yet to be read. */
   public int bytesLeft() {
     return limit - position;
   }
@@ -148,8 +162,8 @@ public final class ParsableByteArray {
    *
    * <p>Changes to this array are reflected in the results of the {@code read...()} methods.
    *
-   * <p>This reference must be assumed to become invalid when {@link #reset} is called (because the
-   * array might get reallocated).
+   * <p>This reference must be assumed to become invalid when {@link #reset} or {@link
+   * #ensureCapacity} are called (because the array might get reallocated).
    */
   public byte[] getData() {
     return data;
@@ -496,11 +510,22 @@ public final class ParsableByteArray {
    */
   @Nullable
   public String readNullTerminatedString() {
+    return readDelimiterTerminatedString('\0');
+  }
+
+  /**
+   * Reads up to the next delimiter byte (or the limit) as UTF-8 characters.
+   *
+   * @return The string not including any terminating delimiter byte, or null if the end of the data
+   *     has already been reached.
+   */
+  @Nullable
+  public String readDelimiterTerminatedString(char delimiter) {
     if (bytesLeft() == 0) {
       return null;
     }
     int stringLimit = position;
-    while (stringLimit < limit && data[stringLimit] != 0) {
+    while (stringLimit < limit && data[stringLimit] != delimiter) {
       stringLimit++;
     }
     String string = Util.fromUtf8Bytes(data, position, stringLimit - position);

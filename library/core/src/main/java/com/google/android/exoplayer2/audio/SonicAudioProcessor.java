@@ -34,7 +34,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
   public static final int SAMPLE_RATE_NO_CHANGE = -1;
 
   /** The threshold below which the difference between two pitch/speed factors is negligible. */
-  private static final float CLOSE_THRESHOLD = 0.01f;
+  private static final float CLOSE_THRESHOLD = 0.0001f;
 
   /**
    * The minimum number of output bytes required for duration scaling to be calculated using the
@@ -79,7 +79,7 @@ public final class SonicAudioProcessor implements AudioProcessor {
    * processor. The value returned by {@link #isActive()} may change, and the processor must be
    * {@link #flush() flushed} before queueing more data.
    *
-   * @param speed The target playback speed.
+   * @param speed The target factor by which playback should be sped up.
    */
   public void setSpeed(float speed) {
     if (this.speed != speed) {

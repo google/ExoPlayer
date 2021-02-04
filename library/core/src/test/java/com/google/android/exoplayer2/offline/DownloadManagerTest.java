@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.offline;
 
+import static com.google.android.exoplayer2.robolectric.RobolectricUtil.createRobolectricConditionVariable;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.Arrays.asList;
 
@@ -24,11 +25,11 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.robolectric.TestDownloadManagerListener;
 import com.google.android.exoplayer2.scheduler.Requirements;
 import com.google.android.exoplayer2.testutil.DownloadBuilder;
 import com.google.android.exoplayer2.testutil.DummyMainThread;
 import com.google.android.exoplayer2.testutil.DummyMainThread.TestRunnable;
-import com.google.android.exoplayer2.testutil.TestDownloadManagerListener;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -895,10 +896,10 @@ public class DownloadManagerTest {
 
     private FakeDownloader(DownloadRequest request) {
       this.request = request;
-      downloadStarted = TestUtil.createRobolectricConditionVariable();
-      removeStarted = TestUtil.createRobolectricConditionVariable();
-      finished = TestUtil.createRobolectricConditionVariable();
-      blocker = TestUtil.createRobolectricConditionVariable();
+      downloadStarted = createRobolectricConditionVariable();
+      removeStarted = createRobolectricConditionVariable();
+      finished = createRobolectricConditionVariable();
+      blocker = createRobolectricConditionVariable();
       startCount = new AtomicInteger();
       bytesDownloaded = new AtomicInteger();
     }

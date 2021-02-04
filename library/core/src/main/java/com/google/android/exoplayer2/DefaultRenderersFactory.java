@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink.DefaultAudioProcessorChain;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
-import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -78,22 +77,27 @@ public class DefaultRenderersFactory implements RenderersFactory {
   /**
    * Allow use of extension renderers. Extension renderers are indexed before core renderers of the
    * same type. A {@link TrackSelector} that prefers the first suitable renderer will therefore
-   * prefer to use an extension renderer to a core renderer in the case that both are able to play
-   * a given track.
+   * prefer to use an extension renderer to a core renderer in the case that both are able to play a
+   * given track.
    */
   public static final int EXTENSION_RENDERER_MODE_PREFER = 2;
 
-  private static final String TAG = "DefaultRenderersFactory";
+  /**
+   * The maximum number of frames that can be dropped between invocations of {@link
+   * VideoRendererEventListener#onDroppedFrames(int, long)}.
+   */
+  public static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
 
-  protected static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
+  private static final String TAG = "DefaultRenderersFactory";
 
   private final Context context;
   @ExtensionRendererMode private int extensionRendererMode;
   private long allowedVideoJoiningTimeMs;
   private boolean enableDecoderFallback;
   private MediaCodecSelector mediaCodecSelector;
-  private @MediaCodecRenderer.MediaCodecOperationMode int audioMediaCodecOperationMode;
-  private @MediaCodecRenderer.MediaCodecOperationMode int videoMediaCodecOperationMode;
+  private boolean enableAsyncQueueing;
+  private boolean forceAsyncQueueingSynchronizationWorkaround;
+  private boolean enableSynchronizeCodecInteractionsWithQueueing;
   private boolean enableFloatOutput;
   private boolean enableAudioTrackPlaybackParams;
   private boolean enableOffload;
@@ -104,8 +108,6 @@ public class DefaultRenderersFactory implements RenderersFactory {
     extensionRendererMode = EXTENSION_RENDERER_MODE_OFF;
     allowedVideoJoiningTimeMs = DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS;
     mediaCodecSelector = MediaCodecSelector.DEFAULT;
-    audioMediaCodecOperationMode = MediaCodecRenderer.OPERATION_MODE_SYNCHRONOUS;
-    videoMediaCodecOperationMode = MediaCodecRenderer.OPERATION_MODE_SYNCHRONOUS;
   }
 
   /**
@@ -151,48 +153,49 @@ public class DefaultRenderersFactory implements RenderersFactory {
   }
 
   /**
-   * Set the {@link MediaCodecRenderer.MediaCodecOperationMode} of {@link MediaCodecAudioRenderer}
-   * instances.
+   * Enable asynchronous buffer queueing for both {@link MediaCodecAudioRenderer} and {@link
+   * MediaCodecVideoRenderer} instances.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
    *
-   * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
+   * @param enabled Whether asynchronous queueing is enabled.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimentalSetAudioMediaCodecOperationMode(
-      @MediaCodecRenderer.MediaCodecOperationMode int mode) {
-    audioMediaCodecOperationMode = mode;
+  public DefaultRenderersFactory experimentalSetAsynchronousBufferQueueingEnabled(boolean enabled) {
+    enableAsyncQueueing = enabled;
     return this;
   }
 
   /**
-   * Set the {@link MediaCodecRenderer.MediaCodecOperationMode} of {@link MediaCodecVideoRenderer}
-   * instances.
+   * Enable the asynchronous queueing synchronization workaround.
+   *
+   * <p>When enabled, the queueing threads for {@link MediaCodec} instances will synchronize on a
+   * shared lock when submitting buffers to the respective {@link MediaCodec}.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
    *
-   * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
+   * @param enabled Whether the asynchronous queueing synchronization workaround is enabled by
+   *     default.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimentalSetVideoMediaCodecOperationMode(
-      @MediaCodecRenderer.MediaCodecOperationMode int mode) {
-    videoMediaCodecOperationMode = mode;
+  public DefaultRenderersFactory experimentalSetForceAsyncQueueingSynchronizationWorkaround(
+      boolean enabled) {
+    this.forceAsyncQueueingSynchronizationWorkaround = enabled;
     return this;
   }
 
   /**
-   * Set the {@link MediaCodecRenderer.MediaCodecOperationMode} for both {@link
-   * MediaCodecAudioRenderer} {@link MediaCodecVideoRenderer} instances.
+   * Enable synchronizing codec interactions with asynchronous buffer queueing.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release.
    *
-   * @param mode The {@link MediaCodecRenderer.MediaCodecOperationMode} to set.
+   * @param enabled Whether codec interactions will be synchronized with asynchronous buffer
+   *     queueing.
    * @return This factory, for convenience.
    */
-  public DefaultRenderersFactory experimentalSetMediaCodecOperationMode(
-      @MediaCodecRenderer.MediaCodecOperationMode int mode) {
-    experimentalSetAudioMediaCodecOperationMode(mode);
-    experimentalSetVideoMediaCodecOperationMode(mode);
+  public DefaultRenderersFactory experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
+      boolean enabled) {
+    enableSynchronizeCodecInteractionsWithQueueing = enabled;
     return this;
   }
 
@@ -372,7 +375,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventHandler,
             eventListener,
             MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY);
-    videoRenderer.experimentalSetMediaCodecOperationMode(videoMediaCodecOperationMode);
+    videoRenderer.experimentalSetAsynchronousBufferQueueingEnabled(enableAsyncQueueing);
+    videoRenderer.experimentalSetForceAsyncQueueingSynchronizationWorkaround(
+        forceAsyncQueueingSynchronizationWorkaround);
+    videoRenderer.experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
+        enableSynchronizeCodecInteractionsWithQueueing);
     out.add(videoRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {
@@ -469,7 +476,11 @@ public class DefaultRenderersFactory implements RenderersFactory {
             eventHandler,
             eventListener,
             audioSink);
-    audioRenderer.experimentalSetMediaCodecOperationMode(audioMediaCodecOperationMode);
+    audioRenderer.experimentalSetAsynchronousBufferQueueingEnabled(enableAsyncQueueing);
+    audioRenderer.experimentalSetForceAsyncQueueingSynchronizationWorkaround(
+        forceAsyncQueueingSynchronizationWorkaround);
+    audioRenderer.experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(
+        enableSynchronizeCodecInteractionsWithQueueing);
     out.add(audioRenderer);
 
     if (extensionRendererMode == EXTENSION_RENDERER_MODE_OFF) {

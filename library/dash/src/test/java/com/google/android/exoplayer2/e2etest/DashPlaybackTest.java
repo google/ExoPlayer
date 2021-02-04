@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.e2etest;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
@@ -26,9 +27,10 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
+import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.testutil.TestExoPlayer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,12 +50,15 @@ public final class DashPlaybackTest {
   // https://github.com/google/ExoPlayer/issues/7985
   @Test
   public void webvttInMp4() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
     SimpleExoPlayer player =
-        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext())
+        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
             .setClock(new AutoAdvancingFakeClock())
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
-    PlaybackOutput playbackOutput = PlaybackOutput.register(player, mediaCodecConfig);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     // Ensure the subtitle track is selected.
     DefaultTrackSelector trackSelector =
@@ -62,12 +67,10 @@ public final class DashPlaybackTest {
     player.setMediaItem(MediaItem.fromUri("asset:///media/dash/webvtt-in-mp4/sample.mpd"));
     player.prepare();
     player.play();
-    TestExoPlayer.runUntilPlaybackState(player, Player.STATE_ENDED);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
 
     DumpFileAsserts.assertOutput(
-        ApplicationProvider.getApplicationContext(),
-        playbackOutput,
-        "playbackdumps/dash/webvtt-in-mp4.dump");
+        applicationContext, playbackOutput, "playbackdumps/dash/webvtt-in-mp4.dump");
   }
 }

@@ -46,9 +46,9 @@ import com.google.android.exoplayer2.testutil.ExoHostedTest;
 import com.google.android.exoplayer2.testutil.HostActivity;
 import com.google.android.exoplayer2.testutil.HostActivity.HostedTest;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -260,7 +260,7 @@ import java.util.List;
     @Override
     protected DrmSessionManager buildDrmSessionManager() {
       if (widevineLicenseUrl == null) {
-        return DrmSessionManager.getDummyDrmSessionManager();
+        return DrmSessionManager.DRM_UNSUPPORTED;
       }
       MediaDrmCallback drmCallback =
           new HttpMediaDrmCallback(widevineLicenseUrl, new DefaultHttpDataSourceFactory());
@@ -386,7 +386,7 @@ import java.util.List;
     }
 
     @Override
-    protected TrackSelection.Definition[] selectAllTracks(
+    protected ExoTrackSelection.Definition[] selectAllTracks(
         MappedTrackInfo mappedTrackInfo,
         int[][][] rendererFormatSupports,
         int[] rendererMixedMimeTypeAdaptationSupports,
@@ -399,10 +399,10 @@ import java.util.List;
       TrackGroupArray audioTrackGroups = mappedTrackInfo.getTrackGroups(AUDIO_RENDERER_INDEX);
       Assertions.checkState(videoTrackGroups.length == 1);
       Assertions.checkState(audioTrackGroups.length == 1);
-      TrackSelection.Definition[] definitions =
-          new TrackSelection.Definition[mappedTrackInfo.getRendererCount()];
+      ExoTrackSelection.Definition[] definitions =
+          new ExoTrackSelection.Definition[mappedTrackInfo.getRendererCount()];
       definitions[VIDEO_RENDERER_INDEX] =
-          new TrackSelection.Definition(
+          new ExoTrackSelection.Definition(
               videoTrackGroups.get(0),
               getVideoTrackIndices(
                   videoTrackGroups.get(0),
@@ -410,7 +410,7 @@ import java.util.List;
                   videoFormatIds,
                   canIncludeAdditionalVideoFormats));
       definitions[AUDIO_RENDERER_INDEX] =
-          new TrackSelection.Definition(
+          new ExoTrackSelection.Definition(
               audioTrackGroups.get(0), getTrackIndex(audioTrackGroups.get(0), audioFormatId));
       includedAdditionalVideoFormats =
           definitions[VIDEO_RENDERER_INDEX].tracks.length > videoFormatIds.length;
@@ -458,8 +458,7 @@ import java.util.List;
     }
 
     private static boolean isFormatHandled(int formatSupport) {
-      return RendererCapabilities.getFormatSupport(formatSupport)
-          == RendererCapabilities.FORMAT_HANDLED;
+      return RendererCapabilities.getFormatSupport(formatSupport) == C.FORMAT_HANDLED;
     }
 
   }

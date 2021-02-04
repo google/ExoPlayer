@@ -34,8 +34,7 @@ public final class FfmpegLibrary {
 
   private static final String TAG = "FfmpegLibrary";
 
-  private static final LibraryLoader LOADER =
-      new LibraryLoader("avutil", "swresample", "avcodec", "ffmpeg_jni");
+  private static final LibraryLoader LOADER = new LibraryLoader("ffmpegJNI");
 
   private static @MonotonicNonNull String version;
   private static int inputBufferPaddingSize = C.LENGTH_UNSET;
@@ -145,10 +144,6 @@ public final class FfmpegLibrary {
         return "pcm_mulaw";
       case MimeTypes.AUDIO_ALAW:
         return "pcm_alaw";
-      case MimeTypes.VIDEO_H264:
-        return "h264";
-      case MimeTypes.VIDEO_H265:
-        return "hevc";
       default:
         return null;
     }

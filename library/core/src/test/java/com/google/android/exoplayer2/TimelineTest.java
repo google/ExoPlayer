@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
@@ -93,7 +94,7 @@ public class TimelineTest {
     assertThat(window).isNotEqualTo(otherWindow);
 
     otherWindow = new Timeline.Window();
-    otherWindow.isLive = true;
+    otherWindow.liveConfiguration = LiveConfiguration.UNSET;
     assertThat(window).isNotEqualTo(otherWindow);
 
     otherWindow = new Timeline.Window();
@@ -131,7 +132,7 @@ public class TimelineTest {
             window.elapsedRealtimeEpochOffsetMs,
             window.isSeekable,
             window.isDynamic,
-            window.isLive,
+            window.liveConfiguration,
             window.defaultPositionUs,
             window.durationUs,
             window.firstPeriodIndex,

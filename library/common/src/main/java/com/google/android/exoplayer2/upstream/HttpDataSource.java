@@ -42,43 +42,23 @@ public interface HttpDataSource extends DataSource {
     @Override
     HttpDataSource createDataSource();
 
-    /**
-     * Gets the default request properties used by all {@link HttpDataSource}s created by the
-     * factory. Changes to the properties will be reflected in any future requests made by
-     * {@link HttpDataSource}s created by the factory.
-     *
-     * @return The default request properties of the factory.
-     */
+    /** @deprecated Use {@link #setDefaultRequestProperties(Map)} instead. */
+    @Deprecated
     RequestProperties getDefaultRequestProperties();
 
     /**
-     * Sets a default request header for {@link HttpDataSource} instances created by the factory.
+     * Sets the default request headers for {@link HttpDataSource} instances created by the factory.
      *
-     * @deprecated Use {@link #getDefaultRequestProperties} instead.
-     * @param name The name of the header field.
-     * @param value The value of the field.
-     */
-    @Deprecated
-    void setDefaultRequestProperty(String name, String value);
-
-    /**
-     * Clears a default request header for {@link HttpDataSource} instances created by the factory.
+     * <p>The new request properties will be used for future requests made by {@link HttpDataSource
+     * HttpDataSources} created by the factory, including instances that have already been created.
+     * Modifying the {@code defaultRequestProperties} map after a call to this method will have no
+     * effect, and so it's necessary to call this method again each time the request properties need
+     * to be updated.
      *
-     * @deprecated Use {@link #getDefaultRequestProperties} instead.
-     * @param name The name of the header field.
+     * @param defaultRequestProperties The default request properties.
+     * @return This factory.
      */
-    @Deprecated
-    void clearDefaultRequestProperty(String name);
-
-    /**
-     * Clears all default request headers for all {@link HttpDataSource} instances created by the
-     * factory.
-     *
-     * @deprecated Use {@link #getDefaultRequestProperties} instead.
-     */
-    @Deprecated
-    void clearAllDefaultRequestProperties();
-
+    Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties);
   }
 
   /**
@@ -159,12 +139,9 @@ public interface HttpDataSource extends DataSource {
       }
       return requestPropertiesSnapshot;
     }
-
   }
 
-  /**
-   * Base implementation of {@link Factory} that sets default request properties.
-   */
+  /** Base implementation of {@link Factory} that sets default request properties. */
   abstract class BaseFactory implements Factory {
 
     private final RequestProperties defaultRequestProperties;
@@ -178,30 +155,17 @@ public interface HttpDataSource extends DataSource {
       return createDataSourceInternal(defaultRequestProperties);
     }
 
+    /** @deprecated Use {@link #setDefaultRequestProperties(Map)} instead. */
+    @Deprecated
     @Override
     public final RequestProperties getDefaultRequestProperties() {
       return defaultRequestProperties;
     }
 
-    /** @deprecated Use {@link #getDefaultRequestProperties} instead. */
-    @Deprecated
     @Override
-    public final void setDefaultRequestProperty(String name, String value) {
-      defaultRequestProperties.set(name, value);
-    }
-
-    /** @deprecated Use {@link #getDefaultRequestProperties} instead. */
-    @Deprecated
-    @Override
-    public final void clearDefaultRequestProperty(String name) {
-      defaultRequestProperties.remove(name);
-    }
-
-    /** @deprecated Use {@link #getDefaultRequestProperties} instead. */
-    @Deprecated
-    @Override
-    public final void clearAllDefaultRequestProperties() {
-      defaultRequestProperties.clear();
+    public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
+      this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
+      return this;
     }
 
     /**
@@ -211,9 +175,8 @@ public interface HttpDataSource extends DataSource {
      *     {@link HttpDataSource} instance.
      * @return A {@link HttpDataSource} instance.
      */
-    protected abstract HttpDataSource createDataSourceInternal(RequestProperties
-        defaultRequestProperties);
-
+    protected abstract HttpDataSource createDataSourceInternal(
+        RequestProperties defaultRequestProperties);
   }
 
   /** A {@link Predicate} that rejects content types often used for pay-walls. */

@@ -15,6 +15,15 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_POSITION_DISCONTINUITY;
+import static com.google.android.exoplayer2.Player.EVENT_REPEAT_MODE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
@@ -38,7 +47,6 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -563,7 +571,7 @@ public class PlayerNotificationManager {
         notificationId,
         mediaDescriptionAdapter,
         notificationListener,
-        /* customActionReceiver*/ null);
+        /* customActionReceiver= */ null);
   }
 
   /**
@@ -591,7 +599,7 @@ public class PlayerNotificationManager {
         channelId,
         notificationId,
         mediaDescriptionAdapter,
-        /* notificationListener */ null,
+        /* notificationListener= */ null,
         customActionReceiver);
   }
 
@@ -1396,44 +1404,18 @@ public class PlayerNotificationManager {
   private class PlayerListener implements Player.EventListener {
 
     @Override
-    public void onPlaybackStateChanged(@Player.State int playbackState) {
-      postStartOrUpdateNotification();
-    }
-
-    @Override
-    public void onPlayWhenReadyChanged(
-        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
-      postStartOrUpdateNotification();
-    }
-
-    @Override
-    public void onIsPlayingChanged(boolean isPlaying) {
-      postStartOrUpdateNotification();
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, int reason) {
-      postStartOrUpdateNotification();
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      postStartOrUpdateNotification();
-    }
-
-    @Override
-    public void onPositionDiscontinuity(int reason) {
-      postStartOrUpdateNotification();
-    }
-
-    @Override
-    public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-      postStartOrUpdateNotification();
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      postStartOrUpdateNotification();
+    public void onEvents(Player player, Player.Events events) {
+      if (events.containsAny(
+          EVENT_PLAYBACK_STATE_CHANGED,
+          EVENT_PLAY_WHEN_READY_CHANGED,
+          EVENT_IS_PLAYING_CHANGED,
+          EVENT_TIMELINE_CHANGED,
+          EVENT_PLAYBACK_PARAMETERS_CHANGED,
+          EVENT_POSITION_DISCONTINUITY,
+          EVENT_REPEAT_MODE_CHANGED,
+          EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+        postStartOrUpdateNotification();
+      }
     }
   }
 

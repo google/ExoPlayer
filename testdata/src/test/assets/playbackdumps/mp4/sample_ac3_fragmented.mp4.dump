@@ -1,0 +1,12 @@
+MediaCodecAdapter (exotest.audio.ac3):
+  buffers.length = 10
+  buffers[0] = length 1536, hash 7108D5C2
+  buffers[1] = length 1536, hash 80BF3B34
+  buffers[2] = length 1536, hash 5D09685
+  buffers[3] = length 1536, hash A9A24E44
+  buffers[4] = length 1536, hash 6F856273
+  buffers[5] = length 1536, hash B1737D3C
+  buffers[6] = length 1536, hash 98FDEB9D
+  buffers[7] = length 1536, hash 99B9B943
+  buffers[8] = length 1536, hash AAD9FCD2
+  buffers[9] = length 0, hash 1

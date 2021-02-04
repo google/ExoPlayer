@@ -403,7 +403,7 @@ public final class DefaultDownloadIndex implements WritableDownloadIndex {
   }
 
   @VisibleForTesting
-  /* package*/ static String encodeStreamKeys(List<StreamKey> streamKeys) {
+  /* package */ static String encodeStreamKeys(List<StreamKey> streamKeys) {
     StringBuilder stringBuilder = new StringBuilder();
     for (int i = 0; i < streamKeys.size(); i++) {
       StreamKey streamKey = streamKeys.get(i);

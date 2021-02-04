@@ -32,6 +32,7 @@ public final class MimeTypes {
   public static final String BASE_TYPE_VIDEO = "video";
   public static final String BASE_TYPE_AUDIO = "audio";
   public static final String BASE_TYPE_TEXT = "text";
+  public static final String BASE_TYPE_IMAGE = "image";
   public static final String BASE_TYPE_APPLICATION = "application";
 
   public static final String VIDEO_MP4 = BASE_TYPE_VIDEO + "/mp4";
@@ -112,6 +113,8 @@ public final class MimeTypes {
   public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
   public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
+
+  public static final String IMAGE_JPEG = BASE_TYPE_IMAGE + "/jpeg";
 
   private static final ArrayList<CustomMimeType> customMimeTypes = new ArrayList<>();
 

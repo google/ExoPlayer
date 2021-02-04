@@ -20,7 +20,9 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -57,40 +59,79 @@ public interface MediaSourceFactory {
   }
 
   /**
+   * Sets the {@link DrmSessionManagerProvider} used to obtain a {@link DrmSessionManager} for a
+   * {@link MediaItem}.
+   *
+   * <p>If not set, {@link DefaultDrmSessionManagerProvider} is used.
+   *
+   * <p>If set, calls to the following (deprecated) methods are ignored:
+   *
+   * <ul>
+   *   <li>{@link #setDrmUserAgent(String)}
+   *   <li>{@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory)}
+   * </ul>
+   *
+   * @return This factory, for convenience.
+   */
+  MediaSourceFactory setDrmSessionManagerProvider(
+      @Nullable DrmSessionManagerProvider drmSessionManagerProvider);
+
+  /**
    * Sets the {@link DrmSessionManager} to use for all media items regardless of their {@link
    * MediaItem.DrmConfiguration}.
+   *
+   * <p>Calling this with a non-null {@code drmSessionManager} is equivalent to calling {@code
+   * setDrmSessionManagerProvider(unusedMediaItem -> drmSessionManager)}.
    *
    * @param drmSessionManager The {@link DrmSessionManager}, or {@code null} to use the {@link
    *     DefaultDrmSessionManager}.
    * @return This factory, for convenience.
+   * @deprecated Use {@link #setDrmSessionManagerProvider(DrmSessionManagerProvider)} and pass an
+   *     implementation that always returns the same instance.
    */
+  @Deprecated
   MediaSourceFactory setDrmSessionManager(@Nullable DrmSessionManager drmSessionManager);
 
   /**
    * Sets the {@link HttpDataSource.Factory} to be used for creating {@link HttpMediaDrmCallback
    * HttpMediaDrmCallbacks} to execute key and provisioning requests over HTTP.
    *
-   * <p>In case a {@link DrmSessionManager} has been set by {@link
-   * #setDrmSessionManager(DrmSessionManager)}, this data source factory is ignored.
+   * <p>Calls to this method are ignored if either a {@link
+   * #setDrmSessionManagerProvider(DrmSessionManagerProvider) DrmSessionManager provider} or {@link
+   * #setDrmSessionManager(DrmSessionManager) concrete DrmSessionManager} are provided.
    *
    * @param drmHttpDataSourceFactory The HTTP data source factory, or {@code null} to use {@link
    *     DefaultHttpDataSourceFactory}.
    * @return This factory, for convenience.
+   * @deprecated Use {@link #setDrmSessionManagerProvider(DrmSessionManagerProvider)} and pass an
+   *     implementation that configures the returned {@link DrmSessionManager} with the desired
+   *     {@link HttpDataSource.Factory}.
    */
+  @Deprecated
   MediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory);
 
   /**
    * Sets the optional user agent to be used for DRM requests.
    *
-   * <p>In case a factory has been set by {@link
-   * #setDrmHttpDataSourceFactory(HttpDataSource.Factory)} or a {@link DrmSessionManager} has been
-   * set by {@link #setDrmSessionManager(DrmSessionManager)}, this user agent is ignored.
+   * <p>Calls to this method are ignored if any of the following are provided:
+   *
+   * <ul>
+   *   <li>A {@link #setDrmSessionManagerProvider(DrmSessionManagerProvider) DrmSessionManager
+   *       provider}.
+   *   <li>A {@link #setDrmSessionManager(DrmSessionManager) concrete DrmSessionManager}.
+   *   <li>A {@link #setDrmHttpDataSourceFactory(HttpDataSource.Factory) DRM
+   *       HttpDataSource.Factory}.
+   * </ul>
    *
    * @param userAgent The user agent to be used for DRM requests, or {@code null} to use the
    *     default.
    * @return This factory, for convenience.
+   * @deprecated Use {@link #setDrmSessionManagerProvider(DrmSessionManagerProvider)} and pass an
+   *     implementation that configures the returned {@link DrmSessionManager} with the desired
+   *     {@code userAgent}.
    */
+  @Deprecated
   MediaSourceFactory setDrmUserAgent(@Nullable String userAgent);
 
   /**

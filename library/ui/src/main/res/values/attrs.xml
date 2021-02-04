@@ -80,7 +80,6 @@
   <attr name="bar_gravity" format="enum">
     <enum name="center" value="0"/>
     <enum name="bottom" value="1"/>
-    <enum name="top" value="2"/>
   </attr>
   <attr name="touch_target_height" format="dimension"/>
   <attr name="ad_marker_width" format="dimension"/>

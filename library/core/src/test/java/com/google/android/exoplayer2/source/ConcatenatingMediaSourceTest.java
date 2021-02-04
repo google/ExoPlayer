@@ -499,8 +499,8 @@ public final class ConcatenatingMediaSourceTest {
           mediaSource.addMediaSources(
               Arrays.asList(new MediaSource[] {createFakeMediaSource(), createFakeMediaSource()}));
           mediaSource.moveMediaSource(
-              /* fromIndex */ 1, /* toIndex */
-              0,
+              /* currentIndex= */ 1,
+              /* newIndex= */ 0,
               Util.createHandlerForCurrentLooper(),
               runnableInvoked::countDown);
         });
@@ -624,8 +624,8 @@ public final class ConcatenatingMediaSourceTest {
       testThread.runOnMainThread(
           () ->
               mediaSource.moveMediaSource(
-                  /* fromIndex */ 1, /* toIndex */
-                  0,
+                  /* currentIndex= */ 1,
+                  /* newIndex= */ 0,
                   Util.createHandlerForCurrentLooper(),
                   timelineGrabber));
       Timeline timeline = timelineGrabber.assertTimelineChangeBlocking();
@@ -854,7 +854,7 @@ public final class ConcatenatingMediaSourceTest {
 
   @Test
   public void duplicateNestedMediaSources() throws IOException, InterruptedException {
-    Timeline childTimeline = new FakeTimeline(/* windowCount= */ 1);
+    Timeline childTimeline = new FakeTimeline();
     FakeMediaSource childSource = new FakeMediaSource(childTimeline);
     ConcatenatingMediaSource nestedConcatenation = new ConcatenatingMediaSource();
 

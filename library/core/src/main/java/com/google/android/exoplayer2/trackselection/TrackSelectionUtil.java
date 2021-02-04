@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.trackselection;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
-import com.google.android.exoplayer2.trackselection.TrackSelection.Definition;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection.Definition;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
 /** Track selection related utility methods. */
@@ -35,7 +35,7 @@ public final class TrackSelectionUtil {
      * @param trackSelectionDefinition A {@link Definition} for the track selection.
      * @return The created track selection.
      */
-    TrackSelection createAdaptiveTrackSelection(Definition trackSelectionDefinition);
+    ExoTrackSelection createAdaptiveTrackSelection(Definition trackSelectionDefinition);
   }
 
   /**
@@ -48,10 +48,10 @@ public final class TrackSelectionUtil {
    * @return The array of created track selection. For null entries in {@code definitions} returns
    *     null values.
    */
-  public static @NullableType TrackSelection[] createTrackSelectionsForDefinitions(
+  public static @NullableType ExoTrackSelection[] createTrackSelectionsForDefinitions(
       @NullableType Definition[] definitions,
       AdaptiveTrackSelectionFactory adaptiveTrackSelectionFactory) {
-    TrackSelection[] selections = new TrackSelection[definitions.length];
+    ExoTrackSelection[] selections = new ExoTrackSelection[definitions.length];
     boolean createdAdaptiveTrackSelection = false;
     for (int i = 0; i < definitions.length; i++) {
       Definition definition = definitions[i];

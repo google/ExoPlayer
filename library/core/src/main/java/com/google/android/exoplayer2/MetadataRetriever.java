@@ -22,6 +22,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import androidx.annotation.VisibleForTesting;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -29,7 +33,8 @@ import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
-import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -43,8 +48,9 @@ public final class MetadataRetriever {
   /**
    * Retrieves the {@link TrackGroupArray} corresponding to a {@link MediaItem}.
    *
-   * <p>This is equivalent to using {@code retrieveMetadata(new DefaultMediaSourceFactory(context),
-   * mediaItem)}.
+   * <p>This is equivalent to using {@link #retrieveMetadata(MediaSourceFactory, MediaItem)} with a
+   * {@link DefaultMediaSourceFactory} and a {@link DefaultExtractorsFactory} with {@link
+   * Mp4Extractor#FLAG_READ_MOTION_PHOTO_METADATA} and {@link Mp4Extractor#FLAG_READ_SEF_DATA} set.
    *
    * @param context The {@link Context}.
    * @param mediaItem The {@link MediaItem} whose metadata should be retrieved.
@@ -52,7 +58,7 @@ public final class MetadataRetriever {
    */
   public static ListenableFuture<TrackGroupArray> retrieveMetadata(
       Context context, MediaItem mediaItem) {
-    return retrieveMetadata(new DefaultMediaSourceFactory(context), mediaItem);
+    return retrieveMetadata(context, mediaItem, Clock.DEFAULT);
   }
 
   /**
@@ -67,9 +73,26 @@ public final class MetadataRetriever {
    */
   public static ListenableFuture<TrackGroupArray> retrieveMetadata(
       MediaSourceFactory mediaSourceFactory, MediaItem mediaItem) {
+    return retrieveMetadata(mediaSourceFactory, mediaItem, Clock.DEFAULT);
+  }
+
+  @VisibleForTesting
+  /* package */ static ListenableFuture<TrackGroupArray> retrieveMetadata(
+      Context context, MediaItem mediaItem, Clock clock) {
+    ExtractorsFactory extractorsFactory =
+        new DefaultExtractorsFactory()
+            .setMp4ExtractorFlags(
+                Mp4Extractor.FLAG_READ_MOTION_PHOTO_METADATA | Mp4Extractor.FLAG_READ_SEF_DATA);
+    MediaSourceFactory mediaSourceFactory =
+        new DefaultMediaSourceFactory(context, extractorsFactory);
+    return retrieveMetadata(mediaSourceFactory, mediaItem, clock);
+  }
+
+  private static ListenableFuture<TrackGroupArray> retrieveMetadata(
+      MediaSourceFactory mediaSourceFactory, MediaItem mediaItem, Clock clock) {
     // Recreate thread and handler every time this method is called so that it can be used
     // concurrently.
-    return new MetadataRetrieverInternal(mediaSourceFactory).retrieveMetadata(mediaItem);
+    return new MetadataRetrieverInternal(mediaSourceFactory, clock).retrieveMetadata(mediaItem);
   }
 
   private static final class MetadataRetrieverInternal {
@@ -81,15 +104,15 @@ public final class MetadataRetriever {
 
     private final MediaSourceFactory mediaSourceFactory;
     private final HandlerThread mediaSourceThread;
-    private final Handler mediaSourceHandler;
+    private final HandlerWrapper mediaSourceHandler;
     private final SettableFuture<TrackGroupArray> trackGroupsFuture;
 
-    public MetadataRetrieverInternal(MediaSourceFactory mediaSourceFactory) {
+    public MetadataRetrieverInternal(MediaSourceFactory mediaSourceFactory, Clock clock) {
       this.mediaSourceFactory = mediaSourceFactory;
       mediaSourceThread = new HandlerThread("ExoPlayer:MetadataRetriever");
       mediaSourceThread.start();
       mediaSourceHandler =
-          Util.createHandler(mediaSourceThread.getLooper(), new MediaSourceHandlerCallback());
+          clock.createHandler(mediaSourceThread.getLooper(), new MediaSourceHandlerCallback());
       trackGroupsFuture = SettableFuture.create();
     }
 

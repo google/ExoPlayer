@@ -68,7 +68,7 @@ renderer.
 
 ### Using `FlacExtractor` ###
 
-`FlacExtractor` is used via `ExtractorMediaSource`. If you're using
+`FlacExtractor` is used via `ProgressiveMediaSource`. If you're using
 `DefaultExtractorsFactory`, `FlacExtractor` will automatically be used to read
 `.flac` files. If you're not using `DefaultExtractorsFactory`, return a
 `FlacExtractor` from your `ExtractorsFactory.createExtractors` implementation.

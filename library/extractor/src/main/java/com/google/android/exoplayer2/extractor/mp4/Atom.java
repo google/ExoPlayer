@@ -182,6 +182,9 @@ import java.util.List;
   public static final int TYPE_moov = 0x6d6f6f76;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mpvd = 0x6d707664;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_mvhd = 0x6d766864;
 
   @SuppressWarnings("ConstantCaseForConstants")
@@ -330,6 +333,12 @@ import java.util.List;
 
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_meta = 0x6d657461;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_smta = 0x736d7461;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_saut = 0x73617574;
 
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_keys = 0x6b657973;

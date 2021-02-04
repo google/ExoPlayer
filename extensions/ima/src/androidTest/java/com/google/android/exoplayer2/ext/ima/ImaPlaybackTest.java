@@ -248,6 +248,7 @@ public final class ImaPlaybackTest {
       return new AdsMediaSource(
           contentMediaSource,
           adTagDataSpec,
+          /* adsId= */ adTagDataSpec.uri,
           new DefaultMediaSourceFactory(dataSourceFactory),
           Assertions.checkNotNull(imaAdsLoader),
           new AdViewProvider() {

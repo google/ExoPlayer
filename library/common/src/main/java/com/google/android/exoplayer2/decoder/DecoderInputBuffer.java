@@ -30,6 +30,31 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 public class DecoderInputBuffer extends Buffer {
 
   /**
+   * Thrown when an attempt is made to write into a {@link DecoderInputBuffer} whose {@link
+   * #bufferReplacementMode} is {@link #BUFFER_REPLACEMENT_MODE_DISABLED} and who {@link #data}
+   * capacity is smaller than required.
+   */
+  public static final class InsufficientCapacityException extends IllegalStateException {
+
+    /** The current capacity of the buffer. */
+    public final int currentCapacity;
+    /** The required capacity of the buffer. */
+    public final int requiredCapacity;
+
+    /**
+     * Creates an instance.
+     *
+     * @param currentCapacity The current capacity of the buffer.
+     * @param requiredCapacity The required capacity of the buffer.
+     */
+    public InsufficientCapacityException(int currentCapacity, int requiredCapacity) {
+      super("Buffer too small (" + currentCapacity + " < " + requiredCapacity + ")");
+      this.currentCapacity = currentCapacity;
+      this.requiredCapacity = requiredCapacity;
+    }
+  }
+
+  /**
    * The buffer replacement mode. This controls how {@link #ensureSpaceForWrite} generates
    * replacement buffers when the capacity of the existing buffer is insufficient. One of {@link
    * #BUFFER_REPLACEMENT_MODE_DISABLED}, {@link #BUFFER_REPLACEMENT_MODE_NORMAL} or {@link
@@ -144,8 +169,8 @@ public class DecoderInputBuffer extends Buffer {
    * whose capacity is sufficient. Data up to the current position is copied to the new buffer.
    *
    * @param length The length of the write that must be accommodated, in bytes.
-   * @throws IllegalStateException If there is insufficient capacity to accommodate the write and
-   *     the buffer replacement mode of the holder is {@link #BUFFER_REPLACEMENT_MODE_DISABLED}.
+   * @throws InsufficientCapacityException If there is insufficient capacity to accommodate the
+   *     write and {@link #bufferReplacementMode} is {@link #BUFFER_REPLACEMENT_MODE_DISABLED}.
    */
   @EnsuresNonNull("data")
   public void ensureSpaceForWrite(int length) {
@@ -223,8 +248,7 @@ public class DecoderInputBuffer extends Buffer {
       return ByteBuffer.allocateDirect(requiredCapacity);
     } else {
       int currentCapacity = data == null ? 0 : data.capacity();
-      throw new IllegalStateException("Buffer too small (" + currentCapacity + " < "
-          + requiredCapacity + ")");
+      throw new InsufficientCapacityException(currentCapacity, requiredCapacity);
     }
   }
 }

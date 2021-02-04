@@ -114,7 +114,7 @@ public interface Renderer extends PlayerMessage.Target {
   /**
    * The type of a message that can be passed to a {@link MediaCodec}-based video renderer via
    * {@link ExoPlayer#createMessage(Target)}. The message payload should be one of the integer
-   * scaling modes in {@link VideoScalingMode}.
+   * scaling modes in {@link C.VideoScalingMode}.
    *
    * <p>Note that the scaling mode only applies if the {@link Surface} targeted by the renderer is
    * owned by a {@link android.view.SurfaceView}.
@@ -160,13 +160,14 @@ public interface Renderer extends PlayerMessage.Target {
    */
   int MSG_SET_SKIP_SILENCE_ENABLED = 101;
   /**
-   * A type of a message that can be passed to an audio renderer via {@link
+   * The type of a message that can be passed to audio and video renderers via {@link
    * ExoPlayer#createMessage(Target)}. The message payload should be an {@link Integer} instance
-   * representing the audio session ID that will be attached to the underlying audio track.
+   * representing the audio session ID that will be attached to the underlying audio track. Video
+   * renderers that support tunneling will use the audio session ID when tunneling is enabled.
    */
   int MSG_SET_AUDIO_SESSION_ID = 102;
   /**
-   * A type of a message that can be passed to a {@link Renderer} via {@link
+   * The type of a message that can be passed to a {@link Renderer} via {@link
    * ExoPlayer#createMessage(Target)}, to inform the renderer that it can schedule waking up another
    * component.
    *
@@ -180,12 +181,9 @@ public interface Renderer extends PlayerMessage.Target {
   @SuppressWarnings("deprecation")
   int MSG_CUSTOM_BASE = C.MSG_CUSTOM_BASE;
 
-  /**
-   * Video scaling modes for {@link MediaCodec}-based renderers. One of {@link
-   * #VIDEO_SCALING_MODE_SCALE_TO_FIT} or {@link #VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}.
-   */
+  /** @deprecated Use {@link C.VideoScalingMode}. */
   // VIDEO_SCALING_MODE_DEFAULT is an intentionally duplicated constant.
-  @SuppressWarnings("UniqueConstants")
+  @SuppressWarnings({"UniqueConstants", "Deprecation"})
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef(
@@ -194,17 +192,16 @@ public interface Renderer extends PlayerMessage.Target {
         VIDEO_SCALING_MODE_SCALE_TO_FIT,
         VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
       })
+  @Deprecated
   @interface VideoScalingMode {}
-  /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
-  @SuppressWarnings("deprecation")
-  int VIDEO_SCALING_MODE_SCALE_TO_FIT = C.VIDEO_SCALING_MODE_SCALE_TO_FIT;
-  /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
-  @SuppressWarnings("deprecation")
+  /** @deprecated Use {@link C#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
+  @Deprecated int VIDEO_SCALING_MODE_SCALE_TO_FIT = C.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+  /** @deprecated Use {@link C#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
+  @Deprecated
   int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
       C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
-  /** A default video scaling mode for {@link MediaCodec}-based renderers. */
-  @SuppressWarnings("deprecation")
-  int VIDEO_SCALING_MODE_DEFAULT = C.VIDEO_SCALING_MODE_DEFAULT;
+  /** @deprecated Use {@code C.VIDEO_SCALING_MODE_DEFAULT}. */
+  @Deprecated int VIDEO_SCALING_MODE_DEFAULT = C.VIDEO_SCALING_MODE_DEFAULT;
 
   /**
    * The renderer states. One of {@link #STATE_DISABLED}, {@link #STATE_ENABLED} or {@link
@@ -215,9 +212,9 @@ public interface Renderer extends PlayerMessage.Target {
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
   @interface State {}
   /**
-   * The renderer is disabled. A renderer in this state may hold resources that it requires for
-   * rendering (e.g. media decoders), for use if it's subsequently enabled. {@link #reset()} can be
-   * called to force the renderer to release these resources.
+   * The renderer is disabled. A renderer in this state will not proactively acquire resources that
+   * it requires for rendering (e.g., media decoders), but may continue to hold any that it already
+   * has. {@link #reset()} can be called to force the renderer to release such resources.
    */
   int STATE_DISABLED = 0;
   /**
@@ -241,10 +238,9 @@ public interface Renderer extends PlayerMessage.Target {
   String getName();
 
   /**
-   * Returns the track type that the renderer handles. For example, a video renderer will return
-   * {@link C#TRACK_TYPE_VIDEO}, an audio renderer will return {@link C#TRACK_TYPE_AUDIO}, a text
-   * renderer will return {@link C#TRACK_TYPE_TEXT}, and so on.
+   * Returns the track type that the renderer handles.
    *
+   * @see Player#getRendererType(int)
    * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
    */
   int getTrackType();
@@ -403,16 +399,18 @@ public interface Renderer extends PlayerMessage.Target {
   void resetPosition(long positionUs) throws ExoPlaybackException;
 
   /**
-   * Sets the operating rate of this renderer, where 1 is the default rate, 2 is twice the default
-   * rate, 0.5 is half the default rate and so on. The operating rate is a hint to the renderer of
-   * the speed at which playback will proceed, and may be used for resource planning.
+   * Indicates the playback speed to this renderer.
    *
    * <p>The default implementation is a no-op.
    *
-   * @param operatingRate The operating rate.
-   * @throws ExoPlaybackException If an error occurs handling the operating rate.
+   * @param currentPlaybackSpeed The factor by which playback is currently sped up.
+   * @param targetPlaybackSpeed The target factor by which playback should be sped up. This may be
+   *     different from {@code currentPlaybackSpeed}, for example, if the speed is temporarily
+   *     adjusted for live playback.
+   * @throws ExoPlaybackException If an error occurs handling the playback speed.
    */
-  default void setOperatingRate(float operatingRate) throws ExoPlaybackException {}
+  default void setPlaybackSpeed(float currentPlaybackSpeed, float targetPlaybackSpeed)
+      throws ExoPlaybackException {}
 
   /**
    * Incrementally renders the {@link SampleStream}.

@@ -325,6 +325,17 @@ public final class SessionPlayerConnector extends SessionPlayer {
   }
 
   @Override
+  public ListenableFuture<PlayerResult> movePlaylistItem(int fromIndex, int toIndex) {
+    Assertions.checkArgument(fromIndex >= 0);
+    Assertions.checkArgument(toIndex >= 0);
+    ListenableFuture<PlayerResult> result =
+        playerCommandQueue.addCommand(
+            PlayerCommandQueue.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
+            /* command= */ () -> player.movePlaylistItem(fromIndex, toIndex));
+    return result;
+  }
+
+  @Override
   public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
     ListenableFuture<PlayerResult> result =
         playerCommandQueue.addCommand(

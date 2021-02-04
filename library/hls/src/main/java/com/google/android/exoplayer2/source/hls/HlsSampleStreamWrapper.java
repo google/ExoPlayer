@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.source.hls;
 
+import static com.google.android.exoplayer2.source.hls.HlsChunkSource.CHUNK_PUBLICATION_STATE_PUBLISHED;
+import static com.google.android.exoplayer2.source.hls.HlsChunkSource.CHUNK_PUBLICATION_STATE_REMOVED;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -51,9 +53,10 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -328,7 +331,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     part of the track selection.
    */
   public boolean selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
@@ -355,11 +358,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 : positionUs != lastSeekPositionUs);
     // Get the old (i.e. current before the loop below executes) primary track selection. The new
     // primary selection will equal the old one unless it's changed in the loop.
-    TrackSelection oldPrimaryTrackSelection = chunkSource.getTrackSelection();
-    TrackSelection primaryTrackSelection = oldPrimaryTrackSelection;
+    ExoTrackSelection oldPrimaryTrackSelection = chunkSource.getTrackSelection();
+    ExoTrackSelection primaryTrackSelection = oldPrimaryTrackSelection;
     // Select new tracks.
     for (int i = 0; i < selections.length; i++) {
-      TrackSelection selection = selections[i];
+      ExoTrackSelection selection = selections[i];
       if (selection == null) {
         continue;
       }
@@ -504,6 +507,23 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return true;
   }
 
+  /** Called when the playlist is updated. */
+  public void onPlaylistUpdated() {
+    if (mediaChunks.isEmpty()) {
+      return;
+    }
+    HlsMediaChunk lastMediaChunk = Iterables.getLast(mediaChunks);
+    @HlsChunkSource.ChunkPublicationState
+    int chunkState = chunkSource.getChunkPublicationState(lastMediaChunk);
+    if (chunkState == CHUNK_PUBLICATION_STATE_PUBLISHED) {
+      lastMediaChunk.publish();
+    } else if (chunkState == CHUNK_PUBLICATION_STATE_REMOVED
+        && !loadingFinished
+        && loader.isLoading()) {
+      loader.cancelLoading();
+    }
+  }
+
   public void release() {
     if (prepared) {
       // Discard as much as we can synchronously. We only do this if we're prepared, since otherwise
@@ -576,6 +596,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       downstreamTrackFormat = trackFormat;
     }
 
+    if (!mediaChunks.isEmpty() && !mediaChunks.get(0).isPublished()) {
+      // Don't read into preload chunks until we can be sure they are permanently published.
+      return C.RESULT_NOTHING_READ;
+    }
+
     int result =
         sampleQueues[sampleQueueIndex].read(formatHolder, buffer, requireFormat, loadingFinished);
     if (result == C.RESULT_FORMAT_READ) {
@@ -605,6 +630,21 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     SampleQueue sampleQueue = sampleQueues[sampleQueueIndex];
     int skipCount = sampleQueue.getSkipCount(positionUs, loadingFinished);
+
+    // Ensure we don't skip into preload chunks until we can be sure they are permanently published.
+    int readIndex = sampleQueue.getReadIndex();
+    for (int i = 0; i < mediaChunks.size(); i++) {
+      HlsMediaChunk mediaChunk = mediaChunks.get(i);
+      int firstSampleIndex = mediaChunks.get(i).getFirstSampleIndex(sampleQueueIndex);
+      if (readIndex + skipCount <= firstSampleIndex) {
+        break;
+      }
+      if (!mediaChunk.isPublished()) {
+        skipCount = firstSampleIndex - readIndex;
+        break;
+      }
+    }
+
     sampleQueue.skip(skipCount);
     return skipCount;
   }
@@ -672,8 +712,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         /* allowEndOfStream= */ prepared || !chunkQueue.isEmpty(),
         nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
-    Chunk loadable = nextChunkHolder.chunk;
-    Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;
+    @Nullable Chunk loadable = nextChunkHolder.chunk;
+    @Nullable Uri playlistUrlToLoad = nextChunkHolder.playlistUrl;
     nextChunkHolder.clear();
 
     if (endOfStream) {
@@ -725,6 +765,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loader.cancelLoading();
       }
       return;
+    }
+
+    int newQueueSize = readOnlyMediaChunks.size();
+    while (newQueueSize > 0
+        && chunkSource.getChunkPublicationState(readOnlyMediaChunks.get(newQueueSize - 1))
+            == CHUNK_PUBLICATION_STATE_REMOVED) {
+      newQueueSize--;
+    }
+    if (newQueueSize < readOnlyMediaChunks.size()) {
+      discardUpstream(newQueueSize);
     }
 
     int preferredQueueSize = chunkSource.getPreferredQueueSize(positionUs, readOnlyMediaChunks);
@@ -805,8 +855,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       long loadDurationMs,
       IOException error,
       int errorCount) {
-    long bytesLoaded = loadable.bytesLoaded();
     boolean isMediaChunk = isMediaChunk(loadable);
+    if (isMediaChunk
+        && !((HlsMediaChunk) loadable).isPublished()
+        && error instanceof HttpDataSource.InvalidResponseCodeException) {
+      int responseCode = ((HttpDataSource.InvalidResponseCodeException) error).responseCode;
+      if (responseCode == 410 || responseCode == 404) {
+        // According to RFC 8216, Section 6.2.6 a server should respond with an HTTP 404 (Not found)
+        // for requests of hinted parts that are replaced and not available anymore. We've seen test
+        // streams with HTTP 410 (Gone) also.
+        return Loader.RETRY;
+      }
+    }
+    long bytesLoaded = loadable.bytesLoaded();
     boolean exclusionSucceeded = false;
     LoadEventInfo loadEventInfo =
         new LoadEventInfo(
@@ -980,7 +1041,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *
    * @param id The ID of the track.
    * @param type The type of the track, must be one of {@link #MAPPABLE_TYPES}.
-   * @return The the mapped {@link TrackOutput}, or null if it's not been created yet.
+   * @return The mapped {@link TrackOutput}, or null if it's not been created yet.
    */
   @Nullable
   private TrackOutput getMappedTrackOutput(int id, int type) {

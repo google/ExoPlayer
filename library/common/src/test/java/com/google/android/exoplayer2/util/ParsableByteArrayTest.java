@@ -20,6 +20,7 @@ import static java.nio.charset.Charset.forName;
 import static org.junit.Assert.fail;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.primitives.Bytes;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.junit.Test;
@@ -36,6 +37,36 @@ public final class ParsableByteArrayTest {
     ParsableByteArray testArray = new ParsableByteArray(TEST_DATA.length);
     System.arraycopy(TEST_DATA, 0, testArray.getData(), 0, TEST_DATA.length);
     return testArray;
+  }
+
+  @Test
+  public void ensureCapacity_doesntReallocateNeedlesslyAndPreservesPositionAndLimit() {
+    ParsableByteArray array = getTestDataArray();
+    byte[] dataBefore = array.getData();
+    byte[] copyOfDataBefore = dataBefore.clone();
+
+    array.setPosition(3);
+    array.setLimit(4);
+    array.ensureCapacity(array.capacity() - 1);
+
+    assertThat(array.getData()).isSameInstanceAs(dataBefore);
+    assertThat(array.getData()).isEqualTo(copyOfDataBefore);
+    assertThat(array.getPosition()).isEqualTo(3);
+    assertThat(array.limit()).isEqualTo(4);
+  }
+
+  @Test
+  public void ensureCapacity_preservesDataPositionAndLimitWhenReallocating() {
+    ParsableByteArray array = getTestDataArray();
+    byte[] copyOfDataBefore = array.getData().clone();
+
+    array.setPosition(3);
+    array.setLimit(4);
+    array.ensureCapacity(array.capacity() + 1);
+
+    assertThat(array.getData()).isEqualTo(Bytes.concat(copyOfDataBefore, new byte[] {0}));
+    assertThat(array.getPosition()).isEqualTo(3);
+    assertThat(array.limit()).isEqualTo(4);
   }
 
   @Test
@@ -481,6 +512,38 @@ public final class ParsableByteArrayTest {
     assertThat(parser.readNullTerminatedString()).isEqualTo("foo");
     assertThat(parser.readNullTerminatedString()).isEqualTo("bar");
     assertThat(parser.readNullTerminatedString()).isNull();
+  }
+
+  @Test
+  public void readDelimiterTerminatedString() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r', '*'};
+    // Test normal case.
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("bar");
+    assertThat(parser.getPosition()).isEqualTo(8);
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+
+    // Test with limit at delimiter.
+    parser = new ParsableByteArray(bytes, 4);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(4);
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+    // Test with limit before delimiter.
+    parser = new ParsableByteArray(bytes, 3);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.getPosition()).isEqualTo(3);
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
+  }
+
+  @Test
+  public void readDelimiterTerminatedStringWithoutEndingDelimiter() {
+    byte[] bytes = new byte[] {'f', 'o', 'o', '*', 'b', 'a', 'r'};
+    ParsableByteArray parser = new ParsableByteArray(bytes);
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("foo");
+    assertThat(parser.readDelimiterTerminatedString('*')).isEqualTo("bar");
+    assertThat(parser.readDelimiterTerminatedString('*')).isNull();
   }
 
   @Test

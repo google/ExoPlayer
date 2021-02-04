@@ -178,10 +178,10 @@ public interface Cache {
    * @param key The cache key of the resource.
    * @param position The starting position in the resource from which data is required.
    * @param length The length of the data being requested, or {@link C#LENGTH_UNSET} if unbounded.
-   *     The length is ignored in the case of a cache hit. In the case of a cache miss, it defines
-   *     the maximum length of the hole {@link CacheSpan} that's returned. Cache implementations may
-   *     support parallel writes into non-overlapping holes, and so passing the actual required
-   *     length should be preferred to passing {@link C#LENGTH_UNSET} when possible.
+   *     The length is ignored if there is a cache entry that overlaps the position. Else, it
+   *     defines the maximum length of the hole {@link CacheSpan} that's returned. Cache
+   *     implementations may support parallel writes into non-overlapping holes, and so passing the
+   *     actual required length should be preferred to passing {@link C#LENGTH_UNSET} when possible.
    * @return The {@link CacheSpan}.
    * @throws InterruptedException If the thread was interrupted.
    * @throws CacheException If an error is encountered.
@@ -199,8 +199,8 @@ public interface Cache {
    * @param key The cache key of the resource.
    * @param position The starting position in the resource from which data is required.
    * @param length The length of the data being requested, or {@link C#LENGTH_UNSET} if unbounded.
-   *     The length is ignored in the case of a cache hit. In the case of a cache miss, it defines
-   *     the range of data locked by the returned {@link CacheSpan}.
+   *     The length is ignored if there is a cache entry that overlaps the position. Else, it
+   *     defines the range of data locked by the returned {@link CacheSpan}.
    * @return The {@link CacheSpan}. Or null if the cache entry is locked.
    * @throws CacheException If an error is encountered.
    */

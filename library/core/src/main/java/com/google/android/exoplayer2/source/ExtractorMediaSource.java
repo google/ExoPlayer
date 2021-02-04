@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
@@ -122,17 +123,9 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
       return this;
     }
 
-    /** @deprecated Use {@link #setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy)} instead. */
-    @Deprecated
-    public Factory setMinLoadableRetryCount(int minLoadableRetryCount) {
-      return setLoadErrorHandlingPolicy(new DefaultLoadErrorHandlingPolicy(minLoadableRetryCount));
-    }
-
     /**
      * Sets the {@link LoadErrorHandlingPolicy}. The default value is created by calling {@link
      * DefaultLoadErrorHandlingPolicy#DefaultLoadErrorHandlingPolicy()}.
-     *
-     * <p>Calling this method overrides any calls to {@link #setMinLoadableRetryCount(int)}.
      *
      * @param loadErrorHandlingPolicy A {@link LoadErrorHandlingPolicy}.
      * @return This factory, for convenience.
@@ -160,6 +153,18 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
     public Factory setContinueLoadingCheckIntervalBytes(int continueLoadingCheckIntervalBytes) {
       this.continueLoadingCheckIntervalBytes = continueLoadingCheckIntervalBytes;
       return this;
+    }
+
+    /**
+     * @deprecated Use {@link
+     *     ProgressiveMediaSource.Factory#setDrmSessionManagerProvider(DrmSessionManagerProvider)}
+     *     instead.
+     */
+    @Deprecated
+    @Override
+    public Factory setDrmSessionManagerProvider(
+        @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+      throw new UnsupportedOperationException();
     }
 
     /** @deprecated Use {@link ProgressiveMediaSource.Factory#setDrmSessionManager} instead. */
@@ -212,20 +217,6 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
           customCacheKey,
           continueLoadingCheckIntervalBytes,
           mediaItem.playbackProperties.tag != null ? mediaItem.playbackProperties.tag : tag);
-    }
-
-    /**
-     * @deprecated Use {@link #createMediaSource(MediaItem)} and {@link #addEventListener(Handler,
-     *     MediaSourceEventListener)} instead.
-     */
-    @Deprecated
-    public ExtractorMediaSource createMediaSource(
-        Uri uri, @Nullable Handler eventHandler, @Nullable MediaSourceEventListener eventListener) {
-      ExtractorMediaSource mediaSource = createMediaSource(uri);
-      if (eventHandler != null && eventListener != null) {
-        mediaSource.addEventListener(eventHandler, eventListener);
-      }
-      return mediaSource;
     }
 
     @Override
@@ -346,7 +337,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
                 .build(),
             dataSourceFactory,
             extractorsFactory,
-            DrmSessionManager.getDummyDrmSessionManager(),
+            DrmSessionManager.DRM_UNSUPPORTED,
             loadableLoadErrorHandlingPolicy,
             continueLoadingCheckIntervalBytes);
   }

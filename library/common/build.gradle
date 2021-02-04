@@ -35,7 +35,9 @@ dependencies {
     testImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + mockWebServerVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils')
 }
 
 ext {

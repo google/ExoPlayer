@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.audio;
 
+import static com.google.android.exoplayer2.C.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.ADAPTIVE_NOT_SEAMLESS;
-import static com.google.android.exoplayer2.RendererCapabilities.FORMAT_HANDLED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_NOT_SUPPORTED;
 import static com.google.android.exoplayer2.RendererCapabilities.TUNNELING_SUPPORTED;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
+import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
@@ -68,7 +69,7 @@ public class DecoderAudioRendererTest {
           }
 
           @Override
-          @FormatSupport
+          @C.FormatSupport
           protected int supportsFormatInternal(Format format) {
             return FORMAT_HANDLED;
           }
@@ -102,15 +103,19 @@ public class DecoderAudioRendererTest {
 
   @Test
   public void immediatelyReadEndOfStreamPlaysAudioSinkToEndOfStream() throws Exception {
+    FakeSampleStream fakeSampleStream =
+        new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DRM_UNSUPPORTED,
+            new DrmSessionEventListener.EventDispatcher(),
+            FORMAT,
+            ImmutableList.of(END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
     audioRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
-        new FakeSampleStream(
-            /* mediaSourceEventDispatcher= */ null,
-            DrmSessionManager.DUMMY,
-            new DrmSessionEventListener.EventDispatcher(),
-            FORMAT,
-            ImmutableList.of(END_OF_STREAM_ITEM)),
+        fakeSampleStream,
         /* positionUs= */ 0,
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,

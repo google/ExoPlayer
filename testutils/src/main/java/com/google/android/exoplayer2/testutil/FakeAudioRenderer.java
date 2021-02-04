@@ -29,7 +29,6 @@ public class FakeAudioRenderer extends FakeRenderer {
 
   private final AudioRendererEventListener.EventDispatcher eventDispatcher;
   private final DecoderCounters decoderCounters;
-  private boolean notifiedAudioSessionId;
   private boolean notifiedPositionAdvancing;
 
   public FakeAudioRenderer(Handler handler, AudioRendererEventListener eventListener) {
@@ -43,7 +42,6 @@ public class FakeAudioRenderer extends FakeRenderer {
       throws ExoPlaybackException {
     super.onEnabled(joining, mayRenderStartOfStream);
     eventDispatcher.enabled(decoderCounters);
-    notifiedAudioSessionId = false;
     notifiedPositionAdvancing = false;
   }
 
@@ -55,7 +53,7 @@ public class FakeAudioRenderer extends FakeRenderer {
 
   @Override
   protected void onFormatChanged(Format format) {
-    eventDispatcher.inputFormatChanged(format);
+    eventDispatcher.inputFormatChanged(format, /* decoderReuseEvaluation= */ null);
     eventDispatcher.decoderInitialized(
         /* decoderName= */ "fake.audio.decoder",
         /* initializedTimestampMs= */ SystemClock.elapsedRealtime(),
@@ -65,10 +63,6 @@ public class FakeAudioRenderer extends FakeRenderer {
   @Override
   protected boolean shouldProcessBuffer(long bufferTimeUs, long playbackPositionUs) {
     boolean shouldProcess = super.shouldProcessBuffer(bufferTimeUs, playbackPositionUs);
-    if (shouldProcess && !notifiedAudioSessionId) {
-      eventDispatcher.audioSessionId(/* audioSessionId= */ 1);
-      notifiedAudioSessionId = true;
-    }
     if (shouldProcess && !notifiedPositionAdvancing) {
       eventDispatcher.positionAdvancing(System.currentTimeMillis());
       notifiedPositionAdvancing = true;

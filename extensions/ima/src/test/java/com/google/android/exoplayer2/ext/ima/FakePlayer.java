@@ -21,25 +21,32 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.testutil.StubExoPlayer;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import java.util.ArrayList;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ListenerSet;
 
 /** A fake player for testing content/ad playback. */
 /* package */ final class FakePlayer extends StubExoPlayer {
 
-  private final ArrayList<Player.EventListener> listeners;
+  private final ListenerSet<EventListener, Events> listeners;
   private final Timeline.Period period;
-  private final Timeline timeline;
 
+  private Timeline timeline;
   @Player.State private int state;
   private boolean playWhenReady;
-  private long position;
-  private long contentPosition;
+  private int periodIndex;
+  private long positionMs;
+  private long contentPositionMs;
   private boolean isPlayingAd;
   private int adGroupIndex;
   private int adIndexInAdGroup;
 
   public FakePlayer() {
-    listeners = new ArrayList<>();
+    listeners =
+        new ListenerSet<>(
+            Looper.getMainLooper(),
+            Clock.DEFAULT,
+            Player.Events::new,
+            (listener, eventFlags) -> listener.onEvents(/* player= */ this, eventFlags));
     period = new Timeline.Period();
     state = Player.STATE_IDLE;
     playWhenReady = true;
@@ -48,26 +55,27 @@ import java.util.ArrayList;
 
   /** Sets the timeline on this fake player, which notifies listeners with the changed timeline. */
   public void updateTimeline(Timeline timeline, @TimelineChangeReason int reason) {
-    for (Player.EventListener listener : listeners) {
-      listener.onTimelineChanged(timeline, reason);
-    }
+    this.timeline = timeline;
+    listeners.sendEvent(
+        Player.EVENT_TIMELINE_CHANGED, listener -> listener.onTimelineChanged(timeline, reason));
   }
 
   /**
    * Sets the state of this player as if it were playing content at the given {@code position}. If
    * an ad is currently playing, this will trigger a position discontinuity.
    */
-  public void setPlayingContentPosition(long position) {
+  public void setPlayingContentPosition(int periodIndex, long positionMs) {
     boolean notify = isPlayingAd;
     isPlayingAd = false;
     adGroupIndex = C.INDEX_UNSET;
     adIndexInAdGroup = C.INDEX_UNSET;
-    this.position = position;
-    contentPosition = position;
+    this.periodIndex = periodIndex;
+    this.positionMs = positionMs;
+    contentPositionMs = positionMs;
     if (notify) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION);
-      }
+      listeners.sendEvent(
+          Player.EVENT_POSITION_DISCONTINUITY,
+          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION));
     }
   }
 
@@ -77,17 +85,22 @@ import java.util.ArrayList;
    * position discontinuity.
    */
   public void setPlayingAdPosition(
-      int adGroupIndex, int adIndexInAdGroup, long position, long contentPosition) {
+      int periodIndex,
+      int adGroupIndex,
+      int adIndexInAdGroup,
+      long positionMs,
+      long contentPositionMs) {
     boolean notify = !isPlayingAd || this.adIndexInAdGroup != adIndexInAdGroup;
     isPlayingAd = true;
+    this.periodIndex = periodIndex;
     this.adGroupIndex = adGroupIndex;
     this.adIndexInAdGroup = adIndexInAdGroup;
-    this.position = position;
-    this.contentPosition = contentPosition;
+    this.positionMs = positionMs;
+    this.contentPositionMs = contentPositionMs;
     if (notify) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION);
-      }
+      listeners.sendEvent(
+          EVENT_POSITION_DISCONTINUITY,
+          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION));
     }
   }
 
@@ -99,16 +112,18 @@ import java.util.ArrayList;
     this.state = state;
     this.playWhenReady = playWhenReady;
     if (playbackStateChanged || playWhenReadyChanged) {
-      for (Player.EventListener listener : listeners) {
-        listener.onPlayerStateChanged(playWhenReady, state);
-        if (playbackStateChanged) {
-          listener.onPlaybackStateChanged(state);
-        }
-        if (playWhenReadyChanged) {
-          listener.onPlayWhenReadyChanged(
-              playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
-        }
-      }
+      listeners.sendEvent(
+          Player.EVENT_PLAYBACK_STATE_CHANGED,
+          listener -> {
+            listener.onPlayerStateChanged(playWhenReady, state);
+            if (playbackStateChanged) {
+              listener.onPlaybackStateChanged(state);
+            }
+            if (playWhenReadyChanged) {
+              listener.onPlayWhenReadyChanged(
+                  playWhenReady, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+            }
+          });
     }
   }
 
@@ -146,6 +161,17 @@ import java.util.ArrayList;
   }
 
   @Override
+  @RepeatMode
+  public int getRepeatMode() {
+    return REPEAT_MODE_OFF;
+  }
+
+  @Override
+  public boolean getShuffleModeEnabled() {
+    return false;
+  }
+
+  @Override
   public int getRendererCount() {
     return 0;
   }
@@ -162,7 +188,7 @@ import java.util.ArrayList;
 
   @Override
   public int getCurrentPeriodIndex() {
-    return 0;
+    return periodIndex;
   }
 
   @Override
@@ -186,7 +212,7 @@ import java.util.ArrayList;
 
   @Override
   public long getCurrentPosition() {
-    return position;
+    return positionMs;
   }
 
   @Override
@@ -206,6 +232,6 @@ import java.util.ArrayList;
 
   @Override
   public long getContentPosition() {
-    return contentPosition;
+    return contentPositionMs;
   }
 }

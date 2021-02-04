@@ -113,6 +113,15 @@ public interface ControlDispatcher {
    */
   boolean dispatchStop(Player player, boolean reset);
 
+  /**
+   * Dispatches a {@link Player#setPlaybackParameters(PlaybackParameters)} operation.
+   *
+   * @param player The {@link Player} to which the operation should be dispatched.
+   * @param playbackParameters The playback parameters.
+   * @return True if the operation was dispatched. False if suppressed.
+   */
+  boolean dispatchSetPlaybackParameters(Player player, PlaybackParameters playbackParameters);
+
   /** Returns {@code true} if rewind is enabled, {@code false} otherwise. */
   boolean isRewindEnabled();
 

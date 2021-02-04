@@ -374,7 +374,7 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
           /* isSeekable= */ false,
           // Dynamic window to indicate pending timeline updates.
           /* isDynamic= */ true,
-          /* isLive= */ false,
+          /* liveConfiguration= */ null,
           /* defaultPositionUs= */ 0,
           /* durationUs= */ C.TIME_UNSET,
           /* firstPeriodIndex= */ 0,

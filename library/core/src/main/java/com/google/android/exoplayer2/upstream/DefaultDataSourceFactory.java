@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import static com.google.android.exoplayer2.ExoPlayerLibraryInfo.DEFAULT_USER_AGENT;
-
 import android.content.Context;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.upstream.DataSource.Factory;
@@ -37,16 +35,17 @@ public final class DefaultDataSourceFactory implements Factory {
    * @param context A context.
    */
   public DefaultDataSourceFactory(Context context) {
-    this(context, DEFAULT_USER_AGENT, /* listener= */ null);
+    this(context, /* userAgent= */ (String) null, /* listener= */ null);
   }
 
   /**
    * Creates an instance.
    *
    * @param context A context.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent The user agent that will be used when requesting remote data, or {@code null}
+   *     to use the default user agent of the underlying platform.
    */
-  public DefaultDataSourceFactory(Context context, String userAgent) {
+  public DefaultDataSourceFactory(Context context, @Nullable String userAgent) {
     this(context, userAgent, /* listener= */ null);
   }
 
@@ -54,12 +53,13 @@ public final class DefaultDataSourceFactory implements Factory {
    * Creates an instance.
    *
    * @param context A context.
-   * @param userAgent The User-Agent string that should be used.
+   * @param userAgent The user agent that will be used when requesting remote data, or {@code null}
+   *     to use the default user agent of the underlying platform.
    * @param listener An optional listener.
    */
   public DefaultDataSourceFactory(
-      Context context, String userAgent, @Nullable TransferListener listener) {
-    this(context, listener, new DefaultHttpDataSourceFactory(userAgent, listener));
+      Context context, @Nullable String userAgent, @Nullable TransferListener listener) {
+    this(context, listener, new DefaultHttpDataSource.Factory().setUserAgent(userAgent));
   }
 
   /**

@@ -15,172 +15,124 @@
  */
 package com.google.android.exoplayer2.mediacodec;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.util.Assertions;
 import java.nio.ByteBuffer;
 
-/** Buffer that stores multiple encoded access units to allow batch processing. */
+/** Buffer to which multiple sample buffers can be appended for batch processing */
 /* package */ final class BatchBuffer extends DecoderInputBuffer {
-  /** Arbitrary limit to the number of access unit in a full batch buffer. */
-  public static final int DEFAULT_BATCH_SIZE_ACCESS_UNITS = 32;
+
+  /** The default maximum number of samples that can be appended before the buffer is full. */
+  public static final int DEFAULT_MAX_SAMPLE_COUNT = 32;
   /**
-   * Arbitrary limit to the memory used by a full batch buffer to avoid using too much memory for
-   * very high bitrate. Equivalent of 75s of mp3 at highest bitrate (320kb/s) and 30s of AAC LC at
-   * highest bitrate (800kb/s). That limit is ignored for the first access unit to avoid stalling
-   * stream with huge access units.
+   * The maximum size of the buffer in bytes. This prevents excessive memory usage for high bitrate
+   * streams. The limit is equivalent of 75s of mp3 at highest bitrate (320kb/s) and 30s of AAC LC
+   * at highest bitrate (800kb/s). That limit is ignored for the first sample.
    */
-  private static final int BATCH_SIZE_BYTES = 3 * 1000 * 1024;
+  @VisibleForTesting /* package */ static final int MAX_SIZE_BYTES = 3 * 1000 * 1024;
 
-  private final DecoderInputBuffer nextAccessUnitBuffer;
-  private boolean hasPendingAccessUnit;
-
-  private long firstAccessUnitTimeUs;
-  private int accessUnitCount;
-  private int maxAccessUnitCount;
+  private long lastSampleTimeUs;
+  private int sampleCount;
+  private int maxSampleCount;
 
   public BatchBuffer() {
     super(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
-    nextAccessUnitBuffer =
-        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
-    clear();
+    maxSampleCount = DEFAULT_MAX_SAMPLE_COUNT;
   }
 
-  /** Sets the maximum number of access units the buffer can contain before being full. */
-  public void setMaxAccessUnitCount(@IntRange(from = 1) int maxAccessUnitCount) {
-    Assertions.checkArgument(maxAccessUnitCount > 0);
-    this.maxAccessUnitCount = maxAccessUnitCount;
-  }
-
-  /** Gets the maximum number of access units the buffer can contain before being full. */
-  public int getMaxAccessUnitCount() {
-    return maxAccessUnitCount;
-  }
-
-  /** Resets the state of this object to what it was after construction. */
   @Override
   public void clear() {
-    flush();
-    maxAccessUnitCount = DEFAULT_BATCH_SIZE_ACCESS_UNITS;
+    super.clear();
+    sampleCount = 0;
   }
 
-  /** Clear all access units from the BatchBuffer to empty it. */
-  public void flush() {
-    clearMainBuffer();
-    nextAccessUnitBuffer.clear();
-    hasPendingAccessUnit = false;
-  }
-
-  /** Clears the state of the batch buffer to be ready to receive a new sequence of access units. */
-  public void batchWasConsumed() {
-    clearMainBuffer();
-    if (hasPendingAccessUnit) {
-      putAccessUnit(nextAccessUnitBuffer);
-      hasPendingAccessUnit = false;
-    }
+  /** Sets the maximum number of samples that can be appended before the buffer is full. */
+  public void setMaxSampleCount(@IntRange(from = 1) int maxSampleCount) {
+    checkArgument(maxSampleCount > 0);
+    this.maxSampleCount = maxSampleCount;
   }
 
   /**
-   * Gets the buffer to fill-out that will then be append to the batch buffer with {@link
-   * #commitNextAccessUnit()}.
+   * Returns the timestamp of the first sample in the buffer. The return value is undefined if
+   * {@link #hasSamples()} is {@code false}.
    */
-  public DecoderInputBuffer getNextAccessUnitBuffer() {
-    return nextAccessUnitBuffer;
-  }
-
-  /** Gets the timestamp of the first access unit in the buffer. */
-  public long getFirstAccessUnitTimeUs() {
-    return firstAccessUnitTimeUs;
-  }
-
-  /** Gets the timestamp of the last access unit in the buffer. */
-  public long getLastAccessUnitTimeUs() {
+  public long getFirstSampleTimeUs() {
     return timeUs;
   }
 
-  /** Gets the number of access units contained in this batch buffer. */
-  public int getAccessUnitCount() {
-    return accessUnitCount;
+  /**
+   * Returns the timestamp of the last sample in the buffer. The return value is undefined if {@link
+   * #hasSamples()} is {@code false}.
+   */
+  public long getLastSampleTimeUs() {
+    return lastSampleTimeUs;
   }
 
-  /** If the buffer contains no access units. */
-  public boolean isEmpty() {
-    return accessUnitCount == 0;
+  /** Returns the number of samples in the buffer. */
+  public int getSampleCount() {
+    return sampleCount;
   }
 
-  /** If more access units should be added to the batch buffer. */
-  public boolean isFull() {
-    return accessUnitCount >= maxAccessUnitCount
-        || (data != null && data.position() >= BATCH_SIZE_BYTES)
-        || hasPendingAccessUnit;
+  /** Returns whether the buffer contains one or more samples. */
+  public boolean hasSamples() {
+    return sampleCount > 0;
   }
 
   /**
-   * Appends the staged access unit in this batch buffer.
+   * Attempts to append the provided buffer.
    *
-   * @throws IllegalStateException If calling this method on a full or end of stream batch buffer.
-   * @throws IllegalArgumentException If the {@code accessUnit} is encrypted or has
-   *     supplementalData, as batching of those state has not been implemented.
+   * @param buffer The buffer to try and append.
+   * @return Whether the buffer was successfully appended.
+   * @throws IllegalArgumentException If the {@code buffer} is encrypted, has supplemental data, or
+   *     is an end of stream buffer, none of which are supported.
    */
-  public void commitNextAccessUnit() {
-    DecoderInputBuffer accessUnit = nextAccessUnitBuffer;
-    Assertions.checkState(!isFull() && !isEndOfStream());
-    Assertions.checkArgument(!accessUnit.isEncrypted() && !accessUnit.hasSupplementalData());
-    if (!canBatch(accessUnit)) {
-      hasPendingAccessUnit = true; // Delay the putAccessUnit until the batch buffer is empty.
-      return;
+  public boolean append(DecoderInputBuffer buffer) {
+    checkArgument(!buffer.isEncrypted());
+    checkArgument(!buffer.hasSupplementalData());
+    checkArgument(!buffer.isEndOfStream());
+    if (!canAppendSampleBuffer(buffer)) {
+      return false;
     }
-    putAccessUnit(accessUnit);
-  }
-
-  private boolean canBatch(DecoderInputBuffer accessUnit) {
-    if (isEmpty()) {
-      return true; // Batching with an empty batch must always succeed or the stream will stall.
+    if (sampleCount++ == 0) {
+      timeUs = buffer.timeUs;
+      if (buffer.isKeyFrame()) {
+        setFlags(C.BUFFER_FLAG_KEY_FRAME);
+      }
     }
-    if (accessUnit.isDecodeOnly() != isDecodeOnly()) {
-      return false; // Decode only and non decode only access units can not be batched together.
+    if (buffer.isDecodeOnly()) {
+      setFlags(C.BUFFER_FLAG_DECODE_ONLY);
     }
-
-    @Nullable ByteBuffer accessUnitData = accessUnit.data;
-    if (accessUnitData != null
-        && this.data != null
-        && this.data.position() + accessUnitData.limit() >= BATCH_SIZE_BYTES) {
-      return false; // The batch buffer does not have the capacity to add this access unit.
+    @Nullable ByteBuffer bufferData = buffer.data;
+    if (bufferData != null) {
+      ensureSpaceForWrite(bufferData.remaining());
+      data.put(bufferData);
     }
+    lastSampleTimeUs = buffer.timeUs;
     return true;
   }
 
-  private void putAccessUnit(DecoderInputBuffer accessUnit) {
-    if (accessUnit.isEndOfStream()) {
-      setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-    } else {
-      timeUs = accessUnit.timeUs;
-      if (accessUnit.isDecodeOnly()) {
-        setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-      }
-      if (accessUnit.isKeyFrame()) {
-        setFlags(C.BUFFER_FLAG_KEY_FRAME);
-      }
-      @Nullable ByteBuffer accessUnitData = accessUnit.data;
-      if (accessUnitData != null) {
-        accessUnit.flip();
-        ensureSpaceForWrite(accessUnitData.remaining());
-        this.data.put(accessUnitData);
-      }
-      accessUnitCount++;
-      if (accessUnitCount == 1) {
-        firstAccessUnitTimeUs = timeUs;
-      }
+  private boolean canAppendSampleBuffer(DecoderInputBuffer buffer) {
+    if (!hasSamples()) {
+      // Always allow appending when the buffer is empty, else no progress can be made.
+      return true;
     }
-    accessUnit.clear();
-  }
-
-  private void clearMainBuffer() {
-    super.clear();
-    accessUnitCount = 0;
-    firstAccessUnitTimeUs = C.TIME_UNSET;
-    timeUs = C.TIME_UNSET;
+    if (sampleCount >= maxSampleCount) {
+      return false;
+    }
+    if (buffer.isDecodeOnly() != isDecodeOnly()) {
+      return false;
+    }
+    @Nullable ByteBuffer bufferData = buffer.data;
+    if (bufferData != null
+        && data != null
+        && data.position() + bufferData.remaining() > MAX_SIZE_BYTES) {
+      return false;
+    }
+    return true;
   }
 }

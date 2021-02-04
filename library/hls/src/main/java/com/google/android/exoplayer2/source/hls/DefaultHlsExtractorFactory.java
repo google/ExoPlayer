@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.source.hls;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
@@ -125,6 +126,8 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         return new BundledHlsMediaChunkExtractor(extractor, format, timestampAdjuster);
       }
       if (fileType == FileTypes.TS) {
+        // Fall back on TsExtractor to handle TS streams with an EXT-X-MAP tag. See
+        // https://github.com/google/ExoPlayer/issues/8219.
         fallBackExtractor = extractor;
       }
     }
@@ -141,6 +144,7 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     fileTypes.add(fileType);
   }
 
+  @SuppressLint("SwitchIntDef") // HLS only supports a small subset of the defined file types.
   @Nullable
   private Extractor createExtractorByFileType(
       @FileTypes.Type int fileType,

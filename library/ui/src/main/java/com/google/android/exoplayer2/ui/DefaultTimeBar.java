@@ -157,8 +157,6 @@ public class DefaultTimeBar extends View implements TimeBar {
   public static final int BAR_GRAVITY_CENTER = 0;
   /** Vertical gravity for progress bar to be located at the bottom in the view. */
   public static final int BAR_GRAVITY_BOTTOM = 1;
-  /** Vertical gravity for progress bar to be located at the top in the view. */
-  public static final int BAR_GRAVITY_TOP = 2;
   // LINT.ThenChange(../../../../../../../../../ui/src/main/res/values/attrs.xml)
 
   /** The threshold in dps above the bar at which touch events trigger fine scrub mode. */
@@ -216,6 +214,7 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   private ValueAnimator scrubberScalingAnimator;
   private float scrubberScale;
+  private boolean scrubberPaddingDisabled;
   private boolean scrubbing;
   private long scrubPosition;
   private long duration;
@@ -370,7 +369,12 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   /** Shows the scrubber handle. */
   public void showScrubber() {
-    showScrubber(/* showAnimationDurationMs= */ 0);
+    if (scrubberScalingAnimator.isStarted()) {
+      scrubberScalingAnimator.cancel();
+    }
+    scrubberPaddingDisabled = false;
+    scrubberScale = 1;
+    invalidate(seekBounds);
   }
 
   /**
@@ -382,14 +386,20 @@ public class DefaultTimeBar extends View implements TimeBar {
     if (scrubberScalingAnimator.isStarted()) {
       scrubberScalingAnimator.cancel();
     }
+    scrubberPaddingDisabled = false;
     scrubberScalingAnimator.setFloatValues(scrubberScale, SHOWN_SCRUBBER_SCALE);
     scrubberScalingAnimator.setDuration(showAnimationDurationMs);
     scrubberScalingAnimator.start();
   }
 
   /** Hides the scrubber handle. */
-  public void hideScrubber() {
-    hideScrubber(/* hideAnimationDurationMs= */ 0);
+  public void hideScrubber(boolean disableScrubberPadding) {
+    if (scrubberScalingAnimator.isStarted()) {
+      scrubberScalingAnimator.cancel();
+    }
+    scrubberPaddingDisabled = disableScrubberPadding;
+    scrubberScale = 0;
+    invalidate(seekBounds);
   }
 
   /**
@@ -668,20 +678,25 @@ public class DefaultTimeBar extends View implements TimeBar {
   protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
     int width = right - left;
     int height = bottom - top;
-    int barY = (height - touchTargetHeight) / 2;
     int seekLeft = getPaddingLeft();
     int seekRight = width - getPaddingRight();
-    int progressY;
+    int seekBoundsY;
+    int progressBarY;
+    int scrubberPadding = scrubberPaddingDisabled ? 0 : this.scrubberPadding;
     if (barGravity == BAR_GRAVITY_BOTTOM) {
-      progressY = barY + touchTargetHeight - (getPaddingBottom() + scrubberPadding + barHeight / 2);
-    } else if (barGravity == BAR_GRAVITY_TOP) {
-      progressY = barY + getPaddingTop() + scrubberPadding - barHeight / 2;
+      seekBoundsY = height - getPaddingBottom() - touchTargetHeight;
+      progressBarY =
+          height - getPaddingBottom() - barHeight - Math.max(scrubberPadding - (barHeight / 2), 0);
     } else {
-      progressY = barY + (touchTargetHeight - barHeight) / 2;
+      seekBoundsY = (height - touchTargetHeight) / 2;
+      progressBarY = (height - barHeight) / 2;
     }
-    seekBounds.set(seekLeft, barY, seekRight, barY + touchTargetHeight);
-    progressBar.set(seekBounds.left + scrubberPadding, progressY,
-        seekBounds.right - scrubberPadding, progressY + barHeight);
+    seekBounds.set(seekLeft, seekBoundsY, seekRight, seekBoundsY + touchTargetHeight);
+    progressBar.set(
+        seekBounds.left + scrubberPadding,
+        progressBarY,
+        seekBounds.right - scrubberPadding,
+        progressBarY + barHeight);
     if (Util.SDK_INT >= 29) {
       setSystemGestureExclusionRectsV29(width, height);
     }

@@ -23,6 +23,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
+import java.util.UUID;
 
 /** A DRM session. */
 public interface DrmSession {
@@ -66,12 +67,11 @@ public interface DrmSession {
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({STATE_RELEASED, STATE_ERROR, STATE_OPENING, STATE_OPENED, STATE_OPENED_WITH_KEYS})
   @interface State {}
-  /**
-   * The session has been released.
-   */
+  /** The session has been released. This is a terminal state. */
   int STATE_RELEASED = 0;
   /**
    * The session has encountered an error. {@link #getError()} can be used to retrieve the cause.
+   * This is a terminal state.
    */
   int STATE_ERROR = 1;
   /**
@@ -101,6 +101,9 @@ public interface DrmSession {
    */
   @Nullable
   DrmSessionException getError();
+
+  /** Returns the DRM scheme UUID for this session. */
+  UUID getSchemeUuid();
 
   /**
    * Returns an {@link ExoMediaCrypto} for the open session, or null if called before the session

@@ -15,13 +15,16 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import android.content.Context;
-import android.net.Uri;
+import android.util.Pair;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -72,41 +75,44 @@ import java.util.List;
  *
  * <h3>Ad support for media items with ad tag URIs</h3>
  *
- * <p>To support media items with {@link MediaItem.PlaybackProperties#adTagUri ad tag URIs}, {@link
- * #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to configure the factory
- * with the required providers.
+ * <p>To support media items with {@link MediaItem.PlaybackProperties#adsConfiguration ads
+ * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
+ * configure the factory with the required providers.
  */
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
    * Provides {@link AdsLoader} instances for media items that have {@link
-   * MediaItem.PlaybackProperties#adTagUri ad tag URIs}.
+   * MediaItem.PlaybackProperties#adsConfiguration ad tag URIs}.
    */
   public interface AdsLoaderProvider {
 
     /**
-     * Returns an {@link AdsLoader} for the given {@link MediaItem.PlaybackProperties#adTagUri ad
-     * tag URI}, or null if no ads loader is available for the given ad tag URI.
+     * Returns an {@link AdsLoader} for the given {@link
+     * MediaItem.PlaybackProperties#adsConfiguration ads configuration}, or {@code null} if no ads
+     * loader is available for the given ads configuration.
      *
      * <p>This method is called each time a {@link MediaSource} is created from a {@link MediaItem}
-     * that defines an {@link MediaItem.PlaybackProperties#adTagUri ad tag URI}.
+     * that defines an {@link MediaItem.PlaybackProperties#adsConfiguration ads configuration}.
      */
     @Nullable
-    AdsLoader getAdsLoader(Uri adTagUri);
+    AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration);
   }
 
   private static final String TAG = "DefaultMediaSourceFactory";
 
-  private final MediaSourceDrmHelper mediaSourceDrmHelper;
   private final DataSource.Factory dataSourceFactory;
   private final SparseArray<MediaSourceFactory> mediaSourceFactories;
   @C.ContentType private final int[] supportedTypes;
 
   @Nullable private AdsLoaderProvider adsLoaderProvider;
   @Nullable private AdViewProvider adViewProvider;
-  @Nullable private DrmSessionManager drmSessionManager;
-  @Nullable private List<StreamKey> streamKeys;
   @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
+  private long liveTargetOffsetMs;
+  private long liveMinOffsetMs;
+  private long liveMaxOffsetMs;
+  private float liveMinSpeed;
+  private float liveMaxSpeed;
 
   /**
    * Creates a new instance.
@@ -149,17 +155,21 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory(
       DataSource.Factory dataSourceFactory, ExtractorsFactory extractorsFactory) {
     this.dataSourceFactory = dataSourceFactory;
-    mediaSourceDrmHelper = new MediaSourceDrmHelper();
     mediaSourceFactories = loadDelegates(dataSourceFactory, extractorsFactory);
     supportedTypes = new int[mediaSourceFactories.size()];
     for (int i = 0; i < mediaSourceFactories.size(); i++) {
       supportedTypes[i] = mediaSourceFactories.keyAt(i);
     }
+    liveTargetOffsetMs = C.TIME_UNSET;
+    liveMinOffsetMs = C.TIME_UNSET;
+    liveMaxOffsetMs = C.TIME_UNSET;
+    liveMinSpeed = C.RATE_UNSET;
+    liveMaxSpeed = C.RATE_UNSET;
   }
 
   /**
    * Sets the {@link AdsLoaderProvider} that provides {@link AdsLoader} instances for media items
-   * that have {@link MediaItem.PlaybackProperties#adTagUri ad tag URIs}.
+   * that have {@link MediaItem.PlaybackProperties#adsConfiguration ads configurations}.
    *
    * @param adsLoaderProvider A provider for {@link AdsLoader} instances.
    * @return This factory, for convenience.
@@ -181,23 +191,101 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return this;
   }
 
+  /**
+   * Sets the target live offset for live streams, in milliseconds.
+   *
+   * @param liveTargetOffsetMs The target live offset, in milliseconds, or {@link C#TIME_UNSET} to
+   *     use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveTargetOffsetMs(long liveTargetOffsetMs) {
+    this.liveTargetOffsetMs = liveTargetOffsetMs;
+    return this;
+  }
+
+  /**
+   * Sets the minimum offset from the live edge for live streams, in milliseconds.
+   *
+   * @param liveMinOffsetMs The minimum allowed live offset, in milliseconds, or {@link
+   *     C#TIME_UNSET} to use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMinOffsetMs(long liveMinOffsetMs) {
+    this.liveMinOffsetMs = liveMinOffsetMs;
+    return this;
+  }
+
+  /**
+   * Sets the maximum offset from the live edge for live streams, in milliseconds.
+   *
+   * @param liveMaxOffsetMs The maximum allowed live offset, in milliseconds, or {@link
+   *     C#TIME_UNSET} to use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMaxOffsetMs(long liveMaxOffsetMs) {
+    this.liveMaxOffsetMs = liveMaxOffsetMs;
+    return this;
+  }
+
+  /**
+   * Sets the minimum playback speed for live streams.
+   *
+   * @param minSpeed The minimum factor by which playback can be sped up for live streams, or {@link
+   *     C#RATE_UNSET} to use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMinSpeed(float minSpeed) {
+    this.liveMinSpeed = minSpeed;
+    return this;
+  }
+
+  /**
+   * Sets the maximum playback speed for live streams.
+   *
+   * @param maxSpeed The maximum factor by which playback can be sped up for live streams, or {@link
+   *     C#RATE_UNSET} to use the media-defined default.
+   * @return This factory, for convenience.
+   */
+  public DefaultMediaSourceFactory setLiveMaxSpeed(float maxSpeed) {
+    this.liveMaxSpeed = maxSpeed;
+    return this;
+  }
+
+  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
   @Override
   public DefaultMediaSourceFactory setDrmHttpDataSourceFactory(
       @Nullable HttpDataSource.Factory drmHttpDataSourceFactory) {
-    mediaSourceDrmHelper.setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+    for (int i = 0; i < mediaSourceFactories.size(); i++) {
+      mediaSourceFactories.valueAt(i).setDrmHttpDataSourceFactory(drmHttpDataSourceFactory);
+    }
     return this;
   }
 
+  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
   @Override
   public DefaultMediaSourceFactory setDrmUserAgent(@Nullable String userAgent) {
-    mediaSourceDrmHelper.setDrmUserAgent(userAgent);
+    for (int i = 0; i < mediaSourceFactories.size(); i++) {
+      mediaSourceFactories.valueAt(i).setDrmUserAgent(userAgent);
+    }
     return this;
   }
 
+  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
   @Override
   public DefaultMediaSourceFactory setDrmSessionManager(
       @Nullable DrmSessionManager drmSessionManager) {
-    this.drmSessionManager = drmSessionManager;
+    for (int i = 0; i < mediaSourceFactories.size(); i++) {
+      mediaSourceFactories.valueAt(i).setDrmSessionManager(drmSessionManager);
+    }
+    return this;
+  }
+
+  @Override
+  public DefaultMediaSourceFactory setDrmSessionManagerProvider(
+      @Nullable DrmSessionManagerProvider drmSessionManagerProvider) {
+    for (int i = 0; i < mediaSourceFactories.size(); i++) {
+      mediaSourceFactories.valueAt(i).setDrmSessionManagerProvider(drmSessionManagerProvider);
+    }
     return this;
   }
 
@@ -205,6 +293,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
   public DefaultMediaSourceFactory setLoadErrorHandlingPolicy(
       @Nullable LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
+    for (int i = 0; i < mediaSourceFactories.size(); i++) {
+      mediaSourceFactories.valueAt(i).setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+    }
     return this;
   }
 
@@ -212,11 +303,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
    * @deprecated Use {@link MediaItem.Builder#setStreamKeys(List)} and {@link
    *     #createMediaSource(MediaItem)} instead.
    */
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings("deprecation") // Calling through to the same deprecated method.
   @Deprecated
   @Override
   public DefaultMediaSourceFactory setStreamKeys(@Nullable List<StreamKey> streamKeys) {
-    this.streamKeys = streamKeys != null && !streamKeys.isEmpty() ? streamKeys : null;
+    for (int i = 0; i < mediaSourceFactories.size(); i++) {
+      mediaSourceFactories.valueAt(i).setStreamKeys(streamKeys);
+    }
     return this;
   }
 
@@ -225,7 +318,6 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     return Arrays.copyOf(supportedTypes, supportedTypes.length);
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public MediaSource createMediaSource(MediaItem mediaItem) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
@@ -236,17 +328,46 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     @Nullable MediaSourceFactory mediaSourceFactory = mediaSourceFactories.get(type);
     Assertions.checkNotNull(
         mediaSourceFactory, "No suitable media source factory found for content type: " + type);
-    mediaSourceFactory.setDrmSessionManager(
-        drmSessionManager != null ? drmSessionManager : mediaSourceDrmHelper.create(mediaItem));
-    mediaSourceFactory.setStreamKeys(
-        !mediaItem.playbackProperties.streamKeys.isEmpty()
-            ? mediaItem.playbackProperties.streamKeys
-            : streamKeys);
-    mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
 
+    // Make sure to retain the very same media item instance, if no value needs to be overridden.
+    if ((mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
+            && liveTargetOffsetMs != C.TIME_UNSET)
+        || (mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
+            && liveMinSpeed != C.RATE_UNSET)
+        || (mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
+            && liveMaxSpeed != C.RATE_UNSET)
+        || (mediaItem.liveConfiguration.minOffsetMs == C.TIME_UNSET
+            && liveMinOffsetMs != C.TIME_UNSET)
+        || (mediaItem.liveConfiguration.maxOffsetMs == C.TIME_UNSET
+            && liveMaxOffsetMs != C.TIME_UNSET)) {
+      mediaItem =
+          mediaItem
+              .buildUpon()
+              .setLiveTargetOffsetMs(
+                  mediaItem.liveConfiguration.targetOffsetMs == C.TIME_UNSET
+                      ? liveTargetOffsetMs
+                      : mediaItem.liveConfiguration.targetOffsetMs)
+              .setLiveMinPlaybackSpeed(
+                  mediaItem.liveConfiguration.minPlaybackSpeed == C.RATE_UNSET
+                      ? liveMinSpeed
+                      : mediaItem.liveConfiguration.minPlaybackSpeed)
+              .setLiveMaxPlaybackSpeed(
+                  mediaItem.liveConfiguration.maxPlaybackSpeed == C.RATE_UNSET
+                      ? liveMaxSpeed
+                      : mediaItem.liveConfiguration.maxPlaybackSpeed)
+              .setLiveMinOffsetMs(
+                  mediaItem.liveConfiguration.minOffsetMs == C.TIME_UNSET
+                      ? liveMinOffsetMs
+                      : mediaItem.liveConfiguration.minOffsetMs)
+              .setLiveMaxOffsetMs(
+                  mediaItem.liveConfiguration.maxOffsetMs == C.TIME_UNSET
+                      ? liveMaxOffsetMs
+                      : mediaItem.liveConfiguration.maxOffsetMs)
+              .build();
+    }
     MediaSource mediaSource = mediaSourceFactory.createMediaSource(mediaItem);
 
-    List<MediaItem.Subtitle> subtitles = mediaItem.playbackProperties.subtitles;
+    List<MediaItem.Subtitle> subtitles = castNonNull(mediaItem.playbackProperties).subtitles;
     if (!subtitles.isEmpty()) {
       MediaSource[] mediaSources = new MediaSource[subtitles.size() + 1];
       mediaSources[0] = mediaSource;
@@ -282,8 +403,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   private MediaSource maybeWrapWithAdsMediaSource(MediaItem mediaItem, MediaSource mediaSource) {
     Assertions.checkNotNull(mediaItem.playbackProperties);
-    @Nullable Uri adTagUri = mediaItem.playbackProperties.adTagUri;
-    if (adTagUri == null) {
+    @Nullable
+    MediaItem.AdsConfiguration adsConfiguration = mediaItem.playbackProperties.adsConfiguration;
+    if (adsConfiguration == null) {
       return mediaSource;
     }
     AdsLoaderProvider adsLoaderProvider = this.adsLoaderProvider;
@@ -295,14 +417,17 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
               + " setAdViewProvider.");
       return mediaSource;
     }
-    @Nullable AdsLoader adsLoader = adsLoaderProvider.getAdsLoader(adTagUri);
+    @Nullable AdsLoader adsLoader = adsLoaderProvider.getAdsLoader(adsConfiguration);
     if (adsLoader == null) {
-      Log.w(TAG, "Playing media without ads. No AdsLoader for provided adTagUri");
+      Log.w(TAG, "Playing media without ads, as no AdsLoader was provided.");
       return mediaSource;
     }
     return new AdsMediaSource(
         mediaSource,
-        new DataSpec(adTagUri),
+        new DataSpec(adsConfiguration.adTagUri),
+        /* adsId= */ adsConfiguration.adsId != null
+            ? adsConfiguration.adsId
+            : Pair.create(mediaItem.mediaId, adsConfiguration.adTagUri),
         /* adMediaSourceFactory= */ this,
         adsLoader,
         adViewProvider);

@@ -19,10 +19,12 @@ FFMPEG_EXT_PATH=$1
 NDK_PATH=$2
 HOST_PLATFORM=$3
 ENABLED_DECODERS=("${@:4}")
+JOBS=$(nproc 2> /dev/null || sysctl -n hw.ncpu 2> /dev/null || echo 4)
+echo "Using $JOBS jobs for make"
 COMMON_OPTIONS="
     --target-os=android
-    --disable-static
-    --enable-shared
+    --enable-static
+    --disable-shared
     --disable-doc
     --disable-programs
     --disable-everything
@@ -48,11 +50,13 @@ cd "${FFMPEG_EXT_PATH}/jni/ffmpeg"
     --cpu=armv7-a \
     --cross-prefix="${TOOLCHAIN_PREFIX}/armv7a-linux-androideabi16-" \
     --nm="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-ranlib" \
     --strip="${TOOLCHAIN_PREFIX}/arm-linux-androideabi-strip" \
     --extra-cflags="-march=armv7-a -mfloat-abi=softfp" \
     --extra-ldflags="-Wl,--fix-cortex-a8" \
     ${COMMON_OPTIONS}
-make -j4
+make -j$JOBS
 make install-libs
 make clean
 ./configure \
@@ -61,9 +65,11 @@ make clean
     --cpu=armv8-a \
     --cross-prefix="${TOOLCHAIN_PREFIX}/aarch64-linux-android21-" \
     --nm="${TOOLCHAIN_PREFIX}/aarch64-linux-android-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/aarch64-linux-android-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/aarch64-linux-android-ranlib" \
     --strip="${TOOLCHAIN_PREFIX}/aarch64-linux-android-strip" \
     ${COMMON_OPTIONS}
-make -j4
+make -j$JOBS
 make install-libs
 make clean
 ./configure \
@@ -72,10 +78,12 @@ make clean
     --cpu=i686 \
     --cross-prefix="${TOOLCHAIN_PREFIX}/i686-linux-android16-" \
     --nm="${TOOLCHAIN_PREFIX}/i686-linux-android-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/i686-linux-android-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/i686-linux-android-ranlib" \
     --strip="${TOOLCHAIN_PREFIX}/i686-linux-android-strip" \
     --disable-asm \
     ${COMMON_OPTIONS}
-make -j4
+make -j$JOBS
 make install-libs
 make clean
 ./configure \
@@ -84,9 +92,11 @@ make clean
     --cpu=x86_64 \
     --cross-prefix="${TOOLCHAIN_PREFIX}/x86_64-linux-android21-" \
     --nm="${TOOLCHAIN_PREFIX}/x86_64-linux-android-nm" \
+    --ar="${TOOLCHAIN_PREFIX}/x86_64-linux-android-ar" \
+    --ranlib="${TOOLCHAIN_PREFIX}/x86_64-linux-android-ranlib" \
     --strip="${TOOLCHAIN_PREFIX}/x86_64-linux-android-strip" \
     --disable-asm \
     ${COMMON_OPTIONS}
-make -j4
+make -j$JOBS
 make install-libs
 make clean

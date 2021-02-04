@@ -15,21 +15,20 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
-/**
- * The default {@link LoadControl} implementation.
- */
+/** The default {@link LoadControl} implementation. */
 public class DefaultLoadControl implements LoadControl {
 
   /**
@@ -129,7 +128,7 @@ public class DefaultLoadControl implements LoadControl {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setAllocator(DefaultAllocator allocator) {
-      Assertions.checkState(!buildCalled);
+      checkState(!buildCalled);
       this.allocator = allocator;
       return this;
     }
@@ -154,7 +153,7 @@ public class DefaultLoadControl implements LoadControl {
         int maxBufferMs,
         int bufferForPlaybackMs,
         int bufferForPlaybackAfterRebufferMs) {
-      Assertions.checkState(!buildCalled);
+      checkState(!buildCalled);
       assertGreaterOrEqual(bufferForPlaybackMs, 0, "bufferForPlaybackMs", "0");
       assertGreaterOrEqual(
           bufferForPlaybackAfterRebufferMs, 0, "bufferForPlaybackAfterRebufferMs", "0");
@@ -181,7 +180,7 @@ public class DefaultLoadControl implements LoadControl {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setTargetBufferBytes(int targetBufferBytes) {
-      Assertions.checkState(!buildCalled);
+      checkState(!buildCalled);
       this.targetBufferBytes = targetBufferBytes;
       return this;
     }
@@ -196,7 +195,7 @@ public class DefaultLoadControl implements LoadControl {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setPrioritizeTimeOverSizeThresholds(boolean prioritizeTimeOverSizeThresholds) {
-      Assertions.checkState(!buildCalled);
+      checkState(!buildCalled);
       this.prioritizeTimeOverSizeThresholds = prioritizeTimeOverSizeThresholds;
       return this;
     }
@@ -212,7 +211,7 @@ public class DefaultLoadControl implements LoadControl {
      * @throws IllegalStateException If {@link #build()} has already been called.
      */
     public Builder setBackBuffer(int backBufferDurationMs, boolean retainBackBufferFromKeyframe) {
-      Assertions.checkState(!buildCalled);
+      checkState(!buildCalled);
       assertGreaterOrEqual(backBufferDurationMs, 0, "backBufferDurationMs", "0");
       this.backBufferDurationMs = backBufferDurationMs;
       this.retainBackBufferFromKeyframe = retainBackBufferFromKeyframe;
@@ -227,7 +226,7 @@ public class DefaultLoadControl implements LoadControl {
 
     /** Creates a {@link DefaultLoadControl}. */
     public DefaultLoadControl build() {
-      Assertions.checkState(!buildCalled);
+      checkState(!buildCalled);
       buildCalled = true;
       if (allocator == null) {
         allocator = new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE);
@@ -257,47 +256,19 @@ public class DefaultLoadControl implements LoadControl {
   private final boolean retainBackBufferFromKeyframe;
 
   private int targetBufferBytes;
-  private boolean isBuffering;
+  private boolean isLoading;
 
   /** Constructs a new instance, using the {@code DEFAULT_*} constants defined in this class. */
   @SuppressWarnings("deprecation")
   public DefaultLoadControl() {
-    this(new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE));
-  }
-
-  /** @deprecated Use {@link Builder} instead. */
-  @Deprecated
-  public DefaultLoadControl(DefaultAllocator allocator) {
     this(
-        allocator,
+        new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
         DEFAULT_MIN_BUFFER_MS,
         DEFAULT_MAX_BUFFER_MS,
         DEFAULT_BUFFER_FOR_PLAYBACK_MS,
         DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS,
         DEFAULT_TARGET_BUFFER_BYTES,
         DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS,
-        DEFAULT_BACK_BUFFER_DURATION_MS,
-        DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME);
-  }
-
-  /** @deprecated Use {@link Builder} instead. */
-  @Deprecated
-  public DefaultLoadControl(
-      DefaultAllocator allocator,
-      int minBufferMs,
-      int maxBufferMs,
-      int bufferForPlaybackMs,
-      int bufferForPlaybackAfterRebufferMs,
-      int targetBufferBytes,
-      boolean prioritizeTimeOverSizeThresholds) {
-    this(
-        allocator,
-        minBufferMs,
-        maxBufferMs,
-        bufferForPlaybackMs,
-        bufferForPlaybackAfterRebufferMs,
-        targetBufferBytes,
-        prioritizeTimeOverSizeThresholds,
         DEFAULT_BACK_BUFFER_DURATION_MS,
         DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME);
   }
@@ -345,8 +316,8 @@ public class DefaultLoadControl implements LoadControl {
   }
 
   @Override
-  public void onTracksSelected(Renderer[] renderers, TrackGroupArray trackGroups,
-      TrackSelectionArray trackSelections) {
+  public void onTracksSelected(
+      Renderer[] renderers, TrackGroupArray trackGroups, ExoTrackSelection[] trackSelections) {
     targetBufferBytes =
         targetBufferBytesOverwrite == C.LENGTH_UNSET
             ? calculateTargetBufferBytes(renderers, trackSelections)
@@ -394,23 +365,26 @@ public class DefaultLoadControl implements LoadControl {
     // Prevent playback from getting stuck if minBufferUs is too small.
     minBufferUs = max(minBufferUs, 500_000);
     if (bufferedDurationUs < minBufferUs) {
-      isBuffering = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
-      if (!isBuffering && bufferedDurationUs < 500_000) {
+      isLoading = prioritizeTimeOverSizeThresholds || !targetBufferSizeReached;
+      if (!isLoading && bufferedDurationUs < 500_000) {
         Log.w(
             "DefaultLoadControl",
             "Target buffer size reached with less than 500ms of buffered media data.");
       }
     } else if (bufferedDurationUs >= maxBufferUs || targetBufferSizeReached) {
-      isBuffering = false;
-    } // Else don't change the buffering state
-    return isBuffering;
+      isLoading = false;
+    } // Else don't change the loading state.
+    return isLoading;
   }
 
   @Override
   public boolean shouldStartPlayback(
-      long bufferedDurationUs, float playbackSpeed, boolean rebuffering) {
+      long bufferedDurationUs, float playbackSpeed, boolean rebuffering, long targetLiveOffsetUs) {
     bufferedDurationUs = Util.getPlayoutDurationForMediaDuration(bufferedDurationUs, playbackSpeed);
     long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
+    if (targetLiveOffsetUs != C.TIME_UNSET) {
+      minBufferDurationUs = min(targetLiveOffsetUs / 2, minBufferDurationUs);
+    }
     return minBufferDurationUs <= 0
         || bufferedDurationUs >= minBufferDurationUs
         || (!prioritizeTimeOverSizeThresholds
@@ -426,10 +400,10 @@ public class DefaultLoadControl implements LoadControl {
    * @return The target buffer size in bytes.
    */
   protected int calculateTargetBufferBytes(
-      Renderer[] renderers, TrackSelectionArray trackSelectionArray) {
+      Renderer[] renderers, ExoTrackSelection[] trackSelectionArray) {
     int targetBufferSize = 0;
     for (int i = 0; i < renderers.length; i++) {
-      if (trackSelectionArray.get(i) != null) {
+      if (trackSelectionArray[i] != null) {
         targetBufferSize += getDefaultBufferSize(renderers[i].getTrackType());
       }
     }
@@ -441,7 +415,7 @@ public class DefaultLoadControl implements LoadControl {
         targetBufferBytesOverwrite == C.LENGTH_UNSET
             ? DEFAULT_MIN_BUFFER_SIZE
             : targetBufferBytesOverwrite;
-    isBuffering = false;
+    isLoading = false;
     if (resetAllocator) {
       allocator.reset();
     }

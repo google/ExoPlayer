@@ -97,6 +97,9 @@ import java.util.concurrent.Callable;
   /** Command code for {@link SessionPlayer#removePlaylistItem(int)} */
   public static final int COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM = 16;
 
+  /** Command code for {@link SessionPlayer#movePlaylistItem(int, int)} */
+  public static final int COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM = 17;
+
   /** List of session commands whose result would be set after the command is finished. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -119,6 +122,7 @@ import java.util.concurrent.Callable;
         COMMAND_CODE_PLAYER_SET_PLAYLIST,
         COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
         COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
+        COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
       })
   public @interface CommandCode {}
 
@@ -381,8 +385,24 @@ import java.util.concurrent.Callable;
       case COMMAND_CODE_PLAYER_PAUSE:
       case COMMAND_CODE_PLAYER_PREPARE:
         return true;
+      case COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM:
+      case COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM:
+      case COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM:
+      case COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM:
+      case COMMAND_CODE_PLAYER_SEEK_TO:
+      case COMMAND_CODE_PLAYER_SET_AUDIO_ATTRIBUTES:
+      case COMMAND_CODE_PLAYER_SET_MEDIA_ITEM:
+      case COMMAND_CODE_PLAYER_SET_PLAYLIST:
+      case COMMAND_CODE_PLAYER_SET_REPEAT_MODE:
+      case COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE:
+      case COMMAND_CODE_PLAYER_SET_SPEED:
+      case COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM:
+      case COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM:
+      case COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM:
+      case COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA:
+      default:
+        return false;
     }
-    return false;
   }
 
   private static final class AsyncPlayerCommandResult {

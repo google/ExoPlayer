@@ -15,12 +15,15 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.util.Arrays;
 import java.util.List;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 
 /**
  * {@link StreamReader} to extract Opus data out of Ogg byte stream.
@@ -55,6 +58,7 @@ import java.util.List;
   }
 
   @Override
+  @EnsuresNonNullIf(expression = "#3.format", result = false)
   protected boolean readHeaders(ParsableByteArray packet, long position, SetupData setupData) {
     if (!headerRead) {
       byte[] headerBytes = Arrays.copyOf(packet.getData(), packet.limit());
@@ -68,12 +72,13 @@ import java.util.List;
               .setInitializationData(initializationData)
               .build();
       headerRead = true;
+      return true;
     } else {
+      checkNotNull(setupData.format); // Has been set when the header was read.
       boolean headerPacket = packet.readInt() == OPUS_CODE;
       packet.setPosition(0);
       return headerPacket;
     }
-    return true;
   }
 
   /**

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.dash.manifest;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 
 /**
@@ -57,8 +58,23 @@ import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
   }
 
   @Override
+  public long getFirstAvailableSegmentNum(long periodDurationUs, long nowUnixTimeUs) {
+    return 0;
+  }
+
+  @Override
   public int getSegmentCount(long periodDurationUs) {
     return 1;
+  }
+
+  @Override
+  public int getAvailableSegmentCount(long periodDurationUs, long nowUnixTimeUs) {
+    return 1;
+  }
+
+  @Override
+  public long getNextSegmentAvailableTimeUs(long periodDurationUs, long nowUnixTimeUs) {
+    return C.TIME_UNSET;
   }
 
   @Override

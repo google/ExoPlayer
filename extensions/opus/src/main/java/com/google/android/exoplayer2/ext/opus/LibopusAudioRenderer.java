@@ -79,21 +79,21 @@ public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
   }
 
   @Override
-  @FormatSupport
+  @C.FormatSupport
   protected int supportsFormatInternal(Format format) {
     boolean drmIsSupported =
         format.exoMediaCryptoType == null
             || OpusLibrary.matchesExpectedExoMediaCryptoType(format.exoMediaCryptoType);
     if (!OpusLibrary.isAvailable()
         || !MimeTypes.AUDIO_OPUS.equalsIgnoreCase(format.sampleMimeType)) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return C.FORMAT_UNSUPPORTED_TYPE;
     } else if (!sinkSupportsFormat(
         Util.getPcmFormat(C.ENCODING_PCM_16BIT, format.channelCount, format.sampleRate))) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return C.FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (!drmIsSupported) {
-      return FORMAT_UNSUPPORTED_DRM;
+      return C.FORMAT_UNSUPPORTED_DRM;
     } else {
-      return FORMAT_HANDLED;
+      return C.FORMAT_HANDLED;
     }
   }
 

@@ -31,12 +31,13 @@ public final class AdPlaybackStateTest {
 
   private static final long[] TEST_AD_GROUP_TMES_US = new long[] {0, C.msToUs(10_000)};
   private static final Uri TEST_URI = Uri.EMPTY;
+  private static final Object TEST_ADS_ID = new Object();
 
   private AdPlaybackState state;
 
   @Before
   public void setUp() {
-    state = new AdPlaybackState(TEST_AD_GROUP_TMES_US);
+    state = new AdPlaybackState(TEST_ADS_ID, TEST_AD_GROUP_TMES_US);
   }
 
   @Test

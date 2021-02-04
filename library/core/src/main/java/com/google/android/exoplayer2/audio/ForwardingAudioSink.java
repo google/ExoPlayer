@@ -124,8 +124,8 @@ public class ForwardingAudioSink implements AudioSink {
   }
 
   @Override
-  public void enableTunnelingV21(int tunnelingAudioSessionId) {
-    sink.enableTunnelingV21(tunnelingAudioSessionId);
+  public void enableTunnelingV21() {
+    sink.enableTunnelingV21();
   }
 
   @Override

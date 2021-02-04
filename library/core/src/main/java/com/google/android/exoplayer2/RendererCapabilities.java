@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
-import com.google.android.exoplayer2.util.MimeTypes;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -27,11 +26,8 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface RendererCapabilities {
 
-  /**
-   * Level of renderer support for a format. One of {@link #FORMAT_HANDLED}, {@link
-   * #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM}, {@link
-   * #FORMAT_UNSUPPORTED_SUBTYPE} or {@link #FORMAT_UNSUPPORTED_TYPE}.
-   */
+  /** @deprecated Use {@link C.FormatSupport} instead. */
+  @SuppressWarnings("Deprecation")
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
@@ -41,52 +37,20 @@ public interface RendererCapabilities {
     FORMAT_UNSUPPORTED_SUBTYPE,
     FORMAT_UNSUPPORTED_TYPE
   })
+  @Deprecated
   @interface FormatSupport {}
-
-  /** A mask to apply to {@link Capabilities} to obtain the {@link FormatSupport} only. */
+  /** A mask to apply to {@link Capabilities} to obtain the {@link C.FormatSupport} only. */
   int FORMAT_SUPPORT_MASK = 0b111;
-  /**
-   * The {@link Renderer} is capable of rendering the format.
-   */
-  int FORMAT_HANDLED = 0b100;
-  /**
-   * The {@link Renderer} is capable of rendering formats with the same mime type, but the
-   * properties of the format exceed the renderer's capabilities. There is a chance the renderer
-   * will be able to play the format in practice because some renderers report their capabilities
-   * conservatively, but the expected outcome is that playback will fail.
-   * <p>
-   * Example: The {@link Renderer} is capable of rendering H264 and the format's mime type is
-   * {@link MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
-   * by the underlying H264 decoder.
-   */
-  int FORMAT_EXCEEDS_CAPABILITIES = 0b011;
-  /**
-   * The {@link Renderer} is capable of rendering formats with the same mime type, but is not
-   * capable of rendering the format because the format's drm protection is not supported.
-   * <p>
-   * Example: The {@link Renderer} is capable of rendering H264 and the format's mime type is
-   * {@link MimeTypes#VIDEO_H264}, but the format indicates PlayReady drm protection where-as the
-   * renderer only supports Widevine.
-   */
-  int FORMAT_UNSUPPORTED_DRM = 0b010;
-  /**
-   * The {@link Renderer} is a general purpose renderer for formats of the same top-level type,
-   * but is not capable of rendering the format or any other format with the same mime type because
-   * the sub-type is not supported.
-   * <p>
-   * Example: The {@link Renderer} is a general purpose audio renderer and the format's
-   * mime type matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
-   */
-  int FORMAT_UNSUPPORTED_SUBTYPE = 0b001;
-  /**
-   * The {@link Renderer} is not capable of rendering the format, either because it does not
-   * support the format's top-level type, or because it's a specialized renderer for a different
-   * mime type.
-   * <p>
-   * Example: The {@link Renderer} is a general purpose video renderer, but the format has an
-   * audio mime type.
-   */
-  int FORMAT_UNSUPPORTED_TYPE = 0b000;
+  /** @deprecated Use {@link C#FORMAT_HANDLED} instead. */
+  @Deprecated int FORMAT_HANDLED = C.FORMAT_HANDLED;
+  /** @deprecated Use {@link C#FORMAT_EXCEEDS_CAPABILITIES} instead. */
+  @Deprecated int FORMAT_EXCEEDS_CAPABILITIES = C.FORMAT_EXCEEDS_CAPABILITIES;
+  /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_DRM} instead. */
+  @Deprecated int FORMAT_UNSUPPORTED_DRM = C.FORMAT_UNSUPPORTED_DRM;
+  /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_SUBTYPE} instead. */
+  @Deprecated int FORMAT_UNSUPPORTED_SUBTYPE = C.FORMAT_UNSUPPORTED_SUBTYPE;
+  /** @deprecated Use {@link C#FORMAT_UNSUPPORTED_TYPE} instead. */
+  @Deprecated int FORMAT_UNSUPPORTED_TYPE = C.FORMAT_UNSUPPORTED_TYPE;
 
   /**
    * Level of renderer support for adaptive format switches. One of {@link #ADAPTIVE_SEAMLESS},
@@ -136,7 +100,7 @@ public interface RendererCapabilities {
   /**
    * Combined renderer capabilities.
    *
-   * <p>This is a bitwise OR of {@link FormatSupport}, {@link AdaptiveSupport} and {@link
+   * <p>This is a bitwise OR of {@link C.FormatSupport}, {@link AdaptiveSupport} and {@link
    * TunnelingSupport}. Use {@link #getFormatSupport(int)}, {@link #getAdaptiveSupport(int)} or
    * {@link #getTunnelingSupport(int)} to obtain the individual flags. And use {@link #create(int)}
    * or {@link #create(int, int, int)} to create the combined capabilities.
@@ -144,18 +108,19 @@ public interface RendererCapabilities {
    * <p>Possible values:
    *
    * <ul>
-   *   <li>{@link FormatSupport}: The level of support for the format itself. One of {@link
-   *       #FORMAT_HANDLED}, {@link #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM},
-   *       {@link #FORMAT_UNSUPPORTED_SUBTYPE} and {@link #FORMAT_UNSUPPORTED_TYPE}.
+   *   <li>{@link C.FormatSupport}: The level of support for the format itself. One of {@link
+   *       C#FORMAT_HANDLED}, {@link C#FORMAT_EXCEEDS_CAPABILITIES}, {@link
+   *       C#FORMAT_UNSUPPORTED_DRM}, {@link C#FORMAT_UNSUPPORTED_SUBTYPE} and {@link
+   *       C#FORMAT_UNSUPPORTED_TYPE}.
    *   <li>{@link AdaptiveSupport}: The level of support for adapting from the format to another
    *       format of the same mime type. One of {@link #ADAPTIVE_SEAMLESS}, {@link
    *       #ADAPTIVE_NOT_SEAMLESS} and {@link #ADAPTIVE_NOT_SUPPORTED}. Only set if the level of
-   *       support for the format itself is {@link #FORMAT_HANDLED} or {@link
-   *       #FORMAT_EXCEEDS_CAPABILITIES}.
+   *       support for the format itself is {@link C#FORMAT_HANDLED} or {@link
+   *       C#FORMAT_EXCEEDS_CAPABILITIES}.
    *   <li>{@link TunnelingSupport}: The level of support for tunneling. One of {@link
    *       #TUNNELING_SUPPORTED} and {@link #TUNNELING_NOT_SUPPORTED}. Only set if the level of
-   *       support for the format itself is {@link #FORMAT_HANDLED} or {@link
-   *       #FORMAT_EXCEEDS_CAPABILITIES}.
+   *       support for the format itself is {@link C#FORMAT_HANDLED} or {@link
+   *       C#FORMAT_EXCEEDS_CAPABILITIES}.
    * </ul>
    */
   @Documented
@@ -165,25 +130,25 @@ public interface RendererCapabilities {
   @interface Capabilities {}
 
   /**
-   * Returns {@link Capabilities} for the given {@link FormatSupport}.
+   * Returns {@link Capabilities} for the given {@link C.FormatSupport}.
    *
    * <p>The {@link AdaptiveSupport} is set to {@link #ADAPTIVE_NOT_SUPPORTED} and {{@link
    * TunnelingSupport} is set to {@link #TUNNELING_NOT_SUPPORTED}.
    *
-   * @param formatSupport The {@link FormatSupport}.
-   * @return The combined {@link Capabilities} of the given {@link FormatSupport}, {@link
+   * @param formatSupport The {@link C.FormatSupport}.
+   * @return The combined {@link Capabilities} of the given {@link C.FormatSupport}, {@link
    *     #ADAPTIVE_NOT_SUPPORTED} and {@link #TUNNELING_NOT_SUPPORTED}.
    */
   @Capabilities
-  static int create(@FormatSupport int formatSupport) {
+  static int create(@C.FormatSupport int formatSupport) {
     return create(formatSupport, ADAPTIVE_NOT_SUPPORTED, TUNNELING_NOT_SUPPORTED);
   }
 
   /**
-   * Returns {@link Capabilities} combining the given {@link FormatSupport}, {@link AdaptiveSupport}
-   * and {@link TunnelingSupport}.
+   * Returns {@link Capabilities} combining the given {@link C.FormatSupport}, {@link
+   * AdaptiveSupport} and {@link TunnelingSupport}.
    *
-   * @param formatSupport The {@link FormatSupport}.
+   * @param formatSupport The {@link C.FormatSupport}.
    * @param adaptiveSupport The {@link AdaptiveSupport}.
    * @param tunnelingSupport The {@link TunnelingSupport}.
    * @return The combined {@link Capabilities}.
@@ -192,21 +157,21 @@ public interface RendererCapabilities {
   @SuppressLint("WrongConstant")
   @Capabilities
   static int create(
-      @FormatSupport int formatSupport,
+      @C.FormatSupport int formatSupport,
       @AdaptiveSupport int adaptiveSupport,
       @TunnelingSupport int tunnelingSupport) {
     return formatSupport | adaptiveSupport | tunnelingSupport;
   }
 
   /**
-   * Returns the {@link FormatSupport} from the combined {@link Capabilities}.
+   * Returns the {@link C.FormatSupport} from the combined {@link Capabilities}.
    *
    * @param supportFlags The combined {@link Capabilities}.
-   * @return The {@link FormatSupport} only.
+   * @return The {@link C.FormatSupport} only.
    */
   // Suppression needed for IntDef casting.
   @SuppressLint("WrongConstant")
-  @FormatSupport
+  @C.FormatSupport
   static int getFormatSupport(@Capabilities int supportFlags) {
     return supportFlags & FORMAT_SUPPORT_MASK;
   }
@@ -235,29 +200,6 @@ public interface RendererCapabilities {
   @TunnelingSupport
   static int getTunnelingSupport(@Capabilities int supportFlags) {
     return supportFlags & TUNNELING_SUPPORT_MASK;
-  }
-
-  /**
-   * Returns string representation of a {@link FormatSupport} flag.
-   *
-   * @param formatSupport A {@link FormatSupport} flag.
-   * @return A string representation of the flag.
-   */
-  static String getFormatSupportString(@FormatSupport int formatSupport) {
-    switch (formatSupport) {
-      case RendererCapabilities.FORMAT_HANDLED:
-        return "YES";
-      case RendererCapabilities.FORMAT_EXCEEDS_CAPABILITIES:
-        return "NO_EXCEEDS_CAPABILITIES";
-      case RendererCapabilities.FORMAT_UNSUPPORTED_DRM:
-        return "NO_UNSUPPORTED_DRM";
-      case RendererCapabilities.FORMAT_UNSUPPORTED_SUBTYPE:
-        return "NO_UNSUPPORTED_TYPE";
-      case RendererCapabilities.FORMAT_UNSUPPORTED_TYPE:
-        return "NO";
-      default:
-        throw new IllegalStateException();
-    }
   }
 
   /** Returns the name of the {@link Renderer}. */

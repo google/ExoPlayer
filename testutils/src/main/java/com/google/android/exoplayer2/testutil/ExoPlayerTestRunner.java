@@ -74,7 +74,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
    * unset test properties.
    */
   public static final class Builder {
-    private final TestExoPlayer.Builder testPlayerBuilder;
+    private final TestExoPlayerBuilder testPlayerBuilder;
     private Timeline timeline;
     private List<MediaSource> mediaSources;
     private Format[] supportedFormats;
@@ -89,7 +89,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     private boolean skipSettingMediaSources;
 
     public Builder(Context context) {
-      testPlayerBuilder = new TestExoPlayer.Builder(context);
+      testPlayerBuilder = new TestExoPlayerBuilder(context);
       mediaSources = new ArrayList<>();
       supportedFormats = new Format[] {VIDEO_FORMAT};
       initialWindowIndex = C.INDEX_UNSET;
@@ -191,7 +191,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * @see TestExoPlayer.Builder#setUseLazyPreparation(boolean)
+     * @see TestExoPlayerBuilder#setUseLazyPreparation(boolean)
      * @return This builder.
      */
     public Builder setUseLazyPreparation(boolean useLazyPreparation) {
@@ -211,7 +211,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * @see TestExoPlayer.Builder#setTrackSelector(DefaultTrackSelector)
+     * @see TestExoPlayerBuilder#setTrackSelector(DefaultTrackSelector)
      * @return This builder.
      */
     public Builder setTrackSelector(DefaultTrackSelector trackSelector) {
@@ -220,7 +220,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * @see TestExoPlayer.Builder#setLoadControl(LoadControl)
+     * @see TestExoPlayerBuilder#setLoadControl(LoadControl)
      * @return This builder.
      */
     public Builder setLoadControl(LoadControl loadControl) {
@@ -229,7 +229,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * @see TestExoPlayer.Builder#setBandwidthMeter(BandwidthMeter)
+     * @see TestExoPlayerBuilder#setBandwidthMeter(BandwidthMeter)
      * @return This builder.
      */
     public Builder setBandwidthMeter(BandwidthMeter bandwidthMeter) {
@@ -238,7 +238,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * @see TestExoPlayer.Builder#setRenderers(Renderer...)
+     * @see TestExoPlayerBuilder#setRenderers(Renderer...)
      * @return This builder.
      */
     public Builder setRenderers(Renderer... renderers) {
@@ -247,7 +247,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * @see TestExoPlayer.Builder#setRenderersFactory(RenderersFactory)
+     * @see TestExoPlayerBuilder#setRenderersFactory(RenderersFactory)
      * @return This builder.
      */
     public Builder setRenderersFactory(RenderersFactory renderersFactory) {
@@ -256,7 +256,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
 
     /**
-     * @see TestExoPlayer.Builder#setClock(Clock)
+     * @see TestExoPlayerBuilder#setClock(Clock)
      * @return This builder.
      */
     public Builder setClock(Clock clock) {
@@ -342,7 +342,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
     }
   }
 
-  private final TestExoPlayer.Builder playerBuilder;
+  private final TestExoPlayerBuilder playerBuilder;
   private final List<MediaSource> mediaSources;
   private final boolean skipSettingMediaSources;
   private final int initialWindowIndex;
@@ -370,7 +370,7 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   private boolean playerWasPrepared;
 
   private ExoPlayerTestRunner(
-      TestExoPlayer.Builder playerBuilder,
+      TestExoPlayerBuilder playerBuilder,
       List<MediaSource> mediaSources,
       boolean skipSettingMediaSources,
       int initialWindowIndex,

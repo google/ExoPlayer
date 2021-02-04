@@ -79,11 +79,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
   }
 
   @Override
-  @FormatSupport
+  @C.FormatSupport
   protected int supportsFormatInternal(Format format) {
     if (!FlacLibrary.isAvailable()
         || !MimeTypes.AUDIO_FLAC.equalsIgnoreCase(format.sampleMimeType)) {
-      return FORMAT_UNSUPPORTED_TYPE;
+      return C.FORMAT_UNSUPPORTED_TYPE;
     }
     // Compute the format that the FLAC decoder will output.
     Format outputFormat;
@@ -102,11 +102,11 @@ public final class LibflacAudioRenderer extends DecoderAudioRenderer<FlacDecoder
       outputFormat = getOutputFormat(streamMetadata);
     }
     if (!sinkSupportsFormat(outputFormat)) {
-      return FORMAT_UNSUPPORTED_SUBTYPE;
+      return C.FORMAT_UNSUPPORTED_SUBTYPE;
     } else if (format.exoMediaCryptoType != null) {
-      return FORMAT_UNSUPPORTED_DRM;
+      return C.FORMAT_UNSUPPORTED_DRM;
     } else {
-      return FORMAT_HANDLED;
+      return C.FORMAT_HANDLED;
     }
   }
 

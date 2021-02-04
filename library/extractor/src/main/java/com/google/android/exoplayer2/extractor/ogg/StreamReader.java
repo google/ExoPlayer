@@ -15,7 +15,9 @@
  */
 package com.google.android.exoplayer2.extractor.ogg;
 
-import androidx.annotation.Nullable;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.Extractor;
@@ -24,10 +26,12 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** StreamReader abstract class. */
 @SuppressWarnings("UngroupedOverloads")
@@ -39,8 +43,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int STATE_END_OF_INPUT = 3;
 
   static class SetupData {
-    Format format;
-    OggSeeker oggSeeker;
+    @MonotonicNonNull Format format;
+    @MonotonicNonNull OggSeeker oggSeeker;
   }
 
   private final OggPacket oggPacket;
@@ -53,13 +57,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long currentGranule;
   private int state;
   private int sampleRate;
-  @Nullable private SetupData setupData;
+  private SetupData setupData;
   private long lengthOfReadPacket;
   private boolean seekMapSet;
   private boolean formatSet;
 
   public StreamReader() {
     oggPacket = new OggPacket();
+    setupData = new SetupData();
   }
 
   void init(ExtractorOutput output, TrackOutput trackOutput) {
@@ -95,7 +100,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     } else {
       if (state != STATE_READ_HEADERS) {
         targetGranule = convertTimeToGranule(timeUs);
-        oggSeeker.startSeek(targetGranule);
+        castNonNull(oggSeeker).startSeek(targetGranule);
         state = STATE_READ_PAYLOAD;
       }
     }
@@ -103,14 +108,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** @see Extractor#read(ExtractorInput, PositionHolder) */
   final int read(ExtractorInput input, PositionHolder seekPosition) throws IOException {
+    assertInitialized();
     switch (state) {
       case STATE_READ_HEADERS:
-        return readHeaders(input);
+        return readHeadersAndUpdateState(input);
       case STATE_SKIP_HEADERS:
         input.skipFully((int) payloadStartPosition);
         state = STATE_READ_PAYLOAD;
         return Extractor.RESULT_CONTINUE;
       case STATE_READ_PAYLOAD:
+        castNonNull(oggSeeker);
         return readPayload(input, seekPosition);
       default:
         // Never happens.
@@ -118,19 +125,41 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private int readHeaders(ExtractorInput input) throws IOException {
-    boolean readingHeaders = true;
-    while (readingHeaders) {
+  @EnsuresNonNull({"trackOutput", "extractorOutput"})
+  private void assertInitialized() {
+    checkStateNotNull(trackOutput);
+    castNonNull(extractorOutput);
+  }
+
+  /**
+   * Read all header packets.
+   *
+   * @param input The {@link ExtractorInput} to read data from.
+   * @return {@code true} if all headers were read. {@code false} if end of the input is
+   *     encountered.
+   * @throws IOException If reading from the input fails.
+   */
+  @EnsuresNonNullIf(expression = "setupData.format", result = true)
+  private boolean readHeaders(ExtractorInput input) throws IOException {
+    while (true) {
       if (!oggPacket.populate(input)) {
         state = STATE_END_OF_INPUT;
-        return Extractor.RESULT_END_OF_INPUT;
+        return false;
       }
       lengthOfReadPacket = input.getPosition() - payloadStartPosition;
 
-      readingHeaders = readHeaders(oggPacket.getPayload(), payloadStartPosition, setupData);
-      if (readingHeaders) {
+      if (readHeaders(oggPacket.getPayload(), payloadStartPosition, setupData)) {
         payloadStartPosition = input.getPosition();
+      } else {
+        return true; // Current packet is not a header, therefore all headers have been read.
       }
+    }
+  }
+
+  @RequiresNonNull({"trackOutput"})
+  private int readHeadersAndUpdateState(ExtractorInput input) throws IOException {
+    if (!readHeaders(input)) {
+      return Extractor.RESULT_END_OF_INPUT;
     }
 
     sampleRate = setupData.format.sampleRate;
@@ -156,13 +185,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               isLastPage);
     }
 
-    setupData = null;
     state = STATE_READ_PAYLOAD;
     // First payload packet. Trim the payload array of the ogg packet after headers have been read.
     oggPacket.trimPayload();
     return Extractor.RESULT_CONTINUE;
   }
 
+  @RequiresNonNull({"trackOutput", "oggSeeker", "extractorOutput"})
   private int readPayload(ExtractorInput input, PositionHolder seekPosition) throws IOException {
     long position = oggSeeker.read(input);
     if (position >= 0) {
@@ -173,7 +202,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     if (!seekMapSet) {
-      SeekMap seekMap = Assertions.checkStateNotNull(oggSeeker.createSeekMap());
+      SeekMap seekMap = checkStateNotNull(oggSeeker.createSeekMap());
       extractorOutput.seekMap(seekMap);
       seekMapSet = true;
     }
@@ -234,6 +263,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param setupData Setup data to be filled.
    * @return Whether the packet contains header data.
    */
+  @EnsuresNonNullIf(expression = "#3.format", result = false)
   protected abstract boolean readHeaders(
       ParsableByteArray packet, long position, SetupData setupData) throws IOException;
 

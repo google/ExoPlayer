@@ -59,15 +59,16 @@ public class OkHttpDataSourceTest {
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse());
 
-    String propertyFromConstructor = "fromConstructor";
-    HttpDataSource.RequestProperties constructorProperties = new HttpDataSource.RequestProperties();
-    constructorProperties.set("0", propertyFromConstructor);
-    constructorProperties.set("1", propertyFromConstructor);
-    constructorProperties.set("2", propertyFromConstructor);
-    constructorProperties.set("4", propertyFromConstructor);
-    OkHttpDataSource dataSource =
-        new OkHttpDataSource(
-            new OkHttpClient(), "testAgent", /* cacheControl= */ null, constructorProperties);
+    String propertyFromFactory = "fromFactory";
+    Map<String, String> defaultRequestProperties = new HashMap<>();
+    defaultRequestProperties.put("0", propertyFromFactory);
+    defaultRequestProperties.put("1", propertyFromFactory);
+    defaultRequestProperties.put("2", propertyFromFactory);
+    defaultRequestProperties.put("4", propertyFromFactory);
+    HttpDataSource dataSource =
+        new OkHttpDataSource.Factory(new OkHttpClient())
+            .setDefaultRequestProperties(defaultRequestProperties)
+            .createDataSource();
 
     String propertyFromSetter = "fromSetter";
     dataSource.setRequestProperty("1", propertyFromSetter);
@@ -91,7 +92,7 @@ public class OkHttpDataSourceTest {
     dataSource.open(dataSpec);
 
     Headers headers = mockWebServer.takeRequest(10, SECONDS).getHeaders();
-    assertThat(headers.get("0")).isEqualTo(propertyFromConstructor);
+    assertThat(headers.get("0")).isEqualTo(propertyFromFactory);
     assertThat(headers.get("1")).isEqualTo(propertyFromSetter);
     assertThat(headers.get("2")).isEqualTo(propertyFromDataSpec);
     assertThat(headers.get("3")).isEqualTo(propertyFromDataSpec);
@@ -101,16 +102,13 @@ public class OkHttpDataSourceTest {
   }
 
   @Test
-  public void open_invalidResponseCode() throws Exception {
+  public void open_invalidResponseCode() {
     MockWebServer mockWebServer = new MockWebServer();
     mockWebServer.enqueue(new MockResponse().setResponseCode(404).setBody("failure msg"));
 
-    OkHttpDataSource okHttpDataSource =
-        new OkHttpDataSource(
-            new OkHttpClient(),
-            "testAgent",
-            /* cacheControl= */ null,
-            /* defaultRequestProperties= */ null);
+    HttpDataSource okHttpDataSource =
+        new OkHttpDataSource.Factory(new OkHttpClient()).createDataSource();
+
     DataSpec dataSpec =
         new DataSpec.Builder().setUri(mockWebServer.url("/test-path").toString()).build();
 
@@ -121,5 +119,23 @@ public class OkHttpDataSourceTest {
 
     assertThat(exception.responseCode).isEqualTo(404);
     assertThat(exception.responseBody).isEqualTo("failure msg".getBytes(Charsets.UTF_8));
+  }
+
+  @Test
+  public void factory_setRequestPropertyAfterCreation_setsCorrectHeaders() throws Exception {
+    MockWebServer mockWebServer = new MockWebServer();
+    mockWebServer.enqueue(new MockResponse());
+    DataSpec dataSpec =
+        new DataSpec.Builder().setUri(mockWebServer.url("/test-path").toString()).build();
+    OkHttpDataSource.Factory factory = new OkHttpDataSource.Factory(new OkHttpClient());
+    OkHttpDataSource dataSource = factory.createDataSource();
+
+    Map<String, String> defaultRequestProperties = new HashMap<>();
+    defaultRequestProperties.put("0", "afterCreation");
+    factory.setDefaultRequestProperties(defaultRequestProperties);
+    dataSource.open(dataSpec);
+
+    Headers headers = mockWebServer.takeRequest(10, SECONDS).getHeaders();
+    assertThat(headers.get("0")).isEqualTo("afterCreation");
   }
 }

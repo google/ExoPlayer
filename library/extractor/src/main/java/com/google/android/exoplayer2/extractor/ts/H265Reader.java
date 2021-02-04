@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
@@ -334,11 +335,37 @@ public final class H265Reader implements ElementaryStreamReader {
           Log.w(TAG, "Unexpected aspect_ratio_idc value: " + aspectRatioIdc);
         }
       }
+      if (bitArray.readBit()) { // overscan_info_present_flag
+        bitArray.skipBit(); // overscan_appropriate_flag
+      }
+      if (bitArray.readBit()) { // video_signal_type_present_flag
+        bitArray.skipBits(4); // video_format, video_full_range_flag
+        if (bitArray.readBit()) { // colour_description_present_flag
+          // colour_primaries, transfer_characteristics, matrix_coeffs
+          bitArray.skipBits(24);
+        }
+      }
+      if (bitArray.readBit()) { // chroma_loc_info_present_flag
+        bitArray.readUnsignedExpGolombCodedInt(); // chroma_sample_loc_type_top_field
+        bitArray.readUnsignedExpGolombCodedInt(); // chroma_sample_loc_type_bottom_field
+      }
+      bitArray.skipBit(); // neutral_chroma_indication_flag
+      if (bitArray.readBit()) { // field_seq_flag
+        // field_seq_flag equal to 1 indicates that the coded video sequence conveys pictures that
+        // represent fields, which means that frame height is double the picture height.
+        picHeightInLumaSamples *= 2;
+      }
     }
+
+    // Parse the SPS to derive an RFC 6381 codecs string.
+    bitArray.reset(sps.nalData, 0, sps.nalLength);
+    bitArray.skipBits(24); // Skip start code.
+    String codecs = CodecSpecificDataUtil.buildHevcCodecStringFromSps(bitArray);
 
     return new Format.Builder()
         .setId(formatId)
         .setSampleMimeType(MimeTypes.VIDEO_H265)
+        .setCodecs(codecs)
         .setWidth(picWidthInLumaSamples)
         .setHeight(picHeightInLumaSamples)
         .setPixelWidthHeightRatio(pixelWidthHeightRatio)

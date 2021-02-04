@@ -20,9 +20,7 @@ import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * The result of a {@link TrackSelector} operation.
- */
+/** The result of a {@link TrackSelector} operation. */
 public final class TrackSelectorResult {
 
   /** The number of selections in the result. Greater than or equal to zero. */
@@ -32,10 +30,8 @@ public final class TrackSelectorResult {
    * renderer should be disabled.
    */
   public final @NullableType RendererConfiguration[] rendererConfigurations;
-  /**
-   * A {@link TrackSelectionArray} containing the track selection for each renderer.
-   */
-  public final TrackSelectionArray selections;
+  /** A {@link ExoTrackSelection} array containing the track selection for each renderer. */
+  public final @NullableType ExoTrackSelection[] selections;
   /**
    * An opaque object that will be returned to {@link TrackSelector#onSelectionActivated(Object)}
    * should the selections be activated.
@@ -45,17 +41,17 @@ public final class TrackSelectorResult {
   /**
    * @param rendererConfigurations A {@link RendererConfiguration} for each renderer. A null entry
    *     indicates the corresponding renderer should be disabled.
-   * @param selections A {@link TrackSelectionArray} containing the selection for each renderer.
+   * @param selections A {@link ExoTrackSelection} array containing the selection for each renderer.
    * @param info An opaque object that will be returned to {@link
    *     TrackSelector#onSelectionActivated(Object)} should the selection be activated. May be
    *     {@code null}.
    */
   public TrackSelectorResult(
       @NullableType RendererConfiguration[] rendererConfigurations,
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       @Nullable Object info) {
     this.rendererConfigurations = rendererConfigurations;
-    this.selections = new TrackSelectionArray(selections);
+    this.selections = selections.clone();
     this.info = info;
     length = rendererConfigurations.length;
   }
@@ -100,7 +96,6 @@ public final class TrackSelectorResult {
       return false;
     }
     return Util.areEqual(rendererConfigurations[index], other.rendererConfigurations[index])
-        && Util.areEqual(selections.get(index), other.selections.get(index));
+        && Util.areEqual(selections[index], other.selections[index]);
   }
-
 }

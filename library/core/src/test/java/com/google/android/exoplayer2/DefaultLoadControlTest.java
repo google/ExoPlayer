@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.DefaultLoadControl.Builder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import org.junit.Before;
 import org.junit.Test;
@@ -175,6 +175,17 @@ public class DefaultLoadControlTest {
   }
 
   @Test
+  public void shouldContinueLoading_withNoSelectedTracks_returnsTrue() {
+    loadControl = builder.build();
+    loadControl.onTracksSelected(new Renderer[0], TrackGroupArray.EMPTY, new ExoTrackSelection[0]);
+
+    assertThat(
+            loadControl.shouldContinueLoading(
+                /* playbackPositionUs= */ 0, /* bufferedDurationUs= */ 0, /* playbackSpeed= */ 1f))
+        .isTrue();
+  }
+
+  @Test
   public void shouldNotContinueLoadingWithMaxBufferReached_inFastPlayback() {
     build();
 
@@ -185,21 +196,117 @@ public class DefaultLoadControlTest {
   }
 
   @Test
-  public void startsPlayback_whenMinBufferSizeReached() {
+  public void shouldStartPlayback_whenMinBufferSizeReached_returnsTrue() {
     build();
 
-    assertThat(loadControl.shouldStartPlayback(MIN_BUFFER_US, SPEED, /* rebuffering= */ false))
+    assertThat(
+            loadControl.shouldStartPlayback(
+                MIN_BUFFER_US,
+                SPEED,
+                /* rebuffering= */ false,
+                /* targetLiveOffsetUs= */ C.TIME_UNSET))
         .isTrue();
   }
 
   @Test
-  public void shouldContinueLoading_withNoSelectedTracks_returnsTrue() {
-    loadControl = builder.build();
-    loadControl.onTracksSelected(new Renderer[0], TrackGroupArray.EMPTY, new TrackSelectionArray());
+  public void
+      shouldStartPlayback_withoutTargetLiveOffset_returnsTrueWhenBufferForPlaybackReached() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ 5_000,
+        /* maxBufferMs= */ 20_000,
+        /* bufferForPlaybackMs= */ 3_000,
+        /* bufferForPlaybackAfterRebufferMs= */ 4_000);
+    build();
 
     assertThat(
-            loadControl.shouldContinueLoading(
-                /* playbackPositionUs= */ 0, /* bufferedDurationUs= */ 0, /* playbackSpeed= */ 1f))
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 2_999_999,
+                SPEED,
+                /* rebuffering= */ false,
+                /* targetLiveOffsetUs= */ C.TIME_UNSET))
+        .isFalse();
+    assertThat(
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 3_000_000,
+                SPEED,
+                /* rebuffering= */ false,
+                /* targetLiveOffsetUs= */ C.TIME_UNSET))
+        .isTrue();
+  }
+
+  @Test
+  public void shouldStartPlayback_withTargetLiveOffset_returnsTrueWhenHalfLiveOffsetReached() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ 5_000,
+        /* maxBufferMs= */ 20_000,
+        /* bufferForPlaybackMs= */ 3_000,
+        /* bufferForPlaybackAfterRebufferMs= */ 4_000);
+    build();
+
+    assertThat(
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 499_999,
+                SPEED,
+                /* rebuffering= */ true,
+                /* targetLiveOffsetUs= */ 1_000_000))
+        .isFalse();
+    assertThat(
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 500_000,
+                SPEED,
+                /* rebuffering= */ true,
+                /* targetLiveOffsetUs= */ 1_000_000))
+        .isTrue();
+  }
+
+  @Test
+  public void
+      shouldStartPlayback_afterRebuffer_withoutTargetLiveOffset_whenBufferForPlaybackAfterRebufferReached() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ 5_000,
+        /* maxBufferMs= */ 20_000,
+        /* bufferForPlaybackMs= */ 3_000,
+        /* bufferForPlaybackAfterRebufferMs= */ 4_000);
+    build();
+
+    assertThat(
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 3_999_999,
+                SPEED,
+                /* rebuffering= */ true,
+                /* targetLiveOffsetUs= */ C.TIME_UNSET))
+        .isFalse();
+    assertThat(
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 4_000_000,
+                SPEED,
+                /* rebuffering= */ true,
+                /* targetLiveOffsetUs= */ C.TIME_UNSET))
+        .isTrue();
+  }
+
+  @Test
+  public void shouldStartPlayback_afterRebuffer_withTargetLiveOffset_whenHalfLiveOffsetReached() {
+    builder.setBufferDurationsMs(
+        /* minBufferMs= */ 5_000,
+        /* maxBufferMs= */ 20_000,
+        /* bufferForPlaybackMs= */ 3_000,
+        /* bufferForPlaybackAfterRebufferMs= */ 4_000);
+    build();
+
+    assertThat(
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 499_999,
+                SPEED,
+                /* rebuffering= */ true,
+                /* targetLiveOffsetUs= */ 1_000_000))
+        .isFalse();
+    assertThat(
+            loadControl.shouldStartPlayback(
+                /* bufferedDurationUs= */ 500_000,
+                SPEED,
+                /* rebuffering= */ true,
+                /* targetLiveOffsetUs= */ 1_000_000))
         .isTrue();
   }
 
@@ -214,5 +321,4 @@ public class DefaultLoadControlTest {
       allocator.allocate();
     }
   }
-
 }

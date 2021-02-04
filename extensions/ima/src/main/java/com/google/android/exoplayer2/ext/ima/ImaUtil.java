@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.ext.ima;
 
 import android.content.Context;
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
@@ -35,7 +36,6 @@ import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader.OverlayInfo;
 import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -89,6 +89,7 @@ import java.util.Set;
     public final boolean focusSkipButtonWhenAvailable;
     public final boolean playAdBeforeStartPosition;
     public final int mediaBitrate;
+    @Nullable public final Boolean enableContinuousPlayback;
     @Nullable public final List<String> adMediaMimeTypes;
     @Nullable public final Set<UiElement> adUiElements;
     @Nullable public final Collection<CompanionAdSlot> companionAdSlots;
@@ -105,6 +106,7 @@ import java.util.Set;
         boolean focusSkipButtonWhenAvailable,
         boolean playAdBeforeStartPosition,
         int mediaBitrate,
+        @Nullable Boolean enableContinuousPlayback,
         @Nullable List<String> adMediaMimeTypes,
         @Nullable Set<UiElement> adUiElements,
         @Nullable Collection<CompanionAdSlot> companionAdSlots,
@@ -119,6 +121,7 @@ import java.util.Set;
       this.focusSkipButtonWhenAvailable = focusSkipButtonWhenAvailable;
       this.playAdBeforeStartPosition = playAdBeforeStartPosition;
       this.mediaBitrate = mediaBitrate;
+      this.enableContinuousPlayback = enableContinuousPlayback;
       this.adMediaMimeTypes = adMediaMimeTypes;
       this.adUiElements = adUiElements;
       this.companionAdSlots = companionAdSlots;
@@ -129,6 +132,9 @@ import java.util.Set;
       this.debugModeEnabled = debugModeEnabled;
     }
   }
+
+  public static final int TIMEOUT_UNSET = -1;
+  public static final int BITRATE_UNSET = -1;
 
   /**
    * Returns the IMA {@link FriendlyObstructionPurpose} corresponding to the given {@link
@@ -150,15 +156,14 @@ import java.util.Set;
   }
 
   /**
-   * Returns an initial {@link AdPlaybackState} with ad groups at the provided {@code cuePoints}.
+   * Returns the microsecond ad group timestamps corresponding to the specified cue points.
    *
-   * @param cuePoints The cue points of the ads in seconds.
-   * @return The {@link AdPlaybackState}.
+   * @param cuePoints The cue points of the ads in seconds, provided by the IMA SDK.
+   * @return The corresponding microsecond ad group timestamps.
    */
-  public static AdPlaybackState getInitialAdPlaybackStateForCuePoints(List<Float> cuePoints) {
+  public static long[] getAdGroupTimesUsForCuePoints(List<Float> cuePoints) {
     if (cuePoints.isEmpty()) {
-      // If no cue points are specified, there is a preroll ad.
-      return new AdPlaybackState(/* adGroupTimesUs...= */ 0);
+      return new long[] {0L};
     }
 
     int count = cuePoints.size();
@@ -174,7 +179,7 @@ import java.util.Set;
     }
     // Cue points may be out of order, so sort them.
     Arrays.sort(adGroupTimesUs, 0, adGroupIndex);
-    return new AdPlaybackState(adGroupTimesUs);
+    return adGroupTimesUs;
   }
 
   /** Returns an {@link AdsRequest} based on the specified ad tag {@link DataSpec}. */
@@ -201,6 +206,13 @@ import java.util.Set;
     // a single ad, ad group or the whole timeline.
     return adError.getErrorCode() == AdError.AdErrorCode.VAST_LINEAR_ASSET_MISMATCH
         || adError.getErrorCode() == AdError.AdErrorCode.UNKNOWN_ERROR;
+  }
+
+  /** Returns the looper on which all IMA SDK interaction must occur. */
+  public static Looper getImaLooper() {
+    // IMA SDK callbacks occur on the main thread. This method can be used to check that the player
+    // is using the same looper, to ensure all interaction with this class is on the main thread.
+    return Looper.getMainLooper();
   }
 
   /** Returns a human-readable representation of a video progress update. */

@@ -50,14 +50,18 @@ public final class DashUtil {
    *
    * @param representation The {@link Representation} to which the request belongs.
    * @param requestUri The {@link RangedUri} of the data to request.
+   * @param flags Flags to be set on the returned {@link DataSpec}. See {@link
+   *     DataSpec.Builder#setFlags(int)}.
    * @return The {@link DataSpec}.
    */
-  public static DataSpec buildDataSpec(Representation representation, RangedUri requestUri) {
+  public static DataSpec buildDataSpec(
+      Representation representation, RangedUri requestUri, int flags) {
     return new DataSpec.Builder()
         .setUri(requestUri.resolveUri(representation.baseUrl))
         .setPosition(requestUri.start)
         .setLength(requestUri.length)
         .setKey(representation.getCacheKey())
+        .setFlags(flags)
         .build();
   }
 
@@ -194,7 +198,7 @@ public final class DashUtil {
       ChunkExtractor chunkExtractor,
       RangedUri requestUri)
       throws IOException {
-    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri);
+    DataSpec dataSpec = DashUtil.buildDataSpec(representation, requestUri, /* flags= */ 0);
     InitializationChunk initializationChunk =
         new InitializationChunk(
             dataSource,

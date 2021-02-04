@@ -25,6 +25,7 @@ import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import androidx.annotation.AttrRes;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -291,7 +292,7 @@ public class TrackSelectionView extends LinearLayout {
         trackView.setText(trackNameProvider.getTrackName(trackInfos[trackIndex].format));
         trackView.setTag(trackInfos[trackIndex]);
         if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
-            == RendererCapabilities.FORMAT_HANDLED) {
+            == C.FORMAT_HANDLED) {
           trackView.setFocusable(true);
           trackView.setOnClickListener(componentListener);
         } else {

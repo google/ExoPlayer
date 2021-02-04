@@ -15,14 +15,25 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
+import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
+import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link SimpleExoPlayer}. */
 @RunWith(AndroidJUnit4.class)
@@ -42,5 +53,30 @@ public class SimpleExoPlayerTest {
     builderThread.join();
 
     assertThat(builderThrow.get()).isNull();
+  }
+
+  @Test
+  public void release_triggersAllPendingEventsInAnalyticsListeners() throws Exception {
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(
+                ApplicationProvider.getApplicationContext(),
+                (handler, videoListener, audioListener, textOutput, metadataOutput) ->
+                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+            .setClock(new AutoAdvancingFakeClock())
+            .build();
+    AnalyticsListener listener = mock(AnalyticsListener.class);
+    player.addAnalyticsListener(listener);
+    // Do something that requires clean-up callbacks like decoder disabling.
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener).onVideoDisabled(any(), any());
+    verify(listener).onPlayerReleased(any());
   }
 }

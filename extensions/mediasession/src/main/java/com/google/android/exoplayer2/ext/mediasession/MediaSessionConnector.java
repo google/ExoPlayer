@@ -15,6 +15,13 @@
  */
 package com.google.android.exoplayer2.ext.mediasession;
 
+import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_REPEAT_MODE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -38,7 +45,6 @@ import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
@@ -95,6 +101,10 @@ public final class MediaSessionConnector {
     ExoPlayerLibraryInfo.registerModule("goog.exo.mediasession");
   }
 
+  /** Indicates this session supports the set playback speed command. */
+  // TODO(b/174297519) Replace with PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED when released.
+  public static final long ACTION_SET_PLAYBACK_SPEED = 1 << 22;
+
   /** Playback actions supported by the connector. */
   @LongDef(
       flag = true,
@@ -107,7 +117,8 @@ public final class MediaSessionConnector {
         PlaybackStateCompat.ACTION_REWIND,
         PlaybackStateCompat.ACTION_STOP,
         PlaybackStateCompat.ACTION_SET_REPEAT_MODE,
-        PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+        PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE,
+        ACTION_SET_PLAYBACK_SPEED
       })
   @Retention(RetentionPolicy.SOURCE)
   public @interface PlaybackActions {}
@@ -122,10 +133,13 @@ public final class MediaSessionConnector {
           | PlaybackStateCompat.ACTION_REWIND
           | PlaybackStateCompat.ACTION_STOP
           | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
-          | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE;
+          | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
+          | ACTION_SET_PLAYBACK_SPEED;
 
   /** The default playback actions. */
-  @PlaybackActions public static final long DEFAULT_PLAYBACK_ACTIONS = ALL_PLAYBACK_ACTIONS;
+  @PlaybackActions
+  public static final long DEFAULT_PLAYBACK_ACTIONS =
+      ALL_PLAYBACK_ACTIONS - ACTION_SET_PLAYBACK_SPEED;
 
   /**
    * The name of the {@link PlaybackStateCompat} float extra with the value of {@code
@@ -139,7 +153,8 @@ public final class MediaSessionConnector {
           | PlaybackStateCompat.ACTION_PAUSE
           | PlaybackStateCompat.ACTION_STOP
           | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
-          | PlaybackStateCompat.ACTION_SET_REPEAT_MODE;
+          | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
+          | ACTION_SET_PLAYBACK_SPEED;
   private static final int BASE_MEDIA_SESSION_FLAGS =
       MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
           | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS;
@@ -1074,69 +1089,59 @@ public final class MediaSessionConnector {
     // Player.EventListener implementation.
 
     @Override
-    public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
-      Player player = Assertions.checkNotNull(MediaSessionConnector.this.player);
-      int windowCount = player.getCurrentTimeline().getWindowCount();
-      int windowIndex = player.getCurrentWindowIndex();
-      if (queueNavigator != null) {
-        queueNavigator.onTimelineChanged(player);
-        invalidateMediaSessionPlaybackState();
-      } else if (currentWindowCount != windowCount || currentWindowIndex != windowIndex) {
-        // active queue item and queue navigation actions may need to be updated
-        invalidateMediaSessionPlaybackState();
-      }
-      currentWindowCount = windowCount;
-      currentWindowIndex = windowIndex;
-      invalidateMediaSessionMetadata();
-    }
-
-    @Override
-    public void onPlaybackStateChanged(@Player.State int playbackState) {
-      invalidateMediaSessionPlaybackState();
-    }
-
-    @Override
-    public void onPlayWhenReadyChanged(
-        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason) {
-      invalidateMediaSessionPlaybackState();
-    }
-
-    @Override
-    public void onIsPlayingChanged(boolean isPlaying) {
-      invalidateMediaSessionPlaybackState();
-    }
-
-    @Override
-    public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
-      invalidateMediaSessionPlaybackState();
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      invalidateMediaSessionPlaybackState();
-      invalidateMediaSessionQueue();
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-      Player player = Assertions.checkNotNull(MediaSessionConnector.this.player);
-      if (currentWindowIndex != player.getCurrentWindowIndex()) {
-        if (queueNavigator != null) {
-          queueNavigator.onCurrentWindowIndexChanged(player);
+    public void onEvents(Player player, Player.Events events) {
+      boolean invalidatePlaybackState = false;
+      boolean invalidateMetadata = false;
+      if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
+        if (currentWindowIndex != player.getCurrentWindowIndex()) {
+          if (queueNavigator != null) {
+            queueNavigator.onCurrentWindowIndexChanged(player);
+          }
+          invalidateMetadata = true;
         }
-        currentWindowIndex = player.getCurrentWindowIndex();
-        // Update playback state after queueNavigator.onCurrentWindowIndexChanged has been called
-        // and before updating metadata.
-        invalidateMediaSessionPlaybackState();
-        invalidateMediaSessionMetadata();
-        return;
+        invalidatePlaybackState = true;
       }
-      invalidateMediaSessionPlaybackState();
-    }
 
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      invalidateMediaSessionPlaybackState();
+      if (events.contains(Player.EVENT_TIMELINE_CHANGED)) {
+        int windowCount = player.getCurrentTimeline().getWindowCount();
+        int windowIndex = player.getCurrentWindowIndex();
+        if (queueNavigator != null) {
+          queueNavigator.onTimelineChanged(player);
+          invalidatePlaybackState = true;
+        } else if (currentWindowCount != windowCount || currentWindowIndex != windowIndex) {
+          // active queue item and queue navigation actions may need to be updated
+          invalidatePlaybackState = true;
+        }
+        currentWindowCount = windowCount;
+        invalidateMetadata = true;
+      }
+
+      // Update currentWindowIndex after comparisons above.
+      currentWindowIndex = player.getCurrentWindowIndex();
+
+      if (events.containsAny(
+          EVENT_PLAYBACK_STATE_CHANGED,
+          EVENT_PLAY_WHEN_READY_CHANGED,
+          EVENT_IS_PLAYING_CHANGED,
+          EVENT_REPEAT_MODE_CHANGED,
+          EVENT_PLAYBACK_PARAMETERS_CHANGED)) {
+        invalidatePlaybackState = true;
+      }
+
+      // The queue needs to be updated by the queue navigator first. The queue navigator also
+      // delivers the active queue item that is used to update the playback state.
+      if (events.containsAny(EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+        invalidateMediaSessionQueue();
+        invalidatePlaybackState = true;
+      }
+      // Invalidate the playback state before invalidating metadata because the active queue item of
+      // the session playback state needs to be updated before the MediaMetadataProvider uses it.
+      if (invalidatePlaybackState) {
+        invalidateMediaSessionPlaybackState();
+      }
+      if (invalidateMetadata) {
+        invalidateMediaSessionMetadata();
+      }
     }
 
     // MediaSessionCompat.Callback implementation.
@@ -1231,6 +1236,14 @@ public final class MediaSessionConnector {
             break;
         }
         controlDispatcher.dispatchSetRepeatMode(player, repeatMode);
+      }
+    }
+
+    @Override
+    public void onSetPlaybackSpeed(float speed) {
+      if (canDispatchPlaybackAction(ACTION_SET_PLAYBACK_SPEED) && speed > 0) {
+        controlDispatcher.dispatchSetPlaybackParameters(
+            player, player.getPlaybackParameters().withSpeed(speed));
       }
     }
 

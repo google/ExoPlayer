@@ -72,12 +72,12 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
 
   private final ParsableByteArray parsableByteArray;
 
-  private boolean customVerticalPlacement;
-  private int defaultFontFace;
-  private int defaultColorRgba;
-  private String defaultFontFamily;
-  private float defaultVerticalPlacement;
-  private int calculatedVideoTrackHeight;
+  private final boolean customVerticalPlacement;
+  private final int defaultFontFace;
+  private final int defaultColorRgba;
+  private final String defaultFontFamily;
+  private final float defaultVerticalPlacement;
+  private final int calculatedVideoTrackHeight;
 
   /**
    * Sets up a new {@link Tx3gDecoder} with default values.
@@ -88,7 +88,7 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
     super("Tx3gDecoder");
     parsableByteArray = new ParsableByteArray();
 
-    if (initializationData != null && initializationData.size() == 1
+    if (initializationData.size() == 1
         && (initializationData.get(0).length == 48 || initializationData.get(0).length == 53)) {
       byte[] initializationBytes = initializationData.get(0);
       defaultFontFace = initializationBytes[24];
@@ -105,8 +105,9 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
       if (customVerticalPlacement) {
         int requestedVerticalPlacement = ((initializationBytes[10] & 0xFF) << 8)
             | (initializationBytes[11] & 0xFF);
-        defaultVerticalPlacement = (float) requestedVerticalPlacement / calculatedVideoTrackHeight;
-        defaultVerticalPlacement = Util.constrainValue(defaultVerticalPlacement, 0.0f, 0.95f);
+        defaultVerticalPlacement =
+            Util.constrainValue(
+                (float) requestedVerticalPlacement / calculatedVideoTrackHeight, 0.0f, 0.95f);
       } else {
         defaultVerticalPlacement = DEFAULT_VERTICAL_PLACEMENT;
       }
@@ -116,6 +117,7 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
       defaultFontFamily = DEFAULT_FONT_FAMILY;
       customVerticalPlacement = false;
       defaultVerticalPlacement = DEFAULT_VERTICAL_PLACEMENT;
+      calculatedVideoTrackHeight = C.LENGTH_UNSET;
     }
   }
 
@@ -133,8 +135,7 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
         SPAN_PRIORITY_LOW);
     attachColor(cueText, defaultColorRgba, DEFAULT_COLOR, 0, cueText.length(),
         SPAN_PRIORITY_LOW);
-    attachFontFamily(cueText, defaultFontFamily, DEFAULT_FONT_FAMILY, 0, cueText.length(),
-        SPAN_PRIORITY_LOW);
+    attachFontFamily(cueText, defaultFontFamily, 0, cueText.length());
     float verticalPlacement = defaultVerticalPlacement;
     // Find and attach additional styles.
     while (parsableByteArray.bytesLeft() >= SIZE_ATOM_HEADER) {
@@ -237,11 +238,14 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
   }
 
   @SuppressWarnings("ReferenceEquality")
-  private static void attachFontFamily(SpannableStringBuilder cueText, String fontFamily,
-      String defaultFontFamily, int start, int end, int spanPriority) {
-    if (fontFamily != defaultFontFamily) {
-      cueText.setSpan(new TypefaceSpan(fontFamily), start, end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | spanPriority);
+  private static void attachFontFamily(
+      SpannableStringBuilder cueText, String fontFamily, int start, int end) {
+    if (fontFamily != Tx3gDecoder.DEFAULT_FONT_FAMILY) {
+      cueText.setSpan(
+          new TypefaceSpan(fontFamily),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | Tx3gDecoder.SPAN_PRIORITY_LOW);
     }
   }
 

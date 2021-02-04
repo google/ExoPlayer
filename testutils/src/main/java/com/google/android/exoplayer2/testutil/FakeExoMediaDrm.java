@@ -60,7 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiresApi(29)
 public final class FakeExoMediaDrm implements ExoMediaDrm {
 
-  public static final ProvisionRequest DUMMY_PROVISION_REQUEST =
+  public static final ProvisionRequest FAKE_PROVISION_REQUEST =
       new ProvisionRequest(TestUtil.createByteArray(7, 8, 9), "bar.test");
 
   /** Key for use with the Map returned from {@link FakeExoMediaDrm#queryKeyStatus(byte[])}. */
@@ -167,7 +167,12 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
             schemeDatas,
             keyType,
             optionalParameters != null ? optionalParameters : ImmutableMap.of());
-    return new KeyRequest(requestData.toByteArray(), /* licenseServerUrl= */ "");
+    @KeyRequest.RequestType
+    int requestType =
+        sessionIdsWithValidKeys.contains(toByteList(scope))
+            ? KeyRequest.REQUEST_TYPE_RENEWAL
+            : KeyRequest.REQUEST_TYPE_INITIAL;
+    return new KeyRequest(requestData.toByteArray(), /* licenseServerUrl= */ "", requestType);
   }
 
   @Nullable
@@ -187,7 +192,7 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Override
   public ProvisionRequest getProvisionRequest() {
     Assertions.checkState(referenceCount > 0);
-    return DUMMY_PROVISION_REQUEST;
+    return FAKE_PROVISION_REQUEST;
   }
 
   @Override

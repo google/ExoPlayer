@@ -53,14 +53,6 @@ import org.junit.rules.ExternalResource;
 
   @Override
   protected void before() {
-    // Workaround limitation in androidx.media2.session:1.0.3 which session can only be instantiated
-    // on thread with prepared Looper.
-    // TODO: Remove when androidx.media2.session:1.1.0 is released without the limitation
-    //       [Internal: b/146536708]
-    if (Looper.myLooper() == null) {
-      Looper.prepare();
-    }
-
     context = ApplicationProvider.getApplicationContext();
     executor = Executors.newFixedThreadPool(1);
 

@@ -59,7 +59,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
@@ -582,8 +581,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(null);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          oldVideoComponent.setVideoDecoderOutputBufferRenderer(null);
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -610,9 +607,6 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
           newVideoComponent.setVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
           ((SphericalGLSurfaceView) surfaceView).setVideoComponent(newVideoComponent);
-        } else if (surfaceView instanceof VideoDecoderGLSurfaceView) {
-          newVideoComponent.setVideoDecoderOutputBufferRenderer(
-              ((VideoDecoderGLSurfaceView) surfaceView).getVideoDecoderOutputBufferRenderer());
         } else if (surfaceView instanceof SurfaceView) {
           newVideoComponent.setVideoSurfaceView((SurfaceView) surfaceView);
         }
@@ -734,9 +728,8 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   /**
    * Sets whether the currently displayed video frame or media artwork is kept visible when the
    * player is reset. A player reset is defined to mean the player being re-prepared with different
-   * media, the player transitioning to unprepared media, {@link Player#stop(boolean)} being called
-   * with {@code reset=true}, or the player being replaced or cleared by calling {@link
-   * #setPlayer(Player)}.
+   * media, the player transitioning to unprepared media or an empty list of media items, or the
+   * player being replaced or cleared by calling {@link #setPlayer(Player)}.
    *
    * <p>If enabled, the currently displayed video frame or media artwork will be kept visible until
    * the player set on the view has been successfully prepared with new media and loaded enough of
@@ -1375,15 +1368,9 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
     closeShutter();
     // Display artwork if enabled and available, else hide it.
     if (useArtwork()) {
-      for (int i = 0; i < selections.length; i++) {
-        @Nullable TrackSelection selection = selections.get(i);
-        if (selection != null) {
-          for (int j = 0; j < selection.length(); j++) {
-            @Nullable Metadata metadata = selection.getFormat(j).metadata;
-            if (metadata != null && setArtworkFromMetadata(metadata)) {
-              return;
-            }
-          }
+      for (Metadata metadata : player.getCurrentStaticMetadata()) {
+        if (setArtworkFromMetadata(metadata)) {
+          return;
         }
       }
       if (setDrawableArtwork(defaultArtwork)) {

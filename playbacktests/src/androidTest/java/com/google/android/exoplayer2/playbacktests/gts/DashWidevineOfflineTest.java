@@ -41,12 +41,15 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Tests Widevine encrypted DASH playbacks using offline keys. */
 @RunWith(AndroidJUnit4.class)
+@Ignore(
+    "Need to be reconfigured/rewritten with an offline-compatible licence [internal b/176960595].")
 public final class DashWidevineOfflineTest {
 
   private static final String TAG = "DashWidevineOfflineTest";
@@ -171,9 +174,9 @@ public final class DashWidevineOfflineTest {
     long licenseDuration =
         offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId).first;
     assertWithMessage(
-            "License duration should be less than 30 sec. " + "Server settings might have changed.")
-        .that(licenseDuration < 30)
-        .isTrue();
+            "License duration should be less than 30 sec. Server settings might have changed.")
+        .that(licenseDuration)
+        .isLessThan(30);
     while (licenseDuration > 0) {
       synchronized (this) {
         wait(licenseDuration * 1000 + 2000);
@@ -182,8 +185,8 @@ public final class DashWidevineOfflineTest {
       licenseDuration =
           offlineLicenseHelper.getLicenseDurationRemainingSec(offlineLicenseKeySetId).first;
       assertWithMessage("License duration should be decreasing.")
-          .that(previousDuration > licenseDuration)
-          .isTrue();
+          .that(licenseDuration)
+          .isLessThan(previousDuration);
     }
 
     // DefaultDrmSessionManager should renew the license and stream play fine
@@ -203,8 +206,8 @@ public final class DashWidevineOfflineTest {
     long licenseDuration = licenseDurationRemainingSec.first;
     assertWithMessage(
             "License duration should be less than 30 sec. Server settings might have changed.")
-        .that(licenseDuration < 30)
-        .isTrue();
+        .that(licenseDuration)
+        .isLessThan(30);
     ActionSchedule schedule = new ActionSchedule.Builder(TAG)
         .waitForPlaybackState(Player.STATE_READY)
         .delay(3000).pause().delay(licenseDuration * 1000 + 2000).play().build();

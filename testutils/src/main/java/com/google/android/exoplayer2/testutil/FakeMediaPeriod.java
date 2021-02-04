@@ -17,7 +17,9 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
+import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -36,30 +38,52 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/**
- * Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. Selecting
- * tracks will give the player {@link FakeSampleStream}s. Loading data completes immediately after
- * the period has finished preparing.
- */
+/** Fake {@link MediaPeriod} that provides tracks from the given {@link TrackGroupArray}. */
 public class FakeMediaPeriod implements MediaPeriod {
 
-  public static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://fake.uri"));
+  private static final DataSpec FAKE_DATA_SPEC = new DataSpec(Uri.parse("http://fake.test"));
+
+  /** A factory to create the test data for a particular track. */
+  public interface TrackDataFactory {
+
+    /**
+     * Returns the list of {@link FakeSampleStream.FakeSampleStreamItem}s that will be written the
+     * sample queue during playback.
+     *
+     * @param format The format of the track to provide data for.
+     * @param mediaPeriodId The {@link MediaPeriodId} to provide data for.
+     * @return The track data in the form of {@link FakeSampleStream.FakeSampleStreamItem}s.
+     */
+    List<FakeSampleStream.FakeSampleStreamItem> create(Format format, MediaPeriodId mediaPeriodId);
+
+    /**
+     * Returns a factory that always provides a single keyframe sample with {@code
+     * time=sampleTimeUs} and then end-of-stream.
+     */
+    static TrackDataFactory singleSampleWithTimeUs(long sampleTimeUs) {
+      return (unusedFormat, unusedMediaPeriodId) ->
+          ImmutableList.of(
+              oneByteSample(sampleTimeUs, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM);
+    }
+  }
 
   private final TrackGroupArray trackGroupArray;
-  private final List<SampleStream> sampleStreams;
+  private final Set<FakeSampleStream> sampleStreams;
   private final TrackDataFactory trackDataFactory;
   private final MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher;
+  private final Allocator allocator;
   private final DrmSessionManager drmSessionManager;
   private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   private final long fakePreparationLoadTaskId;
@@ -71,25 +95,28 @@ public class FakeMediaPeriod implements MediaPeriod {
   private boolean prepared;
   private long seekOffsetUs;
   private long discontinuityPositionUs;
-  private long bufferedPositionUs;
+  private long lastSeekPositionUs;
 
   /**
    * Constructs a FakeMediaPeriod with a single sample for each track in {@code trackGroupArray}.
    *
    * @param trackGroupArray The track group array.
+   * @param allocator An {@link Allocator}.
    * @param singleSampleTimeUs The timestamp to use for the single sample in each track, in
    *     microseconds.
    * @param mediaSourceEventDispatcher A dispatcher for {@link MediaSourceEventListener} events.
    */
   public FakeMediaPeriod(
       TrackGroupArray trackGroupArray,
+      Allocator allocator,
       long singleSampleTimeUs,
       MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher) {
     this(
         trackGroupArray,
+        allocator,
         TrackDataFactory.singleSampleWithTimeUs(singleSampleTimeUs),
         mediaSourceEventDispatcher,
-        DrmSessionManager.DUMMY,
+        DrmSessionManager.DRM_UNSUPPORTED,
         new DrmSessionEventListener.EventDispatcher(),
         /* deferOnPrepared */ false);
   }
@@ -98,6 +125,7 @@ public class FakeMediaPeriod implements MediaPeriod {
    * Constructs a FakeMediaPeriod with a single sample for each track in {@code trackGroupArray}.
    *
    * @param trackGroupArray The track group array.
+   * @param allocator An {@link Allocator}.
    * @param singleSampleTimeUs The timestamp to use for the single sample in each track, in
    *     microseconds.
    * @param mediaSourceEventDispatcher A dispatcher for {@link MediaSourceEventListener} events.
@@ -109,6 +137,7 @@ public class FakeMediaPeriod implements MediaPeriod {
    */
   public FakeMediaPeriod(
       TrackGroupArray trackGroupArray,
+      Allocator allocator,
       long singleSampleTimeUs,
       MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
@@ -116,6 +145,7 @@ public class FakeMediaPeriod implements MediaPeriod {
       boolean deferOnPrepared) {
     this(
         trackGroupArray,
+        allocator,
         TrackDataFactory.singleSampleWithTimeUs(singleSampleTimeUs),
         mediaSourceEventDispatcher,
         drmSessionManager,
@@ -127,10 +157,10 @@ public class FakeMediaPeriod implements MediaPeriod {
    * Constructs a FakeMediaPeriod.
    *
    * @param trackGroupArray The track group array.
-   * @param trackDataFactory A source for the underlying sample data for each track in {@code
-   *     trackGroupArray}.
+   * @param allocator An {@link Allocator}.
+   * @param trackDataFactory The {@link TrackDataFactory} creating the data.
    * @param mediaSourceEventDispatcher A dispatcher for media source events.
-   * @param drmSessionManager The DrmSessionManager used for DRM interactions.
+   * @param drmSessionManager The {@link DrmSessionManager} used for DRM interactions.
    * @param drmEventDispatcher A dispatcher for {@link DrmSessionEventListener} events.
    * @param deferOnPrepared Whether {@link Callback#onPrepared(MediaPeriod)} should be called only
    *     after {@link #setPreparationComplete()} has been called. If {@code false} preparation
@@ -138,6 +168,7 @@ public class FakeMediaPeriod implements MediaPeriod {
    */
   public FakeMediaPeriod(
       TrackGroupArray trackGroupArray,
+      Allocator allocator,
       TrackDataFactory trackDataFactory,
       MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
@@ -145,19 +176,19 @@ public class FakeMediaPeriod implements MediaPeriod {
       boolean deferOnPrepared) {
     this.trackGroupArray = trackGroupArray;
     this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
-    this.drmSessionManager = drmSessionManager;
-    this.drmEventDispatcher = drmEventDispatcher;
     this.deferOnPrepared = deferOnPrepared;
     this.trackDataFactory = trackDataFactory;
-    this.bufferedPositionUs = C.TIME_END_OF_SOURCE;
+    this.allocator = allocator;
+    this.drmSessionManager = drmSessionManager;
+    this.drmEventDispatcher = drmEventDispatcher;
+    sampleStreams = Sets.newIdentityHashSet();
     discontinuityPositionUs = C.TIME_UNSET;
-    sampleStreams = new ArrayList<>();
     fakePreparationLoadTaskId = LoadEventInfo.getNewId();
   }
 
   /**
-   * Sets a discontinuity position to be returned from the next call to
-   * {@link #readDiscontinuity()}.
+   * Sets a discontinuity position to be returned from the next call to {@link
+   * #readDiscontinuity()}.
    *
    * @param discontinuityPositionUs The position to be returned, in microseconds.
    */
@@ -165,9 +196,7 @@ public class FakeMediaPeriod implements MediaPeriod {
     this.discontinuityPositionUs = discontinuityPositionUs;
   }
 
-  /**
-   * Allows the fake media period to complete preparation. May be called on any thread.
-   */
+  /** Allows the fake media period to complete preparation. May be called on any thread. */
   public synchronized void setPreparationComplete() {
     deferOnPrepared = false;
     if (playerHandler != null && prepareCallback != null) {
@@ -184,11 +213,13 @@ public class FakeMediaPeriod implements MediaPeriod {
     this.seekOffsetUs = seekOffsetUs;
   }
 
+  /** Releases the media period. */
   public void release() {
     prepared = false;
-    for (int i = 0; i < sampleStreams.size(); i++) {
-      releaseSampleStream(sampleStreams.get(i));
+    for (FakeSampleStream sampleStream : sampleStreams) {
+      sampleStream.release();
     }
+    sampleStreams.clear();
   }
 
   @Override
@@ -223,43 +254,52 @@ public class FakeMediaPeriod implements MediaPeriod {
 
   @Override
   public long selectTracks(
-      @NullableType TrackSelection[] selections,
+      @NullableType ExoTrackSelection[] selections,
       boolean[] mayRetainStreamFlags,
       @NullableType SampleStream[] streams,
       boolean[] streamResetFlags,
       long positionUs) {
     assertThat(prepared).isTrue();
-    sampleStreams.clear();
     int rendererCount = selections.length;
     for (int i = 0; i < rendererCount; i++) {
       if (streams[i] != null && (selections[i] == null || !mayRetainStreamFlags[i])) {
+        ((FakeSampleStream) streams[i]).release();
+        sampleStreams.remove(streams[i]);
         streams[i] = null;
       }
       if (streams[i] == null && selections[i] != null) {
-        TrackSelection selection = selections[i];
+        ExoTrackSelection selection = selections[i];
         assertThat(selection.length()).isAtLeast(1);
         TrackGroup trackGroup = selection.getTrackGroup();
         assertThat(trackGroupArray.indexOf(trackGroup) != C.INDEX_UNSET).isTrue();
         int indexInTrackGroup = selection.getIndexInTrackGroup(selection.getSelectedIndex());
         assertThat(indexInTrackGroup).isAtLeast(0);
         assertThat(indexInTrackGroup).isLessThan(trackGroup.length);
-        streams[i] =
+        List<FakeSampleStreamItem> sampleStreamItems =
+            trackDataFactory.create(
+                selection.getSelectedFormat(),
+                checkNotNull(mediaSourceEventDispatcher.mediaPeriodId));
+        FakeSampleStream sampleStream =
             createSampleStream(
-                positionUs,
-                selection,
+                allocator,
                 mediaSourceEventDispatcher,
                 drmSessionManager,
-                drmEventDispatcher);
-        sampleStreams.add(streams[i]);
+                drmEventDispatcher,
+                selection.getSelectedFormat(),
+                sampleStreamItems);
+        sampleStreams.add(sampleStream);
+        streams[i] = sampleStream;
         streamResetFlags[i] = true;
       }
     }
-    return positionUs;
+    return seekToUs(positionUs);
   }
 
   @Override
   public void discardBuffer(long positionUs, boolean toKeyframe) {
-    // Do nothing.
+    for (FakeSampleStream sampleStream : sampleStreams) {
+      sampleStream.discardTo(positionUs, toKeyframe);
+    }
   }
 
   @Override
@@ -278,22 +318,30 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long getBufferedPositionUs() {
     assertThat(prepared).isTrue();
-    return bufferedPositionUs;
-  }
-
-  public void setBufferedPositionUs(long bufferedPositionUs) {
-    this.bufferedPositionUs = bufferedPositionUs;
+    if (isLoadingFinished()) {
+      return C.TIME_END_OF_SOURCE;
+    }
+    long minBufferedPositionUs = Long.MAX_VALUE;
+    for (FakeSampleStream sampleStream : sampleStreams) {
+      minBufferedPositionUs =
+          min(minBufferedPositionUs, sampleStream.getLargestQueuedTimestampUs());
+    }
+    return minBufferedPositionUs == Long.MIN_VALUE ? lastSeekPositionUs : minBufferedPositionUs;
   }
 
   @Override
   public long seekToUs(long positionUs) {
     assertThat(prepared).isTrue();
     long seekPositionUs = positionUs + seekOffsetUs;
-    for (SampleStream sampleStream : sampleStreams) {
-      seekSampleStream(sampleStream, seekPositionUs);
+    lastSeekPositionUs = seekPositionUs;
+    boolean seekedInsideStreams = true;
+    for (FakeSampleStream sampleStream : sampleStreams) {
+      seekedInsideStreams &= sampleStream.seekToUs(seekPositionUs);
     }
-    if (bufferedPositionUs != C.TIME_END_OF_SOURCE && seekPositionUs > bufferedPositionUs) {
-      bufferedPositionUs = seekPositionUs;
+    if (!seekedInsideStreams) {
+      for (FakeSampleStream sampleStream : sampleStreams) {
+        sampleStream.reset();
+      }
     }
     return seekPositionUs;
   }
@@ -306,12 +354,15 @@ public class FakeMediaPeriod implements MediaPeriod {
   @Override
   public long getNextLoadPositionUs() {
     assertThat(prepared).isTrue();
-    return C.TIME_END_OF_SOURCE;
+    return getBufferedPositionUs();
   }
 
   @Override
   public boolean continueLoading(long positionUs) {
-    return false;
+    for (FakeSampleStream sampleStream : sampleStreams) {
+      sampleStream.writeData(positionUs);
+    }
+    return true;
   }
 
   @Override
@@ -320,58 +371,31 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   /**
-   * Creates a sample stream for the provided selection.
+   * Creates a new {@link FakeSampleStream}.
    *
-   * @param positionUs The position at which the tracks were selected, in microseconds.
-   * @param selection A selection of tracks.
-   * @param mediaSourceEventDispatcher A dispatcher for {@link MediaSourceEventListener} events that
-   *     should be used by the sample stream.
-   * @param drmSessionManager The DRM session manager.
-   * @param drmEventDispatcher A dispatcher for {@link DrmSessionEventListener} events that should
-   *     be used by the sample stream.
-   * @return A {@link SampleStream} for this selection.
+   * @param mediaSourceEventDispatcher A {@link MediaSourceEventListener.EventDispatcher} to notify
+   *     of media events.
+   * @param drmSessionManager A {@link DrmSessionManager} for DRM interactions.
+   * @param drmEventDispatcher A {@link DrmSessionEventListener.EventDispatcher} to notify of DRM
+   *     events.
+   * @param initialFormat The first {@link Format} to output.
+   * @param fakeSampleStreamItems The {@link FakeSampleStreamItem items} to output.
+   * @return A new {@link FakeSampleStream}.
    */
-  protected SampleStream createSampleStream(
-      long positionUs,
-      TrackSelection selection,
-      MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+  protected FakeSampleStream createSampleStream(
+      Allocator allocator,
+      @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
       DrmSessionManager drmSessionManager,
-      DrmSessionEventListener.EventDispatcher drmEventDispatcher) {
-    FakeSampleStream sampleStream =
-        new FakeSampleStream(
-            mediaSourceEventDispatcher,
-            drmSessionManager,
-            drmEventDispatcher,
-            selection.getSelectedFormat(),
-            trackDataFactory.create(
-                selection.getSelectedFormat(),
-                Assertions.checkNotNull(mediaSourceEventDispatcher.mediaPeriodId)));
-    sampleStream.seekTo(positionUs);
-    return sampleStream;
-  }
-
-  /**
-   * Seeks inside the given sample stream.
-   *
-   * @param sampleStream A sample stream that was created by a call to {@link
-   *     #createSampleStream(long, TrackSelection, MediaSourceEventListener.EventDispatcher,
-   *     DrmSessionManager, DrmSessionEventListener.EventDispatcher)}.
-   * @param positionUs The position to seek to, in microseconds.
-   */
-  protected void seekSampleStream(SampleStream sampleStream, long positionUs) {
-    // Queue a single sample from the seek position again.
-    ((FakeSampleStream) sampleStream).seekTo(positionUs);
-  }
-
-  /**
-   * Releases the given sample stream.
-   *
-   * @param sampleStream A sample stream that was created by a call to {@link
-   *     #createSampleStream(long, TrackSelection, MediaSourceEventListener.EventDispatcher,
-   *     DrmSessionManager, DrmSessionEventListener.EventDispatcher)}.
-   */
-  protected void releaseSampleStream(SampleStream sampleStream) {
-    ((FakeSampleStream) sampleStream).release();
+      DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+      Format initialFormat,
+      List<FakeSampleStream.FakeSampleStreamItem> fakeSampleStreamItems) {
+    return new FakeSampleStream(
+        allocator,
+        mediaSourceEventDispatcher,
+        drmSessionManager,
+        drmEventDispatcher,
+        initialFormat,
+        fakeSampleStreamItems);
   }
 
   private void finishPreparation() {
@@ -395,27 +419,12 @@ public class FakeMediaPeriod implements MediaPeriod {
         /* mediaEndTimeUs = */ C.TIME_UNSET);
   }
 
-  /** A factory to create the test data for a particular track. */
-  public interface TrackDataFactory {
-
-    /**
-     * Returns the list of {@link FakeSampleStreamItem}s that will be passed to {@link
-     * FakeSampleStream#FakeSampleStream(MediaSourceEventListener.EventDispatcher,
-     * DrmSessionManager, DrmSessionEventListener.EventDispatcher, Format, List)}.
-     *
-     * @param format The format of the track to provide data for.
-     * @param mediaPeriodId The {@link MediaPeriodId} to provide data for.
-     * @return The track data in the form of {@link FakeSampleStreamItem}s.
-     */
-    List<FakeSampleStreamItem> create(Format format, MediaPeriodId mediaPeriodId);
-
-    /**
-     * Returns a factory that always provides a single sample with {@code time=sampleTimeUs} and
-     * then end-of-stream.
-     */
-    static TrackDataFactory singleSampleWithTimeUs(long sampleTimeUs) {
-      return (unusedFormat, unusedMediaPeriodId) ->
-          ImmutableList.of(oneByteSample(sampleTimeUs), END_OF_STREAM_ITEM);
+  private boolean isLoadingFinished() {
+    for (FakeSampleStream sampleStream : sampleStreams) {
+      if (!sampleStream.isLoadingFinished()) {
+        return false;
+      }
     }
+    return true;
   }
 }

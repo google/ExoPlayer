@@ -137,29 +137,10 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
     Arrays.sort(this.schemeDatas, this);
   }
 
-  /* package */
-  DrmInitData(Parcel in) {
+  /* package */ DrmInitData(Parcel in) {
     schemeType = in.readString();
     schemeDatas = Util.castNonNull(in.createTypedArray(SchemeData.CREATOR));
     schemeDataCount = schemeDatas.length;
-  }
-
-  /**
-   * Retrieves data for a given DRM scheme, specified by its UUID.
-   *
-   * @deprecated Use {@link #get(int)} and {@link SchemeData#matches(UUID)} instead.
-   * @param uuid The DRM scheme's UUID.
-   * @return The initialization data for the scheme, or null if the scheme is not supported.
-   */
-  @Deprecated
-  @Nullable
-  public SchemeData get(UUID uuid) {
-    for (SchemeData schemeData : schemeDatas) {
-      if (schemeData.matches(uuid)) {
-        return schemeData;
-      }
-    }
-    return null;
   }
 
   /**

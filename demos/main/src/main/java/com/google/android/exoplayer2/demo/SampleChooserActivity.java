@@ -252,7 +252,7 @@ public class SampleChooserActivity extends AppCompatActivity
     }
     MediaItem.PlaybackProperties playbackProperties =
         checkNotNull(playlistHolder.mediaItems.get(0).playbackProperties);
-    if (playbackProperties.adTagUri != null) {
+    if (playbackProperties.adsConfiguration != null) {
       return R.string.download_ads_unsupported;
     }
     String scheme = playbackProperties.uri.getScheme();

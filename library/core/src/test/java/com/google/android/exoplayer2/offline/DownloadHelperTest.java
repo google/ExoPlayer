@@ -38,8 +38,8 @@ import com.google.android.exoplayer2.testutil.FakeRenderer;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.io.IOException;
@@ -99,8 +99,7 @@ public class DownloadHelperTest {
             trackGroupTextZh);
     TrackGroupArray trackGroupArraySingle =
         new TrackGroupArray(TRACK_GROUP_VIDEO_SINGLE, trackGroupAudioUs);
-    trackGroupArrays =
-        new TrackGroupArray[] {trackGroupArrayAll, trackGroupArraySingle};
+    trackGroupArrays = new TrackGroupArray[] {trackGroupArrayAll, trackGroupArraySingle};
 
     testMediaItem =
         new MediaItem.Builder().setUri("http://test.uri").setCustomCacheKey("cacheKey").build();
@@ -194,17 +193,17 @@ public class DownloadHelperTest {
   public void getTrackSelections_returnsInitialSelection() throws Exception {
     prepareDownloadHelper(downloadHelper);
 
-    List<TrackSelection> selectedText0 =
+    List<ExoTrackSelection> selectedText0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio0 =
+    List<ExoTrackSelection> selectedAudio0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo0 =
+    List<ExoTrackSelection> selectedVideo0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
-    List<TrackSelection> selectedText1 =
+    List<ExoTrackSelection> selectedText1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio1 =
+    List<ExoTrackSelection> selectedAudio1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo1 =
+    List<ExoTrackSelection> selectedVideo1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
 
     assertSingleTrackSelectionEquals(selectedText0, trackGroupTextUs, 0);
@@ -222,17 +221,17 @@ public class DownloadHelperTest {
 
     // Clear only one period selection to verify second period selection is untouched.
     downloadHelper.clearTrackSelections(/* periodIndex= */ 0);
-    List<TrackSelection> selectedText0 =
+    List<ExoTrackSelection> selectedText0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio0 =
+    List<ExoTrackSelection> selectedAudio0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo0 =
+    List<ExoTrackSelection> selectedVideo0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
-    List<TrackSelection> selectedText1 =
+    List<ExoTrackSelection> selectedText1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio1 =
+    List<ExoTrackSelection> selectedAudio1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo1 =
+    List<ExoTrackSelection> selectedVideo1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
 
     assertThat(selectedText0).isEmpty();
@@ -258,17 +257,17 @@ public class DownloadHelperTest {
 
     // Replace only one period selection to verify second period selection is untouched.
     downloadHelper.replaceTrackSelections(/* periodIndex= */ 0, parameters);
-    List<TrackSelection> selectedText0 =
+    List<ExoTrackSelection> selectedText0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio0 =
+    List<ExoTrackSelection> selectedAudio0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo0 =
+    List<ExoTrackSelection> selectedVideo0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
-    List<TrackSelection> selectedText1 =
+    List<ExoTrackSelection> selectedText1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio1 =
+    List<ExoTrackSelection> selectedAudio1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo1 =
+    List<ExoTrackSelection> selectedVideo1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
 
     assertSingleTrackSelectionEquals(selectedText0, trackGroupTextZh, 0);
@@ -294,17 +293,17 @@ public class DownloadHelperTest {
 
     // Add only to one period selection to verify second period selection is untouched.
     downloadHelper.addTrackSelection(/* periodIndex= */ 0, parameters);
-    List<TrackSelection> selectedText0 =
+    List<ExoTrackSelection> selectedText0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio0 =
+    List<ExoTrackSelection> selectedAudio0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo0 =
+    List<ExoTrackSelection> selectedVideo0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
-    List<TrackSelection> selectedText1 =
+    List<ExoTrackSelection> selectedText1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio1 =
+    List<ExoTrackSelection> selectedAudio1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo1 =
+    List<ExoTrackSelection> selectedVideo1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
 
     assertSingleTrackSelectionEquals(selectedText0, trackGroupTextUs, 0);
@@ -327,17 +326,17 @@ public class DownloadHelperTest {
 
     // Add a non-default language, and a non-existing language (which will select the default).
     downloadHelper.addAudioLanguagesToSelection("ZH", "Klingonese");
-    List<TrackSelection> selectedText0 =
+    List<ExoTrackSelection> selectedText0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio0 =
+    List<ExoTrackSelection> selectedAudio0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo0 =
+    List<ExoTrackSelection> selectedVideo0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
-    List<TrackSelection> selectedText1 =
+    List<ExoTrackSelection> selectedText1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio1 =
+    List<ExoTrackSelection> selectedAudio1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo1 =
+    List<ExoTrackSelection> selectedVideo1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
 
     assertThat(selectedVideo0).isEmpty();
@@ -361,17 +360,17 @@ public class DownloadHelperTest {
     // Add a non-default language, and a non-existing language (which will select the default).
     downloadHelper.addTextLanguagesToSelection(
         /* selectUndeterminedTextLanguage= */ true, "ZH", "Klingonese");
-    List<TrackSelection> selectedText0 =
+    List<ExoTrackSelection> selectedText0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio0 =
+    List<ExoTrackSelection> selectedAudio0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo0 =
+    List<ExoTrackSelection> selectedVideo0 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 0, /* rendererIndex= */ 2);
-    List<TrackSelection> selectedText1 =
+    List<ExoTrackSelection> selectedText1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 0);
-    List<TrackSelection> selectedAudio1 =
+    List<ExoTrackSelection> selectedAudio1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 1);
-    List<TrackSelection> selectedVideo1 =
+    List<ExoTrackSelection> selectedVideo1 =
         downloadHelper.getTrackSelections(/* periodIndex= */ 1, /* rendererIndex= */ 2);
 
     assertThat(selectedVideo0).isEmpty();
@@ -464,13 +463,13 @@ public class DownloadHelperTest {
   }
 
   private static void assertSingleTrackSelectionEquals(
-      List<TrackSelection> trackSelectionList, TrackGroup trackGroup, int... tracks) {
+      List<ExoTrackSelection> trackSelectionList, TrackGroup trackGroup, int... tracks) {
     assertThat(trackSelectionList).hasSize(1);
     assertTrackSelectionEquals(trackSelectionList.get(0), trackGroup, tracks);
   }
 
   private static void assertTrackSelectionEquals(
-      TrackSelection trackSelection, TrackGroup trackGroup, int... tracks) {
+      ExoTrackSelection trackSelection, TrackGroup trackGroup, int... tracks) {
     assertThat(trackSelection.getTrackGroup()).isEqualTo(trackGroup);
     assertThat(trackSelection.length()).isEqualTo(tracks.length);
     int[] selectedTracksInGroup = new int[trackSelection.length()];
@@ -493,13 +492,14 @@ public class DownloadHelperTest {
       int periodIndex = TEST_TIMELINE.getIndexOfPeriod(id.periodUid);
       return new FakeMediaPeriod(
           trackGroupArrays[periodIndex],
+          allocator,
           TEST_TIMELINE.getWindow(0, new Timeline.Window()).positionInFirstPeriodUs,
           new EventDispatcher()
               .withParameters(/* windowIndex= */ 0, id, /* mediaTimeOffsetMs= */ 0)) {
         @Override
-        public List<StreamKey> getStreamKeys(List<TrackSelection> trackSelections) {
+        public List<StreamKey> getStreamKeys(List<ExoTrackSelection> trackSelections) {
           List<StreamKey> result = new ArrayList<>();
-          for (TrackSelection trackSelection : trackSelections) {
+          for (ExoTrackSelection trackSelection : trackSelections) {
             int groupIndex = trackGroupArrays[periodIndex].indexOf(trackSelection.getTrackGroup());
             for (int i = 0; i < trackSelection.length(); i++) {
               result.add(

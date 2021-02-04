@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -41,7 +42,7 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
       FakeChunkSource.Factory chunkSourceFactory) {
     super(
         timeline,
-        DrmSessionManager.DUMMY,
+        DrmSessionManager.DRM_UNSUPPORTED,
         /* trackDataFactory= */ (unusedFormat, unusedMediaPeriodId) -> {
           throw new RuntimeException("Unused TrackDataFactory");
         },
@@ -50,7 +51,7 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
   }
 
   @Override
-  protected FakeMediaPeriod createFakeMediaPeriod(
+  protected MediaPeriod createMediaPeriod(
       MediaPeriodId id,
       TrackGroupArray trackGroupArray,
       Allocator allocator,
@@ -68,4 +69,8 @@ public class FakeAdaptiveMediaSource extends FakeMediaSource {
         transferListener);
   }
 
+  @Override
+  public void releaseMediaPeriod(MediaPeriod mediaPeriod) {
+    ((FakeAdaptiveMediaPeriod) mediaPeriod).release();
+  }
 }

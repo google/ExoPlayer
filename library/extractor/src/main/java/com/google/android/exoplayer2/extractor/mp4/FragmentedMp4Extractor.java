@@ -74,8 +74,7 @@ public class FragmentedMp4Extractor implements Extractor {
   /**
    * Flags controlling the behavior of the extractor. Possible flag values are {@link
    * #FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME}, {@link #FLAG_WORKAROUND_IGNORE_TFDT_BOX},
-   * {@link #FLAG_ENABLE_EMSG_TRACK}, {@link #FLAG_SIDELOADED} and {@link
-   * #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}.
+   * {@link #FLAG_ENABLE_EMSG_TRACK} and {@link #FLAG_WORKAROUND_IGNORE_EDIT_LISTS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -85,7 +84,6 @@ public class FragmentedMp4Extractor implements Extractor {
         FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME,
         FLAG_WORKAROUND_IGNORE_TFDT_BOX,
         FLAG_ENABLE_EMSG_TRACK,
-        FLAG_SIDELOADED,
         FLAG_WORKAROUND_IGNORE_EDIT_LISTS
       })
   public @interface Flags {}
@@ -104,11 +102,7 @@ public class FragmentedMp4Extractor implements Extractor {
    * messages in the stream will be delivered as samples to this track.
    */
   public static final int FLAG_ENABLE_EMSG_TRACK = 1 << 2; // 4
-  /**
-   * Flag to indicate that the {@link Track} was sideloaded, instead of being declared by the MP4
-   * container.
-   */
-  private static final int FLAG_SIDELOADED = 1 << 3; // 8
+
   /** Flag to ignore any edit lists in the stream. */
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1 << 4; // 16
 
@@ -254,7 +248,7 @@ public class FragmentedMp4Extractor implements Extractor {
       @Nullable Track sideloadedTrack,
       List<Format> closedCaptionFormats,
       @Nullable TrackOutput additionalEmsgTrackOutput) {
-    this.flags = flags | (sideloadedTrack != null ? FLAG_SIDELOADED : 0);
+    this.flags = flags;
     this.timestampAdjuster = timestampAdjuster;
     this.sideloadedTrack = sideloadedTrack;
     this.closedCaptionFormats = Collections.unmodifiableList(closedCaptionFormats);
@@ -926,7 +920,7 @@ public class FragmentedMp4Extractor implements Extractor {
       SparseArray<TrackBundle> trackBundles, int trackId) {
     if (trackBundles.size() == 1) {
       // Ignore track id if there is only one track. This is either because we have a side-loaded
-      // track (flag FLAG_SIDELOADED) or to cope with non-matching track indices (see
+      // track or to cope with non-matching track indices (see
       // https://github.com/google/ExoPlayer/issues/4083).
       return trackBundles.valueAt(/* index= */ 0);
     }
@@ -1051,7 +1045,7 @@ public class FragmentedMp4Extractor implements Extractor {
 
   private static int checkNonNegative(int value) throws ParserException {
     if (value < 0) {
-      throw new ParserException("Unexpected negtive value: " + value);
+      throw new ParserException("Unexpected negative value: " + value);
     }
     return value;
   }
@@ -1659,7 +1653,7 @@ public class FragmentedMp4Extractor implements Extractor {
           : fragment.sampleSizeTable[currentSampleIndex];
     }
 
-    /** Returns the {@link C.BufferFlags} corresponding to the the current sample. */
+    /** Returns the {@link C.BufferFlags} corresponding to the current sample. */
     @C.BufferFlags
     public int getCurrentSampleFlags() {
       int flags =

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.video;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.util.CodecSpecificDataUtil;
@@ -34,13 +35,14 @@ public final class AvcConfig {
   public final int width;
   public final int height;
   public final float pixelWidthAspectRatio;
+  @Nullable public final String codecs;
 
   /**
    * Parses AVC configuration data.
    *
    * @param data A {@link ParsableByteArray}, whose position is set to the start of the AVC
    *     configuration data to parse.
-   * @return A parsed representation of the HEVC configuration data.
+   * @return A parsed representation of the AVC configuration data.
    * @throws ParserException If an error occurred parsing the data.
    */
   public static AvcConfig parse(ParsableByteArray data) throws ParserException {
@@ -63,6 +65,7 @@ public final class AvcConfig {
       int width = Format.NO_VALUE;
       int height = Format.NO_VALUE;
       float pixelWidthAspectRatio = 1;
+      @Nullable String codecs = null;
       if (numSequenceParameterSets > 0) {
         byte[] sps = initializationData.get(0);
         SpsData spsData = NalUnitUtil.parseSpsNalUnit(initializationData.get(0),
@@ -70,21 +73,36 @@ public final class AvcConfig {
         width = spsData.width;
         height = spsData.height;
         pixelWidthAspectRatio = spsData.pixelWidthAspectRatio;
+        codecs =
+            CodecSpecificDataUtil.buildAvcCodecString(
+                spsData.profileIdc, spsData.constraintsFlagsAndReservedZero2Bits, spsData.levelIdc);
       }
-      return new AvcConfig(initializationData, nalUnitLengthFieldLength, width, height,
-          pixelWidthAspectRatio);
+
+      return new AvcConfig(
+          initializationData,
+          nalUnitLengthFieldLength,
+          width,
+          height,
+          pixelWidthAspectRatio,
+          codecs);
     } catch (ArrayIndexOutOfBoundsException e) {
       throw new ParserException("Error parsing AVC config", e);
     }
   }
 
-  private AvcConfig(List<byte[]> initializationData, int nalUnitLengthFieldLength,
-      int width, int height, float pixelWidthAspectRatio) {
+  private AvcConfig(
+      List<byte[]> initializationData,
+      int nalUnitLengthFieldLength,
+      int width,
+      int height,
+      float pixelWidthAspectRatio,
+      @Nullable String codecs) {
     this.initializationData = initializationData;
     this.nalUnitLengthFieldLength = nalUnitLengthFieldLength;
     this.width = width;
     this.height = height;
     this.pixelWidthAspectRatio = pixelWidthAspectRatio;
+    this.codecs = codecs;
   }
 
   private static byte[] buildNalUnitForChild(ParsableByteArray data) {

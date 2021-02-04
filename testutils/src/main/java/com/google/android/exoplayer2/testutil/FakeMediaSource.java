@@ -82,7 +82,7 @@ public class FakeMediaSource extends BaseMediaSource {
 
   private final TrackGroupArray trackGroupArray;
   @Nullable private final FakeMediaPeriod.TrackDataFactory trackDataFactory;
-  private final ArrayList<FakeMediaPeriod> activeMediaPeriods;
+  private final ArrayList<MediaPeriod> activeMediaPeriods;
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
   private final DrmSessionManager drmSessionManager;
 
@@ -92,6 +92,11 @@ public class FakeMediaSource extends BaseMediaSource {
   @Nullable private Handler sourceInfoRefreshHandler;
   @Nullable private TransferListener transferListener;
 
+  /** Creates a {@link FakeMediaSource} with a default {@link FakeTimeline}. */
+  public FakeMediaSource() {
+    this(new FakeTimeline());
+  }
+
   /**
    * Creates a {@link FakeMediaSource}. This media source creates {@link FakeMediaPeriod}s with a
    * {@link TrackGroupArray} using the given {@link Format}s. The provided {@link Timeline} may be
@@ -99,7 +104,7 @@ public class FakeMediaSource extends BaseMediaSource {
    * can be manually set later using {@link #setNewSourceInfo(Timeline)}.
    */
   public FakeMediaSource(@Nullable Timeline timeline, Format... formats) {
-    this(timeline, DrmSessionManager.DUMMY, formats);
+    this(timeline, DrmSessionManager.DRM_UNSUPPORTED, formats);
   }
 
   /**
@@ -220,8 +225,8 @@ public class FakeMediaSource extends BaseMediaSource {
         createEventDispatcher(period.windowIndex, id, period.getPositionInWindowMs());
     DrmSessionEventListener.EventDispatcher drmEventDispatcher =
         createDrmEventDispatcher(period.windowIndex, id);
-    FakeMediaPeriod mediaPeriod =
-        createFakeMediaPeriod(
+    MediaPeriod mediaPeriod =
+        createMediaPeriod(
             id,
             trackGroupArray,
             allocator,
@@ -238,9 +243,8 @@ public class FakeMediaSource extends BaseMediaSource {
   public void releasePeriod(MediaPeriod mediaPeriod) {
     assertThat(preparedSource).isTrue();
     assertThat(releasedSource).isFalse();
-    FakeMediaPeriod fakeMediaPeriod = (FakeMediaPeriod) mediaPeriod;
-    assertThat(activeMediaPeriods.remove(fakeMediaPeriod)).isTrue();
-    fakeMediaPeriod.release();
+    assertThat(activeMediaPeriods.remove(mediaPeriod)).isTrue();
+    releaseMediaPeriod(mediaPeriod);
   }
 
   @Override
@@ -312,7 +316,7 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   /**
-   * Creates a {@link FakeMediaPeriod} for this media source.
+   * Creates a {@link MediaPeriod} for this media source.
    *
    * @param id The identifier of the period.
    * @param trackGroupArray The {@link TrackGroupArray} supported by the media period.
@@ -326,7 +330,7 @@ public class FakeMediaSource extends BaseMediaSource {
    * @return A new {@link FakeMediaPeriod}.
    */
   @RequiresNonNull("this.timeline")
-  protected FakeMediaPeriod createFakeMediaPeriod(
+  protected MediaPeriod createMediaPeriod(
       MediaPeriodId id,
       TrackGroupArray trackGroupArray,
       Allocator allocator,
@@ -339,6 +343,7 @@ public class FakeMediaSource extends BaseMediaSource {
     long defaultFirstSampleTimeUs = positionInWindowUs >= 0 || id.isAd() ? 0 : -positionInWindowUs;
     return new FakeMediaPeriod(
         trackGroupArray,
+        allocator,
         trackDataFactory != null
             ? trackDataFactory
             : TrackDataFactory.singleSampleWithTimeUs(defaultFirstSampleTimeUs),
@@ -346,6 +351,15 @@ public class FakeMediaSource extends BaseMediaSource {
         drmSessionManager,
         drmEventDispatcher,
         /* deferOnPrepared= */ false);
+  }
+
+  /**
+   * Releases a media period created by {@link #createMediaPeriod(MediaPeriodId, TrackGroupArray,
+   * Allocator, MediaSourceEventListener.EventDispatcher, DrmSessionManager,
+   * DrmSessionEventListener.EventDispatcher, TransferListener)}.
+   */
+  protected void releaseMediaPeriod(MediaPeriod mediaPeriod) {
+    ((FakeMediaPeriod) mediaPeriod).release();
   }
 
   private void finishSourcePreparation(boolean sendManifestLoadEvents) {

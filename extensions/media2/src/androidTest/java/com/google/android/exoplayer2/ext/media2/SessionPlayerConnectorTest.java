@@ -31,7 +31,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Looper;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
@@ -47,7 +46,6 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.Player;
@@ -65,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,9 +72,6 @@ import org.junit.runner.RunWith;
 @SuppressWarnings("FutureReturnValueIgnored")
 @RunWith(AndroidJUnit4.class)
 public class SessionPlayerConnectorTest {
-  @Rule
-  public final ActivityTestRule<MediaStubActivity> activityRule =
-      new ActivityTestRule<>(MediaStubActivity.class);
 
   @Rule public final PlayerTestRule playerTestRule = new PlayerTestRule();
 
@@ -93,16 +89,6 @@ public class SessionPlayerConnectorTest {
     context = ApplicationProvider.getApplicationContext();
     executor = playerTestRule.getExecutor();
     sessionPlayerConnector = playerTestRule.getSessionPlayerConnector();
-
-    // Sets the surface to the player for manual check.
-    InstrumentationRegistry.getInstrumentation()
-        .runOnMainSync(
-            () -> {
-              SimpleExoPlayer exoPlayer = playerTestRule.getSimpleExoPlayer();
-              exoPlayer
-                  .getVideoComponent()
-                  .setVideoSurfaceHolder(activityRule.getActivity().getSurfaceHolder());
-            });
   }
 
   @Test
@@ -120,7 +106,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+          public void onPlayerStateChanged(SessionPlayer player, int playerState) {
             if (playerState == PLAYER_STATE_PLAYING) {
               onPlayingLatch.countDown();
             }
@@ -157,8 +143,7 @@ public class SessionPlayerConnectorTest {
                   executor,
                   new SessionPlayer.PlayerCallback() {
                     @Override
-                    public void onPlayerStateChanged(
-                        @NonNull SessionPlayer player, int playerState) {
+                    public void onPlayerStateChanged(SessionPlayer player, int playerState) {
                       if (playerState == PLAYER_STATE_PLAYING) {
                         onPlayerStatePlayingLatch.countDown();
                       }
@@ -218,7 +203,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+          public void onPlaybackCompleted(SessionPlayer player) {
             onPlaybackCompletedLatch.countDown();
           }
         });
@@ -242,7 +227,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+          public void onPlaybackCompleted(SessionPlayer player) {
             onPlaybackCompletedLatch.countDown();
           }
         });
@@ -359,7 +344,7 @@ public class SessionPlayerConnectorTest {
     SessionPlayer.PlayerCallback callback =
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+          public void onPlaybackCompleted(SessionPlayer player) {
             onPlaybackCompletedLatch.countDown();
           }
         };
@@ -420,7 +405,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onSeekCompleted(@NonNull SessionPlayer player, long position) {
+          public void onSeekCompleted(SessionPlayer player, long position) {
             // Do not assert here, because onSeekCompleted() can be called after the player is
             // closed.
             positionChanges.add(position);
@@ -483,7 +468,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onSeekCompleted(@NonNull SessionPlayer player, long position) {
+          public void onSeekCompleted(SessionPlayer player, long position) {
             // Do not assert here, because onSeekCompleted() can be called after the player is
             // closed.
             seekPosition.set(position);
@@ -553,7 +538,7 @@ public class SessionPlayerConnectorTest {
     SessionPlayer.PlayerCallback callback =
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlayerStateChanged(@NonNull SessionPlayer player, int state) {
+          public void onPlayerStateChanged(SessionPlayer player, int state) {
             if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
               onPlayerStatePaused.countDown();
             }
@@ -577,7 +562,7 @@ public class SessionPlayerConnectorTest {
         new SessionPlayer.PlayerCallback() {
           @Override
           public void onBufferingStateChanged(
-              @NonNull SessionPlayer player, MediaItem item, int buffState) {
+              SessionPlayer player, @Nullable MediaItem item, int buffState) {
             bufferingStateChanges.add(buffState);
             if (buffState == SessionPlayer.BUFFERING_STATE_COMPLETE) {
               onBufferingCompletedLatch.countDown();
@@ -613,7 +598,7 @@ public class SessionPlayerConnectorTest {
     SessionPlayer.PlayerCallback callback =
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onSeekCompleted(@NonNull SessionPlayer player, long position) {
+          public void onSeekCompleted(SessionPlayer player, long position) {
             onSeekCompletedLatch.countDown();
           }
         };
@@ -636,7 +621,7 @@ public class SessionPlayerConnectorTest {
     SessionPlayer.PlayerCallback callback =
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlaybackSpeedChanged(@NonNull SessionPlayer player, float speed) {
+          public void onPlaybackSpeedChanged(SessionPlayer player, float speed) {
             assertThat(speed).isWithin(FLOAT_TOLERANCE).of(0.5f);
             onPlaybackSpeedChangedLatch.countDown();
           }
@@ -736,7 +721,6 @@ public class SessionPlayerConnectorTest {
   @SmallTest
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
   public void setPlaylist_withNullPlaylist_throwsException() throws Exception {
-    List<MediaItem> playlist = TestUtils.createPlaylist(10);
     try {
       sessionPlayerConnector.setPlaylist(null, null);
       assertWithMessage("null playlist shouldn't be allowed").fail();
@@ -783,7 +767,7 @@ public class SessionPlayerConnectorTest {
     PlayerCallbackForPlaylist callback =
         new PlayerCallbackForPlaylist(playlist, 2) {
           @Override
-          public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+          public void onPlayerStateChanged(SessionPlayer player, int playerState) {
             countDown();
           }
         };
@@ -811,7 +795,7 @@ public class SessionPlayerConnectorTest {
         new SessionPlayer.PlayerCallback() {
           @Override
           public void onPlaylistChanged(
-              @NonNull SessionPlayer player,
+              SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
             assertThat(list).isEqualTo(playlist);
@@ -830,7 +814,6 @@ public class SessionPlayerConnectorTest {
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
   public void setPlaylist_byUnderlyingPlayerBeforePrepare_notifiesOnPlaylistChanged()
       throws Exception {
-    List<MediaItem> playlistToSessionPlayer = TestUtils.createPlaylist(2);
     List<MediaItem> playlistToExoPlayer = TestUtils.createPlaylist(4);
     DefaultMediaItemConverter converter = new DefaultMediaItemConverter();
     List<com.google.android.exoplayer2.MediaItem> exoMediaItems = new ArrayList<>();
@@ -844,7 +827,7 @@ public class SessionPlayerConnectorTest {
         new SessionPlayer.PlayerCallback() {
           @Override
           public void onPlaylistChanged(
-              @NonNull SessionPlayer player,
+              SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
             if (ObjectsCompat.equals(list, playlistToExoPlayer)) {
@@ -876,7 +859,7 @@ public class SessionPlayerConnectorTest {
         new SessionPlayer.PlayerCallback() {
           @Override
           public void onPlaylistChanged(
-              @NonNull SessionPlayer player,
+              SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
             if (ObjectsCompat.equals(list, playlistToExoPlayer)) {
@@ -908,7 +891,7 @@ public class SessionPlayerConnectorTest {
         new SessionPlayer.PlayerCallback() {
           @Override
           public void onPlaylistChanged(
-              @NonNull SessionPlayer player,
+              SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
             assertThat(list).isEqualTo(playlist);
@@ -936,7 +919,7 @@ public class SessionPlayerConnectorTest {
         new SessionPlayer.PlayerCallback() {
           @Override
           public void onPlaylistChanged(
-              @NonNull SessionPlayer player,
+              SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
             assertThat(list).isEqualTo(playlist);
@@ -948,6 +931,40 @@ public class SessionPlayerConnectorTest {
     assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
   }
 
+  @Test
+  @LargeTest
+  @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+  public void movePlaylistItem_calledOnlyOnce_notifiesPlaylistChangeOnlyOnce() throws Exception {
+    List<MediaItem> playlist = new ArrayList<>();
+    playlist.add(TestUtils.createMediaItem(R.raw.video_1));
+    playlist.add(TestUtils.createMediaItem(R.raw.video_2));
+    playlist.add(TestUtils.createMediaItem(R.raw.video_3));
+    assertPlayerResultSuccess(sessionPlayerConnector.setPlaylist(playlist, /* metadata= */ null));
+    assertPlayerResultSuccess(sessionPlayerConnector.prepare());
+
+    CountDownLatch onPlaylistChangedLatch = new CountDownLatch(2);
+    int moveFromIndex = 0;
+    int moveToIndex = 2;
+    playlist.add(moveToIndex, playlist.remove(moveFromIndex));
+    sessionPlayerConnector.registerPlayerCallback(
+        executor,
+        new SessionPlayer.PlayerCallback() {
+          @Override
+          public void onPlaylistChanged(
+              SessionPlayer player,
+              @Nullable List<MediaItem> list,
+              @Nullable MediaMetadata metadata) {
+            assertThat(list).isEqualTo(playlist);
+            onPlaylistChangedLatch.countDown();
+          }
+        });
+    sessionPlayerConnector.movePlaylistItem(moveFromIndex, moveToIndex);
+    assertThat(onPlaylistChangedLatch.await(PLAYLIST_CHANGE_WAIT_TIME_MS, MILLISECONDS)).isFalse();
+    assertThat(onPlaylistChangedLatch.getCount()).isEqualTo(1);
+  }
+
+  // TODO(b/168860979): De-flake and re-enable.
+  @Ignore
   @Test
   @LargeTest
   @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
@@ -965,7 +982,7 @@ public class SessionPlayerConnectorTest {
         new SessionPlayer.PlayerCallback() {
           @Override
           public void onPlaylistChanged(
-              @NonNull SessionPlayer player,
+              SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
             assertThat(list).isEqualTo(playlist);
@@ -1019,8 +1036,7 @@ public class SessionPlayerConnectorTest {
           int currentMediaItemChangedCount = 0;
 
           @Override
-          public void onCurrentMediaItemChanged(
-              @NonNull SessionPlayer player, @NonNull MediaItem item) {
+          public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
             assertThat(item).isEqualTo(player.getCurrentMediaItem());
 
             int expectedCurrentIndex = currentMediaItemChangedCount++;
@@ -1029,7 +1045,7 @@ public class SessionPlayerConnectorTest {
           }
 
           @Override
-          public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+          public void onPlaybackCompleted(SessionPlayer player) {
             onPlaybackCompletedLatch.countDown();
           }
         });
@@ -1054,7 +1070,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+          public void onPlayerStateChanged(SessionPlayer player, int playerState) {
             if (playerState == PLAYER_STATE_PLAYING) {
               onPlayingLatch.countDown();
             }
@@ -1093,7 +1109,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+          public void onPlayerStateChanged(SessionPlayer player, int playerState) {
             if (playerState == PLAYER_STATE_PAUSED) {
               onPausedLatch.countDown();
             }
@@ -1119,7 +1135,7 @@ public class SessionPlayerConnectorTest {
         executor,
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
+          public void onPlayerStateChanged(SessionPlayer player, int playerState) {
             playerStateChanges.add(playerState);
             playerStateChangesLatch.countDown();
           }
@@ -1170,8 +1186,7 @@ public class SessionPlayerConnectorTest {
     SessionPlayer.PlayerCallback skipToNextTestCallback =
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onCurrentMediaItemChanged(
-              @NonNull SessionPlayer player, @NonNull MediaItem item) {
+          public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
             super.onCurrentMediaItemChanged(player, item);
             assertThat(player.getCurrentMediaItemIndex()).isEqualTo(1);
             assertThat(item).isEqualTo(player.getCurrentMediaItem());
@@ -1189,8 +1204,7 @@ public class SessionPlayerConnectorTest {
     SessionPlayer.PlayerCallback skipToPreviousTestCallback =
         new SessionPlayer.PlayerCallback() {
           @Override
-          public void onCurrentMediaItemChanged(
-              @NonNull SessionPlayer player, @NonNull MediaItem item) {
+          public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
             super.onCurrentMediaItemChanged(player, item);
             assertThat(player.getCurrentMediaItemIndex()).isEqualTo(0);
             assertThat(item).isEqualTo(player.getCurrentMediaItem());
@@ -1221,15 +1235,14 @@ public class SessionPlayerConnectorTest {
     PlayerCallbackForPlaylist callback =
         new PlayerCallbackForPlaylist(playlist, listSize + 2) {
           @Override
-          public void onCurrentMediaItemChanged(
-              @NonNull SessionPlayer player, @NonNull MediaItem item) {
+          public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
             super.onCurrentMediaItemChanged(player, item);
             currentMediaItemChanges.add(item);
             countDown();
           }
 
           @Override
-          public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+          public void onPlaybackCompleted(SessionPlayer player) {
             assertWithMessage(
                     "Playback shouldn't be completed, Actual changes were %s",
                     currentMediaItemChanges)
@@ -1305,7 +1318,7 @@ public class SessionPlayerConnectorTest {
   }
 
   private class PlayerCallbackForPlaylist extends SessionPlayer.PlayerCallback {
-    private List<MediaItem> playlist;
+    private final List<MediaItem> playlist;
     private CountDownLatch onCurrentMediaItemChangedLatch;
 
     PlayerCallbackForPlaylist(List<MediaItem> playlist, int count) {
@@ -1314,7 +1327,7 @@ public class SessionPlayerConnectorTest {
     }
 
     @Override
-    public void onCurrentMediaItemChanged(@NonNull SessionPlayer player, @NonNull MediaItem item) {
+    public void onCurrentMediaItemChanged(SessionPlayer player, MediaItem item) {
       int currentIndex = playlist.indexOf(item);
       assertThat(sessionPlayerConnector.getCurrentMediaItemIndex()).isEqualTo(currentIndex);
       onCurrentMediaItemChangedLatch.countDown();

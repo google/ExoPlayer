@@ -31,7 +31,7 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -54,7 +54,7 @@ public final class MediaPeriodQueueTest {
           CONTENT_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false,
+          /* useLiveConfiguration= */ false,
           /* manifest= */ null,
           MediaItem.fromUri(Uri.EMPTY));
   private static final Uri AD_URI = Uri.EMPTY;
@@ -406,7 +406,8 @@ public final class MediaPeriodQueueTest {
 
   private void setupAdTimeline(long... adGroupTimesUs) {
     adPlaybackState =
-        new AdPlaybackState(adGroupTimesUs).withContentDurationUs(CONTENT_DURATION_US);
+        new AdPlaybackState(/* adsId= */ new Object(), adGroupTimesUs)
+            .withContentDurationUs(CONTENT_DURATION_US);
     SinglePeriodAdTimeline adTimeline =
         new SinglePeriodAdTimeline(CONTENT_TIMELINE, adPlaybackState);
     setupTimeline(adTimeline);
@@ -434,6 +435,7 @@ public final class MediaPeriodQueueTest {
             /* isLoading= */ false,
             /* trackGroups= */ null,
             /* trackSelectorResult= */ null,
+            /* staticMetadata= */ ImmutableList.of(),
             /* loadingMediaPeriodId= */ null,
             /* playWhenReady= */ false,
             Player.PLAYBACK_SUPPRESSION_REASON_NONE,
@@ -441,7 +443,8 @@ public final class MediaPeriodQueueTest {
             /* bufferedPositionUs= */ 0,
             /* totalBufferedDurationUs= */ 0,
             /* positionUs= */ 0,
-            /* offloadSchedulingEnabled= */ false);
+            /* offloadSchedulingEnabled= */ false,
+            /* sleepingForOffload= */ false);
   }
 
   private void advance() {
@@ -467,7 +470,7 @@ public final class MediaPeriodQueueTest {
         mediaSourceList,
         getNextMediaPeriodInfo(),
         new TrackSelectorResult(
-            new RendererConfiguration[0], new TrackSelection[0], /* info= */ null));
+            new RendererConfiguration[0], new ExoTrackSelection[0], /* info= */ null));
   }
 
   private MediaPeriodInfo getNextMediaPeriodInfo() {
@@ -498,7 +501,8 @@ public final class MediaPeriodQueueTest {
 
   private void updateAdPlaybackStateAndTimeline(long... adGroupTimesUs) {
     adPlaybackState =
-        new AdPlaybackState(adGroupTimesUs).withContentDurationUs(CONTENT_DURATION_US);
+        new AdPlaybackState(/* adsId= */ new Object(), adGroupTimesUs)
+            .withContentDurationUs(CONTENT_DURATION_US);
     updateTimeline();
   }
 

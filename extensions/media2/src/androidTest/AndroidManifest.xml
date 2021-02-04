@@ -22,15 +22,6 @@
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <uses-sdk/>
 
-  <application
-      android:allowBackup="false"
-      tools:ignore="MissingApplicationIcon,HardcodedDebugMode">
-    <activity android:name="com.google.android.exoplayer2.ext.media2.MediaStubActivity"
-        android:configChanges="keyboardHidden|orientation|screenSize"
-        android:exported="false"
-        android:label="MediaStubActivity"/>
-  </application>
-
   <instrumentation
       android:targetPackage="com.google.android.exoplayer2.ext.media2.test"
       android:name="androidx.test.runner.AndroidJUnitRunner"/>

@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider;
 import com.google.android.exoplayer2.source.ads.AdsLoader.EventListener;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.upstream.Allocator;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public final class AdsMediaSourceTest {
           PREROLL_AD_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false,
+          /* useLiveConfiguration= */ false,
           /* manifest= */ null,
           MediaItem.fromUri(Uri.EMPTY));
   private static final Object PREROLL_AD_PERIOD_UID =
@@ -69,19 +70,22 @@ public final class AdsMediaSourceTest {
           CONTENT_DURATION_US,
           /* isSeekable= */ true,
           /* isDynamic= */ false,
-          /* isLive= */ false,
+          /* useLiveConfiguration= */ false,
           /* manifest= */ null,
           MediaItem.fromUri(Uri.EMPTY));
   private static final Object CONTENT_PERIOD_UID =
       CONTENT_TIMELINE.getUidOfPeriod(/* periodIndex= */ 0);
 
   private static final AdPlaybackState AD_PLAYBACK_STATE =
-      new AdPlaybackState(/* adGroupTimesUs...= */ 0)
+      new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0)
           .withContentDurationUs(CONTENT_DURATION_US)
           .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
           .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, Uri.EMPTY)
           .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
           .withAdResumePositionUs(/* adResumePositionUs= */ 0);
+
+  private static final DataSpec TEST_ADS_DATA_SPEC = new DataSpec(Uri.EMPTY);
+  private static final Object TEST_ADS_ID = new Object();
 
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
@@ -107,10 +111,21 @@ public final class AdsMediaSourceTest {
         ArgumentCaptor.forClass(AdsLoader.EventListener.class);
     adsMediaSource =
         new AdsMediaSource(
-            contentMediaSource, adMediaSourceFactory, mockAdsLoader, mockAdViewProvider);
+            contentMediaSource,
+            TEST_ADS_DATA_SPEC,
+            TEST_ADS_ID,
+            adMediaSourceFactory,
+            mockAdsLoader,
+            mockAdViewProvider);
     adsMediaSource.prepareSource(mockMediaSourceCaller, /* mediaTransferListener= */ null);
     shadowOf(Looper.getMainLooper()).idle();
-    verify(mockAdsLoader).start(eventListenerArgumentCaptor.capture(), eq(mockAdViewProvider));
+    verify(mockAdsLoader)
+        .start(
+            eq(adsMediaSource),
+            eq(TEST_ADS_DATA_SPEC),
+            eq(TEST_ADS_ID),
+            eq(mockAdViewProvider),
+            eventListenerArgumentCaptor.capture());
 
     // Simulate loading a preroll ad.
     AdsLoader.EventListener adsLoaderEventListener = eventListenerArgumentCaptor.getValue();

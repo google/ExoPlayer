@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MPD
+		type="dynamic"
+		minimumUpdatePeriod="PT4M"
+		availabilityStartTime="2020-01-01T00:00:00Z"
+		timeShiftBufferDepth="PT6.0S">
+	<UTCTiming
+			schemeIdUri="urn:mpeg:dash:utc:direct:2014"
+			value="2020-01-01T01:00:00Z" />
+	<ServiceDescription id="0">
+		<Latency target="3000" />
+	</ServiceDescription>
+	<Period start="PT0.0S">
+		<AdaptationSet contentType="video">
+			<Representation id="0" mimeType="video/mp4">
+				<SegmentTemplate
+						timescale="1000000"
+						duration="2000000"
+						availabilityTimeOffset="2"
+						startNumber="1"
+						media="chunk-$Number%05d$.mp4"/>
+			</Representation>
+		</AdaptationSet>
+	</Period>
+</MPD>

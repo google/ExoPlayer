@@ -281,7 +281,20 @@ public class MediaItemTest {
 
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri).build();
 
-    assertThat(mediaItem.playbackProperties.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isNull();
+  }
+
+  @Test
+  public void builderSetAdTagUriAndAdsId_setsAdsConfiguration() {
+    Uri adTagUri = Uri.parse(URI_STRING + "/ad");
+    Object adsId = new Object();
+
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setAdTagUri(adTagUri, adsId).build();
+
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adTagUri).isEqualTo(adTagUri);
+    assertThat(mediaItem.playbackProperties.adsConfiguration.adsId).isEqualTo(adsId);
   }
 
   @Test
@@ -292,6 +305,46 @@ public class MediaItemTest {
         new MediaItem.Builder().setUri(URI_STRING).setMediaMetadata(mediaMetadata).build();
 
     assertThat(mediaItem.mediaMetadata).isEqualTo(mediaMetadata);
+  }
+
+  @Test
+  public void builderSetLiveTargetOffsetMs_setsLiveTargetOffsetMs() {
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setLiveTargetOffsetMs(10_000).build();
+
+    assertThat(mediaItem.liveConfiguration.targetOffsetMs).isEqualTo(10_000);
+  }
+
+  @Test
+  public void builderSetMinLivePlaybackSpeed_setsMinLivePlaybackSpeed() {
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setLiveMinPlaybackSpeed(.9f).build();
+
+    assertThat(mediaItem.liveConfiguration.minPlaybackSpeed).isEqualTo(.9f);
+  }
+
+  @Test
+  public void builderSetMaxLivePlaybackSpeed_setsMaxLivePlaybackSpeed() {
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setLiveMaxPlaybackSpeed(1.1f).build();
+
+    assertThat(mediaItem.liveConfiguration.maxPlaybackSpeed).isEqualTo(1.1f);
+  }
+
+  @Test
+  public void builderSetMinLiveOffset_setsMinLiveOffset() {
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setLiveMinOffsetMs(1234).build();
+
+    assertThat(mediaItem.liveConfiguration.minOffsetMs).isEqualTo(1234);
+  }
+
+  @Test
+  public void builderSetMaxLiveOffset_setsMaxLiveOffset() {
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setLiveMaxOffsetMs(1234).build();
+
+    assertThat(mediaItem.liveConfiguration.maxOffsetMs).isEqualTo(1234);
   }
 
   @Test
@@ -319,6 +372,11 @@ public class MediaItemTest {
             .setMimeType(MimeTypes.APPLICATION_MP4)
             .setUri(URI_STRING)
             .setStreamKeys(Collections.singletonList(new StreamKey(1, 0, 0)))
+            .setLiveTargetOffsetMs(20_000)
+            .setLiveMinPlaybackSpeed(.9f)
+            .setLiveMaxPlaybackSpeed(1.1f)
+            .setLiveMinOffsetMs(2222)
+            .setLiveMaxOffsetMs(4444)
             .setSubtitles(
                 Collections.singletonList(
                     new MediaItem.Subtitle(

@@ -59,8 +59,8 @@ public final class CameraMotionRenderer extends BaseRenderer {
   @Capabilities
   public int supportsFormat(Format format) {
     return MimeTypes.APPLICATION_CAMERA_MOTION.equals(format.sampleMimeType)
-        ? RendererCapabilities.create(FORMAT_HANDLED)
-        : RendererCapabilities.create(FORMAT_UNSUPPORTED_TYPE);
+        ? RendererCapabilities.create(C.FORMAT_HANDLED)
+        : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
   }
 
   @Override

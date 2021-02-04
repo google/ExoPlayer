@@ -15,6 +15,15 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.EVENT_IS_PLAYING_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAYBACK_STATE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_PLAY_WHEN_READY_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_POSITION_DISCONTINUITY;
+import static com.google.android.exoplayer2.Player.EVENT_REPEAT_MODE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_TIMELINE_CHANGED;
+import static com.google.android.exoplayer2.Player.EVENT_TRACKS_CHANGED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -42,13 +51,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.Events;
 import com.google.android.exoplayer2.Player.State;
-import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -58,6 +67,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Selecti
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
@@ -260,6 +270,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *       <ul>
  *         <li>Type: {@link ImageView}
  *       </ul>
+ *   <li><b>{@code exo_minimal_fullscreen}</b> - The fullscreen button in minimal mode.
+ *       <ul>
+ *         <li>Type: {@link ImageView}
+ *       </ul>
  *   <li><b>{@code exo_position}</b> - Text view displaying the current playback position.
  *       <ul>
  *         <li>Type: {@link TextView}
@@ -354,7 +368,6 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private static final int SETTINGS_PLAYBACK_SPEED_POSITION = 0;
   private static final int SETTINGS_AUDIO_TRACK_SELECTION_POSITION = 1;
-  private static final int UNDEFINED_POSITION = -1;
 
   private final ComponentListener componentListener;
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
@@ -423,15 +436,13 @@ public class StyledPlayerControlView extends FrameLayout {
   private StyledPlayerControlViewLayoutManager controlViewLayoutManager;
   private Resources resources;
 
-  // Relating to Settings List View
   private int selectedMainSettingsPosition;
   private RecyclerView settingsView;
   private SettingsAdapter settingsAdapter;
   private SubSettingsAdapter subSettingsAdapter;
   private PopupWindow settingsWindow;
-  private List<String> playbackSpeedTextList;
-  private List<Integer> playbackSpeedMultBy100List;
-  private int customPlaybackSpeedIndex;
+  private String[] playbackSpeedTexts;
+  private int[] playbackSpeedsMultBy100;
   private int selectedPlaybackSpeedIndex;
   private boolean needToHideBars;
   private int settingsWindowMargin;
@@ -442,9 +453,9 @@ public class StyledPlayerControlView extends FrameLayout {
   // TODO(insun): Add setTrackNameProvider to use customized track name provider.
   private TrackNameProvider trackNameProvider;
 
-  // Relating to Bottom Bar Right View
   @Nullable private ImageView subtitleButton;
   @Nullable private ImageView fullScreenButton;
+  @Nullable private ImageView minimalFullScreenButton;
   @Nullable private View settingsButton;
 
   public StyledPlayerControlView(Context context) {
@@ -546,20 +557,19 @@ public class StyledPlayerControlView extends FrameLayout {
     controlDispatcher = new DefaultControlDispatcher(fastForwardMs, rewindMs);
     updateProgressAction = this::updateProgress;
 
-    // Relating to Bottom Bar Left View
     durationView = findViewById(R.id.exo_duration);
     positionView = findViewById(R.id.exo_position);
 
-    // Relating to Bottom Bar Right View
     subtitleButton = findViewById(R.id.exo_subtitle);
     if (subtitleButton != null) {
       subtitleButton.setOnClickListener(componentListener);
     }
+
     fullScreenButton = findViewById(R.id.exo_fullscreen);
-    if (fullScreenButton != null) {
-      fullScreenButton.setVisibility(GONE);
-      fullScreenButton.setOnClickListener(this::onFullScreenButtonClicked);
-    }
+    initializeFullScreenButton(fullScreenButton, this::onFullScreenButtonClicked);
+    minimalFullScreenButton = findViewById(R.id.exo_minimal_fullscreen);
+    initializeFullScreenButton(minimalFullScreenButton, this::onFullScreenButtonClicked);
+
     settingsButton = findViewById(R.id.exo_settings);
     if (settingsButton != null) {
       settingsButton.setOnClickListener(componentListener);
@@ -642,7 +652,6 @@ public class StyledPlayerControlView extends FrameLayout {
     controlViewLayoutManager = new StyledPlayerControlViewLayoutManager(this);
     controlViewLayoutManager.setAnimationEnabled(animationEnabled);
 
-    // Related to Settings List View
     String[] settingTexts = new String[2];
     Drawable[] settingIcons = new Drawable[2];
     settingTexts[SETTINGS_PLAYBACK_SPEED_POSITION] =
@@ -655,19 +664,11 @@ public class StyledPlayerControlView extends FrameLayout {
         resources.getDrawable(R.drawable.exo_styled_controls_audiotrack);
     settingsAdapter = new SettingsAdapter(settingTexts, settingIcons);
 
-    playbackSpeedTextList =
-        new ArrayList<>(Arrays.asList(resources.getStringArray(R.array.exo_playback_speeds)));
-    playbackSpeedMultBy100List = new ArrayList<>();
-    int[] speeds = resources.getIntArray(R.array.exo_speed_multiplied_by_100);
-    for (int speed : speeds) {
-      playbackSpeedMultBy100List.add(speed);
-    }
-    selectedPlaybackSpeedIndex = playbackSpeedMultBy100List.indexOf(100);
-    customPlaybackSpeedIndex = UNDEFINED_POSITION;
+    playbackSpeedTexts = resources.getStringArray(R.array.exo_playback_speeds);
+    playbackSpeedsMultBy100 = resources.getIntArray(R.array.exo_speed_multiplied_by_100);
     settingsWindowMargin = resources.getDimensionPixelSize(R.dimen.exo_settings_offset);
 
     subSettingsAdapter = new SubSettingsAdapter();
-    subSettingsAdapter.setCheckPosition(UNDEFINED_POSITION);
     settingsView =
         (RecyclerView)
             LayoutInflater.from(context).inflate(R.layout.exo_styled_settings_list, null);
@@ -730,12 +731,6 @@ public class StyledPlayerControlView extends FrameLayout {
     addOnLayoutChangeListener(this::onLayoutChange);
   }
 
-  @SuppressWarnings("ResourceType")
-  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
-      TypedArray a, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
-    return a.getInt(R.styleable.StyledPlayerControlView_repeat_toggle_modes, repeatToggleModes);
-  }
-
   /**
    * Returns the {@link Player} currently being controlled by this view, or null if no player is
    * set.
@@ -766,8 +761,11 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player != null) {
       player.addListener(componentListener);
     }
-    if (player != null && player.getTrackSelector() instanceof DefaultTrackSelector) {
-      this.trackSelector = (DefaultTrackSelector) player.getTrackSelector();
+    if (player instanceof ExoPlayer) {
+      TrackSelector trackSelector = ((ExoPlayer) player).getTrackSelector();
+      if (trackSelector instanceof DefaultTrackSelector) {
+        this.trackSelector = (DefaultTrackSelector) trackSelector;
+      }
     } else {
       this.trackSelector = null;
     }
@@ -1059,16 +1057,9 @@ public class StyledPlayerControlView extends FrameLayout {
    */
   public void setOnFullScreenModeChangedListener(
       @Nullable OnFullScreenModeChangedListener listener) {
-    if (fullScreenButton == null) {
-      return;
-    }
-
     onFullScreenModeChangedListener = listener;
-    if (onFullScreenModeChangedListener == null) {
-      fullScreenButton.setVisibility(GONE);
-    } else {
-      fullScreenButton.setVisibility(VISIBLE);
-    }
+    updateFullScreenButtonVisibility(fullScreenButton, listener != null);
+    updateFullScreenButtonVisibility(minimalFullScreenButton, listener != null);
   }
 
   /**
@@ -1314,7 +1305,7 @@ public class StyledPlayerControlView extends FrameLayout {
       for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
         Format format = trackGroup.getFormat(trackIndex);
         if (mappedTrackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex)
-            == RendererCapabilities.FORMAT_HANDLED) {
+            == C.FORMAT_HANDLED) {
           boolean trackIsSelected =
               trackSelection != null && trackSelection.indexOf(format) != C.INDEX_UNSET;
           tracks.add(
@@ -1452,25 +1443,18 @@ public class StyledPlayerControlView extends FrameLayout {
     }
     float speed = player.getPlaybackParameters().speed;
     int currentSpeedMultBy100 = Math.round(speed * 100);
-    int indexForCurrentSpeed = playbackSpeedMultBy100List.indexOf(currentSpeedMultBy100);
-    if (indexForCurrentSpeed == UNDEFINED_POSITION) {
-      if (customPlaybackSpeedIndex != UNDEFINED_POSITION) {
-        playbackSpeedMultBy100List.remove(customPlaybackSpeedIndex);
-        playbackSpeedTextList.remove(customPlaybackSpeedIndex);
-        customPlaybackSpeedIndex = UNDEFINED_POSITION;
+    int closestMatchIndex = 0;
+    int closestMatchDifference = Integer.MAX_VALUE;
+    for (int i = 0; i < playbackSpeedsMultBy100.length; i++) {
+      int difference = Math.abs(currentSpeedMultBy100 - playbackSpeedsMultBy100[i]);
+      if (difference < closestMatchDifference) {
+        closestMatchIndex = i;
+        closestMatchDifference = difference;
       }
-      indexForCurrentSpeed =
-          -Collections.binarySearch(playbackSpeedMultBy100List, currentSpeedMultBy100) - 1;
-      String customSpeedText =
-          resources.getString(R.string.exo_controls_custom_playback_speed, speed);
-      playbackSpeedMultBy100List.add(indexForCurrentSpeed, currentSpeedMultBy100);
-      playbackSpeedTextList.add(indexForCurrentSpeed, customSpeedText);
-      customPlaybackSpeedIndex = indexForCurrentSpeed;
     }
-
-    selectedPlaybackSpeedIndex = indexForCurrentSpeed;
+    selectedPlaybackSpeedIndex = closestMatchIndex;
     settingsAdapter.setSubTextAtPosition(
-        SETTINGS_PLAYBACK_SPEED_POSITION, playbackSpeedTextList.get(indexForCurrentSpeed));
+        SETTINGS_PLAYBACK_SPEED_POSITION, playbackSpeedTexts[closestMatchIndex]);
   }
 
   private void updateSettingsWindowSize() {
@@ -1506,7 +1490,8 @@ public class StyledPlayerControlView extends FrameLayout {
     if (player == null) {
       return;
     }
-    player.setPlaybackParameters(new PlaybackParameters(speed));
+    controlDispatcher.dispatchSetPlaybackParameters(
+        player, player.getPlaybackParameters().withSpeed(speed));
   }
 
   /* package */ void requestPlayPauseFocus() {
@@ -1557,11 +1542,23 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private void onFullScreenButtonClicked(View v) {
-    if (onFullScreenModeChangedListener == null || fullScreenButton == null) {
+    if (onFullScreenModeChangedListener == null) {
       return;
     }
 
     isFullScreen = !isFullScreen;
+    updateFullScreenButtonForState(fullScreenButton, isFullScreen);
+    updateFullScreenButtonForState(minimalFullScreenButton, isFullScreen);
+    if (onFullScreenModeChangedListener != null) {
+      onFullScreenModeChangedListener.onFullScreenModeChanged(isFullScreen);
+    }
+  }
+
+  private void updateFullScreenButtonForState(
+      @Nullable ImageView fullScreenButton, boolean isFullScreen) {
+    if (fullScreenButton == null) {
+      return;
+    }
     if (isFullScreen) {
       fullScreenButton.setImageDrawable(fullScreenExitDrawable);
       fullScreenButton.setContentDescription(fullScreenExitContentDescription);
@@ -1569,16 +1566,11 @@ public class StyledPlayerControlView extends FrameLayout {
       fullScreenButton.setImageDrawable(fullScreenEnterDrawable);
       fullScreenButton.setContentDescription(fullScreenEnterContentDescription);
     }
-
-    if (onFullScreenModeChangedListener != null) {
-      onFullScreenModeChangedListener.onFullScreenModeChanged(isFullScreen);
-    }
   }
 
   private void onSettingViewClicked(int position) {
     if (position == SETTINGS_PLAYBACK_SPEED_POSITION) {
-      subSettingsAdapter.setTexts(playbackSpeedTextList);
-      subSettingsAdapter.setCheckPosition(selectedPlaybackSpeedIndex);
+      subSettingsAdapter.init(playbackSpeedTexts, selectedPlaybackSpeedIndex);
       selectedMainSettingsPosition = SETTINGS_PLAYBACK_SPEED_POSITION;
       displaySettingsWindow(subSettingsAdapter);
     } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
@@ -1592,7 +1584,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private void onSubSettingViewClicked(int position) {
     if (selectedMainSettingsPosition == SETTINGS_PLAYBACK_SPEED_POSITION) {
       if (position != selectedPlaybackSpeedIndex) {
-        float speed = playbackSpeedMultBy100List.get(position) / 100.0f;
+        float speed = playbackSpeedsMultBy100[position] / 100.0f;
         setPlaybackSpeed(speed);
       }
     }
@@ -1760,6 +1752,32 @@ public class StyledPlayerControlView extends FrameLayout {
     return true;
   }
 
+  private static void initializeFullScreenButton(View fullScreenButton, OnClickListener listener) {
+    if (fullScreenButton == null) {
+      return;
+    }
+    fullScreenButton.setVisibility(GONE);
+    fullScreenButton.setOnClickListener(listener);
+  }
+
+  private static void updateFullScreenButtonVisibility(
+      @Nullable View fullScreenButton, boolean visible) {
+    if (fullScreenButton == null) {
+      return;
+    }
+    if (visible) {
+      fullScreenButton.setVisibility(VISIBLE);
+    } else {
+      fullScreenButton.setVisibility(GONE);
+    }
+  }
+
+  @SuppressWarnings("ResourceType")
+  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
+      TypedArray a, @RepeatModeUtil.RepeatToggleModes int defaultValue) {
+    return a.getInt(R.styleable.StyledPlayerControlView_repeat_toggle_modes, defaultValue);
+  }
+
   private final class ComponentListener
       implements Player.EventListener,
           TimeBar.OnScrubListener,
@@ -1792,55 +1810,36 @@ public class StyledPlayerControlView extends FrameLayout {
     }
 
     @Override
-    public void onPlaybackStateChanged(@Player.State int playbackState) {
-      updatePlayPauseButton();
-      updateProgress();
-    }
-
-    @Override
-    public void onPlayWhenReadyChanged(
-        boolean playWhenReady, @Player.PlayWhenReadyChangeReason int state) {
-      updatePlayPauseButton();
-      updateProgress();
-    }
-
-    @Override
-    public void onIsPlayingChanged(boolean isPlaying) {
-      updateProgress();
-    }
-
-    @Override
-    public void onRepeatModeChanged(int repeatMode) {
-      updateRepeatModeButton();
-      updateNavigation();
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-      updateShuffleButton();
-      updateNavigation();
-    }
-
-    @Override
-    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-      updateNavigation();
-      updateTimeline();
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-      updateSettingsPlaybackSpeedLists();
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-      updateTrackLists();
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
-      updateNavigation();
-      updateTimeline();
+    public void onEvents(Player player, Events events) {
+      if (events.containsAny(EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED)) {
+        updatePlayPauseButton();
+      }
+      if (events.containsAny(
+          EVENT_PLAYBACK_STATE_CHANGED, EVENT_PLAY_WHEN_READY_CHANGED, EVENT_IS_PLAYING_CHANGED)) {
+        updateProgress();
+      }
+      if (events.contains(EVENT_REPEAT_MODE_CHANGED)) {
+        updateRepeatModeButton();
+      }
+      if (events.contains(EVENT_SHUFFLE_MODE_ENABLED_CHANGED)) {
+        updateShuffleButton();
+      }
+      if (events.containsAny(
+          EVENT_REPEAT_MODE_CHANGED,
+          EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
+          EVENT_POSITION_DISCONTINUITY,
+          EVENT_TIMELINE_CHANGED)) {
+        updateNavigation();
+      }
+      if (events.containsAny(EVENT_POSITION_DISCONTINUITY, EVENT_TIMELINE_CHANGED)) {
+        updateTimeline();
+      }
+      if (events.contains(EVENT_PLAYBACK_PARAMETERS_CHANGED)) {
+        updateSettingsPlaybackSpeedLists();
+      }
+      if (events.contains(EVENT_TRACKS_CHANGED)) {
+        updateTrackLists();
+      }
     }
 
     @Override
@@ -1885,6 +1884,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private class SettingsAdapter extends RecyclerView.Adapter<SettingViewHolder> {
+
     private final String[] mainTexts;
     private final String[] subTexts;
     private final Drawable[] iconIds;
@@ -1935,6 +1935,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private final class SettingViewHolder extends RecyclerView.ViewHolder {
+
     private final TextView mainTextView;
     private final TextView subTextView;
     private final ImageView iconView;
@@ -1949,8 +1950,18 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private class SubSettingsAdapter extends RecyclerView.Adapter<SubSettingViewHolder> {
-    @Nullable private List<String> texts;
-    private int checkPosition;
+
+    private String[] texts;
+    private int selectedIndex;
+
+    public SubSettingsAdapter() {
+      texts = new String[0];
+    }
+
+    public void init(String[] texts, int selectedIndex) {
+      this.texts = texts;
+      this.selectedIndex = selectedIndex;
+    }
 
     @Override
     public SubSettingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -1962,23 +1973,15 @@ public class StyledPlayerControlView extends FrameLayout {
 
     @Override
     public void onBindViewHolder(SubSettingViewHolder holder, int position) {
-      if (texts != null) {
-        holder.textView.setText(texts.get(position));
+      if (position < texts.length) {
+        holder.textView.setText(texts[position]);
       }
-      holder.checkView.setVisibility(position == checkPosition ? VISIBLE : INVISIBLE);
+      holder.checkView.setVisibility(position == selectedIndex ? VISIBLE : INVISIBLE);
     }
 
     @Override
     public int getItemCount() {
-      return texts != null ? texts.size() : 0;
-    }
-
-    public void setTexts(@Nullable List<String> texts) {
-      this.texts = texts;
-    }
-
-    public void setCheckPosition(int checkPosition) {
-      this.checkPosition = checkPosition;
+      return texts.length;
     }
   }
 
@@ -1995,6 +1998,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private static final class TrackInfo {
+
     public final int rendererIndex;
     public final int groupIndex;
     public final int trackIndex;
@@ -2164,6 +2168,7 @@ public class StyledPlayerControlView extends FrameLayout {
 
   private abstract class TrackSelectionAdapter
       extends RecyclerView.Adapter<TrackSelectionViewHolder> {
+
     protected List<Integer> rendererIndices;
     protected List<TrackInfo> tracks;
     protected @Nullable MappedTrackInfo mappedTrackInfo;
@@ -2247,6 +2252,7 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   private static class TrackSelectionViewHolder extends RecyclerView.ViewHolder {
+
     public final TextView textView;
     public final View checkView;
 
