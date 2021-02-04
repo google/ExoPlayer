@@ -145,7 +145,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_PLAYLIST_UPDATE_REQUESTED = 22;
   private static final int MSG_SET_PAUSE_AT_END_OF_WINDOW = 23;
   private static final int MSG_SET_OFFLOAD_SCHEDULING_ENABLED = 24;
-  private static final int MSG_ATTEMPT_ERROR_RECOVERY = 25;
+  private static final int MSG_ATTEMPT_RENDERER_ERROR_RECOVERY = 25;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
@@ -202,7 +202,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private long rendererPositionUs;
   private int nextPendingMessageIndexHint;
   private boolean deliverPendingMessageAtStartPositionRequired;
-  @Nullable private ExoPlaybackException pendingRecoverableError;
+  @Nullable private ExoPlaybackException pendingRecoverableRendererError;
 
   private long setForegroundModeTimeoutMs;
 
@@ -534,8 +534,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         case MSG_SET_OFFLOAD_SCHEDULING_ENABLED:
           setOffloadSchedulingEnabledInternal(msg.arg1 == 1);
           break;
-        case MSG_ATTEMPT_ERROR_RECOVERY:
-          attemptErrorRecovery((ExoPlaybackException) msg.obj);
+        case MSG_ATTEMPT_RENDERER_ERROR_RECOVERY:
+          attemptRendererErrorRecovery((ExoPlaybackException) msg.obj);
           break;
         case MSG_RELEASE:
           releaseInternal();
@@ -554,17 +554,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
           e = e.copyWithMediaPeriodId(readingPeriod.info.id);
         }
       }
-      if (e.isRecoverable && pendingRecoverableError == null) {
-        Log.w(TAG, "Recoverable playback error", e);
-        pendingRecoverableError = e;
-        HandlerWrapper.Message message = handler.obtainMessage(MSG_ATTEMPT_ERROR_RECOVERY, e);
+      if (e.isRecoverable && pendingRecoverableRendererError == null) {
+        Log.w(TAG, "Recoverable renderer error", e);
+        pendingRecoverableRendererError = e;
         // Given that the player is now in an unhandled exception state, the error needs to be
         // recovered or the player stopped before any other message is handled.
-        message.getTarget().sendMessageAtFrontOfQueue(message);
+        handler.sendMessageAtFrontOfQueue(
+            handler.obtainMessage(MSG_ATTEMPT_RENDERER_ERROR_RECOVERY, e));
       } else {
-        if (pendingRecoverableError != null) {
-          e.addSuppressed(pendingRecoverableError);
-          pendingRecoverableError = null;
+        if (pendingRecoverableRendererError != null) {
+          e.addSuppressed(pendingRecoverableRendererError);
         }
         Log.e(TAG, "Playback error", e);
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
@@ -594,11 +593,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   // Private methods.
 
-  private void attemptErrorRecovery(ExoPlaybackException exceptionToRecoverFrom)
+  private void attemptRendererErrorRecovery(ExoPlaybackException exceptionToRecoverFrom)
       throws ExoPlaybackException {
-    Assertions.checkArgument(
-        exceptionToRecoverFrom.isRecoverable
-            && exceptionToRecoverFrom.type == ExoPlaybackException.TYPE_RENDERER);
+    Assertions.checkArgument(exceptionToRecoverFrom.isRecoverable);
     try {
       seekToCurrentPosition(/* sendDiscontinuity= */ true);
     } catch (Exception e) {
@@ -985,7 +982,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     } else if (playbackInfo.playbackState == Player.STATE_BUFFERING
         && shouldTransitionToReadyState(renderersAllowPlayback)) {
       setState(Player.STATE_READY);
-      pendingRecoverableError = null; // Any pending error was successfully recovered from.
+      pendingRecoverableRendererError = null; // Any pending error was successfully recovered from.
       if (shouldPlayWhenReady()) {
         startRenderers();
       }
@@ -1345,6 +1342,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean releaseMediaSourceList,
       boolean resetError) {
     handler.removeMessages(MSG_DO_SOME_WORK);
+    pendingRecoverableRendererError = null;
     isRebuffering = false;
     mediaClock.stop();
     rendererPositionUs = 0;
@@ -1413,7 +1411,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
     if (releaseMediaSourceList) {
       mediaSourceList.release();
     }
-    pendingRecoverableError = null;
   }
 
   private Pair<MediaPeriodId, Long> getPlaceholderFirstMediaPeriodPosition(Timeline timeline) {

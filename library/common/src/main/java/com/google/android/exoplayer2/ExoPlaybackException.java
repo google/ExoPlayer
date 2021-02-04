@@ -102,13 +102,9 @@ public final class ExoPlaybackException extends Exception {
   @Nullable public final MediaPeriodId mediaPeriodId;
 
   /**
-   * Whether the error may be recoverable.
-   *
-   * <p>This is only used internally by ExoPlayer to try to recover from some errors and should not
-   * be used by apps.
-   *
-   * <p>If the {@link #type} is {@link #TYPE_RENDERER}, it may be possible to recover from the error
-   * by disabling and re-enabling the renderers.
+   * If {@link #type} is {@link #TYPE_RENDERER}, this field indicates whether the error may be
+   * recoverable by disabling and re-enabling (but <em>not</em> resetting) the renderers. For other
+   * {@link Type types} this field will always be {@code false}.
    */
   /* package */ final boolean isRecoverable;
 
@@ -282,6 +278,7 @@ public final class ExoPlaybackException extends Exception {
       long timestampMs,
       boolean isRecoverable) {
     super(message, cause);
+    Assertions.checkArgument(!isRecoverable || type == TYPE_RENDERER);
     this.type = type;
     this.cause = cause;
     this.rendererName = rendererName;
