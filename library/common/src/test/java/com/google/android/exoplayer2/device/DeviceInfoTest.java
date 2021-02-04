@@ -30,6 +30,6 @@ public class DeviceInfoTest {
     DeviceInfo deviceInfo =
         new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 1, /* maxVolume= */ 9);
 
-    assertThat(DeviceInfo.fromBundle(deviceInfo.toBundle())).isEqualTo(deviceInfo);
+    assertThat(DeviceInfo.CREATOR.fromBundle(deviceInfo.toBundle())).isEqualTo(deviceInfo);
   }
 }

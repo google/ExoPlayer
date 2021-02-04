@@ -36,6 +36,7 @@ public class AudioAttributesTest {
             .setAllowedCapturePolicy(C.ALLOW_CAPTURE_BY_SYSTEM)
             .build();
 
-    assertThat(AudioAttributes.fromBundle(audioAttributes.toBundle())).isEqualTo(audioAttributes);
+    assertThat(AudioAttributes.CREATOR.fromBundle(audioAttributes.toBundle()))
+        .isEqualTo(audioAttributes);
   }
 }
