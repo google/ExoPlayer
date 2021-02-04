@@ -1272,6 +1272,7 @@ public final class MediaCodecUtil {
     if (levelString == null) {
       return null;
     }
+    // TODO (Internal: b/179261323): use framework constants for levels 10 to 13.
     switch (levelString) {
       case "01":
         return CodecProfileLevel.DolbyVisionLevelHd24;
@@ -1291,6 +1292,14 @@ public final class MediaCodecUtil {
         return CodecProfileLevel.DolbyVisionLevelUhd48;
       case "09":
         return CodecProfileLevel.DolbyVisionLevelUhd60;
+      case "10":
+        return 0x200;
+      case "11":
+        return 0x400;
+      case "12":
+        return 0x800;
+      case "13":
+        return 0x1000;
       default:
         return null;
     }

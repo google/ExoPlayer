@@ -6,6 +6,9 @@
 *   Core library:
     *   Log a warning when `SingleSampleMediaPeriod` transforms a load error
         into end-of-stream.
+    *   Fall back to AVC/HEVC decoders for Dolby Vision streams with level 10
+        to 13
+        ([#8530](https://github.com/google/ExoPlayer/issues/8530)).
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
 *   Extractors:
