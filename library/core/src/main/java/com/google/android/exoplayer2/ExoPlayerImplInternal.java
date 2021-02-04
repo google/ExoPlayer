@@ -535,7 +535,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           setOffloadSchedulingEnabledInternal(msg.arg1 == 1);
           break;
         case MSG_ATTEMPT_RENDERER_ERROR_RECOVERY:
-          attemptRendererErrorRecovery((ExoPlaybackException) msg.obj);
+          attemptRendererErrorRecovery();
           break;
         case MSG_RELEASE:
           releaseInternal();
@@ -563,7 +563,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
             handler.obtainMessage(MSG_ATTEMPT_RENDERER_ERROR_RECOVERY, e));
       } else {
         if (pendingRecoverableRendererError != null) {
-          e.addSuppressed(pendingRecoverableRendererError);
+          pendingRecoverableRendererError.addSuppressed(e);
+          e = pendingRecoverableRendererError;
         }
         Log.e(TAG, "Playback error", e);
         stopInternal(/* forceResetRenderers= */ true, /* acknowledgeStop= */ false);
@@ -592,17 +593,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   // Private methods.
-
-  private void attemptRendererErrorRecovery(ExoPlaybackException exceptionToRecoverFrom)
-      throws ExoPlaybackException {
-    Assertions.checkArgument(exceptionToRecoverFrom.isRecoverable);
-    try {
-      seekToCurrentPosition(/* sendDiscontinuity= */ true);
-    } catch (Exception e) {
-      exceptionToRecoverFrom.addSuppressed(e);
-      throw exceptionToRecoverFrom;
-    }
-  }
 
   /**
    * Blocks the current thread until a condition becomes true or the specified amount of time has
@@ -836,6 +826,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
         ensureStopped(renderer);
       }
     }
+  }
+
+  private void attemptRendererErrorRecovery() throws ExoPlaybackException {
+    seekToCurrentPosition(/* sendDiscontinuity= */ true);
   }
 
   private void updatePlaybackPositions() throws ExoPlaybackException {
