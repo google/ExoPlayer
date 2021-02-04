@@ -136,5 +136,5 @@ flattened version of the video instead of the original one.
 
 Only the Samsung slow motion format is supported at the moment.
 
-[Transformer]: {{ site.exo_sdk }}/Transformer.html
+[Transformer]: {{ site.exo_sdk }}/transformer/Transformer.html
 

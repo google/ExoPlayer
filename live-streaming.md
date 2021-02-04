@@ -207,6 +207,6 @@ Relevant customization parameters of the `DefaultLivePlaybackSpeedControl` are:
   at a higher risk of running into rebuffers.
 
 [Supported Formats page]: {{ site.baseurl }}/supported-formats.html
-[default UI components]: {{ site.baseurl }}/ui-components.htmlhttps://github.com/google/ExoPlayer/issues/2213
+[default UI components]: {{ site.baseurl }}/ui-components.html
 [pending GitHub feature request (#2213)]: https://github.com/google/ExoPlayer/issues/2213
 [PlayerActivity]: {{ site.release_v2 }}/demos/main/src/main/java/com/google/android/exoplayer2/demo/PlayerActivity.java
