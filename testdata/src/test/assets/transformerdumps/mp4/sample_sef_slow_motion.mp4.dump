@@ -123,14 +123,44 @@ sample:
   presentationTimeUs = 36499
 sample:
   trackIndex = 0
-  dataHashCode = -2124187794
+  dataHashCode = 250093960
   isKeyFrame = true
   presentationTimeUs = 44415
 sample:
   trackIndex = 0
-  dataHashCode = 1016665126
+  dataHashCode = 1895536226
   isKeyFrame = true
-  presentationTimeUs = 63081
+  presentationTimeUs = 59998
+sample:
+  trackIndex = 0
+  dataHashCode = 1723596464
+  isKeyFrame = true
+  presentationTimeUs = 81748
+sample:
+  trackIndex = 0
+  dataHashCode = -978803114
+  isKeyFrame = true
+  presentationTimeUs = 101414
+sample:
+  trackIndex = 0
+  dataHashCode = 387377078
+  isKeyFrame = true
+  presentationTimeUs = 121080
+sample:
+  trackIndex = 0
+  dataHashCode = -132658698
+  isKeyFrame = true
+  presentationTimeUs = 140746
+sample:
+  trackIndex = 0
+  dataHashCode = 1495036471
+  isKeyFrame = true
+  presentationTimeUs = 159496
+sample:
+  trackIndex = 0
+  dataHashCode = 304440590
+  isKeyFrame = true
+  presentationTimeUs = 178162
 sample:
   trackIndex = 1
   dataHashCode = 2139021989
@@ -151,6 +181,11 @@ sample:
   dataHashCode = -1893277090
   isKeyFrame = false
   presentationTimeUs = 734083
+sample:
+  trackIndex = 0
+  dataHashCode = -752661703
+  isKeyFrame = true
+  presentationTimeUs = 196412
 sample:
   trackIndex = 1
   dataHashCode = -1554795381
