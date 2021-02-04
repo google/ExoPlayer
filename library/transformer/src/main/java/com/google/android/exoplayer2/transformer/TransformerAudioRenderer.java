@@ -227,12 +227,11 @@ import java.nio.ByteBuffer;
     MediaCodecAdapterWrapper decoder = checkNotNull(this.decoder);
 
     if (drainingSonicForSpeedChange) {
-      if (!sonicAudioProcessor.isEnded()) {
-        // Sonic needs draining, but has not fully drained yet.
-        return false;
+      if (sonicAudioProcessor.isEnded() && !sonicOutputBuffer.hasRemaining()) {
+        flushSonicAndSetSpeed(currentSpeed);
+        drainingSonicForSpeedChange = false;
       }
-      flushSonicAndSetSpeed(currentSpeed);
-      drainingSonicForSpeedChange = false;
+      return false;
     }
 
     // Sonic invalidates any previous output buffer when more input is queued, so we don't queue if
