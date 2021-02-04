@@ -83,6 +83,4 @@ player.addListener(
 ExoPlayer provides multiple ways for you to tailor playback experience to your
 app's needs. See the [Customization page][] for examples.
 
-{% include_relative _page_fragments/behind-live-window.md %}
-
 [Customization page]: {{ site.baseurl }}/customization.html

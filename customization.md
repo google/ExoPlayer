@@ -26,6 +26,9 @@ to the player. Components common to all `ExoPlayer` implementations are:
 * A `LoadControl` that controls when the `MediaSource` buffers more media, and
   how much media is buffered. A `LoadControl` is injected when the player is
   created.
+* A `LivePlaybackSpeedControl` that controls the playback speed during live
+  playbacks to allow the player to stay close to a configured live offset. A
+  `LivePlaybackSpeedControl` is injected when the player is created.
 
 The concept of injecting components that implement pieces of player
 functionality is present throughout the library. The default implementations of
@@ -48,11 +51,7 @@ default network stack with cross-protocol redirects enabled:
 ~~~
 // Build a HttpDataSource.Factory with cross-protocol redirects enabled.
 HttpDataSource.Factory httpDataSourceFactory =
-    new DefaultHttpDataSourceFactory(
-        ExoPlayerLibraryInfo.DEFAULT_USER_AGENT,
-        DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
-        DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
-        /* allowCrossProtocolRedirects= */ true);
+    new DefaultHttpDataSource.Factory().setAllowCrossProtocolRedirects(true);
 
 // Wrap the HttpDataSource.Factory in a DefaultDataSourceFactory, which adds in
 // support for requesting data from other sources (e.g., files, resources, etc).

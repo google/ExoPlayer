@@ -202,15 +202,19 @@ It's important to note that this issue affects debug builds only. It does *not*
 affect release builds, for which the optimization is always enabled. Hence the
 releases you provide to end users should not be affected by this issue.
 
-#### What do "Player is accessed on the wrong thread" warnings mean? ####
+#### What do "Player is accessed on the wrong thread" errors mean? ####
 
-If you are seeing this warning, some code in your app is accessing
-`SimpleExoPlayer` on the wrong thread (check the reported stack trace!).
-ExoPlayer instances need to be accessed from a single thread only. In most
-cases, this should be the application's main thread. For details, please read
-through the ["Threading model" section of the ExoPlayer Javadoc][]. If you want
-to ensure that the player is always used on the correct thread, you should set
-`SimpleExoPlayer.setThrowsWhenUsingWrongThread(true)` to enforce it.
+If you are seeing `IllegalStateException` being thrown with the message "Player
+is accessed on the wrong thread", then some code in your app is accessing a
+`SimpleExoPlayer` instance on the wrong thread (the exception's stack trace
+shows you where). ExoPlayer instances need to be accessed from a single thread
+only. In most cases, this should be the application's main thread. For details,
+please read through the ["Threading model" section of the ExoPlayer Javadoc][].
+You can temporarily opt out from these exceptions being thrown by calling
+`SimpleExoPlayer.setThrowsWhenUsingWrongThread(false)`, in which case the issue
+will be logged as a warning instead. Using this opt out is not safe and may
+result in unexpected or obscure errors. The opt out will be removed in ExoPlayer
+2.14.
 
 #### How can I fix "Unexpected status line: ICY 200 OK"? ####
 

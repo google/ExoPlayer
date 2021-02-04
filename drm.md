@@ -90,22 +90,22 @@ when building the media item.
 
 ### Using a custom DrmSessionManager ###
 
-If an app wants to use a `DrmSessionManager` implementation that is not a
-`DefaultDrmSessionManager`, the media source can be created directly using a
-factory and added to the playlist using the [media source based playlist API]:
+If an app wants to customise the `DrmSessionManager` used for playback, they can
+implement a `DrmSessionManagerProvider` and pass this to the
+`MediaSourceFactory` which is [used when building the player]. The provider can
+choose whether to instantiate a new manager instance each time or not. To always
+use the same instance:
 
 ~~~
 DrmSessionManager customDrmSessionManager =
     new CustomDrmSessionManager(/* ... */);
-// Pass your custom drm session manager to the factory and create the source.
-DashMediaSource mediaSource = new DashMediaSource.Factory(dataSourceFactory)
-    .setDrmSessionManager(customDrmSessionManager)
-    .createMediaSource(mediaItem);
-// Use the media source based API to add the source to the playlist.
-exoPlayer.addMediaSource(mediaSource);
+// Pass a drm session manager provider to the media source factory.
+MediaSourceFactory mediaSourceFactory =
+    new DefaultMediaSourceFactory(dataSourceFactory)
+        .setDrmSessionManagerProvider(mediaItem -> customDrmSessionManager);
 ~~~
 {: .language-java}
 
 [main demo app]: {{ site.release_v2 }}/demos/main
 [`MediaDrm`]: {{ site.android_sdk }}/android/media/MediaDrm.html
-[media source based playlist API]: {{ site.baseurl }}/media-sources.html#media-source-based-playlist-api
+[used when building the player]: {{ site.baseurl }}/media-sources.html#customizing-media-source-creation

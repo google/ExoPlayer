@@ -2,7 +2,7 @@ Streams in the following container formats can be played directly by ExoPlayer.
 The contained audio and video sample formats must also be supported (see the
 [sample formats](supported-formats.html#sample-formats) section for details).
 
-| Container format | Supported    | Comment              |
+| Container format | Supported    | Comments             |
 |------------------|:------------:|:---------------------|
 | MP4 | YES ||
 | M4A | YES ||
@@ -18,6 +18,7 @@ The contained audio and video sample formats must also be supported (see the
 | ADTS (AAC) | YES | Only seekable using constant bitrate seeking** |
 | FLAC | YES | Using the [FLAC extension][] or the FLAC extractor in the [core library][]*** |
 | AMR | YES | Only seekable using constant bitrate seeking** |
+| JPEG motion photo | YES | Only the MP4 content is extracted |
 
 \* Seeking is unsupported because the container does not provide metadata (e.g.,
 a sample index) to allow a media player to perform a seek in an efficient way.

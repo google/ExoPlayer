@@ -56,7 +56,8 @@ media item that is
 
 The [`ExoPlayer`] interface defines additional playlist methods that accept
 media sources rather than media items. This makes it possible to bypass the
-`MediaSourceFactory` and pass media source instances to the player directly:
+player's internal `MediaSourceFactory` and pass media source instances to the
+player directly:
 
 ~~~
 // Set a list of media sources as initial playlist.

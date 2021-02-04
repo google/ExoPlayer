@@ -71,6 +71,7 @@ modules individually.
 * `exoplayer-dash`: Support for DASH content.
 * `exoplayer-hls`: Support for HLS content.
 * `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
+* `exoplayer-transformer`: Media transformation functionality.
 * `exoplayer-ui`: UI components and resources for use with ExoPlayer.
 
 In addition to library modules, ExoPlayer has multiple extension modules that

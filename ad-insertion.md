@@ -64,6 +64,42 @@ ExoPlayer's `StyledPlayerView` and `PlayerView` UI components both implement
 `AdViewProvider`. The IMA extension provides an easy to use `AdsLoader`, as
 described below.
 
+### Playlists with ads ###
+
+When playing a [playlist][] with multiple media items, the default behavior is
+to request the ad tag and store ad playback state once for each media ID and ad
+tag URI combination. This means that users will see ads for every media item
+with ads that has a distinct media ID, even if the ad tag URIs match. If a
+media item is repeated, the user will see the corresponding ads only once (the
+ad playback state stores whether ads have been played, so they are skipped
+after their first occurrence).
+
+It's possible to customize this behavior by passing an opaque ads identifier
+with which ad playback state for a given media item is linked, based on object
+equality. Here is an example where ad playback state is linked to the ad tag
+URI only, rather than the combination of the media ID and ad tag URI, by
+passing the ad tag URI as the ads identifier. The effect is that ads will load
+only once and the user will not see ads on the second item when playing the
+playlist from start to finish.
+
+~~~
+// Build the media items, passing the same ads identifier for both items,
+// which means they share ad playback state so ads play only once.
+MediaItem firstItem =
+    new MediaItem.Builder()
+        .setUri(firstVideoUri)
+        .setAdTagUri(adTagUri, /* adsId= */ adTagUri)
+        .build();
+MediaItem secondItem =
+    new MediaItem.Builder()
+        .setUri(secondVideoUri)
+        .setAdTagUri(adTagUri, /* adsId= */ adTagUri)
+        .build();
+player.addMediaItem(firstItem);
+player.addMediaItem(secondItem);
+~~~
+{: .language-java}
+
 ### IMA extension ###
 
 The [ExoPlayer IMA extension][] provides `ImaAdsLoader`, making it easy to
@@ -178,6 +214,7 @@ provide any integration with the DAI part of the IMA SDK.
 [demo application]: {{ site.baseurl }}/demo-application.html
 [Open Measurement in the IMA SDK]: https://developers.google.com/interactive-media-ads/docs/sdks/android/omsdk
 [Adding Companion Ads]: https://developers.google.com/interactive-media-ads/docs/sdks/android/companions
+[playlist]: {{ site.baseurl }}/playlists.html
 [playlist support]: {{ site.baseurl }}/playlists.html
 [incorporating ads into a playlist]: https://developer.apple.com/documentation/http_live_streaming/example_playlists_for_http_live_streaming/incorporating_ads_into_a_playlist
 [supported formats]: {{ site.baseurl }}/supported-formats.html

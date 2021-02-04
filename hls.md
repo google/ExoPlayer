@@ -122,8 +122,6 @@ The following guidelines apply specifically for live streams:
 * Use the `#EXT-X-DISCONTINUITY-SEQUENCE` tag.
 * Provide a long live window. One minute or more is great.
 
-{% include_relative _page_fragments/behind-live-window.md %}
-
 [HlsMediaSource]: {{ site.exo_sdk }}/source/hls/HlsMediaSource.html
 [HTTP Live Streaming]: https://tools.ietf.org/html/rfc8216
 [PlayerView]: {{ site.exo_sdk }}/ui/PlayerView.html

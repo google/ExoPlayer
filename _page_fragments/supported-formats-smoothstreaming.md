@@ -4,7 +4,7 @@ StreamIndex elements in the SmoothStreaming manifest. The contained audio and
 video sample formats must also be supported (see the
 [sample formats](supported-formats.html#sample-formats) section for details).
 
-| Feature | Supported    | Comment              |
+| Feature | Supported    | Comments             |
 |---------|:------------:|:---------------------|
 | **Containers** |||
 | FMP4 | YES | Demuxed streams only |
@@ -12,3 +12,5 @@ video sample formats must also be supported (see the
 | TTML | YES | Embedded in FMP4 |
 | **Content protection** |||
 | PlayReady SL2000 | YES | Android TV only |
+| **Live playback** |||
+| Regular live playback | YES ||

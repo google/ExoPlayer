@@ -19,6 +19,11 @@ the methods you're interested in. See the [Javadoc][] for a full description of
 the methods and when they're called. Some of the most important methods are
 described in more detail below.
 
+Listeners have the choice between implementing individual event callbacks or a
+generic `onEvents` callback that's called after one or more events occur
+together. See [`Individual callbacks vs onEvents`][] for an explanation of which
+should be preferred for different use cases.
+
 ### Playback state changes ###
 
 Changes in player state can be received by implementing
@@ -121,6 +126,57 @@ If you are using an `AnalyticsListener`, there will be an additional event
 `onSeekStarted` just before `onPositionDiscontinuity`, to indicate the playback
 position immediately before the seek started.
 
+### Individual callbacks vs onEvents ###
+
+Listeners can choose between implementing individual callbacks like
+`onIsPlayingChanged(boolean isPlaying)`, and the generic
+`onEvents(Player player, Events events)` callback. The generic callback provides
+access to the `Player` object and specifies the set of `events` that occurred
+together. It's always called after the callbacks that correspond to the
+individual events.
+
+~~~
+@Override
+public void onEvents(Player player, Events events) {
+  if (events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
+      || events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)) {
+    uiModule.updateUi(player);
+  }
+}
+~~~
+{: .language-java }
+
+Individual events should be preferred in the following cases:
+* The listener is interested in the reasons for changes. For example the reasons
+  provided for `onPlayWhenReadyChanged` or `onMediaItemTransition`.
+* The listener only acts on the new values provided through callback parameters,
+  or triggers something else that doesn't depend on the callback parameters.
+* The listener implementation prefers a clear readable indication of what
+  triggered the event in the method name.
+* The listener reports to an analytics system that needs to know about all
+  individual events and state changes.
+
+The generic `onEvents(Player player, Events events)` should be preferred in the
+following cases:
+* The listener wants to trigger the same logic for multiple events. For
+  example updating a UI for both `onPlaybackStateChanged` and
+  `onPlayWhenReadyChanged`.
+* The listener needs access the `Player` object to trigger further events,
+  for example seeking after a media item transition.
+* The listener intends to use multiple state values that are reported
+  through separate callbacks together, or in combination with `Player` getter
+  methods. For example, using `Player.getCurrentWindowIndex()` with the
+  `Timeline` provided in `onTimelineChanged` is only safe from within the
+  `onEvents` callback.
+* The listener is interested in whether events logically occurred together. For
+  example `onPlaybackStateChanged` to `STATE_BUFFERING` because of a media item
+  transition.
+
+In some cases, listeners may need to combine the individual callbacks with the
+generic `onEvents` callback, for example to record media item change reasons
+with `onMediaItemTransition`, but only act once all state changes can be used
+together in `onEvents`.
+
 ## Additional SimpleExoPlayer listeners ##
 
 When using `SimpleExoPlayer`, additional listeners can be registered with the
@@ -135,7 +191,7 @@ player.
   useful for adjusting the UI (e.g., the aspect ratio of the `Surface` onto
   which video is being rendered).
 * `addAudioListener`: Listen to events related to audio, such as when an audio
-  session ID is set, and when the player volume is changed.
+  session ID changes, and when the player volume is changed.
 * `addDeviceListener`: Listen to events related to the state of the device.
 
 ExoPlayer's UI components, such as `StyledPlayerView`, will register themselves
@@ -164,7 +220,7 @@ supported using `PlayerMessage`. A `PlayerMessage` can be created using
 `ExoPlayer.createMessage`. The playback position at which it should be executed
 can be set using `PlayerMessage.setPosition`. Messages are executed on the
 playback thread by default, but this can be customized using
-`PlayerMessage.setHandler`. `PlayerMessage.setDeleteAfterDelivery` can be used
+`PlayerMessage.setLooper`. `PlayerMessage.setDeleteAfterDelivery` can be used
 to control whether the message will be executed every time the specified
 playback position is encountered (this may happen multiple times due to seeking
 and repeat modes), or just the first time. Once the `PlayerMessage` is
@@ -176,7 +232,7 @@ player
         (messageType, payload) -> {
           // Do something at the specified playback position.
         })
-    .setHandler(new Handler())
+    .setLooper(Looper.getMainLooper())
     .setPosition(/* windowIndex= */ 0, /* positionMs= */ 120_000)
     .setPayload(customPayloadData)
     .setDeleteAfterDelivery(false)
@@ -186,6 +242,7 @@ player
 
 [`Player.EventListener`]: {{ site.exo_sdk }}/Player.EventListener.html
 [Javadoc]: {{ site.exo_sdk }}/Player.EventListener.html
+[`Individual callbacks vs onEvents`]: #individual-callbacks-vs-onevents
 [`ExoPlaybackException`]: {{ site.exo_sdk }}/ExoPlaybackException.html
 [log output]: event-logger.html
 [`Parameters`]: {{ site.exo_sdk }}/trackselection/DefaultTrackSelector.Parameters.html

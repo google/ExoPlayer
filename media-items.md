@@ -72,10 +72,11 @@ MediaItem mediaItem = new MediaItem.Builder()
 {: .language-java}
 
 This example builds a media item for Widevine protected content. Inside the
-player, `DefaultMediaSourceFactory` will use these properties to create a
-`DrmSessionManager`, which is then injected into the created `MediaSource`.
-There are [more DRM properties]({{ site.baseurl }}/drm.html) that you can use to
-tailor the DRM configuration to your needs.
+player, `DefaultMediaSourceFactory` will pass these properties to a
+`DrmSessionManagerProvider` to obtain a `DrmSessionManager`, which is then
+injected into the created `MediaSource`. DRM behaviour can be
+[further customized]({{ site.baseurl }}/drm.html#using-a-custom-drmsessionmanager)
+to your needs.
 
 ## Sideloading subtitle tracks ##
 
@@ -98,8 +99,8 @@ MediaItem mediaItem = new MediaItem.Builder()
 {: .language-java}
 
 Internally, `DefaultMediaSourceFactory` will use a `MergingMediaSource` to
-combiend the content media source with a `SingleSampleMediaSource` for each
-subtitle.
+combine the content media source with a `SingleSampleMediaSource` for each
+subtitle track.
 
 ## Clipping a media stream ##
 

@@ -5,7 +5,7 @@ strongly encourage HLS content producers to generate high quality HLS streams,
 as described
 [here](https://medium.com/google-exoplayer/hls-playback-in-exoplayer-a33959a47be7).
 
-| Feature | Supported    | Comment              |
+| Feature | Supported    | Comments             |
 |---------|:------------:|:---------------------|
 | **Containers** |||
 | MPEG-TS | YES ||
@@ -22,3 +22,11 @@ as described
 | Sample AES-128 | NO ||
 | Widevine | YES | API 19+ ("cenc" scheme) and 25+ ("cbcs" scheme) |
 | PlayReady SL2000 | YES | Android TV only |
+| **Server control** |||
+| Delta updates | YES ||
+| Blocking playlist reload | YES ||
+| Blocking load of preload hints | YES | Except for byteranges with undefined lengths |
+| **Live playback** |||
+| Regular live playback | YES ||
+| Low-latency HLS (Apple) | YES ||
+| Low-latency HLS (Community) | NO ||

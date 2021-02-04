@@ -5,7 +5,7 @@ described in the table below). The contained audio and video sample formats must
 also be supported (see the
 [sample formats](supported-formats.html#sample-formats) section for details).
 
-| Feature | Supported    | Comment              |
+| Feature | Supported    | Comments             |
 |---------|:------------:|:---------------------|
 | **Containers** |||
 | FMP4 | YES| Demuxed streams only |
@@ -22,3 +22,6 @@ also be supported (see the
 | Widevine | YES | "cenc" scheme: API 19+; "cbcs" scheme: API 25+ |
 | PlayReady SL2000 | YES | Android TV, "cenc" scheme only |
 | ClearKey | YES | API 21+, "cenc" scheme only |
+| **Live playback** |||
+| Regular live playback | YES ||
+| Ultra low-latency CMAF live playback | YES ||

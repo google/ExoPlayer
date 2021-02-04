@@ -41,6 +41,8 @@ en:
         url:    downloading-media.html
       - title:  Ad insertion
         url:    ad-insertion.html
+      - title:  Live streaming
+        url:    live-streaming.html
       - title:  Debug logging
         url:    debug-logging.html
   - title:      Media types
@@ -61,6 +63,8 @@ en:
         url:    troubleshooting.html
       - title:  Customization
         url:    customization.html
+      - title:  Transforming media
+        url:    transforming-media.html
       - title:  Battery consumption
         url:    battery-consumption.html
       - title:  APK shrinking
