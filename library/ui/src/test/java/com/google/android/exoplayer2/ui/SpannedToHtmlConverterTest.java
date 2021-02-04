@@ -34,6 +34,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
@@ -277,6 +278,37 @@ public class SpannedToHtmlConverterTest {
                 + "<rt>non-&#224;sc&#236;&#236;-text</rt>"
                 + "</ruby> "
                 + "section");
+  }
+
+  @Test
+  public void convert_supportsTextEmphasisSpan() {
+    SpannableString spanned = new SpannableString("Text emphasis おはよ ございます ");
+    spanned.setSpan(
+        new TextEmphasisSpan(TextEmphasisSpan.MARK_FILLED_CIRCLE, TextEmphasisSpan.POSITION_BEFORE),
+        "Text emphasis ".length(),
+        "Text emphasis おはよ".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    spanned.setSpan(
+        new TextEmphasisSpan(TextEmphasisSpan.MARK_OPEN_SESAME, TextEmphasisSpan.POSITION_AFTER),
+        "Text emphasis おはよ ".length(),
+        "Text emphasis おはよ ございます ".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(spanned, displayDensity);
+
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html)
+        .isEqualTo(
+            "Text emphasis <span style='"
+                + "-webkit-text-emphasis-style: filled circle; text-emphasis-style: filled circle; "
+                + "-webkit-text-emphasis-position: over right; text-emphasis-position: over right;"
+                + "'>&#12362;&#12399;&#12424;</span> "
+                + "<span style='"
+                + "-webkit-text-emphasis-style: open sesame; text-emphasis-style: open sesame; "
+                + "-webkit-text-emphasis-position: under left; text-emphasis-position: under left;"
+                + "'>&#12372;&#12374;&#12356;&#12414;&#12377; </span>");
   }
 
   @Test

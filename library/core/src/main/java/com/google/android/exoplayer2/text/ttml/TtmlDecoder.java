@@ -609,6 +609,10 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               break;
           }
           break;
+        case TtmlNode.ATTR_TTS_TEXT_EMPHASIS:
+          style = createIfNull(style).setTextEmphasis(
+              TextEmphasis.createTextEmphasis(Util.toLowerInvariant(attributeValue)));
+          break;
         default:
           // ignore
           break;

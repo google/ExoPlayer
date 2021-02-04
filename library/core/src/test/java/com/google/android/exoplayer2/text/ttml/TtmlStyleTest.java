@@ -16,6 +16,10 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import static android.graphics.Color.BLACK;
+import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_FILLED_DOT;
+import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_OPEN_SESAME;
+import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_AFTER;
+import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_BEFORE;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD_ITALIC;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_ITALIC;
@@ -46,6 +50,7 @@ public final class TtmlStyleTest {
   private static final int RUBY_POSITION = RubySpan.POSITION_UNDER;
   private static final Layout.Alignment TEXT_ALIGN = Layout.Alignment.ALIGN_CENTER;
   private static final boolean TEXT_COMBINE = true;
+  public static final String TEXT_EMPHASIS_STYLE="dot before";
 
   private final TtmlStyle populatedStyle =
       new TtmlStyle()
@@ -62,7 +67,8 @@ public final class TtmlStyleTest {
           .setRubyType(RUBY_TYPE)
           .setRubyPosition(RUBY_POSITION)
           .setTextAlign(TEXT_ALIGN)
-          .setTextCombine(TEXT_COMBINE);
+          .setTextCombine(TEXT_COMBINE)
+          .setTextEmphasis(TextEmphasis.createTextEmphasis(TEXT_EMPHASIS_STYLE));
 
   @Test
   public void inheritStyle() {
@@ -86,6 +92,9 @@ public final class TtmlStyleTest {
     assertWithMessage("backgroundColor should not be inherited")
         .that(style.hasBackgroundColor())
         .isFalse();
+    assertThat(style.getTextEmphasis()).isNotNull();
+    assertThat(style.getTextEmphasis().mark).isEqualTo(MARK_FILLED_DOT);
+    assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
   }
 
   @Test
@@ -109,6 +118,9 @@ public final class TtmlStyleTest {
         .that(style.getBackgroundColor())
         .isEqualTo(BACKGROUND_COLOR);
     assertWithMessage("rubyType should be chained").that(style.getRubyType()).isEqualTo(RUBY_TYPE);
+    assertThat(style.getTextEmphasis()).isNotNull();
+    assertThat(style.getTextEmphasis().mark).isEqualTo(MARK_FILLED_DOT);
+    assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
   }
 
   @Test
@@ -244,5 +256,14 @@ public final class TtmlStyleTest {
     assertThat(style.getTextCombine()).isFalse();
     style.setTextCombine(true);
     assertThat(style.getTextCombine()).isTrue();
+  }
+
+  @Test
+  public void textEmphasis() {
+    TtmlStyle style = new TtmlStyle();
+    assertThat(style.getTextEmphasis()).isNull();
+    style.setTextEmphasis(TextEmphasis.createTextEmphasis("open sesame after"));
+    assertThat(style.getTextEmphasis().mark).isEqualTo(MARK_OPEN_SESAME);
+    assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_AFTER);
   }
 }

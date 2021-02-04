@@ -27,9 +27,11 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.text.span.SpanUtil;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
@@ -83,7 +85,8 @@ import java.util.Map;
       int end,
       TtmlStyle style,
       @Nullable TtmlNode parent,
-      Map<String, TtmlStyle> globalStyles) {
+      Map<String, TtmlStyle> globalStyles,
+      @Cue.VerticalType int verticalType) {
 
     if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
       builder.setSpan(new StyleSpan(style.getStyle()), start, end,
@@ -115,6 +118,27 @@ import java.util.Map;
       SpanUtil.addOrReplaceSpan(
           builder,
           new TypefaceSpan(style.getFontFamily()),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.getTextEmphasis() != null) {
+      TextEmphasis textEmphasis = style.getTextEmphasis();
+      // https://www.w3.org/TR/ttml2/#style-value-emphasis-style
+      // If an implementation does not recognize or otherwise distinguish an emphasis style value,
+      // then it must be interpreted as if a style of auto were specified; as such, an
+      // implementation that supports text emphasis marks must minimally support the auto value.
+      // If a vertical writing mode applies, then equivalent to filled sesame; otherwise, equivalent
+      // to filled circle.
+      @TextEmphasisSpan.Mark int mark = textEmphasis.mark;
+      if (textEmphasis.mark == TextEmphasisSpan.MARK_AUTO
+          || textEmphasis.mark == TextEmphasisSpan.MARK_UNKNOWN) {
+        mark = (verticalType == Cue.VERTICAL_TYPE_LR || verticalType == Cue.VERTICAL_TYPE_RL) ?
+            TextEmphasisSpan.MARK_FILLED_SESAME : TextEmphasisSpan.MARK_FILLED_CIRCLE;
+      }
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new TextEmphasisSpan(mark, textEmphasis.position),
           start,
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

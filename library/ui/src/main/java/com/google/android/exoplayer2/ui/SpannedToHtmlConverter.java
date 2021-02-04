@@ -31,6 +31,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
@@ -197,6 +198,14 @@ import java.util.regex.Pattern;
       }
     } else if (span instanceof UnderlineSpan) {
       return "<u>";
+    } else if (span instanceof TextEmphasisSpan) {
+      TextEmphasisSpan textEmphasisSpan = (TextEmphasisSpan) span;
+      String style = getTextEmphasisStyle(textEmphasisSpan.mark);
+      String position = getTextEmphasisPosition(textEmphasisSpan.position);
+      return Util
+          .formatInvariant("<span style='-webkit-text-emphasis-style: %s; text-emphasis-style: %s; "
+                  + "-webkit-text-emphasis-position: %s; text-emphasis-position: %s;'>",
+              style, style, position, position);
     } else {
       return null;
     }
@@ -209,7 +218,8 @@ import java.util.regex.Pattern;
         || span instanceof BackgroundColorSpan
         || span instanceof HorizontalTextInVerticalContextSpan
         || span instanceof AbsoluteSizeSpan
-        || span instanceof RelativeSizeSpan) {
+        || span instanceof RelativeSizeSpan
+        || span instanceof TextEmphasisSpan) {
       return "</span>";
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
@@ -230,6 +240,47 @@ import java.util.regex.Pattern;
       return "</u>";
     }
     return null;
+  }
+
+  private static String getTextEmphasisStyle(@TextEmphasisSpan.Mark int mark) {
+    switch (mark) {
+      case TextEmphasisSpan.MARK_FILLED_CIRCLE:
+        return "filled circle";
+      case TextEmphasisSpan.MARK_FILLED_DOT:
+        return "filled dot";
+      case TextEmphasisSpan.MARK_FILLED_SESAME:
+        return "filled sesame";
+      case TextEmphasisSpan.MARK_OPEN_CIRCLE:
+        return "open circle";
+      case TextEmphasisSpan.MARK_OPEN_DOT:
+        return "open dot";
+      case TextEmphasisSpan.MARK_OPEN_SESAME:
+        return "open sesame";
+      case TextEmphasisSpan.MARK_AUTO: // TODO
+        // https://www.w3.org/TR/ttml2/#style-value-emphasis-style
+        // If a vertical writing mode applies, then equivalent to filled sesame; otherwise,
+        // equivalent to filled circle.
+      case TextEmphasisSpan.MARK_UNKNOWN:
+      default:
+        return "unset";
+    }
+  }
+
+  private static String getTextEmphasisPosition(@TextEmphasisSpan.Position int position){
+    switch (position) {
+      case TextEmphasisSpan.POSITION_AFTER:
+        return "under left";
+      case TextEmphasisSpan.POSITION_UNKNOWN:
+      case TextEmphasisSpan.POSITION_BEFORE:
+      case TextEmphasisSpan.POSITION_OUTSIDE: /* Not supported, fallback to "before" */
+      default:
+        // https://www.w3.org/TR/ttml2/#style-value-annotation-position
+        // If an implementation does not recognize or otherwise distinguish an annotation position
+        // value, then it must be interpreted as if a position of before were specified; as such,
+        // an implementation that supports text annotation marks must minimally support the before
+        // value.
+        return "over right";
+    }
   }
 
   private static Transition getOrCreate(SparseArray<Transition> transitions, int key) {

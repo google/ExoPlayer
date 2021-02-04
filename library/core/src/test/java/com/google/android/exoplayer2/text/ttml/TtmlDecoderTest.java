@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import java.io.IOException;
@@ -36,7 +37,9 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link TtmlDecoder}. */
+/**
+ * Unit test for {@link TtmlDecoder}.
+ */
 @RunWith(AndroidJUnit4.class)
 public final class TtmlDecoderTest {
 
@@ -67,6 +70,7 @@ public final class TtmlDecoderTest {
   private static final String VERTICAL_TEXT_FILE = "media/ttml/vertical_text.xml";
   private static final String TEXT_COMBINE_FILE = "media/ttml/text_combine.xml";
   private static final String RUBIES_FILE = "media/ttml/rubies.xml";
+  private static final String TEXT_EMPHASIS_FILE = "media/ttml/text_emphasis.xml";
 
   @Test
   public void inlineAttributes() throws IOException, SubtitleDecoderException {
@@ -109,12 +113,10 @@ public final class TtmlDecoderTest {
    * framework level. Tests that <i>lime</i> resolves to <code>#FF00FF00</code> not <code>#00FF00
    * </code>.
    *
-   * @see <a
-   *     href="https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/graphics/java/android/graphics/Color.java#L414">
-   *     JellyBean Color</a> <a
-   *     href="https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414">
-   *     Kitkat Color</a>
    * @throws IOException thrown if reading subtitle file fails.
+   * @see <a href="https://github.com/android/platform_frameworks_base/blob/jb-mr2-release/graphics/java/android/graphics/Color.java#L414">
+   * JellyBean Color</a> <a href="https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414">
+   * Kitkat Color</a>
    */
   @Test
   public void lime() throws IOException, SubtitleDecoderException {
@@ -672,6 +674,105 @@ public final class TtmlDecoderTest {
     Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
     assertThat(sixthCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(sixthCue).hasNoRubySpanBetween(0, sixthCue.length());
+  }
+
+  @Test
+  public void textEmphasis() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(TEXT_EMPHASIS_FILE);
+
+    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue)
+        .hasNoTextEmphasisSpanBetween("None ".length(), "None おはよ".length());
+
+    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue)
+        .hasTextEmphasisSpanBetween("Auto ".length(), "Auto ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
+            TextEmphasisSpan.POSITION_UNKNOWN);
+
+    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue)
+        .hasTextEmphasisSpanBetween("Filled circle ".length(), "Filled circle こんばんは".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
+            TextEmphasisSpan.POSITION_UNKNOWN);
+
+    Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue)
+        .hasTextEmphasisSpanBetween("Filled dot ".length(), "Filled dot ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_DOT, TextEmphasisSpan.POSITION_UNKNOWN);
+
+    Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue)
+        .hasTextEmphasisSpanBetween("Filled sesame ".length(), "Filled sesame おはよ".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
+            TextEmphasisSpan.POSITION_UNKNOWN);
+
+    Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue)
+        .hasTextEmphasisSpanBetween("Open circle before ".length(),
+            "Open circle before ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_CIRCLE, TextEmphasisSpan.POSITION_BEFORE);
+
+    Spanned seventhCue = getOnlyCueTextAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue)
+        .hasTextEmphasisSpanBetween("Open dot after ".length(), "Open dot after おはよ".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_DOT, TextEmphasisSpan.POSITION_AFTER);
+
+    Spanned eighthCue = getOnlyCueTextAtTimeUs(subtitle, 80_000_000);
+    assertThat(eighthCue)
+        .hasTextEmphasisSpanBetween("Open sesame outside ".length(),
+            "Open sesame outside ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_SESAME, TextEmphasisSpan.POSITION_OUTSIDE);
+
+    Spanned ninthCue = getOnlyCueTextAtTimeUs(subtitle, 90_000_000);
+    assertThat(ninthCue)
+        .hasTextEmphasisSpanBetween("Auto outside ".length(), "Auto outside おはよ".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
+            TextEmphasisSpan.POSITION_OUTSIDE);
+
+    Spanned tenthCue = getOnlyCueTextAtTimeUs(subtitle, 100_000_000);
+    assertThat(tenthCue)
+        .hasTextEmphasisSpanBetween("Circle before ".length(), "Circle before ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE, TextEmphasisSpan.POSITION_BEFORE);
+
+    Spanned eleventhCue = getOnlyCueTextAtTimeUs(subtitle, 110_000_000);
+    assertThat(eleventhCue)
+        .hasTextEmphasisSpanBetween("Sesame after ".length(), "Sesame after おはよ".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME, TextEmphasisSpan.POSITION_AFTER);
+
+    Spanned twelfthCue = getOnlyCueTextAtTimeUs(subtitle, 120_000_000);
+    assertThat(twelfthCue)
+        .hasTextEmphasisSpanBetween("Dot outside ".length(), "Dot outside ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_DOT, TextEmphasisSpan.POSITION_OUTSIDE);
+
+    Spanned thirteenthCue = getOnlyCueTextAtTimeUs(subtitle, 130_000_000);
+    assertThat(thirteenthCue)
+        .hasNoTextEmphasisSpanBetween("No textEmphasis property ".length(),
+            "No textEmphasis property おはよ".length());
+
+    Spanned fourteenthCue = getOnlyCueTextAtTimeUs(subtitle, 140_000_000);
+    assertThat(fourteenthCue)
+        .hasTextEmphasisSpanBetween("Auto (TBLR) ".length(), "Auto (TBLR) ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
+            TextEmphasisSpan.POSITION_UNKNOWN);
+
+    Spanned fifteenthCue = getOnlyCueTextAtTimeUs(subtitle, 150_000_000);
+    assertThat(fifteenthCue)
+        .hasTextEmphasisSpanBetween("Auto (TBRL) ".length(), "Auto (TBRL) おはよ".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
+            TextEmphasisSpan.POSITION_UNKNOWN);
+
+    Spanned sixteenthCue = getOnlyCueTextAtTimeUs(subtitle, 160_000_000);
+    assertThat(sixteenthCue)
+        .hasTextEmphasisSpanBetween("Auto (TB) ".length(), "Auto (TB) ございます".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
+            TextEmphasisSpan.POSITION_UNKNOWN);
+
+    Spanned seventeenthCue = getOnlyCueTextAtTimeUs(subtitle, 170_000_000);
+    assertThat(seventeenthCue)
+        .hasTextEmphasisSpanBetween("Auto (LR) ".length(), "Auto (LR) おはよ".length())
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
+            TextEmphasisSpan.POSITION_UNKNOWN);
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {

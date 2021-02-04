@@ -87,6 +87,8 @@ import java.lang.annotation.RetentionPolicy;
   @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
 
+  private TextEmphasis textEmphasis;
+
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
     underline = UNSPECIFIED;
@@ -238,6 +240,9 @@ import java.lang.annotation.RetentionPolicy;
         fontSizeUnit = ancestor.fontSizeUnit;
         fontSize = ancestor.fontSize;
       }
+      if (textEmphasis == null) {
+        textEmphasis = ancestor.textEmphasis;
+      }
       // attributes not inherited as of http://www.w3.org/TR/ttml1/
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {
         setBackgroundColor(ancestor.backgroundColor);
@@ -296,6 +301,16 @@ import java.lang.annotation.RetentionPolicy;
 
   public TtmlStyle setTextCombine(boolean combine) {
     this.textCombine = combine ? ON : OFF;
+    return this;
+  }
+
+  @Nullable
+  public TextEmphasis getTextEmphasis() {
+    return textEmphasis;
+  }
+
+  public TtmlStyle setTextEmphasis(@Nullable TextEmphasis textEmphasis) {
+    this.textEmphasis = textEmphasis;
     return this;
   }
 
