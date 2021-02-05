@@ -32,9 +32,10 @@ methods, as listed below and shown in the following figure.
 
 {% include figure.html url="/images/live-window.png" index="1" caption="Live window" %}
 
-* `Player.isCurrentWindowLive` returns whether the currently playing media item
-  is a live stream. This value is still true even if the live stream has ended.
-* `Player.isCurrentWindowDynamic` returns whether the currently playing media
+* `Player.isCurrentWindowLive` indicates whether the currently playing media
+  item is a live stream. This value is still true even if the live stream has
+  ended.
+* `Player.isCurrentWindowDynamic` indicates whether the currently playing media
   item is still being updated. This is usually true for live streams that are
   not yet ended. Note that this flag is also true for non-live streams in some
   cases.
