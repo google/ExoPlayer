@@ -11,12 +11,12 @@ server to monitor playbacks across all devices.
 An analytics system usually needs to collect events first, and then process them
 further to make them meaningful:
 
-* **Event collection**
+* **Event collection**:
   This can be done by registering an `AnalyticsListener` on an `ExoPlayer`
   instance. Registered analytics listeners receive events as they occur during
   usage of the player. Each event is associated with the corresponding media
   item in the playlist, as well as playback position and timestamp metadata.
-* **Event processing**
+* **Event processing**:
   Some analytics systems upload raw events to a server, with all event
   processing performed server-side. It's also possible to process events on the
   device, and doing so may be simpler or reduce the amount of information that
@@ -126,7 +126,7 @@ information such as why playback was interrupted or ended:
 The user intention to play is important to distinguish times when the user was
 actively waiting for playback to continue from passive wait times. For example,
 `PlaybackStats.getTotalWaitTimeMs` returns the total time spent in the
-`JOINING_FOREGROUND`, `BUFFERING` or `SEEKING` states, but not the time when
+`JOINING_FOREGROUND`, `BUFFERING` and `SEEKING` states, but not the time when
 playback was paused. Similarly, `PlaybackStats.getTotalPlayAndWaitTimeMs` will
 return the total time with a user intention to play, that is the total active
 wait time and the total time spent in the `PLAYING` state.
@@ -158,7 +158,7 @@ This data is automatically collected if you use `PlaybackStatsListener`, even
 with `keepHistory=false`. The final values are the public fields that you can
 find in the [`PlaybackStats` Javadoc][] and the playback state durations
 returned by `getPlaybackStateDurationMs`. For convenience, you'll also find
-methods like `getTotalPlayTimeMs` or `getTotalWaitTimeMs` that return the
+methods like `getTotalPlayTimeMs` and `getTotalWaitTimeMs` that return the
 duration of specific playback state combinations.
 
 ~~~
