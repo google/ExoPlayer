@@ -2,11 +2,10 @@
 title: Transforming media
 ---
 
-ExoPlayer includes a [Transformer][] module for converting media streams. It
-takes an input media stream, applies changes to it as configured by the app, and
-produces the corresponding output file.
+The [Transformer API][] can be used to convert media streams. It takes an input
+media stream, applies changes to it as configured by the app, and produces the
+corresponding output file. The available transformations are:
 
-The available transformations are:
 * Transmuxing between container formats.
 * Track removal.
 * Flattening of slow motion videos or, in other words, their conversion into
@@ -27,10 +26,10 @@ implementation 'com.google.android.exoplayer:exoplayer-transformer:2.X.X'
 
 where `2.X.X` is your preferred ExoPlayer version.
 
-You can then start a transformation by building a `Transformer` instance and by
+You can then start a transformation by building a `Transformer` instance and
 calling `startTransformation()` on it. The code sample below starts a
 transformation that removes the audio track from the input and sets the output
-format to WebM:
+container format to WebM:
 
 ~~~
 // Configure and create a Transformer instance.
@@ -51,17 +50,17 @@ builder.
 
 `startTransformation()` receives a `MediaItem` describing the input, and a path
 or a `ParcelFileDescriptor` indicating where the output should be written. The
-input can be a progressive or an adaptive bitrate stream, but the output is
-always a progressive stream. For adaptive bitrate inputs, the highest resolution
-tracks are always selected for the transformation.
+input can be a progressive or an adaptive stream, but the output is always a
+progressive stream. For adaptive inputs, the highest resolution tracks are
+always selected for the transformation.
 
 Multiple transformations can be executed sequentially with the same
 `Transformer` instance, but concurrent transformations with the same instance
-are not supported yet.
+are not supported.
 
 ## Listening to events ##
 
-The method `startTransformation()` is asynchronous. It returns immediately and
+The `startTransformation()` method is asynchronous. It returns immediately and
 the app is notified of events via the listener passed to the `Transformer`
 builder.
 
@@ -83,9 +82,13 @@ Transformer.Listener transformerListener =
 
 ## Displaying progress updates ##
 
-It is also possible to retrieve the current progress percentage. `getProgress()`
-returns the progress state (indicating whether the progress is available) and,
-if possible, updates the provided `ProgressHolder` with the current progress.
+`Transformer.getProgress()` can be called to query the current progress of a
+transformation. The returned value indicates the progress state. If the progress
+state is `PROGRESS_STATE_AVAILABLE` then the passed `ProgressHolder` will have
+been updated with the current progress. The snippet below demonstrates how to
+periodically query the progress of a transformation, where the
+`updateProgressInUi` method could be implemented to update a progress bar
+displayed to the user.
 
 ~~~
 transformer.startTransformation(inputMediaItem, outputPath);
@@ -103,8 +106,6 @@ mainHandler.post(
    });
 ~~~
 {: .language-java}
-
-This can be used to display a progress bar to the user.
 
 ## Flattening slow motion videos ##
 
@@ -134,7 +135,7 @@ This allows apps to support slow motion videos without having to worry about
 handling these special formats. All they need to do is to store and play the
 flattened version of the video instead of the original one.
 
-Only the Samsung slow motion format is supported at the moment.
+Currently, Samsung's slow motion format is the only one supported.
 
-[Transformer]: {{ site.exo_sdk }}/transformer/Transformer.html
+[Transformer API]: {{ site.exo_sdk }}/transformer/Transformer.html
 
