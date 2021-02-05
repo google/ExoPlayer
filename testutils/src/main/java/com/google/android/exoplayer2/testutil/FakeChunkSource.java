@@ -35,18 +35,14 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.List;
 
-/**
- * Fake {@link ChunkSource} with adaptive media chunks of a given duration.
- */
-public final class FakeChunkSource implements ChunkSource {
+/** Fake {@link ChunkSource} with adaptive media chunks of a given duration. */
+public class FakeChunkSource implements ChunkSource {
 
-  /**
-   * Factory for a {@link FakeChunkSource}.
-   */
-  public static final class Factory {
+  /** Factory for a {@link FakeChunkSource}. */
+  public static class Factory {
 
-    private final FakeAdaptiveDataSet.Factory dataSetFactory;
-    private final FakeDataSource.Factory dataSourceFactory;
+    protected final FakeAdaptiveDataSet.Factory dataSetFactory;
+    protected final FakeDataSource.Factory dataSourceFactory;
 
     public Factory(FakeAdaptiveDataSet.Factory dataSetFactory,
         FakeDataSource.Factory dataSourceFactory) {
@@ -61,13 +57,12 @@ public final class FakeChunkSource implements ChunkSource {
       FakeAdaptiveDataSet dataSet =
           dataSetFactory.createDataSet(trackSelection.getTrackGroup(), durationUs);
       dataSourceFactory.setFakeDataSet(dataSet);
-      DataSource dataSource = dataSourceFactory.createDataSource();
+      FakeDataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
       }
       return new FakeChunkSource(trackSelection, dataSource, dataSet);
     }
-
   }
 
   private final ExoTrackSelection trackSelection;

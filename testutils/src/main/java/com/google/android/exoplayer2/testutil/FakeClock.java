@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -309,7 +310,10 @@ public class FakeClock implements Clock {
     public int compareTo(HandlerMessage other) {
       return ComparisonChain.start()
           .compare(this.timeMs, other.timeMs)
-          .compare(this.messageId, other.messageId)
+          .compare(
+              this.messageId,
+              other.messageId,
+              timeMs == Long.MIN_VALUE ? Ordering.natural().reverse() : Ordering.natural())
           .result();
     }
   }
@@ -412,8 +416,19 @@ public class FakeClock implements Clock {
 
     @Override
     public boolean postDelayed(Runnable runnable, long delayMs) {
+      postRunnableAtTime(runnable, uptimeMillis() + delayMs);
+      return true;
+    }
+
+    @Override
+    public boolean postAtFrontOfQueue(Runnable runnable) {
+      postRunnableAtTime(runnable, /* timeMs= */ Long.MIN_VALUE);
+      return true;
+    }
+
+    private void postRunnableAtTime(Runnable runnable, long timeMs) {
       new HandlerMessage(
-              uptimeMillis() + delayMs,
+              timeMs,
               /* handler= */ this,
               /* what= */ 0,
               /* arg1= */ 0,
@@ -421,7 +436,6 @@ public class FakeClock implements Clock {
               /* obj= */ null,
               runnable)
           .sendToTarget();
-      return true;
     }
   }
 }

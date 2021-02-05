@@ -110,6 +110,11 @@ import java.util.List;
     return handler.postDelayed(runnable, delayMs);
   }
 
+  @Override
+  public boolean postAtFrontOfQueue(Runnable runnable) {
+    return handler.postAtFrontOfQueue(runnable);
+  }
+
   private static SystemMessage obtainSystemMessage() {
     synchronized (messagePool) {
       return messagePool.isEmpty()

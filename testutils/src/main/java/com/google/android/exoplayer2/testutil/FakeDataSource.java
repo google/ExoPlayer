@@ -210,6 +210,7 @@ public class FakeDataSource extends BaseDataSource {
       transferEnded();
     }
     fakeData = null;
+    onClosed();
   }
 
   /**
@@ -227,8 +228,13 @@ public class FakeDataSource extends BaseDataSource {
     return sourceOpened;
   }
 
+  /** Called when data is being read. */
   protected void onDataRead(int bytesRead) throws IOException {
     // Do nothing. Can be overridden.
   }
 
+  /** Called when the source is closed. */
+  protected void onClosed() {
+    // Do nothing. Can be overridden.
+  }
 }

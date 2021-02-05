@@ -143,15 +143,17 @@ public final class FakeClockTest {
 
     handler.obtainMessage(/* what= */ 1).sendToTarget();
     handler.sendMessageAtFrontOfQueue(handler.obtainMessage(/* what= */ 2));
-    handler.obtainMessage(/* what= */ 3).sendToTarget();
+    handler.sendMessageAtFrontOfQueue(handler.obtainMessage(/* what= */ 3));
+    handler.obtainMessage(/* what= */ 4).sendToTarget();
     ShadowLooper.idleMainLooper();
     shadowOf(handler.getLooper()).idle();
 
     assertThat(callback.messages)
         .containsExactly(
+            new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
             new MessageData(/* what= */ 2, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
             new MessageData(/* what= */ 1, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null),
-            new MessageData(/* what= */ 3, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null))
+            new MessageData(/* what= */ 4, /* arg1= */ 0, /* arg2= */ 0, /* obj=*/ null))
         .inOrder();
   }
 

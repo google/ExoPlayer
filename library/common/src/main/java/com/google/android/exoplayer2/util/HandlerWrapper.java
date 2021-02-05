@@ -76,4 +76,7 @@ public interface HandlerWrapper {
 
   /** See {@link Handler#postDelayed(Runnable, long)}. */
   boolean postDelayed(Runnable runnable, long delayMs);
+
+  /** See {@link android.os.Handler#postAtFrontOfQueue(Runnable)}. */
+  boolean postAtFrontOfQueue(Runnable runnable);
 }
