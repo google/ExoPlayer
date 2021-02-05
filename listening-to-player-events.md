@@ -183,7 +183,8 @@ When using `SimpleExoPlayer`, additional listeners can be registered with the
 player.
 
 * `addAnalyticsListener`: Listen to detailed events that may be useful for
-  analytics and logging purposes.
+  analytics and logging purposes. Please refer to the [analytics page][] for
+  more details.
 * `addTextOutput`: Listen to changes in the subtitle or caption cues.
 * `addMetadataOutput`: Listen to timed metadata events, such as timed ID3 and
   EMSG data.
@@ -250,4 +251,5 @@ player
 [`DefaultTrackSelector`]: {{ site.exo_sdk }}/trackselection/DefaultTrackSelector.html
 [ExoPlayer demo app]: {{ site.baseurl }}/demo-application.html#playing-your-own-content
 [latest ExoPlayer version]: https://github.com/google/ExoPlayer/releases
+[analytics page]: {{ site.baseurl }}/analytics.html
 [debug logging page]: {{ site.baseurl }}/debug-logging.html

@@ -45,6 +45,8 @@ en:
         url:    live-streaming.html
       - title:  Debug logging
         url:    debug-logging.html
+      - title:  Analytics
+        url:    analytics.html
   - title:      Media types
     children:
       - title:  DASH
