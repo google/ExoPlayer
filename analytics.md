@@ -37,7 +37,7 @@ further to make them meaningful:
      other ways. Summary metrics can be calculated for single or multiple
      playbacks.
 
-## Receiving raw events with AnalyticsListener ##
+## Event collection with AnalyticsListener ##
 
 Raw playback events from the player are reported to `AnalyticsListener`
 implementations. You can easily add your own listener and override only the
@@ -74,7 +74,7 @@ item in the playlist, as well as playback position and timestamp metadata:
   belongs, for example if the event corresponds to pre-buffering of the next
   item to be played.
 
-## Event processing and aggregation with PlaybackStatsListener ##
+## Event processing with PlaybackStatsListener ##
 
 `PlaybackStatsListener` is an `AnalyticsListener` that implements on device
 event processing. It calculates `PlaybackStats`, with counters and derived
