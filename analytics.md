@@ -70,7 +70,7 @@ item in the playlist, as well as playback position and timestamp metadata:
   occurred.
 * `currentTimeline`, `currentWindowIndex`, `currentMediaPeriodId` and
   `currentPlaybackPositionMs`: As above but for the currently playing item. The
-  currently playing item may be different to the item to which the event
+  currently playing item may be different from the item to which the event
   belongs, for example if the event corresponds to pre-buffering of the next
   item to be played.
 
@@ -82,7 +82,7 @@ metrics including:
 
 * Summary metrics, for example the total playback time.
 * Adaptive playback quality metrics, for example the average video resolution.
-* Rendering quality metrics, for example the the rate of dropped frames.
+* Rendering quality metrics, for example the rate of dropped frames.
 * Resource usage metrics, for example the number of bytes read over the network.
 
 You will find a complete list of the available counts and derived metrics in the

@@ -27,7 +27,7 @@ implementation 'com.google.android.exoplayer:exoplayer-transformer:2.X.X'
 where `2.X.X` is your preferred ExoPlayer version.
 
 You can then start a transformation by building a `Transformer` instance and
-calling `startTransformation()` on it. The code sample below starts a
+calling `startTransformation` on it. The code sample below starts a
 transformation that removes the audio track from the input and sets the output
 container format to WebM:
 
@@ -48,8 +48,8 @@ transformer.startTransformation(inputMediaItem, outputPath);
 Other parameters, such as the `MediaSourceFactory`, can be passed to the
 builder.
 
-`startTransformation()` receives a `MediaItem` describing the input, and a path
-or a `ParcelFileDescriptor` indicating where the output should be written. The
+`startTransformation` receives a `MediaItem` describing the input, and a path or
+a `ParcelFileDescriptor` indicating where the output should be written. The
 input can be a progressive or an adaptive stream, but the output is always a
 progressive stream. For adaptive inputs, the highest resolution tracks are
 always selected for the transformation.
@@ -60,9 +60,8 @@ are not supported.
 
 ## Listening to events ##
 
-The `startTransformation()` method is asynchronous. It returns immediately and
-the app is notified of events via the listener passed to the `Transformer`
-builder.
+The `startTransformation` method is asynchronous. It returns immediately and the
+app is notified of events via the listener passed to the `Transformer` builder.
 
 ~~~
 Transformer.Listener transformerListener =
@@ -82,12 +81,12 @@ Transformer.Listener transformerListener =
 
 ## Displaying progress updates ##
 
-`Transformer.getProgress()` can be called to query the current progress of a
+`Transformer.getProgress` can be called to query the current progress of a
 transformation. The returned value indicates the progress state. If the progress
 state is `PROGRESS_STATE_AVAILABLE` then the passed `ProgressHolder` will have
-been updated with the current progress. The snippet below demonstrates how to
-periodically query the progress of a transformation, where the
-`updateProgressInUi` method could be implemented to update a progress bar
+been updated with the current progress percentage. The snippet below
+demonstrates how to periodically query the progress of a transformation, where
+the `updateProgressInUi` method could be implemented to update a progress bar
 displayed to the user.
 
 ~~~
@@ -117,7 +116,7 @@ motion metadata is removed, and the video and audio streams are modified so as
 to produce the desired effect when the output is played with a standard player
 (that is, a player that is not aware of slow motion formats).
 
-To flatten slow motion streams, use the `setFlattenForSlowMotion()` builder
+To flatten slow motion streams, use the `setFlattenForSlowMotion` builder
 method.
 
 ~~~

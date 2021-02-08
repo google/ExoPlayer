@@ -75,12 +75,11 @@ to the default position by calling `Player.seekToDefaultPosition`.
 
 ## Live playback UI ##
 
-During playback of a live stream, ExoPlayer's [default UI components][] show the
-duration of the live window and the current playback position within it. This
-means the position will appear to jump backwards each time the live window is
-updated. If you need different behavior, for example showing the Unix time or
-the current live offset, you can fork `StyledPlayerControlView` and modify it to
-suit your needs.
+ExoPlayer's [default UI components][] show the duration of the live window and
+the current playback position within it. This means the position will appear to
+jump backwards each time the live window is updated. If you need different
+behavior, for example showing the Unix time or the current live offset, you can
+fork `StyledPlayerControlView` and modify it to suit your needs.
 
 There is a [pending feature request (#2213)][] for ExoPlayer's default UI
 components to support additional modes when playing live streams.
@@ -137,8 +136,8 @@ The playback position may fall behind the live window, for example if the player
 is paused or buffering for a long enough period of time. If this happens then
 playback will fail and a `BehindLiveWindowException` will be reported via
 `Player.EventListener.onPlayerError`. Application code may wish to handle such
-errors by resuming playback at the live edge. The [PlayerActivity][] of the demo
-app exemplifies this approach.
+errors by resuming playback at the default position. The [PlayerActivity][] of
+the demo app exemplifies this approach.
 
 ~~~
 @Override
