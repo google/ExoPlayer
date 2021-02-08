@@ -1,5 +1,11 @@
 # Release notes
 
+### 2.13.1 (not yet released)
+
+*   Core library:
+    *   Fix playback issue for HLS live streams without program date time
+        information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
+
 ### 2.13.0 (2021-02-04)
 
 *   Core library:
