@@ -2,6 +2,9 @@
 
 ### dev-v2 (not yet released)
 
+*   Core library:
+    *   Fix playback issue for HLS live streams without program date time
+        information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
 

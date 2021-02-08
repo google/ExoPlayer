@@ -872,7 +872,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Adjust live playback speed to new position.
     if (playbackInfo.playWhenReady
         && playbackInfo.playbackState == Player.STATE_READY
-        && isCurrentPeriodInMovingLiveWindow()
+        && shouldUseLivePlaybackSpeedControl(playbackInfo.timeline, playbackInfo.periodId)
         && playbackInfo.playbackParameters.speed == 1f) {
       float adjustedSpeed =
           livePlaybackSpeedControl.getAdjustedPlaybackSpeed(
@@ -1043,17 +1043,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
         - (periodPositionUs + period.getPositionInWindowUs());
   }
 
-  private boolean isCurrentPeriodInMovingLiveWindow() {
-    return isInMovingLiveWindow(playbackInfo.timeline, playbackInfo.periodId);
-  }
-
-  private boolean isInMovingLiveWindow(Timeline timeline, MediaPeriodId mediaPeriodId) {
+  private boolean shouldUseLivePlaybackSpeedControl(
+      Timeline timeline, MediaPeriodId mediaPeriodId) {
     if (mediaPeriodId.isAd() || timeline.isEmpty()) {
       return false;
     }
     int windowIndex = timeline.getPeriodByUid(mediaPeriodId.periodUid, period).windowIndex;
     timeline.getWindow(windowIndex, window);
-    return window.isLive() && window.isDynamic;
+    return window.isLive() && window.isDynamic && window.windowStartTimeMs != C.TIME_UNSET;
   }
 
   private void scheduleNextWork(long thisOperationStartTimeMs, long intervalMs) {
@@ -1717,7 +1714,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
     // Renderers are ready and we're loading. Ask the LoadControl whether to transition.
     long targetLiveOffsetUs =
-        isInMovingLiveWindow(playbackInfo.timeline, queue.getPlayingPeriod().info.id)
+        shouldUseLivePlaybackSpeedControl(playbackInfo.timeline, queue.getPlayingPeriod().info.id)
             ? livePlaybackSpeedControl.getTargetLiveOffsetUs()
             : C.TIME_UNSET;
     MediaPeriodHolder loadingHolder = queue.getLoadingPeriod();
@@ -1823,7 +1820,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       Timeline oldTimeline,
       MediaPeriodId oldPeriodId,
       long positionForTargetOffsetOverrideUs) {
-    if (newTimeline.isEmpty() || !isInMovingLiveWindow(newTimeline, newPeriodId)) {
+    if (newTimeline.isEmpty() || !shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
       // Live playback speed control is unused.
       return;
     }
