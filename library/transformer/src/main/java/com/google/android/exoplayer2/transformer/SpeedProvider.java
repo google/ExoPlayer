@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 /** A custom interface that determines the speed for media at specific timestamps. */
-public interface SpeedProvider {
+/* package */ interface SpeedProvider {
 
   /**
    * Provides the speed that the media should be played at, based on the timeUs.
