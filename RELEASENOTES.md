@@ -5,6 +5,12 @@
 *   Core library:
     *   Fix playback issue for HLS live streams without program date time
         information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
+*   IMA extension:
+    *   Fix handling of repeated ad loads, to avoid ads being discarded if the
+        user seeks away and then back to a preloaded postroll (for example).
+    *   Fix a bug where an assertion would fail if the player started to buffer
+        an ad media period before the ad URI was known then an ad state update
+        arrived that didn't set the ad URI.
 
 ### 2.13.0 (2021-02-04)
 

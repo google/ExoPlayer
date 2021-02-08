@@ -182,9 +182,10 @@ public final class AdPlaybackState {
     /** Returns a new instance with the specified ad durations, in microseconds. */
     @CheckResult
     public AdGroup withAdDurationsUs(long[] durationsUs) {
-      Assertions.checkArgument(count == C.LENGTH_UNSET || durationsUs.length <= this.uris.length);
-      if (durationsUs.length < this.uris.length) {
+      if (durationsUs.length < uris.length) {
         durationsUs = copyDurationsUsWithSpaceForAdCount(durationsUs, uris.length);
+      } else if (count != C.LENGTH_UNSET && durationsUs.length > uris.length) {
+        durationsUs = Arrays.copyOf(durationsUs, uris.length);
       }
       return new AdGroup(count, states, uris, durationsUs);
     }

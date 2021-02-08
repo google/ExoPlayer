@@ -879,7 +879,8 @@ import java.util.Map;
     int adGroupIndex = getAdGroupIndexForAdPod(adPodInfo);
     int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
     AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
-    adInfoByAdMediaInfo.put(adMediaInfo, adInfo);
+    // The ad URI may already be known, so force put to update it if needed.
+    adInfoByAdMediaInfo.forcePut(adMediaInfo, adInfo);
     if (configuration.debugModeEnabled) {
       Log.d(TAG, "loadAd " + getAdMediaInfoString(adMediaInfo));
     }
