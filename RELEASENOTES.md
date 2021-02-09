@@ -16,6 +16,8 @@
 *   Remove deprecated symbols:
     *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
         module instead.
+    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
+        instead.
 
 ### 2.13.0 (2021-02-04)
 
