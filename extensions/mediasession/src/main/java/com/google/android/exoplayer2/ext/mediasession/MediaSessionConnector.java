@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
-import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1220,7 +1219,7 @@ public final class MediaSessionConnector {
     @Override
     public void onSetRepeatMode(@PlaybackStateCompat.RepeatMode int mediaSessionRepeatMode) {
       if (canDispatchPlaybackAction(PlaybackStateCompat.ACTION_SET_REPEAT_MODE)) {
-        @RepeatModeUtil.RepeatToggleModes int repeatMode;
+        @Player.RepeatMode int repeatMode;
         switch (mediaSessionRepeatMode) {
           case PlaybackStateCompat.REPEAT_MODE_ALL:
           case PlaybackStateCompat.REPEAT_MODE_GROUP:

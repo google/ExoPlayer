@@ -16,7 +16,7 @@ apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 android.defaultConfig.minSdkVersion 17
 
 dependencies {
-    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-common')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation 'androidx.leanback:leanback:1.0.0'
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
