@@ -14,10 +14,12 @@
         an ad media period before the ad URI was known then an ad state update
         arrived that didn't set the ad URI.
 *   Remove deprecated symbols:
-    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
-        module instead.
+    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
+        instead.
     *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
         instead.
+    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
+        module instead.
 
 ### 2.13.0 (2021-02-04)
 

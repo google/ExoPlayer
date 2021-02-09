@@ -665,32 +665,6 @@ public interface Player {
     default void onEvents(Player player, Events events) {}
   }
 
-  /**
-   * @deprecated Use {@link EventListener} interface directly for selective overrides as all methods
-   *     are implemented as no-op default methods.
-   */
-  @Deprecated
-  abstract class DefaultEventListener implements EventListener {
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
-      Object manifest = null;
-      if (timeline.getWindowCount() == 1) {
-        // Legacy behavior was to report the manifest for single window timelines only.
-        Timeline.Window window = new Timeline.Window();
-        manifest = timeline.getWindow(0, window).manifest;
-      }
-      // Call deprecated version.
-      onTimelineChanged(timeline, manifest, reason);
-    }
-
-    @Override
-    public void onTimelineChanged(
-        Timeline timeline, @Nullable Object manifest, @TimelineChangeReason int reason) {
-      // Do nothing.
-    }
-  }
-
   /** A set of {@link EventFlags}. */
   final class Events extends MutableFlags {
     /**
