@@ -152,6 +152,8 @@ public final class Loader implements LoaderErrorThrower {
 
   }
 
+  private static final String THREAD_NAME_PREFIX = "ExoPlayer:Loader:";
+
   /** Types of action that can be taken in response to a load error. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -210,10 +212,12 @@ public final class Loader implements LoaderErrorThrower {
   @Nullable private IOException fatalError;
 
   /**
-   * @param threadName A name for the loader's thread.
+   * @param threadNameSuffix A name suffix for the loader's thread. This should be the name of the
+   *     component using the loader.
    */
-  public Loader(String threadName) {
-    this.downloadExecutorService = Util.newSingleThreadExecutor(threadName);
+  public Loader(String threadNameSuffix) {
+    this.downloadExecutorService =
+        Util.newSingleThreadExecutor(THREAD_NAME_PREFIX + threadNameSuffix);
   }
 
   /**

@@ -88,7 +88,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.treatLoadErrorsAsEndOfStream = treatLoadErrorsAsEndOfStream;
     tracks = new TrackGroupArray(new TrackGroup(format));
     sampleStreams = new ArrayList<>();
-    loader = new Loader("Loader:SingleSampleMediaPeriod");
+    loader = new Loader("SingleSampleMediaPeriod");
   }
 
   public void release() {

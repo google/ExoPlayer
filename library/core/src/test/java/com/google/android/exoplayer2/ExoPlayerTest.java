@@ -7392,7 +7392,7 @@ public final class ExoPlayerTest {
                 drmSessionManager,
                 drmEventDispatcher,
                 /* deferOnPrepared= */ false) {
-              private Loader loader = new Loader("oomLoader");
+              private final Loader loader = new Loader("ExoPlayerTest");
 
               @Override
               public boolean continueLoading(long positionUs) {

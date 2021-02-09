@@ -538,7 +538,7 @@ public final class Util {
    * @param threadName The name of the thread.
    * @return The executor.
    */
-  public static ExecutorService newSingleThreadExecutor(final String threadName) {
+  public static ExecutorService newSingleThreadExecutor(String threadName) {
     return Executors.newSingleThreadExecutor(runnable -> new Thread(runnable, threadName));
   }
 

@@ -451,7 +451,7 @@ public final class SsMediaSource extends BaseMediaSource
       processManifest();
     } else {
       manifestDataSource = manifestDataSourceFactory.createDataSource();
-      manifestLoader = new Loader("Loader:Manifest");
+      manifestLoader = new Loader("SsMediaSource");
       manifestLoaderErrorThrower = manifestLoader;
       manifestRefreshHandler = Util.createHandlerForCurrentLooper();
       startLoadingManifest();

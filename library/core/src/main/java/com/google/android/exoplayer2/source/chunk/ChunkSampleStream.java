@@ -133,7 +133,7 @@ public class ChunkSampleStream<T extends ChunkSource> implements SampleStream, S
     this.callback = callback;
     this.mediaSourceEventDispatcher = mediaSourceEventDispatcher;
     this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
-    loader = new Loader("Loader:ChunkSampleStream");
+    loader = new Loader("ChunkSampleStream");
     nextChunkHolder = new ChunkHolder();
     mediaChunks = new ArrayList<>();
     readOnlyMediaChunks = Collections.unmodifiableList(mediaChunks);
