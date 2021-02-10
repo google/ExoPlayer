@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import android.os.Bundle;
+import androidx.annotation.Nullable;
 
 /**
  * Interface for classes whose instance can be stored in a {@link Bundle} by {@link #toBundle()} and
@@ -35,6 +36,24 @@ public interface Bundleable {
 
   /** Returns a {@link Bundle} representing the information stored in this object. */
   Bundle toBundle();
+
+  /**
+   * Converts a {@link Bundleable} to a {@link Bundle}. It's a convenient wrapper of {@link
+   * Bundleable#toBundle} that can take nullable values.
+   */
+  @Nullable
+  static Bundle toNullableBundle(@Nullable Bundleable bundleable) {
+    return bundleable == null ? null : bundleable.toBundle();
+  }
+
+  /**
+   * Converts a {@link Bundle} to a {@link Bundleable}. It's a convenient wrapper of {@link
+   * Creator#fromBundle} that can take nullable values.
+   */
+  @Nullable
+  static <T extends Bundleable> T fromNullableBundle(Creator<T> creator, @Nullable Bundle bundle) {
+    return bundle == null ? null : creator.fromBundle(bundle);
+  }
 
   /** Interface for the static {@code CREATOR} field of {@link Bundleable} classes. */
   interface Creator<T extends Bundleable> {
