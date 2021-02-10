@@ -51,4 +51,39 @@ public class DefaultDrmSessionManagerProviderTest {
 
     assertThat(drmSessionManager).isNotEqualTo(DrmSessionManager.DRM_UNSUPPORTED);
   }
+
+  @Test
+  public void create_reusesCachedInstanceWherePossible() {
+    MediaItem mediaItem1 =
+        new MediaItem.Builder()
+            .setUri("https://example.test/content-1")
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .build();
+    // Same DRM info as item1, but different URL to check it doesn't prevent re-using a manager.
+    MediaItem mediaItem2 =
+        new MediaItem.Builder()
+            .setUri("https://example.test/content-2")
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .build();
+    // Different DRM info to 1 and 2, needs a different manager instance.
+    MediaItem mediaItem3 =
+        new MediaItem.Builder()
+            .setUri("https://example.test/content-3")
+            .setDrmUuid(C.WIDEVINE_UUID)
+            .setDrmLicenseUri("https://example.test/license")
+            .build();
+
+    DefaultDrmSessionManagerProvider provider = new DefaultDrmSessionManagerProvider();
+    DrmSessionManager drmSessionManager1 = provider.get(mediaItem1);
+    DrmSessionManager drmSessionManager2 = provider.get(mediaItem2);
+    DrmSessionManager drmSessionManager3 = provider.get(mediaItem3);
+
+    // Get a manager for the first item again - expect it to be a different instance to last time
+    // since we only cache one.
+    DrmSessionManager drmSessionManager4 = provider.get(mediaItem1);
+
+    assertThat(drmSessionManager1).isSameInstanceAs(drmSessionManager2);
+    assertThat(drmSessionManager1).isNotSameInstanceAs(drmSessionManager3);
+    assertThat(drmSessionManager1).isNotSameInstanceAs(drmSessionManager4);
+  }
 }
