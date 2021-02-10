@@ -473,6 +473,16 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
     }
   }
 
+  /**
+   * Moves UI focus to the skip button (or other interactive elements), if currently shown. See
+   * {@link AdsManager#focus()}.
+   */
+  public void focusSkipButton() {
+    if (currentAdTagLoader != null) {
+      currentAdTagLoader.focusSkipButton();
+    }
+  }
+
   // AdsLoader implementation.
 
   @Override

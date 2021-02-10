@@ -11,6 +11,9 @@
     *   Fix a bug where an assertion would fail if the player started to buffer
         an ad media period before the ad URI was known then an ad state update
         arrived that didn't set the ad URI.
+    *   Add `ImaAdsLoader.focusSkipButton` to allow apps to request that the
+        skip button should receive UI focus, if shown
+        ([#8565](https://github.com/google/ExoPlayer/issues/8565)).
 *   DRM:
     *   Re-use the previous `DrmSessionManager` instance when playing a playlist
         (if possible)

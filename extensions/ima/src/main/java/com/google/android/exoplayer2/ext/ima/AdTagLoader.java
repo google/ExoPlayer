@@ -282,6 +282,16 @@ import java.util.Map;
   }
 
   /**
+   * Moves UI focus to the skip button (or other interactive elements), if currently shown. See
+   * {@link AdsManager#focus()}.
+   */
+  public void focusSkipButton() {
+    if (adsManager != null) {
+      adsManager.focus();
+    }
+  }
+
+  /**
    * Starts passing events from this instance (including any pending ad playback state) and
    * registers obstructions.
    */
