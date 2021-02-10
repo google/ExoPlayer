@@ -20,6 +20,10 @@
         instead.
     *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
         module instead.
+*   DRM:
+    *   Re-use the previous `DrmSessionManager` instance when playing a playlist
+        (if possible)
+        ([#8523](https://github.com/google/ExoPlayer/issues/8523)).
 
 ### 2.13.0 (2021-02-04)
 
