@@ -91,5 +91,4 @@ public final class RepeatModeUtil {
         return false;
     }
   }
-
 }
