@@ -21,6 +21,8 @@
     *   Re-use the previous `DrmSessionManager` instance when playing a playlist
         (if possible)
         ([#8523](https://github.com/google/ExoPlayer/issues/8523)).
+    *   Propagate DRM configuration when creating media sources for ad content
+        ([#8568](https://github.com/google/ExoPlayer/issues/8568)).
 
 ### 2.13.0 (2021-02-04)
 
