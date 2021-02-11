@@ -30,9 +30,7 @@ public class Period {
    */
   @Nullable public final String id;
 
-  /**
-   * The start time of the period in milliseconds.
-   */
+  /** The start time of the period in milliseconds, relative to the start of the manifest. */
   public final long startMs;
 
   /**

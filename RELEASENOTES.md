@@ -8,6 +8,9 @@
     *   Fix a bug where setting playback parameters while using video tunneling
         would cause an error to be thrown
         ([#8570](https://github.com/google/ExoPlayer/issues/8570)).
+*   DASH:
+    *   Fix playback issue for multi-period DASH live streams
+        ([#8537](https://github.com/google/ExoPlayer/issues/8537)).
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
 *   IMA extension:
