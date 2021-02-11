@@ -5,6 +5,9 @@
 *   Core library:
     *   Fix playback issue for HLS live streams without program date time
         information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
+    *   Fix a bug where setting playback parameters while using video tunneling
+        would cause an error to be thrown
+        ([#8570](https://github.com/google/ExoPlayer/issues/8570)).
 *   IMA extension:
     *   Fix handling of repeated ad loads, to avoid ads being discarded if the
         user seeks away and then back to a preloaded postroll (for example).

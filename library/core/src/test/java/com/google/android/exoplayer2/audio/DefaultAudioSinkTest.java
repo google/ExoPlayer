@@ -320,6 +320,20 @@ public final class DefaultAudioSinkTest {
     assertThat(thrown.format).isEqualTo(format);
   }
 
+  @Test
+  public void setPlaybackParameters_doesNothingWhenTunnelingIsEnabled() throws Exception {
+    defaultAudioSink.setAudioSessionId(1);
+    defaultAudioSink.enableTunnelingV21();
+    defaultAudioSink.setPlaybackParameters(new PlaybackParameters(2));
+    configureDefaultAudioSink(/* channelCount= */ 2);
+    defaultAudioSink.handleBuffer(
+        createDefaultSilenceBuffer(),
+        /* presentationTimeUs= */ 5 * C.MICROS_PER_SECOND,
+        /* encodedAccessUnitCount= */ 1);
+
+    assertThat(defaultAudioSink.getPlaybackParameters().speed).isEqualTo(1);
+  }
+
   private void configureDefaultAudioSink(int channelCount) throws AudioSink.ConfigurationException {
     configureDefaultAudioSink(channelCount, /* trimStartFrames= */ 0, /* trimEndFrames= */ 0);
   }
