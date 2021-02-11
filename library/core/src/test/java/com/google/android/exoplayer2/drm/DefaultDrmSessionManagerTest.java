@@ -148,6 +148,32 @@ public class DefaultDrmSessionManagerTest {
   }
 
   @Test(timeout = 10_000)
+  public void managerRelease_keepaliveDisabled_doesntReleaseAnySessions() throws Exception {
+    FakeExoMediaDrm.LicenseServer licenseServer =
+        FakeExoMediaDrm.LicenseServer.allowingSchemeDatas(DRM_SCHEME_DATAS);
+    DrmSessionManager drmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setSessionKeepaliveMs(C.TIME_UNSET)
+            .build(/* mediaDrmCallback= */ licenseServer);
+
+    drmSessionManager.prepare();
+    DrmSession drmSession =
+        checkNotNull(
+            drmSessionManager.acquireSession(
+                /* playbackLooper= */ checkNotNull(Looper.myLooper()),
+                /* eventDispatcher= */ null,
+                FORMAT_WITH_DRM_INIT_DATA));
+    waitForOpenedWithKeys(drmSession);
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+
+    // Release the manager, the session should still be open (though it's unusable because
+    // the underlying ExoMediaDrm is released).
+    drmSessionManager.release();
+    assertThat(drmSession.getState()).isEqualTo(DrmSession.STATE_OPENED_WITH_KEYS);
+  }
+
+  @Test(timeout = 10_000)
   public void maxConcurrentSessionsExceeded_allKeepAliveSessionsEagerlyReleased() throws Exception {
     ImmutableList<DrmInitData.SchemeData> secondSchemeDatas =
         ImmutableList.of(DRM_SCHEME_DATAS.get(0).copyWithData(TestUtil.createByteArray(4, 5, 6)));

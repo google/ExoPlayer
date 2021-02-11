@@ -25,6 +25,9 @@
         ([#8523](https://github.com/google/ExoPlayer/issues/8523)).
     *   Propagate DRM configuration when creating media sources for ad content
         ([#8568](https://github.com/google/ExoPlayer/issues/8568)).
+    *   Only release 'keepalive' references to `DrmSession` in
+        `DefaultDrmSessionManager#release()` if keepalive is enabled
+        ([#8576](https://github.com/google/ExoPlayer/issues/8576)).
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.

@@ -457,12 +457,14 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     if (--prepareCallsCount != 0) {
       return;
     }
-    // Make a local copy, because sessions are removed from this.sessions during release (via
-    // callback).
-    List<DefaultDrmSession> sessions = new ArrayList<>(this.sessions);
-    for (int i = 0; i < sessions.size(); i++) {
-      // Release all the keepalive acquisitions.
-      sessions.get(i).release(/* eventDispatcher= */ null);
+    // Release all keepalive acquisitions if keepalive is enabled.
+    if (sessionKeepaliveMs != C.TIME_UNSET) {
+      // Make a local copy, because sessions are removed from this.sessions during release (via
+      // callback).
+      List<DefaultDrmSession> sessions = new ArrayList<>(this.sessions);
+      for (int i = 0; i < sessions.size(); i++) {
+        sessions.get(i).release(/* eventDispatcher= */ null);
+      }
     }
     Assertions.checkNotNull(exoMediaDrm).release();
     exoMediaDrm = null;
