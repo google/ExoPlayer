@@ -19,6 +19,12 @@
     *   Add `ImaAdsLoader.focusSkipButton` to allow apps to request that the
         skip button should receive UI focus, if shown
         ([#8565](https://github.com/google/ExoPlayer/issues/8565)).
+*   DRM:
+    *   Re-use the previous `DrmSessionManager` instance when playing a playlist
+        (if possible)
+        ([#8523](https://github.com/google/ExoPlayer/issues/8523)).
+    *   Propagate DRM configuration when creating media sources for ad content
+        ([#8568](https://github.com/google/ExoPlayer/issues/8568)).
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
@@ -26,10 +32,6 @@
         instead.
     *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
         module instead.
-*   DRM:
-    *   Re-use the previous `DrmSessionManager` instance when playing a playlist
-        (if possible)
-        ([#8523](https://github.com/google/ExoPlayer/issues/8523)).
 
 ### 2.13.0 (2021-02-04)
 
