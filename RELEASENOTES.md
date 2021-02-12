@@ -11,6 +11,8 @@
 *   DASH:
     *   Fix playback issue for multi-period DASH live streams
         ([#8537](https://github.com/google/ExoPlayer/issues/8537)).
+*   Extractors:
+    *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
 *   IMA extension:
