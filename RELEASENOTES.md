@@ -1,16 +1,14 @@
 # Release notes
 
-### 2.13.1 (not yet released)
+### 2.13.1 (2021-02-12)
 
-*   Core library:
+*   Live streaming:
     *   Fix playback issue for HLS live streams without program date time
         information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
-    *   Fix a bug where setting playback parameters while using video tunneling
-        would cause an error to be thrown
-        ([#8570](https://github.com/google/ExoPlayer/issues/8570)).
-*   DASH:
     *   Fix playback issue for multi-period DASH live streams
         ([#8537](https://github.com/google/ExoPlayer/issues/8537)).
+    *   Fix playback failures when playing live streams with video tunneling
+        enabled ([#8570](https://github.com/google/ExoPlayer/issues/8570)).
 *   IMA extension:
     *   Fix handling of repeated ad loads, to avoid ads being discarded if the
         user seeks away and then back to a preloaded postroll (for example).
