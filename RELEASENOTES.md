@@ -1,5 +1,10 @@
 # Release notes
 
+### dev-v2 ###
+
+*   Extractors:
+    *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
+
 ### 2.13.1 (2021-02-12)
 
 *   Live streaming:
