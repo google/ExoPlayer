@@ -2,19 +2,29 @@
 
 ### dev-v2 (not yet released)
 
-*   Core library:
-    *   Fix playback issue for HLS live streams without program date time
-        information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
-    *   Fix a bug where setting playback parameters while using video tunneling
-        would cause an error to be thrown
-        ([#8570](https://github.com/google/ExoPlayer/issues/8570)).
-*   DASH:
-    *   Fix playback issue for multi-period DASH live streams
-        ([#8537](https://github.com/google/ExoPlayer/issues/8537)).
 *   Extractors:
     *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
+*   Library restructuring:
+    *   `DebugTextViewHelper` moved from `ui` package to `util` package.
+*   Remove deprecated symbols:
+    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
+        instead.
+    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
+        instead.
+    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
+        module instead.
+
+### 2.13.1 (2021-02-12)
+
+*   Live streaming:
+    *   Fix playback issue for HLS live streams without program date time
+        information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
+    *   Fix playback issue for multi-period DASH live streams
+        ([#8537](https://github.com/google/ExoPlayer/issues/8537)).
+    *   Fix playback failures when playing live streams with video tunneling
+        enabled ([#8570](https://github.com/google/ExoPlayer/issues/8570)).
 *   IMA extension:
     *   Fix handling of repeated ad loads, to avoid ads being discarded if the
         user seeks away and then back to a preloaded postroll (for example).
@@ -33,15 +43,6 @@
     *   Only release 'keepalive' references to `DrmSession` in
         `DefaultDrmSessionManager#release()` if keepalive is enabled
         ([#8576](https://github.com/google/ExoPlayer/issues/8576)).
-*   Library restructuring:
-    *   `DebugTextViewHelper` moved from `ui` package to `util` package.
-*   Remove deprecated symbols:
-    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
-        instead.
-    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
-        instead.
-    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
-        module instead.
 
 ### 2.13.0 (2021-02-04)
 
