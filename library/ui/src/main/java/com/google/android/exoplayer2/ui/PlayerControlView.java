@@ -916,7 +916,7 @@ public class PlayerControlView extends FrameLayout {
         enablePrevious = isSeekable || !window.isDynamic || player.hasPrevious();
         enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
         enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
-        enableNext = window.isDynamic || player.hasNext();
+        enableNext = window.isLive() || player.hasNext();
       }
     }
 
