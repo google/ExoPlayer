@@ -377,7 +377,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             mimeType, requiresSecureDecoder, requiresTunnelingDecoder);
     decoderInfos = MediaCodecUtil.getDecoderInfosSortedByFormatSupport(decoderInfos, format);
     if (MimeTypes.VIDEO_DOLBY_VISION.equals(mimeType)) {
-      // Fall back to H.264/AVC or H.265/HEVC for the relevant DV profiles.
+      // Fall back to H.264/AVC or H.265/HEVC for the relevant DV profiles. This can't be done for
+      // profile CodecProfileLevel.DolbyVisionProfileDvheStn and profile
+      // CodecProfileLevel.DolbyVisionProfileDvheDtb because the first one is not backward
+      // compatible and the second one is deprecated and is not always backward compatible.
       @Nullable
       Pair<Integer, Integer> codecProfileAndLevel = MediaCodecUtil.getCodecProfileAndLevel(format);
       if (codecProfileAndLevel != null) {
