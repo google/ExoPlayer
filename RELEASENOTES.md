@@ -31,6 +31,8 @@
     *   Only release 'keepalive' references to `DrmSession` in
         `DefaultDrmSessionManager#release()` if keepalive is enabled
         ([#8576](https://github.com/google/ExoPlayer/issues/8576)).
+*   Library restructuring:
+    *   `DebugTextViewHelper` moved from `ui` package to `util` package.
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
