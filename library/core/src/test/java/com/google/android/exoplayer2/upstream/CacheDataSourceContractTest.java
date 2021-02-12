@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import android.net.Uri;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.DataSourceContractTest;
@@ -42,12 +43,14 @@ public class CacheDataSourceContractTest extends DataSourceContractTest {
   @Rule public final TemporaryFolder tempFolder = new TemporaryFolder();
 
   private Uri simpleUri;
+  private FileDataSource fileDataSource;
 
   @Before
   public void setUp() throws IOException {
     File file = tempFolder.newFile();
     Files.write(Paths.get(file.getAbsolutePath()), DATA);
     simpleUri = Uri.fromFile(file);
+    fileDataSource = new FileDataSource();
   }
 
   @Override
@@ -71,6 +74,12 @@ public class CacheDataSourceContractTest extends DataSourceContractTest {
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     SimpleCache cache =
         new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
-    return new CacheDataSource(cache, new FileDataSource());
+    return new CacheDataSource(cache, fileDataSource);
+  }
+
+  @Override
+  @Nullable
+  protected DataSource getTransferListenerDataSource() {
+    return fileDataSource;
   }
 }

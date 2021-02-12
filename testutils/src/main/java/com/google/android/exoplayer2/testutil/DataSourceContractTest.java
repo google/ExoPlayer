@@ -17,8 +17,11 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -26,6 +29,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -36,6 +40,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 
 /**
  * A collection of contract tests for {@link DataSource} implementations.
@@ -58,6 +65,15 @@ public abstract class DataSourceContractTest {
 
   /** Creates and returns an instance of the {@link DataSource}. */
   protected abstract DataSource createDataSource() throws Exception;
+
+  /**
+   * Returns the {@link DataSource} that will be included in the {@link TransferListener} callbacks
+   * if different from the {@link DataSource} under test, otherwise null.
+   */
+  @Nullable
+  protected DataSource getTransferListenerDataSource() {
+    return null;
+  }
 
   /**
    * Returns {@link TestResource} instances.
@@ -241,6 +257,66 @@ public abstract class DataSourceContractTest {
     }
   }
 
+  @Test
+  public void transferListenerCallbacks() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      DataSource dataSource = createDataSource();
+      FakeTransferListener listener = spy(new FakeTransferListener());
+      dataSource.addTransferListener(listener);
+      InOrder inOrder = Mockito.inOrder(listener);
+      @Nullable DataSource callbackSource = getTransferListenerDataSource();
+      if (callbackSource == null) {
+        callbackSource = dataSource;
+      }
+      DataSpec reportedDataSpec = null;
+      boolean reportedNetwork = false;
+
+      TestResource resource = resources.get(i);
+      DataSpec dataSpec = new DataSpec.Builder().setUri(resource.getUri()).build();
+      try {
+        dataSource.open(dataSpec);
+
+        // Verify onTransferInitializing() and onTransferStart() have been called exactly after
+        // DataSource.open().
+        ArgumentCaptor<DataSpec> dataSpecArgumentCaptor = ArgumentCaptor.forClass(DataSpec.class);
+        ArgumentCaptor<Boolean> isNetworkArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
+        inOrder
+            .verify(listener)
+            .onTransferInitializing(
+                eq(callbackSource),
+                dataSpecArgumentCaptor.capture(),
+                isNetworkArgumentCaptor.capture());
+        reportedDataSpec = dataSpecArgumentCaptor.getValue();
+        reportedNetwork = isNetworkArgumentCaptor.getValue();
+        inOrder
+            .verify(listener)
+            .onTransferStart(callbackSource, castNonNull(reportedDataSpec), reportedNetwork);
+        inOrder.verifyNoMoreInteractions();
+
+        if (resource.isEndOfInputExpected()) {
+          Util.readToEnd(dataSource);
+        } else {
+          Util.readExactly(dataSource, resource.getExpectedBytes().length);
+        }
+        // Verify sufficient onBytesTransferred() callbacks have been triggered before closing the
+        // DataSource.
+        assertThat(listener.bytesTransferred).isEqualTo(resource.getExpectedBytes().length);
+
+      } finally {
+        dataSource.close();
+        inOrder
+            .verify(listener)
+            .onTransferEnd(callbackSource, castNonNull(reportedDataSpec), reportedNetwork);
+        inOrder.verifyNoMoreInteractions();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
   /** Build a label to make it clear which resource caused a given test failure. */
   private static String getFailureLabel(List<TestResource> resources, int i) {
     if (resources.size() == 1) {
@@ -343,5 +419,25 @@ public abstract class DataSourceContractTest {
             name, checkNotNull(uri), checkNotNull(expectedBytes), endOfInputExpected);
       }
     }
+  }
+
+  /** A {@link TransferListener} that only keeps track of the transferred bytes. */
+  public static class FakeTransferListener implements TransferListener {
+    private int bytesTransferred;
+
+    @Override
+    public void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork) {}
+
+    @Override
+    public void onTransferStart(DataSource source, DataSpec dataSpec, boolean isNetwork) {}
+
+    @Override
+    public void onBytesTransferred(
+        DataSource source, DataSpec dataSpec, boolean isNetwork, int bytesTransferred) {
+      this.bytesTransferred += bytesTransferred;
+    }
+
+    @Override
+    public void onTransferEnd(DataSource source, DataSpec dataSpec, boolean isNetwork) {}
   }
 }
