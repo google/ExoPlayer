@@ -31,7 +31,6 @@ import java.util.Map;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Default implementation of {@link DrmSessionManagerProvider}. */
-@RequiresApi(18)
 public final class DefaultDrmSessionManagerProvider implements DrmSessionManagerProvider {
 
   private final Object lock;
@@ -92,6 +91,7 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
     }
   }
 
+  @RequiresApi(18)
   private DrmSessionManager createManager(MediaItem.DrmConfiguration drmConfiguration) {
     HttpDataSource.Factory dataSourceFactory =
         drmHttpDataSourceFactory != null
