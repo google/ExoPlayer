@@ -28,9 +28,11 @@ import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSink;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+import com.google.android.exoplayer2.upstream.cache.TestFileOutputStreamFactory;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -90,6 +92,45 @@ public class ProgressiveDownloaderTest {
     // Retry should succeed.
     downloader.download(progressListener);
     assertThat(progressListener.bytesDownloaded).isEqualTo(30);
+  }
+
+  @Test
+  public void download_afterSinkException_reportsValidProgress() {
+    Uri uri = Uri.parse("test:///test.mp4");
+
+    FakeDataSet data = new FakeDataSet();
+    data.newData(uri).appendReadData(1024);
+
+    //Emulate device throwing IOException when there is no space left.
+    final TestFileOutputStreamFactory fileOutputStreamFactory = new TestFileOutputStreamFactory()
+        .emulateNoSpaceLeft();
+
+    CacheDataSource.Factory cacheDataSourceFactory =
+        new CacheDataSource.Factory()
+            .setCache(downloadCache)
+            .setCacheWriteDataSinkFactory(new CacheDataSink.Factory()
+                .setCache(downloadCache)
+                .setFileOutputStreamFactory(fileOutputStreamFactory))
+            .setUpstreamDataSourceFactory(new FakeDataSource.Factory().setFakeDataSet(data));
+
+    ProgressiveDownloader downloader = new ProgressiveDownloader(
+        MediaItem.fromUri(uri),
+        cacheDataSourceFactory);
+
+    TestProgressListener progressListener = new TestProgressListener();
+
+    // Failure expected after 1024 bytes.
+    assertThrows(
+        CacheDataSink.CacheDataSinkException.class,
+        () -> downloader.download(progressListener));
+
+    assertThat(progressListener.bytesDownloaded).isEqualTo(1024);
+
+    // Retry should notify valid progress.
+    assertThrows(
+        CacheDataSink.CacheDataSinkException.class,
+        () -> downloader.download(progressListener));
+    assertThat(progressListener.bytesDownloaded).isEqualTo(1024);
   }
 
   private static final class TestProgressListener implements Downloader.ProgressListener {

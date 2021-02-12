@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCacheEmpty;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static java.lang.Math.min;
 import static org.junit.Assert.fail;
 
@@ -501,6 +502,69 @@ public final class CacheDataSourceTest {
     // Read the rest of the data.
     Util.readToEnd(cacheDataSource);
     cacheDataSource.close();
+  }
+
+  @Test
+  public void dataSinkExceptionPropagatesWithCorrectFlagOnWrite() throws Exception {
+    //Simulate device IOException on OutputStream.write()
+    final CacheDataSink.FileOutputStreamFactory streamFactory =
+        new TestFileOutputStreamFactory().throwOnWrite();
+
+    dataSinkExceptionPropagatesWithCorrectFlag(streamFactory, /* isFileRemoved = */ false);
+  }
+
+  @Test
+  public void dataSinkExceptionPropagatesWithCorrectFlagOnFlush() throws Exception {
+    //Simulate device IOException on OutputStream.flush()
+    final CacheDataSink.FileOutputStreamFactory streamFactory =
+        new TestFileOutputStreamFactory().throwOnFlush();
+
+    dataSinkExceptionPropagatesWithCorrectFlag(streamFactory, /* isFileRemoved = */ true);
+  }
+
+  @Test
+  public void dataSinkExceptionPropagatesWithCorrectFlagOnWriteAndFlush() throws Exception {
+    //Simulate device IOException on OutputStream.write() and OutputStream.flush()
+    final CacheDataSink.FileOutputStreamFactory streamFactory =
+        new TestFileOutputStreamFactory().emulateNoSpaceLeft();
+
+    dataSinkExceptionPropagatesWithCorrectFlag(streamFactory, /* isFileRemoved = */ true);
+  }
+
+  private void dataSinkExceptionPropagatesWithCorrectFlag(
+      CacheDataSink.FileOutputStreamFactory streamFactoryWithException,
+      boolean isFileRemoved
+  ) throws IOException {
+    FakeDataSource upstream = new FakeDataSource();
+    upstream.getDataSet().newDefaultData().appendReadData(1024).endData();
+
+    CacheDataSource cacheDataSource = new CacheDataSource(
+        cache,
+        upstream,
+        new FileDataSource(),
+        new CacheDataSink(cache, C.LENGTH_UNSET, 1024, streamFactoryWithException),
+        0,
+        null);
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            cacheDataSource,
+            buildDataSpec(0, C.LENGTH_UNSET),
+            /* allowShortContent= */ false,
+            /* temporaryBuffer= */ null,
+            /* progressListener= */ null);
+
+    CacheDataSink.CacheDataSinkException expectedException = null;
+    try {
+      cacheWriter.cache();
+    } catch (CacheDataSink.CacheDataSinkException e) {
+      expectedException = e;
+    }
+
+    assertWithMessage("Exception must be propagated to CacheWriter.cache caller")
+        .that(expectedException).isNotNull();
+    assertWithMessage(
+        "CacheDataSinkException must have flag isFileRemoved " + isFileRemoved)
+        .that(expectedException.isFileRemoved).isEqualTo(isFileRemoved);
   }
 
   private void assertCacheAndRead(DataSpec dataSpec, boolean unknownLength) throws IOException {

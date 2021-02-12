@@ -143,7 +143,16 @@ public final class CacheWriter {
         // There's a hole of length -blockLength.
         blockLength = -blockLength;
         long nextRequestLength = blockLength == Long.MAX_VALUE ? C.LENGTH_UNSET : blockLength;
-        nextPosition += readBlockToCache(nextPosition, nextRequestLength);
+        try {
+          nextPosition += readBlockToCache(nextPosition, nextRequestLength);
+        } catch (final CacheDataSink.CacheDataSinkException e) {
+          if (e.isFileRemoved) {
+            //Drop all cached bytes statistics if underlying cache file is removed.
+            initialized = false;
+          }
+
+          throw e;
+        }
       }
     }
   }
@@ -208,7 +217,17 @@ public final class CacheWriter {
       }
       return totalBytesRead;
     } finally {
-      Util.closeQuietly(dataSource);
+      try {
+        if (dataSource != null) {
+          dataSource.close();
+        }
+      } catch (CacheDataSink.CacheDataSinkException e) {
+        //We need to replace original exception to update it's `isFileRemoved` flag.
+        //noinspection ThrowFromFinallyBlock
+        throw e;
+      } catch (IOException e) {
+        // Ignore any other IOExceptions.
+      }
     }
   }
 

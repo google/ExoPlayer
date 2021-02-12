@@ -49,6 +49,7 @@ public final class CacheDataSink implements DataSink {
     private @MonotonicNonNull Cache cache;
     private long fragmentSize;
     private int bufferSize;
+    private FileOutputStreamFactory fileOutputStreamFactory = DEFAULT_FILE_OUTPUT_STREAM_FACTORY;
 
     /** Creates an instance. */
     public Factory() {
@@ -101,19 +102,40 @@ public final class CacheDataSink implements DataSink {
       return this;
     }
 
+    public Factory setFileOutputStreamFactory(FileOutputStreamFactory fileOutputStreamFactory) {
+      this.fileOutputStreamFactory = fileOutputStreamFactory;
+      return this;
+    }
+
     @Override
     public DataSink createDataSink() {
-      return new CacheDataSink(checkNotNull(cache), fragmentSize, bufferSize);
+      return new CacheDataSink(
+          checkNotNull(cache),
+          fragmentSize,
+          bufferSize,
+          checkNotNull(fileOutputStreamFactory));
     }
   }
+
+  public interface FileOutputStreamFactory {
+
+    OutputStream createOutputStream(File file) throws IOException;
+  }
+
 
   /** Thrown when an {@link IOException} is encountered when writing data to the sink. */
   public static final class CacheDataSinkException extends CacheException {
 
-    public CacheDataSinkException(IOException cause) {
+    public final boolean isFileRemoved;
+
+    public CacheDataSinkException(IOException cause, boolean isFileRemoved) {
       super(cause);
+      this.isFileRemoved = isFileRemoved;
     }
   }
+
+  public static final FileOutputStreamFactory DEFAULT_FILE_OUTPUT_STREAM_FACTORY =
+      FileOutputStream::new;
 
   /** Default {@code fragmentSize} recommended for caching use cases. */
   public static final long DEFAULT_FRAGMENT_SIZE = 5 * 1024 * 1024;
@@ -126,10 +148,12 @@ public final class CacheDataSink implements DataSink {
   private final Cache cache;
   private final long fragmentSize;
   private final int bufferSize;
+  private final FileOutputStreamFactory fileOutputStreamFactory;
 
   @Nullable private DataSpec dataSpec;
   private long dataSpecFragmentSize;
   @Nullable private File file;
+  private boolean isFileRemoved;
   @Nullable private OutputStream outputStream;
   private long outputStreamBytesWritten;
   private long dataSpecBytesWritten;
@@ -159,7 +183,29 @@ public final class CacheDataSink implements DataSink {
    * @param bufferSize The buffer size in bytes for writing to a cache file. A zero or negative
    *     value disables buffering.
    */
-  public CacheDataSink(Cache cache, long fragmentSize, int bufferSize) {
+  public CacheDataSink(
+      Cache cache,
+      long fragmentSize,
+      int bufferSize) {
+    this(cache, fragmentSize, bufferSize, DEFAULT_FILE_OUTPUT_STREAM_FACTORY);
+  }
+
+  /**
+   * @param cache The cache into which data should be written.
+   * @param fragmentSize For requests that should be fragmented into multiple cache files, this is
+   *     the maximum size of a cache file in bytes. If set to {@link C#LENGTH_UNSET} then no
+   *     fragmentation will occur. Using a small value allows for finer-grained cache eviction
+   *     policies, at the cost of increased overhead both on the cache implementation and the file
+   *     system. Values under {@code (2 * 1024 * 1024)} are not recommended.
+   * @param bufferSize The buffer size in bytes for writing to a cache file. A zero or negative
+   *     value disables buffering.
+   * @param fileOutputStreamFactory The factory which creates OutputStream from the cache file.
+   */
+  public CacheDataSink(
+      Cache cache,
+      long fragmentSize,
+      int bufferSize,
+      FileOutputStreamFactory fileOutputStreamFactory) {
     Assertions.checkState(
         fragmentSize > 0 || fragmentSize == C.LENGTH_UNSET,
         "fragmentSize must be positive or C.LENGTH_UNSET.");
@@ -173,6 +219,7 @@ public final class CacheDataSink implements DataSink {
     this.cache = checkNotNull(cache);
     this.fragmentSize = fragmentSize == C.LENGTH_UNSET ? Long.MAX_VALUE : fragmentSize;
     this.bufferSize = bufferSize;
+    this.fileOutputStreamFactory = checkNotNull(fileOutputStreamFactory);
   }
 
   @Override
@@ -190,7 +237,7 @@ public final class CacheDataSink implements DataSink {
     try {
       openNextOutputStream(dataSpec);
     } catch (IOException e) {
-      throw new CacheDataSinkException(e);
+      throw new CacheDataSinkException(e, isFileRemoved);
     }
   }
 
@@ -215,7 +262,7 @@ public final class CacheDataSink implements DataSink {
         dataSpecBytesWritten += bytesToWrite;
       }
     } catch (IOException e) {
-      throw new CacheDataSinkException(e);
+      throw new CacheDataSinkException(e, isFileRemoved);
     }
   }
 
@@ -227,7 +274,7 @@ public final class CacheDataSink implements DataSink {
     try {
       closeCurrentOutputStream();
     } catch (IOException e) {
-      throw new CacheDataSinkException(e);
+      throw new CacheDataSinkException(e, isFileRemoved);
     }
   }
 
@@ -239,7 +286,8 @@ public final class CacheDataSink implements DataSink {
     file =
         cache.startFile(
             castNonNull(dataSpec.key), dataSpec.position + dataSpecBytesWritten, length);
-    FileOutputStream underlyingFileOutputStream = new FileOutputStream(file);
+    isFileRemoved = false;
+    OutputStream underlyingFileOutputStream = fileOutputStreamFactory.createOutputStream(file);
     if (bufferSize > 0) {
       if (bufferedOutputStream == null) {
         bufferedOutputStream = new ReusableBufferedOutputStream(underlyingFileOutputStream,
@@ -272,6 +320,7 @@ public final class CacheDataSink implements DataSink {
         cache.commitFile(fileToCommit, outputStreamBytesWritten);
       } else {
         fileToCommit.delete();
+        isFileRemoved = true;
       }
     }
   }
