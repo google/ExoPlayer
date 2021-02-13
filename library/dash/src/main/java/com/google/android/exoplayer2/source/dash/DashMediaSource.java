@@ -901,77 +901,54 @@ public final class DashMediaSource extends BaseMediaSource {
       }
     }
     // Update the window.
-    boolean windowChangingImplicitly = false;
+    Period firstPeriod = manifest.getPeriod(0);
     int lastPeriodIndex = manifest.getPeriodCount() - 1;
     Period lastPeriod = manifest.getPeriod(lastPeriodIndex);
     long lastPeriodDurationUs = manifest.getPeriodDurationUs(lastPeriodIndex);
     long nowUnixTimeUs = C.msToUs(Util.getNowUnixTimeMs(elapsedRealtimeOffsetMs));
-    // Get the period-relative start/end times.
-    long currentStartTimeUs =
-        getAvailableStartTimeUs(
-            manifest.getPeriod(0), manifest.getPeriodDurationUs(0), nowUnixTimeUs);
-    long currentEndTimeUs = getAvailableEndTimeUs(lastPeriod, lastPeriodDurationUs, nowUnixTimeUs);
-    if (manifest.dynamic && !isIndexExplicit(lastPeriod)) {
-      // The manifest describes an incomplete live stream. Update the start/end times to reflect the
-      // live stream duration and the manifest's time shift buffer depth.
-      long liveStreamEndPositionInLastPeriodUs = currentEndTimeUs - C.msToUs(lastPeriod.startMs);
-      currentEndTimeUs = min(liveStreamEndPositionInLastPeriodUs, currentEndTimeUs);
-      if (manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
-        long timeShiftBufferDepthUs = C.msToUs(manifest.timeShiftBufferDepthMs);
-        long offsetInPeriodUs = currentEndTimeUs - timeShiftBufferDepthUs;
-        int periodIndex = lastPeriodIndex;
-        while (offsetInPeriodUs < 0 && periodIndex > 0) {
-          offsetInPeriodUs += manifest.getPeriodDurationUs(--periodIndex);
-        }
-        if (periodIndex == 0) {
-          currentStartTimeUs = max(currentStartTimeUs, offsetInPeriodUs);
-        } else {
-          // The time shift buffer starts after the earliest period.
-          // TODO: Does this ever happen?
-          currentStartTimeUs = manifest.getPeriodDurationUs(0);
-        }
-      }
-      windowChangingImplicitly = true;
+    long windowStartTimeInManifestUs =
+        getAvailableStartTimeInManifestUs(
+            firstPeriod, manifest.getPeriodDurationUs(0), nowUnixTimeUs);
+    long windowEndTimeInManifestUs =
+        getAvailableEndTimeInManifestUs(lastPeriod, lastPeriodDurationUs, nowUnixTimeUs);
+    boolean windowChangingImplicitly = manifest.dynamic && !isIndexExplicit(lastPeriod);
+    if (windowChangingImplicitly && manifest.timeShiftBufferDepthMs != C.TIME_UNSET) {
+      // Update the available start time to reflect the manifest's time shift buffer depth.
+      long timeShiftBufferStartTimeInManifestUs =
+          windowEndTimeInManifestUs - C.msToUs(manifest.timeShiftBufferDepthMs);
+      windowStartTimeInManifestUs =
+          max(windowStartTimeInManifestUs, timeShiftBufferStartTimeInManifestUs);
     }
-    long windowDurationUs = currentEndTimeUs - currentStartTimeUs;
-    for (int i = 0; i < manifest.getPeriodCount() - 1; i++) {
-      windowDurationUs += manifest.getPeriodDurationUs(i);
-    }
-
-    long windowStartTimeMs = C.TIME_UNSET;
-    if (manifest.availabilityStartTimeMs != C.TIME_UNSET) {
-      windowStartTimeMs =
-          manifest.availabilityStartTimeMs
-              + manifest.getPeriod(0).startMs
-              + C.usToMs(currentStartTimeUs);
-    }
-
-    long windowDefaultStartPositionUs = 0;
+    long windowDurationUs = windowEndTimeInManifestUs - windowStartTimeInManifestUs;
+    long windowStartUnixTimeMs = C.TIME_UNSET;
+    long windowDefaultPositionUs = 0;
     if (manifest.dynamic) {
-      updateMediaItemLiveConfiguration(
-          /* nowPeriodTimeUs= */ currentStartTimeUs + nowUnixTimeUs - C.msToUs(windowStartTimeMs),
-          /* windowStartPeriodTimeUs= */ currentStartTimeUs,
-          /* windowEndPeriodTimeUs= */ currentEndTimeUs);
-      windowDefaultStartPositionUs =
-          nowUnixTimeUs - C.msToUs(windowStartTimeMs + liveConfiguration.targetOffsetMs);
-      long minimumDefaultStartPositionUs =
+      checkState(manifest.availabilityStartTimeMs != C.TIME_UNSET);
+      long nowInWindowUs =
+          nowUnixTimeUs - C.msToUs(manifest.availabilityStartTimeMs) - windowStartTimeInManifestUs;
+      updateMediaItemLiveConfiguration(nowInWindowUs, windowDurationUs);
+      windowStartUnixTimeMs =
+          manifest.availabilityStartTimeMs + C.usToMs(windowStartTimeInManifestUs);
+      windowDefaultPositionUs = nowInWindowUs - C.msToUs(liveConfiguration.targetOffsetMs);
+      long minimumWindowDefaultPositionUs =
           min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
-      if (windowDefaultStartPositionUs < minimumDefaultStartPositionUs) {
-        // The default start position is too close to the start of the live window. Set it to the
-        // minimum default start position provided the window is at least twice as big. Else set
-        // it to the middle of the window.
-        windowDefaultStartPositionUs = minimumDefaultStartPositionUs;
+      if (windowDefaultPositionUs < minimumWindowDefaultPositionUs) {
+        // The default position is too close to the start of the live window. Set it to the minimum
+        // default position provided the window is at least twice as big. Else set it to the middle
+        // of the window.
+        windowDefaultPositionUs = minimumWindowDefaultPositionUs;
       }
     }
+    long offsetInFirstPeriodUs = windowStartTimeInManifestUs - C.msToUs(firstPeriod.startMs);
     DashTimeline timeline =
         new DashTimeline(
             manifest.availabilityStartTimeMs,
-            windowStartTimeMs,
+            windowStartUnixTimeMs,
             elapsedRealtimeOffsetMs,
             firstPeriodId,
-            /* offsetInFirstPeriodUs= */ currentStartTimeUs,
+            offsetInFirstPeriodUs,
             windowDurationUs,
-            windowDefaultStartPositionUs,
+            windowDefaultPositionUs,
             manifest,
             mediaItem,
             manifest.dynamic ? liveConfiguration : null);
@@ -1008,8 +985,7 @@ public final class DashMediaSource extends BaseMediaSource {
     }
   }
 
-  private void updateMediaItemLiveConfiguration(
-      long nowPeriodTimeUs, long windowStartPeriodTimeUs, long windowEndPeriodTimeUs) {
+  private void updateMediaItemLiveConfiguration(long nowInWindowUs, long windowDurationUs) {
     long maxLiveOffsetMs;
     if (mediaItem.liveConfiguration.maxOffsetMs != C.TIME_UNSET) {
       maxLiveOffsetMs = mediaItem.liveConfiguration.maxOffsetMs;
@@ -1017,7 +993,7 @@ public final class DashMediaSource extends BaseMediaSource {
         && manifest.serviceDescription.maxOffsetMs != C.TIME_UNSET) {
       maxLiveOffsetMs = manifest.serviceDescription.maxOffsetMs;
     } else {
-      maxLiveOffsetMs = C.usToMs(nowPeriodTimeUs - windowStartPeriodTimeUs);
+      maxLiveOffsetMs = C.usToMs(nowInWindowUs);
     }
     long minLiveOffsetMs;
     if (mediaItem.liveConfiguration.minOffsetMs != C.TIME_UNSET) {
@@ -1026,7 +1002,7 @@ public final class DashMediaSource extends BaseMediaSource {
         && manifest.serviceDescription.minOffsetMs != C.TIME_UNSET) {
       minLiveOffsetMs = manifest.serviceDescription.minOffsetMs;
     } else {
-      minLiveOffsetMs = C.usToMs(nowPeriodTimeUs - windowEndPeriodTimeUs);
+      minLiveOffsetMs = C.usToMs(nowInWindowUs - windowDurationUs);
       if (minLiveOffsetMs < 0 && maxLiveOffsetMs > 0) {
         // The current time is in the window, so assume all clocks are synchronized and set the
         // minimum to a live offset of zero.
@@ -1052,12 +1028,10 @@ public final class DashMediaSource extends BaseMediaSource {
       targetOffsetMs = minLiveOffsetMs;
     }
     if (targetOffsetMs > maxLiveOffsetMs) {
-      long windowDurationUs = windowEndPeriodTimeUs - windowStartPeriodTimeUs;
-      long liveOffsetAtWindowStartUs = nowPeriodTimeUs - windowStartPeriodTimeUs;
       long safeDistanceFromWindowStartUs =
           min(MIN_LIVE_DEFAULT_START_POSITION_US, windowDurationUs / 2);
       long maxTargetOffsetForSafeDistanceToWindowStartMs =
-          C.usToMs(liveOffsetAtWindowStartUs - safeDistanceFromWindowStartUs);
+          C.usToMs(nowInWindowUs - safeDistanceFromWindowStartUs);
       targetOffsetMs =
           Util.constrainValue(
               maxTargetOffsetForSafeDistanceToWindowStartMs, minLiveOffsetMs, maxLiveOffsetMs);
@@ -1147,9 +1121,10 @@ public final class DashMediaSource extends BaseMediaSource {
     return LongMath.divide(intervalUs, 1000, RoundingMode.CEILING);
   }
 
-  private static long getAvailableStartTimeUs(
+  private static long getAvailableStartTimeInManifestUs(
       Period period, long periodDurationUs, long nowUnixTimeUs) {
-    long availableStartTimeUs = 0;
+    long periodStartTimeInManifestUs = C.msToUs(period.startMs);
+    long availableStartTimeInManifestUs = periodStartTimeInManifestUs;
     boolean haveAudioVideoAdaptationSets = hasVideoOrAudioAdaptationSets(period);
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
@@ -1162,23 +1137,26 @@ public final class DashMediaSource extends BaseMediaSource {
       }
       @Nullable DashSegmentIndex index = representations.get(0).getIndex();
       if (index == null) {
-        return 0;
+        return periodStartTimeInManifestUs;
       }
       int availableSegmentCount = index.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
       if (availableSegmentCount == 0) {
-        return 0;
+        return periodStartTimeInManifestUs;
       }
       long firstAvailableSegmentNum =
           index.getFirstAvailableSegmentNum(periodDurationUs, nowUnixTimeUs);
-      long adaptationSetAvailableStartTimeUs = index.getTimeUs(firstAvailableSegmentNum);
-      availableStartTimeUs = max(availableStartTimeUs, adaptationSetAvailableStartTimeUs);
+      long adaptationSetAvailableStartTimeInManifestUs =
+          periodStartTimeInManifestUs + index.getTimeUs(firstAvailableSegmentNum);
+      availableStartTimeInManifestUs =
+          max(availableStartTimeInManifestUs, adaptationSetAvailableStartTimeInManifestUs);
     }
-    return availableStartTimeUs;
+    return availableStartTimeInManifestUs;
   }
 
-  private static long getAvailableEndTimeUs(
+  private static long getAvailableEndTimeInManifestUs(
       Period period, long periodDurationUs, long nowUnixTimeUs) {
-    long availableEndTimeUs = Long.MAX_VALUE;
+    long periodStartTimeInManifestUs = C.msToUs(period.startMs);
+    long availableEndTimeInManifestUs = Long.MAX_VALUE;
     boolean haveAudioVideoAdaptationSets = hasVideoOrAudioAdaptationSets(period);
     for (int i = 0; i < period.adaptationSets.size(); i++) {
       AdaptationSet adaptationSet = period.adaptationSets.get(i);
@@ -1191,21 +1169,23 @@ public final class DashMediaSource extends BaseMediaSource {
       }
       @Nullable DashSegmentIndex index = representations.get(0).getIndex();
       if (index == null) {
-        return periodDurationUs;
+        return periodStartTimeInManifestUs + periodDurationUs;
       }
       int availableSegmentCount = index.getAvailableSegmentCount(periodDurationUs, nowUnixTimeUs);
       if (availableSegmentCount == 0) {
-        return 0;
+        return periodStartTimeInManifestUs;
       }
       long firstAvailableSegmentNum =
           index.getFirstAvailableSegmentNum(periodDurationUs, nowUnixTimeUs);
       long lastAvailableSegmentNum = firstAvailableSegmentNum + availableSegmentCount - 1;
-      long adaptationSetAvailableEndTimeUs =
-          index.getTimeUs(lastAvailableSegmentNum)
+      long adaptationSetAvailableEndTimeInManifestUs =
+          periodStartTimeInManifestUs
+              + index.getTimeUs(lastAvailableSegmentNum)
               + index.getDurationUs(lastAvailableSegmentNum, periodDurationUs);
-      availableEndTimeUs = min(availableEndTimeUs, adaptationSetAvailableEndTimeUs);
+      availableEndTimeInManifestUs =
+          min(availableEndTimeInManifestUs, adaptationSetAvailableEndTimeInManifestUs);
     }
-    return availableEndTimeUs;
+    return availableEndTimeInManifestUs;
   }
 
   private static boolean isIndexExplicit(Period period) {

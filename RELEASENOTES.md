@@ -1,5 +1,33 @@
 # Release notes
 
+### 2.13.1 (2021-02-12)
+
+*   Live streaming:
+    *   Fix playback issue for HLS live streams without program date time
+        information ([#8560](https://github.com/google/ExoPlayer/issues/8560)).
+    *   Fix playback issue for multi-period DASH live streams
+        ([#8537](https://github.com/google/ExoPlayer/issues/8537)).
+    *   Fix playback failures when playing live streams with video tunneling
+        enabled ([#8570](https://github.com/google/ExoPlayer/issues/8570)).
+*   IMA extension:
+    *   Fix handling of repeated ad loads, to avoid ads being discarded if the
+        user seeks away and then back to a preloaded postroll (for example).
+    *   Fix a bug where an assertion would fail if the player started to buffer
+        an ad media period before the ad URI was known then an ad state update
+        arrived that didn't set the ad URI.
+    *   Add `ImaAdsLoader.focusSkipButton` to allow apps to request that the
+        skip button should receive UI focus, if shown
+        ([#8565](https://github.com/google/ExoPlayer/issues/8565)).
+*   DRM:
+    *   Re-use the previous `DrmSessionManager` instance when playing a playlist
+        (if possible)
+        ([#8523](https://github.com/google/ExoPlayer/issues/8523)).
+    *   Propagate DRM configuration when creating media sources for ad content
+        ([#8568](https://github.com/google/ExoPlayer/issues/8568)).
+    *   Only release 'keepalive' references to `DrmSession` in
+        `DefaultDrmSessionManager#release()` if keepalive is enabled
+        ([#8576](https://github.com/google/ExoPlayer/issues/8576)).
+
 ### 2.13.0 (2021-02-04)
 
 *   Core library:

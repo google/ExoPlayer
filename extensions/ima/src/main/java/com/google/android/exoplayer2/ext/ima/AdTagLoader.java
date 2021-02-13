@@ -282,6 +282,16 @@ import java.util.Map;
   }
 
   /**
+   * Moves UI focus to the skip button (or other interactive elements), if currently shown. See
+   * {@link AdsManager#focus()}.
+   */
+  public void focusSkipButton() {
+    if (adsManager != null) {
+      adsManager.focus();
+    }
+  }
+
+  /**
    * Starts passing events from this instance (including any pending ad playback state) and
    * registers obstructions.
    */
@@ -879,7 +889,8 @@ import java.util.Map;
     int adGroupIndex = getAdGroupIndexForAdPod(adPodInfo);
     int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
     AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
-    adInfoByAdMediaInfo.put(adMediaInfo, adInfo);
+    // The ad URI may already be known, so force put to update it if needed.
+    adInfoByAdMediaInfo.forcePut(adMediaInfo, adInfo);
     if (configuration.debugModeEnabled) {
       Log.d(TAG, "loadAd " + getAdMediaInfoString(adMediaInfo));
     }

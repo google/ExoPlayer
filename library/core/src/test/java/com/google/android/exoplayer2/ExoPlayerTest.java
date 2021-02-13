@@ -71,6 +71,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SilenceMediaSource;
+import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -83,6 +84,7 @@ import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.FakeAdaptiveDataSet;
 import com.google.android.exoplayer2.testutil.FakeAdaptiveMediaSource;
 import com.google.android.exoplayer2.testutil.FakeChunkSource;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.FakeMediaClockRenderer;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
@@ -8831,6 +8833,42 @@ public final class ExoPlayerTest {
 
     // Assert that player adjusted live offset to the seek.
     assertThat(liveOffsetAtEnd).isIn(Range.closed(1_900L, 2_100L));
+  }
+
+  @Test
+  public void targetLiveOffsetInMedia_unknownWindowStartTime_doesNotAdjustLiveOffset()
+      throws Exception {
+    FakeClock fakeClock = new AutoAdvancingFakeClock(/* initialTimeMs= */ 987_654_321L);
+    ExoPlayer player = new TestExoPlayerBuilder(context).setClock(fakeClock).build();
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build();
+    Timeline liveTimeline =
+        new SinglePeriodTimeline(
+            /* presentationStartTimeMs= */ C.TIME_UNSET,
+            /* windowStartTimeMs= */ C.TIME_UNSET,
+            /* elapsedRealtimeEpochOffsetMs= */ C.TIME_UNSET,
+            /* periodDurationUs= */ 1000 * C.MICROS_PER_SECOND,
+            /* windowDurationUs= */ 1000 * C.MICROS_PER_SECOND,
+            /* windowPositionInPeriodUs= */ 0,
+            /* windowDefaultStartPositionUs= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ true,
+            /* manifest= */ null,
+            mediaItem,
+            mediaItem.liveConfiguration);
+    player.pause();
+    player.setMediaSource(new FakeMediaSource(liveTimeline));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+
+    long playbackStartTimeMs = fakeClock.elapsedRealtime();
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 999_000);
+    long playbackEndTimeMs = fakeClock.elapsedRealtime();
+    player.release();
+
+    // Assert that the time it took to play 999 seconds of media is 999 seconds (asserting that no
+    // playback speed adjustment was used).
+    assertThat(playbackEndTimeMs - playbackStartTimeMs).isEqualTo(999_000);
   }
 
   @Test

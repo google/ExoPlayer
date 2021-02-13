@@ -318,8 +318,28 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
             && adIndexInAdGroup < adPlaybackState.adGroups[adGroupIndex].uris.length) {
           @Nullable Uri adUri = adPlaybackState.adGroups[adGroupIndex].uris[adIndexInAdGroup];
           if (adUri != null) {
-            MediaSource adMediaSource =
-                adMediaSourceFactory.createMediaSource(MediaItem.fromUri(adUri));
+            MediaItem.Builder adMediaItem = new MediaItem.Builder().setUri(adUri);
+            // Propagate the content's DRM config into the ad media source.
+            @Nullable
+            MediaItem.PlaybackProperties contentPlaybackProperties =
+                contentMediaSource.getMediaItem().playbackProperties;
+            if (contentPlaybackProperties != null
+                && contentPlaybackProperties.drmConfiguration != null) {
+              MediaItem.DrmConfiguration drmConfiguration =
+                  contentPlaybackProperties.drmConfiguration;
+              // TODO(internal b/179984779): Use MediaItem.Builder#setDrmConfiguration() when it's
+              // available.
+              adMediaItem.setDrmUuid(drmConfiguration.uuid);
+              adMediaItem.setDrmKeySetId(drmConfiguration.getKeySetId());
+              adMediaItem.setDrmLicenseUri(drmConfiguration.licenseUri);
+              adMediaItem.setDrmForceDefaultLicenseUri(drmConfiguration.forceDefaultLicenseUri);
+              adMediaItem.setDrmLicenseRequestHeaders(drmConfiguration.requestHeaders);
+              adMediaItem.setDrmMultiSession(drmConfiguration.multiSession);
+              adMediaItem.setDrmPlayClearContentWithoutKey(
+                  drmConfiguration.playClearContentWithoutKey);
+              adMediaItem.setDrmSessionForClearTypes(drmConfiguration.sessionForClearTypes);
+            }
+            MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adMediaItem.build());
             adMediaSourceHolder.initializeWithMediaSource(adMediaSource, adUri);
           }
         }

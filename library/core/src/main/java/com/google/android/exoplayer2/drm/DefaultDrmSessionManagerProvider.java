@@ -16,22 +16,37 @@
 package com.google.android.exoplayer2.drm;
 
 import static com.google.android.exoplayer2.drm.DefaultDrmSessionManager.MODE_PLAYBACK;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
 import java.util.Map;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Default implementation of {@link DrmSessionManagerProvider}. */
 public final class DefaultDrmSessionManagerProvider implements DrmSessionManagerProvider {
 
+  private final Object lock;
+
+  @GuardedBy("lock")
+  private MediaItem.@MonotonicNonNull DrmConfiguration drmConfiguration;
+
+  @GuardedBy("lock")
+  private @MonotonicNonNull DrmSessionManager manager;
+
   @Nullable private HttpDataSource.Factory drmHttpDataSourceFactory;
   @Nullable private String userAgent;
+
+  public DefaultDrmSessionManagerProvider() {
+    lock = new Object();
+  }
 
   /**
    * Sets the {@link HttpDataSource.Factory} to be used for creating {@link HttpMediaDrmCallback
@@ -60,12 +75,24 @@ public final class DefaultDrmSessionManagerProvider implements DrmSessionManager
 
   @Override
   public DrmSessionManager get(MediaItem mediaItem) {
-    Assertions.checkNotNull(mediaItem.playbackProperties);
+    checkNotNull(mediaItem.playbackProperties);
     @Nullable
     MediaItem.DrmConfiguration drmConfiguration = mediaItem.playbackProperties.drmConfiguration;
     if (drmConfiguration == null || Util.SDK_INT < 18) {
       return DrmSessionManager.DRM_UNSUPPORTED;
     }
+
+    synchronized (lock) {
+      if (!Util.areEqual(drmConfiguration, this.drmConfiguration)) {
+        this.drmConfiguration = drmConfiguration;
+        this.manager = createManager(drmConfiguration);
+      }
+      return checkNotNull(this.manager);
+    }
+  }
+
+  @RequiresApi(18)
+  private DrmSessionManager createManager(MediaItem.DrmConfiguration drmConfiguration) {
     HttpDataSource.Factory dataSourceFactory =
         drmHttpDataSourceFactory != null
             ? drmHttpDataSourceFactory
