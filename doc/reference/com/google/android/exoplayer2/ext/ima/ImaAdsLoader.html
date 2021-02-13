@@ -4,7 +4,6 @@
 <head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
 <title>ImaAdsLoader (ExoPlayer library)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="dc.created" content="2021-02-04">
 <link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
 <script type="text/javascript" src="../../../../../../script.js"></script>
@@ -26,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -206,6 +205,13 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#focusSkipButton()">focusSkipButton</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Moves UI focus to the skip button (or other interactive elements), if currently shown.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>com.google.ads.interactivemedia.v3.api.AdDisplayContainer</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdDisplayContainer()">getAdDisplayContainer</a></span>()</code></th>
 <td class="colLast">
@@ -213,7 +219,7 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
  been requested yet.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>com.google.ads.interactivemedia.v3.api.AdsLoader</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdsLoader()">getAdsLoader</a></span>()</code></th>
 <td class="colLast">
@@ -221,7 +227,7 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
  instance, or <code>null</code> if ads have not been requested yet.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePrepareComplete(com.google.android.exoplayer2.source.ads.AdsMediaSource,int,int)">handlePrepareComplete</a></span>&#8203;(<a href="../../source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a>&nbsp;adsMediaSource,
                      int&nbsp;adGroupIndex,
@@ -230,7 +236,7 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
 <div class="block">Notifies the ads loader that preparation of an ad media period is complete.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handlePrepareError(com.google.android.exoplayer2.source.ads.AdsMediaSource,int,int,java.io.IOException)">handlePrepareError</a></span>&#8203;(<a href="../../source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a>&nbsp;adsMediaSource,
                   int&nbsp;adGroupIndex,
@@ -240,28 +246,28 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
 <div class="block">Notifies the ads loader that the player was not able to prepare media for a given ad.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity(int)">onPositionDiscontinuity</a></span>&#8203;(int&nbsp;reason)</code></th>
 <td class="colLast">
 <div class="block">Called when a position discontinuity occurs without a change to the timeline.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRepeatModeChanged(int)">onRepeatModeChanged</a></span>&#8203;(int&nbsp;repeatMode)</code></th>
 <td class="colLast">
 <div class="block">Called when the value of <a href="../../Player.html#getRepeatMode()"><code>Player.getRepeatMode()</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onShuffleModeEnabledChanged(boolean)">onShuffleModeEnabledChanged</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
 <div class="block">Called when the value of <a href="../../Player.html#getShuffleModeEnabled()"><code>Player.getShuffleModeEnabled()</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTimelineChanged(com.google.android.exoplayer2.Timeline,int)">onTimelineChanged</a></span>&#8203;(<a href="../../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                  int&nbsp;reason)</code></th>
@@ -269,14 +275,14 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
 <div class="block">Called when the timeline has been refreshed.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Releases the loader.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requestAds(com.google.android.exoplayer2.upstream.DataSpec,java.lang.Object,android.view.ViewGroup)">requestAds</a></span>&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;adTagDataSpec,
           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
@@ -285,28 +291,28 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
 <div class="block">Requests ads, if they have not already been requested.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Sets the player that will play the loaded ads.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSupportedContentTypes(int...)">setSupportedContentTypes</a></span>&#8203;(int...&nbsp;contentTypes)</code></th>
 <td class="colLast">
 <div class="block">Sets the supported content types for ad media.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipAd()">skipAd</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Skips the current ad.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start(com.google.android.exoplayer2.source.ads.AdsMediaSource,com.google.android.exoplayer2.upstream.DataSpec,java.lang.Object,com.google.android.exoplayer2.source.ads.AdsLoader.AdViewProvider,com.google.android.exoplayer2.source.ads.AdsLoader.EventListener)">start</a></span>&#8203;(<a href="../../source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a>&nbsp;adsMediaSource,
      <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;adTagDataSpec,
@@ -317,7 +323,7 @@ implements <a href="../../Player.EventListener.html" title="interface in com.goo
 <div class="block">Starts using the ads loader for playback.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop(com.google.android.exoplayer2.source.ads.AdsMediaSource,com.google.android.exoplayer2.source.ads.AdsLoader.EventListener)">stop</a></span>&#8203;(<a href="../../source/ads/AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a>&nbsp;adsMediaSource,
     <a href="../../source/ads/AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener)</code></th>
@@ -423,6 +429,17 @@ public&nbsp;com.google.ads.interactivemedia.v3.api.AdDisplayContainer&nbsp;getAd
  <p>This method is intended for apps that play audio-only ads and so need to provide their own
  UI for users to skip skippable ads. Apps showing video ads should not call this method, as the
  IMA SDK provides the UI to skip ads in the ad view group passed via <a href="../../source/ads/AdsLoader.AdViewProvider.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.AdViewProvider</code></a>.</div>
+</li>
+</ul>
+<a id="focusSkipButton()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>focusSkipButton</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;focusSkipButton()</pre>
+<div class="block">Moves UI focus to the skip button (or other interactive elements), if currently shown. See
+ <code>BaseManager.focus()</code>.</div>
 </li>
 </ul>
 <a id="setPlayer(com.google.android.exoplayer2.Player)">
