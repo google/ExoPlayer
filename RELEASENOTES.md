@@ -7,6 +7,10 @@
 *   Audio:
     *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
         ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
+*   IMA extension:
+    *   Fix a bug with playback of ads in playlists, where the incorrect period
+        index was used when deciding whether to trigger playback of an ad after
+        a seek.
 *   VP9 extension: Update to use NDK r22
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 *   FLAC extension: Update to use NDK r22

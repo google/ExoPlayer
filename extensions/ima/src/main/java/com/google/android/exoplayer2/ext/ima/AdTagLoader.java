@@ -826,7 +826,7 @@ import java.util.Map;
       ensureSentContentCompleteIfAtEndOfStream();
       if (!sentContentComplete && !timeline.isEmpty()) {
         long positionMs = getContentPeriodPositionMs(player, timeline, period);
-        timeline.getPeriod(/* periodIndex= */ 0, period);
+        timeline.getPeriod(player.getCurrentPeriodIndex(), period);
         int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
         if (newAdGroupIndex != C.INDEX_UNSET) {
           sentPendingContentPositionMs = false;
