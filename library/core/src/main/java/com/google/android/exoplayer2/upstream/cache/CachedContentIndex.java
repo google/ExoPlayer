@@ -82,7 +82,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *
    * <p>[1] (key1, id1) is removed from the in-memory index ... the index is not stored to disk ...
    * [2] id1 is reused for a different key2 ... the index is not stored to disk ... [3] A file for
-   * key2 is partially written using a path corresponding to id1 ... the process is killed before
+   * key2 is partially written using a path corresponding to id1 ... the process is shut down before
    * the index is stored to disk ... [4] The index is read from disk, causing the partially written
    * file to be incorrectly associated to key1
    *

@@ -448,9 +448,9 @@ public final class Loader implements LoaderErrorThrower {
           obtainMessage(MSG_IO_EXCEPTION, new UnexpectedLoaderException(e)).sendToTarget();
         }
       } catch (Error e) {
-        // We'd hope that the platform would kill the process if an Error is thrown here, but the
-        // executor may catch the error (b/20616433). Throw it here, but also pass and throw it from
-        // the handler thread so that the process dies even if the executor behaves in this way.
+        // We'd hope that the platform would shut down the process if an Error is thrown here, but
+        // the executor may catch the error (b/20616433). Throw it here, but also pass and throw it
+        // from the handler thread so the process dies even if the executor behaves in this way.
         Log.e(TAG, "Unexpected error loading stream", e);
         if (!released) {
           obtainMessage(MSG_FATAL_ERROR, e).sendToTarget();
