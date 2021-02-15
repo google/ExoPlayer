@@ -21,7 +21,7 @@ import java.util.TreeSet;
 /** Evicts least recently used cache files first. */
 public final class LeastRecentlyUsedCacheEvictor implements CacheEvictor {
 
-  private final long maxBytes;
+  private long maxBytes;
   private final TreeSet<CacheSpan> leastRecentlyUsed;
 
   private long currentSize;
@@ -80,5 +80,10 @@ public final class LeastRecentlyUsedCacheEvictor implements CacheEvictor {
       return lhs.compareTo(rhs);
     }
     return lhs.lastTouchTimestamp < rhs.lastTouchTimestamp ? -1 : 1;
+  }
+
+  public void changeMaxBytes(Cache cache, long maxBytes) {
+    this.maxBytes = maxBytes;
+    evictCache(cache, 0);
   }
 }
