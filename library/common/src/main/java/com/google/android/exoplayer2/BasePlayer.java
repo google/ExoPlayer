@@ -72,6 +72,14 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public boolean isCommandAvailable(@Command int command) {
+    if (command == COMMAND_SEEK_TO_NEXT_MEDIA_ITEM) {
+      return hasNext();
+    }
+    throw new IllegalArgumentException();
+  }
+
+  @Override
   public final void play() {
     setPlayWhenReady(true);
   }

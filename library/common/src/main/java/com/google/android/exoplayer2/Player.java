@@ -929,6 +929,17 @@ public interface Player {
   /** {@link #getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = 13;
 
+  /**
+   * Commands that can be executed on a {@code Player}. One of {@link
+   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({COMMAND_SEEK_TO_NEXT_MEDIA_ITEM})
+  @interface Command {}
+  /** Command to seek to the next {@link MediaItem} in the playlist. */
+  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 0;
+
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
   AudioComponent getAudioComponent();
@@ -1099,6 +1110,19 @@ public interface Player {
 
   /** Clears the playlist. */
   void clearMediaItems();
+
+  /**
+   * Returns whether the provided {@link Command} is available.
+   *
+   * <p>This method does not execute the command.
+   *
+   * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
+   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) is a no-op.
+   *
+   * @param command A {@link Command}.
+   * @return Whether the {@link Command} is available.
+   */
+  boolean isCommandAvailable(@Command int command);
 
   /** Prepares the player. */
   void prepare();
