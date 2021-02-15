@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.video.spherical;
+package com.google.android.exoplayer2.ui.spherical;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ui.spherical.Projection.Mesh;
+import com.google.android.exoplayer2.ui.spherical.Projection.SubMesh;
 import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.video.spherical.Projection.Mesh;
-import com.google.android.exoplayer2.video.spherical.Projection.SubMesh;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
@@ -34,7 +34,7 @@ import java.util.zip.Inflater;
  *
  * <p>The decoder does not perform CRC checks at the moment.
  */
-public final class ProjectionDecoder {
+/* package */ final class ProjectionDecoder {
 
   private static final int TYPE_YTMP = 0x79746d70;
   private static final int TYPE_MSHP = 0x6d736870;

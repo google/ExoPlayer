@@ -23,7 +23,6 @@ import android.opengl.Matrix;
 import android.view.Display;
 import android.view.Surface;
 import androidx.annotation.BinderThread;
-import com.google.android.exoplayer2.video.spherical.FrameRotationQueue;
 
 /**
  * Listens for orientation sensor events, converts event data to rotation matrix and roll value, and

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.video.spherical;
+package com.google.android.exoplayer2.ui.spherical;
 
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
@@ -24,7 +24,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** The projection mesh used with 360/VR videos. */
-public final class Projection {
+/* package */ final class Projection {
 
   /** Enforces allowed (sub) mesh draw modes. */
   @Documented

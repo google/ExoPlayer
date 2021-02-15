@@ -22,7 +22,6 @@ import android.opengl.GLES20;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.video.spherical.Projection;
 import java.nio.FloatBuffer;
 
 /**

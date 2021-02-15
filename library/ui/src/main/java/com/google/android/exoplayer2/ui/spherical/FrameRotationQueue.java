@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.video.spherical;
+package com.google.android.exoplayer2.ui.spherical;
 
 import android.opengl.Matrix;
 import com.google.android.exoplayer2.util.TimedValueQueue;
@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.TimedValueQueue;
  *   <li>Recenters the rotations to componsate the yaw of the initial rotation.
  * </ul>
  */
-public final class FrameRotationQueue {
+/* package */ final class FrameRotationQueue {
   private final float[] recenterMatrix;
   private final float[] rotationMatrix;
   private final TimedValueQueue<float[]> rotations;
