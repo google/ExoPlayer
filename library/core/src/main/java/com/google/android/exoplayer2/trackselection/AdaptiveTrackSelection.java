@@ -150,9 +150,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
                 ? new FixedTrackSelection(
                     definition.group,
                     /* track= */ definition.tracks[0],
-                    /* type= */ definition.type,
-                    /* reason= */ definition.reason,
-                    definition.data)
+                    /* type= */ definition.type)
                 : createAdaptiveTrackSelection(
                     definition.group,
                     definition.tracks,

@@ -44,10 +44,6 @@ public interface ExoTrackSelection extends TrackSelection {
     public final int[] tracks;
     /** The type that will be returned from {@link TrackSelection#getType()}. */
     public final int type;
-    /** The track selection reason. One of the {@link C} SELECTION_REASON_ constants. */
-    public final int reason;
-    /** Optional data associated with this selection of tracks. */
-    @Nullable public final Object data;
 
     /**
      * @param group The {@link TrackGroup}. Must not be null.
@@ -55,7 +51,7 @@ public interface ExoTrackSelection extends TrackSelection {
      *     null or empty. May be in any order.
      */
     public Definition(TrackGroup group, int... tracks) {
-      this(group, tracks, TrackSelection.TYPE_UNSET, C.SELECTION_REASON_UNKNOWN, /* data= */ null);
+      this(group, tracks, TrackSelection.TYPE_UNSET);
     }
 
     /**
@@ -63,15 +59,11 @@ public interface ExoTrackSelection extends TrackSelection {
      * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
      *     null or empty. May be in any order.
      * @param type The type that will be returned from {@link TrackSelection#getType()}.
-     * @param reason The track selection reason. One of the {@link C} SELECTION_REASON_ constants.
-     * @param data Optional data associated with this selection of tracks.
      */
-    public Definition(TrackGroup group, int[] tracks, int type, int reason, @Nullable Object data) {
+    public Definition(TrackGroup group, int[] tracks, int type) {
       this.group = group;
       this.tracks = tracks;
       this.type = type;
-      this.reason = reason;
-      this.data = data;
     }
   }
 

@@ -1722,11 +1722,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             override == null
                 ? null
                 : new ExoTrackSelection.Definition(
-                    rendererTrackGroups.get(override.groupIndex),
-                    override.tracks,
-                    override.type,
-                    C.SELECTION_REASON_MANUAL,
-                    /* data= */ null);
+                    rendererTrackGroups.get(override.groupIndex), override.tracks, override.type);
       }
     }
 

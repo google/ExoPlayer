@@ -35,10 +35,19 @@ public final class FixedTrackSelection extends BaseTrackSelection {
    * @param track The index of the selected track within the {@link TrackGroup}.
    */
   public FixedTrackSelection(TrackGroup group, int track) {
+    this(group, /* track= */ track, /* type= */ TrackSelection.TYPE_UNSET);
+  }
+
+  /**
+   * @param group The {@link TrackGroup}. Must not be null.
+   * @param track The index of the selected track within the {@link TrackGroup}.
+   * @param type The type that will be returned from {@link TrackSelection#getType()}.
+   */
+  public FixedTrackSelection(TrackGroup group, int track, int type) {
     this(
         group,
         /* track= */ track,
-        /* type= */ TrackSelection.TYPE_UNSET,
+        /* type= */ type,
         /* reason= */ C.SELECTION_REASON_UNKNOWN,
         null);
   }
