@@ -28,10 +28,6 @@ import java.lang.annotation.Target;
 /** Information about the playback device. */
 public final class DeviceInfo implements Bundleable {
 
-  private static final String FIELD_PLAYBACK_TYPE = "playbackType";
-  private static final String FIELD_MIN_VOLUME = "minVolume";
-  private static final String FIELD_MAX_VOLUME = "maxVolume";
-
   /** Types of playback. One of {@link #PLAYBACK_TYPE_LOCAL} or {@link #PLAYBACK_TYPE_REMOTE}. */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -87,21 +83,36 @@ public final class DeviceInfo implements Bundleable {
     return result;
   }
 
+  // Bundleable implementation.
+
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({FIELD_PLAYBACK_TYPE, FIELD_MIN_VOLUME, FIELD_MAX_VOLUME})
+  private @interface FieldNumber {}
+
+  private static final int FIELD_PLAYBACK_TYPE = 0;
+  private static final int FIELD_MIN_VOLUME = 1;
+  private static final int FIELD_MAX_VOLUME = 2;
+
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
-    bundle.putInt(FIELD_PLAYBACK_TYPE, playbackType);
-    bundle.putInt(FIELD_MIN_VOLUME, minVolume);
-    bundle.putInt(FIELD_MAX_VOLUME, maxVolume);
+    bundle.putInt(keyForField(FIELD_PLAYBACK_TYPE), playbackType);
+    bundle.putInt(keyForField(FIELD_MIN_VOLUME), minVolume);
+    bundle.putInt(keyForField(FIELD_MAX_VOLUME), maxVolume);
     return bundle;
   }
 
   public static final Creator<DeviceInfo> CREATOR =
       bundle -> {
         int playbackType =
-            bundle.getInt(FIELD_PLAYBACK_TYPE, /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
-        int minVolume = bundle.getInt(FIELD_MIN_VOLUME, /* defaultValue= */ 0);
-        int maxVolume = bundle.getInt(FIELD_MAX_VOLUME, /* defaultValue= */ 0);
+            bundle.getInt(
+                keyForField(FIELD_PLAYBACK_TYPE), /* defaultValue= */ PLAYBACK_TYPE_LOCAL);
+        int minVolume = bundle.getInt(keyForField(FIELD_MIN_VOLUME), /* defaultValue= */ 0);
+        int maxVolume = bundle.getInt(keyForField(FIELD_MAX_VOLUME), /* defaultValue= */ 0);
         return new DeviceInfo(playbackType, minVolume, maxVolume);
       };
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
+  }
 }
