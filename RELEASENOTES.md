@@ -6,6 +6,9 @@
     *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
+*   Audio:
+    *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
+        ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
 *   Library restructuring:
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to
