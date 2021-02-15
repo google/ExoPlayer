@@ -4,6 +4,9 @@
 
 *   Extractors:
     *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
+*   Audio:
+    *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
+        ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
 
 ### 2.13.1 (2021-02-12)
 
