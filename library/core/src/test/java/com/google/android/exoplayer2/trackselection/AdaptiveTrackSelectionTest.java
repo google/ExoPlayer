@@ -315,8 +315,9 @@ public final class AdaptiveTrackSelectionTest {
                 /* bandwidthFraction= */ 1f)
             .createAdaptiveTrackSelection(
                 trackGroup,
-                mockBandwidthMeter,
                 /* tracks= */ new int[] {0, 1},
+                /* type= */ TrackSelection.TYPE_UNSET,
+                mockBandwidthMeter,
                 /* adaptationCheckpoints= */ ImmutableList.of());
 
     // Make initial selection.
@@ -491,12 +492,13 @@ public final class AdaptiveTrackSelectionTest {
           @Override
           protected AdaptiveTrackSelection createAdaptiveTrackSelection(
               TrackGroup group,
-              BandwidthMeter bandwidthMeter,
               int[] tracks,
+              int type,
+              BandwidthMeter bandwidthMeter,
               ImmutableList<AdaptationCheckpoint> adaptationCheckpoints) {
             checkPoints.add(adaptationCheckpoints);
             return super.createAdaptiveTrackSelection(
-                group, bandwidthMeter, tracks, adaptationCheckpoints);
+                group, tracks, TrackSelection.TYPE_UNSET, bandwidthMeter, adaptationCheckpoints);
           }
         };
 
@@ -541,12 +543,13 @@ public final class AdaptiveTrackSelectionTest {
           @Override
           protected AdaptiveTrackSelection createAdaptiveTrackSelection(
               TrackGroup group,
-              BandwidthMeter bandwidthMeter,
               int[] tracks,
+              int type,
+              BandwidthMeter bandwidthMeter,
               ImmutableList<AdaptationCheckpoint> adaptationCheckpoints) {
             checkPoints.add(adaptationCheckpoints);
             return super.createAdaptiveTrackSelection(
-                group, bandwidthMeter, tracks, adaptationCheckpoints);
+                group, tracks, TrackSelection.TYPE_UNSET, bandwidthMeter, adaptationCheckpoints);
           }
         };
 
@@ -589,6 +592,7 @@ public final class AdaptiveTrackSelectionTest {
         new AdaptiveTrackSelection(
             trackGroup,
             selectedAllTracksInGroup(trackGroup),
+            TrackSelection.TYPE_UNSET,
             mockBandwidthMeter,
             minDurationForQualityIncreaseMs,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
@@ -605,6 +609,7 @@ public final class AdaptiveTrackSelectionTest {
         new AdaptiveTrackSelection(
             trackGroup,
             selectedAllTracksInGroup(trackGroup),
+            TrackSelection.TYPE_UNSET,
             mockBandwidthMeter,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
             maxDurationForQualityDecreaseMs,
@@ -621,6 +626,7 @@ public final class AdaptiveTrackSelectionTest {
         new AdaptiveTrackSelection(
             trackGroup,
             selectedAllTracksInGroup(trackGroup),
+            TrackSelection.TYPE_UNSET,
             mockBandwidthMeter,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
@@ -637,6 +643,7 @@ public final class AdaptiveTrackSelectionTest {
         new AdaptiveTrackSelection(
             trackGroup,
             selectedAllTracksInGroup(trackGroup),
+            TrackSelection.TYPE_UNSET,
             mockBandwidthMeter,
             AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
             AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,

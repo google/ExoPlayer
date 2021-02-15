@@ -27,6 +27,21 @@ import com.google.android.exoplayer2.source.TrackGroup;
  */
 public interface TrackSelection {
 
+  /** An unspecified track selection type. */
+  int TYPE_UNSET = 0;
+  /** The first value that can be used for application specific track selection types. */
+  int TYPE_CUSTOM_BASE = 10000;
+
+  /**
+   * Returns an integer specifying the type of the selection, or {@link #TYPE_UNSET} if not
+   * specified.
+   *
+   * <p>Track selection types are specific to individual applications, but should be defined
+   * starting from {@link #TYPE_CUSTOM_BASE} to ensure they don't conflict with any types that may
+   * be added to the library in the future.
+   */
+  int getType();
+
   /** Returns the {@link TrackGroup} to which the selected tracks belong. */
   TrackGroup getTrackGroup();
 

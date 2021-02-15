@@ -148,11 +148,16 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
         selections[i] =
             definition.tracks.length == 1
                 ? new FixedTrackSelection(
-                    definition.group, definition.tracks[0], definition.reason, definition.data)
+                    definition.group,
+                    /* track= */ definition.tracks[0],
+                    /* type= */ definition.type,
+                    /* reason= */ definition.reason,
+                    definition.data)
                 : createAdaptiveTrackSelection(
                     definition.group,
-                    bandwidthMeter,
                     definition.tracks,
+                    definition.type,
+                    bandwidthMeter,
                     adaptationCheckpoints.get(i));
       }
       return selections;
@@ -162,20 +167,23 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      * Creates a single adaptive selection for the given group, bandwidth meter and tracks.
      *
      * @param group The {@link TrackGroup}.
-     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
      * @param tracks The indices of the selected tracks in the track group.
+     * @param type The type that will be returned from {@link TrackSelection#getType()}.
+     * @param bandwidthMeter A {@link BandwidthMeter} which can be used to select tracks.
      * @param adaptationCheckpoints The {@link AdaptationCheckpoint checkpoints} that can be used to
      *     calculate available bandwidth for this selection.
      * @return An {@link AdaptiveTrackSelection} for the specified tracks.
      */
     protected AdaptiveTrackSelection createAdaptiveTrackSelection(
         TrackGroup group,
-        BandwidthMeter bandwidthMeter,
         int[] tracks,
+        int type,
+        BandwidthMeter bandwidthMeter,
         ImmutableList<AdaptationCheckpoint> adaptationCheckpoints) {
       return new AdaptiveTrackSelection(
           group,
           tracks,
+          type,
           bandwidthMeter,
           minDurationForQualityIncreaseMs,
           maxDurationForQualityDecreaseMs,
@@ -220,6 +228,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     this(
         group,
         tracks,
+        TrackSelection.TYPE_UNSET,
         bandwidthMeter,
         DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS,
         DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS,
@@ -234,6 +243,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * @param group The {@link TrackGroup}.
    * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
    *     empty. May be in any order.
+   * @param type The type that will be returned from {@link TrackSelection#getType()}.
    * @param bandwidthMeter Provides an estimate of the currently available bandwidth.
    * @param minDurationForQualityIncreaseMs The minimum duration of buffered data required for the
    *     selected track to switch to one of higher quality.
@@ -259,6 +269,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   protected AdaptiveTrackSelection(
       TrackGroup group,
       int[] tracks,
+      int type,
       BandwidthMeter bandwidthMeter,
       long minDurationForQualityIncreaseMs,
       long maxDurationForQualityDecreaseMs,
@@ -267,7 +278,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       float bufferedFractionToLiveEdgeForQualityIncrease,
       List<AdaptationCheckpoint> adaptationCheckpoints,
       Clock clock) {
-    super(group, tracks);
+    super(group, tracks, type);
     this.bandwidthMeter = bandwidthMeter;
     this.minDurationForQualityIncreaseUs = minDurationForQualityIncreaseMs * 1000L;
     this.maxDurationForQualityDecreaseUs = maxDurationForQualityDecreaseMs * 1000L;

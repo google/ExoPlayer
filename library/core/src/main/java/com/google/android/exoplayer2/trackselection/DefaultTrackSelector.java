@@ -1507,15 +1507,26 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     public final int groupIndex;
     public final int[] tracks;
     public final int length;
+    public final int type;
 
     /**
      * @param groupIndex The overriding track group index.
      * @param tracks The overriding track indices within the track group.
      */
     public SelectionOverride(int groupIndex, int... tracks) {
+      this(groupIndex, tracks, TrackSelection.TYPE_UNSET);
+    }
+
+    /**
+     * @param groupIndex The overriding track group index.
+     * @param tracks The overriding track indices within the track group.
+     * @param type The type that will be returned from {@link TrackSelection#getType()}.
+     */
+    public SelectionOverride(int groupIndex, int[] tracks, int type) {
       this.groupIndex = groupIndex;
       this.tracks = Arrays.copyOf(tracks, tracks.length);
       this.length = tracks.length;
+      this.type = type;
       Arrays.sort(this.tracks);
     }
 
@@ -1524,6 +1535,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       length = in.readByte();
       tracks = new int[length];
       in.readIntArray(tracks);
+      type = in.readInt();
     }
 
     /** Returns whether this override contains the specified track index. */
@@ -1538,7 +1550,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
 
     @Override
     public int hashCode() {
-      return 31 * groupIndex + Arrays.hashCode(tracks);
+      int hash = 31 * groupIndex + Arrays.hashCode(tracks);
+      return 31 * hash + type;
     }
 
     @Override
@@ -1550,7 +1563,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         return false;
       }
       SelectionOverride other = (SelectionOverride) obj;
-      return groupIndex == other.groupIndex && Arrays.equals(tracks, other.tracks);
+      return groupIndex == other.groupIndex
+          && Arrays.equals(tracks, other.tracks)
+          && type == other.type;
     }
 
     // Parcelable implementation.
@@ -1565,6 +1580,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       dest.writeInt(groupIndex);
       dest.writeInt(tracks.length);
       dest.writeIntArray(tracks);
+      dest.writeInt(type);
     }
 
     public static final Parcelable.Creator<SelectionOverride> CREATOR =
@@ -1708,6 +1724,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
                 : new ExoTrackSelection.Definition(
                     rendererTrackGroups.get(override.groupIndex),
                     override.tracks,
+                    override.type,
                     C.SELECTION_REASON_MANUAL,
                     /* data= */ null);
       }

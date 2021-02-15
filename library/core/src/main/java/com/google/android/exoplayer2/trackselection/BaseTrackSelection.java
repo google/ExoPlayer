@@ -38,6 +38,8 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
   /** The indices of the selected tracks in {@link #group}, in order of decreasing bandwidth. */
   protected final int[] tracks;
 
+  /** The type of the selection. */
+  private final int type;
   /** The {@link Format}s of the selected tracks, in order of decreasing bandwidth. */
   private final Format[] formats;
   /** Selected track exclusion timestamps, in order of decreasing bandwidth. */
@@ -52,7 +54,18 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
    *     null or empty. May be in any order.
    */
   public BaseTrackSelection(TrackGroup group, int... tracks) {
+    this(group, tracks, TrackSelection.TYPE_UNSET);
+  }
+
+  /**
+   * @param group The {@link TrackGroup}. Must not be null.
+   * @param tracks The indices of the selected tracks within the {@link TrackGroup}. Must not be
+   *     null or empty. May be in any order.
+   * @param type The type that will be returned from {@link TrackSelection#getType()}.
+   */
+  public BaseTrackSelection(TrackGroup group, int[] tracks, int type) {
     Assertions.checkState(tracks.length > 0);
+    this.type = type;
     this.group = Assertions.checkNotNull(group);
     this.length = tracks.length;
     // Set the formats, sorted in order of decreasing bandwidth.
@@ -70,14 +83,11 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
     excludeUntilTimes = new long[length];
   }
 
-  @Override
-  public void enable() {
-    // Do nothing.
-  }
+  // TrackSelection implementation.
 
   @Override
-  public void disable() {
-    // Do nothing.
+  public final int getType() {
+    return type;
   }
 
   @Override
@@ -121,6 +131,8 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
     return C.INDEX_UNSET;
   }
 
+  // ExoTrackSelection specific methods.
+
   @Override
   public final Format getSelectedFormat() {
     return formats[getSelectedIndex()];
@@ -129,6 +141,16 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
   @Override
   public final int getSelectedIndexInTrackGroup() {
     return tracks[getSelectedIndex()];
+  }
+
+  @Override
+  public void enable() {
+    // Do nothing.
+  }
+
+  @Override
+  public void disable() {
+    // Do nothing.
   }
 
   @Override
@@ -157,6 +179,8 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
             Util.addWithOverflowDefault(nowMs, exclusionDurationMs, Long.MAX_VALUE));
     return true;
   }
+
+  // Internal methods.
 
   /**
    * Returns whether the track at the specified index in the selection is excluded.

@@ -64,7 +64,11 @@ public final class TrackSelectionUtil {
       } else {
         selections[i] =
             new FixedTrackSelection(
-                definition.group, definition.tracks[0], definition.reason, definition.data);
+                definition.group,
+                definition.tracks[0],
+                /* type= */ definition.type,
+                /* reason= */ definition.reason,
+                definition.data);
       }
     }
     return selections;
