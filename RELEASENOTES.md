@@ -7,6 +7,14 @@
 *   Audio:
     *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
         ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
+*   VP9 extension: Update to use NDK r22
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+*   FLAC extension: Update to use NDK r22
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+*   Opus extension: Update to use NDK r22
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+*   FFmpeg extension: Update to use NDK r22
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 
 ### 2.13.1 (2021-02-12)
 
