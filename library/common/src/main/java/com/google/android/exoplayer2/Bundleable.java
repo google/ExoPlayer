@@ -64,7 +64,7 @@ public interface Bundleable {
      *
      * <p>It guarantees the compatibility of {@link Bundle} representations produced by different
      * versions of {@link Bundleable#toBundle()} by providing best default values for missing
-     * fields. It may throw an {@link IllegalArgumentException} if any essential fields are missing.
+     * fields. It throws an exception if any essential fields are missing.
      */
     T fromBundle(Bundle bundle);
   }
