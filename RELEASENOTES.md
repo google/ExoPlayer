@@ -8,6 +8,9 @@
     *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
         ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
 *   IMA extension:
+    *   Fix a bug where playback could get stuck when seeking into a playlist
+        item with ads, if the preroll ad had preloaded but the window position
+        of the seek should instead trigger playback of a midroll.
     *   Fix a bug with playback of ads in playlists, where the incorrect period
         index was used when deciding whether to trigger playback of an ad after
         a seek.
