@@ -848,6 +848,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       decoderCounters.ensureUpdated();
     } catch (IllegalStateException e) {
       if (isMediaCodecException(e)) {
+        onCodecError(e);
         boolean isRecoverable =
             enableRecoverableCodecExceptionRetries
                 && Util.SDK_INT >= 21
@@ -1403,6 +1404,17 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param name The name of the codec that was released.
    */
   protected void onCodecReleased(String name) {
+    // Do nothing.
+  }
+
+  /**
+   * Called when a codec error has occurred.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param codecError The error.
+   */
+  protected void onCodecError(Exception codecError) {
     // Do nothing.
   }
 

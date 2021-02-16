@@ -309,6 +309,15 @@ public class AnalyticsCollector
         listener -> listener.onAudioSinkError(eventTime, audioSinkError));
   }
 
+  @Override
+  public final void onAudioCodecError(Exception audioCodecError) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AUDIO_CODEC_ERROR,
+        listener -> listener.onAudioCodecError(eventTime, audioCodecError));
+  }
+
   // Additional audio events.
 
   /**
@@ -454,6 +463,15 @@ public class AnalyticsCollector
         AnalyticsListener.EVENT_VIDEO_FRAME_PROCESSING_OFFSET,
         listener ->
             listener.onVideoFrameProcessingOffset(eventTime, totalProcessingOffsetUs, frameCount));
+  }
+
+  @Override
+  public final void onVideoCodecError(Exception videoCodecError) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_VIDEO_CODEC_ERROR,
+        listener -> listener.onVideoCodecError(eventTime, videoCodecError));
   }
 
   // Additional video events.

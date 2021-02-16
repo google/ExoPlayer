@@ -9,6 +9,8 @@
 *   Audio:
     *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
         ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
+*   Analytics:
+    *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
 *   Library restructuring:
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to

@@ -17,14 +17,18 @@ package com.google.android.exoplayer2.video;
 
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
+import android.media.MediaCodec;
+import android.media.MediaCodec.CodecException;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.Surface;
 import android.view.TextureView;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.util.Assertions;
 
@@ -147,8 +151,21 @@ public interface VideoRendererEventListener {
   default void onVideoDisabled(DecoderCounters counters) {}
 
   /**
-   * Dispatches events to a {@link VideoRendererEventListener}.
+   * Called when a video decoder encounters an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
+   * This method is called to provide the application with an opportunity to log the error if it
+   * wishes to do so.
+   *
+   * @param videoCodecError The error. Typically a {@link CodecException} if the renderer uses
+   *     {@link MediaCodec}, or a {@link DecoderException} if the renderer uses a software decoder.
    */
+  default void onVideoCodecError(Exception videoCodecError) {}
+
+  /** Dispatches events to a {@link VideoRendererEventListener}. */
   final class EventDispatcher {
 
     @Nullable private final Handler handler;
@@ -254,6 +271,12 @@ public interface VideoRendererEventListener {
       }
     }
 
+    /** Invokes {@link VideoRendererEventListener#onVideoCodecError(Exception)}. */
+    public void videoCodecError(Exception videoCodecError) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onVideoCodecError(videoCodecError));
+      }
+    }
   }
 
 }

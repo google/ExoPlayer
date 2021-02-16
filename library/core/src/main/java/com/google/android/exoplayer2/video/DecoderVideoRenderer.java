@@ -206,6 +206,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
       } catch (DecoderException e) {
+        eventDispatcher.videoCodecError(e);
         throw createRendererException(e, inputFormat);
       }
       decoderCounters.ensureUpdated();
@@ -707,7 +708,10 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
           decoderInitializedTimestamp,
           decoderInitializedTimestamp - decoderInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (DecoderException | OutOfMemoryError e) {
+    } catch (DecoderException e) {
+      eventDispatcher.videoCodecError(e);
+      throw createRendererException(e, inputFormat);
+    } catch (OutOfMemoryError e) {
       throw createRendererException(e, inputFormat);
     }
   }

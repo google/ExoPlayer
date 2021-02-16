@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.analytics;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.media.MediaCodec;
+import android.media.MediaCodec.CodecException;
 import android.os.Looper;
 import android.util.SparseArray;
 import android.view.Surface;
@@ -35,6 +37,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -198,6 +201,8 @@ public interface AnalyticsListener {
     EVENT_DRM_KEYS_REMOVED,
     EVENT_DRM_SESSION_RELEASED,
     EVENT_PLAYER_RELEASED,
+    EVENT_AUDIO_CODEC_ERROR,
+    EVENT_VIDEO_CODEC_ERROR,
   })
   @interface EventFlags {}
   /** {@link Player#getCurrentTimeline()} changed. */
@@ -312,6 +317,10 @@ public interface AnalyticsListener {
   int EVENT_DRM_SESSION_RELEASED = 1035;
   /** The player was released. */
   int EVENT_PLAYER_RELEASED = 1036;
+  /** The audio codec encountered an error. */
+  int EVENT_AUDIO_CODEC_ERROR = 1037;
+  /** The video codec encountered an error. */
+  int EVENT_VIDEO_CODEC_ERROR = 1038;
 
   /** Time information of an event. */
   final class EventTime {
@@ -649,8 +658,14 @@ public interface AnalyticsListener {
       EventTime eventTime, LoadEventInfo loadEventInfo, MediaLoadData mediaLoadData) {}
 
   /**
-   * Called when a media source loading error occurred. These errors are just for informational
-   * purposes and the player may recover.
+   * Called when a media source loading error occurred.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
+   * This method is called to provide the application with an opportunity to log the error if it
+   * wishes to do so.
    *
    * @param eventTime The event time.
    * @param loadEventInfo The {@link LoadEventInfo} defining the load event.
@@ -829,14 +844,36 @@ public interface AnalyticsListener {
   default void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
 
   /**
-   * Called when {@link AudioSink} has encountered an error. These errors are just for informational
-   * purposes and the player may recover.
+   * Called when {@link AudioSink} has encountered an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
+   * This method is called to provide the application with an opportunity to log the error if it
+   * wishes to do so.
    *
    * @param eventTime The event time.
    * @param audioSinkError Either a {@link AudioSink.InitializationException} or a {@link
    *     AudioSink.WriteException} describing the error.
    */
   default void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
+
+  /**
+   * Called when an audio decoder encounters an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
+   * This method is called to provide the application with an opportunity to log the error if it
+   * wishes to do so.
+   *
+   * @param eventTime The event time.
+   * @param audioCodecError The error. Typically a {@link CodecException} if the renderer uses
+   *     {@link MediaCodec}, or a {@link DecoderException} if the renderer uses a software decoder.
+   */
+  default void onAudioCodecError(EventTime eventTime, Exception audioCodecError) {}
 
   /**
    * Called when the volume changes.
@@ -932,6 +969,22 @@ public interface AnalyticsListener {
       EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {}
 
   /**
+   * Called when a video decoder encounters an error.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
+   * This method is called to provide the application with an opportunity to log the error if it
+   * wishes to do so.
+   *
+   * @param eventTime The event time.
+   * @param videoCodecError The error. Typically a {@link CodecException} if the renderer uses
+   *     {@link MediaCodec}, or a {@link DecoderException} if the renderer uses a software decoder.
+   */
+  default void onVideoCodecError(EventTime eventTime, Exception videoCodecError) {}
+
+  /**
    * Called when a frame is rendered for the first time since setting the surface, or since the
    * renderer was reset, or since the stream being rendered was changed.
    *
@@ -987,8 +1040,14 @@ public interface AnalyticsListener {
   default void onDrmKeysLoaded(EventTime eventTime) {}
 
   /**
-   * Called when a drm error occurs. These errors are just for informational purposes and the player
-   * may recover.
+   * Called when a drm error occurs.
+   *
+   * <p>This method being called does not indicate that playback has failed, or that it will fail.
+   * The player may be able to recover from the error. Hence applications should <em>not</em>
+   * implement this method to display a user visible error or initiate an application level retry.
+   * {@link Player.EventListener#onPlayerError} is the appropriate place to implement such behavior.
+   * This method is called to provide the application with an opportunity to log the error if it
+   * wishes to do so.
    *
    * @param eventTime The event time.
    * @param error The error.

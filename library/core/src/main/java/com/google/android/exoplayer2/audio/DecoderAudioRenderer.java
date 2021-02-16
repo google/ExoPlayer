@@ -300,6 +300,7 @@ public abstract class DecoderAudioRenderer<
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
       } catch (DecoderException e) {
+        eventDispatcher.audioCodecError(e);
         throw createRendererException(e, inputFormat);
       } catch (AudioSink.ConfigurationException e) {
         throw createRendererException(e, e.format);
@@ -618,7 +619,10 @@ public abstract class DecoderAudioRenderer<
       eventDispatcher.decoderInitialized(decoder.getName(), codecInitializedTimestamp,
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
-    } catch (DecoderException | OutOfMemoryError e) {
+    } catch (DecoderException e) {
+      eventDispatcher.audioCodecError(e);
+      throw createRendererException(e, inputFormat);
+    } catch (OutOfMemoryError e) {
       throw createRendererException(e, inputFormat);
     }
   }
