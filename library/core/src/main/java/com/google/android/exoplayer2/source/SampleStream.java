@@ -19,6 +19,7 @@ import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -66,13 +67,17 @@ public interface SampleStream {
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the {@link
    *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer. If a {@link
-   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer is passed, then no {@link
-   *     DecoderInputBuffer#data} will be read and the read position of the stream will not change,
-   *     but the flags of the buffer will be populated.
+   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer is passed and a sample is read, then
+   *     only the buffer {@link DecoderInputBuffer#timeUs timestamp} and flags will be populated,
+   *     and the read position will not be advanced.
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
    * @return The status of read, one of {@link ReadDataResult}.
+   * @throws InsufficientCapacityException If the {@code buffer} is not a {@link
+   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer and has insufficient capacity to hold
+   *     the data of a sample being read. The buffer {@link DecoderInputBuffer#timeUs timestamp} and
+   *     flags are populated if this exception is thrown, but the read position is not advanced.
    */
   @ReadDataResult
   int readData(FormatHolder formatHolder, DecoderInputBuffer buffer, boolean formatRequired);

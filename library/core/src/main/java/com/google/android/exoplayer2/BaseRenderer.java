@@ -19,6 +19,7 @@ import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.MediaClock;
@@ -386,6 +387,10 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
    * @return The status of read, one of {@link SampleStream.ReadDataResult}.
+   * @throws InsufficientCapacityException If the {@code buffer} is not a {@link
+   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer and has insufficient capacity to hold
+   *     the data of a sample being read. The buffer {@link DecoderInputBuffer#timeUs timestamp} and
+   *     flags are populated if this exception is thrown, but the read position is not advanced.
    */
   @SampleStream.ReadDataResult
   protected final int readSource(

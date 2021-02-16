@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
@@ -401,14 +402,19 @@ public class SampleQueue implements TrackOutput {
    * @param buffer A {@link DecoderInputBuffer} to populate in the case of reading a sample or the
    *     end of the stream. If the end of the stream has been reached, the {@link
    *     C#BUFFER_FLAG_END_OF_STREAM} flag will be set on the buffer. If a {@link
-   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer is passed, only the buffer flags may be
-   *     populated by this method and the read position of the queue will not change.
+   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer is passed and a sample is read, then
+   *     only the buffer {@link DecoderInputBuffer#timeUs timestamp} and flags will be populated,
+   *     and the read position will not be advanced.
    * @param formatRequired Whether the caller requires that the format of the stream be read even if
    *     it's not changing. A sample will never be read if set to true, however it is still possible
    *     for the end of stream or nothing to be read.
    * @param loadingFinished True if an empty queue should be considered the end of the stream.
    * @return The result, which can be {@link C#RESULT_NOTHING_READ}, {@link C#RESULT_FORMAT_READ} or
    *     {@link C#RESULT_BUFFER_READ}.
+   * @throws InsufficientCapacityException If the {@code buffer} is not a {@link
+   *     DecoderInputBuffer#isFlagsOnly() flags-only} buffer and has insufficient capacity to hold
+   *     the data of a sample being read. The buffer {@link DecoderInputBuffer#timeUs timestamp} and
+   *     flags are populated if this exception is thrown, but the read position is not advanced.
    */
   @CallSuper
   public int read(
