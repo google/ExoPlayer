@@ -40,4 +40,11 @@ public class MediaMetadataTest {
 
     assertThat(mediaMetadata.title).isEqualTo(title);
   }
+
+  @Test
+  public void roundtripViaBundle_yieldsEqualInstance() {
+    MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
+
+    assertThat(MediaMetadata.CREATOR.fromBundle(mediaMetadata.toBundle())).isEqualTo(mediaMetadata);
+  }
 }

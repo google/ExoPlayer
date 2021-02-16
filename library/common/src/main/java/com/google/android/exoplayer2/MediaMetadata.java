@@ -15,11 +15,15 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Bundle;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** Metadata of the {@link MediaItem}. */
-public final class MediaMetadata {
+public final class MediaMetadata implements Bundleable {
 
   /** A builder for {@link MediaMetadata} instances. */
   public static final class Builder {
@@ -61,5 +65,30 @@ public final class MediaMetadata {
   @Override
   public int hashCode() {
     return title == null ? 0 : title.hashCode();
+  }
+
+  // Bundleable implementation.
+
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_TITLE,
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_TITLE = 0;
+
+  @Override
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putString(keyForField(FIELD_TITLE), title);
+    return bundle;
+  }
+
+  /** Object that can restore {@link MediaMetadata} from a {@link Bundle}. */
+  public static final Creator<MediaMetadata> CREATOR =
+      bundle -> new MediaMetadata(bundle.getString(keyForField(FIELD_TITLE)));
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
   }
 }

@@ -393,4 +393,34 @@ public class MediaItemTest {
 
     assertThat(copy).isEqualTo(mediaItem);
   }
+
+  @Test
+  public void roundtripViaBundle_withoutPlaybackProperties_yieldsEqualInstance() {
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setMediaId("mediaId")
+            .setLiveTargetOffsetMs(20_000)
+            .setLiveMinOffsetMs(2_222)
+            .setLiveMaxOffsetMs(4_444)
+            .setLiveMinPlaybackSpeed(.9f)
+            .setLiveMaxPlaybackSpeed(1.1f)
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("title").build())
+            .setClipStartPositionMs(100)
+            .setClipEndPositionMs(1_000)
+            .setClipRelativeToDefaultPosition(true)
+            .setClipRelativeToLiveWindow(true)
+            .setClipStartsAtKeyFrame(true)
+            .build();
+
+    assertThat(mediaItem.playbackProperties).isNull();
+    assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle())).isEqualTo(mediaItem);
+  }
+
+  @Test
+  public void roundtripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
+
+    assertThat(mediaItem.playbackProperties).isNotNull();
+    assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle()).playbackProperties).isNull();
+  }
 }

@@ -19,10 +19,14 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
+import android.os.Bundle;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /** Representation of a media item. */
-public final class MediaItem {
+public final class MediaItem implements Bundleable {
 
   /**
    * Creates a {@link MediaItem} for the given URI.
@@ -836,7 +840,7 @@ public final class MediaItem {
   }
 
   /** Live playback configuration. */
-  public static final class LiveConfiguration {
+  public static final class LiveConfiguration implements Bundleable {
 
     /** A live playback configuration with unset values. */
     public static final LiveConfiguration UNSET =
@@ -929,6 +933,52 @@ public final class MediaItem {
       result = 31 * result + (minPlaybackSpeed != 0 ? Float.floatToIntBits(minPlaybackSpeed) : 0);
       result = 31 * result + (maxPlaybackSpeed != 0 ? Float.floatToIntBits(maxPlaybackSpeed) : 0);
       return result;
+    }
+
+    // Bundleable implementation.
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_TARGET_OFFSET_MS,
+      FIELD_MIN_OFFSET_MS,
+      FIELD_MAX_OFFSET_MS,
+      FIELD_MIN_PLAYBACK_SPEED,
+      FIELD_MAX_PLAYBACK_SPEED
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_TARGET_OFFSET_MS = 0;
+    private static final int FIELD_MIN_OFFSET_MS = 1;
+    private static final int FIELD_MAX_OFFSET_MS = 2;
+    private static final int FIELD_MIN_PLAYBACK_SPEED = 3;
+    private static final int FIELD_MAX_PLAYBACK_SPEED = 4;
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putLong(keyForField(FIELD_TARGET_OFFSET_MS), targetOffsetMs);
+      bundle.putLong(keyForField(FIELD_MIN_OFFSET_MS), minOffsetMs);
+      bundle.putLong(keyForField(FIELD_MAX_OFFSET_MS), maxOffsetMs);
+      bundle.putFloat(keyForField(FIELD_MIN_PLAYBACK_SPEED), minPlaybackSpeed);
+      bundle.putFloat(keyForField(FIELD_MAX_PLAYBACK_SPEED), maxPlaybackSpeed);
+      return bundle;
+    }
+
+    /** Object that can restore {@link LiveConfiguration} from a {@link Bundle}. */
+    public static final Creator<LiveConfiguration> CREATOR =
+        bundle ->
+            new LiveConfiguration(
+                bundle.getLong(
+                    keyForField(FIELD_TARGET_OFFSET_MS), /* defaultValue= */ C.TIME_UNSET),
+                bundle.getLong(keyForField(FIELD_MIN_OFFSET_MS), /* defaultValue= */ C.TIME_UNSET),
+                bundle.getLong(keyForField(FIELD_MAX_OFFSET_MS), /* defaultValue= */ C.TIME_UNSET),
+                bundle.getFloat(
+                    keyForField(FIELD_MIN_PLAYBACK_SPEED), /* defaultValue= */ C.RATE_UNSET),
+                bundle.getFloat(
+                    keyForField(FIELD_MAX_PLAYBACK_SPEED), /* defaultValue= */ C.RATE_UNSET));
+
+    private static String keyForField(@LiveConfiguration.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
@@ -1029,7 +1079,7 @@ public final class MediaItem {
   }
 
   /** Optionally clips the media item to a custom start and end position. */
-  public static final class ClippingProperties {
+  public static final class ClippingProperties implements Bundleable {
 
     /** The start position in milliseconds. This is a value larger than or equal to zero. */
     public final long startPositionMs;
@@ -1095,6 +1145,50 @@ public final class MediaItem {
       result = 31 * result + (startsAtKeyFrame ? 1 : 0);
       return result;
     }
+
+    // Bundleable implementation.
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_START_POSITION_MS,
+      FIELD_END_POSITION_MS,
+      FIELD_RELATIVE_TO_LIVE_WINDOW,
+      FIELD_RELATIVE_TO_DEFAULT_POSITION,
+      FIELD_STARTS_AT_KEY_FRAME
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_START_POSITION_MS = 0;
+    private static final int FIELD_END_POSITION_MS = 1;
+    private static final int FIELD_RELATIVE_TO_LIVE_WINDOW = 2;
+    private static final int FIELD_RELATIVE_TO_DEFAULT_POSITION = 3;
+    private static final int FIELD_STARTS_AT_KEY_FRAME = 4;
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putLong(keyForField(FIELD_START_POSITION_MS), startPositionMs);
+      bundle.putLong(keyForField(FIELD_END_POSITION_MS), endPositionMs);
+      bundle.putBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), relativeToLiveWindow);
+      bundle.putBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), relativeToDefaultPosition);
+      bundle.putBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), startsAtKeyFrame);
+      return bundle;
+    }
+
+    /** Object that can restore {@link ClippingProperties} from a {@link Bundle}. */
+    public static final Creator<ClippingProperties> CREATOR =
+        bundle ->
+            new ClippingProperties(
+                bundle.getLong(keyForField(FIELD_START_POSITION_MS), /* defaultValue= */ 0),
+                bundle.getLong(
+                    keyForField(FIELD_END_POSITION_MS), /* defaultValue= */ C.TIME_END_OF_SOURCE),
+                bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_LIVE_WINDOW), false),
+                bundle.getBoolean(keyForField(FIELD_RELATIVE_TO_DEFAULT_POSITION), false),
+                bundle.getBoolean(keyForField(FIELD_STARTS_AT_KEY_FRAME), false));
+
+    private static String keyForField(@ClippingProperties.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
+    }
   }
 
   /** Identifies the media item. */
@@ -1156,5 +1250,76 @@ public final class MediaItem {
     result = 31 * result + clippingProperties.hashCode();
     result = 31 * result + mediaMetadata.hashCode();
     return result;
+  }
+
+  // Bundleable implementation.
+
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_MEDIA_ID,
+    FIELD_LIVE_CONFIGURATION,
+    FIELD_MEDIA_METADATA,
+    FIELD_CLIPPING_PROPERTIES
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_MEDIA_ID = 0;
+  private static final int FIELD_LIVE_CONFIGURATION = 1;
+  private static final int FIELD_MEDIA_METADATA = 2;
+  private static final int FIELD_CLIPPING_PROPERTIES = 3;
+
+  @Override
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putString(keyForField(FIELD_MEDIA_ID), mediaId);
+    bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
+    bundle.putBundle(keyForField(FIELD_MEDIA_METADATA), mediaMetadata.toBundle());
+    bundle.putBundle(keyForField(FIELD_CLIPPING_PROPERTIES), clippingProperties.toBundle());
+    return bundle;
+  }
+
+  /** Object that can restore {@link MediaItem} from a {@link Bundle}. */
+  public static final Creator<MediaItem> CREATOR =
+      bundle -> {
+        String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID)));
+        @Nullable
+        Bundle liveConfigurationBundle = bundle.getBundle(keyForField(FIELD_LIVE_CONFIGURATION));
+        LiveConfiguration liveConfiguration;
+        if (liveConfigurationBundle == null) {
+          liveConfiguration = LiveConfiguration.UNSET;
+        } else {
+          liveConfiguration = LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle);
+        }
+        @Nullable Bundle mediaMetadataBundle = bundle.getBundle(keyForField(FIELD_MEDIA_METADATA));
+        MediaMetadata mediaMetadata;
+        if (mediaMetadataBundle == null) {
+          mediaMetadata = new MediaMetadata.Builder().build();
+        } else {
+          mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
+        }
+        @Nullable
+        Bundle clippingPropertiesBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
+        ClippingProperties clippingProperties;
+        if (clippingPropertiesBundle == null) {
+          clippingProperties =
+              new ClippingProperties(
+                  /* startPositionMs= */ 0,
+                  /* endPositionMs= */ C.TIME_END_OF_SOURCE,
+                  /* relativeToLiveWindow= */ false,
+                  /* relativeToDefaultPosition= */ false,
+                  /* startsAtKeyFrame= */ false);
+        } else {
+          clippingProperties = ClippingProperties.CREATOR.fromBundle(clippingPropertiesBundle);
+        }
+        return new MediaItem(
+            mediaId,
+            clippingProperties,
+            /* playbackProperties= */ null,
+            liveConfiguration,
+            mediaMetadata);
+      };
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
   }
 }
