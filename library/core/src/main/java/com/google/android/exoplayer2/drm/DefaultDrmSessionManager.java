@@ -489,6 +489,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       schemeDatas = getSchemeDatas(Assertions.checkNotNull(format.drmInitData), uuid, false);
       if (schemeDatas.isEmpty()) {
         final MissingSchemeDataException error = new MissingSchemeDataException(uuid);
+        Log.e(TAG, "DRM error", error);
         if (eventDispatcher != null) {
           eventDispatcher.drmSessionManagerError(error);
         }

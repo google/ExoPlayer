@@ -242,6 +242,11 @@ public interface AudioSink {
      */
     public UnexpectedDiscontinuityException(
         long actualPresentationTimeUs, long expectedPresentationTimeUs) {
+      super(
+          "Unexpected audio track timestamp discontinuity: expected "
+              + expectedPresentationTimeUs
+              + ", got "
+              + actualPresentationTimeUs);
       this.actualPresentationTimeUs = actualPresentationTimeUs;
       this.expectedPresentationTimeUs = expectedPresentationTimeUs;
     }

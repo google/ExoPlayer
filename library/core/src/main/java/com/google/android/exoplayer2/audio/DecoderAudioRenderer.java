@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
@@ -81,6 +82,8 @@ public abstract class DecoderAudioRenderer<
         T extends
             Decoder<DecoderInputBuffer, ? extends SimpleOutputBuffer, ? extends DecoderException>>
     extends BaseRenderer implements MediaClock {
+
+  private static final String TAG = "DecoderAudioRenderer";
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -300,6 +303,7 @@ public abstract class DecoderAudioRenderer<
         while (feedInputBuffer()) {}
         TraceUtil.endSection();
       } catch (DecoderException e) {
+        Log.e(TAG, "Audio codec error", e);
         eventDispatcher.audioCodecError(e);
         throw createRendererException(e, inputFormat);
       } catch (AudioSink.ConfigurationException e) {
@@ -620,6 +624,7 @@ public abstract class DecoderAudioRenderer<
           codecInitializedTimestamp - codecInitializingTimestamp);
       decoderCounters.decoderInitCount++;
     } catch (DecoderException e) {
+      Log.e(TAG, "Audio codec error", e);
       eventDispatcher.audioCodecError(e);
       throw createRendererException(e, inputFormat);
     } catch (OutOfMemoryError e) {
@@ -739,6 +744,7 @@ public abstract class DecoderAudioRenderer<
 
     @Override
     public void onAudioSinkError(Exception audioSinkError) {
+      Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
     }
   }
