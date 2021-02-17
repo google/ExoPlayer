@@ -854,8 +854,9 @@ public interface AnalyticsListener {
    * wishes to do so.
    *
    * @param eventTime The event time.
-   * @param audioSinkError Either a {@link AudioSink.InitializationException} or a {@link
-   *     AudioSink.WriteException} describing the error.
+   * @param audioSinkError The error that occurred. Typically an {@link
+   *     AudioSink.InitializationException}, a {@link AudioSink.WriteException}, or an {@link
+   *     AudioSink.UnexpectedDiscontinuityException}.
    */
   default void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
 

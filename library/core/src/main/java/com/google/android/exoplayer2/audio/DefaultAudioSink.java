@@ -762,13 +762,9 @@ public final class DefaultAudioSink implements AudioSink {
                   getSubmittedFrames() - trimmingAudioProcessor.getTrimmedFrameCount());
       if (!startMediaTimeUsNeedsSync
           && Math.abs(expectedPresentationTimeUs - presentationTimeUs) > 200000) {
-        Log.e(
-            TAG,
-            "Discontinuity detected [expected "
-                + expectedPresentationTimeUs
-                + ", got "
-                + presentationTimeUs
-                + "]");
+        listener.onAudioSinkError(
+            new AudioSink.UnexpectedDiscontinuityException(
+                presentationTimeUs, expectedPresentationTimeUs));
         startMediaTimeUsNeedsSync = true;
       }
       if (startMediaTimeUsNeedsSync) {

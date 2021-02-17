@@ -144,7 +144,8 @@ public interface AudioRendererEventListener {
    * wishes to do so.
    *
    * @param audioSinkError The error that occurred. Typically an {@link
-   *     AudioSink.InitializationException} or a {@link AudioSink.WriteException}.
+   *     AudioSink.InitializationException}, a {@link AudioSink.WriteException}, or an {@link
+   *     AudioSink.UnexpectedDiscontinuityException}.
    */
   default void onAudioSinkError(Exception audioSinkError) {}
 

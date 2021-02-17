@@ -9,6 +9,9 @@
 *   Audio:
     *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
         ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
+    *   Report unexpected discontinuities in
+        `AnalyticsListener.onAudioSinkError`
+        ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
 *   Library restructuring:
