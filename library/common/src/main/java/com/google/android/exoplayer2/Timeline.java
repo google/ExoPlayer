@@ -435,7 +435,13 @@ public abstract class Timeline {
      */
     public long durationUs;
 
-    private long positionInWindowUs;
+    /**
+     * The position of the start of this period relative to the start of the window to which it
+     * belongs, in microseconds. May be negative if the start of the period is not within the
+     * window.
+     */
+    public long positionInWindowUs;
+
     private AdPlaybackState adPlaybackState;
 
     /** Creates a new instance with no ad playback state. */
@@ -922,13 +928,14 @@ public abstract class Timeline {
       }
     }
     int periodIndex = window.firstPeriodIndex;
-    long periodPositionUs = window.getPositionInFirstPeriodUs() + windowPositionUs;
-    long periodDurationUs = getPeriod(periodIndex, period, /* setIds= */ true).getDurationUs();
-    while (periodDurationUs != C.TIME_UNSET && periodPositionUs >= periodDurationUs
-        && periodIndex < window.lastPeriodIndex) {
-      periodPositionUs -= periodDurationUs;
-      periodDurationUs = getPeriod(++periodIndex, period, /* setIds= */ true).getDurationUs();
+    getPeriod(periodIndex, period);
+    while (periodIndex < window.lastPeriodIndex
+        && period.positionInWindowUs != windowPositionUs
+        && getPeriod(periodIndex + 1, period).positionInWindowUs <= windowPositionUs) {
+      periodIndex++;
     }
+    getPeriod(periodIndex, period, /* setIds= */ true);
+    long periodPositionUs = windowPositionUs - period.positionInWindowUs;
     return Pair.create(Assertions.checkNotNull(period.uid), periodPositionUs);
   }
 
