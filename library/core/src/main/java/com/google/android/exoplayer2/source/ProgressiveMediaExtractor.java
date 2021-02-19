@@ -26,7 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 /** Extracts the contents of a container file from a progressive media stream. */
-/* package */ interface ProgressiveMediaExtractor {
+public interface ProgressiveMediaExtractor {
+
+  /** Creates {@link ProgressiveMediaExtractor} instances. */
+  interface Factory {
+
+    /** Returns a new {@link ProgressiveMediaExtractor} instance. */
+    ProgressiveMediaExtractor createProgressiveMediaExtractor();
+  }
 
   /**
    * Initializes the underlying infrastructure for reading from the input.
