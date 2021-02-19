@@ -47,9 +47,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}. */
+/**
+ * A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}.
+ *
+ * <p>This implementation supports pre-acquisition of sessions using {@link
+ * #preacquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}.
+ */
 @RequiresApi(18)
 public class DefaultDrmSessionManager implements DrmSessionManager {
 
@@ -282,14 +289,15 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
 
   private final List<DefaultDrmSession> sessions;
   private final List<DefaultDrmSession> provisioningSessions;
+  private final Set<PreacquiredSessionReference> preacquiredSessionReferences;
   private final Set<DefaultDrmSession> keepaliveSessions;
 
   private int prepareCallsCount;
   @Nullable private ExoMediaDrm exoMediaDrm;
   @Nullable private DefaultDrmSession placeholderDrmSession;
   @Nullable private DefaultDrmSession noMultiSessionDrmSession;
-  @Nullable private Looper playbackLooper;
-  private @MonotonicNonNull Handler sessionReleasingHandler;
+  private @MonotonicNonNull Looper playbackLooper;
+  private @MonotonicNonNull Handler playbackHandler;
   private int mode;
   @Nullable private byte[] offlineLicenseKeySetId;
 
@@ -403,6 +411,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     mode = MODE_PLAYBACK;
     sessions = new ArrayList<>();
     provisioningSessions = new ArrayList<>();
+    preacquiredSessionReferences = Sets.newIdentityHashSet();
     keepaliveSessions = Sets.newIdentityHashSet();
     this.sessionKeepaliveMs = sessionKeepaliveMs;
   }
@@ -466,8 +475,22 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         sessions.get(i).release(/* eventDispatcher= */ null);
       }
     }
+    releaseAllPreacquiredSessions();
+
     Assertions.checkNotNull(exoMediaDrm).release();
     exoMediaDrm = null;
+  }
+
+  @Override
+  public DrmSessionReference preacquireSession(
+      Looper playbackLooper,
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
+      Format format) {
+    initPlaybackLooper(playbackLooper);
+    PreacquiredSessionReference preacquiredSessionReference =
+        new PreacquiredSessionReference(eventDispatcher);
+    preacquiredSessionReference.acquire(format);
+    return preacquiredSessionReference;
   }
 
   @Override
@@ -477,11 +500,27 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
       Format format) {
     initPlaybackLooper(playbackLooper);
+    return acquireSession(
+        playbackLooper,
+        eventDispatcher,
+        format,
+        /* shouldReleasePreacquiredSessionsBeforeRetrying= */ true);
+  }
+
+  // Must be called on the playback thread.
+  @Nullable
+  private DrmSession acquireSession(
+      Looper playbackLooper,
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
+      Format format,
+      boolean shouldReleasePreacquiredSessionsBeforeRetrying) {
     maybeCreateMediaDrmHandler(playbackLooper);
 
     if (format.drmInitData == null) {
       // Content is not encrypted.
-      return maybeAcquirePlaceholderSession(MimeTypes.getTrackType(format.sampleMimeType));
+      return maybeAcquirePlaceholderSession(
+          MimeTypes.getTrackType(format.sampleMimeType),
+          shouldReleasePreacquiredSessionsBeforeRetrying);
     }
 
     @Nullable List<SchemeData> schemeDatas = null;
@@ -515,7 +554,10 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       // Create a new session.
       session =
           createAndAcquireSessionWithRetry(
-              schemeDatas, /* isPlaceholderSession= */ false, eventDispatcher);
+              schemeDatas,
+              /* isPlaceholderSession= */ false,
+              eventDispatcher,
+              shouldReleasePreacquiredSessionsBeforeRetrying);
       if (!multiSession) {
         noMultiSessionDrmSession = session;
       }
@@ -547,7 +589,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   // Internal methods.
 
   @Nullable
-  private DrmSession maybeAcquirePlaceholderSession(int trackType) {
+  private DrmSession maybeAcquirePlaceholderSession(
+      int trackType, boolean shouldReleasePreacquiredSessionsBeforeRetrying) {
     ExoMediaDrm exoMediaDrm = Assertions.checkNotNull(this.exoMediaDrm);
     boolean avoidPlaceholderDrmSessions =
         FrameworkMediaCrypto.class.equals(exoMediaDrm.getExoMediaCryptoType())
@@ -563,7 +606,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
           createAndAcquireSessionWithRetry(
               /* schemeDatas= */ ImmutableList.of(),
               /* isPlaceholderSession= */ true,
-              /* eventDispatcher= */ null);
+              /* eventDispatcher= */ null,
+              shouldReleasePreacquiredSessionsBeforeRetrying);
       sessions.add(placeholderDrmSession);
       this.placeholderDrmSession = placeholderDrmSession;
     } else {
@@ -607,12 +651,14 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     return true;
   }
 
-  private void initPlaybackLooper(Looper playbackLooper) {
+  @EnsuresNonNull({"this.playbackLooper", "this.playbackHandler"})
+  private synchronized void initPlaybackLooper(Looper playbackLooper) {
     if (this.playbackLooper == null) {
       this.playbackLooper = playbackLooper;
-      this.sessionReleasingHandler = new Handler(playbackLooper);
+      this.playbackHandler = new Handler(playbackLooper);
     } else {
       Assertions.checkState(this.playbackLooper == playbackLooper);
+      Assertions.checkNotNull(playbackHandler);
     }
   }
 
@@ -625,33 +671,66 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   private DefaultDrmSession createAndAcquireSessionWithRetry(
       @Nullable List<SchemeData> schemeDatas,
       boolean isPlaceholderSession,
-      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
+      @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher,
+      boolean shouldReleasePreacquiredSessionsBeforeRetrying) {
     DefaultDrmSession session =
         createAndAcquireSession(schemeDatas, isPlaceholderSession, eventDispatcher);
-    if (session.getState() == DrmSession.STATE_ERROR
-        && (Util.SDK_INT < 19
-            || Assertions.checkNotNull(session.getError()).getCause()
-                instanceof ResourceBusyException)) {
-      // We're short on DRM session resources, so eagerly release all our keepalive sessions.
-      // ResourceBusyException is only available at API 19, so on earlier versions we always
-      // eagerly release regardless of the underlying error.
-      if (!keepaliveSessions.isEmpty()) {
-        // Make a local copy, because sessions are removed from this.keepaliveSessions during
-        // release (via callback).
-        ImmutableSet<DefaultDrmSession> keepaliveSessions =
-            ImmutableSet.copyOf(this.keepaliveSessions);
-        for (DrmSession keepaliveSession : keepaliveSessions) {
-          keepaliveSession.release(/* eventDispatcher= */ null);
-        }
-        // Undo the acquisitions from createAndAcquireSession().
-        session.release(eventDispatcher);
-        if (sessionKeepaliveMs != C.TIME_UNSET) {
-          session.release(/* eventDispatcher= */ null);
-        }
-        session = createAndAcquireSession(schemeDatas, isPlaceholderSession, eventDispatcher);
+    // If we're short on DRM session resources, first try eagerly releasing all our keepalive
+    // sessions and then retry the acquisition.
+    if (acquisitionFailedIndicatingResourceShortage(session) && !keepaliveSessions.isEmpty()) {
+      // Make a local copy, because sessions are removed from this.keepaliveSessions during
+      // release (via callback).
+      ImmutableSet<DefaultDrmSession> keepaliveSessions =
+          ImmutableSet.copyOf(this.keepaliveSessions);
+      for (DrmSession keepaliveSession : keepaliveSessions) {
+        keepaliveSession.release(/* eventDispatcher= */ null);
       }
+      undoAcquisition(session, eventDispatcher);
+      session = createAndAcquireSession(schemeDatas, isPlaceholderSession, eventDispatcher);
+    }
+
+    // If the acquisition failed again due to continued resource shortage, and
+    // shouldReleasePreacquiredSessionsBeforeRetrying is true, try releasing all pre-acquired
+    // sessions and then retry the acquisition.
+    if (acquisitionFailedIndicatingResourceShortage(session)
+        && shouldReleasePreacquiredSessionsBeforeRetrying
+        && !preacquiredSessionReferences.isEmpty()) {
+      releaseAllPreacquiredSessions();
+      undoAcquisition(session, eventDispatcher);
+      session = createAndAcquireSession(schemeDatas, isPlaceholderSession, eventDispatcher);
     }
     return session;
+  }
+
+  private static boolean acquisitionFailedIndicatingResourceShortage(DrmSession session) {
+    // ResourceBusyException is only available at API 19, so on earlier versions we
+    // assume any error indicates resource shortage (ensuring we retry).
+    return session.getState() == DrmSession.STATE_ERROR
+        && (Util.SDK_INT < 19
+            || Assertions.checkNotNull(session.getError()).getCause()
+                instanceof ResourceBusyException);
+  }
+
+  /**
+   * Undoes the acquisitions from {@link #createAndAcquireSession(List, boolean,
+   * DrmSessionEventListener.EventDispatcher)}.
+   */
+  private void undoAcquisition(
+      DrmSession session, @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
+    session.release(eventDispatcher);
+    if (sessionKeepaliveMs != C.TIME_UNSET) {
+      session.release(/* eventDispatcher= */ null);
+    }
+  }
+
+  private void releaseAllPreacquiredSessions() {
+    // Make a local copy, because sessions are removed from this.preacquiredSessionReferences
+    // during release (via callback).
+    ImmutableSet<PreacquiredSessionReference> preacquiredSessionReferences =
+        ImmutableSet.copyOf(this.preacquiredSessionReferences);
+    for (PreacquiredSessionReference preacquiredSessionReference : preacquiredSessionReferences) {
+      preacquiredSessionReference.release();
+    }
   }
 
   /**
@@ -782,7 +861,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       if (sessionKeepaliveMs != C.TIME_UNSET) {
         // The session has been acquired elsewhere so we want to cancel our timeout.
         keepaliveSessions.remove(session);
-        Assertions.checkNotNull(sessionReleasingHandler).removeCallbacksAndMessages(session);
+        Assertions.checkNotNull(playbackHandler).removeCallbacksAndMessages(session);
       }
     }
 
@@ -791,7 +870,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
       if (newReferenceCount == 1 && sessionKeepaliveMs != C.TIME_UNSET) {
         // Only the internal keep-alive reference remains, so we can start the timeout.
         keepaliveSessions.add(session);
-        Assertions.checkNotNull(sessionReleasingHandler)
+        Assertions.checkNotNull(playbackHandler)
             .postAtTime(
                 () -> session.release(/* eventDispatcher= */ null),
                 session,
@@ -812,7 +891,7 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
         }
         provisioningSessions.remove(session);
         if (sessionKeepaliveMs != C.TIME_UNSET) {
-          Assertions.checkNotNull(sessionReleasingHandler).removeCallbacksAndMessages(session);
+          Assertions.checkNotNull(playbackHandler).removeCallbacksAndMessages(session);
           keepaliveSessions.remove(session);
         }
       }
@@ -825,6 +904,77 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     public void onEvent(
         ExoMediaDrm md, @Nullable byte[] sessionId, int event, int extra, @Nullable byte[] data) {
       Assertions.checkNotNull(mediaDrmHandler).obtainMessage(event, sessionId).sendToTarget();
+    }
+  }
+
+  /**
+   * An implementation of {@link DrmSessionReference} that lazily acquires the underlying {@link
+   * DrmSession}.
+   *
+   * <p>A new instance is needed for each reference (compared to maintaining exactly one instance
+   * for each {@link DrmSession}) because each associated {@link
+   * DrmSessionEventListener.EventDispatcher} might be different. The {@link
+   * DrmSessionEventListener.EventDispatcher} is required to implement the zero-arg {@link
+   * DrmSessionReference#release()} method.
+   */
+  private class PreacquiredSessionReference implements DrmSessionReference {
+
+    @Nullable private final DrmSessionEventListener.EventDispatcher eventDispatcher;
+
+    @Nullable private DrmSession session;
+    private boolean isReleased;
+
+    /**
+     * Constructs an instance.
+     *
+     * @param eventDispatcher The {@link DrmSessionEventListener.EventDispatcher} passed to {@link
+     *     #acquireSession(Looper, DrmSessionEventListener.EventDispatcher, Format)}.
+     */
+    public PreacquiredSessionReference(
+        @Nullable DrmSessionEventListener.EventDispatcher eventDispatcher) {
+      this.eventDispatcher = eventDispatcher;
+    }
+
+    /**
+     * Acquires the underlying session.
+     *
+     * <p>Must be called at most once. Can be called from any thread.
+     */
+    @RequiresNonNull("playbackHandler")
+    public void acquire(Format format) {
+      playbackHandler.post(
+          () -> {
+            if (prepareCallsCount == 0 || isReleased) {
+              // The manager has been fully released or this reference has already been released.
+              // Abort the acquisition attempt.
+              return;
+            }
+            this.session =
+                acquireSession(
+                    Assertions.checkNotNull(playbackLooper),
+                    eventDispatcher,
+                    format,
+                    /* shouldReleasePreacquiredSessionsBeforeRetrying= */ false);
+            preacquiredSessionReferences.add(this);
+          });
+    }
+
+    @Override
+    public void release() {
+      // Ensure the underlying session is released immediately if we're already on the playback
+      // thread, to allow a failed session opening to be immediately retried.
+      Util.postOrRun(
+          Assertions.checkNotNull(playbackHandler),
+          () -> {
+            if (isReleased) {
+              return;
+            }
+            if (session != null) {
+              session.release(eventDispatcher);
+            }
+            preacquiredSessionReferences.remove(this);
+            isReleased = true;
+          });
     }
   }
 }
