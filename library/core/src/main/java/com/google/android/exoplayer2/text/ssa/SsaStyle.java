@@ -27,6 +27,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -90,13 +91,13 @@ import java.util.regex.Pattern;
   public final String name;
   @SsaAlignment public final int alignment;
   @Nullable @ColorInt public final Integer primaryColor;
-  public final Integer fontSize;
+  public final float fontSize;
 
   private SsaStyle(
       String name,
       @SsaAlignment int alignment,
       @Nullable @ColorInt Integer primaryColor,
-      Integer fontSize) {
+      float fontSize) {
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
@@ -197,12 +198,12 @@ import java.util.regex.Pattern;
     return Color.argb(a, r, g, b);
   }
 
-  private static Integer parseFontSize(String fontSize) {
+  private static float parseFontSize(String fontSize) {
     try {
-      return Integer.parseInt(fontSize);
+      return Float.parseFloat(fontSize);
     } catch (NumberFormatException e) {
       Log.w(TAG, "Failed to parse font size: '" + fontSize + "'", e);
-      return null;
+      return Cue.DIMEN_UNSET;
     }
   }
 
