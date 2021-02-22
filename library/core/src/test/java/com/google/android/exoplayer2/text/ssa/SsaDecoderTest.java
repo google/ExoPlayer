@@ -330,7 +330,7 @@ public final class SsaDecoderTest {
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
     assertThat(firstCue.textSize).isEqualTo(30f/720f);
     assertThat(firstCue.textSizeType).isEqualTo(Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
-    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2 )));
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
     assertThat(secondCue.textSize).isEqualTo(72.2f/720f);
     assertThat(secondCue.textSizeType).isEqualTo(Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
   }
