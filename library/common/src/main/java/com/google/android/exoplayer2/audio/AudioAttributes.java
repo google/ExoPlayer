@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -166,6 +167,7 @@ public final class AudioAttributes implements Bundleable {
 
   // Bundleable implementation.
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({FIELD_CONTENT_TYPE, FIELD_FLAGS, FIELD_USAGE, FIELD_ALLOWED_CAPTURE_POLICY})
   private @interface FieldNumber {}
