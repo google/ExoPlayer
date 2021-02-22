@@ -257,7 +257,7 @@ public class WebServerDispatcherTest {
     try (Response response = client.newCall(request).execute()) {
       assertThat(response.code()).isEqualTo(200);
       assertThat(response.header("Accept-Ranges")).isEqualTo("bytes");
-      assertThat(response.header("Content-Length")).isEmpty();
+      assertThat(response.header("Content-Length")).isNull();
       assertThat(response.header("Content-Range")).isNull();
       assertThat(response.body().contentLength()).isEqualTo(-1);
 
@@ -298,7 +298,7 @@ public class WebServerDispatcherTest {
     try (Response response = client.newCall(request).execute()) {
       assertThat(response.code()).isEqualTo(206);
       assertThat(response.header("Accept-Ranges")).isEqualTo("bytes");
-      assertThat(response.header("Content-Length")).isEmpty();
+      assertThat(response.header("Content-Length")).isNull();
       assertThat(response.header("Content-Range")).isEqualTo("bytes 5-19/*");
       assertThat(response.body().contentLength()).isEqualTo(-1);
 

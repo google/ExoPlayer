@@ -33,6 +33,7 @@ import com.google.common.collect.Maps;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -277,20 +278,18 @@ public class WebServerDispatcher extends Dispatcher {
     if (!resource.supportsRangeRequests() || rangeHeader == null) {
       switch (preferredContentCoding) {
         case "gzip":
+          setResponseBody(
+              response, Util.gzip(resourceData), /* chunked= */ resource.resolvesToUnknownLength);
           response
-              .setBody(new Buffer().write(Util.gzip(resourceData)))
               .setHeader("Content-Encoding", "gzip");
           break;
         case "identity":
+          setResponseBody(response, resourceData, /* chunked= */ resource.resolvesToUnknownLength);
           response
-              .setBody(new Buffer().write(resourceData))
               .setHeader("Content-Encoding", "identity");
           break;
         default:
           throw new IllegalStateException("Unexpected content coding: " + preferredContentCoding);
-      }
-      if (resource.resolvesToUnknownLength()) {
-        response.setHeader("Content-Length", "");
       }
       return response;
     }
@@ -328,11 +327,11 @@ public class WebServerDispatcher extends Dispatcher {
                   + "-"
                   + (resourceData.length - 1)
                   + "/"
-                  + (resource.resolvesToUnknownLength() ? "*" : resourceData.length))
-          .setBody(new Buffer().write(resourceData, start, resourceData.length - start));
-      if (resource.resolvesToUnknownLength()) {
-        response.setHeader("Content-Length", "");
-      }
+                  + (resource.resolvesToUnknownLength() ? "*" : resourceData.length));
+      setResponseBody(
+          response,
+          Arrays.copyOfRange(resourceData, start, resourceData.length),
+          /* chunked= */ resource.resolvesToUnknownLength);
       return response;
     }
 
@@ -345,7 +344,7 @@ public class WebServerDispatcher extends Dispatcher {
     }
 
     int end = min(range.second + 1, resourceData.length);
-    return response
+    response
         .setResponseCode(206)
         .setHeader(
             "Content-Range",
@@ -354,8 +353,26 @@ public class WebServerDispatcher extends Dispatcher {
                 + "-"
                 + (end - 1)
                 + "/"
-                + (resource.resolvesToUnknownLength() ? "*" : resourceData.length))
-        .setBody(new Buffer().write(resourceData, range.first, end - range.first));
+                + (resource.resolvesToUnknownLength() ? "*" : resourceData.length));
+    setResponseBody(
+        response, Arrays.copyOfRange(resourceData, range.first, end), /* chunked= */ false);
+    return response;
+  }
+
+  /**
+   * Populates a response with the specified body.
+   *
+   * @param response The response whose body should be populated.
+   * @param body The body data.
+   * @param chunked Whether to use chunked transfer encoding. Note that if set to {@code true}, the
+   *     "Content-Length" header will not be set.
+   */
+  private static void setResponseBody(MockResponse response, byte[] body, boolean chunked) {
+    if (chunked) {
+      response.setChunkedBody(new Buffer().write(body), /* maxChunkSize= */ Integer.MAX_VALUE);
+    } else {
+      response.setBody(new Buffer().write(body));
+    }
   }
 
   /**
