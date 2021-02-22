@@ -32,6 +32,11 @@
     *   Fix a bug with playback of ads in playlists, where the incorrect period
         index was used when deciding whether to trigger playback of an ad after
         a seek.
+*   DRM:
+    *   Only dispatch DRM session acquire and release events once per period
+        when playing content that uses the same encryption keys for both audio &
+        video tracks (previously separate acquire and release events were
+        dispatched for each track in each period).
 *   VP9 extension: Update to use NDK r22
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 *   FLAC extension: Update to use NDK r22

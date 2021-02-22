@@ -107,4 +107,14 @@ public final class CopyOnWriteMultisetTest {
 
     assertThrows(UnsupportedOperationException.class, () -> elementSet.remove("a string"));
   }
+
+  @Test
+  public void count() {
+    CopyOnWriteMultiset<String> multiset = new CopyOnWriteMultiset<>();
+    multiset.add("a string");
+    multiset.add("a string");
+
+    assertThat(multiset.count("a string")).isEqualTo(2);
+    assertThat(multiset.count("another string")).isEqualTo(0);
+  }
 }

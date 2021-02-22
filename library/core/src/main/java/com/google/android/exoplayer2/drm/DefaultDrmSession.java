@@ -293,8 +293,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       if (openInternal(true)) {
         doLicense(true);
       }
-    } else if (eventDispatcher != null && isOpen()) {
-      // If the session is already open then send the acquire event only to the provided dispatcher.
+    } else if (eventDispatcher != null
+        && isOpen()
+        && eventDispatchers.count(eventDispatcher) == 1) {
+      // If the session is already open and this is the first instance of eventDispatcher we've
+      // seen, then send the acquire event only to the provided dispatcher.
       // TODO: Add a parameter to onDrmSessionAcquired to indicate whether the session is being
       // re-used or not.
       eventDispatcher.drmSessionAcquired();
@@ -323,9 +326,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
     if (eventDispatcher != null) {
-      // Acquire and release events are only sent to the provided dispatcher.
-      eventDispatcher.drmSessionReleased();
       eventDispatchers.remove(eventDispatcher);
+      if (eventDispatchers.count(eventDispatcher) == 0) {
+        // Release events are only sent to the last-attached instance of each EventDispatcher.
+        eventDispatcher.drmSessionReleased();
+      }
     }
     referenceCountListener.onReferenceCountDecremented(this, referenceCount);
   }
