@@ -117,4 +117,34 @@ public final class CopyOnWriteMultisetTest {
     assertThat(multiset.count("a string")).isEqualTo(2);
     assertThat(multiset.count("another string")).isEqualTo(0);
   }
+
+  @Test
+  public void modifyingWhileIteratingElements_succeeds() {
+    CopyOnWriteMultiset<String> multiset = new CopyOnWriteMultiset<>();
+    multiset.add("a string");
+    multiset.add("a string");
+    multiset.add("another string");
+
+    // A traditional collection would throw a ConcurrentModificationException here.
+    for (String element : multiset) {
+      multiset.remove(element);
+    }
+
+    assertThat(multiset).isEmpty();
+  }
+
+  @Test
+  public void modifyingWhileIteratingElementSet_succeeds() {
+    CopyOnWriteMultiset<String> multiset = new CopyOnWriteMultiset<>();
+    multiset.add("a string");
+    multiset.add("a string");
+    multiset.add("another string");
+
+    // A traditional collection would throw a ConcurrentModificationException here.
+    for (String element : multiset.elementSet()) {
+      multiset.remove(element);
+    }
+
+    assertThat(multiset).containsExactly("a string");
+  }
 }
