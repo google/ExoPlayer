@@ -147,7 +147,6 @@ public class HttpDataSourceTestEnv extends ExternalResource {
         .setName(name)
         .setUri(Uri.parse(server.url(resource.getPath()).toString()))
         .setExpectedBytes(resource.getData())
-        .setEndOfInputExpected(!resource.resolvesToUnknownLength())
         .build();
   }
 }
