@@ -400,30 +400,9 @@ public interface Player {
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
-    @SuppressWarnings("deprecation")
-    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
-      Object manifest = null;
-      if (timeline.getWindowCount() == 1) {
-        // Legacy behavior was to report the manifest for single window timelines only.
-        Timeline.Window window = new Timeline.Window();
-        manifest = timeline.getWindow(0, window).manifest;
-      }
-      // Call deprecated version.
-      onTimelineChanged(timeline, manifest, reason);
-    }
+    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
 
     /**
-     * Called when the timeline and/or manifest has been refreshed.
-     *
-     * <p>Note that if the timeline has changed then a position discontinuity may also have
-     * occurred. For example, the current period index may have changed as a result of periods being
-     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
-     * {@link #onPositionDiscontinuity(int)}.
-     *
-     * @param timeline The latest timeline. Never null, but may be empty.
-     * @param manifest The latest manifest in case the timeline has a single window only. Always
-     *     null if the timeline has more than a single window.
-     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
      *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
      *     window).manifest} for a given window index.
@@ -488,10 +467,7 @@ public interface Player {
      *
      * @param isLoading Whether the source is currently being loaded.
      */
-    @SuppressWarnings("deprecation")
-    default void onIsLoadingChanged(boolean isLoading) {
-      onLoadingChanged(isLoading);
-    }
+    default void onIsLoadingChanged(boolean isLoading) {}
 
     /** @deprecated Use {@link #onIsLoadingChanged(boolean)} instead. */
     @Deprecated

@@ -69,11 +69,8 @@ public interface VideoRendererEventListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onVideoInputFormatChanged(
-      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onVideoInputFormatChanged(format);
-  }
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called to report the number of frames dropped by the renderer. Dropped frames are reported
@@ -205,11 +202,15 @@ public interface VideoRendererEventListener {
      * Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format,
      * DecoderReuseEvaluation)}.
      */
+    @SuppressWarnings("deprecation") // Calling deprecated listener method.
     public void inputFormatChanged(
         Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       if (handler != null) {
         handler.post(
-            () -> castNonNull(listener).onVideoInputFormatChanged(format, decoderReuseEvaluation));
+            () -> {
+              castNonNull(listener).onVideoInputFormatChanged(format);
+              castNonNull(listener).onVideoInputFormatChanged(format, decoderReuseEvaluation);
+            });
       }
     }
 

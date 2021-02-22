@@ -69,11 +69,8 @@ public interface AudioRendererEventListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onAudioInputFormatChanged(
-      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onAudioInputFormatChanged(format);
-  }
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called when the audio position has increased for the first time since the last pause or
@@ -186,11 +183,15 @@ public interface AudioRendererEventListener {
     }
 
     /** Invokes {@link AudioRendererEventListener#onAudioInputFormatChanged(Format)}. */
+    @SuppressWarnings("deprecation") // Calling deprecated listener method.
     public void inputFormatChanged(
         Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       if (handler != null) {
         handler.post(
-            () -> castNonNull(listener).onAudioInputFormatChanged(format, decoderReuseEvaluation));
+            () -> {
+              castNonNull(listener).onAudioInputFormatChanged(format);
+              castNonNull(listener).onAudioInputFormatChanged(format, decoderReuseEvaluation);
+            });
       }
     }
 

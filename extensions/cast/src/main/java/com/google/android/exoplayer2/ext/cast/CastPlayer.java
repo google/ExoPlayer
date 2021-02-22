@@ -708,15 +708,19 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   private void updateTimelineAndNotifyIfChanged() {
     if (updateTimeline()) {
       // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
       //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
+      Timeline timeline = currentTimeline;
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener ->
-              listener.onTimelineChanged(
-                  currentTimeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+          listener -> {
+            listener.onTimelineChanged(
+                timeline, /* manifest= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+            listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+          });
     }
   }
 

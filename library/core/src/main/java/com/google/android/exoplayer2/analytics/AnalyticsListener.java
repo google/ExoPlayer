@@ -583,10 +583,7 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param isLoading Whether the player is loading.
    */
-  @SuppressWarnings("deprecation")
-  default void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {
-    onLoadingChanged(eventTime, isLoading);
-  }
+  default void onIsLoadingChanged(EventTime eventTime, boolean isLoading) {}
 
   /** @deprecated Use {@link #onIsLoadingChanged(EventTime, boolean)} instead. */
   @Deprecated
@@ -775,11 +772,10 @@ public interface AnalyticsListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onAudioInputFormatChanged(
-      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onAudioInputFormatChanged(eventTime, format);
-  }
+      EventTime eventTime,
+      Format format,
+      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called when the audio position has increased for the first time since the last pause or
@@ -918,11 +914,10 @@ public interface AnalyticsListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onVideoInputFormatChanged(
-      EventTime eventTime, Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onVideoInputFormatChanged(eventTime, format);
-  }
+      EventTime eventTime,
+      Format format,
+      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called after video frames have been dropped.
