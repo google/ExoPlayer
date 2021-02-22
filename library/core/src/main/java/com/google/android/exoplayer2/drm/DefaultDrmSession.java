@@ -321,14 +321,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         mediaDrm.closeSession(sessionId);
         sessionId = null;
       }
-      dispatchEvent(DrmSessionEventListener.EventDispatcher::drmSessionReleased);
     }
     if (eventDispatcher != null) {
-      if (isOpen()) {
-        // If the session is still open then send the release event only to the provided dispatcher
-        // before removing it.
-        eventDispatcher.drmSessionReleased();
-      }
+      // Acquire and release events are only sent to the provided dispatcher.
+      eventDispatcher.drmSessionReleased();
       eventDispatchers.remove(eventDispatcher);
     }
     referenceCountListener.onReferenceCountDecremented(this, referenceCount);
