@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -753,12 +754,17 @@ public class AnalyticsCollector
   // DefaultDrmSessionManager.EventListener implementation.
 
   @Override
-  public final void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+  @SuppressWarnings("deprecation") // Calls deprecated listener method.
+  public final void onDrmSessionAcquired(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId, @DrmSession.State int state) {
     EventTime eventTime = generateMediaPeriodEventTime(windowIndex, mediaPeriodId);
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_DRM_SESSION_ACQUIRED,
-        listener -> listener.onDrmSessionAcquired(eventTime));
+        listener -> {
+          listener.onDrmSessionAcquired(eventTime);
+          listener.onDrmSessionAcquired(eventTime, state);
+        });
   }
 
   @Override

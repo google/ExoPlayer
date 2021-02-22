@@ -80,6 +80,7 @@ import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaDrm;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
@@ -2261,7 +2262,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onDrmSessionAcquired(EventTime eventTime) {
+    public void onDrmSessionAcquired(EventTime eventTime, @DrmSession.State int state) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_ACQUIRED, eventTime));
     }
 

@@ -19,6 +19,7 @@ import android.os.Handler;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
@@ -290,9 +291,10 @@ public abstract class CompositeMediaSource<T> extends BaseMediaSource {
     // DrmSessionEventListener implementation
 
     @Override
-    public void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    public void onDrmSessionAcquired(
+        int windowIndex, @Nullable MediaPeriodId mediaPeriodId, @DrmSession.State int state) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        drmEventDispatcher.drmSessionAcquired();
+        drmEventDispatcher.drmSessionAcquired(state);
       }
     }
 

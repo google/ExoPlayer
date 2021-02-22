@@ -298,9 +298,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         && eventDispatchers.count(eventDispatcher) == 1) {
       // If the session is already open and this is the first instance of eventDispatcher we've
       // seen, then send the acquire event only to the provided dispatcher.
-      // TODO: Add a parameter to onDrmSessionAcquired to indicate whether the session is being
-      // re-used or not.
-      eventDispatcher.drmSessionAcquired();
+      eventDispatcher.drmSessionAcquired(state);
     }
     referenceCountListener.onReferenceCountIncremented(this, referenceCount);
   }
@@ -354,8 +352,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     try {
       sessionId = mediaDrm.openSession();
       mediaCrypto = mediaDrm.createMediaCrypto(sessionId);
-      dispatchEvent(DrmSessionEventListener.EventDispatcher::drmSessionAcquired);
       state = STATE_OPENED;
+      // Capture state into a local so a consistent value is seen by the lambda.
+      int localState = state;
+      dispatchEvent(eventDispatcher -> eventDispatcher.drmSessionAcquired(localState));
       Assertions.checkNotNull(sessionId);
       return true;
     } catch (NotProvisionedException e) {

@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
@@ -1021,12 +1022,17 @@ public interface AnalyticsListener {
    */
   default void onSurfaceSizeChanged(EventTime eventTime, int width, int height) {}
 
+  /** @deprecated Implement {@link #onDrmSessionAcquired(EventTime, int)} instead. */
+  @Deprecated
+  default void onDrmSessionAcquired(EventTime eventTime) {}
+
   /**
    * Called each time a drm session is acquired.
    *
    * @param eventTime The event time.
+   * @param state The {@link DrmSession.State} of the session when the acquisition completed.
    */
-  default void onDrmSessionAcquired(EventTime eventTime) {}
+  default void onDrmSessionAcquired(EventTime eventTime, @DrmSession.State int state) {}
 
   /**
    * Called each time drm keys are loaded.

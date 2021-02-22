@@ -37,6 +37,7 @@
         when playing content that uses the same encryption keys for both audio &
         video tracks (previously separate acquire and release events were
         dispatched for each track in each period).
+    *   Include the session state in DRM session-acquired listener methods.
 *   VP9 extension: Update to use NDK r22
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 *   FLAC extension: Update to use NDK r22

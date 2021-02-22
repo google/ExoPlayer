@@ -28,13 +28,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /** Listener of {@link DrmSessionManager} events. */
 public interface DrmSessionEventListener {
 
+  /** @deprecated Implement {@link #onDrmSessionAcquired(int, MediaPeriodId, int)} instead. */
+  @Deprecated
+  default void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
+
   /**
    * Called each time a drm session is acquired.
    *
    * @param windowIndex The window index in the timeline this media period belongs to.
    * @param mediaPeriodId The {@link MediaPeriodId} associated with the drm session.
+   * @param state The {@link DrmSession.State} of the session when the acquisition completed.
    */
-  default void onDrmSessionAcquired(int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {}
+  default void onDrmSessionAcquired(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId, @DrmSession.State int state) {}
 
   /**
    * Called each time keys are loaded.
@@ -149,13 +155,20 @@ public interface DrmSessionEventListener {
       }
     }
 
-    /** Dispatches {@link #onDrmSessionAcquired(int, MediaPeriodId)}. */
-    public void drmSessionAcquired() {
+    /**
+     * Dispatches {@link #onDrmSessionAcquired(int, MediaPeriodId, int)} and {@link
+     * #onDrmSessionAcquired(int, MediaPeriodId)}.
+     */
+    @SuppressWarnings("deprecation") // Calls deprecated listener method.
+    public void drmSessionAcquired(@DrmSession.State int state) {
       for (ListenerAndHandler listenerAndHandler : listenerAndHandlers) {
         DrmSessionEventListener listener = listenerAndHandler.listener;
         postOrRun(
             listenerAndHandler.handler,
-            () -> listener.onDrmSessionAcquired(windowIndex, mediaPeriodId));
+            () -> {
+              listener.onDrmSessionAcquired(windowIndex, mediaPeriodId);
+              listener.onDrmSessionAcquired(windowIndex, mediaPeriodId, state);
+            });
       }
     }
 
