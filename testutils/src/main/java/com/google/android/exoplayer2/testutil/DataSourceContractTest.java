@@ -212,6 +212,47 @@ public abstract class DataSourceContractTest {
     }
   }
 
+  @Test
+  public void dataSpecWithPositionEqualToLength_throwsPositionOutOfRangeException()
+      throws Exception {
+    // TODO: Implement this.
+  }
+
+  @Test
+  public void dataSpecWithEndPositionOutOfRange_readsToEnd() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      int resourceLength = resource.getExpectedBytes().length;
+      DataSource dataSource = createDataSource();
+      try {
+        long length =
+            dataSource.open(
+                new DataSpec.Builder()
+                    .setUri(resource.getUri())
+                    .setPosition(resourceLength - 1)
+                    .setLength(2)
+                    .build());
+        byte[] data = Util.readExactly(dataSource, /* length= */ 1);
+        // TODO: Decide what the allowed behavior should be for the next read, and assert it.
+
+        // The DataSpec.open contract requires the returned length to equal the length in the
+        // DataSpec if set. This is true even though the DataSource implementation may know that
+        // fewer bytes will be read in this case.
+        assertThat(length).isEqualTo(2);
+        byte[] expectedData =
+            Arrays.copyOfRange(resource.getExpectedBytes(), resourceLength - 1, resourceLength);
+        assertThat(data).isEqualTo(expectedData);
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
   /**
    * {@link DataSpec#FLAG_ALLOW_GZIP} should either be ignored by {@link DataSource}
    * implementations, or correctly handled (i.e. the data is decompressed before being returned from

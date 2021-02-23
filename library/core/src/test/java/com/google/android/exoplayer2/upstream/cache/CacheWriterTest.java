@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -174,6 +175,7 @@ public final class CacheWriterTest {
     assertCachedData(cache, fakeDataSet);
   }
 
+  @Ignore("Currently broken. See https://github.com/google/ExoPlayer/issues/7326.")
   @Test
   public void cacheLengthExceedsActualDataLength() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);

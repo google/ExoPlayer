@@ -87,14 +87,6 @@ public final class ByteArrayDataSourceTest {
     readTestData(TEST_DATA, TEST_DATA.length, 1, 1, 0, 1, true);
   }
 
-  @Test
-  public void readWithInvalidLength() {
-    // Read more data than is available.
-    readTestData(TEST_DATA, 0, TEST_DATA.length + 1, 1, 0, 1, true);
-    // And with bound.
-    readTestData(TEST_DATA, 1, TEST_DATA.length, 1, 0, 1, true);
-  }
-
   /**
    * Tests reading from a {@link ByteArrayDataSource} with various parameters.
    *

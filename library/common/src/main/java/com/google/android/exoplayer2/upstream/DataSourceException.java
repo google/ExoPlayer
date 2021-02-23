@@ -41,6 +41,10 @@ public final class DataSourceException extends IOException {
     return false;
   }
 
+  /**
+   * Indicates that the {@link DataSpec#position starting position} of the request was outside the
+   * bounds of the data.
+   */
   public static final int POSITION_OUT_OF_RANGE = 0;
 
   /**
@@ -56,5 +60,4 @@ public final class DataSourceException extends IOException {
   public DataSourceException(int reason) {
     this.reason = reason;
   }
-
 }
