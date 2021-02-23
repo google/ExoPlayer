@@ -1227,10 +1227,11 @@ public class PlayerNotificationManager {
     Timeline timeline = player.getCurrentTimeline();
     if (!timeline.isEmpty() && !player.isPlayingAd()) {
       timeline.getWindow(player.getCurrentWindowIndex(), window);
-      enablePrevious = window.isSeekable || !window.isDynamic || player.hasPrevious();
-      enableRewind = controlDispatcher.isRewindEnabled();
-      enableFastForward = controlDispatcher.isFastForwardEnabled();
-      enableNext = window.isDynamic || player.hasNext();
+      boolean isSeekable = window.isSeekable;
+      enablePrevious = isSeekable || !window.isLive() || player.hasPrevious();
+      enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
+      enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
+      enableNext = (window.isLive() && window.isDynamic) || player.hasNext();
     }
 
     List<String> stringActions = new ArrayList<>();
