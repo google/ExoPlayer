@@ -54,13 +54,17 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
   }
 
   @Override
+  protected boolean unboundedReadsAreIndefinite() {
+    return true;
+  }
+
+  @Override
   protected ImmutableList<TestResource> getTestResources() {
     return ImmutableList.of(
         new TestResource.Builder()
             .setName("local-udp-unicast-socket")
             .setUri(Uri.parse("udp://localhost:" + findFreeUdpPort()))
             .setExpectedBytes(data)
-            .setEndOfInputExpected(false)
             .build());
   }
 

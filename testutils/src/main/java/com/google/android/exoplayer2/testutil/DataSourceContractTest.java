@@ -76,6 +76,14 @@ public abstract class DataSourceContractTest {
   }
 
   /**
+   * Returns whether the {@link DataSource} will continue reading indefinitely for unbounded {@link
+   * DataSpec DataSpecs}.
+   */
+  protected boolean unboundedReadsAreIndefinite() {
+    return false;
+  }
+
+  /**
    * Returns {@link TestResource} instances.
    *
    * <p>Each resource will be used to exercise the {@link DataSource} instance, allowing different
@@ -94,7 +102,7 @@ public abstract class DataSourceContractTest {
   protected abstract Uri getNotFoundUri();
 
   @Test
-  public void unboundedDataSpec_readEverything() throws Exception {
+  public void unboundedDataSpec_readUntilEnd() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
 
@@ -105,9 +113,9 @@ public abstract class DataSourceContractTest {
       try {
         long length = dataSource.open(new DataSpec(resource.getUri()));
         byte[] data =
-            resource.isEndOfInputExpected()
-                ? Util.readToEnd(dataSource)
-                : Util.readExactly(dataSource, resource.getExpectedBytes().length);
+            unboundedReadsAreIndefinite()
+                ? Util.readExactly(dataSource, resource.getExpectedBytes().length)
+                : Util.readToEnd(dataSource);
 
         if (length != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(resource.getExpectedBytes().length);
@@ -134,9 +142,9 @@ public abstract class DataSourceContractTest {
             dataSource.open(
                 new DataSpec.Builder().setUri(resource.getUri()).setPosition(3).build());
         byte[] data =
-            resource.isEndOfInputExpected()
-                ? Util.readToEnd(dataSource)
-                : Util.readExactly(dataSource, resource.getExpectedBytes().length - 3);
+            unboundedReadsAreIndefinite()
+                ? Util.readExactly(dataSource, resource.getExpectedBytes().length - 3)
+                : Util.readToEnd(dataSource);
 
         if (length != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(resource.getExpectedBytes().length - 3);
@@ -163,10 +171,7 @@ public abstract class DataSourceContractTest {
       try {
         long length =
             dataSource.open(new DataSpec.Builder().setUri(resource.getUri()).setLength(4).build());
-        byte[] data =
-            resource.isEndOfInputExpected()
-                ? Util.readToEnd(dataSource)
-                : Util.readExactly(dataSource, /* length= */ 4);
+        byte[] data = Util.readToEnd(dataSource);
 
         assertThat(length).isEqualTo(4);
         byte[] expectedData = Arrays.copyOf(resource.getExpectedBytes(), 4);
@@ -195,10 +200,7 @@ public abstract class DataSourceContractTest {
                     .setPosition(2)
                     .setLength(2)
                     .build());
-        byte[] data =
-            resource.isEndOfInputExpected()
-                ? Util.readToEnd(dataSource)
-                : Util.readExactly(dataSource, /* length= */ 2);
+        byte[] data = Util.readToEnd(dataSource);
 
         assertThat(length).isEqualTo(2);
         byte[] expectedData = Arrays.copyOfRange(resource.getExpectedBytes(), 2, 4);
@@ -216,7 +218,7 @@ public abstract class DataSourceContractTest {
    * {@link DataSource#read(byte[], int, int)}).
    */
   @Test
-  public void gzipFlagDoesntAffectReturnedData() throws Exception {
+  public void unboundedDataSpecWithGzipFlag_readUntilEnd() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
 
@@ -232,9 +234,9 @@ public abstract class DataSourceContractTest {
                     .setFlags(DataSpec.FLAG_ALLOW_GZIP)
                     .build());
         byte[] data =
-            resource.isEndOfInputExpected()
-                ? Util.readToEnd(dataSource)
-                : Util.readExactly(dataSource, resource.getExpectedBytes().length);
+            unboundedReadsAreIndefinite()
+                ? Util.readExactly(dataSource, resource.getExpectedBytes().length)
+                : Util.readToEnd(dataSource);
 
         if (length != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(resource.getExpectedBytes().length);
@@ -297,10 +299,10 @@ public abstract class DataSourceContractTest {
             .onTransferStart(callbackSource, castNonNull(reportedDataSpec), reportedNetwork);
         inOrder.verifyNoMoreInteractions();
 
-        if (resource.isEndOfInputExpected()) {
-          Util.readToEnd(dataSource);
-        } else {
+        if (unboundedReadsAreIndefinite()) {
           Util.readExactly(dataSource, resource.getExpectedBytes().length);
+        } else {
+          Util.readToEnd(dataSource);
         }
         // Verify sufficient onBytesTransferred() callbacks have been triggered before closing the
         // DataSource.
@@ -334,14 +336,11 @@ public abstract class DataSourceContractTest {
     @Nullable private final String name;
     private final Uri uri;
     private final byte[] expectedBytes;
-    private final boolean endOfInputExpected;
 
-    private TestResource(
-        @Nullable String name, Uri uri, byte[] expectedBytes, boolean endOfInputExpected) {
+    private TestResource(@Nullable String name, Uri uri, byte[] expectedBytes) {
       this.name = name;
       this.uri = uri;
       this.expectedBytes = expectedBytes;
-      this.endOfInputExpected = endOfInputExpected;
     }
 
     /** Returns a human-readable name for the resource, for use in test failure messages. */
@@ -360,25 +359,11 @@ public abstract class DataSourceContractTest {
       return expectedBytes;
     }
 
-    /**
-     * Returns whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
-     * after all the resource data are read.
-     */
-    public boolean isEndOfInputExpected() {
-      return endOfInputExpected;
-    }
-
     /** Builder for {@link TestResource} instances. */
     public static final class Builder {
       private @MonotonicNonNull String name;
       private @MonotonicNonNull Uri uri;
       private byte @MonotonicNonNull [] expectedBytes;
-      private boolean endOfInputExpected;
-
-      /** Construct a new instance. */
-      public Builder() {
-        this.endOfInputExpected = true;
-      }
 
       /**
        * Sets a human-readable name for this resource which will be shown in test failure messages.
@@ -405,18 +390,8 @@ public abstract class DataSourceContractTest {
         return this;
       }
 
-      /**
-       * Sets whether {@link DataSource#read} is expected to return {@link C#RESULT_END_OF_INPUT}
-       * after all the resource data have been read. By default, this is set to {@code true}.
-       */
-      public Builder setEndOfInputExpected(boolean expected) {
-        this.endOfInputExpected = expected;
-        return this;
-      }
-
       public TestResource build() {
-        return new TestResource(
-            name, checkNotNull(uri), checkNotNull(expectedBytes), endOfInputExpected);
+        return new TestResource(name, checkNotNull(uri), checkNotNull(expectedBytes));
       }
     }
   }
