@@ -14,7 +14,7 @@
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 dependencies {
-    implementation project(modulePrefix + 'library-core')
+    implementation project(modulePrefix + 'library-common')
     api 'androidx.media:media:' + androidxMediaVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion

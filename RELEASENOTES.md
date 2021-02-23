@@ -46,6 +46,9 @@
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 *   FFmpeg extension: Update to use NDK r22
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+*   MediaSession extension: Remove dependency to core module and rely on common
+    only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
+    this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
 
 ### 2.13.1 (2021-02-12)
 
