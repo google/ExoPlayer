@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.util;
 import java.util.Arrays;
 
 /** Configurable loader for native libraries. */
-public final class LibraryLoader {
+public abstract class LibraryLoader {
 
   private static final String TAG = "LibraryLoader";
 
@@ -40,6 +40,15 @@ public final class LibraryLoader {
     nativeLibraries = libraries;
   }
 
+  /**
+   * For dynamic delivery to work this method has to be overriden
+   * Dynamic delivery identify the classloader by the stacktrace frame.
+   *
+   * We need to make sure that classes with native methods are loaded by the same classloader that
+   * had been used to load the native library.
+   */
+  abstract protected void loadLibrary(String name);
+
   /** Returns whether the underlying libraries are available, loading them if necessary. */
   public synchronized boolean isAvailable() {
     if (loadAttempted) {
@@ -48,7 +57,7 @@ public final class LibraryLoader {
     loadAttempted = true;
     try {
       for (String lib : nativeLibraries) {
-        System.loadLibrary(lib);
+        loadLibrary(lib);
       }
       isAvailable = true;
     } catch (UnsatisfiedLinkError exception) {
