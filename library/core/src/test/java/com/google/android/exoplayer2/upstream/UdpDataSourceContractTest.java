@@ -91,6 +91,16 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
   @Test
   @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
   @Override
+  public void dataSpecWithPositionEqualToLength_throwsPositionOutOfRangeException() {}
+
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
+  public void dataSpecWithPositionOutOfRange_throwsPositionOutOfRangeException() {}
+
+  @Test
+  @Ignore("UdpDataSource doesn't support DataSpec's position or length [internal: b/175856954]")
+  @Override
   public void dataSpecWithEndPositionOutOfRange_readsToEnd() {}
 
   /**
