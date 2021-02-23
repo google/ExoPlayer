@@ -14,6 +14,10 @@
         ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
+*   Downloads and caching:
+    *   Fix `CacheWriter` to correctly handle `DataSource.close` failures, for
+        which it cannot be assumed that data was successfully written to the
+        cache.
 *   Library restructuring:
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to
