@@ -30,44 +30,44 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem) {
+  public final void setMediaItem(MediaItem mediaItem) {
     setMediaItems(Collections.singletonList(mediaItem));
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
+  public final void setMediaItem(MediaItem mediaItem, long startPositionMs) {
     setMediaItems(Collections.singletonList(mediaItem), /* startWindowIndex= */ 0, startPositionMs);
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
+  public final void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
     setMediaItems(Collections.singletonList(mediaItem), resetPosition);
   }
 
   @Override
-  public void setMediaItems(List<MediaItem> mediaItems) {
+  public final void setMediaItems(List<MediaItem> mediaItems) {
     setMediaItems(mediaItems, /* resetPosition= */ true);
   }
 
   @Override
-  public void addMediaItem(int index, MediaItem mediaItem) {
+  public final void addMediaItem(int index, MediaItem mediaItem) {
     addMediaItems(index, Collections.singletonList(mediaItem));
   }
 
   @Override
-  public void addMediaItem(MediaItem mediaItem) {
+  public final void addMediaItem(MediaItem mediaItem) {
     addMediaItems(Collections.singletonList(mediaItem));
   }
 
   @Override
-  public void moveMediaItem(int currentIndex, int newIndex) {
+  public final void moveMediaItem(int currentIndex, int newIndex) {
     if (currentIndex != newIndex) {
       moveMediaItems(/* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
     }
   }
 
   @Override
-  public void removeMediaItem(int index) {
+  public final void removeMediaItem(int index) {
     removeMediaItems(/* fromIndex= */ index, /* toIndex= */ index + 1);
   }
 
@@ -188,12 +188,12 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
-  public int getMediaItemCount() {
+  public final int getMediaItemCount() {
     return getCurrentTimeline().getWindowCount();
   }
 
   @Override
-  public MediaItem getMediaItemAt(int index) {
+  public final MediaItem getMediaItemAt(int index) {
     return getCurrentTimeline().getWindow(index, window).mediaItem;
   }
 
