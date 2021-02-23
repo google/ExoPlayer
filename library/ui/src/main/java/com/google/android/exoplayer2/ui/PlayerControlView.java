@@ -913,11 +913,12 @@ public class PlayerControlView extends FrameLayout {
         timeline.getWindow(player.getCurrentWindowIndex(), window);
         boolean isSeekable = window.isSeekable;
         enableSeeking = isSeekable;
-        enablePrevious = isSeekable || !window.isDynamic || player.hasPrevious();
+        enablePrevious = isSeekable || !window.isLive() || player.hasPrevious();
         enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
         enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
         enableNext =
-            window.isLive() || player.isCommandAvailable(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+            (window.isLive() && window.isDynamic)
+                || player.isCommandAvailable(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
       }
     }
 

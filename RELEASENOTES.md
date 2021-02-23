@@ -6,6 +6,12 @@
     *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
+    *   Make conditions to enable UI actions consistent in
+        `DefaultControlDispatcher`, `PlayerControlView`,
+        `StyledPlayerControlView`, `PlayerNotificationManager` and
+        `TimelineQueueNavigator`
+    *   Fix conditions to enable seeking to next/previous media item to handle
+        the case where a live stream has ended.
 *   Audio:
     *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
         ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
