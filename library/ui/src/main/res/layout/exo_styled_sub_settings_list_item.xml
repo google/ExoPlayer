@@ -43,4 +43,5 @@
         android:textColor="@color/exo_white"
         android:textDirection="locale"
         android:textSize="@dimen/exo_settings_main_text_size"/>
+
 </LinearLayout>

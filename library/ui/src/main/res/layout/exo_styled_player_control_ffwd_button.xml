@@ -22,7 +22,7 @@
       android:addStatesFromChildren="true"
       style="@style/ExoStyledControls.Button.Center">
     <!-- View's don't have foreground until API 23 so we have to nest in a parent. -->
-    <Button android:id="@+id/exo_ffwd_with_amount"
+    <Button android:id="@id/exo_ffwd_with_amount"
         android:background="@drawable/exo_styled_controls_fastforward"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
