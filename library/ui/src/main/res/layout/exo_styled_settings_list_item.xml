@@ -58,4 +58,5 @@
             android:textDirection="locale"
             android:textSize="@dimen/exo_settings_sub_text_size"/>
     </LinearLayout>
+
 </LinearLayout>
