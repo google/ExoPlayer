@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -73,7 +72,7 @@ public final class TestContentProvider extends ContentProvider
             openPipeHelper(
                 uri, /* mimeType= */ null, /* opts= */ null, /* args= */ null, /* func= */ this);
         return new AssetFileDescriptor(
-            fileDescriptor, /* startOffset= */ 0, /* length= */ C.LENGTH_UNSET);
+            fileDescriptor, /* startOffset= */ 0, AssetFileDescriptor.UNKNOWN_LENGTH);
       } else {
         return getContext().getAssets().openFd(fileName);
       }
