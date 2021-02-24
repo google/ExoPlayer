@@ -47,7 +47,8 @@ public final class SsaDecoderTest {
   private static final String INVALID_TIMECODES = "media/ssa/invalid_timecodes";
   private static final String INVALID_POSITIONS = "media/ssa/invalid_positioning";
   private static final String POSITIONS_WITHOUT_PLAYRES = "media/ssa/positioning_without_playres";
-  private static final String COLORS = "media/ssa/colors";
+  private static final String STYLE_COLORS = "media/ssa/style_colors";
+  private static final String STYLE_FONT_SIZE = "media/ssa/style_font_size";
 
   @Test
   public void decodeEmpty() throws IOException {
@@ -274,7 +275,7 @@ public final class SsaDecoderTest {
   @Test
   public void decodeColors() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), COLORS);
+    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_COLORS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     assertThat(subtitle.getEventTimeCount()).isEqualTo(14);
     // &H000000FF (AABBGGRR) -> #FFFF0000 (AARRGGBB)
@@ -317,6 +318,22 @@ public final class SsaDecoderTest {
         (Spanned) Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(12))).text;
     SpannedSubject.assertThat(seventhCueText)
         .hasNoForegroundColorSpanBetween(0, seventhCueText.length());
+  }
+
+  @Test
+  public void decodeFontSize() throws IOException {
+    SsaDecoder decoder = new SsaDecoder();
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_FONT_SIZE);
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+
+    Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
+    assertThat(firstCue.textSize).isWithin(1.0e-8f).of(30f / 720f);
+    assertThat(firstCue.textSizeType).isEqualTo(Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
+    Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
+    assertThat(secondCue.textSize).isWithin(1.0e-8f).of(72.2f / 720f);
+    assertThat(secondCue.textSizeType).isEqualTo(Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
   }
 
   private static void assertTypicalCue1(Subtitle subtitle, int eventIndex) {

@@ -28,7 +28,7 @@
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to
         `ui.spherical` package, and made package private.
-*  Core
+*   Core
     *   Move `getRendererCount` and `getRendererType` methods from `Player` to
         `ExoPlayer`.
 *   Remove deprecated symbols:
@@ -51,6 +51,9 @@
         video tracks (previously separate acquire and release events were
         dispatched for each track in each period).
     *   Include the session state in DRM session-acquired listener methods.
+*   Text:
+    *   Parse SSA/ASS font size in `Style:` lines
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
 *   VP9 extension: Update to use NDK r22
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 *   FLAC extension: Update to use NDK r22
