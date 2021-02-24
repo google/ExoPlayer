@@ -320,6 +320,7 @@ public class PlayerNotificationManager {
     private int fastForwardActionIconResourceId;
     private int previousActionIconResourceId;
     private int nextActionIconResourceId;
+    @Nullable private String groupKey;
 
     /**
      * Creates an instance.
@@ -514,6 +515,18 @@ public class PlayerNotificationManager {
       return this;
     }
 
+    /**
+     * The key of the group the media notification should belong to.
+     *
+     * <p>The default is {@code null}
+     *
+     * @return This builder.
+     */
+    public Builder setGroup(String groupKey) {
+      this.groupKey = groupKey;
+      return this;
+    }
+
     /** Builds the {@link PlayerNotificationManager}. */
     public PlayerNotificationManager build() {
       if (channelNameResourceId != 0) {
@@ -538,7 +551,8 @@ public class PlayerNotificationManager {
           rewindActionIconResourceId,
           fastForwardActionIconResourceId,
           previousActionIconResourceId,
-          nextActionIconResourceId);
+          nextActionIconResourceId,
+          groupKey);
     }
   }
 
@@ -662,6 +676,7 @@ public class PlayerNotificationManager {
   private int visibility;
   @Priority private int priority;
   private boolean useChronometer;
+  @Nullable private String groupKey;
 
   /** @deprecated Use the {@link Builder} instead. */
   @SuppressWarnings("deprecation")
@@ -805,7 +820,8 @@ public class PlayerNotificationManager {
         R.drawable.exo_notification_rewind,
         R.drawable.exo_notification_fastforward,
         R.drawable.exo_notification_previous,
-        R.drawable.exo_notification_next);
+        R.drawable.exo_notification_next,
+        null);
   }
 
   private PlayerNotificationManager(
@@ -822,7 +838,8 @@ public class PlayerNotificationManager {
       int rewindActionIconResourceId,
       int fastForwardActionIconResourceId,
       int previousActionIconResourceId,
-      int nextActionIconResourceId) {
+      int nextActionIconResourceId,
+      @Nullable String groupKey) {
     context = context.getApplicationContext();
     this.context = context;
     this.channelId = channelId;
@@ -831,6 +848,7 @@ public class PlayerNotificationManager {
     this.notificationListener = notificationListener;
     this.customActionReceiver = customActionReceiver;
     this.smallIconResourceId = smallIconResourceId;
+    this.groupKey = groupKey;
     controlDispatcher = new DefaultControlDispatcher();
     window = new Timeline.Window();
     instanceId = instanceIdCounter++;
@@ -1406,6 +1424,10 @@ public class PlayerNotificationManager {
     }
     setLargeIcon(builder, largeIcon);
     builder.setContentIntent(mediaDescriptionAdapter.createCurrentContentIntent(player));
+
+    if (groupKey != null) {
+      builder.setGroup(groupKey);
+    }
 
     return builder;
   }

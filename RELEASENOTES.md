@@ -6,6 +6,7 @@
     *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
+    *   Add group setting to `PlayerNotificationManager`.
     *   Make conditions to enable UI actions consistent in
         `DefaultControlDispatcher`, `PlayerControlView`,
         `StyledPlayerControlView`, `PlayerNotificationManager` and
