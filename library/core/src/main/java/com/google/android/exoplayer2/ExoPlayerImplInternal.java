@@ -1980,7 +1980,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     @Nullable MediaPeriodHolder readingPeriod = queue.getReadingPeriod();
     if (readingPeriod == null
         || queue.getPlayingPeriod() == readingPeriod
-        || readingPeriod.allRenderersEnabled) {
+        || readingPeriod.allRenderersInCorrectState) {
       // Not reading ahead or all renderers updated.
       return;
     }
@@ -2075,7 +2075,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     MediaPeriodHolder nextPlayingPeriodHolder = playingPeriodHolder.getNext();
     return nextPlayingPeriodHolder != null
         && rendererPositionUs >= nextPlayingPeriodHolder.getStartPositionRendererTime()
-        && nextPlayingPeriodHolder.allRenderersEnabled;
+        && nextPlayingPeriodHolder.allRenderersInCorrectState;
   }
 
   private boolean hasReadingPeriodFinishedReading() {
@@ -2294,7 +2294,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         enableRenderer(i, rendererWasEnabledFlags[i]);
       }
     }
-    readingMediaPeriod.allRenderersEnabled = true;
+    readingMediaPeriod.allRenderersInCorrectState = true;
   }
 
   private void enableRenderer(int rendererIndex, boolean wasRendererEnabled)
