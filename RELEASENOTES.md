@@ -28,6 +28,9 @@
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to
         `ui.spherical` package, and made package private.
+*  Core
+    *   Move `getRendererCount` and `getRendererType` methods from `Player` to
+        `ExoPlayer`.
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.

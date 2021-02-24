@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.source.ads.AdsLoader.EventListener;
 import com.google.android.exoplayer2.source.ads.AdsLoader.OverlayInfo;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -700,12 +701,7 @@ import java.util.Map;
 
     // Check for a selected track using an audio renderer.
     TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
-    for (int i = 0; i < player.getRendererCount() && i < trackSelections.length; i++) {
-      if (player.getRendererType(i) == C.TRACK_TYPE_AUDIO && trackSelections.get(i) != null) {
-        return 100;
-      }
-    }
-    return 0;
+    return TrackSelectionUtil.hasTrackOfType(trackSelections, C.TRACK_TYPE_AUDIO) ? 100 : 0;
   }
 
   private void handleAdEvent(AdEvent adEvent) {

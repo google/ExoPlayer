@@ -74,7 +74,8 @@ import java.util.List;
  *       provides default implementations for common media types ({@link MediaCodecVideoRenderer},
  *       {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A
  *       Renderer consumes media from the MediaSource being played. Renderers are injected when the
- *       player is created.
+ *       player is created. The number of renderers and their respective track types can be obtained
+ *       by calling {@link #getRendererCount()} and {@link #getRendererType(int)}.
  *   <li>A <b>{@link TrackSelector}</b> that selects tracks provided by the MediaSource to be
  *       consumed by each of the available Renderers. The library provides a default implementation
  *       ({@link DefaultTrackSelector}) suitable for most use cases. A TrackSelector is injected
@@ -448,6 +449,20 @@ public interface ExoPlayer extends Player {
       return player;
     }
   }
+
+  /** Returns the number of renderers. */
+  int getRendererCount();
+
+  /**
+   * Returns the track type that the renderer at a given index handles.
+   *
+   * <p>For example, a video renderer will return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will
+   * return {@link C#TRACK_TYPE_AUDIO} and a text renderer will return {@link C#TRACK_TYPE_TEXT}.
+   *
+   * @param index The index of the renderer.
+   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   */
+  int getRendererType(int index);
 
   /**
    * Returns the track selector that this player uses, or null if track selection is not supported.

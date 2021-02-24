@@ -485,26 +485,6 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public int getRendererCount() {
-    // We assume there are three renderers: video, audio, and text.
-    return RENDERER_COUNT;
-  }
-
-  @Override
-  public int getRendererType(int index) {
-    switch (index) {
-      case RENDERER_INDEX_VIDEO:
-        return C.TRACK_TYPE_VIDEO;
-      case RENDERER_INDEX_AUDIO:
-        return C.TRACK_TYPE_AUDIO;
-      case RENDERER_INDEX_TEXT:
-        return C.TRACK_TYPE_TEXT;
-      default:
-        throw new IndexOutOfBoundsException();
-    }
-  }
-
-  @Override
   public void setRepeatMode(@RepeatMode int repeatMode) {
     if (remoteMediaClient == null) {
       return;

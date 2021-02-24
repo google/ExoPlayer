@@ -55,11 +55,8 @@ import java.util.List;
  *       which can be obtained by calling {@link #getCurrentTimeline()}.
  *   <li>They can provide a {@link TrackGroupArray} defining the currently available tracks, which
  *       can be obtained by calling {@link #getCurrentTrackGroups()}.
- *   <li>They contain a number of renderers, each of which is able to render tracks of a single type
- *       (e.g. audio, video or text). The number of renderers and their respective track types can
- *       be obtained by calling {@link #getRendererCount()} and {@link #getRendererType(int)}.
  *   <li>They can provide a {@link TrackSelectionArray} defining which of the currently available
- *       tracks are selected to be rendered by each renderer. This can be obtained by calling {@link
+ *       tracks are selected to be rendered. This can be obtained by calling {@link
  *       #getCurrentTrackSelections()}}.
  * </ul>
  */
@@ -434,8 +431,10 @@ public interface Player {
      * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The track selections for each renderer. Never null and always of
-     *     length {@link #getRendererCount()}, but may contain null elements.
+     * @param trackSelections The selected tracks. Never null, but may contain null elements. A
+     *     concrete implementation may include null elements if it has a fixed number of renderer
+     *     components, wishes to report a TrackSelection for each of them, and has one or more
+     *     renderer components that is not assigned any selected tracks.
      */
     default void onTracksChanged(
         TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
@@ -1335,24 +1334,16 @@ public interface Player {
    */
   void release();
 
-  /** Returns the number of renderers. */
-  int getRendererCount();
-
-  /**
-   * Returns the track type that the renderer at a given index handles.
-   *
-   * <p>For example, a video renderer will return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will
-   * return {@link C#TRACK_TYPE_AUDIO} and a text renderer will return {@link C#TRACK_TYPE_TEXT}.
-   *
-   * @param index The index of the renderer.
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
-   */
-  int getRendererType(int index);
-
   /** Returns the available track groups. */
   TrackGroupArray getCurrentTrackGroups();
 
-  /** Returns the current track selections for each renderer. */
+  /**
+   * Returns the current track selections.
+   *
+   * <p>A concrete implementation may include null elements if it has a fixed number of renderer
+   * components, wishes to report a TrackSelection for each of them, and has one or more renderer
+   * components that is not assigned any selected tracks.
+   */
   TrackSelectionArray getCurrentTrackSelections();
 
   /**
