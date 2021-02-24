@@ -19,6 +19,8 @@
     *   Report unexpected discontinuities in
         `AnalyticsListener.onAudioSinkError`
         ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
+    *   Allow forcing offload for gapless content even if gapless playback is
+        not supported.
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
 *   Downloads and caching:

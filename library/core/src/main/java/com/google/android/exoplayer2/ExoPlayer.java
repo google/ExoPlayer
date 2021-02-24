@@ -678,7 +678,7 @@ public interface ExoPlayer extends Player {
    *   <li>Audio offload rendering is enabled in {@link
    *       DefaultRenderersFactory#setEnableAudioOffload} or the equivalent option passed to {@link
    *       DefaultAudioSink#DefaultAudioSink(AudioCapabilities,
-   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean, boolean)}.
+   *       DefaultAudioSink.AudioProcessorChain, boolean, boolean, int)}.
    *   <li>An audio track is playing in a format that the device supports offloading (for example,
    *       MP3 or AAC).
    *   <li>The {@link AudioSink} is playing with an offload {@link AudioTrack}.
