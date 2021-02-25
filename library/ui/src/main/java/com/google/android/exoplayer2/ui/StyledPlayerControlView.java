@@ -1484,7 +1484,7 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsWindow.setHeight(height);
   }
 
-  private void displaySettingsWindow(RecyclerView.Adapter<?> adapter) {
+  private void displaySettingsWindow(RecyclerView.Adapter<?> adapter, View anchor) {
     settingsView.setAdapter(adapter);
 
     updateSettingsWindowSize();
@@ -1493,10 +1493,14 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsWindow.dismiss();
     needToHideBars = true;
 
-    int xoff = getWidth() - settingsWindow.getWidth() - settingsWindowMargin;
-    int yoff = -settingsWindow.getHeight() - settingsWindowMargin;
+    int xoff = 0;
+    int yoff = -anchor.getHeight() - settingsWindow.getHeight() - settingsWindowMargin;
 
-    settingsWindow.showAsDropDown(this, xoff, yoff);
+    settingsWindow.showAsDropDown(anchor, xoff, yoff);
+    if (!settingsWindow.isAboveAnchor()) {
+      // move window to the bottom side of the anchor
+      settingsWindow.update(anchor, xoff, settingsWindowMargin, settingsWindow.getWidth(), settingsWindow.getHeight());
+    }
   }
 
   private void setPlaybackSpeed(float speed) {
@@ -1585,10 +1589,10 @@ public class StyledPlayerControlView extends FrameLayout {
     if (position == SETTINGS_PLAYBACK_SPEED_POSITION) {
       subSettingsAdapter.init(playbackSpeedTexts, selectedPlaybackSpeedIndex);
       selectedMainSettingsPosition = SETTINGS_PLAYBACK_SPEED_POSITION;
-      displaySettingsWindow(subSettingsAdapter);
+      displaySettingsWindow(subSettingsAdapter, settingsButton);
     } else if (position == SETTINGS_AUDIO_TRACK_SELECTION_POSITION) {
       selectedMainSettingsPosition = SETTINGS_AUDIO_TRACK_SELECTION_POSITION;
-      displaySettingsWindow(audioTrackSelectionAdapter);
+      displaySettingsWindow(audioTrackSelectionAdapter, settingsButton);
     } else {
       settingsWindow.dismiss();
     }
@@ -1888,16 +1892,19 @@ public class StyledPlayerControlView extends FrameLayout {
         controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
       } else if (settingsButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(settingsAdapter);
+        displaySettingsWindow(settingsAdapter, settingsButton);
       } else if (playbackSpeedButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        onSettingViewClicked(SETTINGS_PLAYBACK_SPEED_POSITION);
+        subSettingsAdapter.init(playbackSpeedTexts, selectedPlaybackSpeedIndex);
+        selectedMainSettingsPosition = SETTINGS_PLAYBACK_SPEED_POSITION;
+        displaySettingsWindow(subSettingsAdapter, playbackSpeedButton);
       } else if (audioTrackButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        onSettingViewClicked(SETTINGS_AUDIO_TRACK_SELECTION_POSITION);
+        selectedMainSettingsPosition = SETTINGS_AUDIO_TRACK_SELECTION_POSITION;
+        displaySettingsWindow(audioTrackSelectionAdapter, audioTrackButton);
       } else if (subtitleButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
-        displaySettingsWindow(textTrackSelectionAdapter);
+        displaySettingsWindow(textTrackSelectionAdapter, subtitleButton);
       }
     }
   }
