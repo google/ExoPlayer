@@ -76,7 +76,9 @@ import com.google.android.exoplayer2.util.Util;
           break;
       }
     }
-    return (startTimeIndex != C.INDEX_UNSET && endTimeIndex != C.INDEX_UNSET)
+    return (startTimeIndex != C.INDEX_UNSET
+            && endTimeIndex != C.INDEX_UNSET
+            && textIndex != C.INDEX_UNSET)
         ? new SsaDialogueFormat(startTimeIndex, endTimeIndex, styleIndex, textIndex, keys.length)
         : null;
   }
