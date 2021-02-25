@@ -341,11 +341,25 @@ import java.util.Map;
 
     boolean playWhenReady = player.getPlayWhenReady();
     onTimelineChanged(player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-    if (!AdPlaybackState.NONE.equals(adPlaybackState)
-        && adsManager != null
-        && imaPausedContent
-        && playWhenReady) {
-      adsManager.resume();
+    @Nullable AdsManager adsManager = this.adsManager;
+    if (!AdPlaybackState.NONE.equals(adPlaybackState) && adsManager != null && imaPausedContent) {
+      // Check whether the current ad break matches the expected ad break based on the current
+      // position. If not, discard the current ad break so that the correct ad break can load.
+      long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
+      int adGroupForPositionIndex =
+          adPlaybackState.getAdGroupIndexForPositionUs(
+              C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
+      if (adGroupForPositionIndex != C.INDEX_UNSET
+          && imaAdInfo != null
+          && imaAdInfo.adGroupIndex != adGroupForPositionIndex) {
+        if (configuration.debugModeEnabled) {
+          Log.d(TAG, "Discarding preloaded ad " + imaAdInfo);
+        }
+        adsManager.discardAdBreak();
+      }
+      if (playWhenReady) {
+        adsManager.resume();
+      }
     }
   }
 
@@ -826,7 +840,7 @@ import java.util.Map;
       ensureSentContentCompleteIfAtEndOfStream();
       if (!sentContentComplete && !timeline.isEmpty()) {
         long positionMs = getContentPeriodPositionMs(player, timeline, period);
-        timeline.getPeriod(/* periodIndex= */ 0, period);
+        timeline.getPeriod(player.getCurrentPeriodIndex(), period);
         int newAdGroupIndex = period.getAdGroupIndexForPositionUs(C.msToUs(positionMs));
         if (newAdGroupIndex != C.INDEX_UNSET) {
           sentPendingContentPositionMs = false;

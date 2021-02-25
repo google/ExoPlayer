@@ -1,5 +1,38 @@
 # Release notes
 
+### 2.13.2 (2021-02-25)
+
+*   Extractors:
+    *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
+*   UI:
+    *   Make conditions to enable UI actions consistent in
+        `DefaultControlDispatcher`, `PlayerControlView`,
+        `StyledPlayerControlView`, `PlayerNotificationManager` and
+        `TimelineQueueNavigator`.
+    *   Fix conditions to enable seeking to next/previous media item to handle
+        the case where a live stream has ended.
+*   Audio:
+    *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
+        ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
+*   IMA extension:
+    *   Fix a bug where playback could get stuck when seeking into a playlist
+        item with ads, if the preroll ad had preloaded but the window position
+        of the seek should instead trigger playback of a midroll.
+    *   Fix a bug with playback of ads in playlists, where the incorrect period
+        index was used when deciding whether to trigger playback of an ad after
+        a seek.
+*   Text:
+    *   Parse SSA/ASS font size in `Style:` lines
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+*   VP9 extension: Update to use NDK r21
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+*   FLAC extension: Update to use NDK r21
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+*   Opus extension: Update to use NDK r21
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+*   FFmpeg extension: Update to use NDK r21
+    ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
+
 ### 2.13.1 (2021-02-12)
 
 *   Live streaming:

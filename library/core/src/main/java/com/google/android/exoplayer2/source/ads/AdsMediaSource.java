@@ -51,9 +51,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link MediaSource} that inserts ads linearly with a provided content media source. This source
- * cannot be used as a child source in a composition. It must be the top-level source used to
- * prepare the player.
+ * A {@link MediaSource} that inserts ads linearly into a provided content media source.
+ *
+ * <p>The wrapped content media source must contain a single {@link Timeline.Period}.
  */
 public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 

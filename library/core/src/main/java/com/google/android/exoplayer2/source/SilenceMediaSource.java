@@ -305,11 +305,15 @@ public final class SilenceMediaSource extends BaseMediaSource {
         return C.RESULT_BUFFER_READ;
       }
 
+      buffer.timeUs = getAudioPositionUs(positionBytes);
+      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
+      if (buffer.isFlagsOnly()) {
+        return C.RESULT_BUFFER_READ;
+      }
+
       int bytesToWrite = (int) min(SILENCE_SAMPLE.length, bytesRemaining);
       buffer.ensureSpaceForWrite(bytesToWrite);
       buffer.data.put(SILENCE_SAMPLE, /* offset= */ 0, bytesToWrite);
-      buffer.timeUs = getAudioPositionUs(positionBytes);
-      buffer.addFlag(C.BUFFER_FLAG_KEY_FRAME);
       positionBytes += bytesToWrite;
       return C.RESULT_BUFFER_READ;
     }

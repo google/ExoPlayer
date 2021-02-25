@@ -47,6 +47,7 @@ bazel-testlogs
 .DS_Store
 cmake-build-debug
 dist
+jacoco.exec
 tmp
 
 # External native builds

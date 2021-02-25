@@ -27,6 +27,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
@@ -90,12 +91,17 @@ import java.util.regex.Pattern;
   public final String name;
   @SsaAlignment public final int alignment;
   @Nullable @ColorInt public final Integer primaryColor;
+  public final float fontSize;
 
   private SsaStyle(
-      String name, @SsaAlignment int alignment, @Nullable @ColorInt Integer primaryColor) {
+      String name,
+      @SsaAlignment int alignment,
+      @Nullable @ColorInt Integer primaryColor,
+      float fontSize) {
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
+    this.fontSize = fontSize;
   }
 
   @Nullable
@@ -114,7 +120,8 @@ import java.util.regex.Pattern;
       return new SsaStyle(
           styleValues[format.nameIndex].trim(),
           parseAlignment(styleValues[format.alignmentIndex].trim()),
-          parseColor(styleValues[format.primaryColorIndex].trim()));
+          parseColor(styleValues[format.primaryColorIndex].trim()),
+          parseFontSize(styleValues[format.fontSizeIndex].trim()));
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
       return null;
@@ -191,6 +198,15 @@ import java.util.regex.Pattern;
     return Color.argb(a, r, g, b);
   }
 
+  private static float parseFontSize(String fontSize) {
+    try {
+      return Float.parseFloat(fontSize);
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Failed to parse font size: '" + fontSize + "'", e);
+      return Cue.DIMEN_UNSET;
+    }
+  }
+
   /**
    * Represents a {@code Format:} line from the {@code [V4+ Styles]} section
    *
@@ -202,12 +218,15 @@ import java.util.regex.Pattern;
     public final int nameIndex;
     public final int alignmentIndex;
     public final int primaryColorIndex;
+    public final int fontSizeIndex;
     public final int length;
 
-    private Format(int nameIndex, int alignmentIndex, int primaryColorIndex, int length) {
+    private Format(
+        int nameIndex, int alignmentIndex, int primaryColorIndex, int fontSizeIndex, int length) {
       this.nameIndex = nameIndex;
       this.alignmentIndex = alignmentIndex;
       this.primaryColorIndex = primaryColorIndex;
+      this.fontSizeIndex = fontSizeIndex;
       this.length = length;
     }
 
@@ -221,6 +240,7 @@ import java.util.regex.Pattern;
       int nameIndex = C.INDEX_UNSET;
       int alignmentIndex = C.INDEX_UNSET;
       int primaryColorIndex = C.INDEX_UNSET;
+      int fontSizeIndex = C.INDEX_UNSET;
       String[] keys =
           TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
@@ -234,10 +254,13 @@ import java.util.regex.Pattern;
           case "primarycolour":
             primaryColorIndex = i;
             break;
+          case "fontsize":
+            fontSizeIndex = i;
+            break;
         }
       }
       return nameIndex != C.INDEX_UNSET
-          ? new Format(nameIndex, alignmentIndex, primaryColorIndex, keys.length)
+          ? new Format(nameIndex, alignmentIndex, primaryColorIndex, fontSizeIndex, keys.length)
           : null;
     }
   }

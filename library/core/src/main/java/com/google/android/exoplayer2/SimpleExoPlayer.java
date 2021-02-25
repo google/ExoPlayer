@@ -2140,7 +2140,6 @@ public class SimpleExoPlayer extends BasePlayer
       analyticsCollector.onAudioDisabled(counters);
       audioFormat = null;
       audioDecoderCounters = null;
-      audioSessionId = C.AUDIO_SESSION_ID_UNSET;
     }
 
     @Override

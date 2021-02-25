@@ -470,7 +470,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     @Nullable Atom.LeafAtom udta = moov.getLeafAtomOfType(Atom.TYPE_udta);
     if (udta != null) {
       Pair<@NullableType Metadata, @NullableType Metadata> udtaMetadata =
-          AtomParsers.parseUdta(udta, isQuickTime);
+          AtomParsers.parseUdta(udta);
       udtaMetaMetadata = udtaMetadata.first;
       smtaMetadata = udtaMetadata.second;
       if (udtaMetaMetadata != null) {
@@ -727,29 +727,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     }
   }
 
-  /**
-   * Possibly skips the version and flags fields (1+3 byte) of a full meta atom of the {@code
-   * input}.
-   *
-   * <p>Atoms of type {@link Atom#TYPE_meta} are defined to be full atoms which have four additional
-   * bytes for a version and a flags field (see 4.2 'Object Structure' in ISO/IEC 14496-12:2005).
-   * QuickTime do not have such a full box structure. Since some of these files are encoded wrongly,
-   * we can't rely on the file type though. Instead we must check the 8 bytes after the common
-   * header bytes ourselves.
-   */
   private void maybeSkipRemainingMetaAtomHeaderBytes(ExtractorInput input) throws IOException {
     scratch.reset(8);
-    // Peek the next 8 bytes which can be either
-    // (iso) [1 byte version + 3 bytes flags][4 byte size of next atom]
-    // (qt)  [4 byte size of next atom      ][4 byte hdlr atom type   ]
-    // In case of (iso) we need to skip the next 4 bytes.
     input.peekFully(scratch.getData(), 0, 8);
-    scratch.skipBytes(4);
-    if (scratch.readInt() == Atom.TYPE_hdlr) {
-      input.resetPeekPosition();
-    } else {
-      input.skipFully(4);
-    }
+    AtomParsers.maybeSkipRemainingMetaAtomHeaderBytes(scratch);
+    input.skipFully(scratch.getPosition());
+    input.resetPeekPosition();
   }
 
   /** Processes an atom whose payload does not need to be parsed. */

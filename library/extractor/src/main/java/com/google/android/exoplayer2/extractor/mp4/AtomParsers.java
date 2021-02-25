@@ -145,12 +145,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Parses a udta atom.
    *
    * @param udtaAtom The udta (user data) atom to decode.
-   * @param isQuickTime True for QuickTime media. False otherwise.
    * @return A {@link Pair} containing the metadata from the meta child atom as first value (if
    *     any), and the metadata from the smta child atom as second value (if any).
    */
   public static Pair<@NullableType Metadata, @NullableType Metadata> parseUdta(
-      Atom.LeafAtom udtaAtom, boolean isQuickTime) {
+      Atom.LeafAtom udtaAtom) {
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
     @Nullable Metadata metaMetadata = null;
@@ -159,8 +158,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       int atomPosition = udtaData.getPosition();
       int atomSize = udtaData.readInt();
       int atomType = udtaData.readInt();
-      // Meta boxes are regular boxes rather than full boxes in QuickTime. Ignore them for now.
-      if (atomType == Atom.TYPE_meta && !isQuickTime) {
+      if (atomType == Atom.TYPE_meta) {
         udtaData.setPosition(atomPosition);
         metaMetadata = parseUdtaMeta(udtaData, atomPosition + atomSize);
       } else if (atomType == Atom.TYPE_smta) {
@@ -225,6 +223,30 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       ilst.setPosition(atomPosition + atomSize);
     }
     return entries.isEmpty() ? null : new Metadata(entries);
+  }
+
+  /**
+   * Possibly skips the version and flags fields (1+3 byte) of a full meta atom.
+   *
+   * <p>Atoms of type {@link Atom#TYPE_meta} are defined to be full atoms which have four additional
+   * bytes for a version and a flags field (see 4.2 'Object Structure' in ISO/IEC 14496-12:2005).
+   * QuickTime do not have such a full box structure. Since some of these files are encoded wrongly,
+   * we can't rely on the file type though. Instead we must check the 8 bytes after the common
+   * header bytes ourselves.
+   *
+   * @param meta The 8 or more bytes following the meta atom size and type.
+   */
+  public static void maybeSkipRemainingMetaAtomHeaderBytes(ParsableByteArray meta) {
+    int endPosition = meta.getPosition();
+    // The next 8 bytes can be either:
+    // (iso) [1 byte version + 3 bytes flags][4 byte size of next atom]
+    // (qt)  [4 byte size of next atom      ][4 byte hdlr atom type   ]
+    // In case of (iso) we need to skip the next 4 bytes.
+    meta.skipBytes(4);
+    if (meta.readInt() != Atom.TYPE_hdlr) {
+      endPosition += 4;
+    }
+    meta.setPosition(endPosition);
   }
 
   /**
@@ -677,7 +699,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   @Nullable
   private static Metadata parseUdtaMeta(ParsableByteArray meta, int limit) {
-    meta.skipBytes(Atom.FULL_HEADER_SIZE);
+    meta.skipBytes(Atom.HEADER_SIZE);
+    maybeSkipRemainingMetaAtomHeaderBytes(meta);
     while (meta.getPosition() < limit) {
       int atomPosition = meta.getPosition();
       int atomSize = meta.readInt();
