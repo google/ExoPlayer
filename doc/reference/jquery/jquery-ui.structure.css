@@ -1,5 +1,5 @@
 /*!
- * jQuery UI CSS Framework 1.12.1
+ * jQuery UI CSS Framework 1.11.4
  * http://jqueryui.com
  *
  * Copyright jQuery Foundation and other contributors
@@ -8,6 +8,7 @@
  *
  * http://api.jqueryui.com/category/theming/
  */
+
 /* Layout helpers
 ----------------------------------*/
 .ui-helper-hidden {
@@ -42,6 +43,9 @@
 .ui-helper-clearfix:after {
 	clear: both;
 }
+.ui-helper-clearfix {
+	min-height: 0; /* support: IE7 */
+}
 .ui-helper-zfix {
 	width: 100%;
 	height: 100%;
@@ -61,27 +65,20 @@
 ----------------------------------*/
 .ui-state-disabled {
 	cursor: default !important;
-	pointer-events: none;
 }
 
 
 /* Icons
 ----------------------------------*/
+
+/* states and images */
 .ui-icon {
-	display: inline-block;
-	vertical-align: middle;
-	margin-top: -.25em;
-	position: relative;
+	display: block;
 	text-indent: -99999px;
 	overflow: hidden;
 	background-repeat: no-repeat;
 }
 
-.ui-widget-icon-block {
-	left: 50%;
-	margin-left: -8px;
-	display: block;
-}
 
 /* Misc visuals
 ----------------------------------*/
@@ -105,20 +102,19 @@
 	padding: 0;
 	margin: 0;
 	display: block;
-	outline: 0;
+	outline: none;
 }
 .ui-menu .ui-menu {
 	position: absolute;
 }
 .ui-menu .ui-menu-item {
+	position: relative;
 	margin: 0;
+	padding: 3px 1em 3px .4em;
 	cursor: pointer;
+	min-height: 0; /* support: IE7 */
 	/* support: IE10, see #8844 */
 	list-style-image: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
-}
-.ui-menu .ui-menu-item-wrapper {
-	position: relative;
-	padding: 3px 1em 3px .4em;
 }
 .ui-menu .ui-menu-divider {
 	margin: 5px 0;
@@ -136,7 +132,7 @@
 .ui-menu-icons {
 	position: relative;
 }
-.ui-menu-icons .ui-menu-item-wrapper {
+.ui-menu-icons .ui-menu-item {
 	padding-left: 2em;
 }
 
