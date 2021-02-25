@@ -1,6 +1,6 @@
 # Release notes
 
-### dev-v2 ###
+### 2.13.2 (2021-02-25)
 
 *   Extractors:
     *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
@@ -8,7 +8,7 @@
     *   Make conditions to enable UI actions consistent in
         `DefaultControlDispatcher`, `PlayerControlView`,
         `StyledPlayerControlView`, `PlayerNotificationManager` and
-        `TimelineQueueNavigator`
+        `TimelineQueueNavigator`.
     *   Fix conditions to enable seeking to next/previous media item to handle
         the case where a live stream has ended.
 *   Audio:
