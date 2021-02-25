@@ -24,13 +24,13 @@
 *   Text:
     *   Parse SSA/ASS font size in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
-*   VP9 extension: Update to use NDK r22
+*   VP9 extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
-*   FLAC extension: Update to use NDK r22
+*   FLAC extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
-*   Opus extension: Update to use NDK r22
+*   Opus extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
-*   FFmpeg extension: Update to use NDK r22
+*   FFmpeg extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 
 ### 2.13.1 (2021-02-12)
