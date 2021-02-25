@@ -8836,6 +8836,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  @Ignore("This is flaky in the release branch. It's stable on dev-v2 due to FakeClock changes.")
   public void targetLiveOffsetInMedia_unknownWindowStartTime_doesNotAdjustLiveOffset()
       throws Exception {
     FakeClock fakeClock = new AutoAdvancingFakeClock(/* initialTimeMs= */ 987_654_321L);
