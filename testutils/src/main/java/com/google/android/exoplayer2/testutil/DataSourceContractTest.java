@@ -214,8 +214,7 @@ public abstract class DataSourceContractTest {
   }
 
   @Test
-  public void dataSpecWithPositionEqualToLength_throwsPositionOutOfRangeException()
-      throws Exception {
+  public void dataSpecWithPositionAtEnd_throwsPositionOutOfRangeException() throws Exception {
     ImmutableList<TestResource> resources = getTestResources();
     Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
 
@@ -227,9 +226,51 @@ public abstract class DataSourceContractTest {
       DataSpec dataSpec =
           new DataSpec.Builder().setUri(resource.getUri()).setPosition(resourceLength).build();
       try {
-        dataSource.open(dataSpec);
+        long length = dataSource.open(dataSpec);
         // TODO: For any cases excluded from the requirement that a position-out-of-range exception
         // is thrown, decide what the allowed behavior should be for the first read, and assert it.
+
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(0);
+        }
+      } catch (IOException e) {
+        // TODO: Decide whether to assert that a position-out-of-range exception must or must not be
+        // thrown (with exclusions if necessary), rather than just asserting it must be a
+        // position-out-of-range exception *if* one is thrown at all.
+        assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
+      } finally {
+        dataSource.close();
+      }
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void dataSpecWithPositionAtEndAndLength_throwsPositionOutOfRangeException()
+      throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      int resourceLength = resource.getExpectedBytes().length;
+      DataSource dataSource = createDataSource();
+      DataSpec dataSpec =
+          new DataSpec.Builder()
+              .setUri(resource.getUri())
+              .setPosition(resourceLength)
+              .setLength(1)
+              .build();
+      try {
+        long length = dataSource.open(dataSpec);
+        // TODO: For any cases excluded from the requirement that a position-out-of-range exception
+        // is thrown, decide what the allowed behavior should be for the first read, and assert it.
+
+        // The DataSource.open() contract requires the returned length to equal the length in the
+        // DataSpec if set. This is true even though the DataSource implementation may know that
+        // fewer bytes will be read in this case.
+        assertThat(length).isEqualTo(1);
       } catch (IOException e) {
         // TODO: Decide whether to assert that a position-out-of-range exception must or must not be
         // thrown (with exclusions if necessary), rather than just asserting it must be a
@@ -411,10 +452,6 @@ public abstract class DataSourceContractTest {
       additionalFailureInfo.setInfo(null);
     }
   }
-
-  // TODO: This works around [Internal ref: b/174231044]. Remove when possible.
-  @Test
-  public void emptyTest() {}
 
   /** Build a label to make it clear which resource caused a given test failure. */
   private static String getFailureLabel(List<TestResource> resources, int i) {
