@@ -1305,6 +1305,18 @@ public interface Player {
   void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters);
 
   /**
+   * Changes the rate at which playback occurs.
+   *
+   * <p>The pitch is not changed.
+   *
+   * <p>This is equivalent to {@code setPlaybackParameter(getPlaybackParameter().withSpeed(speed))}.
+   *
+   * @param speed The linear factor by which playback will be sped up. Must be higher than 0. 1 is
+   *     normal speed, 2 is twice as fast, 0.5 is half normal speed...
+   */
+  void setPlaybackSpeed(float speed);
+
+  /**
    * Returns the currently active playback parameters.
    *
    * @see EventListener#onPlaybackParametersChanged(PlaybackParameters)

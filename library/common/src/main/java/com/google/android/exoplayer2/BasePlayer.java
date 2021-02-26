@@ -138,6 +138,11 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void setPlaybackSpeed(float speed) {
+    setPlaybackParameters(getPlaybackParameters().withSpeed(speed));
+  }
+
+  @Override
   public final void stop() {
     stop(/* reset= */ false);
   }
