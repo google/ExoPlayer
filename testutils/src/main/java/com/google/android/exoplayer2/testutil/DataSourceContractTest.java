@@ -69,7 +69,8 @@ public abstract class DataSourceContractTest {
 
   /**
    * Returns the {@link DataSource} that will be included in the {@link TransferListener} callbacks
-   * if different from the {@link DataSource} under test, otherwise null.
+   * for the {@link DataSource} most recently created by {@link #createDataSource()}. If it's the
+   * same {@link DataSource} then {@code null} can be returned.
    */
   @Nullable
   protected DataSource getTransferListenerDataSource() {

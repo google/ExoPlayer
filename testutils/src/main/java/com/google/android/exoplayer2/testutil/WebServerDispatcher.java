@@ -235,6 +235,11 @@ public class WebServerDispatcher extends Dispatcher {
 
   private final ImmutableMap<String, Resource> resourcesByPath;
 
+  /** Returns the path for a given {@link RecordedRequest}, stripping any query parameters. */
+  public static String getRequestPath(RecordedRequest request) {
+    return Util.splitAtFirst(request.getPath(), "\\?")[0];
+  }
+
   /**
    * Constructs a dispatcher that handles requests based the provided {@link Resource} instances.
    */
@@ -248,11 +253,12 @@ public class WebServerDispatcher extends Dispatcher {
 
   @Override
   public MockResponse dispatch(RecordedRequest request) {
+    String requestPath = getRequestPath(request);
     MockResponse response = new MockResponse();
-    if (!resourcesByPath.containsKey(request.getPath())) {
+    if (!resourcesByPath.containsKey(requestPath)) {
       return response.setResponseCode(404);
     }
-    Resource resource = checkNotNull(resourcesByPath.get(request.getPath()));
+    Resource resource = checkNotNull(resourcesByPath.get(requestPath));
     byte[] resourceData = resource.getData();
     if (resource.supportsRangeRequests()) {
       response.setHeader("Accept-ranges", "bytes");
