@@ -503,6 +503,11 @@ public abstract class DataSourceContractTest {
       }
 
       /** Sets the URI where this resource is located. */
+      public Builder setUri(String uri) {
+        return setUri(Uri.parse(uri));
+      }
+
+      /** Sets the URI where this resource is located. */
       public Builder setUri(Uri uri) {
         this.uri = uri;
         return this;

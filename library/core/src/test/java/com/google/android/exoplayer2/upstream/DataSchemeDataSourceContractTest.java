@@ -39,12 +39,12 @@ public class DataSchemeDataSourceContractTest extends DataSourceContractTest {
     return ImmutableList.of(
         new TestResource.Builder()
             .setName("plain text")
-            .setUri(Uri.parse("data:text/plain," + DATA))
+            .setUri("data:text/plain," + DATA)
             .setExpectedBytes(DATA.getBytes(UTF_8))
             .build(),
         new TestResource.Builder()
             .setName("base64 encoded text")
-            .setUri(Uri.parse("data:text/plain;base64," + BASE64_ENCODED_DATA))
+            .setUri("data:text/plain;base64," + BASE64_ENCODED_DATA)
             .setExpectedBytes(Base64.decode(BASE64_ENCODED_DATA, Base64.DEFAULT))
             .build());
   }

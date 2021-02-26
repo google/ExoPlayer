@@ -63,7 +63,7 @@ public class UdpDataSourceContractTest extends DataSourceContractTest {
     return ImmutableList.of(
         new TestResource.Builder()
             .setName("local-udp-unicast-socket")
-            .setUri(Uri.parse("udp://localhost:" + findFreeUdpPort()))
+            .setUri("udp://localhost:" + findFreeUdpPort())
             .setExpectedBytes(data)
             .build());
   }
