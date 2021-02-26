@@ -428,7 +428,7 @@ public interface AudioSink {
   /**
    * Sets the playback volume.
    *
-   * @param volume A volume in the range [0.0, 1.0].
+   * @param volume Linear output gain to apply to all channels. Should be in the range [0.0, 1.0].
    */
   void setVolume(float volume);
 

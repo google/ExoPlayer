@@ -127,13 +127,17 @@ public interface Player {
     void clearAuxEffectInfo();
 
     /**
-     * Sets the audio volume, with 0 being silence and 1 being unity gain.
+     * Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
      *
-     * @param audioVolume The audio volume.
+     * @param audioVolume Linear output gain to apply to all audio channels.
      */
     void setVolume(float audioVolume);
 
-    /** Returns the audio volume, with 0 being silence and 1 being unity gain. */
+    /**
+     * Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
+     *
+     * @return The linear gain applied to all audio channels.
+     */
     float getVolume();
 
     /**
