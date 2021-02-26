@@ -256,6 +256,7 @@ public final class CronetDataSourceTest {
   public void requestSetsRangeHeader() throws HttpDataSourceException {
     testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
     mockResponseStartSuccess();
+    mockReadSuccess(0, 1000);
 
     dataSourceUnderTest.open(testDataSpec);
     // The header value to add is current position to current position + length - 1.
@@ -287,8 +288,6 @@ public final class CronetDataSourceTest {
     testDataSpec =
         new DataSpec.Builder()
             .setUri(TEST_URL)
-            .setPosition(1000)
-            .setLength(5000)
             .setHttpRequestHeaders(dataSpecRequestProperties)
             .build();
     mockResponseStartSuccess();
@@ -1198,6 +1197,7 @@ public final class CronetDataSourceTest {
     dataSourceUnderTest.setRequestProperty("Content-Type", TEST_CONTENT_TYPE);
 
     mockSingleRedirectSuccess();
+    mockReadSuccess(0, 1000);
 
     testResponseHeader.put("Set-Cookie", "testcookie=testcookie; Path=/video");
 
@@ -1368,7 +1368,7 @@ public final class CronetDataSourceTest {
 
   @Test
   public void allowDirectExecutor() throws HttpDataSourceException {
-    testDataSpec = new DataSpec(Uri.parse(TEST_URL), 1000, 5000);
+    testDataSpec = new DataSpec(Uri.parse(TEST_URL));
     mockResponseStartSuccess();
 
     dataSourceUnderTest.open(testDataSpec);

@@ -168,8 +168,6 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     }
   }
 
-  private static final byte[] SKIP_BUFFER = new byte[4096];
-
   private final Call.Factory callFactory;
   private final RequestProperties requestProperties;
 
@@ -183,10 +181,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   @Nullable private InputStream responseByteStream;
   private boolean opened;
 
-  private long bytesToSkip;
-  private long bytesToRead;
-
   private long bytesSkipped;
+  private long bytesToRead;
   private long bytesRead;
 
   /** @deprecated Use {@link OkHttpDataSource.Factory} instead. */
@@ -332,7 +328,7 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     // If we requested a range starting from a non-zero position and received a 200 rather than a
     // 206, then the server does not support partial requests. We'll need to manually skip to the
     // requested position.
-    bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
+    long bytesToSkip = responseCode == 200 && dataSpec.position != 0 ? dataSpec.position : 0;
 
     // Determine the length of the data to be read, after skipping.
     if (dataSpec.length != C.LENGTH_UNSET) {
@@ -345,13 +341,21 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
     opened = true;
     transferStarted(dataSpec);
 
+    try {
+      if (!skipFully(bytesToSkip)) {
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
+      }
+    } catch (IOException e) {
+      closeConnectionQuietly();
+      throw new HttpDataSourceException(e, dataSpec, HttpDataSourceException.TYPE_OPEN);
+    }
+
     return bytesToRead;
   }
 
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws HttpDataSourceException {
     try {
-      skipInternal();
       return readInternal(buffer, offset, readLength);
     } catch (IOException e) {
       throw new HttpDataSourceException(
@@ -369,8 +373,8 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
-   * Returns the number of bytes that have been skipped since the most recent call to
-   * {@link #open(DataSpec)}.
+   * Returns the number of bytes that were skipped during the most recent call to {@link
+   * #open(DataSpec)}.
    *
    * @return The number of bytes skipped.
    */
@@ -454,30 +458,32 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
   }
 
   /**
-   * Skips any bytes that need skipping. Else does nothing.
-   * <p>
-   * This implementation is based roughly on {@code libcore.io.Streams.skipByReading()}.
+   * Attempts to skip the specified number of bytes in full.
    *
+   * @param bytesToSkip The number of bytes to skip.
    * @throws InterruptedIOException If the thread is interrupted during the operation.
-   * @throws EOFException If the end of the input stream is reached before the bytes are skipped.
+   * @throws IOException If an error occurs reading from the source.
+   * @return Whether the bytes were skipped in full. If {@code false} then the data ended before the
+   *     specified number of bytes were skipped. Always {@code true} if {@code bytesToSkip == 0}.
    */
-  private void skipInternal() throws IOException {
-    if (bytesSkipped == bytesToSkip) {
-      return;
+  private boolean skipFully(long bytesToSkip) throws IOException {
+    if (bytesToSkip == 0) {
+      return true;
     }
-
+    byte[] skipBuffer = new byte[4096];
     while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) min(bytesToSkip - bytesSkipped, SKIP_BUFFER.length);
-      int read = castNonNull(responseByteStream).read(SKIP_BUFFER, 0, readLength);
+      int readLength = (int) min(bytesToSkip - bytesSkipped, skipBuffer.length);
+      int read = castNonNull(responseByteStream).read(skipBuffer, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
       }
       if (read == -1) {
-        throw new EOFException();
+        return false;
       }
       bytesSkipped += read;
       bytesTransferred(read);
     }
+    return true;
   }
 
   /**

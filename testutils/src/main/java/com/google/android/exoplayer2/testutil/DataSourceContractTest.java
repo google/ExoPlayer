@@ -297,14 +297,8 @@ public abstract class DataSourceContractTest {
       DataSpec dataSpec =
           new DataSpec.Builder().setUri(resource.getUri()).setPosition(resourceLength + 1).build();
       try {
-        dataSource.open(dataSpec);
-        // TODO: For any cases excluded from the requirement that a position-out-of-range exception
-        // is thrown, decide what the allowed behavior should be for the first read, and assert it.
-      } catch (IOException e) {
-        // TODO: Decide whether to assert that a position-out-of-range exception must or must not be
-        // thrown (with exclusions if necessary), rather than just asserting it must be a
-        // position-out-of-range exception *if* one is thrown at all.
-        assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
+        IOException exception = assertThrows(IOException.class, () -> dataSource.open(dataSpec));
+        assertThat(DataSourceException.isCausedByPositionOutOfRange(exception)).isTrue();
       } finally {
         dataSource.close();
       }
