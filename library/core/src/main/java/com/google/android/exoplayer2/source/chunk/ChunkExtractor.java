@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.extractor.ChunkIndex;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Extracts samples and track {@link Format Formats} from chunks.
@@ -30,6 +31,27 @@ import java.io.IOException;
  * TrackOutputs} that receive the extracted data.
  */
 public interface ChunkExtractor {
+
+  /** Creates {@link ChunkExtractor} instances. */
+  interface Factory {
+
+    /**
+     * Returns a new {@link ChunkExtractor} instance.
+     *
+     * @param primaryTrackType The type of the primary track. One of {@link C C.TRACK_TYPE_*}.
+     * @param representationFormat The format of the representation to extract from.
+     * @param enableEventMessageTrack Whether to enable the event message track.
+     * @param closedCaptionFormats The {@link Format Formats} of the Closed-Caption tracks.
+     * @return A new {@link ChunkExtractor} instance, or null if not applicable.
+     */
+    @Nullable
+    ChunkExtractor createProgressiveMediaExtractor(
+        int primaryTrackType,
+        Format representationFormat,
+        boolean enableEventMessageTrack,
+        List<Format> closedCaptionFormats,
+        @Nullable TrackOutput playerEmsgTrackOutput);
+  }
 
   /** Provides {@link TrackOutput} instances to be written to during extraction. */
   interface TrackOutputProvider {

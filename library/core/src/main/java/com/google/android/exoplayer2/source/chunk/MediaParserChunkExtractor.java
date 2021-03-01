@@ -26,6 +26,7 @@ import static com.google.android.exoplayer2.source.mediaparser.MediaParserUtil.P
 import android.annotation.SuppressLint;
 import android.media.MediaFormat;
 import android.media.MediaParser;
+import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
@@ -48,6 +49,25 @@ import java.util.List;
 /** {@link ChunkExtractor} implemented on top of the platform's {@link MediaParser}. */
 @RequiresApi(30)
 public final class MediaParserChunkExtractor implements ChunkExtractor {
+
+  // Maximum TAG length is 23 characters.
+  private static final String TAG = "MediaPrsrChunkExtractor";
+
+  public static final ChunkExtractor.Factory FACTORY =
+      (primaryTrackType,
+          format,
+          enableEventMessageTrack,
+          closedCaptionFormats,
+          playerEmsgTrackOutput) -> {
+        if (!MimeTypes.isText(format.containerMimeType)) {
+          // Container is either Matroska or Fragmented MP4.
+          return new MediaParserChunkExtractor(primaryTrackType, format, closedCaptionFormats);
+        } else {
+          // This is either RAWCC (unsupported) or a text track that does not require an extractor.
+          Log.w(TAG, "Ignoring an unsupported text track.");
+          return null;
+        }
+      };
 
   private final OutputConsumerAdapterV30 outputConsumerAdapter;
   private final InputReaderAdapterV30 inputReaderAdapter;

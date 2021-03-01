@@ -29,8 +29,12 @@ import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
+import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer2.extractor.rawcc.RawCcExtractor;
 import com.google.android.exoplayer2.upstream.DataReader;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -40,6 +44,41 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Extractors}.
  */
 public final class BundledChunkExtractor implements ExtractorOutput, ChunkExtractor {
+
+  /** {@link ChunkExtractor.Factory} for instances of this class. */
+  public static final ChunkExtractor.Factory FACTORY =
+      (primaryTrackType,
+          format,
+          enableEventMessageTrack,
+          closedCaptionFormats,
+          playerEmsgTrackOutput) -> {
+        @Nullable String containerMimeType = format.containerMimeType;
+        Extractor extractor;
+        if (MimeTypes.isText(containerMimeType)) {
+          if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
+            // RawCC is special because it's a text specific container format.
+            extractor = new RawCcExtractor(format);
+          } else {
+            // All other text types are raw formats that do not need an extractor.
+            return null;
+          }
+        } else if (MimeTypes.isMatroska(containerMimeType)) {
+          extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
+        } else {
+          int flags = 0;
+          if (enableEventMessageTrack) {
+            flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
+          }
+          extractor =
+              new FragmentedMp4Extractor(
+                  flags,
+                  /* timestampAdjuster= */ null,
+                  /* sideloadedTrack= */ null,
+                  closedCaptionFormats,
+                  playerEmsgTrackOutput);
+        }
+        return new BundledChunkExtractor(extractor, primaryTrackType, format);
+      };
 
   private static final PositionHolder POSITION_HOLDER = new PositionHolder();
 
