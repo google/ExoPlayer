@@ -37,6 +37,9 @@
         video tracks (previously separate acquire and release events were
         dispatched for each track in each period).
     *   Include the session state in DRM session-acquired listener methods.
+*   UI
+    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
+        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
