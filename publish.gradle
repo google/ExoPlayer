@@ -81,6 +81,7 @@ if (project.ext.has("exoplayerPublishEnabled")
             }
         }
     }
+    tasks.withType(PublishToMavenRepository) { it.dependsOn lint, test }
 }
 
 def getBintrayRepo() {
