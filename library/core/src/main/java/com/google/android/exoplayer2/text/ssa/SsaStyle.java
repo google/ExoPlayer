@@ -92,16 +92,22 @@ import java.util.regex.Pattern;
   @SsaAlignment public final int alignment;
   @Nullable @ColorInt public final Integer primaryColor;
   public final float fontSize;
+  public final boolean bold;
+  public final boolean italic;
 
   private SsaStyle(
       String name,
       @SsaAlignment int alignment,
       @Nullable @ColorInt Integer primaryColor,
-      float fontSize) {
+      float fontSize,
+      boolean bold,
+      boolean italic) {
     this.name = name;
     this.alignment = alignment;
     this.primaryColor = primaryColor;
     this.fontSize = fontSize;
+    this.bold = bold;
+    this.italic = italic;
   }
 
   @Nullable
@@ -121,7 +127,9 @@ import java.util.regex.Pattern;
           styleValues[format.nameIndex].trim(),
           parseAlignment(styleValues[format.alignmentIndex].trim()),
           parseColor(styleValues[format.primaryColorIndex].trim()),
-          parseFontSize(styleValues[format.fontSizeIndex].trim()));
+          parseFontSize(styleValues[format.fontSizeIndex].trim()),
+          parseBold(styleValues[format.boldIndex].trim()),
+          parseItalic(styleValues[format.italicIndex].trim()));
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
       return null;
@@ -207,6 +215,36 @@ import java.util.regex.Pattern;
     }
   }
 
+  private static boolean parseBold(String bold) {
+    try {
+      int boldFlag = Integer.parseInt(bold);
+      if(boldFlag == 1 || boldFlag == -1){
+        return true;
+      }
+      else{
+        return false;
+      }
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Failed to parse bold: '" + bold + "'", e);
+      return false;
+    }
+  }
+
+  private static boolean parseItalic(String italic) {
+    try {
+      int italicFlag = Integer.parseInt(italic);
+      if(italicFlag == 1 || italicFlag == -1){
+        return true;
+      }
+      else{
+        return false;
+      }
+    } catch (NumberFormatException e) {
+      Log.w(TAG, "Failed to parse italic: '" + italic + "'", e);
+      return false;
+    }
+  }
+
   /**
    * Represents a {@code Format:} line from the {@code [V4+ Styles]} section
    *
@@ -219,6 +257,8 @@ import java.util.regex.Pattern;
     public final int alignmentIndex;
     public final int primaryColorIndex;
     public final int fontSizeIndex;
+    public final int boldIndex;
+    public final int italicIndex;
     public final int length;
 
     private Format(
@@ -226,11 +266,15 @@ import java.util.regex.Pattern;
         int alignmentIndex,
         int primaryColorIndex,
         int fontSizeIndex,
+        int boldIndex,
+        int italicIndex,
         int length) {
       this.nameIndex = nameIndex;
       this.alignmentIndex = alignmentIndex;
       this.primaryColorIndex = primaryColorIndex;
       this.fontSizeIndex = fontSizeIndex;
+      this.boldIndex = boldIndex;
+      this.italicIndex = italicIndex;
       this.length = length;
     }
 
@@ -245,6 +289,8 @@ import java.util.regex.Pattern;
       int alignmentIndex = C.INDEX_UNSET;
       int primaryColorIndex = C.INDEX_UNSET;
       int fontSizeIndex = C.INDEX_UNSET;
+      int boldIndex = C.INDEX_UNSET;
+      int italicIndex = C.INDEX_UNSET;
       String[] keys =
           TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
@@ -261,10 +307,16 @@ import java.util.regex.Pattern;
           case "fontsize":
             fontSizeIndex = i;
             break;
+          case "bold":
+            boldIndex = i;
+            break;
+          case "italic":
+            italicIndex = i;
+            break;
         }
       }
       return nameIndex != C.INDEX_UNSET
-          ? new Format(nameIndex, alignmentIndex, primaryColorIndex, fontSizeIndex, keys.length)
+          ? new Format(nameIndex, alignmentIndex, primaryColorIndex, fontSizeIndex, boldIndex, italicIndex, keys.length)
           : null;
     }
   }

@@ -18,9 +18,11 @@ package com.google.android.exoplayer2.text.ssa;
 import static com.google.android.exoplayer2.text.Cue.LINE_TYPE_FRACTION;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
+import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
@@ -318,6 +320,27 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
         cue.setTextSize(
             style.fontSize / screenHeight,
             Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
+      }
+      if (style.bold && style.italic) {
+        spannableText.setSpan(
+            new StyleSpan(Typeface.BOLD_ITALIC),
+            0,
+            spannableText.length(),
+            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      else if(style.bold){
+        spannableText.setSpan(
+            new StyleSpan(Typeface.BOLD),
+            0,
+            spannableText.length(),
+            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      else if(style.italic){
+        spannableText.setSpan(
+            new StyleSpan(Typeface.ITALIC),
+            0,
+            spannableText.length(),
+            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
     }
 
