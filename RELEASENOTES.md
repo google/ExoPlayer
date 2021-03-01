@@ -1,5 +1,48 @@
 # Release notes
 
+### dev-v2 (not yet released)
+
+*   UI:
+    *   Add builder for `PlayerNotificationManager`.
+    *   Add group setting to `PlayerNotificationManager`.
+    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
+        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
+*   Audio:
+    *   Report unexpected discontinuities in
+        `AnalyticsListener.onAudioSinkError`
+        ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
+    *   Allow forcing offload for gapless content even if gapless playback is
+        not supported.
+*   Analytics:
+    *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
+*   Downloads and caching:
+    *   Fix `CacheWriter` to correctly handle `DataSource.close` failures, for
+        which it cannot be assumed that data was successfully written to the
+        cache.
+*   Library restructuring:
+    *   `DebugTextViewHelper` moved from `ui` package to `util` package.
+    *   Spherical UI components moved from `video.spherical` package to
+        `ui.spherical` package, and made package private.
+*   Core
+    *   Move `getRendererCount` and `getRendererType` methods from `Player` to
+        `ExoPlayer`.
+*   Remove deprecated symbols:
+    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
+        instead.
+    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
+        instead.
+    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
+        module instead.
+*   DRM:
+    *   Only dispatch DRM session acquire and release events once per period
+        when playing content that uses the same encryption keys for both audio &
+        video tracks (previously separate acquire and release events were
+        dispatched for each track in each period).
+    *   Include the session state in DRM session-acquired listener methods.
+*   MediaSession extension: Remove dependency to core module and rely on common
+    only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
+    this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
+
 ### 2.13.2 (2021-02-25)
 
 *   Extractors:
