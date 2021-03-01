@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.util.SparseArray;
 import android.view.Surface;
 import androidx.annotation.IntDef;
@@ -753,8 +754,18 @@ public interface AnalyticsListener {
    *
    * @param eventTime The event time.
    * @param decoderName The decoder that was created.
+   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
+   *     finished.
    * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
+  default void onAudioDecoderInitialized(
+      EventTime eventTime,
+      String decoderName,
+      long initializedTimestampMs,
+      long initializationDurationMs) {}
+
+  /** @deprecated Use {@link #onAudioDecoderInitialized(EventTime, String, long, long)}. */
+  @Deprecated
   default void onAudioDecoderInitialized(
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
 
@@ -895,8 +906,18 @@ public interface AnalyticsListener {
    *
    * @param eventTime The event time.
    * @param decoderName The decoder that was created.
+   * @param initializedTimestampMs {@link SystemClock#elapsedRealtime()} when initialization
+   *     finished.
    * @param initializationDurationMs The time taken to initialize the decoder in milliseconds.
    */
+  default void onVideoDecoderInitialized(
+      EventTime eventTime,
+      String decoderName,
+      long initializedTimestampMs,
+      long initializationDurationMs) {}
+
+  /** @deprecated Use {@link #onVideoDecoderInitialized(EventTime, String, long, long)}. */
+  @Deprecated
   default void onVideoDecoderInitialized(
       EventTime eventTime, String decoderName, long initializationDurationMs) {}
 
@@ -988,7 +1009,13 @@ public interface AnalyticsListener {
    * @param eventTime The event time.
    * @param surface The {@link Surface} to which a frame has been rendered, or {@code null} if the
    *     renderer renders to something that isn't a {@link Surface}.
+   * @param renderTimeMs {@link SystemClock#elapsedRealtime()} when the first frame was rendered.
    */
+  default void onRenderedFirstFrame(
+      EventTime eventTime, @Nullable Surface surface, long renderTimeMs) {}
+
+  /** @deprecated Use {@link #onRenderedFirstFrame(EventTime, Surface, long)} instead. */
+  @Deprecated
   default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
 
   /**

@@ -2020,8 +2020,8 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onRenderedFirstFrame(@Nullable Surface surface) {
-      analyticsCollector.onRenderedFirstFrame(surface);
+    public void onRenderedFirstFrame(@Nullable Surface surface, long renderTimeMs) {
+      analyticsCollector.onRenderedFirstFrame(surface, renderTimeMs);
       if (SimpleExoPlayer.this.surface == surface) {
         for (VideoListener videoListener : videoListeners) {
           videoListener.onRenderedFirstFrame();

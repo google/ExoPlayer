@@ -231,6 +231,8 @@ public class AnalyticsCollector
         AnalyticsListener.EVENT_AUDIO_DECODER_INITIALIZED,
         listener -> {
           listener.onAudioDecoderInitialized(eventTime, decoderName, initializationDurationMs);
+          listener.onAudioDecoderInitialized(
+              eventTime, decoderName, initializedTimestampMs, initializationDurationMs);
           listener.onDecoderInitialized(
               eventTime, C.TRACK_TYPE_AUDIO, decoderName, initializationDurationMs);
         });
@@ -386,6 +388,8 @@ public class AnalyticsCollector
         AnalyticsListener.EVENT_VIDEO_DECODER_INITIALIZED,
         listener -> {
           listener.onVideoDecoderInitialized(eventTime, decoderName, initializationDurationMs);
+          listener.onVideoDecoderInitialized(
+              eventTime, decoderName, initializedTimestampMs, initializationDurationMs);
           listener.onDecoderInitialized(
               eventTime, C.TRACK_TYPE_VIDEO, decoderName, initializationDurationMs);
         });
@@ -449,13 +453,17 @@ public class AnalyticsCollector
                 eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   @Override
-  public final void onRenderedFirstFrame(@Nullable Surface surface) {
+  public final void onRenderedFirstFrame(@Nullable Surface surface, long renderTimeMs) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_RENDERED_FIRST_FRAME,
-        listener -> listener.onRenderedFirstFrame(eventTime, surface));
+        listener -> {
+          listener.onRenderedFirstFrame(eventTime, surface);
+          listener.onRenderedFirstFrame(eventTime, surface, renderTimeMs);
+        });
   }
 
   @Override
