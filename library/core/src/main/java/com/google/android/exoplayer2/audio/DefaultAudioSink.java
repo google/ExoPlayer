@@ -1482,6 +1482,10 @@ public final class DefaultAudioSink implements AudioSink {
         && !audioCapabilities.supportsEncoding(C.ENCODING_E_AC3_JOC)) {
       // E-AC3 receivers support E-AC3 JOC streams (but decode only the base layer).
       encoding = C.ENCODING_E_AC3;
+    } else if (encoding == C.ENCODING_DTS_HD
+        && !audioCapabilities.supportsEncoding(C.ENCODING_DTS_HD)) {
+      // DTS receivers support DTS-HD streams (but decode only the core layer).
+      encoding = C.ENCODING_DTS;
     }
     if (!audioCapabilities.supportsEncoding(encoding)) {
       return null;
