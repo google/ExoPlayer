@@ -453,6 +453,8 @@ public class StyledPlayerControlView extends FrameLayout {
   @Nullable private ImageView fullScreenButton;
   @Nullable private ImageView minimalFullScreenButton;
   @Nullable private View settingsButton;
+  @Nullable private View playbackSpeedButton;
+  @Nullable private View audioTrackButton;
 
   public StyledPlayerControlView(Context context) {
     this(context, /* attrs= */ null);
@@ -569,6 +571,16 @@ public class StyledPlayerControlView extends FrameLayout {
     settingsButton = findViewById(R.id.exo_settings);
     if (settingsButton != null) {
       settingsButton.setOnClickListener(componentListener);
+    }
+
+    playbackSpeedButton = findViewById(R.id.exo_playback_speed);
+    if (playbackSpeedButton != null) {
+      playbackSpeedButton.setOnClickListener(componentListener);
+    }
+
+    audioTrackButton = findViewById(R.id.exo_audio_track);
+    if (audioTrackButton != null) {
+      audioTrackButton.setOnClickListener(componentListener);
     }
 
     TimeBar customTimeBar = findViewById(R.id.exo_progress);
@@ -1849,6 +1861,12 @@ public class StyledPlayerControlView extends FrameLayout {
       } else if (settingsButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
         displaySettingsWindow(settingsAdapter);
+      } else if (playbackSpeedButton == view) {
+        controlViewLayoutManager.removeHideCallbacks();
+        displaySettingsWindow(playbackSpeedAdapter);
+      } else if (audioTrackButton == view) {
+        controlViewLayoutManager.removeHideCallbacks();
+        displaySettingsWindow(audioTrackSelectionAdapter);
       } else if (subtitleButton == view) {
         controlViewLayoutManager.removeHideCallbacks();
         displaySettingsWindow(textTrackSelectionAdapter);
