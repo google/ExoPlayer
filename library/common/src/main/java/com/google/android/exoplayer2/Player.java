@@ -1133,6 +1133,7 @@ public interface Player {
    * Returns the current {@link State playback state} of the player.
    *
    * @return The current {@link State playback state}.
+   * @see EventListener#onPlaybackStateChanged(int)
    */
   @State
   int getPlaybackState();
@@ -1142,6 +1143,7 @@ public interface Player {
    * true}, or {@link #PLAYBACK_SUPPRESSION_REASON_NONE} if playback is not suppressed.
    *
    * @return The current {@link PlaybackSuppressionReason playback suppression reason}.
+   * @see EventListener#onPlaybackSuppressionReasonChanged(int)
    */
   @PlaybackSuppressionReason
   int getPlaybackSuppressionReason();
@@ -1158,6 +1160,7 @@ public interface Player {
    * </ul>
    *
    * @return Whether the player is playing.
+   * @see EventListener#onIsPlayingChanged(boolean)
    */
   boolean isPlaying();
 
@@ -1170,6 +1173,7 @@ public interface Player {
    * {@link #STATE_IDLE}.
    *
    * @return The error, or {@code null}.
+   * @see EventListener#onPlayerError(ExoPlaybackException)
    */
   @Nullable
   ExoPlaybackException getPlayerError();
@@ -1201,6 +1205,7 @@ public interface Player {
    * Whether playback will proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
    *
    * @return Whether playback will proceed when ready.
+   * @see EventListener#onPlayWhenReadyChanged(boolean, int)
    */
   boolean getPlayWhenReady();
 
@@ -1215,6 +1220,7 @@ public interface Player {
    * Returns the current {@link RepeatMode} used for playback.
    *
    * @return The current repeat mode.
+   * @see EventListener#onRepeatModeChanged(int)
    */
   @RepeatMode
   int getRepeatMode();
@@ -1226,13 +1232,18 @@ public interface Player {
    */
   void setShuffleModeEnabled(boolean shuffleModeEnabled);
 
-  /** Returns whether shuffling of windows is enabled. */
+  /**
+   * Returns whether shuffling of windows is enabled.
+   *
+   * @see EventListener#onShuffleModeEnabledChanged(boolean)
+   */
   boolean getShuffleModeEnabled();
 
   /**
    * Whether the player is currently loading the source.
    *
    * @return Whether the player is currently loading the source.
+   * @see EventListener#onIsLoadingChanged(boolean)
    */
   boolean isLoading();
 
@@ -1375,10 +1386,20 @@ public interface Player {
    */
   int getRendererType(int index);
 
-  /** Returns the available track groups. */
+  /**
+   * Returns the available track groups.
+   *
+   * @see EventListener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   */
   TrackGroupArray getCurrentTrackGroups();
 
-  /** Returns the current track selections for each renderer. */
+  /**
+   * Returns the current track selections for each renderer.
+   *
+   * <p>A concrete implementation may include null elements if it has a fixed number of renderer
+   * components, wishes to report a TrackSelection for each of them, and has one or more renderer
+   * components that is not assigned any selected tracks.
+   */
   TrackSelectionArray getCurrentTrackSelections();
 
   /**
@@ -1391,6 +1412,8 @@ public interface Player {
    *
    * <p>This metadata is considered static in that it comes from the tracks' declared Formats,
    * rather than being timed (or dynamic) metadata, which is represented within a metadata track.
+   *
+   * @see EventListener#onStaticMetadataChanged(List)
    */
   List<Metadata> getCurrentStaticMetadata();
 
@@ -1400,7 +1423,11 @@ public interface Player {
   @Nullable
   Object getCurrentManifest();
 
-  /** Returns the current {@link Timeline}. Never null, but may be empty. */
+  /**
+   * Returns the current {@link Timeline}. Never null, but may be empty.
+   *
+   * @see EventListener#onTimelineChanged(Timeline, int)
+   */
   Timeline getCurrentTimeline();
 
   /** Returns the index of the period currently being played. */
@@ -1446,6 +1473,8 @@ public interface Player {
   /**
    * Returns the media item of the current window in the timeline. May be null if the timeline is
    * empty.
+   *
+   * @see EventListener#onMediaItemTransition(MediaItem, int)
    */
   @Nullable
   MediaItem getCurrentMediaItem();
