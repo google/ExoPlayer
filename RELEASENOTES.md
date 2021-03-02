@@ -11,6 +11,7 @@
         ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
     *   Allow forcing offload for gapless content even if gapless playback is
         not supported.
+    *   Allow fall back from DTS-HD to DTS when playing via passthrough.
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
 *   Downloads and caching:
