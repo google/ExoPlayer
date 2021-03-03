@@ -77,9 +77,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- * An activity that plays media using {@link SimpleExoPlayer}.
- */
+/** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
     implements OnClickListener, StyledPlayerControlView.VisibilityListener {
 

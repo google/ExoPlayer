@@ -51,9 +51,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/**
- * Utility methods for the demo app.
- */
+/** Utility methods for the demo app. */
+
 public final class DemoUtil {
 
   public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
@@ -90,9 +89,8 @@ public final class DemoUtil {
   private static @MonotonicNonNull DownloadTracker downloadTracker;
   private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
 
-  /**
-   * Returns whether extension renderers should be used.
-   */
+  /** Returns whether extension renderers should be used. */
+
   public static boolean useExtensionRenderers() {
     return BuildConfig.USE_DECODER_EXTENSIONS;
   }
@@ -103,8 +101,8 @@ public final class DemoUtil {
     int extensionRendererMode =
         useExtensionRenderers()
             ? (preferExtensionRenderer
-            ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
-            : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+              ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+              : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
             : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
     return new DefaultRenderersFactory(context.getApplicationContext())
         .setExtensionRendererMode(extensionRendererMode);
@@ -128,9 +126,7 @@ public final class DemoUtil {
     return httpDataSourceFactory;
   }
 
-  /**
-   * Returns a {@link DataSource.Factory}.
-   */
+  /** Returns a {@link DataSource.Factory}. */
   public static synchronized DataSource.Factory getDataSourceFactory(Context context) {
     if (dataSourceFactory == null) {
       context = context.getApplicationContext();
@@ -193,8 +189,6 @@ public final class DemoUtil {
           DOWNLOAD_TRACKER_ACTION_FILE,
           downloadIndex,
           /* addNewDownloadsAsCompleted= */ true);
-      // begin here
-
       downloadManager =
           new DownloadManager(
               context,
@@ -206,6 +200,7 @@ public final class DemoUtil {
   }
 
   private static DownloaderFactory customDownloaderFactory(Context context) {
+    ExecutorService threadPool = Executors.newFixedThreadPool(6);
     return new DefaultDownloaderFactory(
         CacheManager.downloadDataSourceFactory(context, getHttpDataSourceFactory(context)),
         threadPool) {
@@ -221,10 +216,7 @@ public final class DemoUtil {
         return defaultDownloaderFactory.createDownloader(request);
       }
     };
-
   }
-
-  private static ExecutorService threadPool = Executors.newFixedThreadPool(6);
 
   private static synchronized void upgradeActionFile(
       Context context,
