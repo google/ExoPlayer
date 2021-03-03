@@ -90,7 +90,6 @@ public final class DemoUtil {
   private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
 
   /** Returns whether extension renderers should be used. */
-
   public static boolean useExtensionRenderers() {
     return BuildConfig.USE_DECODER_EXTENSIONS;
   }
@@ -261,6 +260,5 @@ public final class DemoUtil {
         .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
   }
 
-  private DemoUtil() {
-  }
+  private DemoUtil() {}
 }
