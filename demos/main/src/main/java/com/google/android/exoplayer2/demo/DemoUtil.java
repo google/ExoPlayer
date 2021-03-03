@@ -52,7 +52,6 @@ import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Utility methods for the demo app. */
-
 public final class DemoUtil {
 
   public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
