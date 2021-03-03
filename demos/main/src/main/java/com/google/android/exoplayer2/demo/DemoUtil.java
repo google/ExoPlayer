@@ -26,7 +26,11 @@ import com.google.android.exoplayer2.ext.cronet.CronetDataSource;
 import com.google.android.exoplayer2.ext.cronet.CronetEngineWrapper;
 import com.google.android.exoplayer2.offline.ActionFileUpgradeUtil;
 import com.google.android.exoplayer2.offline.DefaultDownloadIndex;
+import com.google.android.exoplayer2.offline.DefaultDownloaderFactory;
 import com.google.android.exoplayer2.offline.DownloadManager;
+import com.google.android.exoplayer2.offline.DownloadRequest;
+import com.google.android.exoplayer2.offline.Downloader;
+import com.google.android.exoplayer2.offline.DownloaderFactory;
 import com.google.android.exoplayer2.ui.DownloadNotificationHelper;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -43,10 +47,13 @@ import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Utility methods for the demo app. */
+/**
+ * Utility methods for the demo app.
+ */
 public final class DemoUtil {
 
   public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
@@ -83,7 +90,9 @@ public final class DemoUtil {
   private static @MonotonicNonNull DownloadTracker downloadTracker;
   private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
 
-  /** Returns whether extension renderers should be used. */
+  /**
+   * Returns whether extension renderers should be used.
+   */
   public static boolean useExtensionRenderers() {
     return BuildConfig.USE_DECODER_EXTENSIONS;
   }
@@ -94,8 +103,8 @@ public final class DemoUtil {
     int extensionRendererMode =
         useExtensionRenderers()
             ? (preferExtensionRenderer
-                ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
-                : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+            ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+            : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
             : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
     return new DefaultRenderersFactory(context.getApplicationContext())
         .setExtensionRendererMode(extensionRendererMode);
@@ -119,7 +128,9 @@ public final class DemoUtil {
     return httpDataSourceFactory;
   }
 
-  /** Returns a {@link DataSource.Factory}. */
+  /**
+   * Returns a {@link DataSource.Factory}.
+   */
   public static synchronized DataSource.Factory getDataSourceFactory(Context context) {
     if (dataSourceFactory == null) {
       context = context.getApplicationContext();
@@ -166,10 +177,12 @@ public final class DemoUtil {
           new File(getDownloadDirectory(context), PLAYBACK_CONTENT_DIRECTORY);
       playbackCache =
           new SimpleCache(
-              playbackContentDirectory, new LeastRecentlyUsedCacheEvictor(25L * 1024 * 1024), getDatabaseProvider(context)); // 25 MB - ~40m of audio
+              playbackContentDirectory, new LeastRecentlyUsedCacheEvictor(25L * 1024 * 1024),
+              getDatabaseProvider(context)); // 25 MB - ~40m of audio
     }
     return playbackCache;
   }
+
   private static synchronized void ensureDownloadManagerInitialized(Context context) {
     if (downloadManager == null) {
       DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(getDatabaseProvider(context));
@@ -181,17 +194,37 @@ public final class DemoUtil {
           downloadIndex,
           /* addNewDownloadsAsCompleted= */ true);
       // begin here
+
       downloadManager =
           new DownloadManager(
               context,
-              getDatabaseProvider(context),
-              getDownloadCache(context),
-              getHttpDataSourceFactory(context),
-              Executors.newFixedThreadPool(/* nThreads= */ 6));
+              downloadIndex,
+              customDownloaderFactory(context));
       downloadTracker =
           new DownloadTracker(context, getHttpDataSourceFactory(context), downloadManager);
     }
   }
+
+  private static DownloaderFactory customDownloaderFactory(Context context) {
+    return new DefaultDownloaderFactory(
+        CacheManager.downloadDataSourceFactory(context, getHttpDataSourceFactory(context)),
+        threadPool) {
+
+      @Override
+      public Downloader createDownloader(DownloadRequest request) {
+        DefaultDataSourceFactory defaultDataSourceFactory = new DefaultDataSourceFactory(context,
+            getHttpDataSourceFactory(context));
+        DefaultDownloaderFactory defaultDownloaderFactory = new DefaultDownloaderFactory(
+            CacheManager.downloadDataSourceFactory(context, defaultDataSourceFactory),
+            threadPool
+        );
+        return defaultDownloaderFactory.createDownloader(request);
+      }
+    };
+
+  }
+
+  private static ExecutorService threadPool = Executors.newFixedThreadPool(6);
 
   private static synchronized void upgradeActionFile(
       Context context,
@@ -236,5 +269,6 @@ public final class DemoUtil {
         .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
   }
 
-  private DemoUtil() {}
+  private DemoUtil() {
+  }
 }

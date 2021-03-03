@@ -32,4 +32,16 @@ public class CacheManager {
         .setCacheReadDataSourceFactory(ExoplayerEncryption.dataSourceFactory(upstream))
         .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE);
   }
+
+  public static CacheDataSource.Factory downloadDataSourceFactory(Context context, DataSource.Factory upstream) {
+    CacheDataSource.Factory playbackCacheFactory = createPlaybackCacheFactory(context, upstream);
+    Cache downloadCache = DemoUtil.getDownloadCache(context);
+    return new CacheDataSource.Factory()
+        .setCache(downloadCache)
+        .setUpstreamDataSourceFactory(playbackCacheFactory)
+        // Allow writing when creating for downloading - write encrypted to disk
+        .setCacheWriteDataSinkFactory(ExoplayerEncryption.dataSinkFactory(downloadCache))
+        // Read encrypted from disk, using the playback cache as the upstream fallback
+        .setCacheReadDataSourceFactory(ExoplayerEncryption.dataSourceFactory(playbackCacheFactory));
+  }
 }

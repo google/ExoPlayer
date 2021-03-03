@@ -52,7 +52,6 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
-import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -68,10 +67,9 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.Cache;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
@@ -276,9 +274,11 @@ public class PlayerActivity extends AppCompatActivity
         true //allow redirects
     );
 
-    DefaultDataSourceFactory upstreamFactory = new DefaultDataSourceFactory(getApplicationContext(), httpDataSourceFactory);
+    DefaultDataSourceFactory upstreamFactory = new DefaultDataSourceFactory(getApplicationContext(),
+        httpDataSourceFactory);
     return CacheManager.playbackDataSourceFactory(getApplicationContext(), upstreamFactory);
   }
+
   /**
    * @return Whether initialization was successful.
    */
@@ -311,7 +311,8 @@ public class PlayerActivity extends AppCompatActivity
         }
       };
 
-      MediaSourceFactory mediaSourceFactory = new ProgressiveMediaSource.Factory(buildDataSourceFactory());
+      MediaSourceFactory mediaSourceFactory = new ProgressiveMediaSource.Factory(
+          buildDataSourceFactory());
 
       trackSelector = new DefaultTrackSelector(/* context= */ this);
       trackSelector.setParameters(trackSelectorParameters);
@@ -483,6 +484,7 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     public void onPlayerError(@NonNull ExoPlaybackException e) {
+      Log.e("NATHAN", e.toString());
       if (isBehindLiveWindow(e)) {
         clearStartPosition();
         initializePlayer();
