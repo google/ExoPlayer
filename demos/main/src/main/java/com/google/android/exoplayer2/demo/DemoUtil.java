@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.upstream.cache.Cache;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Log;
@@ -59,7 +60,7 @@ public final class DemoUtil {
    */
   private static final boolean USE_CRONET_FOR_NETWORKING = true;
 
-  private static final String USER_AGENT =
+  public static final String USER_AGENT =
       "ExoPlayerDemo/"
           + ExoPlayerLibraryInfo.VERSION
           + " (Linux; Android "
@@ -70,12 +71,14 @@ public final class DemoUtil {
   private static final String DOWNLOAD_ACTION_FILE = "actions";
   private static final String DOWNLOAD_TRACKER_ACTION_FILE = "tracked_actions";
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
+  private static final String PLAYBACK_CONTENT_DIRECTORY = "playback_cache";
 
   private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
   private static HttpDataSource.@MonotonicNonNull Factory httpDataSourceFactory;
   private static @MonotonicNonNull DatabaseProvider databaseProvider;
   private static @MonotonicNonNull File downloadDirectory;
   private static @MonotonicNonNull Cache downloadCache;
+  private static @MonotonicNonNull Cache playbackCache;
   private static @MonotonicNonNull DownloadManager downloadManager;
   private static @MonotonicNonNull DownloadTracker downloadTracker;
   private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
@@ -146,7 +149,7 @@ public final class DemoUtil {
     return downloadTracker;
   }
 
-  private static synchronized Cache getDownloadCache(Context context) {
+  public static synchronized Cache getDownloadCache(Context context) {
     if (downloadCache == null) {
       File downloadContentDirectory =
           new File(getDownloadDirectory(context), DOWNLOAD_CONTENT_DIRECTORY);
@@ -157,6 +160,16 @@ public final class DemoUtil {
     return downloadCache;
   }
 
+  public static synchronized Cache getPlaybackCache(Context context) {
+    if (playbackCache == null) {
+      File playbackContentDirectory =
+          new File(getDownloadDirectory(context), PLAYBACK_CONTENT_DIRECTORY);
+      playbackCache =
+          new SimpleCache(
+              playbackContentDirectory, new LeastRecentlyUsedCacheEvictor(25L * 1024 * 1024), getDatabaseProvider(context)); // 25 MB - ~40m of audio
+    }
+    return playbackCache;
+  }
   private static synchronized void ensureDownloadManagerInitialized(Context context) {
     if (downloadManager == null) {
       DefaultDownloadIndex downloadIndex = new DefaultDownloadIndex(getDatabaseProvider(context));

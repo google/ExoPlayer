@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -35,19 +36,28 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.DefaultAudioSink;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
+import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -55,15 +65,23 @@ import com.google.android.exoplayer2.ui.DebugTextViewHelper;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.Cache;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/** An activity that plays media using {@link SimpleExoPlayer}. */
+/**
+ * An activity that plays media using {@link SimpleExoPlayer}.
+ */
 public class PlayerActivity extends AppCompatActivity
     implements OnClickListener, StyledPlayerControlView.VisibilityListener {
 
@@ -250,7 +268,43 @@ public class PlayerActivity extends AppCompatActivity
     setContentView(R.layout.player_activity);
   }
 
-  /** @return Whether initialization was successful. */
+  private CacheDataSource.Factory createPlaybackCacheFactory(DataSource.Factory upstream) {
+    Cache playbackCache = DemoUtil.getPlaybackCache(getApplicationContext());
+    return new CacheDataSource.Factory()
+        .setCache(playbackCache)
+        .setUpstreamDataSourceFactory(upstream)
+        // Write encrypted to the playback cache
+        .setCacheWriteDataSinkFactory(ExoplayerEncryption.dataSinkFactory(playbackCache))
+        // Read encrypted from disk, using the upstream source as fallback
+        .setCacheReadDataSourceFactory(ExoplayerEncryption.dataSourceFactory(upstream))
+        .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE);
+  }
+  private CacheDataSource.Factory playbackDataSourceFactory(DataSource.Factory upstream ) {
+    Cache downloadCache = DemoUtil.getDownloadCache(getApplicationContext());
+    CacheDataSource.Factory playbackCacheFactory = createPlaybackCacheFactory(upstream);
+    return new CacheDataSource.Factory()
+        .setCache(downloadCache)
+        .setUpstreamDataSourceFactory(playbackCacheFactory)
+        // No writing to download cache when doing playback
+        .setCacheWriteDataSinkFactory(null)
+        // But if we're reading, still attempt to read encrypted content, using the playback cache as upstream
+        .setCacheReadDataSourceFactory(ExoplayerEncryption.dataSourceFactory(playbackCacheFactory));
+  }
+
+  private DataSource.Factory buildDataSourceFactory() {
+    DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory(
+        DemoUtil.USER_AGENT,
+        DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+        DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
+        true //allow redirects
+    );
+
+    DefaultDataSourceFactory upstreamFactory = new DefaultDataSourceFactory(getApplicationContext(), httpDataSourceFactory);
+    return playbackDataSourceFactory(upstreamFactory);
+  }
+  /**
+   * @return Whether initialization was successful.
+   */
   protected boolean initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
@@ -260,14 +314,27 @@ public class PlayerActivity extends AppCompatActivity
         return false;
       }
 
-      boolean preferExtensionDecoders =
-          intent.getBooleanExtra(IntentUtil.PREFER_EXTENSION_DECODERS_EXTRA, false);
-      RenderersFactory renderersFactory =
-          DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
-      MediaSourceFactory mediaSourceFactory =
-          new DefaultMediaSourceFactory(dataSourceFactory)
-              .setAdsLoaderProvider(this::getAdsLoader)
-              .setAdViewProvider(playerView);
+      RenderersFactory renderersFactory = new RenderersFactory() {
+        @Override
+        public Renderer[] createRenderers(Handler eventHandler,
+            VideoRendererEventListener videoRendererEventListener,
+            AudioRendererEventListener audioRendererEventListener, TextOutput textRendererOutput,
+            MetadataOutput metadataRendererOutput) {
+          DefaultAudioSink audioSink = new DefaultAudioSink(
+              AudioCapabilities.getCapabilities(getApplicationContext()),
+              new DefaultAudioSink.DefaultAudioProcessorChain(),
+              false,
+              true,
+              false
+          );
+          Renderer renderer = new MediaCodecAudioRenderer(getApplicationContext(),
+              MediaCodecSelector.DEFAULT, eventHandler, audioRendererEventListener, audioSink);
+
+          return new Renderer[]{renderer};
+        }
+      };
+
+      MediaSourceFactory mediaSourceFactory = new ProgressiveMediaSource.Factory(buildDataSourceFactory());
 
       trackSelector = new DefaultTrackSelector(/* context= */ this);
       trackSelector.setParameters(trackSelectorParameters);

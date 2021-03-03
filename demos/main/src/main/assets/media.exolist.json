@@ -1,5 +1,14 @@
 [
   {
+    "name": "Nathan",
+    "samples": [
+      {
+        "name": "MP3 SoundHelix-Song-15",
+        "uri": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3"
+      }
+    ]
+  },
+  {
     "name": "Clear DASH",
     "samples": [
       {
