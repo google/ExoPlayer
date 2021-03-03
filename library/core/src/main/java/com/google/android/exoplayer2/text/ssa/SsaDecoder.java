@@ -324,22 +324,20 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       if (style.bold && style.italic) {
         spannableText.setSpan(
             new StyleSpan(Typeface.BOLD_ITALIC),
-            0,
-            spannableText.length(),
+            /* start= */0,
+            /* end= */ spannableText.length(),
             SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      else if(style.bold){
+      } else if (style.bold) {
         spannableText.setSpan(
             new StyleSpan(Typeface.BOLD),
-            0,
-            spannableText.length(),
+            /* start= */0,
+            /* end= */ spannableText.length(),
             SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-      }
-      else if(style.italic){
+      } else if (style.italic) {
         spannableText.setSpan(
             new StyleSpan(Typeface.ITALIC),
-            0,
-            spannableText.length(),
+            /* start= */0,
+            /* end= */ spannableText.length(),
             SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
     }

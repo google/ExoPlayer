@@ -338,7 +338,7 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void decodeBoldItalic() throws IOException{
+  public void decodeBoldItalic() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_BOLD_ITALIC);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);

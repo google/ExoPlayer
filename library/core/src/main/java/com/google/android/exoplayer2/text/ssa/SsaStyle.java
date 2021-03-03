@@ -218,10 +218,9 @@ import java.util.regex.Pattern;
   private static boolean parseBold(String bold) {
     try {
       int boldFlag = Integer.parseInt(bold);
-      if(boldFlag == 1 || boldFlag == -1){
+      if (boldFlag == 1 || boldFlag == -1) {
         return true;
-      }
-      else{
+      } else {
         return false;
       }
     } catch (NumberFormatException e) {
@@ -233,10 +232,9 @@ import java.util.regex.Pattern;
   private static boolean parseItalic(String italic) {
     try {
       int italicFlag = Integer.parseInt(italic);
-      if(italicFlag == 1 || italicFlag == -1){
+      if (italicFlag == 1 || italicFlag == -1) {
         return true;
-      }
-      else{
+      } else {
         return false;
       }
     } catch (NumberFormatException e) {
