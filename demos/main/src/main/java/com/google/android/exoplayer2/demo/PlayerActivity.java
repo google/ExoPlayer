@@ -268,29 +268,6 @@ public class PlayerActivity extends AppCompatActivity
     setContentView(R.layout.player_activity);
   }
 
-  private CacheDataSource.Factory createPlaybackCacheFactory(DataSource.Factory upstream) {
-    Cache playbackCache = DemoUtil.getPlaybackCache(getApplicationContext());
-    return new CacheDataSource.Factory()
-        .setCache(playbackCache)
-        .setUpstreamDataSourceFactory(upstream)
-        // Write encrypted to the playback cache
-        .setCacheWriteDataSinkFactory(ExoplayerEncryption.dataSinkFactory(playbackCache))
-        // Read encrypted from disk, using the upstream source as fallback
-        .setCacheReadDataSourceFactory(ExoplayerEncryption.dataSourceFactory(upstream))
-        .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE);
-  }
-  private CacheDataSource.Factory playbackDataSourceFactory(DataSource.Factory upstream ) {
-    Cache downloadCache = DemoUtil.getDownloadCache(getApplicationContext());
-    CacheDataSource.Factory playbackCacheFactory = createPlaybackCacheFactory(upstream);
-    return new CacheDataSource.Factory()
-        .setCache(downloadCache)
-        .setUpstreamDataSourceFactory(playbackCacheFactory)
-        // No writing to download cache when doing playback
-        .setCacheWriteDataSinkFactory(null)
-        // But if we're reading, still attempt to read encrypted content, using the playback cache as upstream
-        .setCacheReadDataSourceFactory(ExoplayerEncryption.dataSourceFactory(playbackCacheFactory));
-  }
-
   private DataSource.Factory buildDataSourceFactory() {
     DefaultHttpDataSourceFactory httpDataSourceFactory = new DefaultHttpDataSourceFactory(
         DemoUtil.USER_AGENT,
@@ -300,7 +277,7 @@ public class PlayerActivity extends AppCompatActivity
     );
 
     DefaultDataSourceFactory upstreamFactory = new DefaultDataSourceFactory(getApplicationContext(), httpDataSourceFactory);
-    return playbackDataSourceFactory(upstreamFactory);
+    return CacheManager.playbackDataSourceFactory(getApplicationContext(), upstreamFactory);
   }
   /**
    * @return Whether initialization was successful.

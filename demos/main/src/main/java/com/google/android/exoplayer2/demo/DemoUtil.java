@@ -180,6 +180,7 @@ public final class DemoUtil {
           DOWNLOAD_TRACKER_ACTION_FILE,
           downloadIndex,
           /* addNewDownloadsAsCompleted= */ true);
+      // begin here
       downloadManager =
           new DownloadManager(
               context,
