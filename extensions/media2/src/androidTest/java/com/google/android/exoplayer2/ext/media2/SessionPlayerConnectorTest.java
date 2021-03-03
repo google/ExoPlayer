@@ -30,7 +30,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Looper;
 import androidx.annotation.Nullable;
-import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -49,6 +48,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.media2.test.R;
 import com.google.android.exoplayer2.upstream.RawResourceDataSource;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -794,7 +794,7 @@ public class SessionPlayerConnectorTest {
               SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
-            if (ObjectsCompat.equals(list, playlistToExoPlayer)) {
+            if (Util.areEqual(list, playlistToExoPlayer)) {
               onPlaylistChangedLatch.countDown();
             }
           }
@@ -825,7 +825,7 @@ public class SessionPlayerConnectorTest {
               SessionPlayer player,
               @Nullable List<MediaItem> list,
               @Nullable MediaMetadata metadata) {
-            if (ObjectsCompat.equals(list, playlistToExoPlayer)) {
+            if (Util.areEqual(list, playlistToExoPlayer)) {
               onPlaylistChangedLatch.countDown();
             }
           }

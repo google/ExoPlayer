@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Util.postOrRun;
 import android.os.Handler;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
-import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -535,7 +534,7 @@ import java.util.List;
     int windowCount = timeline.getWindowCount();
     for (int i = 0; i < windowCount; i++) {
       timeline.getWindow(i, window);
-      if (!ObjectsCompat.equals(exoPlayerPlaylist.get(i), window.mediaItem)) {
+      if (!Util.areEqual(exoPlayerPlaylist.get(i), window.mediaItem)) {
         return true;
       }
     }
