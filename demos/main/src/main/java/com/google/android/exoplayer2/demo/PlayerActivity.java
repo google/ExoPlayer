@@ -277,9 +277,7 @@ public class PlayerActivity extends AppCompatActivity
     return CacheManager.playbackDataSourceFactory(getApplicationContext(), upstreamFactory);
   }
 
-  /**
-   * @return Whether initialization was successful.
-   */
+  /** @return Whether initialization was successful. */
   protected boolean initializePlayer() {
     if (player == null) {
       Intent intent = getIntent();
