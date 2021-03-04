@@ -1829,7 +1829,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       MediaPeriodId oldPeriodId,
       long positionForTargetOffsetOverrideUs) {
     if (newTimeline.isEmpty() || !shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
-      // Live playback speed control is unused.
+      // Live playback speed control is unused for the current period, reset speed if adjusted.
+      if (mediaClock.getPlaybackParameters().speed != playbackInfo.playbackParameters.speed) {
+        mediaClock.setPlaybackParameters(playbackInfo.playbackParameters);
+      }
       return;
     }
     int windowIndex = newTimeline.getPeriodByUid(newPeriodId.periodUid, period).windowIndex;
