@@ -48,6 +48,11 @@ import java.util.List;
  * A media player interface defining traditional high-level functionality, such as the ability to
  * play, pause, seek and query properties of the currently playing media.
  *
+ * <p>This interface includes some convenience methods that can be implemented by calling other
+ * methods in the interface. {@link BasePlayer} implements these convenience methods so inheriting
+ * {@link BasePlayer} is recommended when implementing the interface so that only the minimal set of
+ * required methods can be implemented.
+ *
  * <p>Some important properties of media players that implement this interface are:
  *
  * <ul>
