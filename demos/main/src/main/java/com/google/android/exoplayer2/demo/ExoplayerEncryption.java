@@ -24,7 +24,6 @@ public class ExoplayerEncryption {
         return new CacheDataSink(downloadCache, Long.MAX_VALUE);
       }
     };
-
   }
 
   public static DataSource.Factory dataSourceFactory(DataSource.Factory upstream) {
