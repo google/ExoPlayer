@@ -16,21 +16,17 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_AUTO;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_FILLED_CIRCLE;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_FILLED_DOT;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_FILLED_SESAME;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_OPEN_CIRCLE;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_OPEN_DOT;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_OPEN_SESAME;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_AFTER;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_BEFORE;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_OUTSIDE;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_UNKNOWN;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.util.Set;
 
 /**
  * This class is used to emphasize text using markers above or below the text. For example, markers
@@ -42,18 +38,73 @@ import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 /* package */ final class TextEmphasis {
 
   /**
-   * The position of the text emphasis relative to the base text.
+   *  Mark style to be resolved at rendering time. Hence, it is not defined in
+   *  {@link TextEmphasisSpan.Mark}
    */
-  @TextEmphasisSpan.Position
-  public final int position;
+  public static final int MARK_AUTO = 1 << 8;
+
+  @Documented
+  @Retention(SOURCE)
+  @IntDef({TextEmphasisSpan.MARK_FILLED_CIRCLE,
+      TextEmphasisSpan.MARK_FILLED_DOT,
+      TextEmphasisSpan.MARK_FILLED_SESAME,
+      TextEmphasisSpan.MARK_OPEN_CIRCLE,
+      TextEmphasisSpan.MARK_OPEN_DOT,
+      TextEmphasisSpan.MARK_OPEN_SESAME,
+      // Extending the definition in TextEmphasisSpan for intermediate values
+      MARK_AUTO
+  })
+
+  /* package */ @interface Mark {
+  }
 
   /**
-   * The desired emphasis mark
+   * The mark style of the text emphasis.
    */
-  @TextEmphasisSpan.Mark
-  public final int mark;
+  /* package */@Mark
+  final int mark;
 
-  private TextEmphasis(@TextEmphasisSpan.Mark int mark, @TextEmphasisSpan.Position int position) {
+  /**
+   *  Position to be resolved at rendering time. Hence, it is not defined in
+   *  {@link TextAnnotation.Position}
+   */
+  public static final int POSITION_OUTSIDE = 1 << 8;
+
+  @Documented
+  @Retention(SOURCE)
+  @IntDef({TextAnnotation.POSITION_UNKNOWN,
+      TextAnnotation.POSITION_BEFORE,
+      TextAnnotation.POSITION_AFTER,
+      // Extending the definition in TextAnnotation.Position for intermediate values
+      POSITION_OUTSIDE
+  })
+  public @interface Position {}
+
+  /**
+   * The position of the text emphasis relative to the base text.
+   */
+  @Position
+  public final int position;
+
+  private static Set markValues = ImmutableSet.of(
+      TtmlNode.TEXT_EMPHASIS_AUTO,
+      TtmlNode.TEXT_EMPHASIS_MARK_DOT,
+      TtmlNode.TEXT_EMPHASIS_MARK_SESAME,
+      TtmlNode.TEXT_EMPHASIS_MARK_CIRCLE
+      );
+
+  private static Set markStyles = ImmutableSet.of(
+      TtmlNode.TEXT_EMPHASIS_MARK_FILLED,
+      TtmlNode.TEXT_EMPHASIS_MARK_OPEN
+  );
+
+  private static Set positionValues = ImmutableSet.of(
+      TtmlNode.TEXT_EMPHASIS_POSITION_AFTER,
+      TtmlNode.TEXT_EMPHASIS_POSITION_BEFORE,
+      TtmlNode.TEXT_EMPHASIS_POSITION_OUTSIDE
+  );
+
+  private TextEmphasis(@Mark int mark, @TextAnnotation.Position int position) {
     this.mark = mark;
     this.position = position;
   }
@@ -76,126 +127,65 @@ import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
       return null;
     }
 
-    String[] nodes = parsingValue.split("\\s+");
+    Set<String> nodes = Sets.newHashSet(parsingValue.split("\\s+"));
 
-    switch (nodes.length) {
-      case 0:
-        return null;
-      case 1:
-        return handleOneNode(nodes[0]);
-      case 2:
-        return handleTwoNodes(nodes[0], nodes[1]);
-      default:
-        // We ignore anything after third entry in value
-        return handleThreeNodes(nodes[0], nodes[1], nodes[2]);
-    }
-  }
-
-  private static @Nullable
-  TextEmphasis handleOneNode(@NonNull String value) {
-
-    if (TtmlNode.TEXT_EMPHASIS_NONE.equals(value)) {
+    if (nodes.size() == 0 || TtmlNode.TEXT_EMPHASIS_NONE.equals(nodes.iterator().next())) {
       return null;
     }
-
-    // Handle "auto" or unknown value
-    // If an implementation does not recognize or otherwise distinguish an emphasis style value,
-    // then it must be interpreted as if a style of auto were specified; as such, an implementation
-    // that supports text emphasis marks must minimally support the auto value.
-    return new TextEmphasis(MARK_AUTO, POSITION_UNKNOWN);
+    return parseNodes(nodes);
   }
 
-  private static @Nullable
-  TextEmphasis handleTwoNodes(@NonNull String mark, @NonNull String position) {
+  private static @Nullable TextEmphasis parseNodes(Set<String> nodes) {
+    Set styleSet = Sets.intersection(markStyles, nodes).immutableCopy();
+    Set markSet = Sets.intersection(markValues, nodes).immutableCopy();
+    Set positionSet = Sets.intersection(positionValues, nodes).immutableCopy();
 
-    @TextEmphasisSpan.Position int positionEntry = getPosition(position);
-    @TextEmphasisSpan.Mark int markEntry;
-    switch (mark) {
-      case TtmlNode.TEXT_EMPHASIS_AUTO:
-        markEntry = MARK_AUTO;
-        break;
-      // If only circle, dot, or sesame is specified, then it is equivalent to filled circle,
-      // filled dot, and filled sesame, respectively.
-      case TtmlNode.TEXT_EMPHASIS_MARK_DOT:
-        markEntry = MARK_FILLED_DOT;
-        break;
-      case TtmlNode.TEXT_EMPHASIS_MARK_SESAME:
-        markEntry = MARK_FILLED_SESAME;
-        break;
-      case TtmlNode.TEXT_EMPHASIS_MARK_CIRCLE:
-        markEntry = MARK_FILLED_CIRCLE;
-        break;
-      default:
-        // This is use case for: "filled dot" when position is not specified.
-        return handleWithPosition(mark, position, POSITION_UNKNOWN);
+    @Mark int mark = 0;
+    if (styleSet.size() == 1) {
+      mark |= TtmlNode.TEXT_EMPHASIS_MARK_OPEN.equals(styleSet.iterator().next())
+          ? TextEmphasisSpan.MARK_FLAG_OPEN
+          : TextEmphasisSpan.MARK_FLAG_FILLED;
+    }
+    if (markSet.size() == 1) {
+      switch ((String) markSet.iterator().next()) {
+        case TtmlNode.TEXT_EMPHASIS_AUTO:
+          mark |= MARK_AUTO;
+          break;
+        case TtmlNode.TEXT_EMPHASIS_MARK_DOT:
+          mark |= TextEmphasisSpan.MARK_FLAG_DOT;
+          break;
+        case TtmlNode.TEXT_EMPHASIS_MARK_SESAME:
+          mark |= TextEmphasisSpan.MARK_FLAG_SESAME;
+          break;
+        case TtmlNode.TEXT_EMPHASIS_MARK_CIRCLE:
+        default:
+          mark |= TextEmphasisSpan.MARK_FLAG_CIRCLE;
+      }
+    } else {
+      mark |= TextEmphasisSpan.MARK_FLAG_CIRCLE;
     }
 
-    return new TextEmphasis(markEntry, positionEntry);
-  }
-
-  private static @Nullable
-  TextEmphasis handleWithPosition(@NonNull String markStyle, @Nullable String mark,
-      @TextEmphasisSpan.Position int position) {
-
-    switch (mark) {
-
-      case TtmlNode.TEXT_EMPHASIS_MARK_DOT:
-        if (TtmlNode.TEXT_EMPHASIS_MARK_FILLED.equals(markStyle)) {
-          return new TextEmphasis(MARK_FILLED_DOT, position);
-        } else if (TtmlNode.TEXT_EMPHASIS_MARK_OPEN.equals(markStyle)) {
-          return new TextEmphasis(MARK_OPEN_DOT, position);
-        } else {
-          return new TextEmphasis(MARK_FILLED_DOT, position);
-        }
-
-      case TtmlNode.TEXT_EMPHASIS_MARK_SESAME:
-        if (TtmlNode.TEXT_EMPHASIS_MARK_FILLED.equals(markStyle)) {
-          return new TextEmphasis(MARK_FILLED_SESAME, position);
-        } else if (TtmlNode.TEXT_EMPHASIS_MARK_OPEN.equals(markStyle)) {
-          return new TextEmphasis(MARK_OPEN_SESAME, position);
-        } else {
-          return new TextEmphasis(MARK_FILLED_SESAME, position);
-        }
-
-      case TtmlNode.TEXT_EMPHASIS_MARK_CIRCLE:
-        if (TtmlNode.TEXT_EMPHASIS_MARK_FILLED.equals(markStyle)) {
-          return new TextEmphasis(MARK_FILLED_CIRCLE, position);
-        } else if (TtmlNode.TEXT_EMPHASIS_MARK_OPEN.equals(markStyle)) {
-          return new TextEmphasis(MARK_OPEN_CIRCLE, position);
-        } else {
-          return new TextEmphasis(MARK_FILLED_CIRCLE, position);
-        }
-
-      default:
-        // Not supported, default to AUTO.
-        break;
+    /**
+     *  If no emphasis position is specified, then the emphasis position must be interpreted as if
+     *  a position of outside were specified.
+     *  <p>
+     *  More information on
+     *  <a href="https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-textEmphasis">tts:textEmphasis</a>
+     */
+    @Position int position = POSITION_OUTSIDE;
+    if (positionSet.size() == 1) {
+      switch ((String) positionSet.iterator().next()) {
+        case TtmlNode.TEXT_EMPHASIS_POSITION_AFTER:
+          position = TextAnnotation.POSITION_AFTER;
+          break;
+        case TtmlNode.TEXT_EMPHASIS_POSITION_OUTSIDE:
+          position = POSITION_OUTSIDE;
+          break;
+        case TtmlNode.TEXT_EMPHASIS_POSITION_BEFORE:
+        default:
+          position = TextAnnotation.POSITION_BEFORE;
+      }
     }
-
-    return new TextEmphasis(MARK_AUTO, POSITION_UNKNOWN);
-  }
-
-  private static @Nullable
-  TextEmphasis handleThreeNodes(@NonNull String markStyle, @NonNull String mark,
-      @NonNull String position) {
-
-    @TextEmphasisSpan.Position int positionEntry = getPosition(position);
-    return handleWithPosition(markStyle, mark, positionEntry);
-  }
-
-  private static @TextEmphasisSpan.Position
-  int getPosition(@NonNull String value) {
-
-    switch (value) {
-      case TtmlNode.TEXT_EMPHASIS_POSITION_AFTER:
-        return POSITION_AFTER;
-      case TtmlNode.TEXT_EMPHASIS_POSITION_BEFORE:
-        return POSITION_BEFORE;
-      case TtmlNode.TEXT_EMPHASIS_POSITION_OUTSIDE:
-        return POSITION_OUTSIDE;
-      default:
-        // ignore
-        break;
-    }
-    return POSITION_UNKNOWN;
+    return new TextEmphasis(mark, position);
   }
 }

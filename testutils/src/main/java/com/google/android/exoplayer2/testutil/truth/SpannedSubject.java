@@ -38,6 +38,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.truth.Fact;
@@ -1075,7 +1076,7 @@ public final class SpannedSubject extends Subject {
      * @param position The expected position of the text.
      * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
      */
-    AndSpanFlags withTextAndPosition(String text, @RubySpan.Position int position);
+    AndSpanFlags withTextAndPosition(String text, @TextAnnotation.Position int position);
   }
 
   private static final RubyText ALREADY_FAILED_WITH_TEXT =
@@ -1099,7 +1100,7 @@ public final class SpannedSubject extends Subject {
     }
 
     @Override
-    public AndSpanFlags withTextAndPosition(String text, @RubySpan.Position int position) {
+    public AndSpanFlags withTextAndPosition(String text, @TextAnnotation.Position int position) {
       List<Integer> matchingSpanFlags = new ArrayList<>();
       List<TextAndPosition> spanTextsAndPositions = new ArrayList<>();
       for (RubySpan span : actualSpans) {
@@ -1116,7 +1117,7 @@ public final class SpannedSubject extends Subject {
 
     private static final class TextAndPosition {
       private final String text;
-      @RubySpan.Position private final int position;
+      @TextAnnotation.Position private final int position;
 
       private TextAndPosition(String text, int position) {
         this.text = text;
@@ -1164,7 +1165,7 @@ public final class SpannedSubject extends Subject {
      * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
      */
     AndSpanFlags withMarkAndPosition(@TextEmphasisSpan.Mark int mark,
-        @TextEmphasisSpan.Position int position);
+        @TextAnnotation.Position int position);
   }
 
   private static final TextEmphasisDescription ALREADY_FAILED_WITH_MARK =
@@ -1189,7 +1190,7 @@ public final class SpannedSubject extends Subject {
 
     @Override
     public AndSpanFlags withMarkAndPosition(@TextEmphasisSpan.Mark int mark,
-        @TextEmphasisSpan.Position int position) {
+        @TextAnnotation.Position int position) {
       List<Integer> matchingSpanFlags = new ArrayList<>();
       List<MarkAndPosition> textEmphasisMarksAndPositions = new ArrayList<>();
       for (TextEmphasisSpan span : actualSpans) {
@@ -1208,32 +1209,13 @@ public final class SpannedSubject extends Subject {
 
       @TextEmphasisSpan.Mark
       private final int mark;
-      @TextEmphasisSpan.Position
+      @TextAnnotation.Position
       private final int position;
 
       private MarkAndPosition(@TextEmphasisSpan.Mark int mark,
-          @TextEmphasisSpan.Position int position) {
+          @TextAnnotation.Position int position) {
         this.mark = mark;
         this.position = position;
-      }
-
-      @Override
-      public boolean equals(@Nullable Object o) {
-        if (this == o) {
-          return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-          return false;
-        }
-
-        TextEmphasisSubject.MarkAndPosition that = (TextEmphasisSubject.MarkAndPosition) o;
-        return (position == that.position) && (mark == that.mark);
-      }
-
-      @Override
-      public int hashCode() {
-        int result = 34613 * mark + position;
-        return result;
       }
 
       @Override
@@ -1242,5 +1224,4 @@ public final class SpannedSubject extends Subject {
       }
     }
   }
-
 }

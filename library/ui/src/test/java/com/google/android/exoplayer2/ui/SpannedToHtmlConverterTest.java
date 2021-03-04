@@ -34,6 +34,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -251,12 +252,12 @@ public class SpannedToHtmlConverterTest {
     SpannableString spanned =
         new SpannableString("String with over-annotated and under-annotated section");
     spanned.setSpan(
-        new RubySpan("ruby-text", RubySpan.POSITION_OVER),
+        new RubySpan("ruby-text", TextAnnotation.POSITION_BEFORE),
         "String with ".length(),
         "String with over-annotated".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     spanned.setSpan(
-        new RubySpan("non-àscìì-text", RubySpan.POSITION_UNDER),
+        new RubySpan("non-àscìì-text", TextAnnotation.POSITION_AFTER),
         "String with over-annotated and ".length(),
         "String with over-annotated and under-annotated".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -284,13 +285,13 @@ public class SpannedToHtmlConverterTest {
   public void convert_supportsTextEmphasisSpan() {
     SpannableString spanned = new SpannableString("Text emphasis おはよ ございます ");
     spanned.setSpan(
-        new TextEmphasisSpan(TextEmphasisSpan.MARK_FILLED_CIRCLE, TextEmphasisSpan.POSITION_BEFORE),
+        new TextEmphasisSpan(TextEmphasisSpan.MARK_FILLED_CIRCLE, TextAnnotation.POSITION_BEFORE),
         "Text emphasis ".length(),
         "Text emphasis おはよ".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
     spanned.setSpan(
-        new TextEmphasisSpan(TextEmphasisSpan.MARK_OPEN_SESAME, TextEmphasisSpan.POSITION_AFTER),
+        new TextEmphasisSpan(TextEmphasisSpan.MARK_OPEN_SESAME, TextAnnotation.POSITION_AFTER),
         "Text emphasis おはよ ".length(),
         "Text emphasis おはよ ございます ".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

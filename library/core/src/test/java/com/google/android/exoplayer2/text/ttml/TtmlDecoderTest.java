@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
@@ -648,16 +649,16 @@ public final class TtmlDecoderTest {
     assertThat(firstCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(firstCue)
         .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
-        .withTextAndPosition("1st rubies", RubySpan.POSITION_OVER);
+        .withTextAndPosition("1st rubies", TextAnnotation.POSITION_BEFORE);
     assertThat(firstCue)
         .hasRubySpanBetween("Cue with annotated ".length(), "Cue with annotated text".length())
-        .withTextAndPosition("2nd rubies", RubySpan.POSITION_UNKNOWN);
+        .withTextAndPosition("2nd rubies", TextAnnotation.POSITION_UNKNOWN);
 
     Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
     assertThat(secondCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(secondCue)
         .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
-        .withTextAndPosition("rubies", RubySpan.POSITION_UNKNOWN);
+        .withTextAndPosition("rubies", TextAnnotation.POSITION_UNKNOWN);
 
     Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
     assertThat(thirdCue.toString()).isEqualTo("Cue with annotated text.");
@@ -681,69 +682,68 @@ public final class TtmlDecoderTest {
     TtmlSubtitle subtitle = getSubtitle(TEXT_EMPHASIS_FILE);
 
     Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
-    assertThat(firstCue)
-        .hasNoTextEmphasisSpanBetween("None ".length(), "None おはよ".length());
+    assertThat(firstCue).hasNoSpans();
 
     Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
     assertThat(secondCue)
         .hasTextEmphasisSpanBetween("Auto ".length(), "Auto ございます".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
-            TextEmphasisSpan.POSITION_UNKNOWN);
+            TextAnnotation.POSITION_BEFORE);
 
     Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
     assertThat(thirdCue)
         .hasTextEmphasisSpanBetween("Filled circle ".length(), "Filled circle こんばんは".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
-            TextEmphasisSpan.POSITION_UNKNOWN);
+            TextAnnotation.POSITION_BEFORE);
 
     Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
     assertThat(fourthCue)
         .hasTextEmphasisSpanBetween("Filled dot ".length(), "Filled dot ございます".length())
-        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_DOT, TextEmphasisSpan.POSITION_UNKNOWN);
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_DOT, TextAnnotation.POSITION_BEFORE);
 
     Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
     assertThat(fifthCue)
         .hasTextEmphasisSpanBetween("Filled sesame ".length(), "Filled sesame おはよ".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
-            TextEmphasisSpan.POSITION_UNKNOWN);
+            TextAnnotation.POSITION_BEFORE);
 
     Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
     assertThat(sixthCue)
         .hasTextEmphasisSpanBetween("Open circle before ".length(),
             "Open circle before ございます".length())
-        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_CIRCLE, TextEmphasisSpan.POSITION_BEFORE);
+        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_CIRCLE, TextAnnotation.POSITION_BEFORE);
 
     Spanned seventhCue = getOnlyCueTextAtTimeUs(subtitle, 70_000_000);
     assertThat(seventhCue)
         .hasTextEmphasisSpanBetween("Open dot after ".length(), "Open dot after おはよ".length())
-        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_DOT, TextEmphasisSpan.POSITION_AFTER);
+        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_DOT, TextAnnotation.POSITION_AFTER);
 
     Spanned eighthCue = getOnlyCueTextAtTimeUs(subtitle, 80_000_000);
     assertThat(eighthCue)
         .hasTextEmphasisSpanBetween("Open sesame outside ".length(),
             "Open sesame outside ございます".length())
-        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_SESAME, TextEmphasisSpan.POSITION_OUTSIDE);
+        .withMarkAndPosition(TextEmphasisSpan.MARK_OPEN_SESAME, TextAnnotation.POSITION_BEFORE);
 
     Spanned ninthCue = getOnlyCueTextAtTimeUs(subtitle, 90_000_000);
     assertThat(ninthCue)
         .hasTextEmphasisSpanBetween("Auto outside ".length(), "Auto outside おはよ".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
-            TextEmphasisSpan.POSITION_OUTSIDE);
+            TextAnnotation.POSITION_BEFORE);
 
     Spanned tenthCue = getOnlyCueTextAtTimeUs(subtitle, 100_000_000);
     assertThat(tenthCue)
         .hasTextEmphasisSpanBetween("Circle before ".length(), "Circle before ございます".length())
-        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE, TextEmphasisSpan.POSITION_BEFORE);
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE, TextAnnotation.POSITION_BEFORE);
 
     Spanned eleventhCue = getOnlyCueTextAtTimeUs(subtitle, 110_000_000);
     assertThat(eleventhCue)
         .hasTextEmphasisSpanBetween("Sesame after ".length(), "Sesame after おはよ".length())
-        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME, TextEmphasisSpan.POSITION_AFTER);
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME, TextAnnotation.POSITION_AFTER);
 
     Spanned twelfthCue = getOnlyCueTextAtTimeUs(subtitle, 120_000_000);
     assertThat(twelfthCue)
         .hasTextEmphasisSpanBetween("Dot outside ".length(), "Dot outside ございます".length())
-        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_DOT, TextEmphasisSpan.POSITION_OUTSIDE);
+        .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_DOT, TextAnnotation.POSITION_BEFORE);
 
     Spanned thirteenthCue = getOnlyCueTextAtTimeUs(subtitle, 130_000_000);
     assertThat(thirteenthCue)
@@ -754,25 +754,25 @@ public final class TtmlDecoderTest {
     assertThat(fourteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TBLR) ".length(), "Auto (TBLR) ございます".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
-            TextEmphasisSpan.POSITION_UNKNOWN);
+            TextAnnotation.POSITION_BEFORE);
 
     Spanned fifteenthCue = getOnlyCueTextAtTimeUs(subtitle, 150_000_000);
     assertThat(fifteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TBRL) ".length(), "Auto (TBRL) おはよ".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
-            TextEmphasisSpan.POSITION_UNKNOWN);
+            TextAnnotation.POSITION_BEFORE);
 
     Spanned sixteenthCue = getOnlyCueTextAtTimeUs(subtitle, 160_000_000);
     assertThat(sixteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TB) ".length(), "Auto (TB) ございます".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_SESAME,
-            TextEmphasisSpan.POSITION_UNKNOWN);
+            TextAnnotation.POSITION_BEFORE);
 
     Spanned seventeenthCue = getOnlyCueTextAtTimeUs(subtitle, 170_000_000);
     assertThat(seventeenthCue)
         .hasTextEmphasisSpanBetween("Auto (LR) ".length(), "Auto (LR) おはよ".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_FILLED_CIRCLE,
-            TextEmphasisSpan.POSITION_UNKNOWN);
+            TextAnnotation.POSITION_BEFORE);
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {

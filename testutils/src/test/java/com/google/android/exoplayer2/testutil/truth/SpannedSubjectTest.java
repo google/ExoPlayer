@@ -609,23 +609,23 @@ public class SpannedSubjectTest {
   public void rubySpan_success() {
     SpannableString spannable =
         createSpannable(
-            new RubySpan("ruby text", RubySpan.POSITION_OVER), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
         .hasRubySpanBetween(SPAN_START, SPAN_END)
-        .withTextAndPosition("ruby text", RubySpan.POSITION_OVER)
+        .withTextAndPosition("ruby text", TextAnnotation.POSITION_BEFORE)
         .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   public void rubySpan_wrongEndIndex() {
     checkHasSpanFailsDueToIndexMismatch(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER), SpannedSubject::hasRubySpanBetween);
+        new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE), SpannedSubject::hasRubySpanBetween);
   }
 
   @Test
   public void rubySpan_wrongText() {
-    SpannableString spannable = createSpannable(new RubySpan("ruby text", RubySpan.POSITION_OVER));
+    SpannableString spannable = createSpannable(new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE));
 
     AssertionError expected =
         expectFailure(
@@ -633,7 +633,7 @@ public class SpannedSubjectTest {
                 whenTesting
                     .that(spannable)
                     .hasRubySpanBetween(SPAN_START, SPAN_END)
-                    .withTextAndPosition("incorrect text", RubySpan.POSITION_OVER));
+                    .withTextAndPosition("incorrect text", TextAnnotation.POSITION_BEFORE));
 
     assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
     assertThat(expected).factValue("expected").contains("text='incorrect text'");
@@ -642,7 +642,7 @@ public class SpannedSubjectTest {
 
   @Test
   public void rubySpan_wrongPosition() {
-    SpannableString spannable = createSpannable(new RubySpan("ruby text", RubySpan.POSITION_OVER));
+    SpannableString spannable = createSpannable(new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE));
 
     AssertionError expected =
         expectFailure(
@@ -650,27 +650,27 @@ public class SpannedSubjectTest {
                 whenTesting
                     .that(spannable)
                     .hasRubySpanBetween(SPAN_START, SPAN_END)
-                    .withTextAndPosition("ruby text", RubySpan.POSITION_UNDER));
+                    .withTextAndPosition("ruby text", TextAnnotation.POSITION_AFTER));
 
     assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
-    assertThat(expected).factValue("expected").contains("position=" + RubySpan.POSITION_UNDER);
-    assertThat(expected).factValue("but was").contains("position=" + RubySpan.POSITION_OVER);
+    assertThat(expected).factValue("expected").contains("position=" + TextAnnotation.POSITION_AFTER);
+    assertThat(expected).factValue("but was").contains("position=" + TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
   public void rubySpan_wrongFlags() {
     checkHasSpanFailsDueToFlagMismatch(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
+        new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE),
         (subject, start, end) ->
             subject
                 .hasRubySpanBetween(start, end)
-                .withTextAndPosition("ruby text", RubySpan.POSITION_OVER));
+                .withTextAndPosition("ruby text", TextAnnotation.POSITION_BEFORE));
   }
 
   @Test
   public void noRubySpan_success() {
     SpannableString spannable =
-        createSpannableWithUnrelatedSpanAnd(new RubySpan("ruby text", RubySpan.POSITION_OVER));
+        createSpannableWithUnrelatedSpanAnd(new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE));
 
     assertThat(spannable).hasNoRubySpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
@@ -678,7 +678,7 @@ public class SpannedSubjectTest {
   @Test
   public void noRubySpan_failure() {
     checkHasNoSpanFails(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER), SpannedSubject::hasNoRubySpanBetween);
+        new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE), SpannedSubject::hasNoRubySpanBetween);
   }
 
   @Test

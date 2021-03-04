@@ -5,8 +5,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
-import com.google.android.exoplayer2.util.Log;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -21,7 +21,6 @@ public class TextEmphasisTest {
     String value = null;
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must be null").that(textEmphasis).isNull();
   }
 
@@ -30,7 +29,6 @@ public class TextEmphasisTest {
     String value = "";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must be null").that(textEmphasis).isNull();
   }
 
@@ -39,7 +37,6 @@ public class TextEmphasisTest {
     String value = "none";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must be null").that(textEmphasis).isNull();
   }
 
@@ -48,10 +45,9 @@ public class TextEmphasisTest {
     String value = "auto";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
-    assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_AUTO);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_UNKNOWN);
+    assertThat(textEmphasis.mark).isEqualTo(TextEmphasis.MARK_AUTO);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -59,26 +55,57 @@ public class TextEmphasisTest {
     String value = "auto outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
-    assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_AUTO);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.mark).isEqualTo(TextEmphasis.MARK_AUTO);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
+  }
+
+  /**
+   *  If only filled or open is specified, then it is equivalent to filled circle and open circle,
+   *  respectively.
+   */
+  @Test
+  public void testFilled() {
+    String value = "filled";
+    TextEmphasis textEmphasis = createTextEmphasis(value);
+
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_CIRCLE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
+  }
+
+  @Test
+  public void testOpen() {
+    String value = "open";
+    TextEmphasis textEmphasis = createTextEmphasis(value);
+
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_CIRCLE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
+  }
+
+  @Test
+  public void testOpenAfter() {
+    String value = "open after";
+    TextEmphasis textEmphasis = createTextEmphasis(value);
+
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_CIRCLE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   /**
    * If only circle, dot, or sesame is specified, then it is equivalent to filled circle, filled dot,
    * and filled sesame, respectively.
    */
-
   @Test
   public void testDotBefore() {
     String value = "dot before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -86,10 +113,9 @@ public class TextEmphasisTest {
     String value = "circle before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -97,10 +123,9 @@ public class TextEmphasisTest {
     String value = "sesame before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -108,10 +133,9 @@ public class TextEmphasisTest {
     String value = "dot AFTER";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -119,10 +143,9 @@ public class TextEmphasisTest {
     String value = "circle after";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -130,10 +153,9 @@ public class TextEmphasisTest {
     String value = "sesame  aFter";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -141,10 +163,9 @@ public class TextEmphasisTest {
     String value = "dot outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -152,10 +173,9 @@ public class TextEmphasisTest {
     String value = "circle outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -163,10 +183,9 @@ public class TextEmphasisTest {
     String value = "sesame  outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -174,10 +193,9 @@ public class TextEmphasisTest {
     String value = "open dot AFTER";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -185,10 +203,9 @@ public class TextEmphasisTest {
     String value = "Open circle after";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -196,10 +213,9 @@ public class TextEmphasisTest {
     String value = "open sesame  aFter";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -207,10 +223,9 @@ public class TextEmphasisTest {
     String value = "open dot before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -218,10 +233,9 @@ public class TextEmphasisTest {
     String value = "Open circle Before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -229,10 +243,9 @@ public class TextEmphasisTest {
     String value = "open sesame Before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -240,10 +253,9 @@ public class TextEmphasisTest {
     String value = "open dot Outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -251,10 +263,9 @@ public class TextEmphasisTest {
     String value = "Open circle Outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -262,10 +273,9 @@ public class TextEmphasisTest {
     String value = "open sesame outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_OPEN_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -273,10 +283,9 @@ public class TextEmphasisTest {
     String value = "filled dot outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -284,10 +293,9 @@ public class TextEmphasisTest {
     String value = "filled circle outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -295,10 +303,9 @@ public class TextEmphasisTest {
     String value = "filled sesame  outside";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_OUTSIDE);
+    assertThat(textEmphasis.position).isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
   @Test
@@ -306,10 +313,9 @@ public class TextEmphasisTest {
     String value = "filled dot After";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -317,10 +323,9 @@ public class TextEmphasisTest {
     String value = "filled circle after";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -328,10 +333,9 @@ public class TextEmphasisTest {
     String value = "filled sesame  After";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_AFTER);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 
   @Test
@@ -339,10 +343,9 @@ public class TextEmphasisTest {
     String value = "filled dot before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_DOT);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -350,10 +353,9 @@ public class TextEmphasisTest {
     String value = "filled circle Before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_CIRCLE);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
@@ -361,9 +363,28 @@ public class TextEmphasisTest {
     String value = "filled sesame  Before";
     TextEmphasis textEmphasis = createTextEmphasis(value);
 
-    Log.d(TAG, "textEmphasis: " + textEmphasis);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
-    assertThat(textEmphasis.position).isEqualTo(TextEmphasisSpan.POSITION_BEFORE);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
+  }
+
+  @Test
+  public void testBeforeFilledSesame() {
+    String value = "before filled sesame";
+    TextEmphasis textEmphasis = createTextEmphasis(value);
+
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
+  }
+
+  @Test
+  public void testBeforeSesameFilled() {
+    String value = "before sesame filled";
+    TextEmphasis textEmphasis = createTextEmphasis(value);
+
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertThat(textEmphasis.mark).isEqualTo(TextEmphasisSpan.MARK_FILLED_SESAME);
+    assertThat(textEmphasis.position).isEqualTo(TextAnnotation.POSITION_BEFORE);
   }
 }

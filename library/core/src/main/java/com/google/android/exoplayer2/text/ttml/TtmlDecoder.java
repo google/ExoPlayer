@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
-import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Log;
@@ -583,10 +583,10 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         case TtmlNode.ATTR_TTS_RUBY_POSITION:
           switch (Util.toLowerInvariant(attributeValue)) {
             case TtmlNode.RUBY_BEFORE:
-              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_OVER);
+              style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_BEFORE);
               break;
             case TtmlNode.RUBY_AFTER:
-              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_UNDER);
+              style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_AFTER);
               break;
             default:
               // ignore

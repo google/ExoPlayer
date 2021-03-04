@@ -16,10 +16,9 @@
 package com.google.android.exoplayer2.text.ttml;
 
 import static android.graphics.Color.BLACK;
+import static com.google.android.exoplayer2.text.span.TextAnnotation.POSITION_BEFORE;
 import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_FILLED_DOT;
 import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_OPEN_SESAME;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_AFTER;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.POSITION_BEFORE;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD_ITALIC;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_ITALIC;
@@ -32,7 +31,7 @@ import android.graphics.Color;
 import android.text.Layout;
 import androidx.annotation.ColorInt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,7 +46,7 @@ public final class TtmlStyleTest {
   @TtmlStyle.FontSizeUnit private static final int FONT_SIZE_UNIT = TtmlStyle.FONT_SIZE_UNIT_EM;
   @ColorInt private static final int BACKGROUND_COLOR = Color.BLACK;
   private static final int RUBY_TYPE = TtmlStyle.RUBY_TYPE_TEXT;
-  private static final int RUBY_POSITION = RubySpan.POSITION_UNDER;
+  private static final int RUBY_POSITION = TextAnnotation.POSITION_AFTER;
   private static final Layout.Alignment TEXT_ALIGN = Layout.Alignment.ALIGN_CENTER;
   private static final boolean TEXT_COMBINE = true;
   public static final String TEXT_EMPHASIS_STYLE="dot before";
@@ -233,9 +232,9 @@ public final class TtmlStyleTest {
   public void rubyPosition() {
     TtmlStyle style = new TtmlStyle();
 
-    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_UNKNOWN);
-    style.setRubyPosition(RubySpan.POSITION_OVER);
-    assertThat(style.getRubyPosition()).isEqualTo(RubySpan.POSITION_OVER);
+    assertThat(style.getRubyPosition()).isEqualTo(TextAnnotation.POSITION_UNKNOWN);
+    style.setRubyPosition(POSITION_BEFORE);
+    assertThat(style.getRubyPosition()).isEqualTo(POSITION_BEFORE);
   }
 
   @Test
@@ -264,6 +263,6 @@ public final class TtmlStyleTest {
     assertThat(style.getTextEmphasis()).isNull();
     style.setTextEmphasis(TextEmphasis.createTextEmphasis("open sesame after"));
     assertThat(style.getTextEmphasis().mark).isEqualTo(MARK_OPEN_SESAME);
-    assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_AFTER);
+    assertThat(style.getTextEmphasis().position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 }

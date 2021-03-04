@@ -31,6 +31,7 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -187,11 +188,11 @@ import java.util.regex.Pattern;
     } else if (span instanceof RubySpan) {
       RubySpan rubySpan = (RubySpan) span;
       switch (rubySpan.position) {
-        case RubySpan.POSITION_OVER:
+        case TextAnnotation.POSITION_BEFORE:
           return "<ruby style='ruby-position:over;'>";
-        case RubySpan.POSITION_UNDER:
+        case TextAnnotation.POSITION_AFTER:
           return "<ruby style='ruby-position:under;'>";
-        case RubySpan.POSITION_UNKNOWN:
+        case TextAnnotation.POSITION_UNKNOWN:
           return "<ruby style='ruby-position:unset;'>";
         default:
           return null;
@@ -256,23 +257,17 @@ import java.util.regex.Pattern;
         return "open dot";
       case TextEmphasisSpan.MARK_OPEN_SESAME:
         return "open sesame";
-      case TextEmphasisSpan.MARK_AUTO: // TODO
-        // https://www.w3.org/TR/ttml2/#style-value-emphasis-style
-        // If a vertical writing mode applies, then equivalent to filled sesame; otherwise,
-        // equivalent to filled circle.
-      case TextEmphasisSpan.MARK_UNKNOWN:
       default:
         return "unset";
     }
   }
 
-  private static String getTextEmphasisPosition(@TextEmphasisSpan.Position int position){
+  private static String getTextEmphasisPosition(@TextAnnotation.Position int position){
     switch (position) {
-      case TextEmphasisSpan.POSITION_AFTER:
+      case TextAnnotation.POSITION_AFTER:
         return "under left";
-      case TextEmphasisSpan.POSITION_UNKNOWN:
-      case TextEmphasisSpan.POSITION_BEFORE:
-      case TextEmphasisSpan.POSITION_OUTSIDE: /* Not supported, fallback to "before" */
+      case TextAnnotation.POSITION_UNKNOWN:
+      case TextAnnotation.POSITION_BEFORE:
       default:
         // https://www.w3.org/TR/ttml2/#style-value-annotation-position
         // If an implementation does not recognize or otherwise distinguish an annotation position

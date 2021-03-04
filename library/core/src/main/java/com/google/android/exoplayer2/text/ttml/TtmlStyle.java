@@ -20,6 +20,7 @@ import android.text.Layout;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -83,7 +84,7 @@ import java.lang.annotation.RetentionPolicy;
   private float fontSize;
   @Nullable private String id;
   @RubyType private int rubyType;
-  @RubySpan.Position private int rubyPosition;
+  @TextAnnotation.Position private int rubyPosition;
   @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
 
@@ -96,7 +97,7 @@ import java.lang.annotation.RetentionPolicy;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
     rubyType = UNSPECIFIED;
-    rubyPosition = RubySpan.POSITION_UNKNOWN;
+    rubyPosition = TextAnnotation.POSITION_UNKNOWN;
     textCombine = UNSPECIFIED;
   }
 
@@ -227,7 +228,7 @@ import java.lang.annotation.RetentionPolicy;
       if (underline == UNSPECIFIED) {
         underline = ancestor.underline;
       }
-      if (rubyPosition == RubySpan.POSITION_UNKNOWN) {
+      if (rubyPosition == TextAnnotation.POSITION_UNKNOWN) {
         rubyPosition = ancestor.rubyPosition;
       }
       if (textAlign == null && ancestor.textAlign != null) {
@@ -274,12 +275,12 @@ import java.lang.annotation.RetentionPolicy;
     return rubyType;
   }
 
-  public TtmlStyle setRubyPosition(@RubySpan.Position int position) {
+  public TtmlStyle setRubyPosition(@TextAnnotation.Position int position) {
     this.rubyPosition = position;
     return this;
   }
 
-  @RubySpan.Position
+  @TextAnnotation.Position
   public int getRubyPosition() {
     return rubyPosition;
   }
