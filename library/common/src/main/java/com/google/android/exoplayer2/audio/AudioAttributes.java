@@ -187,6 +187,7 @@ public final class AudioAttributes implements Bundleable {
     return bundle;
   }
 
+  /** Object that can restore {@link AudioAttributes} from a {@link Bundle}. */
   public static final Creator<AudioAttributes> CREATOR =
       bundle -> {
         Builder builder = new Builder();

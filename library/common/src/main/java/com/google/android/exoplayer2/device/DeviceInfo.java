@@ -103,6 +103,7 @@ public final class DeviceInfo implements Bundleable {
     return bundle;
   }
 
+  /** Object that can restore {@link DeviceInfo} from a {@link Bundle}. */
   public static final Creator<DeviceInfo> CREATOR =
       bundle -> {
         int playbackType =
