@@ -18,15 +18,18 @@ package com.google.android.exoplayer2.source.ads;
 import static java.lang.Math.max;
 
 import android.net.Uri;
+import android.os.Bundle;
 import androidx.annotation.CheckResult;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
@@ -44,7 +47,7 @@ public final class AdPlaybackState {
    * <p>Instances are immutable. Call the {@code with*} methods to get new instances that have the
    * required changes.
    */
-  public static final class AdGroup {
+  public static final class AdGroup implements Bundleable {
 
     /** The number of ads in the ad group, or {@link C#LENGTH_UNSET} if unknown. */
     public final int count;
@@ -229,6 +232,59 @@ public final class AdPlaybackState {
       durationsUs = Arrays.copyOf(durationsUs, newDurationsUsCount);
       Arrays.fill(durationsUs, oldDurationsUsCount, newDurationsUsCount, C.TIME_UNSET);
       return durationsUs;
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({FIELD_COUNT, FIELD_URIS, FIELD_STATES, FIELD_DURATIONS_US})
+    private @interface FieldNumber {}
+
+    private static final int FIELD_COUNT = 0;
+    private static final int FIELD_URIS = 1;
+    private static final int FIELD_STATES = 2;
+    private static final int FIELD_DURATIONS_US = 3;
+
+    // putParcelableArrayList actually supports null elements.
+    @SuppressWarnings("nullness:argument.type.incompatible")
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt(keyForField(FIELD_COUNT), count);
+      bundle.putParcelableArrayList(
+          keyForField(FIELD_URIS), new ArrayList<@NullableType Uri>(Arrays.asList(uris)));
+      bundle.putIntArray(keyForField(FIELD_STATES), states);
+      bundle.putLongArray(keyForField(FIELD_DURATIONS_US), durationsUs);
+      return bundle;
+    }
+
+    /** Object that can restore {@link AdGroup} from a {@link Bundle}. */
+    public static final Creator<AdGroup> CREATOR =
+        new Creator<AdGroup>() {
+
+          // getParcelableArrayList may have null elements.
+          @SuppressWarnings("nullness:type.argument.type.incompatible")
+          @Override
+          public AdGroup fromBundle(Bundle bundle) {
+            int count = bundle.getInt(keyForField(FIELD_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
+            @Nullable
+            ArrayList<@NullableType Uri> uriList =
+                bundle.getParcelableArrayList(keyForField(FIELD_URIS));
+            @Nullable
+            @AdState
+            int[] states = bundle.getIntArray(keyForField(FIELD_STATES));
+            @Nullable long[] durationsUs = bundle.getLongArray(keyForField(FIELD_DURATIONS_US));
+            return new AdGroup(
+                count,
+                states == null ? new int[0] : states,
+                uriList == null ? new Uri[0] : uriList.toArray(new Uri[0]),
+                durationsUs == null ? new long[0] : durationsUs);
+          }
+        };
+
+    private static String keyForField(@AdGroup.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
