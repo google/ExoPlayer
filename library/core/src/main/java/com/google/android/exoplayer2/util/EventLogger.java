@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
@@ -479,8 +480,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onDrmSessionAcquired(EventTime eventTime) {
-    logd(eventTime, "drmSessionAcquired");
+  public void onDrmSessionAcquired(EventTime eventTime, @DrmSession.State int state) {
+    logd(eventTime, "drmSessionAcquired", "state=" + state);
   }
 
   @Override

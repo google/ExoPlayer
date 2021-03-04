@@ -26,11 +26,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
-import com.google.android.exoplayer2.extractor.Extractor;
-import com.google.android.exoplayer2.extractor.TrackOutput;
-import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
-import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer2.extractor.rawcc.RawCcExtractor;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.chunk.BaseMediaChunkIterator;
 import com.google.android.exoplayer2.source.chunk.BundledChunkExtractor;
@@ -53,7 +48,6 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -180,11 +174,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
       representationHolders[i] =
           new RepresentationHolder(
               periodDurationUs,
-              trackType,
               representation,
-              enableEventMessageTrack,
-              closedCaptionFormats,
-              playerTrackEmsgHandler);
+              BundledChunkExtractor.FACTORY.createProgressiveMediaExtractor(
+                  trackType,
+                  representation.format,
+                  enableEventMessageTrack,
+                  closedCaptionFormats,
+                  playerTrackEmsgHandler),
+              /* segmentNumShift= */ 0,
+              representation.getIndex());
     }
   }
 
@@ -666,26 +664,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     /* package */ RepresentationHolder(
         long periodDurationUs,
-        int trackType,
-        Representation representation,
-        boolean enableEventMessageTrack,
-        List<Format> closedCaptionFormats,
-        @Nullable TrackOutput playerEmsgTrackOutput) {
-      this(
-          periodDurationUs,
-          representation,
-          createChunkExtractor(
-              trackType,
-              representation,
-              enableEventMessageTrack,
-              closedCaptionFormats,
-              playerEmsgTrackOutput),
-          /* segmentNumShift= */ 0,
-          representation.getIndex());
-    }
-
-    private RepresentationHolder(
-        long periodDurationUs,
         Representation representation,
         @Nullable ChunkExtractor chunkExtractor,
         long segmentNumShift,
@@ -799,41 +777,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     public boolean isSegmentAvailableAtFullNetworkSpeed(long segmentNum, long nowPeriodTimeUs) {
       return nowPeriodTimeUs == C.TIME_UNSET || getSegmentEndTimeUs(segmentNum) <= nowPeriodTimeUs;
-    }
-
-    @Nullable
-    private static ChunkExtractor createChunkExtractor(
-        int trackType,
-        Representation representation,
-        boolean enableEventMessageTrack,
-        List<Format> closedCaptionFormats,
-        @Nullable TrackOutput playerEmsgTrackOutput) {
-      String containerMimeType = representation.format.containerMimeType;
-      Extractor extractor;
-      if (MimeTypes.isText(containerMimeType)) {
-        if (MimeTypes.APPLICATION_RAWCC.equals(containerMimeType)) {
-          // RawCC is special because it's a text specific container format.
-          extractor = new RawCcExtractor(representation.format);
-        } else {
-          // All other text types are raw formats that do not need an extractor.
-          return null;
-        }
-      } else if (MimeTypes.isMatroska(containerMimeType)) {
-        extractor = new MatroskaExtractor(MatroskaExtractor.FLAG_DISABLE_SEEK_FOR_CUES);
-      } else {
-        int flags = 0;
-        if (enableEventMessageTrack) {
-          flags |= FragmentedMp4Extractor.FLAG_ENABLE_EMSG_TRACK;
-        }
-        extractor =
-            new FragmentedMp4Extractor(
-                flags,
-                /* timestampAdjuster= */ null,
-                /* sideloadedTrack= */ null,
-                closedCaptionFormats,
-                playerEmsgTrackOutput);
-      }
-      return new BundledChunkExtractor(extractor, trackType, representation.format);
     }
   }
 }

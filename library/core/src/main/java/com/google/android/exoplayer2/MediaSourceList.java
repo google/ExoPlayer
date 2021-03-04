@@ -21,6 +21,7 @@ import static java.lang.Math.min;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MaskingMediaPeriod;
@@ -600,9 +601,11 @@ import java.util.Set;
 
     @Override
     public void onDrmSessionAcquired(
-        int windowIndex, @Nullable MediaSource.MediaPeriodId mediaPeriodId) {
+        int windowIndex,
+        @Nullable MediaSource.MediaPeriodId mediaPeriodId,
+        @DrmSession.State int state) {
       if (maybeUpdateEventDispatcher(windowIndex, mediaPeriodId)) {
-        drmEventDispatcher.drmSessionAcquired();
+        drmEventDispatcher.drmSessionAcquired(state);
       }
     }
 

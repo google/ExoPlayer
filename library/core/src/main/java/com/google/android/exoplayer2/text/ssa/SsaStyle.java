@@ -125,11 +125,21 @@ import java.util.regex.Pattern;
     try {
       return new SsaStyle(
           styleValues[format.nameIndex].trim(),
-          parseAlignment(styleValues[format.alignmentIndex].trim()),
-          parseColor(styleValues[format.primaryColorIndex].trim()),
-          parseFontSize(styleValues[format.fontSizeIndex].trim()),
-          parseBold(styleValues[format.boldIndex].trim()),
-          parseItalic(styleValues[format.italicIndex].trim()));
+          format.alignmentIndex != C.INDEX_UNSET
+              ? parseAlignment(styleValues[format.alignmentIndex].trim())
+              : SSA_ALIGNMENT_UNKNOWN,
+          format.primaryColorIndex != C.INDEX_UNSET
+              ? parseColor(styleValues[format.primaryColorIndex].trim())
+              : null,
+          format.fontSizeIndex != C.INDEX_UNSET
+              ? parseFontSize(styleValues[format.fontSizeIndex].trim())
+              : Cue.DIMEN_UNSET,
+          format.boldIndex != C.INDEX_UNSET) 
+              ? parseBold(styleValues[format.boldIndex].trim())
+              : false,
+          format.italicIndex != C.INDEX_UNSET) 
+              ? parseItalic(styleValues[format.italicIndex].trim())
+              : false);
     } catch (RuntimeException e) {
       Log.w(TAG, "Skipping malformed 'Style:' line: '" + styleLine + "'", e);
       return null;

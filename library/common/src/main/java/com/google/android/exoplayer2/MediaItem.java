@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
@@ -937,6 +938,7 @@ public final class MediaItem implements Bundleable {
 
     // Bundleable implementation.
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       FIELD_TARGET_OFFSET_MS,
@@ -1148,6 +1150,7 @@ public final class MediaItem implements Bundleable {
 
     // Bundleable implementation.
 
+    @Documented
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
       FIELD_START_POSITION_MS,
@@ -1254,6 +1257,7 @@ public final class MediaItem implements Bundleable {
 
   // Bundleable implementation.
 
+  @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     FIELD_MEDIA_ID,

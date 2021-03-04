@@ -55,11 +55,8 @@ import java.util.List;
  *       which can be obtained by calling {@link #getCurrentTimeline()}.
  *   <li>They can provide a {@link TrackGroupArray} defining the currently available tracks, which
  *       can be obtained by calling {@link #getCurrentTrackGroups()}.
- *   <li>They contain a number of renderers, each of which is able to render tracks of a single type
- *       (e.g. audio, video or text). The number of renderers and their respective track types can
- *       be obtained by calling {@link #getRendererCount()} and {@link #getRendererType(int)}.
  *   <li>They can provide a {@link TrackSelectionArray} defining which of the currently available
- *       tracks are selected to be rendered by each renderer. This can be obtained by calling {@link
+ *       tracks are selected to be rendered. This can be obtained by calling {@link
  *       #getCurrentTrackSelections()}}.
  * </ul>
  */
@@ -130,13 +127,17 @@ public interface Player {
     void clearAuxEffectInfo();
 
     /**
-     * Sets the audio volume, with 0 being silence and 1 being unity gain.
+     * Sets the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
      *
-     * @param audioVolume The audio volume.
+     * @param audioVolume Linear output gain to apply to all audio channels.
      */
     void setVolume(float audioVolume);
 
-    /** Returns the audio volume, with 0 being silence and 1 being unity gain. */
+    /**
+     * Returns the audio volume, with 0 being silence and 1 being unity gain (signal unchanged).
+     *
+     * @return The linear gain applied to all audio channels.
+     */
     float getVolume();
 
     /**
@@ -400,30 +401,9 @@ public interface Player {
      * @param timeline The latest timeline. Never null, but may be empty.
      * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      */
-    @SuppressWarnings("deprecation")
-    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {
-      Object manifest = null;
-      if (timeline.getWindowCount() == 1) {
-        // Legacy behavior was to report the manifest for single window timelines only.
-        Timeline.Window window = new Timeline.Window();
-        manifest = timeline.getWindow(0, window).manifest;
-      }
-      // Call deprecated version.
-      onTimelineChanged(timeline, manifest, reason);
-    }
+    default void onTimelineChanged(Timeline timeline, @TimelineChangeReason int reason) {}
 
     /**
-     * Called when the timeline and/or manifest has been refreshed.
-     *
-     * <p>Note that if the timeline has changed then a position discontinuity may also have
-     * occurred. For example, the current period index may have changed as a result of periods being
-     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
-     * {@link #onPositionDiscontinuity(int)}.
-     *
-     * @param timeline The latest timeline. Never null, but may be empty.
-     * @param manifest The latest manifest in case the timeline has a single window only. Always
-     *     null if the timeline has more than a single window.
-     * @param reason The {@link TimelineChangeReason} responsible for this timeline change.
      * @deprecated Use {@link #onTimelineChanged(Timeline, int)} instead. The manifest can be
      *     accessed by using {@link #getCurrentManifest()} or {@code timeline.getWindow(windowIndex,
      *     window).manifest} for a given window index.
@@ -455,8 +435,10 @@ public interface Player {
      * other events that happen in the same {@link Looper} message queue iteration.
      *
      * @param trackGroups The available tracks. Never null, but may be of length zero.
-     * @param trackSelections The track selections for each renderer. Never null and always of
-     *     length {@link #getRendererCount()}, but may contain null elements.
+     * @param trackSelections The selected tracks. Never null, but may contain null elements. A
+     *     concrete implementation may include null elements if it has a fixed number of renderer
+     *     components, wishes to report a TrackSelection for each of them, and has one or more
+     *     renderer components that is not assigned any selected tracks.
      */
     default void onTracksChanged(
         TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {}
@@ -488,10 +470,7 @@ public interface Player {
      *
      * @param isLoading Whether the source is currently being loaded.
      */
-    @SuppressWarnings("deprecation")
-    default void onIsLoadingChanged(boolean isLoading) {
-      onLoadingChanged(isLoading);
-    }
+    default void onIsLoadingChanged(boolean isLoading) {}
 
     /** @deprecated Use {@link #onIsLoadingChanged(boolean)} instead. */
     @Deprecated
@@ -1131,6 +1110,7 @@ public interface Player {
    * Returns the current {@link State playback state} of the player.
    *
    * @return The current {@link State playback state}.
+   * @see EventListener#onPlaybackStateChanged(int)
    */
   @State
   int getPlaybackState();
@@ -1140,6 +1120,7 @@ public interface Player {
    * true}, or {@link #PLAYBACK_SUPPRESSION_REASON_NONE} if playback is not suppressed.
    *
    * @return The current {@link PlaybackSuppressionReason playback suppression reason}.
+   * @see EventListener#onPlaybackSuppressionReasonChanged(int)
    */
   @PlaybackSuppressionReason
   int getPlaybackSuppressionReason();
@@ -1156,6 +1137,7 @@ public interface Player {
    * </ul>
    *
    * @return Whether the player is playing.
+   * @see EventListener#onIsPlayingChanged(boolean)
    */
   boolean isPlaying();
 
@@ -1168,6 +1150,7 @@ public interface Player {
    * {@link #STATE_IDLE}.
    *
    * @return The error, or {@code null}.
+   * @see EventListener#onPlayerError(ExoPlaybackException)
    */
   @Nullable
   ExoPlaybackException getPlayerError();
@@ -1199,6 +1182,7 @@ public interface Player {
    * Whether playback will proceed when {@link #getPlaybackState()} == {@link #STATE_READY}.
    *
    * @return Whether playback will proceed when ready.
+   * @see EventListener#onPlayWhenReadyChanged(boolean, int)
    */
   boolean getPlayWhenReady();
 
@@ -1213,6 +1197,7 @@ public interface Player {
    * Returns the current {@link RepeatMode} used for playback.
    *
    * @return The current repeat mode.
+   * @see EventListener#onRepeatModeChanged(int)
    */
   @RepeatMode
   int getRepeatMode();
@@ -1224,13 +1209,18 @@ public interface Player {
    */
   void setShuffleModeEnabled(boolean shuffleModeEnabled);
 
-  /** Returns whether shuffling of windows is enabled. */
+  /**
+   * Returns whether shuffling of windows is enabled.
+   *
+   * @see EventListener#onShuffleModeEnabledChanged(boolean)
+   */
   boolean getShuffleModeEnabled();
 
   /**
    * Whether the player is currently loading the source.
    *
    * @return Whether the player is currently loading the source.
+   * @see EventListener#onIsLoadingChanged(boolean)
    */
   boolean isLoading();
 
@@ -1326,6 +1316,18 @@ public interface Player {
   void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters);
 
   /**
+   * Changes the rate at which playback occurs.
+   *
+   * <p>The pitch is not changed.
+   *
+   * <p>This is equivalent to {@code setPlaybackParameter(getPlaybackParameter().withSpeed(speed))}.
+   *
+   * @param speed The linear factor by which playback will be sped up. Must be higher than 0. 1 is
+   *     normal speed, 2 is twice as fast, 0.5 is half normal speed...
+   */
+  void setPlaybackSpeed(float speed);
+
+  /**
    * Returns the currently active playback parameters.
    *
    * @see EventListener#onPlaybackParametersChanged(PlaybackParameters)
@@ -1359,24 +1361,22 @@ public interface Player {
    */
   void release();
 
-  /** Returns the number of renderers. */
-  int getRendererCount();
-
   /**
-   * Returns the track type that the renderer at a given index handles.
+   * Returns the available track groups.
    *
-   * <p>For example, a video renderer will return {@link C#TRACK_TYPE_VIDEO}, an audio renderer will
-   * return {@link C#TRACK_TYPE_AUDIO} and a text renderer will return {@link C#TRACK_TYPE_TEXT}.
-   *
-   * @param index The index of the renderer.
-   * @return One of the {@code TRACK_TYPE_*} constants defined in {@link C}.
+   * @see EventListener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
    */
-  int getRendererType(int index);
-
-  /** Returns the available track groups. */
   TrackGroupArray getCurrentTrackGroups();
 
-  /** Returns the current track selections for each renderer. */
+  /**
+   * Returns the current track selections.
+   *
+   * <p>A concrete implementation may include null elements if it has a fixed number of renderer
+   * components, wishes to report a TrackSelection for each of them, and has one or more renderer
+   * components that is not assigned any selected tracks.
+   *
+   * @see EventListener#onTracksChanged(TrackGroupArray, TrackSelectionArray)
+   */
   TrackSelectionArray getCurrentTrackSelections();
 
   /**
@@ -1389,6 +1389,8 @@ public interface Player {
    *
    * <p>This metadata is considered static in that it comes from the tracks' declared Formats,
    * rather than being timed (or dynamic) metadata, which is represented within a metadata track.
+   *
+   * @see EventListener#onStaticMetadataChanged(List)
    */
   List<Metadata> getCurrentStaticMetadata();
 
@@ -1398,7 +1400,11 @@ public interface Player {
   @Nullable
   Object getCurrentManifest();
 
-  /** Returns the current {@link Timeline}. Never null, but may be empty. */
+  /**
+   * Returns the current {@link Timeline}. Never null, but may be empty.
+   *
+   * @see EventListener#onTimelineChanged(Timeline, int)
+   */
   Timeline getCurrentTimeline();
 
   /** Returns the index of the period currently being played. */
@@ -1444,6 +1450,8 @@ public interface Player {
   /**
    * Returns the media item of the current window in the timeline. May be null if the timeline is
    * empty.
+   *
+   * @see EventListener#onMediaItemTransition(MediaItem, int)
    */
   @Nullable
   MediaItem getCurrentMediaItem();

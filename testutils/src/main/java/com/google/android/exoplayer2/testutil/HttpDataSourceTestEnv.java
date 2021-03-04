@@ -16,6 +16,8 @@
 
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.testutil.WebServerDispatcher.getRequestPath;
+
 import android.net.Uri;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.common.collect.ImmutableList;
@@ -115,7 +117,7 @@ public class HttpDataSourceTestEnv extends ExternalResource {
         new Dispatcher() {
           @Override
           public MockResponse dispatch(RecordedRequest request) {
-            if (request.getPath().equals(REDIRECTS_TO_RANGE_SUPPORTED.getPath())) {
+            if (getRequestPath(request).equals(REDIRECTS_TO_RANGE_SUPPORTED.getPath())) {
               return new MockResponse()
                   .setResponseCode(302)
                   .setHeader("Location", originServer.url(RANGE_SUPPORTED.getPath()).toString());
@@ -147,7 +149,6 @@ public class HttpDataSourceTestEnv extends ExternalResource {
         .setName(name)
         .setUri(Uri.parse(server.url(resource.getPath()).toString()))
         .setExpectedBytes(resource.getData())
-        .setEndOfInputExpected(!resource.resolvesToUnknownLength())
         .build();
   }
 }

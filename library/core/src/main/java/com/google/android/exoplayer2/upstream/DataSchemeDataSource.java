@@ -69,7 +69,7 @@ public final class DataSchemeDataSource extends BaseDataSource {
     }
     endPosition =
         dataSpec.length != C.LENGTH_UNSET ? (int) dataSpec.length + readPosition : data.length;
-    if (endPosition > data.length || readPosition > endPosition) {
+    if (readPosition >= endPosition) {
       data = null;
       throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }

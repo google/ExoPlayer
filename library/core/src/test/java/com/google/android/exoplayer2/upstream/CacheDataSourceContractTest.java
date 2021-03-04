@@ -50,7 +50,6 @@ public class CacheDataSourceContractTest extends DataSourceContractTest {
     File file = tempFolder.newFile();
     Files.write(Paths.get(file.getAbsolutePath()), DATA);
     simpleUri = Uri.fromFile(file);
-    fileDataSource = new FileDataSource();
   }
 
   @Override
@@ -74,6 +73,7 @@ public class CacheDataSourceContractTest extends DataSourceContractTest {
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     SimpleCache cache =
         new SimpleCache(tempFolder, new NoOpCacheEvictor(), TestUtil.getInMemoryDatabaseProvider());
+    fileDataSource = new FileDataSource();
     return new CacheDataSource(cache, fileDataSource);
   }
 

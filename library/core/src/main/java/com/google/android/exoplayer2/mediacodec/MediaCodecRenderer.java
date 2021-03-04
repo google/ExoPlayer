@@ -733,11 +733,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       throws ExoPlaybackException {
     this.currentPlaybackSpeed = currentPlaybackSpeed;
     this.targetPlaybackSpeed = targetPlaybackSpeed;
-    if (codec != null
-        && codecDrainAction != DRAIN_ACTION_REINITIALIZE
-        && getState() != STATE_DISABLED) {
-      updateCodecOperatingRate(codecInputFormat);
-    }
+    updateCodecOperatingRate(codecInputFormat);
   }
 
   @Override
@@ -1693,12 +1689,30 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * Updates the codec operating rate, or triggers codec release and re-initialization if a
    * previously set operating rate needs to be cleared.
    *
+   * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
+   * @return False if codec release and re-initialization was triggered. True in all other cases.
+   */
+  protected final boolean updateCodecOperatingRate() throws ExoPlaybackException {
+    return updateCodecOperatingRate(codecInputFormat);
+  }
+
+  /**
+   * Updates the codec operating rate, or triggers codec release and re-initialization if a
+   * previously set operating rate needs to be cleared.
+   *
    * @param format The {@link Format} for which the operating rate should be configured.
    * @throws ExoPlaybackException If an error occurs releasing or initializing a codec.
    * @return False if codec release and re-initialization was triggered. True in all other cases.
    */
   private boolean updateCodecOperatingRate(Format format) throws ExoPlaybackException {
     if (Util.SDK_INT < 23) {
+      return true;
+    }
+
+    if (codec == null
+        || codecDrainAction == DRAIN_ACTION_REINITIALIZE
+        || getState() == STATE_DISABLED) {
+      // No need to update the operating rate.
       return true;
     }
 

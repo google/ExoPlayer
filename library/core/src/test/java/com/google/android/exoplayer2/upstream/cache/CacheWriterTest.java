@@ -17,84 +17,40 @@ package com.google.android.exoplayer2.upstream.cache;
 
 import static com.google.android.exoplayer2.testutil.CacheAsserts.assertCachedData;
 import static com.google.common.truth.Truth.assertThat;
-import static java.lang.Math.min;
 import static org.junit.Assert.assertThrows;
 
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.testutil.FailOnCloseDataSink;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /** Unit tests for {@link CacheWriter}. */
 @RunWith(AndroidJUnit4.class)
 public final class CacheWriterTest {
 
-  /**
-   * Abstract fake Cache implementation used by the test. This class must be public so Mockito can
-   * create a proxy for it.
-   */
-  public abstract static class AbstractFakeCache implements Cache {
-
-    // This array is set to alternating length of cached and not cached regions in tests:
-    // spansAndGaps = {<length of 1st cached region>, <length of 1st not cached region>,
-    //    <length of 2nd cached region>, <length of 2nd not cached region>, ... }
-    // Ideally it should end with a cached region but it shouldn't matter for any code.
-    private int[] spansAndGaps;
-    private long contentLength;
-
-    private void init() {
-      spansAndGaps = new int[] {};
-      contentLength = C.LENGTH_UNSET;
-    }
-
-    @Override
-    public long getCachedLength(String key, long position, long length) {
-      if (length == C.LENGTH_UNSET) {
-        length = Long.MAX_VALUE;
-      }
-      for (int i = 0; i < spansAndGaps.length; i++) {
-        int spanOrGap = spansAndGaps[i];
-        if (position < spanOrGap) {
-          long left = min(spanOrGap - position, length);
-          return (i & 1) == 1 ? -left : left;
-        }
-        position -= spanOrGap;
-      }
-      return -length;
-    }
-
-    @Override
-    public ContentMetadata getContentMetadata(String key) {
-      DefaultContentMetadata metadata = new DefaultContentMetadata();
-      ContentMetadataMutations mutations = new ContentMetadataMutations();
-      ContentMetadataMutations.setContentLength(mutations, contentLength);
-      return metadata.copyWithMutationsApplied(mutations);
-    }
-  }
-
-  @Mock(answer = Answers.CALLS_REAL_METHODS) private AbstractFakeCache mockCache;
   private File tempFolder;
   private SimpleCache cache;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
-    mockCache.init();
     tempFolder =
         Util.createTempDirectory(ApplicationProvider.getApplicationContext(), "ExoPlayerTest");
     cache =
@@ -219,6 +175,7 @@ public final class CacheWriterTest {
     assertCachedData(cache, fakeDataSet);
   }
 
+  @Ignore("Currently broken. See https://github.com/google/ExoPlayer/issues/7326.")
   @Test
   public void cacheLengthExceedsActualDataLength() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
@@ -261,6 +218,50 @@ public final class CacheWriterTest {
                         /* progressListener= */ null)
                     .cache());
     assertThat(DataSourceException.isCausedByPositionOutOfRange(exception)).isTrue();
+  }
+
+  @Test
+  public void cache_afterFailureOnClose_succeeds() throws Exception {
+    FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
+    FakeDataSource upstreamDataSource = new FakeDataSource(fakeDataSet);
+
+    AtomicBoolean failOnClose = new AtomicBoolean(/* initialValue= */ true);
+    FailOnCloseDataSink dataSink = new FailOnCloseDataSink(cache, failOnClose);
+
+    CacheDataSource cacheDataSource =
+        new CacheDataSource(
+            cache,
+            upstreamDataSource,
+            new FileDataSource(),
+            dataSink,
+            /* flags= */ 0,
+            /* eventListener= */ null);
+
+    CachingCounters counters = new CachingCounters();
+
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            cacheDataSource,
+            new DataSpec(Uri.parse("test_data")),
+            /* allowShortContent= */ false,
+            /* temporaryBuffer= */ null,
+            counters);
+
+    // DataSink.close failing must cause the operation to fail rather than succeed.
+    assertThrows(IOException.class, cacheWriter::cache);
+    // Since all of the bytes were read through the DataSource chain successfully before the sink
+    // was closed, the progress listener will have seen all of the bytes being cached, even though
+    // this may not really be the case.
+    counters.assertValues(
+        /* bytesAlreadyCached= */ 0, /* bytesNewlyCached= */ 100, /* contentLength= */ 100);
+
+    failOnClose.set(false);
+
+    // The bytes will be downloaded again, but cached successfully this time.
+    cacheWriter.cache();
+    counters.assertValues(
+        /* bytesAlreadyCached= */ 0, /* bytesNewlyCached= */ 100, /* contentLength= */ 100);
+    assertCachedData(cache, fakeDataSet);
   }
 
   @Test

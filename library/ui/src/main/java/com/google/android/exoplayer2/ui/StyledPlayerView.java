@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
 import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
@@ -1354,14 +1355,11 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
       closeShutter();
     }
 
-    TrackSelectionArray selections = player.getCurrentTrackSelections();
-    for (int i = 0; i < selections.length; i++) {
-      if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO && selections.get(i) != null) {
-        // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
-        // onRenderedFirstFrame().
-        hideArtwork();
-        return;
-      }
+    if (TrackSelectionUtil.hasTrackOfType(player.getCurrentTrackSelections(), C.TRACK_TYPE_VIDEO)) {
+      // Video enabled so artwork must be hidden. If the shutter is closed, it will be opened in
+      // onRenderedFirstFrame().
+      hideArtwork();
+      return;
     }
 
     // Video disabled so the shutter must be closed.

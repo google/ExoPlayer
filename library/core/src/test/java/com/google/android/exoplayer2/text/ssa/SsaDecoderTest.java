@@ -323,17 +323,18 @@ public final class SsaDecoderTest {
   }
 
   @Test
-  public void decodeFontSize() throws IOException{
+  public void decodeFontSize() throws IOException {
     SsaDecoder decoder = new SsaDecoder();
-    byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_FONT_SIZE);
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_FONT_SIZE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
     Cue firstCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(0)));
-    assertThat(firstCue.textSize).isEqualTo(30f/720f);
+    assertThat(firstCue.textSize).isWithin(1.0e-8f).of(30f / 720f);
     assertThat(firstCue.textSizeType).isEqualTo(Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
     Cue secondCue = Iterables.getOnlyElement(subtitle.getCues(subtitle.getEventTime(2)));
-    assertThat(secondCue.textSize).isEqualTo(72.2f/720f);
+    assertThat(secondCue.textSize).isWithin(1.0e-8f).of(72.2f / 720f);
     assertThat(secondCue.textSizeType).isEqualTo(Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
   }
 

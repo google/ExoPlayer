@@ -69,11 +69,8 @@ public interface VideoRendererEventListener {
    *     decoder instance can be reused for the new format, or {@code null} if the renderer did not
    *     have a decoder.
    */
-  @SuppressWarnings("deprecation")
   default void onVideoInputFormatChanged(
-      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
-    onVideoInputFormatChanged(format);
-  }
+      Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
 
   /**
    * Called to report the number of frames dropped by the renderer. Dropped frames are reported
@@ -133,7 +130,12 @@ public interface VideoRendererEventListener {
    *
    * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
    *     the renderer renders to something that isn't a {@link Surface}.
+   * @param renderTimeMs The {@link SystemClock#elapsedRealtime()} when the frame was rendered.
    */
+  default void onRenderedFirstFrame(@Nullable Surface surface, long renderTimeMs) {}
+
+  /** @deprecated Use {@link #onRenderedFirstFrame(Surface, long)}. */
+  @Deprecated
   default void onRenderedFirstFrame(@Nullable Surface surface) {}
 
   /**
@@ -205,11 +207,15 @@ public interface VideoRendererEventListener {
      * Invokes {@link VideoRendererEventListener#onVideoInputFormatChanged(Format,
      * DecoderReuseEvaluation)}.
      */
+    @SuppressWarnings("deprecation") // Calling deprecated listener method.
     public void inputFormatChanged(
         Format format, @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {
       if (handler != null) {
         handler.post(
-            () -> castNonNull(listener).onVideoInputFormatChanged(format, decoderReuseEvaluation));
+            () -> {
+              castNonNull(listener).onVideoInputFormatChanged(format);
+              castNonNull(listener).onVideoInputFormatChanged(format, decoderReuseEvaluation);
+            });
       }
     }
 
@@ -245,10 +251,16 @@ public interface VideoRendererEventListener {
       }
     }
 
-    /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface)}. */
+    /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface, long)}. */
     public void renderedFirstFrame(@Nullable Surface surface) {
       if (handler != null) {
-        handler.post(() -> castNonNull(listener).onRenderedFirstFrame(surface));
+        // TODO: Replace this timestamp with the actual frame release time.
+        long renderTimeMs = SystemClock.elapsedRealtime();
+        handler.post(
+            () -> {
+              castNonNull(listener).onRenderedFirstFrame(surface);
+              castNonNull(listener).onRenderedFirstFrame(surface, renderTimeMs);
+            });
       }
     }
 

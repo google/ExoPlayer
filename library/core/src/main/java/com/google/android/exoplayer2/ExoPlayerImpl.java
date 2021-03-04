@@ -999,7 +999,16 @@ import java.util.List;
     if (!previousPlaybackInfo.timeline.equals(newPlaybackInfo.timeline)) {
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener -> listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason));
+          listener -> {
+            @Nullable Object manifest = null;
+            if (newPlaybackInfo.timeline.getWindowCount() == 1) {
+              // Legacy behavior was to report the manifest for single window timelines only.
+              Timeline.Window window = new Timeline.Window();
+              manifest = newPlaybackInfo.timeline.getWindow(0, window).manifest;
+            }
+            listener.onTimelineChanged(newPlaybackInfo.timeline, manifest, timelineChangeReason);
+            listener.onTimelineChanged(newPlaybackInfo.timeline, timelineChangeReason);
+          });
     }
     if (positionDiscontinuity) {
       listeners.queueEvent(
@@ -1042,7 +1051,10 @@ import java.util.List;
     if (previousPlaybackInfo.isLoading != newPlaybackInfo.isLoading) {
       listeners.queueEvent(
           Player.EVENT_IS_LOADING_CHANGED,
-          listener -> listener.onIsLoadingChanged(newPlaybackInfo.isLoading));
+          listener -> {
+            listener.onLoadingChanged(newPlaybackInfo.isLoading);
+            listener.onIsLoadingChanged(newPlaybackInfo.isLoading);
+          });
     }
     if (previousPlaybackInfo.playbackState != newPlaybackInfo.playbackState
         || previousPlaybackInfo.playWhenReady != newPlaybackInfo.playWhenReady) {

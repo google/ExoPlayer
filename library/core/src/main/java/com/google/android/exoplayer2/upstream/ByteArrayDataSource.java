@@ -47,13 +47,13 @@ public final class ByteArrayDataSource extends BaseDataSource {
   public long open(DataSpec dataSpec) throws IOException {
     uri = dataSpec.uri;
     transferInitializing(dataSpec);
-    readPosition = (int) dataSpec.position;
-    bytesRemaining = (int) ((dataSpec.length == C.LENGTH_UNSET)
-        ? (data.length - dataSpec.position) : dataSpec.length);
-    if (bytesRemaining <= 0 || readPosition + bytesRemaining > data.length) {
-      throw new IOException("Unsatisfiable range: [" + readPosition + ", " + dataSpec.length
-          + "], length: " + data.length);
+    if (dataSpec.position >= data.length) {
+      throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }
+    readPosition = (int) dataSpec.position;
+    bytesRemaining =
+        (int)
+            (dataSpec.length == C.LENGTH_UNSET ? data.length - dataSpec.position : dataSpec.length);
     opened = true;
     transferStarted(dataSpec);
     return bytesRemaining;

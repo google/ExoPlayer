@@ -80,6 +80,7 @@ import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmInitData;
+import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaDrm;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
@@ -1700,12 +1701,12 @@ public final class AnalyticsCollectorTest {
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
         .onVideoDecoderInitialized(
-            individualVideoDecoderInitializedEventTimes.capture(), any(), anyLong());
+            individualVideoDecoderInitializedEventTimes.capture(), any(), anyLong(), anyLong());
     ArgumentCaptor<AnalyticsListener.EventTime> individualAudioDecoderInitializedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
         .onAudioDecoderInitialized(
-            individualAudioDecoderInitializedEventTimes.capture(), any(), anyLong());
+            individualAudioDecoderInitializedEventTimes.capture(), any(), anyLong(), anyLong());
     ArgumentCaptor<AnalyticsListener.EventTime> individualVideoDisabledEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
@@ -1717,7 +1718,7 @@ public final class AnalyticsCollectorTest {
     ArgumentCaptor<AnalyticsListener.EventTime> individualRenderedFirstFrameEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
-        .onRenderedFirstFrame(individualRenderedFirstFrameEventTimes.capture(), any());
+        .onRenderedFirstFrame(individualRenderedFirstFrameEventTimes.capture(), any(), anyLong());
     ArgumentCaptor<AnalyticsListener.EventTime> individualVideoSizeChangedEventTimes =
         ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
     verify(listener, atLeastOnce())
@@ -2183,7 +2184,10 @@ public final class AnalyticsCollectorTest {
 
     @Override
     public void onAudioDecoderInitialized(
-        EventTime eventTime, String decoderName, long initializationDurationMs) {
+        EventTime eventTime,
+        String decoderName,
+        long initializedTimestampMs,
+        long initializationDurationMs) {
       reportedEvents.add(new ReportedEvent(EVENT_AUDIO_DECODER_INITIALIZED, eventTime));
     }
 
@@ -2220,7 +2224,10 @@ public final class AnalyticsCollectorTest {
 
     @Override
     public void onVideoDecoderInitialized(
-        EventTime eventTime, String decoderName, long initializationDurationMs) {
+        EventTime eventTime,
+        String decoderName,
+        long initializedTimestampMs,
+        long initializationDurationMs) {
       reportedEvents.add(new ReportedEvent(EVENT_VIDEO_DECODER_INITIALIZED, eventTime));
     }
 
@@ -2246,7 +2253,8 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {
+    public void onRenderedFirstFrame(
+        EventTime eventTime, @Nullable Surface surface, long renderTimeMs) {
       reportedEvents.add(new ReportedEvent(EVENT_RENDERED_FIRST_FRAME, eventTime));
     }
 
@@ -2261,7 +2269,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onDrmSessionAcquired(EventTime eventTime) {
+    public void onDrmSessionAcquired(EventTime eventTime, @DrmSession.State int state) {
       reportedEvents.add(new ReportedEvent(EVENT_DRM_SESSION_ACQUIRED, eventTime));
     }
 

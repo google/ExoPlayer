@@ -669,6 +669,8 @@ public class DefaultRenderersFactory implements RenderersFactory {
         new DefaultAudioProcessorChain(),
         enableFloatOutput,
         enableAudioTrackPlaybackParams,
-        enableOffload);
+        enableOffload
+            ? DefaultAudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED
+            : DefaultAudioSink.OFFLOAD_MODE_DISABLED);
   }
 }

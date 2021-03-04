@@ -2,22 +2,29 @@
 
 ### dev-v2 (not yet released)
 
-*   Extractors:
-    *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
+    *   Add group setting to `PlayerNotificationManager`.
 *   Audio:
-    *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
-        ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
     *   Report unexpected discontinuities in
         `AnalyticsListener.onAudioSinkError`
         ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
+    *   Allow forcing offload for gapless content even if gapless playback is
+        not supported.
+    *   Allow fall back from DTS-HD to DTS when playing via passthrough.
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
+*   Downloads and caching:
+    *   Fix `CacheWriter` to correctly handle `DataSource.close` failures, for
+        which it cannot be assumed that data was successfully written to the
+        cache.
 *   Library restructuring:
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to
         `ui.spherical` package, and made package private.
+*   Core
+    *   Move `getRendererCount` and `getRendererType` methods from `Player` to
+        `ExoPlayer`.
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
@@ -25,6 +32,33 @@
         instead.
     *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
         module instead.
+*   DRM:
+    *   Only dispatch DRM session acquire and release events once per period
+        when playing content that uses the same encryption keys for both audio &
+        video tracks (previously separate acquire and release events were
+        dispatched for each track in each period).
+    *   Include the session state in DRM session-acquired listener methods.
+*   UI
+    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
+        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
+*   MediaSession extension: Remove dependency to core module and rely on common
+    only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
+    this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
+
+### 2.13.2 (2021-02-25)
+
+*   Extractors:
+    *   Add support for MP4 and QuickTime meta atoms that are not full atoms.
+*   UI:
+    *   Make conditions to enable UI actions consistent in
+        `DefaultControlDispatcher`, `PlayerControlView`,
+        `StyledPlayerControlView`, `PlayerNotificationManager` and
+        `TimelineQueueNavigator`.
+    *   Fix conditions to enable seeking to next/previous media item to handle
+        the case where a live stream has ended.
+*   Audio:
+    *   Fix `SimpleExoPlayer` reporting audio session ID as 0 in some cases
+        ([#8585](https://github.com/google/ExoPlayer/issues/8585)).
 *   IMA extension:
     *   Fix a bug where playback could get stuck when seeking into a playlist
         item with ads, if the preroll ad had preloaded but the window position
@@ -32,13 +66,16 @@
     *   Fix a bug with playback of ads in playlists, where the incorrect period
         index was used when deciding whether to trigger playback of an ad after
         a seek.
-*   VP9 extension: Update to use NDK r22
+*   Text:
+    *   Parse SSA/ASS font size in `Style:` lines
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+*   VP9 extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
-*   FLAC extension: Update to use NDK r22
+*   FLAC extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
-*   Opus extension: Update to use NDK r22
+*   Opus extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
-*   FFmpeg extension: Update to use NDK r22
+*   FFmpeg extension: Update to use NDK r21
     ([#8581](https://github.com/google/ExoPlayer/issues/8581)).
 
 ### 2.13.1 (2021-02-12)

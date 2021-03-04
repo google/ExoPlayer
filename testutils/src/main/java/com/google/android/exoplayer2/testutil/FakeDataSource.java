@@ -117,11 +117,10 @@ public class FakeDataSource extends BaseDataSource {
       throw new IOException("Data is empty: " + dataSpec.uri);
     }
 
-    // If the source knows that the request is unsatisfiable then fail.
-    if (dataSpec.position >= totalLength || (dataSpec.length != C.LENGTH_UNSET
-        && (dataSpec.position + dataSpec.length > totalLength))) {
+    if (dataSpec.position >= totalLength) {
       throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }
+
     // Scan through the segments, configuring them for the current read.
     boolean findingCurrentSegmentIndex = true;
     currentSegmentIndex = 0;

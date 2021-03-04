@@ -485,26 +485,6 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public int getRendererCount() {
-    // We assume there are three renderers: video, audio, and text.
-    return RENDERER_COUNT;
-  }
-
-  @Override
-  public int getRendererType(int index) {
-    switch (index) {
-      case RENDERER_INDEX_VIDEO:
-        return C.TRACK_TYPE_VIDEO;
-      case RENDERER_INDEX_AUDIO:
-        return C.TRACK_TYPE_AUDIO;
-      case RENDERER_INDEX_TEXT:
-        return C.TRACK_TYPE_TEXT;
-      default:
-        throw new IndexOutOfBoundsException();
-    }
-  }
-
-  @Override
   public void setRepeatMode(@RepeatMode int repeatMode) {
     if (remoteMediaClient == null) {
       return;
@@ -708,15 +688,19 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
+  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   private void updateTimelineAndNotifyIfChanged() {
     if (updateTimeline()) {
       // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
       //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
+      Timeline timeline = currentTimeline;
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
-          listener ->
-              listener.onTimelineChanged(
-                  currentTimeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+          listener -> {
+            listener.onTimelineChanged(
+                timeline, /* manifest= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+            listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+          });
     }
   }
 

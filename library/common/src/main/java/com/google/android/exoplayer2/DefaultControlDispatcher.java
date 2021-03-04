@@ -79,11 +79,12 @@ public class DefaultControlDispatcher implements ControlDispatcher {
     int windowIndex = player.getCurrentWindowIndex();
     timeline.getWindow(windowIndex, window);
     int previousWindowIndex = player.getPreviousWindowIndex();
+    boolean isUnseekableLiveStream = window.isLive() && !window.isSeekable;
     if (previousWindowIndex != C.INDEX_UNSET
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-            || (window.isDynamic && !window.isSeekable))) {
+            || isUnseekableLiveStream)) {
       player.seekTo(previousWindowIndex, C.TIME_UNSET);
-    } else {
+    } else if (!isUnseekableLiveStream) {
       player.seekTo(windowIndex, /* positionMs= */ 0);
     }
     return true;
@@ -96,10 +97,11 @@ public class DefaultControlDispatcher implements ControlDispatcher {
       return true;
     }
     int windowIndex = player.getCurrentWindowIndex();
+    timeline.getWindow(windowIndex, window);
     int nextWindowIndex = player.getNextWindowIndex();
     if (nextWindowIndex != C.INDEX_UNSET) {
       player.seekTo(nextWindowIndex, C.TIME_UNSET);
-    } else if (timeline.getWindow(windowIndex, window).isLive()) {
+    } else if (window.isLive() && window.isDynamic) {
       player.seekTo(windowIndex, C.TIME_UNSET);
     }
     return true;

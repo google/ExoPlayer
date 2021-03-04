@@ -13,8 +13,6 @@
 // limitations under the License.
 apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
-android.defaultConfig.minSdkVersion 19
-
 dependencies {
     implementation project(modulePrefix + 'library-common')
     implementation 'androidx.collection:collection:' + androidxCollectionVersion

@@ -607,7 +607,7 @@ import java.util.List;
           defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ true);
         } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
           defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ false);
-        } else if (uxState != UX_STATE_ANIMATING_HIDE && uxState != UX_STATE_ANIMATING_SHOW) {
+        } else if (uxState != UX_STATE_ANIMATING_HIDE) {
           defaultTimeBar.showScrubber();
         }
       }

@@ -108,18 +108,6 @@ public final class DataSchemeDataSourceTest {
   }
 
   @Test
-  public void rangeExceedingResourceLengthRequest() throws IOException {
-    try {
-      // Try to open a range exceeding the resource's length.
-      schemeDataDataSource.open(
-          buildDataSpec(DATA_SCHEME_URI, /* position= */ 97, /* length= */ 11));
-      fail();
-    } catch (DataSourceException e) {
-      assertThat(e.reason).isEqualTo(DataSourceException.POSITION_OUT_OF_RANGE);
-    }
-  }
-
-  @Test
   public void incorrectScheme() {
     try {
       schemeDataDataSource.open(buildDataSpec("http://www.google.com"));

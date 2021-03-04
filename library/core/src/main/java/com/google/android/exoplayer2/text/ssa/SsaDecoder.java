@@ -318,8 +318,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
       }
       if (style.fontSize != Cue.DIMEN_UNSET && screenHeight != Cue.DIMEN_UNSET) {
         cue.setTextSize(
-            style.fontSize / screenHeight,
-            Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
+            style.fontSize / screenHeight, Cue.TEXT_SIZE_TYPE_FRACTIONAL_IGNORE_PADDING);
       }
       if (style.bold && style.italic) {
         spannableText.setSpan(

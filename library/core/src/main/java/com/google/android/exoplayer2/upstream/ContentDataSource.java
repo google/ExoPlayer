@@ -80,7 +80,7 @@ public final class ContentDataSource extends BaseDataSource {
       if (skipped != dataSpec.position) {
         // We expect the skip to be satisfied in full. If it isn't then we're probably trying to
         // skip beyond the end of the data.
-        throw new EOFException();
+        throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
       }
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
@@ -96,13 +96,13 @@ public final class ContentDataSource extends BaseDataSource {
           } else {
             bytesRemaining = channelSize - channel.position();
             if (bytesRemaining < 0) {
-              throw new EOFException();
+              throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
             }
           }
         } else {
           bytesRemaining = assetFileDescriptorLength - skipped;
           if (bytesRemaining < 0) {
-            throw new EOFException();
+            throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
           }
         }
       }

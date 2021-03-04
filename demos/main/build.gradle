@@ -38,6 +38,7 @@ android {
                 "proguard-rules.txt",
                 getDefaultProguardFile('proguard-android.txt')
             ]
+            signingConfig signingConfigs.debug
         }
         debug {
             jniDebuggable = true

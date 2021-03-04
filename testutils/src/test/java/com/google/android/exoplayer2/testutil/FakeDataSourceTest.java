@@ -188,7 +188,7 @@ public final class FakeDataSourceTest {
   }
 
   @Test
-  public void testOpenSourceFailures() throws IOException {
+  public void testOpenSourceFailures() {
     // Empty data.
     FakeDataSource dataSource =
         new FakeDataSource(new FakeDataSet().newData(uri.toString()).endData());
@@ -217,10 +217,10 @@ public final class FakeDataSourceTest {
         new FakeDataSource(
             new FakeDataSet()
                 .newDefaultData()
-                .appendReadData(TestUtil.buildTestData(10))
+                .appendReadData(TestUtil.buildTestData(/* length= */ 10))
                 .endData());
     try {
-      dataSource.open(new DataSpec(uri, 5, 10));
+      dataSource.open(new DataSpec(uri, /* position= */ 10, C.LENGTH_UNSET));
       fail("IOException expected.");
     } catch (IOException e) {
       // Expected.

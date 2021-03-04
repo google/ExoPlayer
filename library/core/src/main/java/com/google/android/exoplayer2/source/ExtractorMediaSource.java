@@ -336,7 +336,7 @@ public final class ExtractorMediaSource extends CompositeMediaSource<Void> {
                 .setTag(tag)
                 .build(),
             dataSourceFactory,
-            extractorsFactory,
+            () -> new BundledExtractorsAdapter(extractorsFactory),
             DrmSessionManager.DRM_UNSUPPORTED,
             loadableLoadErrorHandlingPolicy,
             continueLoadingCheckIntervalBytes);

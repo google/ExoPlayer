@@ -21,7 +21,8 @@
   <application
     android:allowBackup="false"
     android:icon="@mipmap/ic_launcher"
-    android:label="@string/application_name">
+    android:label="@string/application_name"
+    android:exported="true">
     <activity android:name=".MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>

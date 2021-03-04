@@ -27,7 +27,9 @@
   <item name="exo_pause" type="id"/>
   <item name="exo_play_pause" type="id"/>
   <item name="exo_rew" type="id"/>
+  <item name="exo_rew_with_amount" type="id"/>
   <item name="exo_ffwd" type="id"/>
+  <item name="exo_ffwd_with_amount" type="id"/>
   <item name="exo_prev" type="id"/>
   <item name="exo_next" type="id"/>
   <item name="exo_shuffle" type="id"/>
@@ -41,4 +43,19 @@
   <item name="exo_vr" type="id"/>
   <item name="exo_subtitle" type="id"/>
   <item name="exo_fullscreen" type="id"/>
+  <item name="exo_playback_speed" type="id"/>
+  <item name="exo_audio_track" type="id"/>
+  <item name="exo_settings" type="id"/>
+  <item name="exo_controls_background" type="id"/>
+  <item name="exo_basic_controls" type="id"/>
+  <item name="exo_center_controls" type="id"/>
+  <item name="exo_bottom_bar" type="id"/>
+  <item name="exo_time" type="id"/>
+  <item name="exo_overflow_show" type="id"/>
+  <item name="exo_overflow_hide" type="id"/>
+  <item name="exo_extra_controls" type="id"/>
+  <item name="exo_extra_controls_scroll_view" type="id"/>
+  <item name="exo_minimal_fullscreen" type="id"/>
+  <item name="exo_minimal_controls" type="id"/>
+
 </resources>

@@ -8606,6 +8606,20 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void playerIdle_withSetPlaybackSpeed_usesPlaybackParameterSpeedWithPitchUnchanged() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 1, /* pitch= */ 2));
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    player.addListener(mockListener);
+    player.prepare();
+
+    player.setPlaybackSpeed(2);
+
+    verify(mockListener)
+        .onPlaybackParametersChanged(new PlaybackParameters(/* speed= */ 2, /* pitch= */ 2));
+  }
+
+  @Test
   public void targetLiveOffsetInMedia_withSetPlaybackParameters_usesPlaybackParameterSpeed()
       throws Exception {
     long windowStartUnixTimeMs = 987_654_321_000L;

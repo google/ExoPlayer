@@ -1294,13 +1294,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setMediaItems(List<MediaItem> mediaItems) {
-    verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
-    player.setMediaItems(mediaItems);
-  }
-
-  @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
     verifyApplicationThread();
     analyticsCollector.resetForNewPlaylist();
@@ -1313,27 +1306,6 @@ public class SimpleExoPlayer extends BasePlayer
     verifyApplicationThread();
     analyticsCollector.resetForNewPlaylist();
     player.setMediaItems(mediaItems, startWindowIndex, startPositionMs);
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem) {
-    verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
-    player.setMediaItem(mediaItem);
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
-    player.setMediaItem(mediaItem, resetPosition);
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
-    player.setMediaItem(mediaItem, startPositionMs);
   }
 
   @Override
@@ -1392,18 +1364,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void addMediaItem(MediaItem mediaItem) {
-    verifyApplicationThread();
-    player.addMediaItem(mediaItem);
-  }
-
-  @Override
-  public void addMediaItem(int index, MediaItem mediaItem) {
-    verifyApplicationThread();
-    player.addMediaItem(index, mediaItem);
-  }
-
-  @Override
   public void addMediaSource(MediaSource mediaSource) {
     verifyApplicationThread();
     player.addMediaSource(mediaSource);
@@ -1428,21 +1388,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void moveMediaItem(int currentIndex, int newIndex) {
-    verifyApplicationThread();
-    player.moveMediaItem(currentIndex, newIndex);
-  }
-
-  @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
     verifyApplicationThread();
     player.moveMediaItems(fromIndex, toIndex, newIndex);
-  }
-
-  @Override
-  public void removeMediaItem(int index) {
-    verifyApplicationThread();
-    player.removeMediaItem(index);
   }
 
   @Override
@@ -2072,8 +2020,8 @@ public class SimpleExoPlayer extends BasePlayer
     }
 
     @Override
-    public void onRenderedFirstFrame(Surface surface) {
-      analyticsCollector.onRenderedFirstFrame(surface);
+    public void onRenderedFirstFrame(@Nullable Surface surface, long renderTimeMs) {
+      analyticsCollector.onRenderedFirstFrame(surface, renderTimeMs);
       if (SimpleExoPlayer.this.surface == surface) {
         for (VideoListener videoListener : videoListeners) {
           videoListener.onRenderedFirstFrame();

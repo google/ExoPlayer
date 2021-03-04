@@ -151,26 +151,6 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void setMediaItem(MediaItem mediaItem) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, long startPositionMs) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItem(MediaItem mediaItem, boolean resetPosition) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMediaItems(List<MediaItem> mediaItems) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
     throw new UnsupportedOperationException();
   }
@@ -213,16 +193,6 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void addMediaItem(MediaItem mediaItem) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void addMediaItem(int index, MediaItem mediaItem) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void addMediaItems(List<MediaItem> mediaItems) {
     throw new UnsupportedOperationException();
   }
@@ -253,17 +223,7 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void moveMediaItem(int currentIndex, int newIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void moveMediaItems(int fromIndex, int toIndex, int newIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void removeMediaItem(int index) {
     throw new UnsupportedOperationException();
   }
 
