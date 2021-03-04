@@ -15,13 +15,18 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Bundle;
 import androidx.annotation.CheckResult;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /** Parameters that apply to playback, including speed setting. */
-public final class PlaybackParameters {
+public final class PlaybackParameters implements Bundleable {
 
   /** The default playback parameters: real-time playback with no silence skipping. */
   public static final PlaybackParameters DEFAULT = new PlaybackParameters(/* speed= */ 1f);
@@ -105,5 +110,35 @@ public final class PlaybackParameters {
   @Override
   public String toString() {
     return Util.formatInvariant("PlaybackParameters(speed=%.2f, pitch=%.2f)", speed, pitch);
+  }
+
+  // Bundleable implementation.
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({FIELD_SPEED, FIELD_PITCH})
+  private @interface FieldNumber {}
+
+  private static final int FIELD_SPEED = 0;
+  private static final int FIELD_PITCH = 1;
+
+  @Override
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putFloat(keyForField(FIELD_SPEED), speed);
+    bundle.putFloat(keyForField(FIELD_PITCH), pitch);
+    return bundle;
+  }
+
+  /** Object that can restore {@link PlaybackParameters} from a {@link Bundle}. */
+  public static final Creator<PlaybackParameters> CREATOR =
+      bundle -> {
+        float speed = bundle.getFloat(keyForField(FIELD_SPEED), /* defaultValue= */ 1f);
+        float pitch = bundle.getFloat(keyForField(FIELD_PITCH), /* defaultValue= */ 1f);
+        return new PlaybackParameters(speed, pitch);
+      };
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
   }
 }
