@@ -25,6 +25,8 @@
 *   Core
     *   Move `getRendererCount` and `getRendererType` methods from `Player` to
         `ExoPlayer`.
+    *   Reset playback speed when live playback speed control becomes unused
+        ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
