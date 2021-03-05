@@ -129,14 +129,14 @@ import java.util.Map;
        *  If an implementation does not recognize or otherwise distinguish an emphasis style value,
        *  then it must be interpreted as if a style of auto were specified; as such, an
        *  implementation that supports text emphasis marks must minimally support the auto value.
-       * If a vertical writing mode applies, then equivalent to filled sesame; otherwise, equivalent
-       * to filled circle.
-       * See https://www.w3.org/TR/ttml2/#style-value-emphasis-style
+       *  If a vertical writing mode applies, then equivalent to filled sesame; otherwise, equivalent
+       *  to filled circle.
+       *  See https://www.w3.org/TR/ttml2/#style-value-emphasis-style
        */
-      @TextEmphasis.Mark int mark = textEmphasis.mark;
-      if (textEmphasis.mark == TextEmphasis.MARK_AUTO) {
-        mark = (verticalType == Cue.VERTICAL_TYPE_LR || verticalType == Cue.VERTICAL_TYPE_RL) ?
-            TextEmphasisSpan.MARK_FILLED_SESAME : TextEmphasisSpan.MARK_FILLED_CIRCLE;
+      @TextEmphasis.MarkShape int markShape = textEmphasis.markShape;
+      if (textEmphasis.markShape == TextEmphasis.MARK_SHAPE_AUTO) {
+        markShape = (verticalType == Cue.VERTICAL_TYPE_LR || verticalType == Cue.VERTICAL_TYPE_RL) ?
+            TextEmphasisSpan.MARK_SHAPE_SESAME : TextEmphasisSpan.MARK_SHAPE_CIRCLE;
       }
 
       @TextEmphasis.Position int position = textEmphasis.position;
@@ -154,7 +154,7 @@ import java.util.Map;
 
       SpanUtil.addOrReplaceSpan(
           builder,
-          new TextEmphasisSpan(mark, position),
+          new TextEmphasisSpan(markShape, textEmphasis.markFill, position),
           start,
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

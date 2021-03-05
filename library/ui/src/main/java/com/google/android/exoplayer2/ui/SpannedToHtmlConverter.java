@@ -201,12 +201,13 @@ import java.util.regex.Pattern;
       return "<u>";
     } else if (span instanceof TextEmphasisSpan) {
       TextEmphasisSpan textEmphasisSpan = (TextEmphasisSpan) span;
-      String style = getTextEmphasisStyle(textEmphasisSpan.mark);
+      String style = getTextEmphasisStyle(textEmphasisSpan.markShape, textEmphasisSpan.markFill);
       String position = getTextEmphasisPosition(textEmphasisSpan.position);
       return Util
-          .formatInvariant("<span style='-webkit-text-emphasis-style: %s; text-emphasis-style: %s; "
-                  + "-webkit-text-emphasis-position: %s; text-emphasis-position: %s;'>",
-              style, style, position, position);
+          .formatInvariant(
+              "<span style='-webkit-text-emphasis-style: %1$s; text-emphasis-style: %1$s; "
+                  + "-webkit-text-emphasis-position: %2$s; text-emphasis-position: %2$s;'>",
+              style, position);
     } else {
       return null;
     }
@@ -243,23 +244,39 @@ import java.util.regex.Pattern;
     return null;
   }
 
-  private static String getTextEmphasisStyle(@TextEmphasisSpan.Mark int mark) {
-    switch (mark) {
-      case TextEmphasisSpan.MARK_FILLED_CIRCLE:
-        return "filled circle";
-      case TextEmphasisSpan.MARK_FILLED_DOT:
-        return "filled dot";
-      case TextEmphasisSpan.MARK_FILLED_SESAME:
-        return "filled sesame";
-      case TextEmphasisSpan.MARK_OPEN_CIRCLE:
-        return "open circle";
-      case TextEmphasisSpan.MARK_OPEN_DOT:
-        return "open dot";
-      case TextEmphasisSpan.MARK_OPEN_SESAME:
-        return "open sesame";
+  private static String getTextEmphasisStyle(@TextEmphasisSpan.MarkShape int shape,
+      @TextEmphasisSpan.MarkFill int fill) {
+    StringBuilder builder = new StringBuilder();
+    switch (fill) {
+      case TextEmphasisSpan.MARK_FILL_FILLED:
+        builder.append("filled ");
+        break;
+      case TextEmphasisSpan.MARK_FILL_OPEN:
+        builder.append("open ");
+        break;
+      case TextEmphasisSpan.MARK_FILL_UNSPECIFIED:
       default:
-        return "unset";
+        break;
     }
+
+    switch (shape) {
+      case TextEmphasisSpan.MARK_SHAPE_CIRCLE:
+        builder.append("circle");
+        break;
+      case TextEmphasisSpan.MARK_SHAPE_DOT:
+        builder.append("dot");
+        break;
+      case TextEmphasisSpan.MARK_SHAPE_SESAME:
+        builder.append("sesame");
+        break;
+      case TextEmphasisSpan.MARK_SHAPE_NONE:
+        builder.append("none");
+        break;
+      default:
+        builder.append("unset");
+        break;
+    }
+    return builder.toString();
   }
 
   private static String getTextEmphasisPosition(@TextAnnotation.Position int position){

@@ -285,13 +285,15 @@ public class SpannedToHtmlConverterTest {
   public void convert_supportsTextEmphasisSpan() {
     SpannableString spanned = new SpannableString("Text emphasis おはよ ございます ");
     spanned.setSpan(
-        new TextEmphasisSpan(TextEmphasisSpan.MARK_FILLED_CIRCLE, TextAnnotation.POSITION_BEFORE),
+        new TextEmphasisSpan(TextEmphasisSpan.MARK_SHAPE_CIRCLE, TextEmphasisSpan.MARK_FILL_FILLED,
+            TextAnnotation.POSITION_BEFORE),
         "Text emphasis ".length(),
         "Text emphasis おはよ".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
     spanned.setSpan(
-        new TextEmphasisSpan(TextEmphasisSpan.MARK_OPEN_SESAME, TextAnnotation.POSITION_AFTER),
+        new TextEmphasisSpan(TextEmphasisSpan.MARK_SHAPE_SESAME, TextEmphasisSpan.MARK_FILL_OPEN,
+            TextAnnotation.POSITION_AFTER),
         "Text emphasis おはよ ".length(),
         "Text emphasis おはよ ございます ".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

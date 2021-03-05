@@ -23,51 +23,60 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 
 public final class TextEmphasisSpan {
-  // Bits [1:0] are used for typical mark types
-  public static final int MARK_FLAG_CIRCLE = 1;
-  public static final int MARK_FLAG_DOT = 2;
-  public static final int MARK_FLAG_SESAME = 3;
-
-  // Bit 2 is used for filled/open
-  public static final int MARK_FLAG_FILLED = 0;
-  public static final int MARK_FLAG_OPEN = 4;
-
-  // Below are the mark style constants
-  public static final int MARK_FILLED_CIRCLE = MARK_FLAG_CIRCLE | MARK_FLAG_FILLED;
-  public static final int MARK_FILLED_DOT = MARK_FLAG_DOT | MARK_FLAG_FILLED;
-  public static final int MARK_FILLED_SESAME = MARK_FLAG_SESAME | MARK_FLAG_FILLED;
-  public static final int MARK_OPEN_CIRCLE = MARK_FLAG_CIRCLE | MARK_FLAG_OPEN;
-  public static final int MARK_OPEN_DOT = MARK_FLAG_DOT | MARK_FLAG_OPEN;
-  public static final int MARK_OPEN_SESAME = MARK_FLAG_SESAME | MARK_FLAG_OPEN;
+  public static final int MARK_SHAPE_NONE = 0;
+  public static final int MARK_SHAPE_CIRCLE = 1;
+  public static final int MARK_SHAPE_DOT = 2;
+  public static final int MARK_SHAPE_SESAME = 3;
 
   /**
-   * The possible types of annotations used.
+   * The possible mark shapes that can be used.
    *
    * <p>One of:
    *
    * <ul>
-   *   <li>{@link #MARK_FILLED_CIRCLE}
-   *   <li>{@link #MARK_FILLED_DOT}
-   *   <li>{@link #MARK_FILLED_SESAME}
-   *   <li>{@link #MARK_OPEN_CIRCLE}
-   *   <li>{@link #MARK_OPEN_DOT}
-   *   <li>{@link #MARK_OPEN_SESAME}
+   *   <li>{@link #MARK_SHAPE_NONE}
+   *   <li>{@link #MARK_SHAPE_CIRCLE}
+   *   <li>{@link #MARK_SHAPE_DOT}
+   *   <li>{@link #MARK_SHAPE_SESAME}
    * </ul>
-   *
-   * Note: We are intentionally excluding MARK_AUTO here since the auto value should
-   * be resolved
    */
   @Documented
   @Retention(SOURCE)
-  @IntDef({MARK_FILLED_CIRCLE, MARK_FILLED_DOT, MARK_FILLED_SESAME,
-      MARK_OPEN_CIRCLE, MARK_OPEN_DOT, MARK_OPEN_SESAME})
-  public @interface Mark {
+  @IntDef({MARK_SHAPE_NONE, MARK_SHAPE_CIRCLE, MARK_SHAPE_DOT, MARK_SHAPE_SESAME})
+  public @interface MarkShape {
   }
+  public static final int MARK_FILL_UNSPECIFIED = 0;
+  public static final int MARK_FILL_FILLED = 1;
+  public static final int MARK_FILL_OPEN = 2;
 
   /**
-   * The mark used to emphasis text
+   * The possible mark fills that can be used.
+   *
+   * <p>One of:
+   *
+   * <ul>
+   *   <li>{@link #MARK_FILL_UNSPECIFIED}
+   *   <li>{@link #MARK_FILL_FILLED}
+   *   <li>{@link #MARK_FILL_OPEN}
+   * </ul>
    */
-  public @TextEmphasisSpan.Mark int mark;
+  @Documented
+  @Retention(SOURCE)
+  @IntDef({MARK_FILL_UNSPECIFIED, MARK_FILL_FILLED, MARK_FILL_OPEN})
+  public @interface MarkFill {
+  }
+
+
+  /**
+   * The mark shape used for text emphasis
+   */
+  public @MarkShape int markShape;
+
+  /**
+   * The mark fill for the text emphasis mark
+   */
+  public @MarkShape int markFill;
+
 
   /**
    * The position of the text emphasis relative to the base text
@@ -76,9 +85,10 @@ public final class TextEmphasisSpan {
   public final int position;
 
 
-  public TextEmphasisSpan(@TextEmphasisSpan.Mark int mark,
+  public TextEmphasisSpan(@MarkShape int shape, @MarkFill int fill,
       @TextAnnotation.Position int position) {
-    this.mark = mark;
+    this.markShape = shape;
+    this.markFill = fill;
     this.position = position;
   }
 }

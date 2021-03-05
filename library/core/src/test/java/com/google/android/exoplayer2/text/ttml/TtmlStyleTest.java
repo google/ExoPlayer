@@ -17,8 +17,6 @@ package com.google.android.exoplayer2.text.ttml;
 
 import static android.graphics.Color.BLACK;
 import static com.google.android.exoplayer2.text.span.TextAnnotation.POSITION_BEFORE;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_FILLED_DOT;
-import static com.google.android.exoplayer2.text.span.TextEmphasisSpan.MARK_OPEN_SESAME;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_BOLD_ITALIC;
 import static com.google.android.exoplayer2.text.ttml.TtmlStyle.STYLE_ITALIC;
@@ -32,6 +30,7 @@ import android.text.Layout;
 import androidx.annotation.ColorInt;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -92,7 +91,8 @@ public final class TtmlStyleTest {
         .that(style.hasBackgroundColor())
         .isFalse();
     assertThat(style.getTextEmphasis()).isNotNull();
-    assertThat(style.getTextEmphasis().mark).isEqualTo(MARK_FILLED_DOT);
+    assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_DOT);
+    assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
     assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
   }
 
@@ -118,7 +118,8 @@ public final class TtmlStyleTest {
         .isEqualTo(BACKGROUND_COLOR);
     assertWithMessage("rubyType should be chained").that(style.getRubyType()).isEqualTo(RUBY_TYPE);
     assertThat(style.getTextEmphasis()).isNotNull();
-    assertThat(style.getTextEmphasis().mark).isEqualTo(MARK_FILLED_DOT);
+    assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_DOT);
+    assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
     assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
   }
 
@@ -262,7 +263,8 @@ public final class TtmlStyleTest {
     TtmlStyle style = new TtmlStyle();
     assertThat(style.getTextEmphasis()).isNull();
     style.setTextEmphasis(TextEmphasis.createTextEmphasis("open sesame after"));
-    assertThat(style.getTextEmphasis().mark).isEqualTo(MARK_OPEN_SESAME);
+    assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_SESAME);
+    assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_OPEN);
     assertThat(style.getTextEmphasis().position).isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 }

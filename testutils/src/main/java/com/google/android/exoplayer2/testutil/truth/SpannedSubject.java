@@ -1156,20 +1156,21 @@ public final class SpannedSubject extends Subject {
 
   /** Allows assertions about a span's textEmphasis mark and its position. */
   public interface TextEmphasisDescription {
-
     /**
      * Checks that at least one of the matched spans has the expected {@code mark} and {@code position}.
      *
-     * @param mark The expected mark
+     * @param markShape The expected mark shape
+     * @param markFill The expected mark fill
      * @param position The expected position of the mark
      * @return A {@link WithSpanFlags} object for optional additional assertions on the flags.
      */
-    AndSpanFlags withMarkAndPosition(@TextEmphasisSpan.Mark int mark,
+    AndSpanFlags withMarkAndPosition(@TextEmphasisSpan.MarkShape int markShape,
+        @TextEmphasisSpan.MarkFill int markFill,
         @TextAnnotation.Position int position);
   }
 
   private static final TextEmphasisDescription ALREADY_FAILED_WITH_MARK =
-      (mark, position) -> ALREADY_FAILED_AND_FLAGS;
+      (markShape, markFill, position) -> ALREADY_FAILED_AND_FLAGS;
 
   private static Factory<TextEmphasisSubject, List<TextEmphasisSpan>> textEmphasisSubjects(Spanned actualSpanned) {
     return (FailureMetadata metadata, List<TextEmphasisSpan> spans) ->
@@ -1189,32 +1190,38 @@ public final class SpannedSubject extends Subject {
     }
 
     @Override
-    public AndSpanFlags withMarkAndPosition(@TextEmphasisSpan.Mark int mark,
+    public AndSpanFlags withMarkAndPosition(@TextEmphasisSpan.MarkShape int markShape,
+        @TextEmphasisSpan.MarkFill int markFill,
         @TextAnnotation.Position int position) {
       List<Integer> matchingSpanFlags = new ArrayList<>();
       List<MarkAndPosition> textEmphasisMarksAndPositions = new ArrayList<>();
       for (TextEmphasisSpan span : actualSpans) {
-        textEmphasisMarksAndPositions.add(new MarkAndPosition(span.mark, span.position));
-        if (span.mark == mark && span.position == position) {
+        textEmphasisMarksAndPositions
+            .add(new MarkAndPosition(span.markShape, span.markFill, span.position));
+        if (span.markFill == markFill && span.markShape == markShape && span.position == position) {
           matchingSpanFlags.add(actualSpanned.getSpanFlags(span));
         }
       }
       check("textEmphasisMarkAndPosition")
           .that(textEmphasisMarksAndPositions)
-          .containsExactly(new MarkAndPosition(mark, position));
+          .containsExactly(new MarkAndPosition(markShape, markFill, position));
       return check("flags").about(spanFlags()).that(matchingSpanFlags);
     }
 
     private static final class MarkAndPosition {
 
-      @TextEmphasisSpan.Mark
-      private final int mark;
+      @TextEmphasisSpan.MarkShape
+      private final int markShape;
+      @TextEmphasisSpan.MarkFill
+      private final int markFill;
       @TextAnnotation.Position
       private final int position;
 
-      private MarkAndPosition(@TextEmphasisSpan.Mark int mark,
+      private MarkAndPosition(@TextEmphasisSpan.MarkShape int markShape,
+          @TextEmphasisSpan.MarkFill int markFill,
           @TextAnnotation.Position int position) {
-        this.mark = mark;
+        this.markFill = markFill;
+        this.markShape = markShape;
         this.position = position;
       }
 
@@ -1228,18 +1235,20 @@ public final class SpannedSubject extends Subject {
         }
 
         TextEmphasisSubject.MarkAndPosition that = (TextEmphasisSubject.MarkAndPosition) o;
-        return (position == that.position) && (mark == that.mark);
+        return (position == that.position) && (markShape == that.markShape) && (markFill
+            == that.markFill);
       }
 
       @Override
       public int hashCode() {
-        int result = 34613 * mark + position;
+        int result = 34613 * markFill + 1993 * markShape + position;
         return result;
       }
 
       @Override
       public String toString() {
-        return String.format("{mark=%s,position=%s}", mark, position);
+        return String
+            .format("{markShape=%s, markFill=%s, position=%s}", markShape, markFill, position);
       }
     }
   }

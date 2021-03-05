@@ -38,33 +38,35 @@ import java.util.Set;
 /* package */ final class TextEmphasis {
 
   /**
-   *  Mark style to be resolved at rendering time. Hence, it is not defined in
-   *  {@link TextEmphasisSpan.Mark}
+   *  Mark shape AUTO is to be resolved at rendering time. Hence, it is not defined in
+   *  {@link TextEmphasisSpan.MarkShape}
    */
-  public static final int MARK_AUTO = 1 << 8;
+  public static final int MARK_SHAPE_AUTO = 1 << 8;
 
   @Documented
   @Retention(SOURCE)
-  @IntDef({TextEmphasisSpan.MARK_FILLED_CIRCLE,
-      TextEmphasisSpan.MARK_FILLED_DOT,
-      TextEmphasisSpan.MARK_FILLED_SESAME,
-      TextEmphasisSpan.MARK_OPEN_CIRCLE,
-      TextEmphasisSpan.MARK_OPEN_DOT,
-      TextEmphasisSpan.MARK_OPEN_SESAME,
-      // Extending the definition in TextEmphasisSpan for intermediate values
-      MARK_AUTO
+  @IntDef({TextEmphasisSpan.MARK_SHAPE_NONE,
+      TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+      TextEmphasisSpan.MARK_SHAPE_DOT,
+      TextEmphasisSpan.MARK_SHAPE_SESAME,
+      // Extending the definition in TextEmphasisSpan.MarkShape for intermediate values
+      MARK_SHAPE_AUTO
   })
 
-  @interface Mark {
+  @interface MarkShape {
   }
+
+  @MarkShape
+  final int markShape;
 
   /**
    * The mark style of the text emphasis.
    */
-  @Mark final int mark;
+  @TextEmphasisSpan.MarkFill
+  final int markFill;
 
   /**
-   *  Position to be resolved at rendering time. Hence, it is not defined in
+   *  Position OUTSIDE is to be resolved at rendering time. Hence, it is not defined in
    *  {@link TextAnnotation.Position}
    */
   static final int POSITION_OUTSIDE = 1 << 8;
@@ -84,26 +86,32 @@ import java.util.Set;
    */
   @Position final int position;
 
-  private static Set markValues = ImmutableSet.of(
+  private static final Set<String> singleStyleValues = ImmutableSet.of(
       TtmlNode.TEXT_EMPHASIS_AUTO,
+      TtmlNode.TEXT_EMPHASIS_NONE
+  );
+
+  private static final Set<String> markShapeValues = ImmutableSet.of(
       TtmlNode.TEXT_EMPHASIS_MARK_DOT,
       TtmlNode.TEXT_EMPHASIS_MARK_SESAME,
       TtmlNode.TEXT_EMPHASIS_MARK_CIRCLE
-      );
+    );
 
-  private static Set markStyles = ImmutableSet.of(
+  private static final Set<String> markFillValues = ImmutableSet.of(
       TtmlNode.TEXT_EMPHASIS_MARK_FILLED,
       TtmlNode.TEXT_EMPHASIS_MARK_OPEN
   );
 
-  private static Set positionValues = ImmutableSet.of(
+  private static final Set<String> positionValues = ImmutableSet.of(
       TtmlNode.ANNOTATION_POSITION_AFTER,
       TtmlNode.ANNOTATION_POSITION_BEFORE,
       TtmlNode.ANNOTATION_POSITION_OUTSIDE
   );
 
-  private TextEmphasis(@Mark int mark, @TextAnnotation.Position int position) {
-    this.mark = mark;
+  private TextEmphasis(@MarkShape int shape, @TextEmphasisSpan.MarkFill int fill,
+      @TextAnnotation.Position int position) {
+    this.markShape = shape;
+    this.markFill = fill;
     this.position = position;
   }
 
@@ -111,68 +119,83 @@ import java.util.Set;
   public String toString() {
     return "TextEmphasis{" +
         "position=" + position +
-        ", mark=" + mark +
+        ", markShape=" + markShape +
+        ", markFill=" + markFill +
         '}';
   }
 
-  public static TextEmphasis createTextEmphasis(@Nullable String value) {
+  @Nullable public static TextEmphasis createTextEmphasis(@Nullable String value) {
     if (value == null) {
       return null;
     }
 
     String parsingValue = value.toLowerCase().trim();
-    if ("".equals(parsingValue)) {
+    if (parsingValue.isEmpty()) {
       return null;
     }
 
     Set<String> nodes = Sets.newHashSet(parsingValue.split("\\s+"));
-
-    if (nodes.size() == 0 || TtmlNode.TEXT_EMPHASIS_NONE.equals(nodes.iterator().next())) {
+    if (nodes.size() == 0) {
       return null;
     }
     return parseNodes(nodes);
   }
 
   private static @Nullable TextEmphasis parseNodes(Set<String> nodes) {
-    Set styleSet = Sets.intersection(markStyles, nodes).immutableCopy();
-    Set markSet = Sets.intersection(markValues, nodes).immutableCopy();
-    Set positionSet = Sets.intersection(positionValues, nodes).immutableCopy();
-
-    @Mark int mark = 0;
-    if (styleSet.size() == 1) {
-      mark |= TtmlNode.TEXT_EMPHASIS_MARK_OPEN.equals(styleSet.iterator().next())
-          ? TextEmphasisSpan.MARK_FLAG_OPEN
-          : TextEmphasisSpan.MARK_FLAG_FILLED;
-    }
-    if (markSet.size() == 1) {
-      switch ((String) markSet.iterator().next()) {
-        case TtmlNode.TEXT_EMPHASIS_AUTO:
-          mark |= MARK_AUTO;
-          break;
-        case TtmlNode.TEXT_EMPHASIS_MARK_DOT:
-          mark |= TextEmphasisSpan.MARK_FLAG_DOT;
-          break;
-        case TtmlNode.TEXT_EMPHASIS_MARK_SESAME:
-          mark |= TextEmphasisSpan.MARK_FLAG_SESAME;
-          break;
-        case TtmlNode.TEXT_EMPHASIS_MARK_CIRCLE:
-        default:
-          mark |= TextEmphasisSpan.MARK_FLAG_CIRCLE;
-      }
+    @MarkShape int markShape;
+    @TextEmphasisSpan.MarkFill int markFill = TextEmphasisSpan.MARK_FILL_UNSPECIFIED;
+    Set<String> styleSet = Sets.intersection(singleStyleValues, nodes).immutableCopy();
+    if (styleSet.size() > 0) {
+      // If "none" or "auto" are found in the description, ignore the other style (fill, shape)
+      // attributes.
+      markShape = TtmlNode.TEXT_EMPHASIS_NONE.equals(styleSet.iterator().next())
+          ? TextEmphasisSpan.MARK_SHAPE_NONE : MARK_SHAPE_AUTO;
+      // markFill is ignored when markShape is NONE or AUTO
     } else {
-      mark |= TextEmphasisSpan.MARK_FLAG_CIRCLE;
+      Set<String> fillSet = Sets.intersection(markFillValues, nodes).immutableCopy();
+      Set<String> shapeSet = Sets.intersection(markShapeValues, nodes).immutableCopy();
+
+      if (fillSet.size() == 0 && shapeSet.size() == 0) {
+        // If an implementation does not recognize or otherwise distinguish an emphasis style value,
+        // then it must be interpreted as if a style of auto were specified; as such, an
+        // implementation that supports text emphasis marks must minimally support the auto value.
+        // https://www.w3.org/TR/ttml2/#style-value-emphasis-style
+        markShape = MARK_SHAPE_AUTO;
+      } else {
+        if (fillSet.size() > 0) {
+          markFill = TtmlNode.TEXT_EMPHASIS_MARK_OPEN.equals(fillSet.iterator().next())
+              ? TextEmphasisSpan.MARK_FILL_OPEN
+              : TextEmphasisSpan.MARK_FILL_FILLED;
+        } else {
+          markFill = TextEmphasisSpan.MARK_FILL_FILLED;
+        }
+
+        if (shapeSet.size() > 0) {
+          switch (shapeSet.iterator().next()) {
+            case TtmlNode.TEXT_EMPHASIS_MARK_DOT:
+              markShape = TextEmphasisSpan.MARK_SHAPE_DOT;
+              break;
+            case TtmlNode.TEXT_EMPHASIS_MARK_SESAME:
+              markShape = TextEmphasisSpan.MARK_SHAPE_SESAME;
+              break;
+            case TtmlNode.TEXT_EMPHASIS_MARK_CIRCLE:
+            default:
+              markShape = TextEmphasisSpan.MARK_SHAPE_CIRCLE;
+          }
+        } else {
+          markShape = TextEmphasisSpan.MARK_SHAPE_CIRCLE;
+        }
+      }
     }
 
-    /**
-     *  If no emphasis position is specified, then the emphasis position must be interpreted as if
-     *  a position of outside were specified.
-     *  <p>
-     *  More information on
-     *  <a href="https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-textEmphasis">tts:textEmphasis</a>
-     */
+    Set<String> positionSet = Sets.intersection(positionValues, nodes).immutableCopy();
+
+    // If no emphasis position is specified, then the emphasis position must be interpreted as if
+    // a position of outside were specified.
+    // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-textEmphasis
     @Position int position = POSITION_OUTSIDE;
-    if (positionSet.size() == 1) {
-      switch ((String) positionSet.iterator().next()) {
+    if (positionSet.size() > 0) {
+      switch (positionSet.iterator().next()) {
         case TtmlNode.ANNOTATION_POSITION_AFTER:
           position = TextAnnotation.POSITION_AFTER;
           break;
@@ -184,6 +207,6 @@ import java.util.Set;
           position = TextAnnotation.POSITION_BEFORE;
       }
     }
-    return new TextEmphasis(mark, position);
+    return new TextEmphasis(markShape, markFill, position);
   }
 }
