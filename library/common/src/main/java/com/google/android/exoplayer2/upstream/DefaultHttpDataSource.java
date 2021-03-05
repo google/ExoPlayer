@@ -222,8 +222,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Nullable private InputStream inputStream;
   private boolean opened;
   private int responseCode;
-
-  private long bytesSkipped;
   private long bytesToRead;
   private long bytesRead;
 
@@ -338,7 +336,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
     this.bytesRead = 0;
-    this.bytesSkipped = 0;
     transferInitializing(dataSpec);
 
     try {
@@ -455,7 +452,9 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     try {
       @Nullable InputStream inputStream = this.inputStream;
       if (inputStream != null) {
-        maybeTerminateInputStream(connection, bytesRemaining());
+        long bytesRemaining =
+            bytesToRead == C.LENGTH_UNSET ? C.LENGTH_UNSET : bytesToRead - bytesRead;
+        maybeTerminateInputStream(connection, bytesRemaining);
         try {
           inputStream.close();
         } catch (IOException e) {
@@ -471,48 +470,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
         transferEnded();
       }
     }
-  }
-
-  /**
-   * Returns the current connection, or null if the source is not currently opened.
-   *
-   * @return The current open connection, or null.
-   */
-  @Nullable
-  protected final HttpURLConnection getConnection() {
-    return connection;
-  }
-
-  /**
-   * Returns the number of bytes that were skipped during the most recent call to {@link
-   * #open(DataSpec)}.
-   *
-   * @return The number of bytes skipped.
-   */
-  protected final long bytesSkipped() {
-    return bytesSkipped;
-  }
-
-  /**
-   * Returns the number of bytes that have been read since the most recent call to
-   * {@link #open(DataSpec)}.
-   *
-   * @return The number of bytes read.
-   */
-  protected final long bytesRead() {
-    return bytesRead;
-  }
-
-  /**
-   * Returns the number of bytes that are still to be read for the current {@link DataSpec}.
-   * <p>
-   * If the total length of the data being read is known, then this length minus {@code bytesRead()}
-   * is returned. If the total length is unknown, {@link C#LENGTH_UNSET} is returned.
-   *
-   * @return The remaining length, or {@link C#LENGTH_UNSET}.
-   */
-  protected final long bytesRemaining() {
-    return bytesToRead == C.LENGTH_UNSET ? bytesToRead : bytesToRead - bytesRead;
   }
 
   /**
@@ -742,8 +699,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       return true;
     }
     byte[] skipBuffer = new byte[4096];
-    while (bytesSkipped != bytesToSkip) {
-      int readLength = (int) min(bytesToSkip - bytesSkipped, skipBuffer.length);
+    while (bytesToSkip > 0) {
+      int readLength = (int) min(bytesToSkip, skipBuffer.length);
       int read = castNonNull(inputStream).read(skipBuffer, 0, readLength);
       if (Thread.currentThread().isInterrupted()) {
         throw new InterruptedIOException();
@@ -751,7 +708,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       if (read == -1) {
         return false;
       }
-      bytesSkipped += read;
+      bytesToSkip -= read;
       bytesTransferred(read);
     }
     return true;
