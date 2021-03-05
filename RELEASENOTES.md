@@ -45,6 +45,10 @@
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
+*   Cast extension:
+    *  Fix `onPositionDiscontinuity` event so that it is not triggered with
+       reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
+       media item and so that it is not triggered after a timeline change.
 
 ### 2.13.2 (2021-02-25)
 
