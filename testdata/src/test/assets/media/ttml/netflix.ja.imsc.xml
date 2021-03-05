@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tt ttp:contentProfiles="http://www.w3.org/ns/ttml/profile/imsc1.1/text" xmlns="http://www.w3.org/ns/ttml" xmlns:ebuttm="urn:ebu:tt:metadata" xmlns:ebutts="urn:ebu:tt:style" xmlns:ittm="http://www.w3.org/ns/ttml/profile/imsc1#metadata" xmlns:ittp="http://www.w3.org/ns/ttml/profile/imsc1#parameter" xmlns:itts="http://www.w3.org/ns/ttml/profile/imsc1#styling" xmlns:nttm="http://www.netflix.com/ns/ttml#metadata" xmlns:nttmah="http://www.netflix.com/ns/ttml#metadata/authoring/hermes" xmlns:smpte="http://www.smpte-ra.org/schemas/2052-1/2010/smpte-tt" xmlns:ttm="http://www.w3.org/ns/ttml#metadata" xmlns:ttp="http://www.w3.org/ns/ttml#parameter" xmlns:tts="http://www.w3.org/ns/ttml#styling" xmlns:xml="http://www.w3.org/XML/1998/namespace" ttp:frameRate="24" ttp:frameRateMultiplier="1000 1001" ttp:tickRate="10000000" ttp:timeBase="media" xml:lang="ja">
+<head>
+<metadata nttm:assetID="1" nttm:movieID="1" nttm:packageID="1" nttm:schemaVersion="0" nttm:textType="SUBS" nttm:uuid="edab01ae-94ef-4565-94a3-ff635cd5395d"/>
+<styling>
+<initial tts:backgroundColor="transparent" tts:color="white" tts:extent="80.000% 80.000%" tts:fontFamily="Japanese" tts:fontSize="6.000rh" tts:opacity="1.000" tts:origin="10.000% 10.000%" tts:showBackground="whenActive" tts:textOutline="black 0.050em" tts:writingMode="lrtb"/>
+<style xml:id="style0" tts:fontSize="100.000%" tts:textAlign="center"/>
+<style xml:id="style1" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textAlign="center"/>
+<style xml:id="style2" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside"/>
+<style xml:id="style3" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textAlign="start"/>
+<style xml:id="style4" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textAlign="center"/>
+<style xml:id="style5" tts:fontSize="100.000%" tts:rubyReserve="outside"/>
+<style xml:id="style6" ebutts:multiRowAlign="end" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:shear="16.667%" tts:textAlign="center"/>
+<style xml:id="style7" tts:fontSize="100.000%" tts:textAlign="start"/>
+<style xml:id="style8" tts:fontSize="100.000%"/>
+<style xml:id="style9" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="dot before"/>
+<style xml:id="style10" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="dot outside"/>
+<style xml:id="style11" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="filled circle outside"/>
+<style xml:id="style12" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="open circle outside"/>
+<style xml:id="style13" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="open dot outside"/>
+<style xml:id="style14" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="filled sesame outside"/>
+<style xml:id="style15" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="open sesame outside"/>
+<style xml:id="style16" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="auto outside"/>
+<style xml:id="style17" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="auto"/>
+<style xml:id="style18" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="dot after"/>
+<style xml:id="style19" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="dot before"/>
+<style xml:id="style20" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="dot outside"/>
+<style xml:id="style21" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="filled circle outside"/>
+<style xml:id="style22" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="open circle outside"/>
+<style xml:id="style23" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="open dot outside"/>
+<style xml:id="style24" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="filled sesame outside"/>
+<style xml:id="style25" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="open sesame outside"/>
+<style xml:id="style26" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="auto outside"/>
+<style xml:id="style27" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textEmphasis="dot after"/>
+<style xml:id="style28" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:shear="16.667%" tts:textAlign="start"/>
+<style xml:id="style29" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:shear="16.667%"/>
+<style xml:id="style30" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:shear="16.667%" tts:textAlign="center"/>
+<style xml:id="style31" tts:fontSize="100.000%" tts:rubyReserve="outside" tts:textCombine="all"/>
+<style xml:id="style32" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:ruby="container"/>
+<style xml:id="style33" ebutts:multiRowAlign="start" tts:fontSize="100.000%" tts:ruby="base"/>
+<style xml:id="style34" ebutts:multiRowAlign="start" tts:ruby="text" tts:rubyAlign="center" tts:rubyPosition="outside"/>
+<style xml:id="style35" ebutts:multiRowAlign="start" tts:ruby="text" tts:rubyAlign="center" tts:rubyPosition="before"/>
+<style xml:id="style36" ebutts:multiRowAlign="start" tts:ruby="text" tts:rubyAlign="center" tts:rubyPosition="after"/>
+<style xml:id="style37" tts:fontSize="100.000%" tts:ruby="container"/>
+<style xml:id="style38" tts:fontSize="100.000%" tts:ruby="base"/>
+<style xml:id="style39" tts:ruby="text" tts:rubyAlign="center" tts:rubyPosition="outside"/>
+<style xml:id="style40" tts:ruby="text" tts:rubyAlign="center" tts:rubyPosition="before"/>
+<style xml:id="style41" tts:ruby="text" tts:rubyAlign="center" tts:rubyPosition="after"/>
+<style xml:id="style42" tts:fontSize="100.000%" tts:ruby="container" tts:shear="16.667%"/>
+<style xml:id="style43" tts:fontSize="100.000%" tts:ruby="base" tts:shear="16.667%"/>
+<style xml:id="style44" tts:ruby="text" tts:rubyAlign="center" tts:rubyPosition="outside" tts:shear="16.667%"/>
+</styling>
+<layout>
+<region xml:id="region0" tts:displayAlign="before" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%"/>
+<region xml:id="region1" tts:displayAlign="after" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%"/>
+<region xml:id="region2" tts:displayAlign="before" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%" tts:writingMode="tbrl"/>
+<region xml:id="region3" tts:displayAlign="before" tts:extent="80.000% 40.000%" tts:origin="10.000% 30.000%"/>
+<region xml:id="region4" tts:displayAlign="after" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%" tts:writingMode="tbrl"/>
+</layout>
+</head>
+<body>
+<div>
+<p xml:id="subtitle1" begin="100000000t" end="120000000t" region="region0" style="style0">NETFLIX Japanese Timed Text Style and Creation Guide Examples (playback version)</p>
+<p xml:id="subtitle2" begin="100000000t" end="120000000t" region="region1" style="style1">NETFLIXタイムテキストスタ<br/>イルガイド用例</p>
+<p xml:id="subtitle3" begin="130000000t" end="140000000t" region="region0" style="style0">I.2 Acronyms<br/>horizontal</p>
+<p xml:id="subtitle4" begin="130000000t" end="140000000t" region="region1" style="style1">  <span style="style2">ＢＢＣ ＣＩＡ ＵＳＡ</span> </p>
+<p xml:id="subtitle5" begin="140000000t" end="150000000t" region="region0" style="style0">I.2 Acronyms<br/>vertical</p>
+<p xml:id="subtitle6" begin="140000000t" end="150000000t" region="region2" style="style3">ＢＢＣ ＣＩＡ ＵＳＡ</p>
+<p xml:id="subtitle7" begin="160000000t" end="180000000t" region="region0" style="style0">I.3 Horizontal Alignment <br/>w/ ebutts:multiRowAlign</p>
+<p xml:id="subtitle8" begin="160000000t" end="180000000t" region="region1" style="style1">水平字幕は<br/>中央揃えおよび左揃え</p>
+<p xml:id="subtitle9" begin="190000000t" end="210000000t" region="region0" style="style0">I.3 Horizontal Alignment <br/>w/ ideographic spaces</p>
+<p xml:id="subtitle10" begin="190000000t" end="210000000t" region="region1" style="style4">水平字幕は<span style="style5">　　　　　</span><br/>中央揃えおよび左揃え</p>
+<p xml:id="subtitle11" begin="210000000t" end="230000000t" region="region0" style="style0">I.3 Alignment (exceptional case)</p>
+<p xml:id="subtitle12" begin="210000000t" end="230000000t" region="region3" style="style6"> 例外として強制字幕は<br/>どこにでも表示できます</p>
+<p xml:id="subtitle13" begin="240000000t" end="260000000t" region="region0" style="style0">I.3 Vertical Alignment</p>
+<p xml:id="subtitle14" begin="240000000t" end="260000000t" region="region2" style="style3">垂直字幕は<br/>右側に配置</p>
+<p xml:id="subtitle15" begin="240000000t" end="260000000t" region="region4" style="style3">あいまいでない限り<br/>画面上の要素</p>
+<p xml:id="subtitle16" begin="260000000t" end="270000000t" region="region0" style="style0">I.3 Vertical Alignment</p>
+<p xml:id="subtitle17" begin="270000000t" end="290000000t" region="region0" style="style0">I.3 Vertical Alignment</p>
+<p xml:id="subtitle18" begin="270000000t" end="290000000t" region="region2" style="style7">垂直字幕は</p>
+<p xml:id="subtitle19" begin="270000000t" end="290000000t" region="region2" style="style7">右側に配置</p>
+<p xml:id="subtitle20" begin="290000000t" end="300000000t" region="region0" style="style0">I.3 Vertical Alignment</p>
+<p xml:id="subtitle21" begin="300000000t" end="320000000t" region="region0" style="style0"><span style="style8">I.4 Bouten（傍点）<br/>horizontal</span></p>
+<p xml:id="subtitle22" begin="300000000t" end="320000000t" region="region1" style="style1"><span style="style9">強</span><span style="style10">調</span><span style="style11">し</span><span style="style12">た</span><span style="style13">い</span><span style="style14">時</span><span style="style15">に</span><span style="style16">使</span><span style="style17">う</span><br/><span style="style18">強</span><span style="style10">調</span><span style="style11">し</span><span style="style12">た</span><span style="style13">い</span><span style="style14">時</span><span style="style15">に</span><span style="style16">使</span><span style="style17">う</span></p>
+<p xml:id="subtitle23" begin="320000000t" end="340000000t" region="region0" style="style0"><span style="style8">I.4 Bouten（傍点）<br/>vertical, right</span></p>
+<p xml:id="subtitle24" begin="320000000t" end="340000000t" region="region2" style="style3"><span style="style19">強</span><span style="style20">調</span><span style="style21">し</span><span style="style22">た</span><span style="style23">い</span><span style="style24">時</span><span style="style25">に</span><span style="style26">使</span><br/><span style="style27">強</span><span style="style20">調</span><span style="style21">し</span><span style="style22">た</span><span style="style23">い</span><span style="style24">時</span><span style="style25">に</span><span style="style26">使</span></p>
+<p xml:id="subtitle25" begin="350000000t" end="370000000t" region="region0" style="style0"><span style="style8">I.4 Bouten（傍点）<br/>vertical, left</span></p>
+<p xml:id="subtitle26" begin="350000000t" end="370000000t" region="region4" style="style3"><span style="style19">強</span><span style="style20">調</span><span style="style21">し</span><span style="style22">た</span><span style="style23">い</span><span style="style24">時</span><span style="style25">に</span><span style="style26">使</span><br/><span style="style27">強</span><span style="style20">調</span><span style="style21">し</span><span style="style22">た</span><span style="style23">い</span><span style="style24">時</span><span style="style25">に</span><span style="style26">使</span></p>
+<p xml:id="subtitle27" begin="380000000t" end="390000000t" region="region0" style="style0">I.5. Character Limitation <br/>horizontal, 13 full-width characters</p>
+<p xml:id="subtitle28" begin="380000000t" end="390000000t" region="region1" style="style1">これが横の全角文字制限です</p>
+<p xml:id="subtitle29" begin="390000000t" end="400000000t" region="region0" style="style0">I.5. Character Limitation <br/>vertical, 11 full-width characters</p>
+<p xml:id="subtitle30" begin="390000000t" end="400000000t" region="region2" style="style3">これが縦の文字制限です</p>
+<p xml:id="subtitle31" begin="400000000t" end="410000000t" region="region0" style="style0">I.7. Continuity<br/>horizontal, pause (U+2026)</p>
+<p xml:id="subtitle32" begin="400000000t" end="410000000t" region="region1" style="style1">  <span style="style2">そんなバカな…</span> </p>
+<p xml:id="subtitle33" begin="420000000t" end="430000000t" region="region0" style="style0">I.7. Continuity<br/>vertical, pause (U+2026)</p>
+<p xml:id="subtitle34" begin="420000000t" end="430000000t" region="region2" style="style3">  <span style="style5">そんなバカな…</span> </p>
+<p xml:id="subtitle35" begin="440000000t" end="450000000t" region="region0" style="style0">I.7. Continuity<br/>horizontal, pause (U+22EF)</p>
+<p xml:id="subtitle36" begin="440000000t" end="450000000t" region="region1" style="style1">  <span style="style2">そんなバカな…</span> </p>
+<p xml:id="subtitle37" begin="460000000t" end="470000000t" region="region0" style="style0">I.7. Continuity<br/>vertical, pause (U+22EF)</p>
+<p xml:id="subtitle38" begin="460000000t" end="470000000t" region="region2" style="style3">  <span style="style5">そんなバカな…</span> </p>
+<p xml:id="subtitle39" begin="480000000t" end="490000000t" region="region0" style="style0">I.7. Continuity<br/>horizontal, long vowel</p>
+<p xml:id="subtitle40" begin="480000000t" end="490000000t" region="region1" style="style1">  <span style="style2">コーヒーメーカー</span> </p>
+<p xml:id="subtitle41" begin="500000000t" end="510000000t" region="region0" style="style0">I.7. Continuity<br/>vertical, long vowel</p>
+<p xml:id="subtitle42" begin="500000000t" end="510000000t" region="region2" style="style3">  <span style="style5">コーヒーメーカー</span> </p>
+<p xml:id="subtitle43" begin="520000000t" end="530000000t" region="region0" style="style0">I.7. Continuity<br/>horizontal, two-em dash</p>
+<p xml:id="subtitle44" begin="520000000t" end="530000000t" region="region1" style="style1">  <span style="style2">初めて見たとき⸺</span> </p>
+<p xml:id="subtitle45" begin="530000000t" end="540000000t" region="region0" style="style0">I.7. Continuity<br/>horizontal, two-em dash</p>
+<p xml:id="subtitle46" begin="530000000t" end="540000000t" region="region1" style="style1">  <span style="style2">感動したよ</span> </p>
+<p xml:id="subtitle47" begin="550000000t" end="560000000t" region="region0" style="style0">I.7. Continuity<br/>vertical, two-em dash</p>
+<p xml:id="subtitle48" begin="550000000t" end="560000000t" region="region2" style="style3">  <span style="style5">初めて見たとき⸺</span> </p>
+<p xml:id="subtitle49" begin="560000000t" end="570000000t" region="region0" style="style0">I.7. Continuity<br/>vertical, two-em dash</p>
+<p xml:id="subtitle50" begin="560000000t" end="570000000t" region="region2" style="style3">  <span style="style5">感動したよ</span> </p>
+<p xml:id="subtitle51" begin="570000000t" end="575000000t" region="region0" style="style0"> <span style="style8">I.9. Duration</span> </p>
+<p xml:id="subtitle52" begin="575000000t" end="580000000t" region="region0" style="style0"> <span style="style8">I.9. Duration</span> </p>
+<p xml:id="subtitle53" begin="575000000t" end="580000000t" region="region1" style="style1">  <span style="style2">字幕の最短表示時間（500ミリ秒）</span> </p>
+<p xml:id="subtitle54" begin="580000000t" end="585000000t" region="region0" style="style0"> <span style="style8">I.9. Duration</span> </p>
+<p xml:id="subtitle55" begin="585000000t" end="590000000t" region="region0" style="style0"> <span style="style8">I.9. Duration</span> </p>
+<p xml:id="subtitle56" begin="585000000t" end="590000000t" region="region2" style="style3">  <span style="style5">字幕の最短表示時間<br/>（５００ミリ秒）</span> </p>
+<p xml:id="subtitle57" begin="600000000t" end="625000000t" region="region0" style="style0">I.11. On-screen Text<br/>horizontal</p>
+<p xml:id="subtitle58" begin="600000000t" end="625000000t" region="region1" style="style1">  <span style="style2">長い横字幕</span> </p>
+<p xml:id="subtitle59" begin="625000000t" end="635000000t" region="region0" style="style0">I.11. On-screen Text<br/>horizontal</p>
+<p xml:id="subtitle60" begin="625000000t" end="635000000t" region="region1" style="style1">  <span style="style2">長い横字幕</span> </p>
+<p xml:id="subtitle61" begin="625000000t" end="635000000t" region="region2" style="style28">  <span style="style29">強制字幕</span> </p>
+<p xml:id="subtitle62" begin="635000000t" end="655000000t" region="region0" style="style0">I.11. On-screen Text<br/>vertical</p>
+<p xml:id="subtitle63" begin="635000000t" end="655000000t" region="region2" style="style3">  <span style="style5">長い縦字幕</span> </p>
+<p xml:id="subtitle64" begin="655000000t" end="660000000t" region="region0" style="style0">I.11. On-screen Text<br/>vertical</p>
+<p xml:id="subtitle65" begin="655000000t" end="660000000t" region="region2" style="style3">  <span style="style5">長い縦字幕</span> </p>
+<p xml:id="subtitle66" begin="655000000t" end="660000000t" region="region4" style="style28">  <span style="style29">強制字幕</span> </p>
+<p xml:id="subtitle67" begin="660000000t" end="670000000t" region="region0" style="style0">I.12. Foreign Dialogue<br/>horizontal</p>
+<p xml:id="subtitle68" begin="660000000t" end="670000000t" region="region1" style="style1">  <span style="style2">〈T外国語のセリフ〉</span> </p>
+<p xml:id="subtitle69" begin="670000000t" end="680000000t" region="region0" style="style0">I.12. Foreign Dialogue<br/>vertical</p>
+<p xml:id="subtitle70" begin="670000000t" end="680000000t" region="region2" style="style3">〈外国語のセリフ〉</p>
+<p xml:id="subtitle71" begin="680000000t" end="690000000t" region="region0" style="style0">I.12. Foreign Dialogue<br/>horizontal, nakaguro</p>
+<p xml:id="subtitle72" begin="680000000t" end="690000000t" region="region1" style="style1">  <span style="style2">ビル･ゲイツ</span> </p>
+<p xml:id="subtitle73" begin="690000000t" end="700000000t" region="region0" style="style0">I.12. Foreign Dialogue<br/>vertical, nakaguro</p>
+<p xml:id="subtitle74" begin="690000000t" end="700000000t" region="region2" style="style3">ビル･ゲイツ</p>
+<p xml:id="subtitle75" begin="700000000t" end="710000000t" region="region0" style="style0">I.13. Italics<br/>horizontal</p>
+<p xml:id="subtitle76" begin="700000000t" end="710000000t" region="region1" style="style30">イタリック</p>
+<p xml:id="subtitle77" begin="710000000t" end="720000000t" region="region0" style="style0">I.13. Italics<br/>vertical</p>
+<p xml:id="subtitle78" begin="710000000t" end="720000000t" region="region2" style="style28">イタリック</p>
+<p xml:id="subtitle79" begin="720000000t" end="730000000t" region="region0" style="style0">I.14. Line Limitation<br/>horizontal</p>
+<p xml:id="subtitle80" begin="720000000t" end="730000000t" region="region1" style="style1">２行の<br/>字幕</p>
+<p xml:id="subtitle81" begin="750000000t" end="770000000t" region="region0" style="style0">I.14. Line Limitation<br/>vertical</p>
+<p xml:id="subtitle82" begin="750000000t" end="770000000t" region="region2" style="style3">  <span style="style5">２行の</span><br/> <span style="style5">字幕</span> </p>
+<p xml:id="subtitle83" begin="780000000t" end="790000000t" region="region0" style="style0">I.15. Numbers<br/>horizontal</p>
+<p xml:id="subtitle84" begin="780000000t" end="790000000t" region="region1" style="style1">  <span style="style2">全角一桁の数字　１</span><br/>  <span style="style2">半角複数桁の数字　12、345</span> </p>
+<p xml:id="subtitle85" begin="790000000t" end="800000000t" region="region0" style="style0">I.15. Numbers<br/>vertical</p>
+<p xml:id="subtitle86" begin="790000000t" end="800000000t" region="region2" style="style3">  <span style="style5">二桁の数字</span><span style="style31">12</span><br/>  <span style="style5">３桁の数字１５０</span> </p>
+<p xml:id="subtitle87" begin="800000000t" end="810000000t" region="region0" style="style0">I.15. Numbers<br/>horizontal, decimal and large numbers</p>
+<p xml:id="subtitle88" begin="800000000t" end="810000000t" region="region1" style="style1">  <span style="style2">小数点　１.５</span><br/>  <span style="style2">桁の大きい数字　1500、１万2345</span> </p>
+<p xml:id="subtitle89" begin="810000000t" end="820000000t" region="region0" style="style0">I.15. Numbers<br/>vertical,<br/>decimal and large numbers</p>
+<p xml:id="subtitle90" begin="810000000t" end="820000000t" region="region2" style="style3">  <span style="style5">小数点　１･５</span><br/> </p>
+<p xml:id="subtitle91" begin="820000000t" end="830000000t" region="region0" style="style0">I.15. Numbers<br/>vertical,<br/>decimal and large numbers</p>
+<p xml:id="subtitle92" begin="820000000t" end="830000000t" region="region2" style="style3">  <span style="style5">１５００　１万２３４５</span> </p>
+<p xml:id="subtitle93" begin="830000000t" end="840000000t" region="region0" style="style0">I.15. Numbers<br/>horizontal, currency</p>
+<p xml:id="subtitle94" begin="830000000t" end="840000000t" region="region1" style="style1">通貨　10ドル　5ユーロ</p>
+<p xml:id="subtitle95" begin="840000000t" end="850000000t" region="region0" style="style0">I.15. Numbers<br/>vertical, currency</p>
+<p xml:id="subtitle96" begin="840000000t" end="850000000t" region="region2" style="style3">通貨　<span style="style31">10</span>ドル　５ユーロ</p>
+<p xml:id="subtitle97" begin="850000000t" end="860000000t" region="region0" style="style0">I.15. Punctuation<br/>horizontal</p>
+<p xml:id="subtitle98" begin="850000000t" end="860000000t" region="region1" style="style1">まさか？ そんな！</p>
+<p xml:id="subtitle99" begin="860000000t" end="870000000t" region="region0" style="style0">I.15. Punctuation<br/>vertical</p>
+<p xml:id="subtitle100" begin="860000000t" end="870000000t" region="region2" style="style3">まさか？ そんな！</p>
+<p xml:id="subtitle101" begin="870000000t" end="880000000t" region="region0" style="style0">I.15. Punctuation<br/>horizontal, exceptional use of comma</p>
+<p xml:id="subtitle102" begin="870000000t" end="880000000t" region="region1" style="style1"><span style="style2">　</span>タイトルに句読点を含む例外<br/>「食べて、祈って、恋をして」 </p>
+<p xml:id="subtitle103" begin="880000000t" end="890000000t" region="region0" style="style0">I.15. Punctuation<br/>vertical, exceptional use of comma</p>
+<p xml:id="subtitle104" begin="880000000t" end="890000000t" region="region2" style="style3">  <span style="style5">タイトルに句読点を含む例外</span> <span style="style5">１、２、３</span> </p>
+<p xml:id="subtitle105" begin="900000000t" end="910000000t" region="region0" style="style0">I.18. Quotes <br/>horizontal (reg double, U+201X)</p>
+<p xml:id="subtitle106" begin="900000000t" end="910000000t" region="region1" style="style1">“引用が長く続く場合<br/>毎回引用符を閉じます”</p>
+<p xml:id="subtitle107" begin="910000000t" end="920000000t" region="region0" style="style0">I.18. Quotes<br/>vertical (reg double, U+201X)</p>
+<p xml:id="subtitle108" begin="910000000t" end="920000000t" region="region2" style="style3">〝引用が長く続く場合<br/>毎回引用符を閉じます〞</p>
+<p xml:id="subtitle109" begin="920000000t" end="930000000t" region="region0" style="style0">I.18. Quotes <br/>horizontal (double prime, U+301X)</p>
+<p xml:id="subtitle110" begin="920000000t" end="930000000t" region="region1" style="style1">〝引用が長く続く場合<br/>毎回引用符を閉じます〞</p>
+<p xml:id="subtitle111" begin="930000000t" end="940000000t" region="region0" style="style0">I.18. Quotes<br/>vertical (double prime, U+301X)</p>
+<p xml:id="subtitle112" begin="930000000t" end="940000000t" region="region2" style="style3">〝引用が長く続く場合<br/>毎回引用符を閉じます〟</p>
+<p xml:id="subtitle113" begin="940000000t" end="950000000t" region="region0" style="style0">I.20. Ruby（ルビ）<br/>horizontal <br/>(rubyReserve and rubyPosition:outside)</p>
+<p xml:id="subtitle114" begin="940000000t" end="950000000t" region="region1" style="style1"> <span style="style32"><span style="style33">太孫</span><span style="style34">たいそん</span></span>のペクチョンを連れ<br/> <span style="style32"><span style="style33">北漢</span><span style="style34">プッカン</span></span>山に登り </p>
+<p xml:id="subtitle115" begin="950000000t" end="970000000t" region="region0" style="style0">I.20. Ruby（ルビ）<br/>horizontal<br/>(rubyReserve and rubyPosition:before|after)</p>
+<p xml:id="subtitle116" begin="950000000t" end="970000000t" region="region1" style="style1"> <span style="style32"><span style="style33">太孫</span><span style="style35">たいそん</span></span>のペクチョンを連れ<br/> <span style="style32"><span style="style33">北漢</span><span style="style36">プッカン</span></span>山に登り </p>
+<p xml:id="subtitle117" begin="970000000t" end="990000000t" region="region0" style="style0"> <span style="style8">I.20. Ruby（ルビ）<br/>vertical, right<br/>(rubyReserve<br/> and rubyPosition:outside)</span> </p>
+<p xml:id="subtitle118" begin="970000000t" end="990000000t" region="region2" style="style3"> <span style="style37"><span style="style38">太孫</span><span style="style39">たいそん</span></span>のペクチョンを連れ<br/> <span style="style37"><span style="style38">北漢</span><span style="style39">プッカン</span></span>山に登り</p>
+<p xml:id="subtitle119" begin="990000000t" end="1010000000t" region="region0" style="style0"> <span style="style8">I.20. Ruby（ルビ）<br/>vertical, right<br/>(rubyReserve<br/> and rubyPosition:before|after)</span> </p>
+<p xml:id="subtitle120" begin="990000000t" end="1010000000t" region="region2" style="style3"> <span style="style37"><span style="style38">太孫</span><span style="style40">たいそん</span></span>のペクチョンを連れ<br/> <span style="style37"><span style="style38">北漢</span><span style="style41">プッカン</span></span>山に登り</p>
+<p xml:id="subtitle121" begin="1010000000t" end="1030000000t" region="region0" style="style0">I.20. Ruby（ルビ）<br/>vertical, left</p>
+<p xml:id="subtitle122" begin="1010000000t" end="1030000000t" region="region4" style="style28"> <span style="style42"><span style="style43">太孫</span><span style="style44">たいそん</span></span>のペクチョンを連れ<br/> <span style="style42"><span style="style43">北漢</span><span style="style44">プッカン</span></span>山に登り </p>
+<p xml:id="subtitle123" begin="1030000000t" end="1050000000t" region="region0" style="style0">I.21. Songs</p>
+<p xml:id="subtitle124" begin="1030000000t" end="1050000000t" region="region1" style="style30">あきらめない<br/>　　　明日の太陽</p>
+<p xml:id="subtitle125" begin="1050000000t" end="1070000000t" region="region0" style="style0">II.4. SDH Alignment</p>
+<p xml:id="subtitle126" begin="1050000000t" end="1070000000t" region="region1" style="style1">昨日は昨日 今日は今日でしょ<br/>（電話の着信音）</p>
+<p xml:id="subtitle127" begin="1070000000t" end="1090000000t" region="region0" style="style0">II.9. SDH Dual Speakers</p>
+<p xml:id="subtitle128" begin="1070000000t" end="1090000000t" region="region1" style="style1">（みのり）はじめまして<br/>（アルマン）よろしくお願いします</p>
+<p xml:id="subtitle129" begin="1090000000t" end="1100000000t" region="region0" style="style0">II.20. SDH Songs</p>
+<p xml:id="subtitle130" begin="1090000000t" end="1100000000t" region="region1" style="style30">♪～</p>
+<p xml:id="subtitle131" begin="1100000000t" end="1110000000t" region="region0" style="style0">II.20. SDH Songs</p>
+<p xml:id="subtitle132" begin="1100000000t" end="1110000000t" region="region1" style="style30">あきらめない<br/>　　　明日の太陽</p>
+<p xml:id="subtitle133" begin="1110000000t" end="1120000000t" region="region0" style="style0">II.20. SDH Songs</p>
+<p xml:id="subtitle134" begin="1110000000t" end="1120000000t" region="region1" style="style30">～♪</p>
+<p xml:id="subtitle135" begin="1120000000t" end="1140000000t" region="region0" style="style0">II.21. SDH Speaker ID / Sound Effects</p>
+<p xml:id="subtitle136" begin="1120000000t" end="1140000000t" region="region1" style="style1">  <span style="style2">(スペイン語)お元気ですか</span> </p>
+<p xml:id="subtitle137" begin="1140000000t" end="1160000000t" region="region0" style="style0">II.21. SDH Speaker ID / Sound Effects</p>
+<p xml:id="subtitle138" begin="1140000000t" end="1160000000t" region="region1" style="style1">  <span style="style2">(スペイン語)</span> </p>
+<p xml:id="subtitle139" begin="1160000000t" end="1170000000t" region="region0" style="style0">II.22. SDH Special Instructions<br/>horizontal</p>
+<p xml:id="subtitle140" begin="1160000000t" end="1170000000t" region="region1" style="style1">  <span style="style2">（無音のセリフ）</span> </p>
+<p xml:id="subtitle141" begin="1170000000t" end="1180000000t" region="region0" style="style0">II.22. Special Instructions<br/>vertical</p>
+<p xml:id="subtitle142" begin="1170000000t" end="1180000000t" region="region2" style="style3">  <span style="style5">（無音のセリフ）</span> </p>
+<p xml:id="subtitle143" begin="1180000000t" end="1200000000t" region="region0" style="style0">Escape Characters</p>
+<p xml:id="subtitle144" begin="1180000000t" end="1200000000t" region="region1" style="style1">&quot;“”„'‘’‚»«()[].,;:|?¿!¡&lt;&gt;&amp;<br/>&quot;“”„'‘’‚»«()[].,;:|?¿!¡&lt;&gt;&amp;</p>
+</div>
+</body>
+</tt>
