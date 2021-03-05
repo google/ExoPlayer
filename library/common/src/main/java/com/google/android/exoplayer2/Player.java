@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.content.Context;
 import android.os.Looper;
+import android.util.SparseBooleanArray;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -482,6 +485,17 @@ public interface Player {
     default void onLoadingChanged(boolean isLoading) {}
 
     /**
+     * Called when the value returned from {@link #isCommandAvailable(int)} changes for at least one
+     * {@link Command}.
+     *
+     * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
+     * other events that happen in the same {@link Looper} message queue iteration.
+     *
+     * @param availableCommands The available {@link Commands}.
+     */
+    default void onAvailableCommandsChanged(Commands availableCommands) {}
+
+    /**
      * @deprecated Use {@link #onPlaybackStateChanged(int)} and {@link
      *     #onPlayWhenReadyChanged(boolean, int)} instead.
      */
@@ -693,6 +707,105 @@ public interface Player {
   }
 
   /**
+   * A set of {@link Command commands}.
+   *
+   * <p>Instances are immutable.
+   */
+  final class Commands {
+
+    /** A builder for {@link Commands} instances. */
+    public static final class Builder {
+
+      private final SparseBooleanArray commandsArray;
+
+      private boolean buildCalled;
+
+      /** Creates a builder. */
+      public Builder() {
+        commandsArray = new SparseBooleanArray();
+      }
+
+      /** Creates a builder with the values of the provided {@link Commands}. */
+      private Builder(Commands commands) {
+        this.commandsArray = commands.commandsArray.clone();
+      }
+
+      /**
+       * Adds a {@link Command}.
+       *
+       * @param command A {@link Command}.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder add(@Command int command) {
+        checkState(!buildCalled);
+        commandsArray.append(command, /* value= */ true);
+        return this;
+      }
+
+      /**
+       * Adds a {@link Command} if the provided condition is true. Does nothing otherwise.
+       *
+       * @param command A {@link Command}.
+       * @param condition A condition.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addIf(@Command int command, boolean condition) {
+        checkState(!buildCalled);
+        if (condition) {
+          commandsArray.append(command, /* value= */ true);
+        }
+        return this;
+      }
+
+      /** Builds a {@link Commands} instance. */
+      public Commands build() {
+        checkState(!buildCalled);
+        buildCalled = true;
+        return new Commands(commandsArray);
+      }
+    }
+
+    /** An empty set of commands. */
+    public static final Commands EMPTY = new Commands.Builder().build();
+
+    // A SparseBooleanArray is used instead of a Set to avoid auto-boxing the Command values.
+    private final SparseBooleanArray commandsArray;
+
+    private Commands(SparseBooleanArray commandsArray) {
+      this.commandsArray = commandsArray;
+    }
+
+    /** Returns a {@link Commands.Builder} initialized with the values of this instance. */
+    public Builder buildUpon() {
+      return new Builder(this);
+    }
+
+    /** Returns whether the set of commands contains the specified {@link Command}. */
+    public boolean contains(@Command int command) {
+      return commandsArray.get(command);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (!(obj instanceof Commands)) {
+        return false;
+      }
+      Commands commands = (Commands) obj;
+      return this.commandsArray.equals(commands.commandsArray);
+    }
+
+    @Override
+    public int hashCode() {
+      return commandsArray.hashCode();
+    }
+  }
+
+  /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
    * {@link #STATE_ENDED}.
    */
@@ -881,7 +994,8 @@ public interface Player {
     EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
     EVENT_PLAYER_ERROR,
     EVENT_POSITION_DISCONTINUITY,
-    EVENT_PLAYBACK_PARAMETERS_CHANGED
+    EVENT_PLAYBACK_PARAMETERS_CHANGED,
+    EVENT_AVAILABLE_COMMANDS_CHANGED
   })
   @interface EventFlags {}
   /** {@link #getCurrentTimeline()} changed. */
@@ -912,6 +1026,8 @@ public interface Player {
   int EVENT_POSITION_DISCONTINUITY = 12;
   /** {@link #getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = 13;
+  /** {@link #isCommandAvailable(int)} changed for at least one {@link Command}. */
+  int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link
@@ -1105,6 +1221,7 @@ public interface Player {
    *
    * @param command A {@link Command}.
    * @return Whether the {@link Command} is available.
+   * @see EventListener#onAvailableCommandsChanged(Commands)
    */
   boolean isCommandAvailable(@Command int command);
 

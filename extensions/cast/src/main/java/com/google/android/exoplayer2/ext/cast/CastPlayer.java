@@ -105,6 +105,7 @@ public final class CastPlayer extends BasePlayer {
   private CastTimeline currentTimeline;
   private TrackGroupArray currentTrackGroups;
   private TrackSelectionArray currentTrackSelection;
+  private Commands availableCommands;
   @Player.State private int playbackState;
   private int currentWindowIndex;
   private long lastReportedPositionMs;
@@ -147,6 +148,7 @@ public final class CastPlayer extends BasePlayer {
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
     currentTrackGroups = TrackGroupArray.EMPTY;
     currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
+    availableCommands = Commands.EMPTY;
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
 
@@ -370,6 +372,11 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
+  public boolean isCommandAvailable(@Command int command) {
+    return availableCommands.contains(command);
+  }
+
+  @Override
   public void prepare() {
     // Do nothing.
   }
@@ -452,6 +459,7 @@ public final class CastPlayer extends BasePlayer {
       listeners.queueEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
           listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
+      updateAvailableCommandsAndNotifyIfChanged();
     } else if (pendingSeekCount == 0) {
       listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
     }
@@ -645,6 +653,7 @@ public final class CastPlayer extends BasePlayer {
           Player.EVENT_TRACKS_CHANGED,
           listener -> listener.onTracksChanged(currentTrackGroups, currentTrackSelection));
     }
+    updateAvailableCommandsAndNotifyIfChanged();
     listeners.flushEvents();
   }
 
@@ -693,6 +702,7 @@ public final class CastPlayer extends BasePlayer {
                 timeline, /* manifest= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
             listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
           });
+      updateAvailableCommandsAndNotifyIfChanged();
     }
   }
 
@@ -762,6 +772,16 @@ public final class CastPlayer extends BasePlayer {
     return false;
   }
 
+  private void updateAvailableCommandsAndNotifyIfChanged() {
+    Commands previousAvailableCommands = availableCommands;
+    availableCommands = getAvailableCommands();
+    if (!availableCommands.equals(previousAvailableCommands)) {
+      listeners.queueEvent(
+          Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
+          listener -> listener.onAvailableCommandsChanged(availableCommands));
+    }
+  }
+
   @Nullable
   private PendingResult<MediaChannelResult> setMediaItemsInternal(
       MediaQueueItem[] mediaQueueItems,
@@ -819,6 +839,7 @@ public final class CastPlayer extends BasePlayer {
       this.repeatMode.value = repeatMode;
       listeners.queueEvent(
           Player.EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
+      updateAvailableCommandsAndNotifyIfChanged();
     }
   }
 
@@ -1003,6 +1024,7 @@ public final class CastPlayer extends BasePlayer {
     @Override
     public void onQueueStatusUpdated() {
       updateTimelineAndNotifyIfChanged();
+      listeners.flushEvents();
     }
 
     @Override

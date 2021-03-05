@@ -238,6 +238,11 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public boolean isCommandAvailable(int command) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void setPlayWhenReady(boolean playWhenReady) {
     throw new UnsupportedOperationException();
   }

@@ -91,6 +91,7 @@ import java.util.List;
   private SeekParameters seekParameters;
   private ShuffleOrder shuffleOrder;
   private boolean pauseAtEndOfMediaItems;
+  private Commands availableCommands;
 
   // Playback information when there is no pending seek/set source operation.
   private PlaybackInfo playbackInfo;
@@ -174,6 +175,7 @@ import java.util.List;
             new ExoTrackSelection[renderers.length],
             /* info= */ null);
     period = new Timeline.Period();
+    availableCommands = Commands.EMPTY;
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
@@ -281,6 +283,11 @@ import java.util.List;
   @Override
   public void removeListener(Player.EventListener listener) {
     listeners.remove(listener);
+  }
+
+  @Override
+  public boolean isCommandAvailable(@Command int command) {
+    return availableCommands.contains(command);
   }
 
   @Override
@@ -573,8 +580,10 @@ import java.util.List;
     if (this.repeatMode != repeatMode) {
       this.repeatMode = repeatMode;
       internalPlayer.setRepeatMode(repeatMode);
-      listeners.sendEvent(
+      listeners.queueEvent(
           Player.EVENT_REPEAT_MODE_CHANGED, listener -> listener.onRepeatModeChanged(repeatMode));
+      updateAvailableCommands();
+      listeners.flushEvents();
     }
   }
 
@@ -588,9 +597,11 @@ import java.util.List;
     if (this.shuffleModeEnabled != shuffleModeEnabled) {
       this.shuffleModeEnabled = shuffleModeEnabled;
       internalPlayer.setShuffleModeEnabled(shuffleModeEnabled);
-      listeners.sendEvent(
+      listeners.queueEvent(
           Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED,
           listener -> listener.onShuffleModeEnabledChanged(shuffleModeEnabled));
+      updateAvailableCommands();
+      listeners.flushEvents();
     }
   }
 
@@ -1110,6 +1121,7 @@ import java.util.List;
           listener ->
               listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload));
     }
+    updateAvailableCommands();
     listeners.flushEvents();
   }
 
@@ -1157,6 +1169,16 @@ import java.util.List;
       return new Pair<>(/* isTransitioning */ true, MEDIA_ITEM_TRANSITION_REASON_REPEAT);
     }
     return new Pair<>(/* isTransitioning */ false, /* mediaItemTransitionReason */ C.INDEX_UNSET);
+  }
+
+  private void updateAvailableCommands() {
+    Commands previousAvailableCommands = availableCommands;
+    availableCommands = getAvailableCommands();
+    if (!availableCommands.equals(previousAvailableCommands)) {
+      listeners.queueEvent(
+          Player.EVENT_AVAILABLE_COMMANDS_CHANGED,
+          listener -> listener.onAvailableCommandsChanged(availableCommands));
+    }
   }
 
   private void setMediaSourcesInternal(
