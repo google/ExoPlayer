@@ -80,9 +80,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String RUBY_TEXT_CONTAINER = "textContainer";
   public static final String RUBY_DELIMITER = "delimiter";
 
-  // Values for rubyPosition
-  public static final String RUBY_BEFORE = "before";
-  public static final String RUBY_AFTER = "after";
+  // Values for text annotation (i.e. ruby, text emphasis) position
+  public static final String ANNOTATION_POSITION_BEFORE = "before";
+  public static final String ANNOTATION_POSITION_AFTER = "after";
+  public static final String ANNOTATION_POSITION_OUTSIDE = "outside";
+
   // Values for textDecoration
   public static final String LINETHROUGH = "linethrough";
   public static final String NO_LINETHROUGH = "nolinethrough";
@@ -115,10 +117,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String TEXT_EMPHASIS_MARK_CIRCLE = "circle";
   public static final String TEXT_EMPHASIS_MARK_FILLED = "filled";
   public static final String TEXT_EMPHASIS_MARK_OPEN = "open";
-
-  public static final String TEXT_EMPHASIS_POSITION_AFTER = "after";
-  public static final String TEXT_EMPHASIS_POSITION_BEFORE = "before";
-  public static final String TEXT_EMPHASIS_POSITION_OUTSIDE = "outside";
 
   @Nullable public final String tag;
   @Nullable public final String text;

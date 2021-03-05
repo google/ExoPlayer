@@ -582,10 +582,10 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           break;
         case TtmlNode.ATTR_TTS_RUBY_POSITION:
           switch (Util.toLowerInvariant(attributeValue)) {
-            case TtmlNode.RUBY_BEFORE:
+            case TtmlNode.ANNOTATION_POSITION_BEFORE:
               style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_BEFORE);
               break;
-            case TtmlNode.RUBY_AFTER:
+            case TtmlNode.ANNOTATION_POSITION_AFTER:
               style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_AFTER);
               break;
             default:

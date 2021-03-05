@@ -55,20 +55,19 @@ import java.util.Set;
       MARK_AUTO
   })
 
-  /* package */ @interface Mark {
+  @interface Mark {
   }
 
   /**
    * The mark style of the text emphasis.
    */
-  /* package */@Mark
-  final int mark;
+  @Mark final int mark;
 
   /**
    *  Position to be resolved at rendering time. Hence, it is not defined in
    *  {@link TextAnnotation.Position}
    */
-  public static final int POSITION_OUTSIDE = 1 << 8;
+  static final int POSITION_OUTSIDE = 1 << 8;
 
   @Documented
   @Retention(SOURCE)
@@ -78,13 +77,12 @@ import java.util.Set;
       // Extending the definition in TextAnnotation.Position for intermediate values
       POSITION_OUTSIDE
   })
-  public @interface Position {}
+  @interface Position {}
 
   /**
    * The position of the text emphasis relative to the base text.
    */
-  @Position
-  public final int position;
+  @Position final int position;
 
   private static Set markValues = ImmutableSet.of(
       TtmlNode.TEXT_EMPHASIS_AUTO,
@@ -99,9 +97,9 @@ import java.util.Set;
   );
 
   private static Set positionValues = ImmutableSet.of(
-      TtmlNode.TEXT_EMPHASIS_POSITION_AFTER,
-      TtmlNode.TEXT_EMPHASIS_POSITION_BEFORE,
-      TtmlNode.TEXT_EMPHASIS_POSITION_OUTSIDE
+      TtmlNode.ANNOTATION_POSITION_AFTER,
+      TtmlNode.ANNOTATION_POSITION_BEFORE,
+      TtmlNode.ANNOTATION_POSITION_OUTSIDE
   );
 
   private TextEmphasis(@Mark int mark, @TextAnnotation.Position int position) {
@@ -175,13 +173,13 @@ import java.util.Set;
     @Position int position = POSITION_OUTSIDE;
     if (positionSet.size() == 1) {
       switch ((String) positionSet.iterator().next()) {
-        case TtmlNode.TEXT_EMPHASIS_POSITION_AFTER:
+        case TtmlNode.ANNOTATION_POSITION_AFTER:
           position = TextAnnotation.POSITION_AFTER;
           break;
-        case TtmlNode.TEXT_EMPHASIS_POSITION_OUTSIDE:
+        case TtmlNode.ANNOTATION_POSITION_OUTSIDE:
           position = POSITION_OUTSIDE;
           break;
-        case TtmlNode.TEXT_EMPHASIS_POSITION_BEFORE:
+        case TtmlNode.ANNOTATION_POSITION_BEFORE:
         default:
           position = TextAnnotation.POSITION_BEFORE;
       }

@@ -1219,6 +1219,25 @@ public final class SpannedSubject extends Subject {
       }
 
       @Override
+      public boolean equals(@Nullable Object o) {
+        if (this == o) {
+          return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+          return false;
+        }
+
+        TextEmphasisSubject.MarkAndPosition that = (TextEmphasisSubject.MarkAndPosition) o;
+        return (position == that.position) && (mark == that.mark);
+      }
+
+      @Override
+      public int hashCode() {
+        int result = 34613 * mark + position;
+        return result;
+      }
+
+      @Override
       public String toString() {
         return String.format("{mark=%s,position=%s}", mark, position);
       }
