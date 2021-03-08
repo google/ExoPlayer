@@ -115,15 +115,6 @@ import java.util.Set;
     this.position = position;
   }
 
-  @Override
-  public String toString() {
-    return "TextEmphasis{" +
-        "position=" + position +
-        ", markShape=" + markShape +
-        ", markFill=" + markFill +
-        '}';
-  }
-
   @Nullable public static TextEmphasis createTextEmphasis(@Nullable String value) {
     if (value == null) {
       return null;
