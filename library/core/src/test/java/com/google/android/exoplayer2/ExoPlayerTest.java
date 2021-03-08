@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilStartOfWindow;
+import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilReceiveOffloadSchedulingEnabledNewState;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilSleepingForOffload;
@@ -1649,55 +1650,44 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void seekAndReprepareAfterPlaybackError() throws Exception {
-    Timeline timeline = new FakeTimeline();
-    final long[] positionHolder = new long[2];
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .pause()
-            .waitForPlaybackState(Player.STATE_READY)
-            .throwPlaybackException(ExoPlaybackException.createForSource(new IOException()))
-            .waitForPlaybackState(Player.STATE_IDLE)
-            .seek(/* positionMs= */ 50)
-            .waitForPendingPlayerCommands()
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    positionHolder[0] = player.getCurrentPosition();
-                  }
-                })
-            .prepare()
-            .waitForPlaybackState(Player.STATE_READY)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    positionHolder[1] = player.getCurrentPosition();
-                  }
-                })
-            .play()
-            .build();
-    ExoPlayerTestRunner testRunner =
-        new ExoPlayerTestRunner.Builder(context)
-            .setTimeline(timeline)
-            .setActionSchedule(actionSchedule)
-            .build();
+  public void seekAndReprepareAfterPlaybackError_keepsSeekPositionAndTimeline() throws Exception {
+    SimpleExoPlayer player = new TestExoPlayerBuilder(context).build();
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    player.addListener(mockListener);
+    FakeMediaSource fakeMediaSource = new FakeMediaSource();
+    player.setMediaSource(fakeMediaSource);
 
-    assertThrows(
-        ExoPlaybackException.class,
-        () ->
-            testRunner
-                .start()
-                .blockUntilActionScheduleFinished(TIMEOUT_MS)
-                .blockUntilEnded(TIMEOUT_MS));
-    testRunner.assertTimelinesSame(placeholderTimeline, timeline);
-    testRunner.assertTimelineChangeReasonsEqual(
-        Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
-    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_SEEK);
-    assertThat(positionHolder[0]).isEqualTo(50);
-    assertThat(positionHolder[1]).isEqualTo(50);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    player
+        .createMessage(
+            (type, payload) -> {
+              throw ExoPlaybackException.createForSource(new IOException());
+            })
+        .send();
+    runUntilPlaybackState(player, Player.STATE_IDLE);
+    player.seekTo(/* positionMs= */ 50);
+    runUntilPendingCommandsAreFullyHandled(player);
+    long positionAfterSeekHandled = player.getCurrentPosition();
+    // Delay re-preparation to force player to use its masking mechanisms.
+    fakeMediaSource.setAllowPreparation(false);
+    player.prepare();
+    runUntilPendingCommandsAreFullyHandled(player);
+    long positionAfterReprepareHandled = player.getCurrentPosition();
+    fakeMediaSource.setAllowPreparation(true);
+    runUntilPlaybackState(player, Player.STATE_READY);
+    long positionWhenFullyReadyAfterReprepare = player.getCurrentPosition();
+    player.release();
+
+    // Ensure we don't receive further timeline updates when repreparing.
+    verify(mockListener)
+        .onTimelineChanged(any(), eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    verify(mockListener).onTimelineChanged(any(), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
+    verify(mockListener, times(2)).onTimelineChanged(any(), anyInt());
+
+    assertThat(positionAfterSeekHandled).isEqualTo(50);
+    assertThat(positionAfterReprepareHandled).isEqualTo(50);
+    assertThat(positionWhenFullyReadyAfterReprepare).isEqualTo(50);
   }
 
   @Test
