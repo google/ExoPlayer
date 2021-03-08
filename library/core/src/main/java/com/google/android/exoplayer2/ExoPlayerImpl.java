@@ -416,12 +416,8 @@ import java.util.List;
   }
 
   @Override
-  public void addMediaItems(List<MediaItem> mediaItems) {
-    addMediaItems(/* index= */ mediaSourceHolderSnapshots.size(), mediaItems);
-  }
-
-  @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
+    index = min(index, mediaSourceHolderSnapshots.size());
     addMediaSources(index, createMediaSources(mediaItems));
   }
 
@@ -464,6 +460,7 @@ import java.util.List;
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
+    toIndex = min(toIndex, mediaSourceHolderSnapshots.size());
     PlaybackInfo playbackInfo = removeMediaItemsInternal(fromIndex, toIndex);
     updatePlaybackInfo(
         playbackInfo,
@@ -499,11 +496,6 @@ import java.util.List;
         /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
         /* seekProcessed= */ false);
-  }
-
-  @Override
-  public void clearMediaItems() {
-    removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ mediaSourceHolderSnapshots.size());
   }
 
   @Override

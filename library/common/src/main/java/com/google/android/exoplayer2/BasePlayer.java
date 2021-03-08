@@ -60,6 +60,11 @@ public abstract class BasePlayer implements Player {
   }
 
   @Override
+  public final void addMediaItems(List<MediaItem> mediaItems) {
+    addMediaItems(/* index= */ Integer.MAX_VALUE, mediaItems);
+  }
+
+  @Override
   public final void moveMediaItem(int currentIndex, int newIndex) {
     if (currentIndex != newIndex) {
       moveMediaItems(/* fromIndex= */ currentIndex, /* toIndex= */ currentIndex + 1, newIndex);
@@ -69,6 +74,11 @@ public abstract class BasePlayer implements Player {
   @Override
   public final void removeMediaItem(int index) {
     removeMediaItems(/* fromIndex= */ index, /* toIndex= */ index + 1);
+  }
+
+  @Override
+  public final void clearMediaItems() {
+    removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
   }
 
   @Override

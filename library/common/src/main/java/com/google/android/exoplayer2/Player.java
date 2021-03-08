@@ -1153,7 +1153,8 @@ public interface Player {
   /**
    * Adds a media item at the given index of the playlist.
    *
-   * @param index The index at which to add the item.
+   * @param index The index at which to add the media item. If the index is larger than the size of
+   *     the playlist, the media item is added to the end of the playlist.
    * @param mediaItem The {@link MediaItem} to add.
    */
   void addMediaItem(int index, MediaItem mediaItem);
@@ -1168,7 +1169,8 @@ public interface Player {
   /**
    * Adds a list of media items at the given index of the playlist.
    *
-   * @param index The index at which to add the media items.
+   * @param index The index at which to add the media items. If the index is larger than the size of
+   *     the playlist, the media items are added to the end of the playlist.
    * @param mediaItems The {@link MediaItem MediaItems} to add.
    */
   void addMediaItems(int index, List<MediaItem> mediaItems);
@@ -1204,7 +1206,8 @@ public interface Player {
    * Removes a range of media items from the playlist.
    *
    * @param fromIndex The index at which to start removing media items.
-   * @param toIndex The index of the first item to be kept (exclusive).
+   * @param toIndex The index of the first item to be kept (exclusive). If the index is larger than
+   *     the size of the playlist, media items to the end of the playlist are removed.
    */
   void removeMediaItems(int fromIndex, int toIndex);
 

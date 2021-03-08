@@ -1358,12 +1358,6 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void addMediaItems(List<MediaItem> mediaItems) {
-    verifyApplicationThread();
-    player.addMediaItems(mediaItems);
-  }
-
-  @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
     verifyApplicationThread();
     player.addMediaItems(index, mediaItems);
@@ -1403,12 +1397,6 @@ public class SimpleExoPlayer extends BasePlayer
   public void removeMediaItems(int fromIndex, int toIndex) {
     verifyApplicationThread();
     player.removeMediaItems(fromIndex, toIndex);
-  }
-
-  @Override
-  public void clearMediaItems() {
-    verifyApplicationThread();
-    player.clearMediaItems();
   }
 
   @Override

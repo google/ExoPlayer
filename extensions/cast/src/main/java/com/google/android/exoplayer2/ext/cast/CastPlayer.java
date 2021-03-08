@@ -317,11 +317,6 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public void addMediaItems(List<MediaItem> mediaItems) {
-    addMediaItemsInternal(toMediaQueueItems(mediaItems), MediaQueueItem.INVALID_ITEM_ID);
-  }
-
-  @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
     Assertions.checkArgument(index >= 0);
     int uid = MediaQueueItem.INVALID_ITEM_ID;
@@ -353,8 +348,8 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
-    Assertions.checkArgument(
-        fromIndex >= 0 && toIndex >= fromIndex && toIndex <= currentTimeline.getWindowCount());
+    Assertions.checkArgument(fromIndex >= 0 && toIndex >= fromIndex);
+    toIndex = min(toIndex, currentTimeline.getWindowCount());
     if (fromIndex == toIndex) {
       // Do nothing.
       return;
@@ -364,11 +359,6 @@ public final class CastPlayer extends BasePlayer {
       uids[i] = (int) currentTimeline.getWindow(/* windowIndex= */ i + fromIndex, window).uid;
     }
     removeMediaItemsInternal(uids);
-  }
-
-  @Override
-  public void clearMediaItems() {
-    removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ currentTimeline.getWindowCount());
   }
 
   @Override

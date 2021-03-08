@@ -193,11 +193,6 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
-  public void addMediaItems(List<MediaItem> mediaItems) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void addMediaItems(int index, List<MediaItem> mediaItems) {
     throw new UnsupportedOperationException();
   }
@@ -229,11 +224,6 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public void removeMediaItems(int fromIndex, int toIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void clearMediaItems() {
     throw new UnsupportedOperationException();
   }
 
