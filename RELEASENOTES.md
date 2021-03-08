@@ -27,6 +27,9 @@
         `ExoPlayer`.
     *   Reset playback speed when live playback speed control becomes unused
         ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
+    *   Fix playback position issue when re-preparing playback after a
+        BehindLiveWindowException
+        ([#8675](https://github.com/google/ExoPlayer/issues/8675)).
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.

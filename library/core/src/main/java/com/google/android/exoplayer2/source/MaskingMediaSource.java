@@ -178,13 +178,17 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
       //     anyway.
       newTimeline.getWindow(/* windowIndex= */ 0, window);
       long windowStartPositionUs = window.getDefaultPositionUs();
+      Object windowUid = window.uid;
       if (unpreparedMaskingMediaPeriod != null) {
         long periodPreparePositionUs = unpreparedMaskingMediaPeriod.getPreparePositionUs();
-        if (periodPreparePositionUs != 0) {
-          windowStartPositionUs = periodPreparePositionUs;
+        timeline.getPeriodByUid(unpreparedMaskingMediaPeriod.id.periodUid, period);
+        long windowPreparePositionUs = period.getPositionInWindowUs() + periodPreparePositionUs;
+        long oldWindowDefaultPositionUs =
+            timeline.getWindow(/* windowIndex= */ 0, window).getDefaultPositionUs();
+        if (windowPreparePositionUs != oldWindowDefaultPositionUs) {
+          windowStartPositionUs = windowPreparePositionUs;
         }
       }
-      Object windowUid = window.uid;
       Pair<Object, Long> periodPosition =
           newTimeline.getPeriodPosition(
               window, period, /* windowIndex= */ 0, windowStartPositionUs);
