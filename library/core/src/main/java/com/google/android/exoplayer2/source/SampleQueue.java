@@ -16,11 +16,13 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 
 import android.os.Looper;
 import android.util.Log;
 import androidx.annotation.CallSuper;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -61,6 +63,7 @@ public class SampleQueue implements TrackOutput {
 
   private final SampleDataQueue sampleDataQueue;
   private final SampleExtrasHolder extrasHolder;
+  private final SpannedData<Format> formatSpans;
   @Nullable private final DrmSessionManager drmSessionManager;
   @Nullable private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   @Nullable private final Looper playbackLooper;
@@ -76,7 +79,6 @@ public class SampleQueue implements TrackOutput {
   private int[] flags;
   private long[] timesUs;
   private @NullableType CryptoData[] cryptoDatas;
-  private Format[] formats;
 
   private int length;
   private int absoluteFirstIndex;
@@ -92,7 +94,6 @@ public class SampleQueue implements TrackOutput {
   private boolean upstreamFormatAdjustmentRequired;
   @Nullable private Format unadjustedUpstreamFormat;
   @Nullable private Format upstreamFormat;
-  @Nullable private Format upstreamCommittedFormat;
   private int upstreamSourceId;
   private boolean upstreamAllSamplesAreSyncSamples;
   private boolean loggedUnexpectedNonSyncSample;
@@ -155,7 +156,7 @@ public class SampleQueue implements TrackOutput {
     flags = new int[capacity];
     sizes = new int[capacity];
     cryptoDatas = new CryptoData[capacity];
-    formats = new Format[capacity];
+    formatSpans = new SpannedData<>();
     startTimeUs = Long.MIN_VALUE;
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
@@ -197,7 +198,7 @@ public class SampleQueue implements TrackOutput {
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
     isLastSampleQueued = false;
-    upstreamCommittedFormat = null;
+    formatSpans.clear();
     if (resetUpstreamFormat) {
       unadjustedUpstreamFormat = null;
       upstreamFormat = null;
@@ -370,12 +371,11 @@ public class SampleQueue implements TrackOutput {
           || isLastSampleQueued
           || (upstreamFormat != null && upstreamFormat != downstreamFormat);
     }
-    int relativeReadIndex = getRelativeIndex(readPosition);
-    if (formats[relativeReadIndex] != downstreamFormat) {
+    if (formatSpans.get(getReadIndex()) != downstreamFormat) {
       // A format can be read.
       return true;
     }
-    return mayReadSample(relativeReadIndex);
+    return mayReadSample(getRelativeIndex(readPosition));
   }
 
   /** Equivalent to {@link #read}, except it never advances the read position. */
@@ -690,12 +690,13 @@ public class SampleQueue implements TrackOutput {
       }
     }
 
-    int relativeReadIndex = getRelativeIndex(readPosition);
-    if (formatRequired || formats[relativeReadIndex] != downstreamFormat) {
-      onFormatResult(formats[relativeReadIndex], formatHolder);
+    Format format = formatSpans.get(getReadIndex());
+    if (formatRequired || format != downstreamFormat) {
+      onFormatResult(format, formatHolder);
       return C.RESULT_FORMAT_READ;
     }
 
+    int relativeReadIndex = getRelativeIndex(readPosition);
     if (!mayReadSample(relativeReadIndex)) {
       buffer.waitingForKeys = true;
       return C.RESULT_NOTHING_READ;
@@ -721,6 +722,8 @@ public class SampleQueue implements TrackOutput {
       // referential quality.
       return false;
     }
+
+    @Nullable Format upstreamCommittedFormat = formatSpans.getEndValue();
     if (Util.areEqual(format, upstreamCommittedFormat)) {
       // The format has changed back to the format of the last committed sample. If they are
       // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat
@@ -794,9 +797,11 @@ public class SampleQueue implements TrackOutput {
     sizes[relativeEndIndex] = size;
     flags[relativeEndIndex] = sampleFlags;
     cryptoDatas[relativeEndIndex] = cryptoData;
-    formats[relativeEndIndex] = upstreamFormat;
     sourceIds[relativeEndIndex] = upstreamSourceId;
-    upstreamCommittedFormat = upstreamFormat;
+
+    if (!Util.areEqual(upstreamFormat, formatSpans.getEndValue())) {
+      formatSpans.appendSpan(getWriteIndex(), checkNotNull(upstreamFormat));
+    }
 
     length++;
     if (length == capacity) {
@@ -808,14 +813,12 @@ public class SampleQueue implements TrackOutput {
       int[] newFlags = new int[newCapacity];
       int[] newSizes = new int[newCapacity];
       CryptoData[] newCryptoDatas = new CryptoData[newCapacity];
-      Format[] newFormats = new Format[newCapacity];
       int beforeWrap = capacity - relativeFirstIndex;
       System.arraycopy(offsets, relativeFirstIndex, newOffsets, 0, beforeWrap);
       System.arraycopy(timesUs, relativeFirstIndex, newTimesUs, 0, beforeWrap);
       System.arraycopy(flags, relativeFirstIndex, newFlags, 0, beforeWrap);
       System.arraycopy(sizes, relativeFirstIndex, newSizes, 0, beforeWrap);
       System.arraycopy(cryptoDatas, relativeFirstIndex, newCryptoDatas, 0, beforeWrap);
-      System.arraycopy(formats, relativeFirstIndex, newFormats, 0, beforeWrap);
       System.arraycopy(sourceIds, relativeFirstIndex, newSourceIds, 0, beforeWrap);
       int afterWrap = relativeFirstIndex;
       System.arraycopy(offsets, 0, newOffsets, beforeWrap, afterWrap);
@@ -823,14 +826,12 @@ public class SampleQueue implements TrackOutput {
       System.arraycopy(flags, 0, newFlags, beforeWrap, afterWrap);
       System.arraycopy(sizes, 0, newSizes, beforeWrap, afterWrap);
       System.arraycopy(cryptoDatas, 0, newCryptoDatas, beforeWrap, afterWrap);
-      System.arraycopy(formats, 0, newFormats, beforeWrap, afterWrap);
       System.arraycopy(sourceIds, 0, newSourceIds, beforeWrap, afterWrap);
       offsets = newOffsets;
       timesUs = newTimesUs;
       flags = newFlags;
       sizes = newSizes;
       cryptoDatas = newCryptoDatas;
-      formats = newFormats;
       sourceIds = newSourceIds;
       relativeFirstIndex = 0;
       capacity = newCapacity;
@@ -862,6 +863,7 @@ public class SampleQueue implements TrackOutput {
     length -= discardCount;
     largestQueuedTimestampUs = max(largestDiscardedTimestampUs, getLargestTimestamp(length));
     isLastSampleQueued = discardCount == 0 && isLastSampleQueued;
+    formatSpans.discardFrom(discardFromIndex);
     if (length != 0) {
       int relativeLastWriteIndex = getRelativeIndex(length - 1);
       return offsets[relativeLastWriteIndex] + sizes[relativeLastWriteIndex];
@@ -987,6 +989,7 @@ public class SampleQueue implements TrackOutput {
    * @param discardCount The number of samples to discard.
    * @return The corresponding offset up to which data should be discarded.
    */
+  @GuardedBy("this")
   private long discardSamples(int discardCount) {
     largestDiscardedTimestampUs =
         max(largestDiscardedTimestampUs, getLargestTimestamp(discardCount));
@@ -1000,6 +1003,8 @@ public class SampleQueue implements TrackOutput {
     if (readPosition < 0) {
       readPosition = 0;
     }
+    formatSpans.discardTo(absoluteFirstIndex);
+
     if (length == 0) {
       int relativeLastDiscardIndex = (relativeFirstIndex == 0 ? capacity : relativeFirstIndex) - 1;
       return offsets[relativeLastDiscardIndex] + sizes[relativeLastDiscardIndex];
