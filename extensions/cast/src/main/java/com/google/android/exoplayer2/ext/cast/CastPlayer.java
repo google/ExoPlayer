@@ -440,6 +440,13 @@ public final class CastPlayer extends BasePlayer {
       if (getCurrentWindowIndex() != windowIndex) {
         remoteMediaClient.queueJumpToItem((int) currentTimeline.getPeriod(windowIndex, period).uid,
             positionMs, null).setResultCallback(seekResultCallback);
+        // TODO(internal b/182261884): queue `onMediaItemTransition` event when the media item is
+        // repeated.
+        MediaItem mediaItem = currentTimeline.getWindow(windowIndex, window).mediaItem;
+        listeners.queueEvent(
+            Player.EVENT_MEDIA_ITEM_TRANSITION,
+            listener ->
+                listener.onMediaItemTransition(mediaItem, MEDIA_ITEM_TRANSITION_REASON_SEEK));
       } else {
         remoteMediaClient.seek(positionMs).setResultCallback(seekResultCallback);
       }
@@ -637,6 +644,11 @@ public final class CastPlayer extends BasePlayer {
       listeners.queueEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
           listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION));
+      listeners.queueEvent(
+          Player.EVENT_MEDIA_ITEM_TRANSITION,
+          listener ->
+              listener.onMediaItemTransition(
+                  getCurrentMediaItem(), MEDIA_ITEM_TRANSITION_REASON_AUTO));
     }
     if (updateTracksAndSelectionsAndNotifyIfChanged()) {
       listeners.queueEvent(
@@ -681,6 +693,8 @@ public final class CastPlayer extends BasePlayer {
 
   @SuppressWarnings("deprecation") // Calling deprecated listener method.
   private void updateTimelineAndNotifyIfChanged() {
+    Timeline previousTimeline = currentTimeline;
+    int previousWindowIndex = currentWindowIndex;
     if (updateTimeline()) {
       // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
       //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
@@ -692,7 +706,26 @@ public final class CastPlayer extends BasePlayer {
                 timeline, /* manifest= */ null, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
             listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
           });
+
       updateAvailableCommandsAndNotifyIfChanged();
+
+      boolean mediaItemTransitioned;
+      if (currentTimeline.isEmpty() && previousTimeline.isEmpty()) {
+        mediaItemTransitioned = false;
+      } else if (currentTimeline.isEmpty() != previousTimeline.isEmpty()) {
+        mediaItemTransitioned = true;
+      } else {
+        Object previousWindowUid = previousTimeline.getWindow(previousWindowIndex, window).uid;
+        Object currentWindowUid = currentTimeline.getWindow(currentWindowIndex, window).uid;
+        mediaItemTransitioned = !currentWindowUid.equals(previousWindowUid);
+      }
+      if (mediaItemTransitioned) {
+        listeners.queueEvent(
+            Player.EVENT_MEDIA_ITEM_TRANSITION,
+            listener ->
+                listener.onMediaItemTransition(
+                    getCurrentMediaItem(), MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
+      }
     }
   }
 

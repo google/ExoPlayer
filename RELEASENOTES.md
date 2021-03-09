@@ -63,6 +63,8 @@
     *   Fix `onPositionDiscontinuity` event so that it is not triggered with
         reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
         media item and so that it is not triggered after a timeline change.
+    *   Trigger `onMediaItemTransition` event for all reasons except
+        `MEDIA_ITEM_TRANSITION_REASON_REPEAT`.
 
 ### 2.13.2 (2021-02-25)
 
