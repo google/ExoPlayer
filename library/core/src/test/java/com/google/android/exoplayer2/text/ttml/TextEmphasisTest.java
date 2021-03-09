@@ -73,7 +73,6 @@ public class TextEmphasisTest {
         .isEqualTo(TextEmphasis.POSITION_OUTSIDE);
   }
 
-
   @Test
   public void testAutoOutside() {
     String value = "auto outside";
@@ -559,5 +558,43 @@ public class TextEmphasisTest {
     assertWithMessage("markFill").that(textEmphasis.markFill)
         .isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
     assertWithMessage("position").that(textEmphasis.position).isEqualTo(POSITION_OUTSIDE);
+  }
+
+  @Test
+  public void testValidMixedWithInvalidDescription() {
+    String value = "blue open sesame foo bar after";
+    @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertWithMessage("markShape").that(textEmphasis.markShape)
+        .isEqualTo(TextEmphasisSpan.MARK_SHAPE_SESAME);
+    assertWithMessage("markFill").that(textEmphasis.markFill)
+        .isEqualTo(TextEmphasisSpan.MARK_FILL_OPEN);
+    assertWithMessage("position").that(textEmphasis.position).isEqualTo(
+        TextAnnotation.POSITION_AFTER);
+  }
+
+  @Test
+  public void testColorDescriptionNotSupported() {
+    String value = "blue";
+    @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertWithMessage("markShape").that(textEmphasis.markShape)
+        .isEqualTo(MARK_SHAPE_AUTO);
+    assertWithMessage("markFill").that(textEmphasis.markFill)
+        .isEqualTo(TextEmphasisSpan.MARK_FILL_UNSPECIFIED);
+    assertWithMessage("position").that(textEmphasis.position).isEqualTo(POSITION_OUTSIDE);
+  }
+
+  @Test
+  public void testQuotedStringStyleNotSupported() {
+    String value = "\"x\" after";
+    @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
+    assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
+    assertWithMessage("markShape").that(textEmphasis.markShape)
+        .isEqualTo(MARK_SHAPE_AUTO);
+    assertWithMessage("markFill").that(textEmphasis.markFill)
+        .isEqualTo(TextEmphasisSpan.MARK_FILL_UNSPECIFIED);
+    assertWithMessage("position").that(textEmphasis.position)
+        .isEqualTo(TextAnnotation.POSITION_AFTER);
   }
 }

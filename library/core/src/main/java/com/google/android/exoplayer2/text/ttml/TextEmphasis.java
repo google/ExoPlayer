@@ -132,6 +132,21 @@ import java.util.Set;
     return parseNodes(nodes);
   }
 
+  /**
+   * Parses the text emphasis description
+   * See https://www.w3.org/TR/ttml2/#style-attribute-textEmphasis
+   *
+   * The parser considers emphasis-style and emphasis-position independently
+   * If a valid style is not found, it reverts to the default style.
+   * If a valid position is not found, it reverts to the default position.
+   *
+   * Not implemented:
+   *   - emphasis-color
+   *   - quoted string emphasis-style
+   *
+   * @param nodes - the text emphasis description
+   * @return TextEmphasis object encapsulating the text emphasis description
+   */
   private static @Nullable TextEmphasis parseNodes(Set<String> nodes) {
     @MarkShape int markShape;
     @TextEmphasisSpan.MarkFill int markFill = TextEmphasisSpan.MARK_FILL_UNSPECIFIED;
@@ -141,11 +156,9 @@ import java.util.Set;
       // attributes.
       markShape = TtmlNode.TEXT_EMPHASIS_NONE.equals(styleSet.iterator().next())
           ? TextEmphasisSpan.MARK_SHAPE_NONE : MARK_SHAPE_AUTO;
-      // markFill is ignored when markShape is NONE or AUTO
     } else {
       Set<String> fillSet = Sets.intersection(markFillValues, nodes).immutableCopy();
       Set<String> shapeSet = Sets.intersection(markShapeValues, nodes).immutableCopy();
-
       if (fillSet.size() == 0 && shapeSet.size() == 0) {
         // If an implementation does not recognize or otherwise distinguish an emphasis style value,
         // then it must be interpreted as if a style of auto were specified; as such, an

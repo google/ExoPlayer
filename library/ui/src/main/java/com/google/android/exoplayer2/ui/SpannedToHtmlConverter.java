@@ -206,7 +206,8 @@ import java.util.regex.Pattern;
       return Util
           .formatInvariant(
               "<span style='-webkit-text-emphasis-style: %1$s; text-emphasis-style: %1$s; "
-                  + "-webkit-text-emphasis-position: %2$s; text-emphasis-position: %2$s;'>",
+                  + "-webkit-text-emphasis-position: %2$s; text-emphasis-position: %2$s; "
+                  + "display: inline-block;'>", /** Sets background color behind emphasis mark */
               style, position);
     } else {
       return null;

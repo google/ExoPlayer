@@ -283,19 +283,19 @@ public class SpannedToHtmlConverterTest {
 
   @Test
   public void convert_supportsTextEmphasisSpan() {
-    SpannableString spanned = new SpannableString("Text emphasis おはよ ございます ");
+    SpannableString spanned = new SpannableString("Text emphasis おはよ ございます");
     spanned.setSpan(
         new TextEmphasisSpan(TextEmphasisSpan.MARK_SHAPE_CIRCLE, TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE),
         "Text emphasis ".length(),
-        "Text emphasis おはよ".length(),
+        "Text emphasis おはよ ".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
     spanned.setSpan(
         new TextEmphasisSpan(TextEmphasisSpan.MARK_SHAPE_SESAME, TextEmphasisSpan.MARK_FILL_OPEN,
             TextAnnotation.POSITION_AFTER),
         "Text emphasis おはよ ".length(),
-        "Text emphasis おはよ ございます ".length(),
+        "Text emphasis おはよ ございます".length(),
         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
     SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
@@ -306,12 +306,11 @@ public class SpannedToHtmlConverterTest {
         .isEqualTo(
             "Text emphasis <span style='"
                 + "-webkit-text-emphasis-style: filled circle; text-emphasis-style: filled circle; "
-                + "-webkit-text-emphasis-position: over right; text-emphasis-position: over right;"
-                + "'>&#12362;&#12399;&#12424;</span> "
-                + "<span style='"
+                + "-webkit-text-emphasis-position: over right; text-emphasis-position: over right; "
+                + "display: inline-block;'>&#12362;&#12399;&#12424; </span><span style='"
                 + "-webkit-text-emphasis-style: open sesame; text-emphasis-style: open sesame; "
-                + "-webkit-text-emphasis-position: under left; text-emphasis-position: under left;"
-                + "'>&#12372;&#12374;&#12356;&#12414;&#12377; </span>");
+                + "-webkit-text-emphasis-position: under left; text-emphasis-position: under left; "
+                + "display: inline-block;'>&#12372;&#12374;&#12356;&#12414;&#12377;</span>");
   }
 
   @Test
