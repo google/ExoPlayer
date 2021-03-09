@@ -48,13 +48,20 @@
 *   Text
     *   Parse SSA/ASS bold & italic info in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+*   Text:
+    *   Don't display subtitles after the end position of the current media
+        period (if known). This ensures sideloaded subtitles respect the end
+        point of `ClippingMediaPeriod` and prevents content subtitles from
+        continuing to be displayed over mid-roll ads
+        ([#5317](https://github.com/google/ExoPlayer/issues/5317),
+        [#8456](https://github.com/google/ExoPlayer/issues/8456)).
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
 *   Cast extension:
-    *  Fix `onPositionDiscontinuity` event so that it is not triggered with
-       reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
-       media item and so that it is not triggered after a timeline change.
+    *   Fix `onPositionDiscontinuity` event so that it is not triggered with
+        reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
+        media item and so that it is not triggered after a timeline change.
 
 ### 2.13.2 (2021-02-25)
 
