@@ -18,12 +18,17 @@ package com.google.android.exoplayer2;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Pair;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * A flexible representation of the structure of media. A timeline is able to represent the
@@ -412,7 +417,7 @@ public abstract class Timeline {
    * <p style="align:center"><img src="doc-files/timeline-period.svg" alt="Information defined by a
    * period">
    */
-  public static final class Period {
+  public static final class Period implements Bundleable {
 
     /**
      * An identifier for the period. Not necessarily unique. May be null if the ids of the period
@@ -680,6 +685,74 @@ public abstract class Timeline {
       result = 31 * result + (int) (positionInWindowUs ^ (positionInWindowUs >>> 32));
       result = 31 * result + adPlaybackState.hashCode();
       return result;
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_WINDOW_INDEX,
+      FIELD_DURATION_US,
+      FIELD_POSITION_IN_WINDOW_US,
+      FIELD_AD_PLAYBACK_STATE
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_WINDOW_INDEX = 0;
+    private static final int FIELD_DURATION_US = 1;
+    private static final int FIELD_POSITION_IN_WINDOW_US = 2;
+    private static final int FIELD_AD_PLAYBACK_STATE = 3;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #id} and {@link #uid} fields so these fields of an instance restored
+     * by {@link #CREATOR} will always be {@code null}.
+     */
+    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
+      bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
+      bundle.putLong(keyForField(FIELD_POSITION_IN_WINDOW_US), positionInWindowUs);
+      bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATE), adPlaybackState.toBundle());
+      return bundle;
+    }
+
+    /**
+     * Object that can restore {@link Period} from a {@link Bundle}.
+     *
+     * <p>The {@link #id} and {@link #uid} of restored instances will always be {@code null}.
+     */
+    public static final Creator<Period> CREATOR = Period::fromBundle;
+
+    private static Period fromBundle(Bundle bundle) {
+      int windowIndex = bundle.getInt(keyForField(FIELD_WINDOW_INDEX), /* defaultValue= */ 0);
+      long durationUs =
+          bundle.getLong(keyForField(FIELD_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
+      long positionInWindowUs =
+          bundle.getLong(keyForField(FIELD_POSITION_IN_WINDOW_US), /* defaultValue= */ 0);
+      @Nullable
+      Bundle adPlaybackStateBundle = bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATE));
+      AdPlaybackState adPlaybackState =
+          adPlaybackStateBundle != null
+              ? AdPlaybackState.CREATOR.fromBundle(adPlaybackStateBundle)
+              : AdPlaybackState.NONE;
+
+      Period period = new Period();
+      return period.set(
+          /* id= */ null,
+          /* uid= */ null,
+          windowIndex,
+          durationUs,
+          positionInWindowUs,
+          adPlaybackState);
+    }
+
+    private static String keyForField(@Period.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 

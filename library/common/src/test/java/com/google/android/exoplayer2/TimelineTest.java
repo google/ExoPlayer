@@ -201,6 +201,22 @@ public class TimelineTest {
     assertThat(period.hashCode()).isEqualTo(otherPeriod.hashCode());
   }
 
+  @Test
+  public void roundtripViaBundle_ofPeriod_yieldsEqualInstanceExceptIds() {
+    Timeline.Period period = new Timeline.Period();
+    period.id = new Object();
+    period.uid = new Object();
+    period.windowIndex = 1;
+    period.durationUs = 123_000;
+    period.positionInWindowUs = 4_000;
+
+    Timeline.Period restoredPeriod = Timeline.Period.CREATOR.fromBundle(period.toBundle());
+
+    period.id = null;
+    period.uid = null;
+    assertThat(restoredPeriod).isEqualTo(period);
+  }
+
   @SuppressWarnings("deprecation") // Populates the deprecated window.tag property.
   private static Timeline.Window populateWindow(
       @Nullable MediaItem mediaItem, @Nullable Object tag) {
