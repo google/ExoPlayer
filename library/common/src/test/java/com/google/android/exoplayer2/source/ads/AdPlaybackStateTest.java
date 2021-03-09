@@ -150,6 +150,32 @@ public class AdPlaybackStateTest {
   }
 
   @Test
+  public void roundtripViaBundle_yieldsEqualFieldsExceptAdsId() {
+    AdPlaybackState originalState =
+        state
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
+            .withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0)
+            .withAdUri(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, TEST_URI)
+            .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 2)
+            .withSkippedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0)
+            .withPlayedAd(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 1)
+            .withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 0, TEST_URI)
+            .withAdUri(/* adGroupIndex= */ 1, /* adIndexInAdGroup= */ 1, TEST_URI)
+            .withAdDurationsUs(new long[][] {{12}, {34, 56}})
+            .withAdResumePositionUs(123)
+            .withContentDurationUs(456);
+
+    AdPlaybackState restoredState = AdPlaybackState.CREATOR.fromBundle(originalState.toBundle());
+
+    assertThat(restoredState.adsId).isNull();
+    assertThat(restoredState.adGroupCount).isEqualTo(originalState.adGroupCount);
+    assertThat(restoredState.adGroupTimesUs).isEqualTo(originalState.adGroupTimesUs);
+    assertThat(restoredState.adGroups).isEqualTo(originalState.adGroups);
+    assertThat(restoredState.adResumePositionUs).isEqualTo(originalState.adResumePositionUs);
+    assertThat(restoredState.contentDurationUs).isEqualTo(originalState.contentDurationUs);
+  }
+
+  @Test
   public void roundtripViaBundle_ofAdGroup_yieldsEqualInstance() {
     AdPlaybackState.AdGroup adGroup =
         new AdPlaybackState.AdGroup()

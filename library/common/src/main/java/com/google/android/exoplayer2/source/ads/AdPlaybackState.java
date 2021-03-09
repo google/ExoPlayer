@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.ads;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static java.lang.Math.max;
 
 import android.net.Uri;
@@ -24,7 +25,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -39,7 +39,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * <p>Instances are immutable. Call the {@code with*} methods to get new instances that have the
  * required changes.
  */
-public final class AdPlaybackState {
+public final class AdPlaybackState implements Bundleable {
 
   /**
    * Represents a group of ads, with information about their states.
@@ -69,7 +69,7 @@ public final class AdPlaybackState {
 
     private AdGroup(
         int count, @AdState int[] states, @NullableType Uri[] uris, long[] durationsUs) {
-      Assertions.checkArgument(states.length == uris.length);
+      checkArgument(states.length == uris.length);
       this.count = count;
       this.states = states;
       this.uris = uris;
@@ -165,9 +165,9 @@ public final class AdPlaybackState {
      */
     @CheckResult
     public AdGroup withAdState(@AdState int state, int index) {
-      Assertions.checkArgument(count == C.LENGTH_UNSET || index < count);
+      checkArgument(count == C.LENGTH_UNSET || index < count);
       @AdState int[] states = copyStatesWithSpaceForAdCount(this.states, index + 1);
-      Assertions.checkArgument(
+      checkArgument(
           states[index] == AD_STATE_UNAVAILABLE
               || states[index] == AD_STATE_AVAILABLE
               || states[index] == state);
@@ -260,28 +260,24 @@ public final class AdPlaybackState {
     }
 
     /** Object that can restore {@link AdGroup} from a {@link Bundle}. */
-    public static final Creator<AdGroup> CREATOR =
-        new Creator<AdGroup>() {
+    public static final Creator<AdGroup> CREATOR = AdGroup::fromBundle;
 
-          // getParcelableArrayList may have null elements.
-          @SuppressWarnings("nullness:type.argument.type.incompatible")
-          @Override
-          public AdGroup fromBundle(Bundle bundle) {
-            int count = bundle.getInt(keyForField(FIELD_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
-            @Nullable
-            ArrayList<@NullableType Uri> uriList =
-                bundle.getParcelableArrayList(keyForField(FIELD_URIS));
-            @Nullable
-            @AdState
-            int[] states = bundle.getIntArray(keyForField(FIELD_STATES));
-            @Nullable long[] durationsUs = bundle.getLongArray(keyForField(FIELD_DURATIONS_US));
-            return new AdGroup(
-                count,
-                states == null ? new int[0] : states,
-                uriList == null ? new Uri[0] : uriList.toArray(new Uri[0]),
-                durationsUs == null ? new long[0] : durationsUs);
-          }
-        };
+    // getParcelableArrayList may have null elements.
+    @SuppressWarnings("nullness:type.argument.type.incompatible")
+    private static AdGroup fromBundle(Bundle bundle) {
+      int count = bundle.getInt(keyForField(FIELD_COUNT), /* defaultValue= */ C.LENGTH_UNSET);
+      @Nullable
+      ArrayList<@NullableType Uri> uriList = bundle.getParcelableArrayList(keyForField(FIELD_URIS));
+      @Nullable
+      @AdState
+      int[] states = bundle.getIntArray(keyForField(FIELD_STATES));
+      @Nullable long[] durationsUs = bundle.getLongArray(keyForField(FIELD_DURATIONS_US));
+      return new AdGroup(
+          count,
+          states == null ? new int[0] : states,
+          uriList == null ? new Uri[0] : uriList.toArray(new Uri[0]),
+          durationsUs == null ? new long[0] : durationsUs);
+    }
 
     private static String keyForField(@AdGroup.FieldNumber int field) {
       return Integer.toString(field, Character.MAX_RADIX);
@@ -368,6 +364,7 @@ public final class AdPlaybackState {
       @Nullable AdGroup[] adGroups,
       long adResumePositionUs,
       long contentDurationUs) {
+    checkArgument(adGroups == null || adGroups.length == adGroupTimesUs.length);
     this.adsId = adsId;
     this.adGroupTimesUs = adGroupTimesUs;
     this.adResumePositionUs = adResumePositionUs;
@@ -449,7 +446,7 @@ public final class AdPlaybackState {
    */
   @CheckResult
   public AdPlaybackState withAdCount(int adGroupIndex, int adCount) {
-    Assertions.checkArgument(adCount > 0);
+    checkArgument(adCount > 0);
     if (adGroups[adGroupIndex].count == adCount) {
       return this;
     }
@@ -633,5 +630,80 @@ public final class AdPlaybackState {
     } else {
       return positionUs < adGroupPositionUs;
     }
+  }
+
+  // Bundleable implementation.
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({
+    FIELD_AD_GROUP_TIMES_US,
+    FIELD_AD_GROUPS,
+    FIELD_AD_RESUME_POSITION_US,
+    FIELD_CONTENT_DURATION_US
+  })
+  private @interface FieldNumber {}
+
+  private static final int FIELD_AD_GROUP_TIMES_US = 1;
+  private static final int FIELD_AD_GROUPS = 2;
+  private static final int FIELD_AD_RESUME_POSITION_US = 3;
+  private static final int FIELD_CONTENT_DURATION_US = 4;
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>It omits the {@link #adsId} field so the {@link #adsId} of instances restored by {@link
+   * #CREATOR} will always be {@code null}.
+   */
+  // TODO(b/166765820): See if missing adsId would be okay and add adsId to the Bundle otherwise.
+  @Override
+  public Bundle toBundle() {
+    Bundle bundle = new Bundle();
+    bundle.putLongArray(keyForField(FIELD_AD_GROUP_TIMES_US), adGroupTimesUs);
+    ArrayList<Bundle> adGroupBundleList = new ArrayList<>();
+    for (AdGroup adGroup : adGroups) {
+      adGroupBundleList.add(adGroup.toBundle());
+    }
+    bundle.putParcelableArrayList(keyForField(FIELD_AD_GROUPS), adGroupBundleList);
+    bundle.putLong(keyForField(FIELD_AD_RESUME_POSITION_US), adResumePositionUs);
+    bundle.putLong(keyForField(FIELD_CONTENT_DURATION_US), contentDurationUs);
+    return bundle;
+  }
+
+  /**
+   * Object that can restore {@link AdPlaybackState} from a {@link Bundle}.
+   *
+   * <p>The {@link #adsId} of restored instances will always be {@code null}.
+   */
+  public static final Bundleable.Creator<AdPlaybackState> CREATOR = AdPlaybackState::fromBundle;
+
+  private static AdPlaybackState fromBundle(Bundle bundle) {
+    @Nullable long[] adGroupTimesUs = bundle.getLongArray(keyForField(FIELD_AD_GROUP_TIMES_US));
+    @Nullable
+    ArrayList<Bundle> adGroupBundleList =
+        bundle.getParcelableArrayList(keyForField(FIELD_AD_GROUPS));
+    @Nullable AdGroup[] adGroups;
+    if (adGroupBundleList == null) {
+      adGroups = null;
+    } else {
+      adGroups = new AdGroup[adGroupBundleList.size()];
+      for (int i = 0; i < adGroupBundleList.size(); i++) {
+        adGroups[i] = AdGroup.CREATOR.fromBundle(adGroupBundleList.get(i));
+      }
+    }
+    long adResumePositionUs =
+        bundle.getLong(keyForField(FIELD_AD_RESUME_POSITION_US), /* defaultValue= */ 0);
+    long contentDurationUs =
+        bundle.getLong(keyForField(FIELD_CONTENT_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
+    return new AdPlaybackState(
+        /* adsId= */ null,
+        adGroupTimesUs == null ? new long[0] : adGroupTimesUs,
+        adGroups,
+        adResumePositionUs,
+        contentDurationUs);
+  }
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
   }
 }
