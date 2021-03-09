@@ -202,6 +202,39 @@ public class TimelineTest {
   }
 
   @Test
+  public void roundtripViaBundle_ofWindow_yieldsEqualInstanceExceptUidAndManifest() {
+    Timeline.Window window = new Timeline.Window();
+    window.uid = new Object();
+    window.mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
+    window.manifest = new Object();
+    window.presentationStartTimeMs = 111;
+    window.windowStartTimeMs = 222;
+    window.elapsedRealtimeEpochOffsetMs = 333;
+    window.isSeekable = true;
+    window.isDynamic = true;
+    window.liveConfiguration =
+        new LiveConfiguration(
+            /* targetOffsetMs= */ 1,
+            /* minOffsetMs= */ 2,
+            /* maxOffsetMs= */ 3,
+            /* minPlaybackSpeed= */ 0.5f,
+            /* maxPlaybackSpeed= */ 1.5f);
+    window.isPlaceholder = true;
+    window.defaultPositionUs = 444;
+    window.durationUs = 555;
+    window.firstPeriodIndex = 6;
+    window.lastPeriodIndex = 7;
+    window.positionInFirstPeriodUs = 888;
+
+    Timeline.Window restoredWindow = Timeline.Window.CREATOR.fromBundle(window.toBundle());
+
+    assertThat(restoredWindow.manifest).isNull();
+    window.uid = restoredWindow.uid;
+    window.manifest = null;
+    assertThat(restoredWindow).isEqualTo(window);
+  }
+
+  @Test
   public void roundtripViaBundle_ofPeriod_yieldsEqualInstanceExceptIds() {
     Timeline.Period period = new Timeline.Period();
     period.id = new Object();

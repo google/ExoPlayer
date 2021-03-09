@@ -136,12 +136,14 @@ public abstract class Timeline {
    * <p style="align:center"><img src="doc-files/timeline-window.svg" alt="Information defined by a
    * timeline window">
    */
-  public static final class Window {
+  public static final class Window implements Bundleable {
 
     /**
      * A {@link #uid} for a window that must be used for single-window {@link Timeline Timelines}.
      */
     public static final Object SINGLE_WINDOW_UID = new Object();
+
+    private static final Object FAKE_WINDOW_UID = new Object();
 
     private static final MediaItem EMPTY_MEDIA_ITEM =
         new MediaItem.Builder()
@@ -213,14 +215,6 @@ public abstract class Timeline {
      */
     public boolean isPlaceholder;
 
-    /** The index of the first period that belongs to this window. */
-    public int firstPeriodIndex;
-
-    /**
-     * The index of the last period that belongs to this window.
-     */
-    public int lastPeriodIndex;
-
     /**
      * The default position relative to the start of the window at which to begin playback, in
      * microseconds. May be {@link C#TIME_UNSET} if and only if the window was populated with a
@@ -233,6 +227,12 @@ public abstract class Timeline {
      * The duration of this window in microseconds, or {@link C#TIME_UNSET} if unknown.
      */
     public long durationUs;
+
+    /** The index of the first period that belongs to this window. */
+    public int firstPeriodIndex;
+
+    /** The index of the last period that belongs to this window. */
+    public int lastPeriodIndex;
 
     /**
      * The position of the start of this window relative to the start of the first period belonging
@@ -403,6 +403,142 @@ public abstract class Timeline {
       result = 31 * result + lastPeriodIndex;
       result = 31 * result + (int) (positionInFirstPeriodUs ^ (positionInFirstPeriodUs >>> 32));
       return result;
+    }
+
+    // Bundleable implementation.
+
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_MEDIA_ITEM,
+      FIELD_PRESENTATION_START_TIME_MS,
+      FIELD_WINDOW_START_TIME_MS,
+      FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS,
+      FIELD_IS_SEEKABLE,
+      FIELD_IS_DYNAMIC,
+      FIELD_LIVE_CONFIGURATION,
+      FIELD_IS_PLACEHOLDER,
+      FIELD_DEFAULT_POSITION_US,
+      FIELD_DURATION_US,
+      FIELD_FIRST_PERIOD_INDEX,
+      FIELD_LAST_PERIOD_INDEX,
+      FIELD_POSITION_IN_FIRST_PERIOD_US,
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_MEDIA_ITEM = 1;
+    private static final int FIELD_PRESENTATION_START_TIME_MS = 2;
+    private static final int FIELD_WINDOW_START_TIME_MS = 3;
+    private static final int FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS = 4;
+    private static final int FIELD_IS_SEEKABLE = 5;
+    private static final int FIELD_IS_DYNAMIC = 6;
+    private static final int FIELD_LIVE_CONFIGURATION = 7;
+    private static final int FIELD_IS_PLACEHOLDER = 8;
+    private static final int FIELD_DEFAULT_POSITION_US = 9;
+    private static final int FIELD_DURATION_US = 10;
+    private static final int FIELD_FIRST_PERIOD_INDEX = 11;
+    private static final int FIELD_LAST_PERIOD_INDEX = 12;
+    private static final int FIELD_POSITION_IN_FIRST_PERIOD_US = 13;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #uid} and {@link #manifest} fields. The {@link #uid} of an instance
+     * restored by {@link #CREATOR} will be a fake {@link Object} and the {@link #manifest} of the
+     * instance will be {@code null}.
+     */
+    // TODO(b/166765820): See if missing fields would be okay and add them to the Bundle otherwise.
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putBundle(keyForField(FIELD_MEDIA_ITEM), mediaItem.toBundle());
+      bundle.putLong(keyForField(FIELD_PRESENTATION_START_TIME_MS), presentationStartTimeMs);
+      bundle.putLong(keyForField(FIELD_WINDOW_START_TIME_MS), windowStartTimeMs);
+      bundle.putLong(
+          keyForField(FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS), elapsedRealtimeEpochOffsetMs);
+      bundle.putBoolean(keyForField(FIELD_IS_SEEKABLE), isSeekable);
+      bundle.putBoolean(keyForField(FIELD_IS_DYNAMIC), isDynamic);
+      @Nullable MediaItem.LiveConfiguration liveConfiguration = this.liveConfiguration;
+      if (liveConfiguration != null) {
+        bundle.putBundle(keyForField(FIELD_LIVE_CONFIGURATION), liveConfiguration.toBundle());
+      }
+      bundle.putBoolean(keyForField(FIELD_IS_PLACEHOLDER), isPlaceholder);
+      bundle.putLong(keyForField(FIELD_DEFAULT_POSITION_US), defaultPositionUs);
+      bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
+      bundle.putInt(keyForField(FIELD_FIRST_PERIOD_INDEX), firstPeriodIndex);
+      bundle.putInt(keyForField(FIELD_LAST_PERIOD_INDEX), lastPeriodIndex);
+      bundle.putLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), positionInFirstPeriodUs);
+      return bundle;
+    }
+
+    /**
+     * Object that can restore {@link Period} from a {@link Bundle}.
+     *
+     * <p>The {@link #uid} of a restored instance will be a fake {@link Object} and the {@link
+     * #manifest} of the instance will be {@code null}.
+     */
+    public static final Creator<Window> CREATOR = Window::fromBundle;
+
+    private static Window fromBundle(Bundle bundle) {
+      @Nullable Bundle mediaItemBundle = bundle.getBundle(keyForField(FIELD_MEDIA_ITEM));
+      @Nullable
+      MediaItem mediaItem =
+          mediaItemBundle != null ? MediaItem.CREATOR.fromBundle(mediaItemBundle) : null;
+      long presentationStartTimeMs =
+          bundle.getLong(
+              keyForField(FIELD_PRESENTATION_START_TIME_MS), /* defaultValue= */ C.TIME_UNSET);
+      long windowStartTimeMs =
+          bundle.getLong(keyForField(FIELD_WINDOW_START_TIME_MS), /* defaultValue= */ C.TIME_UNSET);
+      long elapsedRealtimeEpochOffsetMs =
+          bundle.getLong(
+              keyForField(FIELD_ELAPSED_REALTIME_EPOCH_OFFSET_MS),
+              /* defaultValue= */ C.TIME_UNSET);
+      boolean isSeekable =
+          bundle.getBoolean(keyForField(FIELD_IS_SEEKABLE), /* defaultValue= */ false);
+      boolean isDynamic =
+          bundle.getBoolean(keyForField(FIELD_IS_DYNAMIC), /* defaultValue= */ false);
+      @Nullable
+      Bundle liveConfigurationBundle = bundle.getBundle(keyForField(FIELD_LIVE_CONFIGURATION));
+      @Nullable
+      MediaItem.LiveConfiguration liveConfiguration =
+          liveConfigurationBundle != null
+              ? MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle)
+              : null;
+      boolean isPlaceHolder =
+          bundle.getBoolean(keyForField(FIELD_IS_PLACEHOLDER), /* defaultValue= */ false);
+      long defaultPositionUs =
+          bundle.getLong(keyForField(FIELD_DEFAULT_POSITION_US), /* defaultValue= */ 0);
+      long durationUs =
+          bundle.getLong(keyForField(FIELD_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
+      int firstPeriodIndex =
+          bundle.getInt(keyForField(FIELD_FIRST_PERIOD_INDEX), /* defaultValue= */ 0);
+      int lastPeriodIndex =
+          bundle.getInt(keyForField(FIELD_LAST_PERIOD_INDEX), /* defaultValue= */ 0);
+      long positionInFirstPeriodUs =
+          bundle.getLong(keyForField(FIELD_POSITION_IN_FIRST_PERIOD_US), /* defaultValue= */ 0);
+
+      Window window = new Window();
+      window.set(
+          FAKE_WINDOW_UID,
+          mediaItem,
+          /* manifest= */ null,
+          presentationStartTimeMs,
+          windowStartTimeMs,
+          elapsedRealtimeEpochOffsetMs,
+          isSeekable,
+          isDynamic,
+          liveConfiguration,
+          defaultPositionUs,
+          durationUs,
+          firstPeriodIndex,
+          lastPeriodIndex,
+          positionInFirstPeriodUs);
+      window.isPlaceholder = isPlaceHolder;
+      return window;
+    }
+
+    private static String keyForField(@Window.FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 

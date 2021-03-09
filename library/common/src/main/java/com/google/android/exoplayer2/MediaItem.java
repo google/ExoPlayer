@@ -1272,6 +1272,12 @@ public final class MediaItem implements Bundleable {
   private static final int FIELD_MEDIA_METADATA = 2;
   private static final int FIELD_CLIPPING_PROPERTIES = 3;
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>It omits the {@link #playbackProperties} field. The {@link #playbackProperties} of an
+   * instance restored by {@link #CREATOR} will always be {@code null}.
+   */
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
@@ -1282,46 +1288,51 @@ public final class MediaItem implements Bundleable {
     return bundle;
   }
 
-  /** Object that can restore {@link MediaItem} from a {@link Bundle}. */
-  public static final Creator<MediaItem> CREATOR =
-      bundle -> {
-        String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID)));
-        @Nullable
-        Bundle liveConfigurationBundle = bundle.getBundle(keyForField(FIELD_LIVE_CONFIGURATION));
-        LiveConfiguration liveConfiguration;
-        if (liveConfigurationBundle == null) {
-          liveConfiguration = LiveConfiguration.UNSET;
-        } else {
-          liveConfiguration = LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle);
-        }
-        @Nullable Bundle mediaMetadataBundle = bundle.getBundle(keyForField(FIELD_MEDIA_METADATA));
-        MediaMetadata mediaMetadata;
-        if (mediaMetadataBundle == null) {
-          mediaMetadata = new MediaMetadata.Builder().build();
-        } else {
-          mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
-        }
-        @Nullable
-        Bundle clippingPropertiesBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
-        ClippingProperties clippingProperties;
-        if (clippingPropertiesBundle == null) {
-          clippingProperties =
-              new ClippingProperties(
-                  /* startPositionMs= */ 0,
-                  /* endPositionMs= */ C.TIME_END_OF_SOURCE,
-                  /* relativeToLiveWindow= */ false,
-                  /* relativeToDefaultPosition= */ false,
-                  /* startsAtKeyFrame= */ false);
-        } else {
-          clippingProperties = ClippingProperties.CREATOR.fromBundle(clippingPropertiesBundle);
-        }
-        return new MediaItem(
-            mediaId,
-            clippingProperties,
-            /* playbackProperties= */ null,
-            liveConfiguration,
-            mediaMetadata);
-      };
+  /**
+   * Object that can restore {@link MediaItem} from a {@link Bundle}.
+   *
+   * <p>The {@link #playbackProperties} of a restored instance will always be {@code null}.
+   */
+  public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
+
+  private static MediaItem fromBundle(Bundle bundle) {
+    String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID)));
+    @Nullable
+    Bundle liveConfigurationBundle = bundle.getBundle(keyForField(FIELD_LIVE_CONFIGURATION));
+    LiveConfiguration liveConfiguration;
+    if (liveConfigurationBundle == null) {
+      liveConfiguration = LiveConfiguration.UNSET;
+    } else {
+      liveConfiguration = LiveConfiguration.CREATOR.fromBundle(liveConfigurationBundle);
+    }
+    @Nullable Bundle mediaMetadataBundle = bundle.getBundle(keyForField(FIELD_MEDIA_METADATA));
+    MediaMetadata mediaMetadata;
+    if (mediaMetadataBundle == null) {
+      mediaMetadata = new MediaMetadata.Builder().build();
+    } else {
+      mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
+    }
+    @Nullable
+    Bundle clippingPropertiesBundle = bundle.getBundle(keyForField(FIELD_CLIPPING_PROPERTIES));
+    ClippingProperties clippingProperties;
+    if (clippingPropertiesBundle == null) {
+      clippingProperties =
+          new ClippingProperties(
+              /* startPositionMs= */ 0,
+              /* endPositionMs= */ C.TIME_END_OF_SOURCE,
+              /* relativeToLiveWindow= */ false,
+              /* relativeToDefaultPosition= */ false,
+              /* startsAtKeyFrame= */ false);
+    } else {
+      clippingProperties = ClippingProperties.CREATOR.fromBundle(clippingPropertiesBundle);
+    }
+    return new MediaItem(
+        mediaId,
+        clippingProperties,
+        /* playbackProperties= */ null,
+        liveConfiguration,
+        mediaMetadata);
+  }
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
