@@ -62,12 +62,37 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     private final DataSource.Factory dataSourceFactory;
     private final int maxSegmentsPerLoad;
+    private final ChunkExtractor.Factory chunkExtractorFactory;
 
+    /**
+     * Equivalent to {@link #Factory(ChunkExtractor.Factory, DataSource.Factory, int) new
+     * Factory(BundledChunkExtractor.FACTORY, dataSourceFactory, maxSegmentsPerLoad = 1)}.
+     */
     public Factory(DataSource.Factory dataSourceFactory) {
       this(dataSourceFactory, /* maxSegmentsPerLoad= */ 1);
     }
 
+    /**
+     * Equivalent to {@link #Factory(ChunkExtractor.Factory, DataSource.Factory, int) new
+     * Factory(BundledChunkExtractor.FACTORY, dataSourceFactory, maxSegmentsPerLoad)}.
+     */
     public Factory(DataSource.Factory dataSourceFactory, int maxSegmentsPerLoad) {
+      this(BundledChunkExtractor.FACTORY, dataSourceFactory, maxSegmentsPerLoad);
+    }
+
+    /**
+     * Creates a new instance.
+     *
+     * @param chunkExtractorFactory Creates {@link ChunkExtractor} instances to use for extracting
+     *     chunks.
+     * @param dataSourceFactory Creates the {@link DataSource} to use for downloading chunks.
+     * @param maxSegmentsPerLoad See {@link DefaultDashChunkSource#DefaultDashChunkSource}.
+     */
+    public Factory(
+        ChunkExtractor.Factory chunkExtractorFactory,
+        DataSource.Factory dataSourceFactory,
+        int maxSegmentsPerLoad) {
+      this.chunkExtractorFactory = chunkExtractorFactory;
       this.dataSourceFactory = dataSourceFactory;
       this.maxSegmentsPerLoad = maxSegmentsPerLoad;
     }
@@ -90,6 +115,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         dataSource.addTransferListener(transferListener);
       }
       return new DefaultDashChunkSource(
+          chunkExtractorFactory,
           manifestLoaderErrorThrower,
           manifest,
           periodIndex,
@@ -123,6 +149,8 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private boolean missingLastSegment;
 
   /**
+   * @param chunkExtractorFactory Creates {@link ChunkExtractor} instances to use for extracting
+   *     chunks.
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
    * @param periodIndex The index of the period in the manifest.
@@ -142,6 +170,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     messages targeting the player. Maybe null if this is not necessary.
    */
   public DefaultDashChunkSource(
+      ChunkExtractor.Factory chunkExtractorFactory,
       LoaderErrorThrower manifestLoaderErrorThrower,
       DashManifest manifest,
       int periodIndex,

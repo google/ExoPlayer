@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.chunk.BundledChunkExtractor;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
@@ -58,6 +59,7 @@ public class DefaultDashChunkSourceTest {
                     SAMPLE_MPD_LIVE_WITH_OFFSET_INSIDE_WINDOW));
     DefaultDashChunkSource chunkSource =
         new DefaultDashChunkSource(
+            BundledChunkExtractor.FACTORY,
             new LoaderErrorThrower.Dummy(),
             manifest,
             /* periodIndex= */ 0,
@@ -104,6 +106,7 @@ public class DefaultDashChunkSourceTest {
                     ApplicationProvider.getApplicationContext(), SAMPLE_MPD_VOD));
     DefaultDashChunkSource chunkSource =
         new DefaultDashChunkSource(
+            BundledChunkExtractor.FACTORY,
             new LoaderErrorThrower.Dummy(),
             manifest,
             /* periodIndex= */ 0,
