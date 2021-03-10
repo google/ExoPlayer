@@ -1031,14 +1031,16 @@ public interface Player {
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link
-   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}.
+   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} or {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({COMMAND_SEEK_TO_NEXT_MEDIA_ITEM})
+  @IntDef({COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM})
   @interface Command {}
   /** Command to seek to the next {@link MediaItem} in the playlist. */
   int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 0;
+  /** Command to seek to the previous {@link MediaItem} in the playlist. */
+  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 1;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable

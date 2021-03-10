@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilStartOfWindow;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
@@ -4593,7 +4595,7 @@ public final class ExoPlayerTest {
 
     player.setHandleAudioBecomingNoisy(false);
     deliverBroadcast(new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    runUntilPendingCommandsAreFullyHandled(player);
     boolean playWhenReadyAfterBroadcast = player.getPlayWhenReady();
     player.release();
 
@@ -4607,7 +4609,7 @@ public final class ExoPlayerTest {
 
     player.setHandleAudioBecomingNoisy(true);
     deliverBroadcast(new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    runUntilPendingCommandsAreFullyHandled(player);
     boolean playWhenReadyAfterBroadcast = player.getPlayWhenReady();
     player.release();
 
@@ -4734,7 +4736,7 @@ public final class ExoPlayerTest {
     // Wait until the MediaSource is prepared, i.e. returned its timeline, and at least one
     // iteration of doSomeWork after this was run.
     TestPlayerRunHelper.runUntilTimelineChanged(player);
-    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    runUntilPendingCommandsAreFullyHandled(player);
 
     assertThat(player.getPlayerError()).isNull();
   }
@@ -7593,7 +7595,7 @@ public final class ExoPlayerTest {
     // Start playback and wait until player is idly waiting for an update of the first source.
     player.prepare();
     player.play();
-    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    runUntilPendingCommandsAreFullyHandled(player);
     // Update media with a non-zero default start position and window offset.
     firstMediaSource.setNewSourceInfo(timelineWithOffsets);
     // Wait until player transitions to second source (which also has non-zero offsets).
@@ -8069,57 +8071,118 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void seekTo_otherWindow_notifiesAvailableCommandsChanged() {
-    Player.Commands commandsWithHasNext =
-        new Player.Commands.Builder().add(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM).build();
+  public void seekTo_nextWindow_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithHasPrevious = createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.Commands commandsWithHasNextAndPrevious =
+        createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
 
     player.addMediaSources(
-        ImmutableList.of(new FakeMediaSource(), new FakeMediaSource(), new FakeMediaSource()));
+        ImmutableList.of(
+            new FakeMediaSource(),
+            new FakeMediaSource(),
+            new FakeMediaSource(),
+            new FakeMediaSource()));
     verify(mockListener).onAvailableCommandsChanged(commandsWithHasNext);
     verify(mockListener).onAvailableCommandsChanged(any());
 
     player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 0);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasNextAndPrevious);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+
+    player.seekTo(/* windowIndex= */ 2, /* positionMs= */ 0);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+
+    player.seekTo(/* windowIndex= */ 3, /* positionMs= */ 0);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasPrevious);
+    verify(mockListener, times(3)).onAvailableCommandsChanged(any());
+  }
+
+  @Test
+  public void seekTo_previousWindow_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithHasPrevious = createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.Commands commandsWithHasNextAndPrevious =
+        createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(mockListener);
+
+    player.seekTo(/* windowIndex= */ 3, /* positionMs= */ 0);
+    player.addMediaSources(
+        ImmutableList.of(
+            new FakeMediaSource(),
+            new FakeMediaSource(),
+            new FakeMediaSource(),
+            new FakeMediaSource()));
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasPrevious);
     verify(mockListener).onAvailableCommandsChanged(any());
 
     player.seekTo(/* windowIndex= */ 2, /* positionMs= */ 0);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasNextAndPrevious);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
 
     player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 0);
-    verify(mockListener, times(2)).onAvailableCommandsChanged(commandsWithHasNext);
-    verify(mockListener, times(3)).onAvailableCommandsChanged(any());
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
 
     player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 0);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasNext);
     verify(mockListener, times(3)).onAvailableCommandsChanged(any());
+  }
+
+  @Test
+  public void seekTo_sameWindow_doesNotNotifyAvailableCommandsChanged() {
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(mockListener);
+
+    player.addMediaSources(ImmutableList.of(new FakeMediaSource()));
+    player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 200);
+    player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 100);
+    verify(mockListener, never()).onAvailableCommandsChanged(any());
   }
 
   @Test
   public void automaticWindowTransition_notifiesAvailableCommandsChanged() throws Exception {
-    Player.Commands commandsWithHasNext =
-        new Player.Commands.Builder().add(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM).build();
+    Player.Commands commandsWithHasNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithHasPrevious = createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.Commands commandsWithHasNextAndPrevious =
+        createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
 
     player.addMediaSources(
-        ImmutableList.of(new FakeMediaSource(), new FakeMediaSource(), new FakeMediaSource()));
+        ImmutableList.of(
+            new FakeMediaSource(),
+            new FakeMediaSource(),
+            new FakeMediaSource(),
+            new FakeMediaSource()));
     verify(mockListener).onAvailableCommandsChanged(commandsWithHasNext);
     verify(mockListener).onAvailableCommandsChanged(any());
 
     player.prepare();
+    playUntilStartOfWindow(player, /* windowIndex= */ 1);
+    runUntilPendingCommandsAreFullyHandled(player);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasNextAndPrevious);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+
+    playUntilStartOfWindow(player, /* windowIndex= */ 2);
+    runUntilPendingCommandsAreFullyHandled(player);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+
     player.play();
     runUntilPlaybackState(player, Player.STATE_ENDED);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
-    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasPrevious);
+    verify(mockListener, times(3)).onAvailableCommandsChanged(any());
   }
 
   @Test
-  public void addMediaItems_whenLastPlaying_notifiesAvailableCommandsChanged() throws Exception {
-    Player.Commands commandsWithHasNext =
-        new Player.Commands.Builder().add(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM).build();
+  public void addMediaSource_atTheEnd_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8136,10 +8199,26 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void removeMediaItems_followingCurrent_notifiesAvailableCommandsChanged()
-      throws Exception {
-    Player.Commands commandsWithHasNext =
-        new Player.Commands.Builder().add(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM).build();
+  public void addMediaSource_atTheStart_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasPrevious = createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(mockListener);
+
+    player.addMediaSource(new FakeMediaSource());
+    verify(mockListener, never()).onAvailableCommandsChanged(any());
+
+    player.addMediaSource(/* index= */ 0, new FakeMediaSource());
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasPrevious);
+    verify(mockListener).onAvailableCommandsChanged(any());
+
+    player.addMediaSource(/* index= */ 0, new FakeMediaSource());
+    verify(mockListener).onAvailableCommandsChanged(any());
+  }
+
+  @Test
+  public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8155,12 +8234,55 @@ public final class ExoPlayerTest {
     player.removeMediaItem(/* index= */ 1);
     verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+
+    player.removeMediaItem(/* index= */ 0);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
   }
 
   @Test
-  public void setRepeatMode_all_notifiesAvailableCommandsChanged() throws Exception {
-    Player.Commands commandsWithHasNext =
-        new Player.Commands.Builder().add(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM).build();
+  public void removeMediaItem_atTheStart_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasPrevious = createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(mockListener);
+
+    player.seekTo(/* windowIndex= */ 2, /* positionMs= */ 0);
+    player.addMediaSources(
+        ImmutableList.of(new FakeMediaSource(), new FakeMediaSource(), new FakeMediaSource()));
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasPrevious);
+    verify(mockListener).onAvailableCommandsChanged(any());
+
+    player.removeMediaItem(/* index= */ 0);
+    verify(mockListener).onAvailableCommandsChanged(any());
+
+    player.removeMediaItem(/* index= */ 0);
+    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+
+    player.removeMediaItem(/* index= */ 0);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+  }
+
+  @Test
+  public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.EventListener mockListener = mock(Player.EventListener.class);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addListener(mockListener);
+
+    player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasNext);
+    verify(mockListener).onAvailableCommandsChanged(any());
+
+    player.removeMediaItem(/* index= */ 0);
+    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener, times(2)).onAvailableCommandsChanged(any());
+  }
+
+  @Test
+  public void setRepeatMode_all_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasNextAndPrevious =
+        createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8169,12 +8291,12 @@ public final class ExoPlayerTest {
     verify(mockListener, never()).onAvailableCommandsChanged(any());
 
     player.setRepeatMode(Player.REPEAT_MODE_ALL);
-    verify(mockListener).onAvailableCommandsChanged(commandsWithHasNext);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasNextAndPrevious);
     verify(mockListener).onAvailableCommandsChanged(any());
   }
 
   @Test
-  public void setRepeatMode_one_doesNotNotifyAvailableCommandsChanged() throws Exception {
+  public void setRepeatMode_one_doesNotNotifyAvailableCommandsChanged() {
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8185,9 +8307,9 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void setShuffleModeEnabled_notifiesAvailableCommandsChanged() throws Exception {
-    Player.Commands commandsWithHasNext =
-        new Player.Commands.Builder().add(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM).build();
+  public void setShuffleModeEnabled_notifiesAvailableCommandsChanged() {
+    Player.Commands commandsWithHasNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithHasPrevious = createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8202,7 +8324,7 @@ public final class ExoPlayerTest {
     verify(mockListener).onAvailableCommandsChanged(commandsWithHasNext);
 
     player.setShuffleModeEnabled(true);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithHasPrevious);
   }
 
   @Test
@@ -9036,7 +9158,7 @@ public final class ExoPlayerTest {
     player.setMediaSource(new FakeMediaSource(new FakeTimeline(), formatWithStaticMetadata));
     player.seekTo(2_000);
     player.setPlaybackParameters(new PlaybackParameters(/* speed= */ 2.0f));
-    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    runUntilPendingCommandsAreFullyHandled(player);
 
     verify(listener).onTimelineChanged(any(), anyInt());
     verify(listener).onMediaItemTransition(any(), anyInt());
@@ -9059,7 +9181,7 @@ public final class ExoPlayerTest {
           }
         });
     player.setRepeatMode(Player.REPEAT_MODE_ONE);
-    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    runUntilPendingCommandsAreFullyHandled(player);
 
     verify(listener).onRepeatModeChanged(anyInt());
     verify(listener).onShuffleModeEnabledChanged(anyBoolean());
@@ -9075,7 +9197,7 @@ public final class ExoPlayerTest {
     player.play();
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
-    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    runUntilPendingCommandsAreFullyHandled(player);
     player.release();
 
     // Verify that all callbacks have been called at least once.
@@ -9146,6 +9268,14 @@ public final class ExoPlayerTest {
       }
     }
     return false;
+  }
+
+  private static Player.Commands createCommands(@Player.Command int... commands) {
+    Player.Commands.Builder builder = new Player.Commands.Builder();
+    for (int command : commands) {
+      builder.add(command);
+    }
+    return builder.build();
   }
 
   // Internal classes.

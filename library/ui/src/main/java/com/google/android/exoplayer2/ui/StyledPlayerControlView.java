@@ -1148,7 +1148,10 @@ public class StyledPlayerControlView extends FrameLayout {
         timeline.getWindow(player.getCurrentWindowIndex(), window);
         boolean isSeekable = window.isSeekable;
         enableSeeking = isSeekable;
-        enablePrevious = isSeekable || !window.isLive() || player.hasPrevious();
+        enablePrevious =
+            isSeekable
+                || !window.isLive()
+                || player.isCommandAvailable(Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
         enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
         enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
         enableNext =

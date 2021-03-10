@@ -1460,7 +1460,10 @@ public class PlayerNotificationManager {
     if (!timeline.isEmpty() && !player.isPlayingAd()) {
       timeline.getWindow(player.getCurrentWindowIndex(), window);
       boolean isSeekable = window.isSeekable;
-      enablePrevious = isSeekable || !window.isLive() || player.hasPrevious();
+      enablePrevious =
+          isSeekable
+              || !window.isLive()
+              || player.isCommandAvailable(Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
       enableRewind = isSeekable && controlDispatcher.isRewindEnabled();
       enableFastForward = isSeekable && controlDispatcher.isFastForwardEnabled();
       enableNext =
