@@ -37,7 +37,7 @@ import java.util.Map;
  * {@link ProgressiveMediaExtractor} built on top of {@link Extractor} instances, whose
  * implementation classes are bundled in the app.
  */
-/* package */ final class BundledExtractorsAdapter implements ProgressiveMediaExtractor {
+public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor {
 
   private final ExtractorsFactory extractorsFactory;
 
