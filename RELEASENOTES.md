@@ -48,7 +48,6 @@
 *   Text
     *   Parse SSA/ASS bold & italic info in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
-*   Text:
     *   Don't display subtitles after the end position of the current media
         period (if known). This ensures sideloaded subtitles respect the end
         point of `ClippingMediaPeriod` and prevents content subtitles from
