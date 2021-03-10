@@ -134,9 +134,15 @@ import java.util.Map;
        *  See https://www.w3.org/TR/ttml2/#style-value-emphasis-style
        */
       @TextEmphasis.MarkShape int markShape = textEmphasis.markShape;
+      @TextEmphasisSpan.MarkFill int markFill = textEmphasis.markFill;
+
       if (textEmphasis.markShape == TextEmphasis.MARK_SHAPE_AUTO) {
         markShape = (verticalType == Cue.VERTICAL_TYPE_LR || verticalType == Cue.VERTICAL_TYPE_RL) ?
             TextEmphasisSpan.MARK_SHAPE_SESAME : TextEmphasisSpan.MARK_SHAPE_CIRCLE;
+      }
+      if ((textEmphasis.markShape != TextEmphasisSpan.MARK_SHAPE_NONE) &&
+          (textEmphasis.markFill == TextEmphasisSpan.MARK_FILL_UNSPECIFIED)) {
+        markFill = TextEmphasisSpan.MARK_FILL_FILLED;
       }
 
       @TextEmphasis.Position int position = textEmphasis.position;
@@ -154,7 +160,7 @@ import java.util.Map;
 
       SpanUtil.addOrReplaceSpan(
           builder,
-          new TextEmphasisSpan(markShape, textEmphasis.markFill, position),
+          new TextEmphasisSpan(markShape, markFill, position),
           start,
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

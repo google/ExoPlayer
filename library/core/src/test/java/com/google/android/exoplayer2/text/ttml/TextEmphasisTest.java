@@ -185,7 +185,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testDotAfter() {
-    String value = "dot AFTER";
+    String value = "dot after";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -211,7 +211,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testSesameAfter() {
-    String value = "sesame  aFter";
+    String value = "sesame  after";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -263,7 +263,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testOpenDotAfter() {
-    String value = "open dot AFTER";
+    String value = "open dot after";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -276,7 +276,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testOpenCircleAfter() {
-    String value = "Open circle after";
+    String value = "open circle after";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -289,7 +289,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testOpenSesameAfter() {
-    String value = "open sesame  aFter";
+    String value = "open sesame  after";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
 
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
@@ -316,7 +316,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testOpenCircleBefore() {
-    String value = "Open circle Before";
+    String value = "open circle before";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -329,7 +329,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testOpenSesameBefore() {
-    String value = "open sesame Before";
+    String value = "open sesame before";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -342,7 +342,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testOpenDotOutside() {
-    String value = "open dot Outside";
+    String value = "open dot outside";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -355,7 +355,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testOpenCircleOutside() {
-    String value = "Open circle Outside";
+    String value = "open circle outside";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -420,7 +420,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testFilledDotAfter() {
-    String value = "filled dot After";
+    String value = "filled dot after";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -446,7 +446,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testFilledSesameAfter() {
-    String value = "filled sesame  After";
+    String value = "filled sesame  after";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -472,7 +472,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testFilledCircleBefore() {
-    String value = "filled circle Before";
+    String value = "filled circle before";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)
@@ -485,7 +485,7 @@ public class TextEmphasisTest {
 
   @Test
   public void testFilledSesameBefore() {
-    String value = "filled sesame  Before";
+    String value = "filled sesame  before";
     @Nullable TextEmphasis textEmphasis = createTextEmphasis(value);
     assertWithMessage("Text Emphasis must exist").that(textEmphasis).isNotNull();
     assertWithMessage("markShape").that(textEmphasis.markShape)

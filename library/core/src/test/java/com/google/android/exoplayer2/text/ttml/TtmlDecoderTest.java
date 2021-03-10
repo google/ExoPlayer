@@ -691,7 +691,7 @@ public final class TtmlDecoderTest {
     assertThat(secondCue)
         .hasTextEmphasisSpanBetween("Auto ".length(), "Auto ございます".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_SHAPE_CIRCLE,
-            TextEmphasisSpan.MARK_FILL_UNSPECIFIED,
+            TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
     Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
@@ -736,7 +736,7 @@ public final class TtmlDecoderTest {
     assertThat(ninthCue)
         .hasTextEmphasisSpanBetween("Auto outside ".length(), "Auto outside おはよ".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_SHAPE_CIRCLE,
-            TextEmphasisSpan.MARK_FILL_UNSPECIFIED,
+            TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
     Spanned tenthCue = getOnlyCueTextAtTimeUs(subtitle, 100_000_000);
@@ -766,28 +766,28 @@ public final class TtmlDecoderTest {
     assertThat(fourteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TBLR) ".length(), "Auto (TBLR) ございます".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_SHAPE_SESAME,
-            TextEmphasisSpan.MARK_FILL_UNSPECIFIED,
+            TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
     Spanned fifteenthCue = getOnlyCueTextAtTimeUs(subtitle, 150_000_000);
     assertThat(fifteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TBRL) ".length(), "Auto (TBRL) おはよ".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_SHAPE_SESAME,
-            TextEmphasisSpan.MARK_FILL_UNSPECIFIED,
+            TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
     Spanned sixteenthCue = getOnlyCueTextAtTimeUs(subtitle, 160_000_000);
     assertThat(sixteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TB) ".length(), "Auto (TB) ございます".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_SHAPE_SESAME,
-            TextEmphasisSpan.MARK_FILL_UNSPECIFIED,
+            TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
     Spanned seventeenthCue = getOnlyCueTextAtTimeUs(subtitle, 170_000_000);
     assertThat(seventeenthCue)
         .hasTextEmphasisSpanBetween("Auto (LR) ".length(), "Auto (LR) おはよ".length())
         .withMarkAndPosition(TextEmphasisSpan.MARK_SHAPE_CIRCLE,
-            TextEmphasisSpan.MARK_FILL_UNSPECIFIED,
+            TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
   }
 

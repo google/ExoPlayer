@@ -202,13 +202,18 @@ import java.util.regex.Pattern;
     } else if (span instanceof TextEmphasisSpan) {
       TextEmphasisSpan textEmphasisSpan = (TextEmphasisSpan) span;
       String style = getTextEmphasisStyle(textEmphasisSpan.markShape, textEmphasisSpan.markFill);
-      String position = getTextEmphasisPosition(textEmphasisSpan.position);
-      return Util
-          .formatInvariant(
-              "<span style='-webkit-text-emphasis-style: %1$s; text-emphasis-style: %1$s; "
-                  + "-webkit-text-emphasis-position: %2$s; text-emphasis-position: %2$s; "
-                  + "display: inline-block;'>", /** Sets background color behind emphasis mark */
-              style, position);
+      StringBuilder builder = new StringBuilder();
+      builder.append(Util.formatInvariant(
+          "<span style='-webkit-text-emphasis-style: %1$s; text-emphasis-style: %1$s;", style));
+      if (textEmphasisSpan.markShape != TextEmphasisSpan.MARK_SHAPE_NONE) {
+        String position = getTextEmphasisPosition(textEmphasisSpan.position);
+        builder.append(Util.formatInvariant(
+            " -webkit-text-emphasis-position: %1$s; text-emphasis-position: %1$s; "
+                + "display: inline-block;", /** Sets background color behind emphasis mark */
+            position));
+      }
+      builder.append("'>");
+      return builder.toString();
     } else {
       return null;
     }

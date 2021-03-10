@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.text.ttml;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.text.TextUtils;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
@@ -116,16 +117,11 @@ import java.util.Set;
   }
 
   @Nullable public static TextEmphasis createTextEmphasis(@Nullable String value) {
-    if (value == null) {
+    if (TextUtils.isEmpty(value)) {
       return null;
     }
 
-    String parsingValue = value.toLowerCase().trim();
-    if (parsingValue.isEmpty()) {
-      return null;
-    }
-
-    Set<String> nodes = Sets.newHashSet(parsingValue.split("\\s+"));
+    Set<String> nodes = Sets.newHashSet(value.split("\\s+"));
     if (nodes.size() == 0) {
       return null;
     }
