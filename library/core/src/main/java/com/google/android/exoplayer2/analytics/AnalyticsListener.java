@@ -47,7 +47,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.MutableFlags;
+import com.google.android.exoplayer2.util.ExoFlags;
 import com.google.common.base.Objects;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -70,13 +70,27 @@ import java.util.List;
 public interface AnalyticsListener {
 
   /** A set of {@link EventFlags}. */
-  final class Events extends MutableFlags {
+  final class Events {
 
+    private final ExoFlags flags;
     private final SparseArray<EventTime> eventTimes;
 
-    /** Creates the set of event flags. */
-    public Events() {
-      eventTimes = new SparseArray<>(/* initialCapacity= */ 0);
+    /**
+     * Creates an instance.
+     *
+     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
+     *     all the events recorded in {@code flags}. Events that are not recorded in {@code flags}
+     *     are ignored.
+     */
+    public Events(ExoFlags flags, SparseArray<EventTime> eventTimes) {
+      this.flags = flags;
+      SparseArray<EventTime> flagsToTimes = new SparseArray<>(/* initialCapacity= */ flags.size());
+      for (int i = 0; i < flags.size(); i++) {
+        @EventFlags int eventFlag = flags.get(i);
+        flagsToTimes.append(eventFlag, checkNotNull(eventTimes.get(eventFlag)));
+      }
+      this.eventTimes = flagsToTimes;
     }
 
     /**
@@ -90,29 +104,13 @@ public interface AnalyticsListener {
     }
 
     /**
-     * Sets the {@link EventTime} values for events recorded in this set.
-     *
-     * @param eventTimes A map from {@link EventFlags} to {@link EventTime}. Must at least contain
-     *     all the events recorded in this set.
-     */
-    public void setEventTimes(SparseArray<EventTime> eventTimes) {
-      this.eventTimes.clear();
-      for (int i = 0; i < size(); i++) {
-        @EventFlags int eventFlag = get(i);
-        this.eventTimes.append(eventFlag, checkNotNull(eventTimes.get(eventFlag)));
-      }
-    }
-
-    /**
      * Returns whether the given event occurred.
      *
      * @param event The {@link EventFlags event}.
      * @return Whether the event occurred.
      */
-    @Override
     public boolean contains(@EventFlags int event) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.contains(event);
+      return flags.contains(event);
     }
 
     /**
@@ -121,10 +119,13 @@ public interface AnalyticsListener {
      * @param events The {@link EventFlags events}.
      * @return Whether any of the events occurred.
      */
-    @Override
     public boolean containsAny(@EventFlags int... events) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.containsAny(events);
+      return flags.containsAny(events);
+    }
+
+    /** Returns the number of events in the set. */
+    public int size() {
+      return flags.size();
     }
 
     /**
@@ -136,11 +137,9 @@ public interface AnalyticsListener {
      * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
      * @return The {@link EventFlags event} at the given index.
      */
-    @Override
     @EventFlags
     public int get(int index) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.get(index);
+      return flags.get(index);
     }
   }
 

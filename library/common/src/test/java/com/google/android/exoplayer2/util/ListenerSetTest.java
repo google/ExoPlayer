@@ -42,9 +42,8 @@ public class ListenerSetTest {
 
   @Test
   public void queueEvent_withoutFlush_sendsNoEvents() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener = mock(TestListener.class);
     listenerSet.add(listener);
 
@@ -57,9 +56,8 @@ public class ListenerSetTest {
 
   @Test
   public void flushEvents_sendsPreviouslyQueuedEventsToAllListeners() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener1 = mock(TestListener.class);
     TestListener listener2 = mock(TestListener.class);
     listenerSet.add(listener1);
@@ -82,9 +80,8 @@ public class ListenerSetTest {
 
   @Test
   public void flushEvents_recursive_sendsEventsInCorrectOrder() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     // Listener1 sends callback3 recursively when receiving callback1.
     TestListener listener1 =
         spy(
@@ -116,9 +113,8 @@ public class ListenerSetTest {
   @Test
   public void
       flushEvents_withMultipleMessageQueueIterations_sendsIterationFinishedEventPerIteration() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     // Listener1 sends callback1 recursively when receiving callback3.
     TestListener listener1 =
         spy(
@@ -152,30 +148,29 @@ public class ListenerSetTest {
     InOrder inOrder = Mockito.inOrder(listener1, listener2);
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
-    inOrder.verify(listener1).iterationFinished(Flags.create(EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(Flags.create(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
-    inOrder.verify(listener1).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
     inOrder.verify(listener1).callback3();
     inOrder.verify(listener2).callback3();
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
-    inOrder.verify(listener1).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_3));
-    inOrder.verify(listener2).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_3));
+    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_3));
+    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_3));
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
   public void flushEvents_calledFromIterationFinishedCallback_restartsIterationFinishedEvents() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     // Listener2 sends callback1 recursively when receiving the iteration finished event.
     TestListener listener2 =
         spy(
@@ -183,7 +178,7 @@ public class ListenerSetTest {
               boolean eventSent;
 
               @Override
-              public void iterationFinished(Flags flags) {
+              public void iterationFinished(ExoFlags flags) {
                 if (!eventSent) {
                   listenerSet.sendEvent(EVENT_ID_1, TestListener::callback1);
                   eventSent = true;
@@ -203,22 +198,21 @@ public class ListenerSetTest {
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
     inOrder.verify(listener3).callback2();
-    inOrder.verify(listener1).iterationFinished(Flags.create(EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(Flags.create(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener2).callback1();
     inOrder.verify(listener3).callback1();
-    inOrder.verify(listener1).iterationFinished(Flags.create(EVENT_ID_1));
-    inOrder.verify(listener2).iterationFinished(Flags.create(EVENT_ID_1));
-    inOrder.verify(listener3).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1));
+    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1));
+    inOrder.verify(listener3).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
   public void flushEvents_withUnsetEventFlag_doesNotThrow() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
 
     listenerSet.queueEvent(/* eventFlag= */ C.INDEX_UNSET, TestListener::callback1);
     listenerSet.flushEvents();
@@ -229,9 +223,8 @@ public class ListenerSetTest {
 
   @Test
   public void add_withRecursion_onlyReceivesUpdatesForFutureEvents() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener2 = mock(TestListener.class);
     // Listener1 adds listener2 recursively.
     TestListener listener1 =
@@ -255,16 +248,15 @@ public class ListenerSetTest {
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
-    inOrder.verify(listener1).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(Flags.create(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
   public void add_withQueueing_onlyReceivesUpdatesForFutureEvents() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener1 = mock(TestListener.class);
     TestListener listener2 = mock(TestListener.class);
 
@@ -281,16 +273,15 @@ public class ListenerSetTest {
     inOrder.verify(listener1).callback1();
     inOrder.verify(listener1).callback2();
     inOrder.verify(listener2).callback2();
-    inOrder.verify(listener1).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_2));
-    inOrder.verify(listener2).iterationFinished(Flags.create(EVENT_ID_2));
+    inOrder.verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_2));
+    inOrder.verify(listener2).iterationFinished(createExoFlags(EVENT_ID_2));
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
   public void remove_withRecursion_stopsReceivingEventsImmediately() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener2 = mock(TestListener.class);
     // Listener1 removes listener2 recursively.
     TestListener listener1 =
@@ -311,15 +302,14 @@ public class ListenerSetTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener1).callback1();
-    verify(listener1).iterationFinished(Flags.create(EVENT_ID_1));
+    verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
   @Test
   public void remove_withQueueing_stopsReceivingEventsImmediately() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener1 = mock(TestListener.class);
     TestListener listener2 = mock(TestListener.class);
     listenerSet.add(listener1);
@@ -333,15 +323,14 @@ public class ListenerSetTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener2, times(2)).callback1();
-    verify(listener2).iterationFinished(Flags.create(EVENT_ID_1));
+    verify(listener2).iterationFinished(createExoFlags(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
   @Test
   public void release_stopsForwardingEventsImmediately() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener2 = mock(TestListener.class);
     // Listener1 releases the set from within the callback.
     TestListener listener1 =
@@ -361,15 +350,14 @@ public class ListenerSetTest {
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener1).callback1();
-    verify(listener1).iterationFinished(Flags.create(EVENT_ID_1));
+    verify(listener1).iterationFinished(createExoFlags(EVENT_ID_1));
     verifyNoMoreInteractions(listener1, listener2);
   }
 
   @Test
   public void release_preventsRegisteringNewListeners() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener = mock(TestListener.class);
 
     listenerSet.release();
@@ -381,9 +369,8 @@ public class ListenerSetTest {
 
   @Test
   public void lazyRelease_stopsForwardingEventsFromNewHandlerMessagesAndCallsReleaseCallback() {
-    ListenerSet<TestListener, Flags> listenerSet =
-        new ListenerSet<>(
-            Looper.myLooper(), Clock.DEFAULT, Flags::new, TestListener::iterationFinished);
+    ListenerSet<TestListener> listenerSet =
+        new ListenerSet<>(Looper.myLooper(), Clock.DEFAULT, TestListener::iterationFinished);
     TestListener listener = mock(TestListener.class);
     listenerSet.add(listener);
 
@@ -403,8 +390,8 @@ public class ListenerSetTest {
     // lazy release.
     verify(listener, times(3)).callback1();
     verify(listener).callback3();
-    verify(listener).iterationFinished(Flags.create(EVENT_ID_1));
-    verify(listener).iterationFinished(Flags.create(EVENT_ID_1, EVENT_ID_3));
+    verify(listener).iterationFinished(createExoFlags(EVENT_ID_1));
+    verify(listener).iterationFinished(createExoFlags(EVENT_ID_1, EVENT_ID_3));
     verifyNoMoreInteractions(listener);
   }
 
@@ -415,17 +402,14 @@ public class ListenerSetTest {
 
     default void callback3() {}
 
-    default void iterationFinished(Flags flags) {}
+    default void iterationFinished(ExoFlags flags) {}
   }
 
-  private static final class Flags extends MutableFlags {
-
-    public static Flags create(int... flagValues) {
-      Flags flags = new Flags();
-      for (int value : flagValues) {
-        flags.add(value);
-      }
-      return flags;
+  private static ExoFlags createExoFlags(int... flagValues) {
+    ExoFlags.Builder flagsBuilder = new ExoFlags.Builder();
+    for (int value : flagValues) {
+      flagsBuilder.add(value);
     }
+    return flagsBuilder.build();
   }
 }

@@ -15,11 +15,9 @@
  */
 package com.google.android.exoplayer2;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.content.Context;
 import android.os.Looper;
-import android.util.SparseBooleanArray;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -37,7 +35,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.util.MutableFlags;
+import com.google.android.exoplayer2.util.ExoFlags;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
@@ -664,17 +662,27 @@ public interface Player {
   }
 
   /** A set of {@link EventFlags}. */
-  final class Events extends MutableFlags {
+  final class Events {
+
+    private final ExoFlags flags;
+
+    /**
+     * Creates an instance.
+     *
+     * @param flags The {@link ExoFlags} containing the {@link EventFlags} in the set.
+     */
+    public Events(ExoFlags flags) {
+      this.flags = flags;
+    }
+
     /**
      * Returns whether the given event occurred.
      *
      * @param event The {@link EventFlags event}.
      * @return Whether the event occurred.
      */
-    @Override
     public boolean contains(@EventFlags int event) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.contains(event);
+      return flags.contains(event);
     }
 
     /**
@@ -683,10 +691,13 @@ public interface Player {
      * @param events The {@link EventFlags events}.
      * @return Whether any of the events occurred.
      */
-    @Override
     public boolean containsAny(@EventFlags int... events) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.containsAny(events);
+      return flags.containsAny(events);
+    }
+
+    /** Returns the number of events in the set. */
+    public int size() {
+      return flags.size();
     }
 
     /**
@@ -698,11 +709,9 @@ public interface Player {
      * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
      * @return The {@link EventFlags event} at the given index.
      */
-    @Override
     @EventFlags
     public int get(int index) {
-      // Overridden to add IntDef compiler enforcement and new JavaDoc.
-      return super.get(index);
+      return flags.get(index);
     }
   }
 
@@ -716,18 +725,11 @@ public interface Player {
     /** A builder for {@link Commands} instances. */
     public static final class Builder {
 
-      private final SparseBooleanArray commandsArray;
-
-      private boolean buildCalled;
+      private final ExoFlags.Builder flagsBuilder;
 
       /** Creates a builder. */
       public Builder() {
-        commandsArray = new SparseBooleanArray();
-      }
-
-      /** Creates a builder with the values of the provided {@link Commands}. */
-      private Builder(Commands commands) {
-        this.commandsArray = commands.commandsArray.clone();
+        flagsBuilder = new ExoFlags.Builder();
       }
 
       /**
@@ -738,8 +740,7 @@ public interface Player {
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
       public Builder add(@Command int command) {
-        checkState(!buildCalled);
-        commandsArray.append(command, /* value= */ true);
+        flagsBuilder.add(command);
         return this;
       }
 
@@ -752,39 +753,32 @@ public interface Player {
        * @throws IllegalStateException If {@link #build()} has already been called.
        */
       public Builder addIf(@Command int command, boolean condition) {
-        checkState(!buildCalled);
-        if (condition) {
-          commandsArray.append(command, /* value= */ true);
-        }
+        flagsBuilder.addIf(command, condition);
         return this;
       }
 
-      /** Builds a {@link Commands} instance. */
+      /**
+       * Builds a {@link Commands} instance.
+       *
+       * @throws IllegalStateException If this method has already been called.
+       */
       public Commands build() {
-        checkState(!buildCalled);
-        buildCalled = true;
-        return new Commands(commandsArray);
+        return new Commands(flagsBuilder.build());
       }
     }
 
     /** An empty set of commands. */
-    public static final Commands EMPTY = new Commands.Builder().build();
+    public static final Commands EMPTY = new Builder().build();
 
-    // A SparseBooleanArray is used instead of a Set to avoid auto-boxing the Command values.
-    private final SparseBooleanArray commandsArray;
+    private final ExoFlags flags;
 
-    private Commands(SparseBooleanArray commandsArray) {
-      this.commandsArray = commandsArray;
-    }
-
-    /** Returns a {@link Commands.Builder} initialized with the values of this instance. */
-    public Builder buildUpon() {
-      return new Builder(this);
+    private Commands(ExoFlags flags) {
+      this.flags = flags;
     }
 
     /** Returns whether the set of commands contains the specified {@link Command}. */
     public boolean contains(@Command int command) {
-      return commandsArray.get(command);
+      return flags.contains(command);
     }
 
     @Override
@@ -796,12 +790,12 @@ public interface Player {
         return false;
       }
       Commands commands = (Commands) obj;
-      return this.commandsArray.equals(commands.commandsArray);
+      return flags.equals(commands.flags);
     }
 
     @Override
     public int hashCode() {
-      return commandsArray.hashCode();
+      return flags.hashCode();
     }
   }
 

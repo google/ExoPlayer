@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+
 import android.util.SparseBooleanArray;
 import androidx.annotation.Nullable;
 
@@ -23,28 +25,68 @@ import androidx.annotation.Nullable;
  *
  * <p>Intended for usages where the number of flags may exceed 32 and can no longer be represented
  * by an IntDef.
+ *
+ * <p>Instances are immutable.
  */
-public class MutableFlags {
+public final class ExoFlags {
 
+  /** A builder for {@link ExoFlags} instances. */
+  public static final class Builder {
+
+    private final SparseBooleanArray flags;
+
+    private boolean buildCalled;
+
+    /** Creates a builder. */
+    public Builder() {
+      flags = new SparseBooleanArray();
+    }
+
+    /**
+     * Adds a flag.
+     *
+     * @param flag A flag.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder add(int flag) {
+      checkState(!buildCalled);
+      flags.append(flag, /* value= */ true);
+      return this;
+    }
+
+    /**
+     * Adds a flag if the provided condition is true. Does nothing otherwise.
+     *
+     * @param flag A flag.
+     * @param condition A condition.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder addIf(int flag, boolean condition) {
+      if (condition) {
+        return add(flag);
+      }
+      return this;
+    }
+
+    /**
+     * Builds an {@link ExoFlags} instance.
+     *
+     * @throws IllegalStateException If this method has already been called.
+     */
+    public ExoFlags build() {
+      checkState(!buildCalled);
+      buildCalled = true;
+      return new ExoFlags(flags);
+    }
+  }
+
+  // A SparseBooleanArray is used instead of a Set to avoid auto-boxing the flag values.
   private final SparseBooleanArray flags;
 
-  /** Creates the set of flags. */
-  public MutableFlags() {
-    flags = new SparseBooleanArray();
-  }
-
-  /** Clears all previously set flags. */
-  public void clear() {
-    flags.clear();
-  }
-
-  /**
-   * Adds a flag to the set.
-   *
-   * @param flag The flag to add.
-   */
-  public void add(int flag) {
-    flags.append(flag, /* value= */ true);
+  private ExoFlags(SparseBooleanArray flags) {
+    this.flags = flags;
   }
 
   /**
@@ -94,10 +136,10 @@ public class MutableFlags {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof MutableFlags)) {
+    if (!(o instanceof ExoFlags)) {
       return false;
     }
-    MutableFlags that = (MutableFlags) o;
+    ExoFlags that = (ExoFlags) o;
     return flags.equals(that.flags);
   }
 

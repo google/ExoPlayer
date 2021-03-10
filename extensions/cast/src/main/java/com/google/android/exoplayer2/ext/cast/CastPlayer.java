@@ -95,7 +95,7 @@ public final class CastPlayer extends BasePlayer {
   private final SeekResultCallback seekResultCallback;
 
   // Listeners and notification.
-  private final ListenerSet<Player.EventListener, Player.Events> listeners;
+  private final ListenerSet<Player.EventListener> listeners;
   @Nullable private SessionAvailabilityListener sessionAvailabilityListener;
 
   // Internal state.
@@ -139,8 +139,7 @@ public final class CastPlayer extends BasePlayer {
         new ListenerSet<>(
             Looper.getMainLooper(),
             Clock.DEFAULT,
-            Player.Events::new,
-            (listener, eventFlags) -> listener.onEvents(/* player= */ this, eventFlags));
+            (listener, flags) -> listener.onEvents(/* player= */ this, new Events(flags)));
 
     playWhenReady = new StateHolder<>(false);
     repeatMode = new StateHolder<>(REPEAT_MODE_OFF);

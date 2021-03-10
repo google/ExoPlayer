@@ -71,7 +71,7 @@ import java.util.List;
   private final HandlerWrapper playbackInfoUpdateHandler;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
-  private final ListenerSet<Player.EventListener, Player.Events> listeners;
+  private final ListenerSet<Player.EventListener> listeners;
   private final Timeline.Period period;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
   private final boolean useLazyPreparation;
@@ -165,8 +165,7 @@ import java.util.List;
         new ListenerSet<>(
             applicationLooper,
             clock,
-            Player.Events::new,
-            (listener, eventFlags) -> listener.onEvents(playerForListeners, eventFlags));
+            (listener, flags) -> listener.onEvents(playerForListeners, new Events(flags)));
     mediaSourceHolderSnapshots = new ArrayList<>();
     shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
     emptyTrackSelectorResult =

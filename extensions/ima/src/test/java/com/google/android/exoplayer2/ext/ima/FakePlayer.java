@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
 /** A fake player for testing content/ad playback. */
 /* package */ final class FakePlayer extends StubExoPlayer {
 
-  private final ListenerSet<EventListener, Events> listeners;
+  private final ListenerSet<EventListener> listeners;
   private final Timeline.Period period;
 
   private Timeline timeline;
@@ -45,8 +45,7 @@ import com.google.android.exoplayer2.util.ListenerSet;
         new ListenerSet<>(
             Looper.getMainLooper(),
             Clock.DEFAULT,
-            Player.Events::new,
-            (listener, eventFlags) -> listener.onEvents(/* player= */ this, eventFlags));
+            (listener, flags) -> listener.onEvents(/* player= */ this, new Events(flags)));
     period = new Timeline.Period();
     state = Player.STATE_IDLE;
     playWhenReady = true;

@@ -20,7 +20,6 @@ import android.os.Message;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.common.base.Supplier;
 import java.util.ArrayDeque;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.annotation.Nonnull;
@@ -35,9 +34,8 @@ import javax.annotation.Nonnull;
  * was enqueued and haven't been removed since.
  *
  * @param <T> The listener type.
- * @param <E> The {@link MutableFlags} type used to indicate which events occurred.
  */
-public final class ListenerSet<T, E extends MutableFlags> {
+public final class ListenerSet<T> {
 
   /**
    * An event sent to a listener.
@@ -55,17 +53,17 @@ public final class ListenerSet<T, E extends MutableFlags> {
    * iteration were handled by the listener.
    *
    * @param <T> The listener type.
-   * @param <E> The {@link MutableFlags} type used to indicate which events occurred.
    */
-  public interface IterationFinishedEvent<T, E extends MutableFlags> {
+  public interface IterationFinishedEvent<T> {
 
     /**
      * Invokes the iteration finished event.
      *
      * @param listener The listener to invoke the event on.
-     * @param eventFlags The combined event flags of all events sent in this iteration.
+     * @param eventFlags The combined event {@link ExoFlags flags} of all events sent in this
+     *     iteration.
      */
-    void invoke(T listener, E eventFlags);
+    void invoke(T listener, ExoFlags eventFlags);
   }
 
   private static final int MSG_ITERATION_FINISHED = 0;
@@ -73,9 +71,8 @@ public final class ListenerSet<T, E extends MutableFlags> {
 
   private final Clock clock;
   private final HandlerWrapper handler;
-  private final Supplier<E> eventFlagsSupplier;
-  private final IterationFinishedEvent<T, E> iterationFinishedEvent;
-  private final CopyOnWriteArraySet<ListenerHolder<T, E>> listeners;
+  private final IterationFinishedEvent<T> iterationFinishedEvent;
+  private final CopyOnWriteArraySet<ListenerHolder<T>> listeners;
   private final ArrayDeque<Runnable> flushingEvents;
   private final ArrayDeque<Runnable> queuedEvents;
 
@@ -87,33 +84,24 @@ public final class ListenerSet<T, E extends MutableFlags> {
    * @param looper A {@link Looper} used to call listeners on. The same {@link Looper} must be used
    *     to call all other methods of this class.
    * @param clock A {@link Clock}.
-   * @param eventFlagsSupplier A {@link Supplier} for new instances of {@link E the event flags
-   *     type}.
    * @param iterationFinishedEvent An {@link IterationFinishedEvent} sent when all other events sent
    *     during one {@link Looper} message queue iteration were handled by the listeners.
    */
-  public ListenerSet(
-      Looper looper,
-      Clock clock,
-      Supplier<E> eventFlagsSupplier,
-      IterationFinishedEvent<T, E> iterationFinishedEvent) {
+  public ListenerSet(Looper looper, Clock clock, IterationFinishedEvent<T> iterationFinishedEvent) {
     this(
         /* listeners= */ new CopyOnWriteArraySet<>(),
         looper,
         clock,
-        eventFlagsSupplier,
         iterationFinishedEvent);
   }
 
   private ListenerSet(
-      CopyOnWriteArraySet<ListenerHolder<T, E>> listeners,
+      CopyOnWriteArraySet<ListenerHolder<T>> listeners,
       Looper looper,
       Clock clock,
-      Supplier<E> eventFlagsSupplier,
-      IterationFinishedEvent<T, E> iterationFinishedEvent) {
+      IterationFinishedEvent<T> iterationFinishedEvent) {
     this.clock = clock;
     this.listeners = listeners;
-    this.eventFlagsSupplier = eventFlagsSupplier;
     this.iterationFinishedEvent = iterationFinishedEvent;
     flushingEvents = new ArrayDeque<>();
     queuedEvents = new ArrayDeque<>();
@@ -132,9 +120,8 @@ public final class ListenerSet<T, E extends MutableFlags> {
    * @return The copied listener set.
    */
   @CheckResult
-  public ListenerSet<T, E> copy(
-      Looper looper, IterationFinishedEvent<T, E> iterationFinishedEvent) {
-    return new ListenerSet<>(listeners, looper, clock, eventFlagsSupplier, iterationFinishedEvent);
+  public ListenerSet<T> copy(Looper looper, IterationFinishedEvent<T> iterationFinishedEvent) {
+    return new ListenerSet<>(listeners, looper, clock, iterationFinishedEvent);
   }
 
   /**
@@ -149,7 +136,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
       return;
     }
     Assertions.checkNotNull(listener);
-    listeners.add(new ListenerHolder<>(listener, eventFlagsSupplier));
+    listeners.add(new ListenerHolder<>(listener));
   }
 
   /**
@@ -160,7 +147,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
    * @param listener The listener to be removed.
    */
   public void remove(T listener) {
-    for (ListenerHolder<T, E> listenerHolder : listeners) {
+    for (ListenerHolder<T> listenerHolder : listeners) {
       if (listenerHolder.listener.equals(listener)) {
         listenerHolder.release(iterationFinishedEvent);
         listeners.remove(listenerHolder);
@@ -176,11 +163,10 @@ public final class ListenerSet<T, E extends MutableFlags> {
    * @param event The event.
    */
   public void queueEvent(int eventFlag, Event<T> event) {
-    CopyOnWriteArraySet<ListenerHolder<T, E>> listenerSnapshot =
-        new CopyOnWriteArraySet<>(listeners);
+    CopyOnWriteArraySet<ListenerHolder<T>> listenerSnapshot = new CopyOnWriteArraySet<>(listeners);
     queuedEvents.add(
         () -> {
-          for (ListenerHolder<T, E> holder : listenerSnapshot) {
+          for (ListenerHolder<T> holder : listenerSnapshot) {
             holder.invoke(eventFlag, event);
           }
         });
@@ -226,7 +212,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
    * <p>This will ensure no events are sent to any listener after this method has been called.
    */
   public void release() {
-    for (ListenerHolder<T, E> listenerHolder : listeners) {
+    for (ListenerHolder<T> listenerHolder : listeners) {
       listenerHolder.release(iterationFinishedEvent);
     }
     listeners.clear();
@@ -249,8 +235,8 @@ public final class ListenerSet<T, E extends MutableFlags> {
 
   private boolean handleMessage(Message message) {
     if (message.what == MSG_ITERATION_FINISHED) {
-      for (ListenerHolder<T, E> holder : listeners) {
-        holder.iterationFinished(eventFlagsSupplier, iterationFinishedEvent);
+      for (ListenerHolder<T> holder : listeners) {
+        holder.iterationFinished(iterationFinishedEvent);
         if (handler.hasMessages(MSG_ITERATION_FINISHED)) {
           // The invocation above triggered new events (and thus scheduled a new message). We need
           // to stop here because this new message will take care of informing every listener about
@@ -268,45 +254,44 @@ public final class ListenerSet<T, E extends MutableFlags> {
     return true;
   }
 
-  private static final class ListenerHolder<T, E extends MutableFlags> {
+  private static final class ListenerHolder<T> {
 
     @Nonnull public final T listener;
 
-    private E eventsFlags;
+    private ExoFlags.Builder flagsBuilder;
     private boolean needsIterationFinishedEvent;
     private boolean released;
 
-    public ListenerHolder(@Nonnull T listener, Supplier<E> eventFlagSupplier) {
+    public ListenerHolder(@Nonnull T listener) {
       this.listener = listener;
-      this.eventsFlags = eventFlagSupplier.get();
+      this.flagsBuilder = new ExoFlags.Builder();
     }
 
-    public void release(IterationFinishedEvent<T, E> event) {
+    public void release(IterationFinishedEvent<T> event) {
       released = true;
       if (needsIterationFinishedEvent) {
-        event.invoke(listener, eventsFlags);
+        event.invoke(listener, flagsBuilder.build());
       }
     }
 
     public void invoke(int eventFlag, Event<T> event) {
       if (!released) {
         if (eventFlag != C.INDEX_UNSET) {
-          eventsFlags.add(eventFlag);
+          flagsBuilder.add(eventFlag);
         }
         needsIterationFinishedEvent = true;
         event.invoke(listener);
       }
     }
 
-    public void iterationFinished(
-        Supplier<E> eventFlagSupplier, IterationFinishedEvent<T, E> event) {
+    public void iterationFinished(IterationFinishedEvent<T> event) {
       if (!released && needsIterationFinishedEvent) {
         // Reset flags before invoking the listener to ensure we keep all new flags that are set by
         // recursive events triggered from this callback.
-        E flagToNotify = eventsFlags;
-        eventsFlags = eventFlagSupplier.get();
+        ExoFlags flagsToNotify = flagsBuilder.build();
+        flagsBuilder = new ExoFlags.Builder();
         needsIterationFinishedEvent = false;
-        event.invoke(listener, flagToNotify);
+        event.invoke(listener, flagsToNotify);
       }
     }
 
@@ -318,7 +303,7 @@ public final class ListenerSet<T, E extends MutableFlags> {
       if (other == null || getClass() != other.getClass()) {
         return false;
       }
-      return listener.equals(((ListenerHolder<?, ?>) other).listener);
+      return listener.equals(((ListenerHolder<?>) other).listener);
     }
 
     @Override

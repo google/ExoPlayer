@@ -78,7 +78,7 @@ public class AnalyticsCollector
   private final MediaPeriodQueueTracker mediaPeriodQueueTracker;
   private final SparseArray<EventTime> eventTimes;
 
-  private ListenerSet<AnalyticsListener, AnalyticsListener.Events> listeners;
+  private ListenerSet<AnalyticsListener> listeners;
   private @MonotonicNonNull Player player;
   private boolean isSeeking;
 
@@ -89,12 +89,7 @@ public class AnalyticsCollector
    */
   public AnalyticsCollector(Clock clock) {
     this.clock = checkNotNull(clock);
-    listeners =
-        new ListenerSet<>(
-            Util.getCurrentOrMainLooper(),
-            clock,
-            AnalyticsListener.Events::new,
-            (listener, eventFlags) -> {});
+    listeners = new ListenerSet<>(Util.getCurrentOrMainLooper(), clock, (listener, flags) -> {});
     period = new Period();
     window = new Window();
     mediaPeriodQueueTracker = new MediaPeriodQueueTracker(period);
@@ -137,10 +132,8 @@ public class AnalyticsCollector
     listeners =
         listeners.copy(
             looper,
-            (listener, events) -> {
-              events.setEventTimes(eventTimes);
-              listener.onEvents(player, events);
-            });
+            (listener, flags) ->
+                listener.onEvents(player, new AnalyticsListener.Events(flags, eventTimes)));
   }
 
   /**
