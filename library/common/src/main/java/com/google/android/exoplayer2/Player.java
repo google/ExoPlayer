@@ -800,6 +800,19 @@ public interface Player {
   }
 
   /**
+   * Listener of all changes in the Player.
+   *
+   * <p>All methods have no-op default implementations to allow selective overrides.
+   */
+  interface Listener
+      extends VideoListener,
+          AudioListener,
+          TextOutput,
+          MetadataOutput,
+          DeviceListener,
+          EventListener {}
+
+  /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
    * {@link #STATE_ENDED}.
    */
@@ -1065,20 +1078,41 @@ public interface Player {
   Looper getApplicationLooper();
 
   /**
-   * Register a listener to receive events from the player. The listener's methods will be called on
-   * the thread that was used to construct the player. However, if the thread used to construct the
-   * player does not have a {@link Looper}, then the listener will be called on the main thread.
+   * Registers a listener to receive events from the player. The listener's methods will be called
+   * on the thread that was used to construct the player. However, if the thread used to construct
+   * the player does not have a {@link Looper}, then the listener will be called on the main thread.
    *
    * @param listener The listener to register.
    */
   void addListener(EventListener listener);
 
   /**
-   * Unregister a listener. The listener will no longer receive events from the player.
+   * Registers a listener to receive all events from the player.
+   *
+   * <p>Do not register the listener additionally in individual `Player` components (such as {@link
+   * Player.AudioComponent#addAudioListener(AudioListener)}, {@link
+   * Player.VideoComponent#addVideoListener(VideoListener)}) as it will already receive all their
+   * events.
+   *
+   * @param listener The listener to register.
+   */
+  void addListener(Listener listener);
+
+  /**
+   * Unregister a listener registered through {@link #addListener(EventListener)}. The listener will
+   * no longer receive events from the player.
    *
    * @param listener The listener to unregister.
    */
   void removeListener(EventListener listener);
+
+  /**
+   * Unregister a listener registered through {@link #addListener(Listener)}. The listener will no
+   * longer receive events.
+   *
+   * @param listener The listener to unregister.
+   */
+  void removeListener(Listener listener);
 
   /**
    * Clears the playlist, adds the specified {@link MediaItem MediaItems} and resets the position to

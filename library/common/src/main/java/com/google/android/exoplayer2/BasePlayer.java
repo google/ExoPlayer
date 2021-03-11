@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,60 @@ public abstract class BasePlayer implements Player {
 
   public BasePlayer() {
     window = new Timeline.Window();
+  }
+
+  @Override
+  public final void addListener(Listener listener) {
+    Assertions.checkNotNull(listener);
+    @Nullable AudioComponent audioComponent = getAudioComponent();
+    if (audioComponent != null) {
+      audioComponent.addAudioListener(listener);
+    }
+    @Nullable VideoComponent videoComponent = getVideoComponent();
+    if (videoComponent != null) {
+      videoComponent.addVideoListener(listener);
+    }
+    @Nullable TextComponent textComponent = getTextComponent();
+    if (textComponent != null) {
+      textComponent.addTextOutput(listener);
+    }
+    @Nullable MetadataComponent metadataComponent = getMetadataComponent();
+    if (metadataComponent != null) {
+      metadataComponent.addMetadataOutput(listener);
+    }
+    @Nullable DeviceComponent deviceComponent = getDeviceComponent();
+    if (deviceComponent != null) {
+      deviceComponent.addDeviceListener(listener);
+    }
+    EventListener eventListener = listener;
+    addListener(eventListener);
+  }
+
+  @Override
+  public final void removeListener(Listener listener) {
+    Assertions.checkNotNull(listener);
+    @Nullable AudioComponent audioComponent = getAudioComponent();
+    if (audioComponent != null) {
+      audioComponent.removeAudioListener(listener);
+    }
+    @Nullable VideoComponent videoComponent = getVideoComponent();
+    if (videoComponent != null) {
+      videoComponent.removeVideoListener(listener);
+    }
+    @Nullable TextComponent textComponent = getTextComponent();
+    if (textComponent != null) {
+      textComponent.removeTextOutput(listener);
+    }
+    @Nullable MetadataComponent metadataComponent = getMetadataComponent();
+    if (metadataComponent != null) {
+      metadataComponent.removeMetadataOutput(listener);
+    }
+    @Nullable DeviceComponent deviceComponent = getDeviceComponent();
+    if (deviceComponent != null) {
+      deviceComponent.removeDeviceListener(listener);
+    }
+    EventListener eventListener = listener;
+    removeListener(eventListener);
   }
 
   @Override

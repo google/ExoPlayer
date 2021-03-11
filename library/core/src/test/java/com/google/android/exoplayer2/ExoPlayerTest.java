@@ -55,6 +55,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.Player.EventListener;
+import com.google.android.exoplayer2.Player.Listener;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -172,25 +173,25 @@ public final class ExoPlayerTest {
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_UNKNOWN);
 
     SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
-    EventListener mockEventListener = mock(EventListener.class);
-    player.addListener(mockEventListener);
+    Listener mockListener = mock(Listener.class);
+    player.addListener(mockListener);
 
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT));
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_ENDED);
 
-    InOrder inOrder = inOrder(mockEventListener);
+    InOrder inOrder = inOrder(mockListener);
     inOrder
-        .verify(mockEventListener)
+        .verify(mockListener)
         .onTimelineChanged(
             argThat(noUid(expectedMaskingTimeline)),
             eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
     inOrder
-        .verify(mockEventListener)
+        .verify(mockListener)
         .onTimelineChanged(
             argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
-    inOrder.verify(mockEventListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
     assertThat(renderer.getFormatsRead()).isEmpty();
     assertThat(renderer.sampleBufferReadCount).isEqualTo(0);
     assertThat(renderer.isEnded).isFalse();
@@ -202,29 +203,29 @@ public final class ExoPlayerTest {
     Timeline timeline = new FakeTimeline();
     FakeRenderer renderer = new FakeRenderer(C.TRACK_TYPE_VIDEO);
     SimpleExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(renderer).build();
-    EventListener mockEventListener = mock(EventListener.class);
-    player.addListener(mockEventListener);
+    Listener mockListener = mock(Listener.class);
+    player.addListener(mockListener);
 
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT));
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_ENDED);
 
-    InOrder inOrder = Mockito.inOrder(mockEventListener);
+    InOrder inOrder = Mockito.inOrder(mockListener);
     inOrder
-        .verify(mockEventListener)
+        .verify(mockListener)
         .onTimelineChanged(
             argThat(noUid(placeholderTimeline)),
             eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
     inOrder
-        .verify(mockEventListener)
+        .verify(mockListener)
         .onTimelineChanged(
             argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder
-        .verify(mockEventListener)
+        .verify(mockListener)
         .onTracksChanged(
             eq(new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT))), any());
-    inOrder.verify(mockEventListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
     assertThat(renderer.getFormatsRead()).containsExactly(ExoPlayerTestRunner.VIDEO_FORMAT);
     assertThat(renderer.sampleBufferReadCount).isEqualTo(1);
     assertThat(renderer.isEnded).isTrue();

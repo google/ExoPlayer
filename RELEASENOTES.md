@@ -32,6 +32,8 @@
     *   Fix playback position issue when re-preparing playback after a
         BehindLiveWindowException
         ([#8675](https://github.com/google/ExoPlayer/issues/8675)).
+    *   Add a `Listener` interface to receive all player events in a single
+        object.
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.

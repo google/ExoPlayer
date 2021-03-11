@@ -18,6 +18,11 @@ package com.google.android.exoplayer2;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -78,5 +83,64 @@ public class SimpleExoPlayerTest {
 
     verify(listener).onVideoDisabled(any(), any());
     verify(listener).onPlayerReleased(any());
+  }
+
+  @Test
+  public void releaseAfterRendererEvents_triggersPendingVideoEventsInListener() throws Exception {
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(
+                ApplicationProvider.getApplicationContext(),
+                (handler, videoListener, audioListener, textOutput, metadataOutput) ->
+                    new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
+            .setClock(new AutoAdvancingFakeClock())
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+    player.setMediaSource(
+        new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener, atLeastOnce()).onEvents(any(), any()); // EventListener
+    verify(listener).onRenderedFirstFrame(); // VideoListener
+  }
+
+  @Test
+  public void releaseAfterVolumeChanges_triggerPendingVolumeEventInListener() throws Exception {
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.setVolume(0F);
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener).onVolumeChanged(anyFloat());
+  }
+
+  @Test
+  public void releaseAfterVolumeChanges_triggerPendingDeviceVolumeEventsInListener() {
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(ApplicationProvider.getApplicationContext()).build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    int deviceVolume = player.getDeviceVolume();
+    try {
+      player.setDeviceVolume(deviceVolume + 1); // No-op if at max volume.
+      player.setDeviceVolume(deviceVolume - 1); // No-op if at min volume.
+    } finally {
+      player.setDeviceVolume(deviceVolume); // Restore original volume.
+    }
+
+    player.release();
+    ShadowLooper.runMainLooperToNextTask();
+
+    verify(listener, atLeast(2)).onDeviceVolumeChanged(anyInt(), anyBoolean());
   }
 }
