@@ -470,6 +470,76 @@ public abstract class DataSourceContractTest {
     verifyNoMoreInteractions(listener);
   }
 
+  @Test
+  public void getUri_returnsNonNullValueOnlyWhileOpen() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        assertThat(dataSource.getUri()).isNull();
+
+        dataSource.open(new DataSpec(resource.getUri()));
+
+        assertThat(dataSource.getUri()).isNotNull();
+      } finally {
+        dataSource.close();
+      }
+      assertThat(dataSource.getUri()).isNull();
+
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void getUri_resourceNotFound_returnsNullIfNotOpened() throws Exception {
+    DataSource dataSource = createDataSource();
+
+    assertThat(dataSource.getUri()).isNull();
+
+    assertThrows(IOException.class, () -> dataSource.open(new DataSpec(getNotFoundUri())));
+    dataSource.close();
+
+    assertThat(dataSource.getUri()).isNull();
+  }
+
+  @Test
+  public void getResponseHeaders_isEmptyWhileNotOpen() throws Exception {
+    ImmutableList<TestResource> resources = getTestResources();
+    Assertions.checkArgument(!resources.isEmpty(), "Must provide at least one test resource.");
+
+    for (int i = 0; i < resources.size(); i++) {
+      additionalFailureInfo.setInfo(getFailureLabel(resources, i));
+      TestResource resource = resources.get(i);
+      DataSource dataSource = createDataSource();
+      try {
+        assertThat(dataSource.getResponseHeaders()).isEmpty();
+
+        dataSource.open(new DataSpec(resource.getUri()));
+      } finally {
+        dataSource.close();
+      }
+      assertThat(dataSource.getResponseHeaders()).isEmpty();
+
+      additionalFailureInfo.setInfo(null);
+    }
+  }
+
+  @Test
+  public void getResponseHeaders_resourceNotFound_isEmptyWhileNotOpen() throws Exception {
+    DataSource dataSource = createDataSource();
+
+    assertThat(dataSource.getResponseHeaders()).isEmpty();
+
+    assertThrows(IOException.class, () -> dataSource.open(new DataSpec(getNotFoundUri())));
+    dataSource.close();
+
+    assertThat(dataSource.getResponseHeaders()).isEmpty();
+  }
+
   /** Build a label to make it clear which resource caused a given test failure. */
   private static String getFailureLabel(List<TestResource> resources, int i) {
     if (resources.size() == 1) {

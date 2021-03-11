@@ -59,4 +59,14 @@ public class ByteArrayDataSourceContractTest extends DataSourceContractTest {
   @Test
   @Ignore
   public void resourceNotFound_transferListenerCallbacks() {}
+
+  @Override
+  @Test
+  @Ignore
+  public void getUri_resourceNotFound_returnsNullIfNotOpened() throws Exception {}
+
+  @Override
+  @Test
+  @Ignore
+  public void getResponseHeaders_resourceNotFound_isEmptyWhileNotOpen() throws Exception {}
 }
