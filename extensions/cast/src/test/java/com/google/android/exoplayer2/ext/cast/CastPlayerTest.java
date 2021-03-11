@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
+import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP_RELEASE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.common.truth.Truth.assertThat;
@@ -593,6 +595,12 @@ public class CastPlayerTest {
   }
 
   @Test
+  public void isCommandAvailable_containsPermanentCommands() {
+    assertThat(castPlayer.isCommandAvailable(COMMAND_PLAY_PAUSE)).isTrue();
+    assertThat(castPlayer.isCommandAvailable(COMMAND_PREPARE_STOP_RELEASE)).isTrue();
+  }
+
+  @Test
   public void seekTo_nextWindow_notifiesAvailableCommandsChanged() {
     when(mockRemoteMediaClient.queueJumpToItem(anyInt(), anyLong(), eq(null)))
         .thenReturn(mockPendingResult);
@@ -728,6 +736,7 @@ public class CastPlayerTest {
   @Test
   public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createCommands();
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -752,7 +761,7 @@ public class CastPlayerTest {
         ImmutableList.of(mediaItem1),
         /* mediaQueueItemIds= */ new int[] {1},
         /* currentItemId= */ 1);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithoutSeek);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
 
     castPlayer.removeMediaItem(/* index= */ 0);
@@ -769,6 +778,7 @@ public class CastPlayerTest {
         .thenReturn(mockPendingResult);
     Player.Commands commandsWithSeekToPrevious =
         createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createCommands();
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
     MediaItem mediaItem3 = createMediaItem(/* mediaQueueItemId= */ 3);
@@ -793,7 +803,7 @@ public class CastPlayerTest {
         ImmutableList.of(mediaItem3),
         /* mediaQueueItemIds= */ new int[] {3},
         /* currentItemId= */ 3);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithoutSeek);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
 
     castPlayer.removeMediaItem(/* index= */ 0);
@@ -807,6 +817,7 @@ public class CastPlayerTest {
   @Test
   public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createCommands();
     MediaItem mediaItem1 = createMediaItem(/* mediaQueueItemId= */ 1);
     MediaItem mediaItem2 = createMediaItem(/* mediaQueueItemId= */ 2);
 
@@ -823,7 +834,7 @@ public class CastPlayerTest {
         ImmutableList.of(mediaItem2),
         /* mediaQueueItemIds= */ new int[] {2},
         /* currentItemId= */ 2);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithoutSeek);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
   }
 
@@ -912,6 +923,7 @@ public class CastPlayerTest {
 
   private static Player.Commands createCommands(@Player.Command int... commands) {
     Player.Commands.Builder builder = new Player.Commands.Builder();
+    builder.addAll(COMMAND_PLAY_PAUSE, COMMAND_PREPARE_STOP_RELEASE);
     for (int command : commands) {
       builder.add(command);
     }

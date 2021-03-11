@@ -140,14 +140,13 @@ public final class CastPlayer extends BasePlayer {
             Looper.getMainLooper(),
             Clock.DEFAULT,
             (listener, flags) -> listener.onEvents(/* player= */ this, new Events(flags)));
-
     playWhenReady = new StateHolder<>(false);
     repeatMode = new StateHolder<>(REPEAT_MODE_OFF);
     playbackState = STATE_IDLE;
     currentTimeline = CastTimeline.EMPTY_CAST_TIMELINE;
     currentTrackGroups = TrackGroupArray.EMPTY;
     currentTrackSelection = EMPTY_TRACK_SELECTION_ARRAY;
-    availableCommands = Commands.EMPTY;
+    availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     pendingSeekWindowIndex = C.INDEX_UNSET;
     pendingSeekPositionMs = C.TIME_UNSET;
 

@@ -174,7 +174,7 @@ import java.util.List;
             new ExoTrackSelection[renderers.length],
             /* info= */ null);
     period = new Timeline.Period();
-    availableCommands = Commands.EMPTY;
+    availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =

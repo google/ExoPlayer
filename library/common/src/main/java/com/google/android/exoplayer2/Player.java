@@ -758,6 +758,18 @@ public interface Player {
       }
 
       /**
+       * Adds {@link Command commands}.
+       *
+       * @param commands The {@link Command commands} to add.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAll(@Command int... commands) {
+        flagsBuilder.addAll(commands);
+        return this;
+      }
+
+      /**
        * Builds a {@link Commands} instance.
        *
        * @throws IllegalStateException If this method has already been called.
@@ -766,9 +778,6 @@ public interface Player {
         return new Commands(flagsBuilder.build());
       }
     }
-
-    /** An empty set of commands. */
-    public static final Commands EMPTY = new Builder().build();
 
     private final ExoFlags flags;
 
@@ -1037,17 +1046,27 @@ public interface Player {
   int EVENT_AVAILABLE_COMMANDS_CHANGED = 14;
 
   /**
-   * Commands that can be executed on a {@code Player}. One of {@link
-   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} or {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}.
+   * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
+   * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} or {@link
+   * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
-  @IntDef({COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM})
+  @IntDef({
+    COMMAND_PLAY_PAUSE,
+    COMMAND_PREPARE_STOP_RELEASE,
+    COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
+    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
+  })
   @interface Command {}
+  /** Command to start, pause or resume playback. */
+  int COMMAND_PLAY_PAUSE = 1;
+  /** Command to prepare the player, stop playback or release the player. */
+  int COMMAND_PREPARE_STOP_RELEASE = 2;
   /** Command to seek to the next {@link MediaItem} in the playlist. */
-  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 0;
+  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 3;
   /** Command to seek to the previous {@link MediaItem} in the playlist. */
-  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 1;
+  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 4;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable

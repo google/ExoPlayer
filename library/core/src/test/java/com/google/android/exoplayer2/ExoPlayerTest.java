@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
+import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP_RELEASE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
@@ -8081,6 +8083,14 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void isCommandAvailable_containsPermanentCommands() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+
+    assertThat(player.isCommandAvailable(COMMAND_PLAY_PAUSE)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_PREPARE_STOP_RELEASE)).isTrue();
+  }
+
+  @Test
   public void isCommandAvailable_whenPlayingAd_isFalseForSeekCommands() throws Exception {
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(/* adsId= */ new Object(), /* adGroupTimesUs...= */ 0)
@@ -8262,6 +8272,7 @@ public final class ExoPlayerTest {
   @Test
   public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createCommands();
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8275,7 +8286,7 @@ public final class ExoPlayerTest {
     verify(mockListener).onAvailableCommandsChanged(any());
 
     player.removeMediaItem(/* index= */ 1);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithoutSeek);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
 
     player.removeMediaItem(/* index= */ 0);
@@ -8286,6 +8297,7 @@ public final class ExoPlayerTest {
   public void removeMediaItem_atTheStart_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToPrevious =
         createCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createCommands();
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8300,7 +8312,7 @@ public final class ExoPlayerTest {
     verify(mockListener).onAvailableCommandsChanged(any());
 
     player.removeMediaItem(/* index= */ 0);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithoutSeek);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
 
     player.removeMediaItem(/* index= */ 0);
@@ -8310,6 +8322,7 @@ public final class ExoPlayerTest {
   @Test
   public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext = createCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createCommands();
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8319,7 +8332,7 @@ public final class ExoPlayerTest {
     verify(mockListener).onAvailableCommandsChanged(any());
 
     player.removeMediaItem(/* index= */ 0);
-    verify(mockListener).onAvailableCommandsChanged(Player.Commands.EMPTY);
+    verify(mockListener).onAvailableCommandsChanged(commandsWithoutSeek);
     verify(mockListener, times(2)).onAvailableCommandsChanged(any());
   }
 
@@ -9313,6 +9326,7 @@ public final class ExoPlayerTest {
 
   private static Player.Commands createCommands(@Player.Command int... commands) {
     Player.Commands.Builder builder = new Player.Commands.Builder();
+    builder.addAll(COMMAND_PLAY_PAUSE, COMMAND_PREPARE_STOP_RELEASE);
     for (int command : commands) {
       builder.add(command);
     }
