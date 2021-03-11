@@ -65,6 +65,20 @@
         media item and so that it is not triggered after a timeline change.
     *   Trigger `onMediaItemTransition` event for all reasons except
         `MEDIA_ITEM_TRANSITION_REASON_REPEAT`.
+*   Allow the use of platform extractors through [MediaParser]
+    (https://developer.android.com/reference/android/media/MediaParser).
+    Only supported on API 30+.
+    *   You can use it for progressive media by passing a
+        `MediaParserExtractorAdapter.FACTORY` when creating the
+        `ProgressiveMediaSource.Factory`.
+    *   You can use it for HLS by passing a
+        `MediaParserHlsMediaChunkExtractor.FACTORY` when creating the
+        `HlsMediaSource.Factory`.
+    *   You can use it for DASH by passing a `DefaultDashChunkSource` which
+        depends on `MediaParserChunkExtractor.FACTORY` when creating the
+        `DashMediaSource.Factory`.
+    *   We don't currently support using platform extractors with
+        SmoothStreaming.
 
 ### 2.13.2 (2021-02-25)
 
@@ -163,7 +177,7 @@
 *   Low latency live streaming:
     *   Support low-latency DASH (also known as ULL-CMAF) and Apple's
         low-latency HLS extension.
-    *   Add `LiveConfiguration` to `MediaItem` to define live offset and 
+    *   Add `LiveConfiguration` to `MediaItem` to define live offset and
         playback speed adjustment parameters. The same parameters can be set on
         `DefaultMediaSourceFactory` to apply for all `MediaItems`.
     *   Add `LivePlaybackSpeedControl` to control playback speed adjustments
