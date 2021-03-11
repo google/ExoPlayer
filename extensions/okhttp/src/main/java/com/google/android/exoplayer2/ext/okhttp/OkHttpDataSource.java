@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.okhttp;
 
+import static com.google.android.exoplayer2.upstream.HttpUtil.buildRangeRequestHeader;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
@@ -31,6 +32,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
+import com.google.common.net.HttpHeaders;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -397,18 +399,15 @@ public class OkHttpDataSource extends BaseDataSource implements HttpDataSource {
       builder.header(header.getKey(), header.getValue());
     }
 
-    if (!(position == 0 && length == C.LENGTH_UNSET)) {
-      String rangeRequest = "bytes=" + position + "-";
-      if (length != C.LENGTH_UNSET) {
-        rangeRequest += (position + length - 1);
-      }
-      builder.addHeader("Range", rangeRequest);
+    @Nullable String rangeHeader = buildRangeRequestHeader(position, length);
+    if (rangeHeader != null) {
+      builder.addHeader(HttpHeaders.RANGE, rangeHeader);
     }
     if (userAgent != null) {
-      builder.addHeader("User-Agent", userAgent);
+      builder.addHeader(HttpHeaders.USER_AGENT, userAgent);
     }
     if (!dataSpec.isFlagSet(DataSpec.FLAG_ALLOW_GZIP)) {
-      builder.addHeader("Accept-Encoding", "identity");
+      builder.addHeader(HttpHeaders.ACCEPT_ENCODING, "identity");
     }
 
     @Nullable RequestBody requestBody = null;

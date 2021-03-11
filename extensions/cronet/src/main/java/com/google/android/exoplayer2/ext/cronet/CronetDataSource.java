@@ -15,8 +15,8 @@
  */
 package com.google.android.exoplayer2.ext.cronet;
 
+import static com.google.android.exoplayer2.upstream.HttpUtil.buildRangeRequestHeader;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
-import static java.lang.Math.max;
 
 import android.net.Uri;
 import android.text.TextUtils;
@@ -29,13 +29,14 @@ import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
+import com.google.android.exoplayer2.upstream.HttpUtil;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
+import com.google.common.net.HttpHeaders;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -49,9 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.chromium.net.CronetEngine;
 import org.chromium.net.CronetException;
 import org.chromium.net.NetworkException;
@@ -295,13 +293,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   /* package */ final UrlRequest.Callback urlRequestCallback;
 
-  private static final String TAG = "CronetDataSource";
-  private static final String CONTENT_TYPE = "Content-Type";
-  private static final String SET_COOKIE = "Set-Cookie";
-  private static final String COOKIE = "Cookie";
-
-  private static final Pattern CONTENT_RANGE_HEADER_PATTERN =
-      Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
   // The size of read buffer passed to cronet UrlRequest.read().
   private static final int READ_BUFFER_SIZE_BYTES = 32 * 1024;
 
@@ -572,6 +563,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     // Check for a valid response code.
     UrlResponseInfo responseInfo = Assertions.checkNotNull(this.responseInfo);
     int responseCode = responseInfo.getHttpStatusCode();
+    Map<String, List<String>> responseHeaders = responseInfo.getAllHeaders();
     if (responseCode < 200 || responseCode > 299) {
       byte[] responseBody;
       try {
@@ -584,7 +576,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
           new InvalidResponseCodeException(
               responseCode,
               responseInfo.getHttpStatusText(),
-              responseInfo.getAllHeaders(),
+              responseHeaders,
               dataSpec,
               responseBody);
       if (responseCode == 416) {
@@ -596,8 +588,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     // Check for a valid content type.
     Predicate<String> contentTypePredicate = this.contentTypePredicate;
     if (contentTypePredicate != null) {
-      List<String> contentTypeHeaders = responseInfo.getAllHeaders().get(CONTENT_TYPE);
-      String contentType = isEmpty(contentTypeHeaders) ? null : contentTypeHeaders.get(0);
+      @Nullable String contentType = getFirstHeader(responseHeaders, HttpHeaders.CONTENT_TYPE);
       if (contentType != null && !contentTypePredicate.apply(contentType)) {
         throw new InvalidContentTypeException(contentType, dataSpec);
       }
@@ -613,7 +604,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesRemaining = dataSpec.length;
       } else {
-        long contentLength = getContentLength(responseInfo);
+        long contentLength =
+            HttpUtil.getContentLength(
+                getFirstHeader(responseHeaders, HttpHeaders.CONTENT_LENGTH),
+                getFirstHeader(responseHeaders, HttpHeaders.CONTENT_RANGE));
         bytesRemaining =
             contentLength != C.LENGTH_UNSET ? (contentLength - bytesToSkip) : C.LENGTH_UNSET;
       }
@@ -811,23 +805,16 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       requestBuilder.addHeader(key, value);
     }
 
-    if (dataSpec.httpBody != null && !requestHeaders.containsKey(CONTENT_TYPE)) {
+    if (dataSpec.httpBody != null && !requestHeaders.containsKey(HttpHeaders.CONTENT_TYPE)) {
       throw new IOException("HTTP request with non-empty body must set Content-Type");
     }
 
-    // Set the Range header.
-    if (dataSpec.position != 0 || dataSpec.length != C.LENGTH_UNSET) {
-      StringBuilder rangeValue = new StringBuilder();
-      rangeValue.append("bytes=");
-      rangeValue.append(dataSpec.position);
-      rangeValue.append("-");
-      if (dataSpec.length != C.LENGTH_UNSET) {
-        rangeValue.append(dataSpec.position + dataSpec.length - 1);
-      }
-      requestBuilder.addHeader("Range", rangeValue.toString());
+    @Nullable String rangeHeader = buildRangeRequestHeader(dataSpec.position, dataSpec.length);
+    if (rangeHeader != null) {
+      requestBuilder.addHeader(HttpHeaders.RANGE, rangeHeader);
     }
     if (userAgent != null) {
-      requestBuilder.addHeader("User-Agent", userAgent);
+      requestBuilder.addHeader(HttpHeaders.USER_AGENT, userAgent);
     }
     // TODO: Uncomment when https://bugs.chromium.org/p/chromium/issues/detail?id=711810 is fixed
     // (adjusting the code as necessary).
@@ -973,52 +960,6 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return false;
   }
 
-  private static long getContentLength(UrlResponseInfo info) {
-    long contentLength = C.LENGTH_UNSET;
-    Map<String, List<String>> headers = info.getAllHeaders();
-    List<String> contentLengthHeaders = headers.get("Content-Length");
-    String contentLengthHeader = null;
-    if (!isEmpty(contentLengthHeaders)) {
-      contentLengthHeader = contentLengthHeaders.get(0);
-      if (!TextUtils.isEmpty(contentLengthHeader)) {
-        try {
-          contentLength = Long.parseLong(contentLengthHeader);
-        } catch (NumberFormatException e) {
-          Log.e(TAG, "Unexpected Content-Length [" + contentLengthHeader + "]");
-        }
-      }
-    }
-    List<String> contentRangeHeaders = headers.get("Content-Range");
-    if (!isEmpty(contentRangeHeaders)) {
-      String contentRangeHeader = contentRangeHeaders.get(0);
-      Matcher matcher = CONTENT_RANGE_HEADER_PATTERN.matcher(contentRangeHeader);
-      if (matcher.find()) {
-        try {
-          long contentLengthFromRange =
-              Long.parseLong(Assertions.checkNotNull(matcher.group(2)))
-                  - Long.parseLong(Assertions.checkNotNull(matcher.group(1)))
-                  + 1;
-          if (contentLength < 0) {
-            // Some proxy servers strip the Content-Length header. Fall back to the length
-            // calculated here in this case.
-            contentLength = contentLengthFromRange;
-          } else if (contentLength != contentLengthFromRange) {
-            // If there is a discrepancy between the Content-Length and Content-Range headers,
-            // assume the one with the larger value is correct. We have seen cases where carrier
-            // change one of them to reduce the size of a request, but it is unlikely anybody
-            // would increase it.
-            Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader
-                + "]");
-            contentLength = max(contentLength, contentLengthFromRange);
-          }
-        } catch (NumberFormatException e) {
-          Log.e(TAG, "Unexpected Content-Range [" + contentRangeHeader + "]");
-        }
-      }
-    }
-    return contentLength;
-  }
-
   private static String parseCookies(List<String> setCookieHeaders) {
     return TextUtils.join(";", setCookieHeaders);
   }
@@ -1027,7 +968,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     if (TextUtils.isEmpty(cookies)) {
       return;
     }
-    requestBuilder.addHeader(COOKIE, cookies);
+    requestBuilder.addHeader(HttpHeaders.COOKIE, cookies);
   }
 
   private static int getStatus(UrlRequest request) throws InterruptedException {
@@ -1044,9 +985,10 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     return statusHolder[0];
   }
 
-  @EnsuresNonNullIf(result = false, expression = "#1")
-  private static boolean isEmpty(@Nullable List<?> list) {
-    return list == null || list.isEmpty();
+  @Nullable
+  private static String getFirstHeader(Map<String, List<String>> allHeaders, String headerName) {
+    @Nullable List<String> headers = allHeaders.get(headerName);
+    return headers != null && !headers.isEmpty() ? headers.get(0) : null;
   }
 
   // Copy as much as possible from the src buffer into dst buffer.
@@ -1094,8 +1036,8 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
         return;
       }
 
-      List<String> setCookieHeaders = info.getAllHeaders().get(SET_COOKIE);
-      if (isEmpty(setCookieHeaders)) {
+      @Nullable List<String> setCookieHeaders = info.getAllHeaders().get(HttpHeaders.SET_COOKIE);
+      if (setCookieHeaders == null || setCookieHeaders.isEmpty()) {
         request.followRedirect();
         return;
       }

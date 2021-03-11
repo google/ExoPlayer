@@ -15,13 +15,12 @@
  */
 package com.google.android.exoplayer2.upstream;
 
+import static com.google.android.exoplayer2.upstream.HttpUtil.buildRangeRequestHeader;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.net.Uri;
-import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
@@ -29,6 +28,7 @@ import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
+import com.google.common.net.HttpHeaders;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,8 +43,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -206,8 +204,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   private static final int HTTP_STATUS_TEMPORARY_REDIRECT = 307;
   private static final int HTTP_STATUS_PERMANENT_REDIRECT = 308;
   private static final long MAX_BYTES_TO_DRAIN = 2048;
-  private static final Pattern CONTENT_RANGE_HEADER =
-      Pattern.compile("^bytes (\\d+)-(\\d+)/(\\d+)$");
 
   private final boolean allowCrossProtocolRedirects;
   private final int connectTimeoutMillis;
@@ -401,7 +397,10 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       if (dataSpec.length != C.LENGTH_UNSET) {
         bytesToRead = dataSpec.length;
       } else {
-        long contentLength = getContentLength(connection);
+        long contentLength =
+            HttpUtil.getContentLength(
+                connection.getHeaderField(HttpHeaders.CONTENT_LENGTH),
+                connection.getHeaderField(HttpHeaders.CONTENT_RANGE));
         bytesToRead = contentLength != C.LENGTH_UNSET ? (contentLength - bytesToSkip)
             : C.LENGTH_UNSET;
       }
@@ -577,17 +576,14 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       connection.setRequestProperty(property.getKey(), property.getValue());
     }
 
-    if (!(position == 0 && length == C.LENGTH_UNSET)) {
-      String rangeRequest = "bytes=" + position + "-";
-      if (length != C.LENGTH_UNSET) {
-        rangeRequest += (position + length - 1);
-      }
-      connection.setRequestProperty("Range", rangeRequest);
+    @Nullable String rangeHeader = buildRangeRequestHeader(position, length);
+    if (rangeHeader != null) {
+      connection.setRequestProperty(HttpHeaders.RANGE, rangeHeader);
     }
     if (userAgent != null) {
-      connection.setRequestProperty("User-Agent", userAgent);
+      connection.setRequestProperty(HttpHeaders.USER_AGENT, userAgent);
     }
-    connection.setRequestProperty("Accept-Encoding", allowGzip ? "gzip" : "identity");
+    connection.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, allowGzip ? "gzip" : "identity");
     connection.setInstanceFollowRedirects(followRedirects);
     connection.setDoOutput(httpBody != null);
     connection.setRequestMethod(DataSpec.getStringForHttpMethod(httpMethod));
@@ -637,52 +633,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     //       + originalUrl.getProtocol() + " to " + protocol + ")");
     // }
     return url;
-  }
-
-  /**
-   * Attempts to extract the length of the content from the response headers of an open connection.
-   *
-   * @param connection The open connection.
-   * @return The extracted length, or {@link C#LENGTH_UNSET}.
-   */
-  private static long getContentLength(HttpURLConnection connection) {
-    long contentLength = C.LENGTH_UNSET;
-    String contentLengthHeader = connection.getHeaderField("Content-Length");
-    if (!TextUtils.isEmpty(contentLengthHeader)) {
-      try {
-        contentLength = Long.parseLong(contentLengthHeader);
-      } catch (NumberFormatException e) {
-        Log.e(TAG, "Unexpected Content-Length [" + contentLengthHeader + "]");
-      }
-    }
-    String contentRangeHeader = connection.getHeaderField("Content-Range");
-    if (!TextUtils.isEmpty(contentRangeHeader)) {
-      Matcher matcher = CONTENT_RANGE_HEADER.matcher(contentRangeHeader);
-      if (matcher.find()) {
-        try {
-          long contentLengthFromRange =
-              Long.parseLong(checkNotNull(matcher.group(2)))
-                  - Long.parseLong(checkNotNull(matcher.group(1)))
-                  + 1;
-          if (contentLength < 0) {
-            // Some proxy servers strip the Content-Length header. Fall back to the length
-            // calculated here in this case.
-            contentLength = contentLengthFromRange;
-          } else if (contentLength != contentLengthFromRange) {
-            // If there is a discrepancy between the Content-Length and Content-Range headers,
-            // assume the one with the larger value is correct. We have seen cases where carrier
-            // change one of them to reduce the size of a request, but it is unlikely anybody would
-            // increase it.
-            Log.w(TAG, "Inconsistent headers [" + contentLengthHeader + "] [" + contentRangeHeader
-                + "]");
-            contentLength = max(contentLength, contentLengthFromRange);
-          }
-        } catch (NumberFormatException e) {
-          Log.e(TAG, "Unexpected Content-Range [" + contentRangeHeader + "]");
-        }
-      }
-    }
-    return contentLength;
   }
 
   /**
