@@ -267,8 +267,8 @@ public abstract class BasePlayer implements Player {
 
   protected Commands getAvailableCommands() {
     return new Commands.Builder()
-        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext())
-        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious())
+        .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
+        .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
         .build();
   }
 }
