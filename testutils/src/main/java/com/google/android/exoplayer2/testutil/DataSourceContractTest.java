@@ -20,8 +20,13 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.net.Uri;
 import androidx.annotation.Nullable;
@@ -381,11 +386,8 @@ public abstract class DataSourceContractTest {
   @Test
   public void resourceNotFound() throws Exception {
     DataSource dataSource = createDataSource();
-    try {
-      assertThrows(IOException.class, () -> dataSource.open(new DataSpec(getNotFoundUri())));
-    } finally {
-      dataSource.close();
-    }
+    assertThrows(IOException.class, () -> dataSource.open(new DataSpec(getNotFoundUri())));
+    dataSource.close();
   }
 
   @Test
@@ -411,7 +413,7 @@ public abstract class DataSourceContractTest {
       try {
         dataSource.open(dataSpec);
 
-        // Verify onTransferInitializing() and onTransferStart() have been called exactly after
+        // Verify onTransferInitializing() and onTransferStart() have been called exactly from
         // DataSource.open().
         ArgumentCaptor<DataSpec> dataSpecArgumentCaptor = ArgumentCaptor.forClass(DataSpec.class);
         ArgumentCaptor<Boolean> isNetworkArgumentCaptor = ArgumentCaptor.forClass(Boolean.class);
@@ -435,7 +437,7 @@ public abstract class DataSourceContractTest {
         }
         // Verify sufficient onBytesTransferred() callbacks have been triggered before closing the
         // DataSource.
-        assertThat(listener.bytesTransferred).isEqualTo(resource.getExpectedBytes().length);
+        assertThat(listener.bytesTransferred).isAtLeast(resource.getExpectedBytes().length);
 
       } finally {
         dataSource.close();
@@ -446,6 +448,26 @@ public abstract class DataSourceContractTest {
       }
       additionalFailureInfo.setInfo(null);
     }
+  }
+
+  @Test
+  public void resourceNotFound_transferListenerCallbacks() throws Exception {
+    DataSource dataSource = createDataSource();
+    TransferListener listener = mock(TransferListener.class);
+    dataSource.addTransferListener(listener);
+    @Nullable DataSource callbackSource = getTransferListenerDataSource();
+    if (callbackSource == null) {
+      callbackSource = dataSource;
+    }
+
+    assertThrows(IOException.class, () -> dataSource.open(new DataSpec(getNotFoundUri())));
+
+    // Verify onTransferInitializing() has been called exactly from DataSource.open().
+    verify(listener).onTransferInitializing(eq(callbackSource), any(), anyBoolean());
+    verifyNoMoreInteractions(listener);
+
+    dataSource.close();
+    verifyNoMoreInteractions(listener);
   }
 
   /** Build a label to make it clear which resource caused a given test failure. */

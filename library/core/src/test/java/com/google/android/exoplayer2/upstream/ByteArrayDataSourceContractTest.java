@@ -54,4 +54,9 @@ public class ByteArrayDataSourceContractTest extends DataSourceContractTest {
   @Test
   @Ignore
   public void resourceNotFound() {}
+
+  @Override
+  @Test
+  @Ignore
+  public void resourceNotFound_transferListenerCallbacks() {}
 }
