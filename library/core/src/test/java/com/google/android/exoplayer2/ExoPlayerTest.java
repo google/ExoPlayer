@@ -128,7 +128,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -8574,7 +8573,6 @@ public final class ExoPlayerTest {
     assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
   }
 
-  @Ignore // See [internal: b/170387438]
   @Test
   public void enableOffloadSchedulingWhileSleepingForOffload_isDisabled_isReported()
       throws Exception {
@@ -8592,7 +8590,6 @@ public final class ExoPlayerTest {
     assertThat(runUntilReceiveOffloadSchedulingEnabledNewState(player)).isFalse();
   }
 
-  @Ignore // See [internal: b/170387438]
   @Test
   public void enableOffloadScheduling_isEnable_playerSleeps() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
@@ -8609,7 +8606,6 @@ public final class ExoPlayerTest {
     assertThat(player.experimentalIsSleepingForOffload()).isTrue();
   }
 
-  @Ignore // See [internal: b/170387438]
   @Test
   public void
       experimentalEnableOffloadSchedulingWhileSleepingForOffload_isDisabled_renderingResumes()
@@ -8630,7 +8626,6 @@ public final class ExoPlayerTest {
     runUntilPlaybackState(player, Player.STATE_ENDED);
   }
 
-  @Ignore // See [internal: b/170387438]
   @Test
   public void wakeupListenerWhileSleepingForOffload_isWokenUp_renderingResumes() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
