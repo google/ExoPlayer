@@ -82,6 +82,7 @@ public final class ClippedPlaybackTest {
     playbackEnded.block();
 
     getInstrumentation().runOnMainSync(() -> player.get().release());
+    getInstrumentation().waitForIdleSync();
     assertThat(Iterables.getOnlyElement(Iterables.concat(textOutput.cues)).text.toString())
         .isEqualTo("This is the first subtitle.");
   }
@@ -135,6 +136,7 @@ public final class ClippedPlaybackTest {
     playbackEnded.block();
 
     getInstrumentation().runOnMainSync(() -> player.get().release());
+    getInstrumentation().waitForIdleSync();
     assertThat(Iterables.getOnlyElement(Iterables.concat(textOutput.cues)).text.toString())
         .isEqualTo("This is the first subtitle.");
   }
