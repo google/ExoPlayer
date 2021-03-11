@@ -604,7 +604,7 @@ public final class MediaItem implements Bundleable {
               liveMaxOffsetMs,
               liveMinPlaybackSpeed,
               liveMaxPlaybackSpeed),
-          mediaMetadata != null ? mediaMetadata : new MediaMetadata.Builder().build());
+          mediaMetadata != null ? mediaMetadata : MediaMetadata.EMPTY);
     }
   }
 
@@ -1308,7 +1308,7 @@ public final class MediaItem implements Bundleable {
     @Nullable Bundle mediaMetadataBundle = bundle.getBundle(keyForField(FIELD_MEDIA_METADATA));
     MediaMetadata mediaMetadata;
     if (mediaMetadataBundle == null) {
-      mediaMetadata = new MediaMetadata.Builder().build();
+      mediaMetadata = MediaMetadata.EMPTY;
     } else {
       mediaMetadata = MediaMetadata.CREATOR.fromBundle(mediaMetadataBundle);
     }

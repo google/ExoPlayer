@@ -23,7 +23,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** Metadata of the {@link MediaItem}. */
+/** Metadata of a {@link MediaItem} or a playlist. */
 public final class MediaMetadata implements Bundleable {
 
   /** A builder for {@link MediaMetadata} instances. */
@@ -42,6 +42,9 @@ public final class MediaMetadata implements Bundleable {
       return new MediaMetadata(title);
     }
   }
+
+  /** Empty {@link MediaMetadata}. */
+  public static final MediaMetadata EMPTY = new MediaMetadata.Builder().build();
 
   /** Optional title. */
   @Nullable public final String title;
