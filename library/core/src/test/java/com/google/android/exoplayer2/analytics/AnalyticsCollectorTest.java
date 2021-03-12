@@ -86,6 +86,7 @@ import com.google.android.exoplayer2.drm.ExoMediaDrm;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallbackException;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -108,6 +109,7 @@ import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -1436,19 +1438,43 @@ public final class AnalyticsCollectorTest {
   }
 
   @Test
-  public void drmEvents_periodWithSameDrmData_keysReused() throws Exception {
+  public void drmEvents_periodsWithSameDrmData_keysReusedButLoadEventReportedTwice()
+      throws Exception {
+    BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.returnsEmpty();
+    DrmSessionManager blockingDrmSessionManager =
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setMultiSession(true)
+            .build(mediaDrmCallback);
     MediaSource mediaSource =
         new ConcatenatingMediaSource(
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1),
-            new FakeMediaSource(SINGLE_PERIOD_TIMELINE, drmSessionManager, VIDEO_FORMAT_DRM_1));
-    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+            new FakeMediaSource(
+                SINGLE_PERIOD_TIMELINE, blockingDrmSessionManager, VIDEO_FORMAT_DRM_1),
+            new FakeMediaSource(
+                SINGLE_PERIOD_TIMELINE, blockingDrmSessionManager, VIDEO_FORMAT_DRM_1));
+    TestAnalyticsListener listener =
+        runAnalyticsTest(
+            mediaSource,
+            // Wait for the media to be fully buffered before unblocking the DRM key request. This
+            // ensures both periods report the same load event (because period1's DRM session is
+            // already preacquired by the time the key load completes).
+            new ActionSchedule.Builder(TAG)
+                .waitForIsLoading(false)
+                .waitForIsLoading(true)
+                .waitForIsLoading(false)
+                .executeRunnable(mediaDrmCallback.keyCondition::open)
+                .build());
 
     populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_DRM_SESSION_MANAGER_ERROR)).isEmpty();
     assertThat(listener.getEvents(EVENT_DRM_SESSION_ACQUIRED))
         .containsExactly(period0, period1)
         .inOrder();
-    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0);
+    // This includes both period0 and period1 because period1's DrmSession was preacquired before
+    // the key load completed. There's only one key load (a second would block forever). We can't
+    // assume the order these events will arrive in because it depends on the iteration order of a
+    // HashSet of EventDispatchers inside DefaultDrmSession.
+    assertThat(listener.getEvents(EVENT_DRM_KEYS_LOADED)).containsExactly(period0, period1);
     // The period1 release event is lost because it's posted to "ExoPlayerTest thread" after that
     // thread has been quit during clean-up.
     assertThat(listener.getEvents(EVENT_DRM_SESSION_RELEASED)).containsExactly(period0);
@@ -1480,11 +1506,21 @@ public final class AnalyticsCollectorTest {
 
   @Test
   public void drmEvents_errorHandling() throws Exception {
+    BlockingDrmCallback mediaDrmCallback = BlockingDrmCallback.alwaysFailing();
     DrmSessionManager failingDrmSessionManager =
-        new DefaultDrmSessionManager.Builder().build(new FailingDrmCallback());
+        new DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(DRM_SCHEME_UUID, uuid -> new FakeExoMediaDrm())
+            .setMultiSession(true)
+            .build(mediaDrmCallback);
     MediaSource mediaSource =
         new FakeMediaSource(SINGLE_PERIOD_TIMELINE, failingDrmSessionManager, VIDEO_FORMAT_DRM_1);
-    TestAnalyticsListener listener = runAnalyticsTest(mediaSource);
+    TestAnalyticsListener listener =
+        runAnalyticsTest(
+            mediaSource,
+            new ActionSchedule.Builder(TAG)
+                .waitForIsLoading(false)
+                .executeRunnable(mediaDrmCallback.keyCondition::open)
+                .build());
 
     populateEventIds(listener.lastReportedTimeline);
     assertThat(listener.getEvents(EVENT_DRM_SESSION_MANAGER_ERROR)).containsExactly(period0);
@@ -2341,21 +2377,56 @@ public final class AnalyticsCollectorTest {
   }
 
   /**
-   * A {@link MediaDrmCallback} that throws exceptions for both {@link
-   * #executeProvisionRequest(UUID, ExoMediaDrm.ProvisionRequest)} and {@link
-   * #executeKeyRequest(UUID, ExoMediaDrm.KeyRequest)}.
+   * A {@link MediaDrmCallback} that blocks each provision and key request until the associated
+   * {@link ConditionVariable} field is opened, and then returns an empty byte array. The {@link
+   * ConditionVariable} must be explicitly opened for each request.
    */
-  private static final class FailingDrmCallback implements MediaDrmCallback {
+  private static final class BlockingDrmCallback implements MediaDrmCallback {
+
+    public final ConditionVariable provisionCondition;
+    public final ConditionVariable keyCondition;
+
+    private final boolean alwaysFail;
+
+    private BlockingDrmCallback(boolean alwaysFail) {
+      this.provisionCondition = RobolectricUtil.createRobolectricConditionVariable();
+      this.keyCondition = RobolectricUtil.createRobolectricConditionVariable();
+
+      this.alwaysFail = alwaysFail;
+    }
+
+    /** Returns a callback that always returns an empty byte array from its execute methods. */
+    public static BlockingDrmCallback returnsEmpty() {
+      return new BlockingDrmCallback(/* alwaysFail= */ false);
+    }
+
+    /** Returns a callback that always throws an exception from its execute methods. */
+    public static BlockingDrmCallback alwaysFailing() {
+      return new BlockingDrmCallback(/* alwaysFail= */ true);
+    }
+
     @Override
     public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request)
         throws MediaDrmCallbackException {
-      throw new RuntimeException("executeProvision failed");
+      provisionCondition.blockUninterruptible();
+      provisionCondition.close();
+      if (alwaysFail) {
+        throw new RuntimeException("executeProvisionRequest failed");
+      } else {
+        return new byte[0];
+      }
     }
 
     @Override
     public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request)
         throws MediaDrmCallbackException {
-      throw new RuntimeException("executeKey failed");
+      keyCondition.blockUninterruptible();
+      keyCondition.close();
+      if (alwaysFail) {
+        throw new RuntimeException("executeKeyRequest failed");
+      } else {
+        return new byte[0];
+      }
     }
   }
 }

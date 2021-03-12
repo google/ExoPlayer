@@ -47,6 +47,8 @@
         video tracks (previously separate acquire and release events were
         dispatched for each track in each period).
     *   Include the session state in DRM session-acquired listener methods.
+    *   Prepare DRM sessions (and fetch keys) ahead of the playback position
+        ([#4133](https://github.com/google/ExoPlayer/issues/4133)).
 *   Text
     *   Parse SSA/ASS bold & italic info in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
@@ -65,8 +67,8 @@
         media item and so that it is not triggered after a timeline change.
     *   Trigger `onMediaItemTransition` event for all reasons except
         `MEDIA_ITEM_TRANSITION_REASON_REPEAT`.
-*   Allow the use of platform extractors through [MediaParser]
-    (https://developer.android.com/reference/android/media/MediaParser).
+*   Allow the use of platform extractors through
+    [MediaParser](https://developer.android.com/reference/android/media/MediaParser).
     Only supported on API 30+.
     *   You can use it for progressive media by passing a
         `MediaParserExtractorAdapter.FACTORY` when creating the

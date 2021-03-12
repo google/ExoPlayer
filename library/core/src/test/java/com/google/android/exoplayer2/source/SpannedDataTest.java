@@ -16,129 +16,161 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.drm.DrmSessionManager.DrmSessionReference;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 /** Tests for {@link SpannedData}. */
 @RunWith(AndroidJUnit4.class)
 public final class SpannedDataTest {
 
-  private static final String VALUE_1 = "value 1";
-  private static final String VALUE_2 = "value 2";
-  private static final String VALUE_3 = "value 3";
+  @Rule public final MockitoRule mockito = MockitoJUnit.rule();
+
+  @Mock private DrmSessionReference value1;
+  @Mock private DrmSessionReference value2;
+  @Mock private DrmSessionReference value3;
 
   @Test
   public void appendMultipleSpansThenRead() {
-    SpannedData<String> spannedData = new SpannedData<>();
+    SpannedData<DrmSessionReference> spannedData =
+        new SpannedData<>(/* removeCallback= */ DrmSessionReference::release);
 
-    spannedData.appendSpan(/* startKey= */ 0, VALUE_1);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_2);
-    spannedData.appendSpan(/* startKey= */ 4, VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 0, value1);
+    spannedData.appendSpan(/* startKey= */ 2, value2);
+    spannedData.appendSpan(/* startKey= */ 4, value3);
 
-    assertThat(spannedData.get(0)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(1)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(2)).isEqualTo(VALUE_2);
-    assertThat(spannedData.get(3)).isEqualTo(VALUE_2);
-    assertThat(spannedData.get(4)).isEqualTo(VALUE_3);
-    assertThat(spannedData.get(5)).isEqualTo(VALUE_3);
+    assertThat(spannedData.get(0)).isEqualTo(value1);
+    assertThat(spannedData.get(1)).isEqualTo(value1);
+    assertThat(spannedData.get(2)).isEqualTo(value2);
+    assertThat(spannedData.get(3)).isEqualTo(value2);
+    assertThat(spannedData.get(4)).isEqualTo(value3);
+    assertThat(spannedData.get(5)).isEqualTo(value3);
+
+    verify(value1, never()).release();
+    verify(value2, never()).release();
+    verify(value3, never()).release();
   }
 
   @Test
   public void append_emptySpansDiscarded() {
-    SpannedData<String> spannedData = new SpannedData<>();
+    SpannedData<DrmSessionReference> spannedData = new SpannedData<>();
 
-    spannedData.appendSpan(/* startKey= */ 0, VALUE_1);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_2);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 0, value1);
+    spannedData.appendSpan(/* startKey= */ 2, value2);
+    spannedData.appendSpan(/* startKey= */ 2, value3);
 
-    assertThat(spannedData.get(0)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(1)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(2)).isEqualTo(VALUE_3);
-    assertThat(spannedData.get(3)).isEqualTo(VALUE_3);
+    assertThat(spannedData.get(0)).isEqualTo(value1);
+    assertThat(spannedData.get(1)).isEqualTo(value1);
+    assertThat(spannedData.get(2)).isEqualTo(value3);
+    assertThat(spannedData.get(3)).isEqualTo(value3);
   }
 
   @Test
   public void discardTo() {
-    SpannedData<String> spannedData = new SpannedData<>();
+    SpannedData<DrmSessionReference> spannedData =
+        new SpannedData<>(/* removeCallback= */ DrmSessionReference::release);
 
-    spannedData.appendSpan(/* startKey= */ 0, VALUE_1);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_2);
-    spannedData.appendSpan(/* startKey= */ 4, VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 0, value1);
+    spannedData.appendSpan(/* startKey= */ 2, value2);
+    spannedData.appendSpan(/* startKey= */ 4, value3);
 
     spannedData.discardTo(2);
 
-    assertThat(spannedData.get(0)).isEqualTo(VALUE_2);
-    assertThat(spannedData.get(2)).isEqualTo(VALUE_2);
+    verify(value1).release();
+    verify(value2, never()).release();
+    assertThat(spannedData.get(0)).isEqualTo(value2);
+    assertThat(spannedData.get(2)).isEqualTo(value2);
 
     spannedData.discardTo(4);
 
-    assertThat(spannedData.get(3)).isEqualTo(VALUE_3);
-    assertThat(spannedData.get(4)).isEqualTo(VALUE_3);
+    verify(value2).release();
+    verify(value3, never()).release();
+    assertThat(spannedData.get(3)).isEqualTo(value3);
+    assertThat(spannedData.get(4)).isEqualTo(value3);
   }
 
   @Test
   public void discardTo_prunesEmptySpans() {
-    SpannedData<String> spannedData = new SpannedData<>();
+    SpannedData<DrmSessionReference> spannedData = new SpannedData<>();
 
-    spannedData.appendSpan(/* startKey= */ 0, VALUE_1);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_2);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 0, value1);
+    spannedData.appendSpan(/* startKey= */ 2, value2);
+    spannedData.appendSpan(/* startKey= */ 2, value3);
 
     spannedData.discardTo(2);
 
-    assertThat(spannedData.get(0)).isEqualTo(VALUE_3);
-    assertThat(spannedData.get(2)).isEqualTo(VALUE_3);
+    assertThat(spannedData.get(0)).isEqualTo(value3);
+    assertThat(spannedData.get(2)).isEqualTo(value3);
   }
 
   @Test
   public void discardFromThenAppend_keepsValueIfSpanEndsUpNonEmpty() {
-    SpannedData<String> spannedData = new SpannedData<>();
+    SpannedData<DrmSessionReference> spannedData =
+        new SpannedData<>(/* removeCallback= */ DrmSessionReference::release);
 
-    spannedData.appendSpan(/* startKey= */ 0, VALUE_1);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_2);
-    spannedData.appendSpan(/* startKey= */ 4, VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 0, value1);
+    spannedData.appendSpan(/* startKey= */ 2, value2);
+    spannedData.appendSpan(/* startKey= */ 4, value3);
 
     spannedData.discardFrom(2);
-    assertThat(spannedData.getEndValue()).isEqualTo(VALUE_2);
 
-    spannedData.appendSpan(/* startKey= */ 3, VALUE_3);
+    verify(value3).release();
+    assertThat(spannedData.getEndValue()).isEqualTo(value2);
 
-    assertThat(spannedData.get(0)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(1)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(2)).isEqualTo(VALUE_2);
-    assertThat(spannedData.get(3)).isEqualTo(VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 3, value3);
+
+    verify(value1, never()).release();
+    verify(value2, never()).release();
+    assertThat(spannedData.get(0)).isEqualTo(value1);
+    assertThat(spannedData.get(1)).isEqualTo(value1);
+    assertThat(spannedData.get(2)).isEqualTo(value2);
+    assertThat(spannedData.get(3)).isEqualTo(value3);
   }
 
   @Test
   public void discardFromThenAppend_prunesEmptySpan() {
-    SpannedData<String> spannedData = new SpannedData<>();
+    SpannedData<DrmSessionReference> spannedData =
+        new SpannedData<>(/* removeCallback= */ DrmSessionReference::release);
 
-    spannedData.appendSpan(/* startKey= */ 0, VALUE_1);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_2);
+    spannedData.appendSpan(/* startKey= */ 0, value1);
+    spannedData.appendSpan(/* startKey= */ 2, value2);
 
     spannedData.discardFrom(2);
 
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_3);
+    verify(value2, never()).release();
 
-    assertThat(spannedData.get(0)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(1)).isEqualTo(VALUE_1);
-    assertThat(spannedData.get(2)).isEqualTo(VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 2, value3);
+
+    verify(value2).release();
+    assertThat(spannedData.get(0)).isEqualTo(value1);
+    assertThat(spannedData.get(1)).isEqualTo(value1);
+    assertThat(spannedData.get(2)).isEqualTo(value3);
   }
 
   @Test
   public void clear() {
-    SpannedData<String> spannedData = new SpannedData<>();
+    SpannedData<DrmSessionReference> spannedData =
+        new SpannedData<>(/* removeCallback= */ DrmSessionReference::release);
 
-    spannedData.appendSpan(/* startKey= */ 0, VALUE_1);
-    spannedData.appendSpan(/* startKey= */ 2, VALUE_2);
+    spannedData.appendSpan(/* startKey= */ 0, value1);
+    spannedData.appendSpan(/* startKey= */ 2, value2);
 
     spannedData.clear();
 
-    spannedData.appendSpan(/* startKey= */ 1, VALUE_3);
+    verify(value1).release();
+    verify(value2).release();
 
-    assertThat(spannedData.get(0)).isEqualTo(VALUE_3);
-    assertThat(spannedData.get(1)).isEqualTo(VALUE_3);
+    spannedData.appendSpan(/* startKey= */ 1, value3);
+
+    assertThat(spannedData.get(0)).isEqualTo(value3);
+    assertThat(spannedData.get(1)).isEqualTo(value3);
   }
 }

@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.DrmSessionManager.DrmSessionReference;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DataReader;
@@ -63,7 +64,7 @@ public class SampleQueue implements TrackOutput {
 
   private final SampleDataQueue sampleDataQueue;
   private final SampleExtrasHolder extrasHolder;
-  private final SpannedData<Format> formatSpans;
+  private final SpannedData<SharedSampleMetadata> sharedSampleMetadata;
   @Nullable private final DrmSessionManager drmSessionManager;
   @Nullable private final DrmSessionEventListener.EventDispatcher drmEventDispatcher;
   @Nullable private final Looper playbackLooper;
@@ -156,7 +157,8 @@ public class SampleQueue implements TrackOutput {
     flags = new int[capacity];
     sizes = new int[capacity];
     cryptoDatas = new CryptoData[capacity];
-    formatSpans = new SpannedData<>();
+    sharedSampleMetadata =
+        new SpannedData<>(/* removeCallback= */ metadata -> metadata.drmSessionReference.release());
     startTimeUs = Long.MIN_VALUE;
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
@@ -198,7 +200,7 @@ public class SampleQueue implements TrackOutput {
     largestDiscardedTimestampUs = Long.MIN_VALUE;
     largestQueuedTimestampUs = Long.MIN_VALUE;
     isLastSampleQueued = false;
-    formatSpans.clear();
+    sharedSampleMetadata.clear();
     if (resetUpstreamFormat) {
       unadjustedUpstreamFormat = null;
       upstreamFormat = null;
@@ -371,7 +373,7 @@ public class SampleQueue implements TrackOutput {
           || isLastSampleQueued
           || (upstreamFormat != null && upstreamFormat != downstreamFormat);
     }
-    if (formatSpans.get(getReadIndex()) != downstreamFormat) {
+    if (sharedSampleMetadata.get(getReadIndex()).format != downstreamFormat) {
       // A format can be read.
       return true;
     }
@@ -690,7 +692,7 @@ public class SampleQueue implements TrackOutput {
       }
     }
 
-    Format format = formatSpans.get(getReadIndex());
+    Format format = sharedSampleMetadata.get(getReadIndex()).format;
     if (formatRequired || format != downstreamFormat) {
       onFormatResult(format, formatHolder);
       return C.RESULT_FORMAT_READ;
@@ -723,7 +725,10 @@ public class SampleQueue implements TrackOutput {
       return false;
     }
 
-    @Nullable Format upstreamCommittedFormat = formatSpans.getEndValue();
+    @Nullable SharedSampleMetadata upstreamCommittedMetadata = sharedSampleMetadata.getEndValue();
+    @Nullable
+    Format upstreamCommittedFormat =
+        upstreamCommittedMetadata != null ? upstreamCommittedMetadata.format : null;
     if (Util.areEqual(format, upstreamCommittedFormat)) {
       // The format has changed back to the format of the last committed sample. If they are
       // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat
@@ -799,8 +804,18 @@ public class SampleQueue implements TrackOutput {
     cryptoDatas[relativeEndIndex] = cryptoData;
     sourceIds[relativeEndIndex] = upstreamSourceId;
 
-    if (!Util.areEqual(upstreamFormat, formatSpans.getEndValue())) {
-      formatSpans.appendSpan(getWriteIndex(), checkNotNull(upstreamFormat));
+    @Nullable SharedSampleMetadata upstreamCommittedMetadata = sharedSampleMetadata.getEndValue();
+    if (upstreamCommittedMetadata == null
+        || !upstreamCommittedMetadata.format.equals(upstreamFormat)) {
+      DrmSessionReference drmSessionReference =
+          drmSessionManager != null
+              ? drmSessionManager.preacquireSession(
+                  checkNotNull(playbackLooper), drmEventDispatcher, upstreamFormat)
+              : DrmSessionReference.EMPTY;
+
+      sharedSampleMetadata.appendSpan(
+          getWriteIndex(),
+          new SharedSampleMetadata(checkNotNull(upstreamFormat), drmSessionReference));
     }
 
     length++;
@@ -863,7 +878,7 @@ public class SampleQueue implements TrackOutput {
     length -= discardCount;
     largestQueuedTimestampUs = max(largestDiscardedTimestampUs, getLargestTimestamp(length));
     isLastSampleQueued = discardCount == 0 && isLastSampleQueued;
-    formatSpans.discardFrom(discardFromIndex);
+    sharedSampleMetadata.discardFrom(discardFromIndex);
     if (length != 0) {
       int relativeLastWriteIndex = getRelativeIndex(length - 1);
       return offsets[relativeLastWriteIndex] + sizes[relativeLastWriteIndex];
@@ -1003,7 +1018,7 @@ public class SampleQueue implements TrackOutput {
     if (readPosition < 0) {
       readPosition = 0;
     }
-    formatSpans.discardTo(absoluteFirstIndex);
+    sharedSampleMetadata.discardTo(absoluteFirstIndex);
 
     if (length == 0) {
       int relativeLastDiscardIndex = (relativeFirstIndex == 0 ? capacity : relativeFirstIndex) - 1;
@@ -1056,5 +1071,16 @@ public class SampleQueue implements TrackOutput {
     public int size;
     public long offset;
     @Nullable public CryptoData cryptoData;
+  }
+
+  /** A holder for metadata that applies to a span of contiguous samples. */
+  private static final class SharedSampleMetadata {
+    public final Format format;
+    public final DrmSessionReference drmSessionReference;
+
+    private SharedSampleMetadata(Format format, DrmSessionReference drmSessionReference) {
+      this.format = format;
+      this.drmSessionReference = drmSessionReference;
+    }
   }
 }

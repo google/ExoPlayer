@@ -22,6 +22,7 @@ import static java.lang.Math.min;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Consumer;
 
 /**
  * Stores value objects associated with spans of integer keys.
@@ -39,10 +40,21 @@ import com.google.android.exoplayer2.C;
   private int memoizedReadIndex;
 
   private final SparseArray<V> spans;
+  private final Consumer<V> removeCallback;
 
   /** Constructs an empty instance. */
   public SpannedData() {
+    this(/* removeCallback= */ value -> {});
+  }
+
+  /**
+   * Constructs an empty instance that invokes {@code removeCallback} on each value that is removed
+   * from the collection.
+   */
+  public SpannedData(Consumer<V> removeCallback) {
     spans = new SparseArray<>();
+    this.removeCallback = removeCallback;
+    memoizedReadIndex = C.INDEX_UNSET;
   }
 
   /**
@@ -71,7 +83,8 @@ import com.google.android.exoplayer2.C;
    * Adds a new span to the end starting at {@code startKey} and containing {@code value}.
    *
    * <p>{@code startKey} must be greater than or equal to the start key of the previous span. If
-   * they're equal, the previous span is overwritten.
+   * they're equal, the previous span is overwritten and it's passed to {@code removeCallback} (if
+   * set).
    */
   public void appendSpan(int startKey, V value) {
     if (memoizedReadIndex == C.INDEX_UNSET) {
@@ -79,7 +92,13 @@ import com.google.android.exoplayer2.C;
       memoizedReadIndex = 0;
     }
 
-    checkArgument(spans.size() == 0 || startKey >= spans.keyAt(spans.size() - 1));
+    if (spans.size() > 0) {
+      int lastStartKey = spans.keyAt(spans.size() - 1);
+      checkArgument(startKey >= lastStartKey);
+      if (lastStartKey == startKey) {
+        removeCallback.accept(spans.valueAt(spans.size() - 1));
+      }
+    }
     spans.append(startKey, value);
   }
 
@@ -102,6 +121,7 @@ import com.google.android.exoplayer2.C;
    */
   public void discardTo(int discardToKey) {
     for (int i = 0; i < spans.size() - 1 && discardToKey >= spans.keyAt(i + 1); i++) {
+      removeCallback.accept(spans.valueAt(i));
       spans.removeAt(i);
       if (memoizedReadIndex > 0) {
         memoizedReadIndex--;
@@ -116,6 +136,7 @@ import com.google.android.exoplayer2.C;
    */
   public void discardFrom(int discardFromKey) {
     for (int i = spans.size() - 1; i >= 0 && discardFromKey < spans.keyAt(i); i--) {
+      removeCallback.accept(spans.valueAt(i));
       spans.removeAt(i);
     }
     memoizedReadIndex = spans.size() > 0 ? min(memoizedReadIndex, spans.size() - 1) : C.INDEX_UNSET;
@@ -123,6 +144,9 @@ import com.google.android.exoplayer2.C;
 
   /** Remove all spans. */
   public void clear() {
+    for (int i = 0; i < spans.size(); i++) {
+      removeCallback.accept(spans.valueAt(i));
+    }
     memoizedReadIndex = C.INDEX_UNSET;
     spans.clear();
   }
