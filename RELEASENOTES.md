@@ -46,6 +46,9 @@
 *   UI
     *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
         ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
+*   Text
+    *   Parse SSA/ASS bold & italic info in `Style:` lines
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
