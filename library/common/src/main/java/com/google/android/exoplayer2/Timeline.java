@@ -19,16 +19,21 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.core.app.BundleCompat;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A flexible representation of the structure of media. A timeline is able to represent the
@@ -124,7 +129,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p>This case includes mid-roll ad groups, which are defined as part of the timeline's single
  * period. The period can be queried for information about the ad groups and the ads they contain.
  */
-public abstract class Timeline {
+public abstract class Timeline implements Bundleable {
 
   /**
    * Holds information about a window in a {@link Timeline}. A window usually corresponds to one
@@ -1244,5 +1249,149 @@ public abstract class Timeline {
       result = 31 * result + getPeriod(i, period, /* setIds= */ true).hashCode();
     }
     return result;
+  }
+
+  // Bundleable implementation.
+
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({FIELD_WINDOWS, FIELD_PERIODS})
+  private @interface FieldNumber {}
+
+  private static final int FIELD_WINDOWS = 0;
+  private static final int FIELD_PERIODS = 1;
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
+   * an instance restored by {@link #CREATOR} may have missing fields as described in {@link
+   * Window#toBundle()} and {@link Period#toBundle()}.
+   */
+  @Override
+  public final Bundle toBundle() {
+    List<Bundle> windowBundles = new ArrayList<>();
+    int windowCount = getWindowCount();
+    for (int i = 0; i < windowCount; i++) {
+      Window window = new Window();
+      getWindow(i, window, /* defaultPositionProjectionUs= */ 0);
+      windowBundles.add(window.toBundle());
+    }
+
+    List<Bundle> periodBundles = new ArrayList<>();
+    int periodCount = getPeriodCount();
+    for (int i = 0; i < periodCount; i++) {
+      Period period = new Period();
+      getPeriod(i, period, /* setIds= */ false);
+      periodBundles.add(period.toBundle());
+    }
+
+    Bundle bundle = new Bundle();
+    BundleCompat.putBinder(
+        bundle, keyForField(FIELD_WINDOWS), new BundleListRetriever(windowBundles));
+    BundleCompat.putBinder(
+        bundle, keyForField(FIELD_PERIODS), new BundleListRetriever(periodBundles));
+    return bundle;
+  }
+
+  /**
+   * Object that can restore a {@link Timeline} from a {@link Bundle}.
+   *
+   * <p>The {@link #getWindow(int, Window)} windows} and {@link #getPeriod(int, Period) periods} of
+   * a restored instance may have missing fields as described in {@link Window#CREATOR} and {@link
+   * Period#CREATOR}.
+   */
+  public static final Creator<Timeline> CREATOR = Timeline::fromBundle;
+
+  private static Timeline fromBundle(Bundle bundle) {
+    ImmutableList<Window> windows =
+        fromBundleListRetriever(
+            Window.CREATOR, BundleCompat.getBinder(bundle, keyForField(FIELD_WINDOWS)));
+    ImmutableList<Period> periods =
+        fromBundleListRetriever(
+            Period.CREATOR, BundleCompat.getBinder(bundle, keyForField(FIELD_PERIODS)));
+    return new RemotableTimeline(windows, periods);
+  }
+
+  private static <T extends Bundleable> ImmutableList<T> fromBundleListRetriever(
+      Creator<T> creator, @Nullable IBinder binder) {
+    if (binder == null) {
+      return ImmutableList.of();
+    }
+    ImmutableList.Builder<T> builder = new ImmutableList.Builder<>();
+    List<Bundle> bundleList = BundleListRetriever.getList(binder);
+    for (int i = 0; i < bundleList.size(); i++) {
+      builder.add(creator.fromBundle(bundleList.get(i)));
+    }
+    return builder.build();
+  }
+
+  private static String keyForField(@FieldNumber int field) {
+    return Integer.toString(field, Character.MAX_RADIX);
+  }
+
+  /**
+   * A concrete class of {@link Timeline} to restore a {@link Timeline} instance from a {@link
+   * Bundle} sent by another process via {@link IBinder}.
+   */
+  private static final class RemotableTimeline extends Timeline {
+
+    private final ImmutableList<Window> windows;
+    private final ImmutableList<Period> periods;
+
+    public RemotableTimeline(ImmutableList<Window> windows, ImmutableList<Period> periods) {
+      this.windows = windows;
+      this.periods = periods;
+    }
+
+    @Override
+    public int getWindowCount() {
+      return windows.size();
+    }
+
+    @Override
+    public Window getWindow(
+        int windowIndex, Window window, long ignoredDefaultPositionProjectionUs) {
+      Window w = windows.get(windowIndex);
+      window.set(
+          w.uid,
+          w.mediaItem,
+          w.manifest,
+          w.presentationStartTimeMs,
+          w.windowStartTimeMs,
+          w.elapsedRealtimeEpochOffsetMs,
+          w.isSeekable,
+          w.isDynamic,
+          w.liveConfiguration,
+          w.defaultPositionUs,
+          w.durationUs,
+          w.firstPeriodIndex,
+          w.lastPeriodIndex,
+          w.positionInFirstPeriodUs);
+      window.isPlaceholder = w.isPlaceholder;
+      return window;
+    }
+
+    @Override
+    public int getPeriodCount() {
+      return periods.size();
+    }
+
+    @Override
+    public Period getPeriod(int periodIndex, Period period, boolean ignoredSetIds) {
+      Period p = periods.get(periodIndex);
+      return period.set(
+          p.id, p.uid, p.windowIndex, p.durationUs, p.positionInWindowUs, p.adPlaybackState);
+    }
+
+    @Override
+    public int getIndexOfPeriod(Object uid) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object getUidOfPeriod(int periodIndex) {
+      throw new UnsupportedOperationException();
+    }
   }
 }

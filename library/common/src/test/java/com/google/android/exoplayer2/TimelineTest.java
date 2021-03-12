@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
+import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
@@ -202,6 +203,41 @@ public class TimelineTest {
   }
 
   @Test
+  public void roundtripViaBundle_ofTimeline_yieldsEqualInstanceExceptIdsAndManifest() {
+    Timeline timeline =
+        new FakeTimeline(
+            new TimelineWindowDefinition(
+                /* periodCount= */ 2,
+                /* id= */ new Object(),
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 2,
+                /* defaultPositionUs= */ 22,
+                /* windowOffsetInFirstPeriodUs= */ 222,
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setMediaId("mediaId2").build()),
+            new TimelineWindowDefinition(
+                /* periodCount= */ 3,
+                /* id= */ new Object(),
+                /* isSeekable= */ true,
+                /* isDynamic= */ true,
+                /* isLive= */ true,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 3,
+                /* defaultPositionUs= */ 33,
+                /* windowOffsetInFirstPeriodUs= */ 333,
+                AdPlaybackState.NONE,
+                new MediaItem.Builder().setMediaId("mediaId3").build()));
+
+    Timeline restoredTimeline = Timeline.CREATOR.fromBundle(timeline.toBundle());
+
+    TimelineAsserts.assertEqualsExceptIdsAndManifest(
+        /* expectedTimeline= */ timeline, /* actualTimeline= */ restoredTimeline);
+  }
+
+  @Test
   public void roundtripViaBundle_ofWindow_yieldsEqualInstanceExceptUidAndManifest() {
     Timeline.Window window = new Timeline.Window();
     window.uid = new Object();
@@ -229,9 +265,8 @@ public class TimelineTest {
     Timeline.Window restoredWindow = Timeline.Window.CREATOR.fromBundle(window.toBundle());
 
     assertThat(restoredWindow.manifest).isNull();
-    window.uid = restoredWindow.uid;
-    window.manifest = null;
-    assertThat(restoredWindow).isEqualTo(window);
+    TimelineAsserts.assertWindowEqualsExceptUidAndManifest(
+        /* expectedWindow= */ window, /* actualWindow= */ restoredWindow);
   }
 
   @Test
@@ -245,9 +280,10 @@ public class TimelineTest {
 
     Timeline.Period restoredPeriod = Timeline.Period.CREATOR.fromBundle(period.toBundle());
 
-    period.id = null;
-    period.uid = null;
-    assertThat(restoredPeriod).isEqualTo(period);
+    assertThat(restoredPeriod.id).isNull();
+    assertThat(restoredPeriod.uid).isNull();
+    TimelineAsserts.assertPeriodEqualsExceptIds(
+        /* expectedPeriod= */ period, /* actualPeriod= */ restoredPeriod);
   }
 
   @SuppressWarnings("deprecation") // Populates the deprecated window.tag property.

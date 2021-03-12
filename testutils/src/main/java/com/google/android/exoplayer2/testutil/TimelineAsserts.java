@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.testutil;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -27,14 +28,12 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/** Unit test for {@link Timeline}. */
+/** Assertion methods for {@link Timeline}. */
 public final class TimelineAsserts {
 
   private static final int[] REPEAT_MODES = {
     Player.REPEAT_MODE_OFF, Player.REPEAT_MODE_ONE, Player.REPEAT_MODE_ALL
   };
-
-  private TimelineAsserts() {}
 
   /** Assert that timeline is empty (i.e. has no windows or periods). */
   public static void assertEmpty(Timeline timeline) {
@@ -173,4 +172,64 @@ public final class TimelineAsserts {
       assertThat(period.getAdGroupCount()).isEqualTo(expectedAdGroupCounts[i]);
     }
   }
+
+  /**
+   * Asserts that {@link Timeline timelines} are equal except {@link Window#uid}, {@link
+   * Window#manifest}, {@link Period#id}, and {@link Period#uid}.
+   */
+  public static void assertEqualsExceptIdsAndManifest(
+      Timeline expectedTimeline, Timeline actualTimeline) {
+    assertThat(actualTimeline.getWindowCount()).isEqualTo(expectedTimeline.getWindowCount());
+    for (int i = 0; i < actualTimeline.getWindowCount(); i++) {
+      Window expectedWindow = new Window();
+      Window actualWindow = new Window();
+      assertWindowEqualsExceptUidAndManifest(
+          expectedTimeline.getWindow(i, expectedWindow, /* defaultPositionProjectionUs= */ 0),
+          actualTimeline.getWindow(i, actualWindow, /* defaultPositionProjectionUs= */ 0));
+    }
+    assertThat(actualTimeline.getPeriodCount()).isEqualTo(expectedTimeline.getPeriodCount());
+    for (int i = 0; i < actualTimeline.getPeriodCount(); i++) {
+      Period expectedPeriod = new Period();
+      Period actualPeriod = new Period();
+      assertPeriodEqualsExceptIds(
+          expectedTimeline.getPeriod(i, expectedPeriod, /* setIds= */ false),
+          actualTimeline.getPeriod(i, actualPeriod, /* setIds= */ false));
+    }
+  }
+
+  /**
+   * Asserts that {@link Window windows} are equal except {@link Window#uid} and {@link
+   * Window#manifest}.
+   */
+  public static void assertWindowEqualsExceptUidAndManifest(
+      Window expectedWindow, Window actualWindow) {
+    Object uid = expectedWindow.uid;
+    @Nullable Object manifest = expectedWindow.manifest;
+    try {
+      expectedWindow.uid = actualWindow.uid;
+      expectedWindow.manifest = actualWindow.manifest;
+      assertThat(actualWindow).isEqualTo(expectedWindow);
+    } finally {
+      expectedWindow.uid = uid;
+      expectedWindow.manifest = manifest;
+    }
+  }
+
+  /**
+   * Asserts that {@link Period periods} are equal except {@link Period#id} and {@link Period#uid}.
+   */
+  public static void assertPeriodEqualsExceptIds(Period expectedPeriod, Period actualPeriod) {
+    @Nullable Object id = expectedPeriod.id;
+    @Nullable Object uid = expectedPeriod.uid;
+    try {
+      expectedPeriod.id = actualPeriod.id;
+      expectedPeriod.uid = actualPeriod.uid;
+      assertThat(actualPeriod).isEqualTo(expectedPeriod);
+    } finally {
+      expectedPeriod.id = id;
+      expectedPeriod.uid = uid;
+    }
+  }
+
+  private TimelineAsserts() {}
 }
