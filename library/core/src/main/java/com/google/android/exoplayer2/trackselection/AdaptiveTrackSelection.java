@@ -422,14 +422,12 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * @param format The {@link Format} of the candidate track.
    * @param trackBitrate The estimated bitrate of the track. May differ from {@link Format#bitrate}
    *     if a more accurate estimate of the current track bitrate is available.
-   * @param playbackSpeed The current factor by which playback is sped up.
    * @param effectiveBitrate The bitrate available to this selection.
    * @return Whether this {@link Format} can be selected.
    */
   @SuppressWarnings("unused")
-  protected boolean canSelectFormat(
-      Format format, int trackBitrate, float playbackSpeed, long effectiveBitrate) {
-    return Math.round(trackBitrate * playbackSpeed) <= effectiveBitrate;
+  protected boolean canSelectFormat(Format format, int trackBitrate, long effectiveBitrate) {
+    return trackBitrate <= effectiveBitrate;
   }
 
   /**
@@ -468,7 +466,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     for (int i = 0; i < length; i++) {
       if (nowMs == Long.MIN_VALUE || !isBlacklisted(i, nowMs)) {
         Format format = getFormat(i);
-        if (canSelectFormat(format, format.bitrate, playbackSpeed, effectiveBitrate)) {
+        if (canSelectFormat(format, format.bitrate, effectiveBitrate)) {
           return i;
         } else {
           lowestBitrateAllowedIndex = i;
@@ -487,7 +485,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
   }
 
   private long getAllocatedBandwidth() {
-    long totalBandwidth = (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction);
+    long totalBandwidth =
+        (long) (bandwidthMeter.getBitrateEstimate() * bandwidthFraction / playbackSpeed);
     if (adaptationCheckpoints.isEmpty()) {
       return totalBandwidth;
     }
