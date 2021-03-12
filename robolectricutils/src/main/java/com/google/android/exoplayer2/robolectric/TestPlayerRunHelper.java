@@ -210,46 +210,48 @@ public class TestPlayerRunHelper {
 
   /**
    * Runs tasks of the main {@link Looper} until a {@link
-   * Player.EventListener#onExperimentalOffloadSchedulingEnabledChanged} callback occurred.
+   * ExoPlayer.AudioOffloadListener#onExperimentalOffloadSchedulingEnabledChanged} callback
+   * occurred.
    *
    * @param player The {@link Player}.
    * @return The new offloadSchedulingEnabled state.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static boolean runUntilReceiveOffloadSchedulingEnabledNewState(Player player)
+  public static boolean runUntilReceiveOffloadSchedulingEnabledNewState(ExoPlayer player)
       throws TimeoutException {
     verifyMainTestThread(player);
     AtomicReference<@NullableType Boolean> offloadSchedulingEnabledReceiver =
         new AtomicReference<>();
-    Player.EventListener listener =
-        new Player.EventListener() {
+    ExoPlayer.AudioOffloadListener listener =
+        new ExoPlayer.AudioOffloadListener() {
           @Override
           public void onExperimentalOffloadSchedulingEnabledChanged(
               boolean offloadSchedulingEnabled) {
             offloadSchedulingEnabledReceiver.set(offloadSchedulingEnabled);
           }
         };
-    player.addListener(listener);
+    player.addAudioOffloadListener(listener);
     runMainLooperUntil(() -> offloadSchedulingEnabledReceiver.get() != null);
     return Assertions.checkNotNull(offloadSchedulingEnabledReceiver.get());
   }
 
   /**
    * Runs tasks of the main {@link Looper} until a {@link
-   * Player.EventListener#onExperimentalSleepingForOffloadChanged(boolean)} callback occurred.
+   * ExoPlayer.AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)} callback
+   * occurred.
    *
    * @param player The {@link Player}.
    * @param expectedSleepForOffload The expected sleep of offload state.
    * @throws TimeoutException If the {@link RobolectricUtil#DEFAULT_TIMEOUT_MS default timeout} is
    *     exceeded.
    */
-  public static void runUntilSleepingForOffload(Player player, boolean expectedSleepForOffload)
+  public static void runUntilSleepingForOffload(ExoPlayer player, boolean expectedSleepForOffload)
       throws TimeoutException {
     verifyMainTestThread(player);
     AtomicBoolean receiverCallback = new AtomicBoolean(false);
-    Player.EventListener listener =
-        new Player.EventListener() {
+    ExoPlayer.AudioOffloadListener listener =
+        new ExoPlayer.AudioOffloadListener() {
           @Override
           public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
             if (sleepingForOffload == expectedSleepForOffload) {
@@ -257,7 +259,7 @@ public class TestPlayerRunHelper {
             }
           }
         };
-    player.addListener(listener);
+    player.addAudioOffloadListener(listener);
     runMainLooperUntil(
         () -> { // Make sure progress is being made, see [internal: b/170387438#comment2]
           assertThat(player.getPlayerError()).isNull();

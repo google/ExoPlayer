@@ -685,6 +685,7 @@ public class SimpleExoPlayer extends BasePlayer
             builder.looper,
             /* wrappingPlayer= */ this);
     player.addListener(componentListener);
+    player.addAudioOffloadListener(componentListener);
 
     audioBecomingNoisyManager =
         new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
@@ -892,6 +893,18 @@ public class SimpleExoPlayer extends BasePlayer
     if (textureView != null && textureView == this.textureView) {
       setVideoTextureView(null);
     }
+  }
+
+  @Override
+  public void addAudioOffloadListener(AudioOffloadListener listener) {
+    // Don't verify application thread. We allow calls to this method from any thread.
+    player.addAudioOffloadListener(listener);
+  }
+
+  @Override
+  public void removeAudioOffloadListener(AudioOffloadListener listener) {
+    // Don't verify application thread. We allow calls to this method from any thread.
+    player.removeAudioOffloadListener(listener);
   }
 
   @Override
@@ -1973,7 +1986,8 @@ public class SimpleExoPlayer extends BasePlayer
           AudioFocusManager.PlayerControl,
           AudioBecomingNoisyManager.EventListener,
           StreamVolumeManager.Listener,
-          Player.EventListener {
+          Player.EventListener,
+          AudioOffloadListener {
 
     // VideoRendererEventListener implementation
 
@@ -2240,6 +2254,8 @@ public class SimpleExoPlayer extends BasePlayer
         boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
       updateWakeAndWifiLock();
     }
+
+    // Player.AudioOffloadListener implementation.
 
     @Override
     public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {

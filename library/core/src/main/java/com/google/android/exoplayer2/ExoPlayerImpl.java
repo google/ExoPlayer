@@ -49,6 +49,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayer.Builder}.
@@ -72,6 +73,7 @@ import java.util.List;
   private final ExoPlayerImplInternal.PlaybackInfoUpdateListener playbackInfoUpdateListener;
   private final ExoPlayerImplInternal internalPlayer;
   private final ListenerSet<Player.EventListener> listeners;
+  private final CopyOnWriteArraySet<AudioOffloadListener> audioOffloadListeners;
   private final Timeline.Period period;
   private final List<MediaSourceHolderSnapshot> mediaSourceHolderSnapshots;
   private final boolean useLazyPreparation;
@@ -166,6 +168,7 @@ import java.util.List;
             applicationLooper,
             clock,
             (listener, flags) -> listener.onEvents(playerForListeners, new Events(flags)));
+    audioOffloadListeners = new CopyOnWriteArraySet<>();
     mediaSourceHolderSnapshots = new ArrayList<>();
     shuffleOrder = new ShuffleOrder.DefaultShuffleOrder(/* length= */ 0);
     emptyTrackSelectorResult =
@@ -282,6 +285,16 @@ import java.util.List;
   @Override
   public void removeListener(Player.EventListener listener) {
     listeners.remove(listener);
+  }
+
+  @Override
+  public void addAudioOffloadListener(AudioOffloadListener listener) {
+    audioOffloadListeners.add(listener);
+  }
+
+  @Override
+  public void removeAudioOffloadListener(AudioOffloadListener listener) {
+    audioOffloadListeners.remove(listener);
   }
 
   @Override
@@ -1099,21 +1112,20 @@ import java.util.List;
     if (seekProcessed) {
       listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
     }
-    if (previousPlaybackInfo.offloadSchedulingEnabled != newPlaybackInfo.offloadSchedulingEnabled) {
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener ->
-              listener.onExperimentalOffloadSchedulingEnabledChanged(
-                  newPlaybackInfo.offloadSchedulingEnabled));
-    }
-    if (previousPlaybackInfo.sleepingForOffload != newPlaybackInfo.sleepingForOffload) {
-      listeners.queueEvent(
-          /* eventFlag= */ C.INDEX_UNSET,
-          listener ->
-              listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload));
-    }
     updateAvailableCommands();
     listeners.flushEvents();
+
+    if (previousPlaybackInfo.offloadSchedulingEnabled != newPlaybackInfo.offloadSchedulingEnabled) {
+      for (AudioOffloadListener listener : audioOffloadListeners) {
+        listener.onExperimentalOffloadSchedulingEnabledChanged(
+            newPlaybackInfo.offloadSchedulingEnabled);
+      }
+    }
+    if (previousPlaybackInfo.sleepingForOffload != newPlaybackInfo.sleepingForOffload) {
+      for (AudioOffloadListener listener : audioOffloadListeners) {
+        listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload);
+      }
+    }
   }
 
   private Pair<Boolean, Integer> evaluateMediaItemTransitionReason(

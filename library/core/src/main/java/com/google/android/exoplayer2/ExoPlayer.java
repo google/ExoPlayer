@@ -141,6 +141,28 @@ public interface ExoPlayer extends Player {
   long DEFAULT_RELEASE_TIMEOUT_MS = 500;
 
   /**
+   * A listener for audio offload events.
+   *
+   * <p>This class is experimental, and might be renamed, moved or removed in a future release.
+   */
+  interface AudioOffloadListener {
+    /**
+     * Called when the player has started or stopped offload scheduling using {@link
+     * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean)}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
+
+    /**
+     * Called when the player has started or finished sleeping for offload.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     */
+    default void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {}
+  }
+
+  /**
    * A builder for {@link ExoPlayer} instances.
    *
    * <p>See {@link #Builder(Context, Renderer...)} for the list of default values.
@@ -450,6 +472,20 @@ public interface ExoPlayer extends Player {
     }
   }
 
+  /**
+   * Adds a listener to receive audio offload events.
+   *
+   * @param listener The listener to register.
+   */
+  void addAudioOffloadListener(AudioOffloadListener listener);
+
+  /**
+   * Removes a listener of audio offload events.
+   *
+   * @param listener The listener to unregister.
+   */
+  void removeAudioOffloadListener(AudioOffloadListener listener);
+
   /** Returns the number of renderers. */
   int getRendererCount();
 
@@ -665,7 +701,7 @@ public interface ExoPlayer extends Player {
    * <p>While offload scheduling is enabled, player events may be delivered severely delayed and
    * apps should not interact with the player. When returning to the foreground, disable offload
    * scheduling and wait for {@link
-   * Player.EventListener#onExperimentalOffloadSchedulingEnabledChanged(boolean)} to be called with
+   * AudioOffloadListener#onExperimentalOffloadSchedulingEnabledChanged(boolean)} to be called with
    * {@code offloadSchedulingEnabled = false} before interacting with the player.
    *
    * <p>This mode should save significant power when the phone is playing offload audio with the
@@ -697,7 +733,7 @@ public interface ExoPlayer extends Player {
    * Returns whether the player has paused its main loop to save power in offload scheduling mode.
    *
    * @see #experimentalSetOffloadSchedulingEnabled(boolean)
-   * @see EventListener#onExperimentalSleepingForOffloadChanged(boolean)
+   * @see AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)
    */
   boolean experimentalIsSleepingForOffload();
 }

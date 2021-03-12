@@ -613,24 +613,6 @@ public interface Player {
     default void onSeekProcessed() {}
 
     /**
-     * Called when the player has started or stopped offload scheduling.
-     *
-     * <p>If using ExoPlayer, this is done by calling {@code
-     * ExoPlayer#experimentalSetOffloadSchedulingEnabled(boolean)}.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     */
-    // TODO(b/172315872) Move this method in a new ExoPlayer.EventListener.
-    default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
-
-    /**
-     * Called when the player has started or finished sleeping for offload.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     */
-    default void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {}
-
-    /**
      * Called when one or more player states changed.
      *
      * <p>State changes and events that happen within one {@link Looper} message queue iteration are

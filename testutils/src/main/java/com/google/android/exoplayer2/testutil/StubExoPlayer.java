@@ -92,6 +92,16 @@ public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void addAudioOffloadListener(AudioOffloadListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeAudioOffloadListener(AudioOffloadListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   @State
   public int getPlaybackState() {
     throw new UnsupportedOperationException();
