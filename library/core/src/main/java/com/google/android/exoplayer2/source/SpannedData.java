@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
 
 import android.util.SparseArray;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Consumer;
 
@@ -60,8 +59,7 @@ import com.google.android.exoplayer2.util.Consumer;
   /**
    * Returns the value associated with the span covering {@code key}.
    *
-   * <p>{@link #appendSpan(int, Object)} must have been called at least once since the last call to
-   * {@link #clear()}.
+   * <p>The collection must not be {@link #isEmpty() empty}.
    *
    * <p>{@code key} must be greater than or equal to the previous value passed to {@link
    * #discardTo(int)} (or zero after {@link #clear()} has been called).
@@ -103,14 +101,15 @@ import com.google.android.exoplayer2.util.Consumer;
   }
 
   /**
-   * Returns the value associated with the end span, or null if the collection is empty.
+   * Returns the value associated with the end span.
+   *
+   * <p>The collection must not be {@link #isEmpty() empty}.
    *
    * <p>This is either the last value passed to {@link #appendSpan(int, Object)}, or the value of
    * the span covering the index passed to {@link #discardFrom(int)}.
    */
-  @Nullable
   public V getEndValue() {
-    return spans.size() != 0 ? spans.valueAt(spans.size() - 1) : null;
+    return spans.valueAt(spans.size() - 1);
   }
 
   /**
@@ -149,5 +148,10 @@ import com.google.android.exoplayer2.util.Consumer;
     }
     memoizedReadIndex = C.INDEX_UNSET;
     spans.clear();
+  }
+
+  /** Returns true if the collection is empty. */
+  public boolean isEmpty() {
+    return spans.size() == 0;
   }
 }

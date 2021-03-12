@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -71,6 +72,25 @@ public final class SpannedDataTest {
     assertThat(spannedData.get(1)).isEqualTo(value1);
     assertThat(spannedData.get(2)).isEqualTo(value3);
     assertThat(spannedData.get(3)).isEqualTo(value3);
+  }
+
+  @Test
+  public void getEndValue() {
+    SpannedData<String> spannedData = new SpannedData<>();
+
+    assertThrows(Exception.class, spannedData::getEndValue);
+
+    spannedData.appendSpan(/* startKey= */ 0, "test 1");
+    spannedData.appendSpan(/* startKey= */ 2, "test 2");
+    spannedData.appendSpan(/* startKey= */ 4, "test 3");
+
+    assertThat(spannedData.getEndValue()).isEqualTo("test 3");
+
+    spannedData.discardFrom(2);
+    assertThat(spannedData.getEndValue()).isEqualTo("test 2");
+
+    spannedData.clear();
+    assertThrows(Exception.class, spannedData::getEndValue);
   }
 
   @Test
@@ -172,5 +192,31 @@ public final class SpannedDataTest {
 
     assertThat(spannedData.get(0)).isEqualTo(value3);
     assertThat(spannedData.get(1)).isEqualTo(value3);
+  }
+
+  @Test
+  public void isEmpty() {
+    SpannedData<String> spannedData = new SpannedData<>();
+
+    assertThat(spannedData.isEmpty()).isTrue();
+
+    spannedData.appendSpan(/* startKey= */ 0, "test 1");
+    spannedData.appendSpan(/* startKey= */ 2, "test 2");
+
+    assertThat(spannedData.isEmpty()).isFalse();
+
+    // Discarding from 0 still retains the 'first' span, so collection doesn't end up empty.
+    spannedData.discardFrom(0);
+    assertThat(spannedData.isEmpty()).isFalse();
+
+    spannedData.appendSpan(/* startKey= */ 2, "test 2");
+
+    // Discarding to 3 still retains the 'last' span, so collection doesn't end up empty.
+    spannedData.discardTo(3);
+    assertThat(spannedData.isEmpty()).isFalse();
+
+    spannedData.clear();
+
+    assertThat(spannedData.isEmpty()).isTrue();
   }
 }

@@ -725,15 +725,12 @@ public class SampleQueue implements TrackOutput {
       return false;
     }
 
-    @Nullable SharedSampleMetadata upstreamCommittedMetadata = sharedSampleMetadata.getEndValue();
-    @Nullable
-    Format upstreamCommittedFormat =
-        upstreamCommittedMetadata != null ? upstreamCommittedMetadata.format : null;
-    if (Util.areEqual(format, upstreamCommittedFormat)) {
+    if (!sharedSampleMetadata.isEmpty()
+        && sharedSampleMetadata.getEndValue().format.equals(format)) {
       // The format has changed back to the format of the last committed sample. If they are
       // different objects, we revert back to using upstreamCommittedFormat as the upstreamFormat
       // so we can detect format changes on the read side using cheap referential equality.
-      upstreamFormat = upstreamCommittedFormat;
+      upstreamFormat = sharedSampleMetadata.getEndValue().format;
     } else {
       upstreamFormat = format;
     }
@@ -804,9 +801,8 @@ public class SampleQueue implements TrackOutput {
     cryptoDatas[relativeEndIndex] = cryptoData;
     sourceIds[relativeEndIndex] = upstreamSourceId;
 
-    @Nullable SharedSampleMetadata upstreamCommittedMetadata = sharedSampleMetadata.getEndValue();
-    if (upstreamCommittedMetadata == null
-        || !upstreamCommittedMetadata.format.equals(upstreamFormat)) {
+    if (sharedSampleMetadata.isEmpty()
+        || !sharedSampleMetadata.getEndValue().format.equals(upstreamFormat)) {
       DrmSessionReference drmSessionReference =
           drmSessionManager != null
               ? drmSessionManager.preacquireSession(
