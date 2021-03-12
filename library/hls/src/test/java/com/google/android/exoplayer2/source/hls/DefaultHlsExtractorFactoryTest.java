@@ -24,12 +24,14 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
+import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -42,14 +44,15 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DefaultHlsExtractorFactoryTest {
 
-  private Uri tsUri;
+  private static final Uri URI_WITH_TS_EXTENSION = Uri.parse("http://path/filename.ts");
+  private static final Uri URI_WITH_MP4_EXTENSION = Uri.parse("http://path/filename.mp4");
+
   private Format webVttFormat;
   private TimestampAdjuster timestampAdjuster;
   private Map<String, List<String>> ac3ResponseHeaders;
 
   @Before
   public void setUp() {
-    tsUri = Uri.parse("http://path/filename.ts");
     webVttFormat = new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build();
     timestampAdjuster = new TimestampAdjuster(/* firstSampleTimestampUs= */ 0);
     ac3ResponseHeaders = new HashMap<>();
@@ -69,7 +72,7 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                tsUri,
+                URI_WITH_TS_EXTENSION,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
@@ -93,7 +96,7 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                tsUri,
+                URI_WITH_TS_EXTENSION,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
@@ -115,7 +118,7 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                tsUri,
+                URI_WITH_TS_EXTENSION,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
@@ -138,7 +141,7 @@ public class DefaultHlsExtractorFactoryTest {
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                tsUri,
+                URI_WITH_TS_EXTENSION,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
@@ -149,19 +152,75 @@ public class DefaultHlsExtractorFactoryTest {
   }
 
   @Test
-  public void createExtractor_withNoMatchingExtractor_fallsBackOnTsExtractor() throws Exception {
+  public void createExtractor_onFailedSniff_fallsBackOnFormatInferred() throws Exception {
     ExtractorInput emptyExtractorInput = new FakeExtractorInput.Builder().build();
 
     BundledHlsMediaChunkExtractor result =
         new DefaultHlsExtractorFactory()
             .createExtractor(
-                tsUri,
+                URI_WITH_MP4_EXTENSION,
                 webVttFormat,
                 /* muxedCaptionFormats= */ null,
                 timestampAdjuster,
                 ac3ResponseHeaders,
                 emptyExtractorInput);
 
+    // The format indicates WebVTT so we expect a WebVTT extractor.
+    assertThat(result.extractor.getClass()).isEqualTo(WebvttExtractor.class);
+  }
+
+  @Test
+  public void createExtractor_onFailedSniff_fallsBackOnHttpContentType() throws Exception {
+    ExtractorInput emptyExtractorInput = new FakeExtractorInput.Builder().build();
+
+    BundledHlsMediaChunkExtractor result =
+        new DefaultHlsExtractorFactory()
+            .createExtractor(
+                URI_WITH_MP4_EXTENSION,
+                new Format.Builder().build(),
+                /* muxedCaptionFormats= */ null,
+                timestampAdjuster,
+                ac3ResponseHeaders,
+                emptyExtractorInput);
+
+    // No format info, so we expect an AC-3 Extractor, as per HTTP Content-Type header.
+    assertThat(result.extractor.getClass()).isEqualTo(Ac3Extractor.class);
+  }
+
+  @Test
+  public void createExtractor_onFailedSniff_fallsBackOnFileExtension() throws Exception {
+    ExtractorInput emptyExtractorInput = new FakeExtractorInput.Builder().build();
+
+    BundledHlsMediaChunkExtractor result =
+        new DefaultHlsExtractorFactory()
+            .createExtractor(
+                URI_WITH_MP4_EXTENSION,
+                new Format.Builder().build(),
+                /* muxedCaptionFormats= */ null,
+                timestampAdjuster,
+                /* responseHeaders= */ ImmutableMap.of(),
+                emptyExtractorInput);
+
+    // No format info, and no HTTP headers, so we expect an fMP4 extractor, as per file extension.
+    assertThat(result.extractor.getClass()).isEqualTo(FragmentedMp4Extractor.class);
+  }
+
+  @Test
+  public void createExtractor_onFailedSniff_fallsBackOnTsExtractor() throws Exception {
+    ExtractorInput emptyExtractorInput = new FakeExtractorInput.Builder().build();
+
+    BundledHlsMediaChunkExtractor result =
+        new DefaultHlsExtractorFactory()
+            .createExtractor(
+                Uri.parse("http://path/no_extension"),
+                new Format.Builder().build(),
+                /* muxedCaptionFormats= */ null,
+                timestampAdjuster,
+                /* responseHeaders= */ ImmutableMap.of(),
+                emptyExtractorInput);
+
+    // There's no information for inferring the file type, we expect the factory to fall back on
+    // Transport Stream.
     assertThat(result.extractor.getClass()).isEqualTo(TsExtractor.class);
   }
 }
