@@ -391,15 +391,10 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @RequiresNonNull("output")
   private void loadMedia() throws IOException {
-    if (!isMasterTimestampSource) {
-      try {
-        timestampAdjuster.waitUntilInitialized();
-      } catch (InterruptedException e) {
-        throw new InterruptedIOException();
-      }
-    } else if (timestampAdjuster.getFirstSampleTimestampUs() == TimestampAdjuster.DO_NOT_OFFSET) {
-      // We're the master and we haven't set the desired first sample timestamp yet.
-      timestampAdjuster.setFirstSampleTimestampUs(startTimeUs);
+    try {
+      timestampAdjuster.sharedInitializeOrWait(isMasterTimestampSource, startTimeUs);
+    } catch (InterruptedException e) {
+      throw new InterruptedIOException();
     }
     feedDataToExtractor(dataSource, dataSpec, mediaSegmentEncrypted);
   }
