@@ -323,6 +323,7 @@ public abstract class BasePlayer implements Player {
   protected Commands getAvailableCommands(@Command int[] permanentAvailableCommands) {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
+        .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentWindowSeekable() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
         .build();

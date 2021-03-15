@@ -1029,43 +1029,54 @@ public interface Player {
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
-   * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
-   * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
-   * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
-   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS_METADATA} or {@link #COMMAND_CHANGE_MEDIA_ITEMS}.
+   * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link
+   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link
+   * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
+   * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
+   * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA} or {@link
+   * #COMMAND_CHANGE_MEDIA_ITEMS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     COMMAND_PLAY_PAUSE,
     COMMAND_PREPARE_STOP_RELEASE,
+    COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
-    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM
+    COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+    COMMAND_SET_SPEED_AND_PITCH,
+    COMMAND_SET_SHUFFLE_MODE,
+    COMMAND_SET_REPEAT_MODE,
+    COMMAND_GET_CURRENT_MEDIA_ITEM,
+    COMMAND_GET_MEDIA_ITEMS,
+    COMMAND_GET_MEDIA_ITEMS_METADATA,
+    COMMAND_CHANGE_MEDIA_ITEMS
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
   int COMMAND_PLAY_PAUSE = 1;
   /** Command to prepare the player, stop playback or release the player. */
   int COMMAND_PREPARE_STOP_RELEASE = 2;
+  /** Command to seek into the current {@link MediaItem}. */
+  int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 3;
   /** Command to seek to the next {@link MediaItem} in the playlist. */
-  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 3;
+  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 4;
   /** Command to seek to the previous {@link MediaItem} in the playlist. */
-  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 4;
+  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 5;
   /** Command to set the playback speed and pitch. */
-  int COMMAND_SET_SPEED_AND_PITCH = 5;
+  int COMMAND_SET_SPEED_AND_PITCH = 6;
   /** Command to enable shuffling. */
-  int COMMAND_SET_SHUFFLE_MODE = 6;
+  int COMMAND_SET_SHUFFLE_MODE = 7;
   /** Command to set the repeat mode. */
-  int COMMAND_SET_REPEAT_MODE = 7;
+  int COMMAND_SET_REPEAT_MODE = 8;
   /** Command to get the current {@link MediaItem}. */
-  int COMMAND_GET_CURRENT_MEDIA_ITEM = 8;
+  int COMMAND_GET_CURRENT_MEDIA_ITEM = 9;
   /** Command to get the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_GET_MEDIA_ITEMS = 9;
+  int COMMAND_GET_MEDIA_ITEMS = 10;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 10;
+  int COMMAND_GET_MEDIA_ITEMS_METADATA = 11;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 11;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 12;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
