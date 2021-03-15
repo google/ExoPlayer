@@ -27,16 +27,15 @@ import com.google.android.exoplayer2.testutil.FailOnCloseDataSink;
 import com.google.android.exoplayer2.testutil.FakeDataSet;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -175,7 +174,6 @@ public final class CacheWriterTest {
     assertCachedData(cache, fakeDataSet);
   }
 
-  @Ignore("Currently broken. See https://github.com/google/ExoPlayer/issues/7326.")
   @Test
   public void cacheLengthExceedsActualDataLength() throws Exception {
     FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
@@ -206,18 +204,14 @@ public final class CacheWriterTest {
     Uri testUri = Uri.parse("test_data");
     DataSpec dataSpec = new DataSpec(testUri, /* position= */ 0, /* length= */ 1000);
 
-    IOException exception =
-        assertThrows(
-            IOException.class,
-            () ->
-                new CacheWriter(
-                        new CacheDataSource(cache, dataSource),
-                        dataSpec,
-                        /* allowShortContent= */ false,
-                        /* temporaryBuffer= */ null,
-                        /* progressListener= */ null)
-                    .cache());
-    assertThat(DataSourceException.isCausedByPositionOutOfRange(exception)).isTrue();
+    CacheWriter cacheWriter =
+        new CacheWriter(
+            new CacheDataSource(cache, dataSource),
+            dataSpec,
+            /* allowShortContent= */ false,
+            /* temporaryBuffer= */ null,
+            /* progressListener= */ null);
+    assertThrows(EOFException.class, cacheWriter::cache);
   }
 
   @Test

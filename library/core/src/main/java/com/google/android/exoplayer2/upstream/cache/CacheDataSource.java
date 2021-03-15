@@ -388,8 +388,9 @@ public final class CacheDataSource implements DataSource {
 
   @Nullable private Uri actualUri;
   @Nullable private DataSpec requestDataSpec;
+  @Nullable private DataSpec currentDataSpec;
   @Nullable private DataSource currentDataSource;
-  private boolean currentDataSpecLengthUnset;
+  private long currentDataSourceBytesRead;
   private long readPosition;
   private long bytesRemaining;
   @Nullable private CacheSpan currentHoleSpan;
@@ -565,19 +566,27 @@ public final class CacheDataSource implements DataSource {
         notifyCacheIgnored(reason);
       }
 
-      if (dataSpec.length != C.LENGTH_UNSET || currentRequestIgnoresCache) {
-        bytesRemaining = dataSpec.length;
+      if (currentRequestIgnoresCache) {
+        bytesRemaining = C.LENGTH_UNSET;
       } else {
         bytesRemaining = ContentMetadata.getContentLength(cache.getContentMetadata(key));
         if (bytesRemaining != C.LENGTH_UNSET) {
           bytesRemaining -= dataSpec.position;
-          if (bytesRemaining <= 0) {
+          if (bytesRemaining < 0) {
             throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
           }
         }
       }
-      openNextSource(requestDataSpec, false);
-      return bytesRemaining;
+      if (dataSpec.length != C.LENGTH_UNSET) {
+        bytesRemaining =
+            bytesRemaining == C.LENGTH_UNSET
+                ? dataSpec.length
+                : min(bytesRemaining, dataSpec.length);
+      }
+      if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
+        openNextSource(requestDataSpec, false);
+      }
+      return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : bytesRemaining;
     } catch (Throwable e) {
       handleBeforeThrow(e);
       throw e;
@@ -587,6 +596,7 @@ public final class CacheDataSource implements DataSource {
   @Override
   public int read(byte[] buffer, int offset, int readLength) throws IOException {
     DataSpec requestDataSpec = checkNotNull(this.requestDataSpec);
+    DataSpec currentDataSpec = checkNotNull(this.currentDataSpec);
     if (readLength == 0) {
       return 0;
     }
@@ -603,10 +613,16 @@ public final class CacheDataSource implements DataSource {
           totalCachedBytesRead += bytesRead;
         }
         readPosition += bytesRead;
+        currentDataSourceBytesRead += bytesRead;
         if (bytesRemaining != C.LENGTH_UNSET) {
           bytesRemaining -= bytesRead;
         }
-      } else if (currentDataSpecLengthUnset) {
+      } else if (isReadingFromUpstream()
+          && (currentDataSpec.length == C.LENGTH_UNSET
+              || currentDataSourceBytesRead < currentDataSpec.length)) {
+        // We've encountered RESULT_END_OF_INPUT from the upstream DataSource at a position not
+        // imposed by the current DataSpec. This must mean that we've reached the end of the
+        // resource.
         setNoBytesRemainingAndMaybeStoreLength(castNonNull(requestDataSpec.key));
       } else if (bytesRemaining > 0 || bytesRemaining == C.LENGTH_UNSET) {
         closeCurrentSource();
@@ -615,7 +631,16 @@ public final class CacheDataSource implements DataSource {
       }
       return bytesRead;
     } catch (IOException e) {
-      if (currentDataSpecLengthUnset && DataSourceException.isCausedByPositionOutOfRange(e)) {
+      // TODO: This is not correct, because position-out-of-range exceptions should only be thrown
+      // if the requested position is more than one byte beyond the end of the resource. Conversely,
+      // this code is assuming that a position-out-of-range exception indicates the requested
+      // position is exactly one byte beyond the end of the resource, which is not a case for which
+      // this type of exception should be thrown. This exception handling may be required for
+      // interop with current HttpDataSource implementations that do (incorrectly) throw a
+      // position-out-of-range exception at this position. It should be removed when the
+      // HttpDataSource implementations are fixed.
+      if (currentDataSpec.length == C.LENGTH_UNSET
+          && DataSourceException.isCausedByPositionOutOfRange(e)) {
         setNoBytesRemainingAndMaybeStoreLength(castNonNull(requestDataSpec.key));
         return C.RESULT_END_OF_INPUT;
       }
@@ -760,12 +785,13 @@ public final class CacheDataSource implements DataSource {
       currentHoleSpan = nextSpan;
     }
     currentDataSource = nextDataSource;
-    currentDataSpecLengthUnset = nextDataSpec.length == C.LENGTH_UNSET;
+    currentDataSpec = nextDataSpec;
+    currentDataSourceBytesRead = 0;
     long resolvedLength = nextDataSource.open(nextDataSpec);
 
     // Update bytesRemaining, actualUri and (if writing to cache) the cache metadata.
     ContentMetadataMutations mutations = new ContentMetadataMutations();
-    if (currentDataSpecLengthUnset && resolvedLength != C.LENGTH_UNSET) {
+    if (nextDataSpec.length == C.LENGTH_UNSET && resolvedLength != C.LENGTH_UNSET) {
       bytesRemaining = resolvedLength;
       ContentMetadataMutations.setContentLength(mutations, readPosition + bytesRemaining);
     }
@@ -816,8 +842,8 @@ public final class CacheDataSource implements DataSource {
     try {
       currentDataSource.close();
     } finally {
+      currentDataSpec = null;
       currentDataSource = null;
-      currentDataSpecLengthUnset = false;
       if (currentHoleSpan != null) {
         cache.releaseHoleSpan(currentHoleSpan);
         currentHoleSpan = null;

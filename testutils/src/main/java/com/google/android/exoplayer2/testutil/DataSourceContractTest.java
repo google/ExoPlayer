@@ -233,16 +233,22 @@ public abstract class DataSourceContractTest {
           new DataSpec.Builder().setUri(resource.getUri()).setPosition(resourceLength).build();
       try {
         long length = dataSource.open(dataSpec);
-        // TODO: For any cases excluded from the requirement that a position-out-of-range exception
-        // is thrown, decide what the allowed behavior should be for the first read, and assert it.
-
+        // The DataSource.open() contract requires the returned length to equal the length in the
+        // DataSpec if set. This is true even though the DataSource implementation may know that
+        // fewer bytes will be read in this case.
         if (length != C.LENGTH_UNSET) {
           assertThat(length).isEqualTo(0);
         }
+
+        try {
+          byte[] data =
+              unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
+          assertThat(data).isEmpty();
+        } catch (IOException e) {
+          // TODO: Remove this catch and require that implementations do not throw.
+        }
       } catch (IOException e) {
-        // TODO: Decide whether to assert that a position-out-of-range exception must or must not be
-        // thrown (with exclusions if necessary), rather than just asserting it must be a
-        // position-out-of-range exception *if* one is thrown at all.
+        // TODO: Remove this catch and require that implementations do not throw.
         assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
       } finally {
         dataSource.close();
@@ -270,17 +276,20 @@ public abstract class DataSourceContractTest {
               .build();
       try {
         long length = dataSource.open(dataSpec);
-        // TODO: For any cases excluded from the requirement that a position-out-of-range exception
-        // is thrown, decide what the allowed behavior should be for the first read, and assert it.
-
         // The DataSource.open() contract requires the returned length to equal the length in the
         // DataSpec if set. This is true even though the DataSource implementation may know that
         // fewer bytes will be read in this case.
         assertThat(length).isEqualTo(1);
+
+        try {
+          byte[] data =
+              unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
+          assertThat(data).isEmpty();
+        } catch (IOException e) {
+          // TODO: Remove this catch and require that implementations do not throw.
+        }
       } catch (IOException e) {
-        // TODO: Decide whether to assert that a position-out-of-range exception must or must not be
-        // thrown (with exclusions if necessary), rather than just asserting it must be a
-        // position-out-of-range exception *if* one is thrown at all.
+        // TODO: Remove this catch and require that implementations do not throw.
         assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
       } finally {
         dataSource.close();

@@ -154,7 +154,7 @@ public final class CacheDataSourceTest {
     try {
       cacheDataSource =
           createCacheDataSource(/* setReadException= */ false, /* unknownLength= */ false);
-      cacheDataSource.open(buildDataSpec(TEST_DATA.length, /* length= */ 1, defaultCacheKey));
+      cacheDataSource.open(buildDataSpec(TEST_DATA.length + 1, /* length= */ 1, defaultCacheKey));
       fail();
     } catch (IOException e) {
       // Expected.
@@ -204,7 +204,7 @@ public final class CacheDataSourceTest {
       cacheDataSource =
           createCacheDataSource(
               /* setReadException= */ false, /* unknownLength= */ false, cacheKeyFactory);
-      cacheDataSource.open(buildDataSpec(TEST_DATA.length, /* length= */ 1, customCacheKey));
+      cacheDataSource.open(buildDataSpec(TEST_DATA.length + 1, /* length= */ 1, customCacheKey));
       fail();
     } catch (IOException e) {
       // Expected.
@@ -257,7 +257,7 @@ public final class CacheDataSourceTest {
       cacheDataSource =
           createCacheDataSource(
               /* setReadException= */ false, /* unknownLength= */ false, cacheKeyFactory);
-      cacheDataSource.open(buildDataSpec(TEST_DATA.length, /* length= */ 1, customCacheKey));
+      cacheDataSource.open(buildDataSpec(TEST_DATA.length + 1, /* length= */ 1, customCacheKey));
       fail();
     } catch (IOException e) {
       // Expected.

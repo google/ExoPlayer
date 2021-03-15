@@ -117,7 +117,7 @@ public class FakeDataSource extends BaseDataSource {
       throw new IOException("Data is empty: " + dataSpec.uri);
     }
 
-    if (dataSpec.position >= totalLength) {
+    if (dataSpec.position > totalLength) {
       throw new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE);
     }
 

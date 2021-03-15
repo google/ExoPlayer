@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
 import com.google.android.exoplayer2.util.Util;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
@@ -141,6 +142,14 @@ public final class CacheWriter {
         long nextRequestLength = blockLength == Long.MAX_VALUE ? C.LENGTH_UNSET : blockLength;
         nextPosition += readBlockToCache(nextPosition, nextRequestLength);
       }
+    }
+
+    // TODO: Remove allowShortContent parameter, this code block, and return the number of bytes
+    // cached. The caller can then check whether fewer bytes were cached than were requested.
+    if (!allowShortContent
+        && dataSpec.length != C.LENGTH_UNSET
+        && nextPosition != dataSpec.position + dataSpec.length) {
+      throw new EOFException();
     }
   }
 

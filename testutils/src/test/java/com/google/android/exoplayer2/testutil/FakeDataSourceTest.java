@@ -211,22 +211,6 @@ public final class FakeDataSourceTest {
     } finally {
       dataSource.close();
     }
-
-    // DataSpec out of bounds.
-    dataSource =
-        new FakeDataSource(
-            new FakeDataSet()
-                .newDefaultData()
-                .appendReadData(TestUtil.buildTestData(/* length= */ 10))
-                .endData());
-    try {
-      dataSource.open(new DataSpec(uri, /* position= */ 10, C.LENGTH_UNSET));
-      fail("IOException expected.");
-    } catch (IOException e) {
-      // Expected.
-    } finally {
-      dataSource.close();
-    }
   }
 
   private static void assertBuffer(byte[] expected) {
