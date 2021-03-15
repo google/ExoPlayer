@@ -24,9 +24,6 @@ import java.util.List;
 /** Abstract base {@link Player} which implements common implementation independent methods. */
 public abstract class BasePlayer implements Player {
 
-  protected static final int[] PERMANENT_AVAILABLE_COMMANDS =
-      new int[] {COMMAND_PLAY_PAUSE, COMMAND_PREPARE_STOP_RELEASE};
-
   protected final Timeline.Window window;
 
   public BasePlayer() {
@@ -323,9 +320,9 @@ public abstract class BasePlayer implements Player {
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }
 
-  protected Commands getAvailableCommands() {
+  protected Commands getAvailableCommands(@Command int[] permanentAvailableCommands) {
     return new Commands.Builder()
-        .addAll(PERMANENT_AVAILABLE_COMMANDS)
+        .addAll(permanentAvailableCommands)
         .addIf(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, hasNext() && !isPlayingAd())
         .addIf(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM, hasPrevious() && !isPlayingAd())
         .build();

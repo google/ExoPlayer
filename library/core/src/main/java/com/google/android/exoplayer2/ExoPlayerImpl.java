@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -55,6 +56,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * An {@link ExoPlayer} implementation. Instances can be obtained from {@link ExoPlayer.Builder}.
  */
 /* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
+
+  @VisibleForTesting
+  /* package */ static final int[] PERMANENT_AVAILABLE_COMMANDS =
+      new int[] {
+        COMMAND_PLAY_PAUSE,
+        COMMAND_PREPARE_STOP_RELEASE,
+        COMMAND_SET_SPEED_AND_PITCH,
+        COMMAND_SET_SHUFFLE_MODE,
+        COMMAND_SET_REPEAT_MODE,
+        COMMAND_GET_CURRENT_MEDIA_ITEM,
+        COMMAND_GET_MEDIA_ITEMS,
+        COMMAND_GET_MEDIA_ITEMS_METADATA,
+        COMMAND_CHANGE_MEDIA_ITEMS
+      };
 
   private static final String TAG = "ExoPlayerImpl";
 
@@ -1176,7 +1191,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private void updateAvailableCommands() {
     Commands previousAvailableCommands = availableCommands;
-    availableCommands = getAvailableCommands();
+    availableCommands = getAvailableCommands(PERMANENT_AVAILABLE_COMMANDS);
     if (!availableCommands.equals(previousAvailableCommands)) {
       listeners.queueEvent(
           Player.EVENT_AVAILABLE_COMMANDS_CHANGED,

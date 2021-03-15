@@ -15,10 +15,17 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.Player.COMMAND_CHANGE_MEDIA_ITEMS;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
 import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP_RELEASE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_REPEAT_MODE;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_SHUFFLE_MODE;
+import static com.google.android.exoplayer2.Player.COMMAND_SET_SPEED_AND_PITCH;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilStartOfWindow;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
@@ -8078,16 +8085,17 @@ public final class ExoPlayerTest {
 
     player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
 
-    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
-    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
-  }
-
-  @Test
-  public void isCommandAvailable_containsPermanentCommands() {
-    ExoPlayer player = new TestExoPlayerBuilder(context).build();
-
     assertThat(player.isCommandAvailable(COMMAND_PLAY_PAUSE)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_PREPARE_STOP_RELEASE)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
+    assertThat(player.isCommandAvailable(COMMAND_SET_SPEED_AND_PITCH)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SET_SHUFFLE_MODE)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_GET_CURRENT_MEDIA_ITEM)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_CHANGE_MEDIA_ITEMS)).isTrue();
   }
 
   @Test
@@ -9326,7 +9334,7 @@ public final class ExoPlayerTest {
 
   private static Player.Commands createCommands(@Player.Command int... commands) {
     Player.Commands.Builder builder = new Player.Commands.Builder();
-    builder.addAll(COMMAND_PLAY_PAUSE, COMMAND_PREPARE_STOP_RELEASE);
+    builder.addAll(ExoPlayerImpl.PERMANENT_AVAILABLE_COMMANDS);
     for (int command : commands) {
       builder.add(command);
     }
