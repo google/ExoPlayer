@@ -30,7 +30,6 @@ import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.FileDataSource;
 import com.google.android.exoplayer2.util.Util;
-import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,7 +71,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -94,7 +92,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -106,7 +103,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -129,7 +125,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -153,7 +148,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -165,7 +159,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(testUri),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
@@ -187,31 +180,12 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             dataSpec,
-            /* allowShortContent= */ true,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();
 
     counters.assertValues(0, 100, 100);
     assertCachedData(cache, fakeDataSet);
-  }
-
-  @Test
-  public void cacheThrowEOFException() throws Exception {
-    FakeDataSet fakeDataSet = new FakeDataSet().setRandomData("test_data", 100);
-    FakeDataSource dataSource = new FakeDataSource(fakeDataSet);
-
-    Uri testUri = Uri.parse("test_data");
-    DataSpec dataSpec = new DataSpec(testUri, /* position= */ 0, /* length= */ 1000);
-
-    CacheWriter cacheWriter =
-        new CacheWriter(
-            new CacheDataSource(cache, dataSource),
-            dataSpec,
-            /* allowShortContent= */ false,
-            /* temporaryBuffer= */ null,
-            /* progressListener= */ null);
-    assertThrows(EOFException.class, cacheWriter::cache);
   }
 
   @Test
@@ -237,7 +211,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             cacheDataSource,
             new DataSpec(Uri.parse("test_data")),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
 
@@ -276,7 +249,6 @@ public final class CacheWriterTest {
         new CacheWriter(
             new CacheDataSource(cache, dataSource),
             new DataSpec(Uri.parse("test_data")),
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             counters);
     cacheWriter.cache();

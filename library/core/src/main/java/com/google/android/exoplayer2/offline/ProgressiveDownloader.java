@@ -108,7 +108,6 @@ public final class ProgressiveDownloader implements Downloader {
         new CacheWriter(
             dataSource,
             dataSpec,
-            /* allowShortContent= */ false,
             /* temporaryBuffer= */ null,
             progressListener);
     priorityTaskManager = cacheDataSourceFactory.getUpstreamPriorityTaskManager();

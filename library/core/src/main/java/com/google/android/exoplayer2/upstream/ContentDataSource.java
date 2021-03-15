@@ -24,7 +24,6 @@ import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -147,10 +146,6 @@ public final class ContentDataSource extends BaseDataSource {
     }
 
     if (bytesRead == -1) {
-      if (bytesRemaining != C.LENGTH_UNSET) {
-        // End of stream reached having not read sufficient data.
-        throw new ContentDataSourceException(new EOFException());
-      }
       return C.RESULT_END_OF_INPUT;
     }
     if (bytesRemaining != C.LENGTH_UNSET) {

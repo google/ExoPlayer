@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -692,10 +691,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     int read = castNonNull(inputStream).read(buffer, offset, readLength);
     if (read == -1) {
-      if (bytesToRead != C.LENGTH_UNSET) {
-        // End of stream reached having not read sufficient data.
-        throw new EOFException();
-      }
       return C.RESULT_END_OF_INPUT;
     }
 

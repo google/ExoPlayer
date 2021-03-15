@@ -232,24 +232,27 @@ public abstract class DataSourceContractTest {
       DataSpec dataSpec =
           new DataSpec.Builder().setUri(resource.getUri()).setPosition(resourceLength).build();
       try {
-        long length = dataSource.open(dataSpec);
-        // The DataSource.open() contract requires the returned length to equal the length in the
-        // DataSpec if set. This is true even though the DataSource implementation may know that
-        // fewer bytes will be read in this case.
-        if (length != C.LENGTH_UNSET) {
-          assertThat(length).isEqualTo(0);
-        }
-
         try {
-          byte[] data =
-              unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
-          assertThat(data).isEmpty();
+          long length = dataSource.open(dataSpec);
+          // The DataSource.open() contract requires the returned length to equal the length in the
+          // DataSpec if set. This is true even though the DataSource implementation may know that
+          // fewer bytes will be read in this case.
+          if (length != C.LENGTH_UNSET) {
+            assertThat(length).isEqualTo(0);
+          }
+
+          try {
+            byte[] data =
+                unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
+            assertThat(data).isEmpty();
+          } catch (IOException e) {
+            // TODO: Remove this catch once the one below is removed.
+            throw new RuntimeException(e);
+          }
         } catch (IOException e) {
           // TODO: Remove this catch and require that implementations do not throw.
+          assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
         }
-      } catch (IOException e) {
-        // TODO: Remove this catch and require that implementations do not throw.
-        assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
       } finally {
         dataSource.close();
       }
@@ -275,22 +278,25 @@ public abstract class DataSourceContractTest {
               .setLength(1)
               .build();
       try {
-        long length = dataSource.open(dataSpec);
-        // The DataSource.open() contract requires the returned length to equal the length in the
-        // DataSpec if set. This is true even though the DataSource implementation may know that
-        // fewer bytes will be read in this case.
-        assertThat(length).isEqualTo(1);
-
         try {
-          byte[] data =
-              unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
-          assertThat(data).isEmpty();
+          long length = dataSource.open(dataSpec);
+          // The DataSource.open() contract requires the returned length to equal the length in the
+          // DataSpec if set. This is true even though the DataSource implementation may know that
+          // fewer bytes will be read in this case.
+          assertThat(length).isEqualTo(1);
+
+          try {
+            byte[] data =
+                unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
+            assertThat(data).isEmpty();
+          } catch (IOException e) {
+            // TODO: Remove this catch once the one below is removed.
+            throw new RuntimeException(e);
+          }
         } catch (IOException e) {
           // TODO: Remove this catch and require that implementations do not throw.
+          assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
         }
-      } catch (IOException e) {
-        // TODO: Remove this catch and require that implementations do not throw.
-        assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
       } finally {
         dataSource.close();
       }

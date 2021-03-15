@@ -24,7 +24,6 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -111,10 +110,6 @@ public final class AssetDataSource extends BaseDataSource {
     }
 
     if (bytesRead == -1) {
-      if (bytesRemaining != C.LENGTH_UNSET) {
-        // End of stream reached having not read sufficient data.
-        throw new AssetDataSourceException(new EOFException());
-      }
       return C.RESULT_END_OF_INPUT;
     }
     if (bytesRemaining != C.LENGTH_UNSET) {

@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
 import com.google.android.exoplayer2.util.Util;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 
@@ -51,7 +50,6 @@ public final class CacheWriter {
   private final CacheDataSource dataSource;
   private final Cache cache;
   private final DataSpec dataSpec;
-  private final boolean allowShortContent;
   private final String cacheKey;
   private final byte[] temporaryBuffer;
   @Nullable private final ProgressListener progressListener;
@@ -65,10 +63,6 @@ public final class CacheWriter {
   /**
    * @param dataSource A {@link CacheDataSource} that writes to the target cache.
    * @param dataSpec Defines the data to be written.
-   * @param allowShortContent Whether it's allowed for the content to end before the request as
-   *     defined by the {@link DataSpec}. If {@code true} and the request exceeds the length of the
-   *     content, then the content will be cached to the end. If {@code false} and the request
-   *     exceeds the length of the content, {@link #cache} will throw an {@link IOException}.
    * @param temporaryBuffer A temporary buffer to be used during caching, or {@code null} if the
    *     writer should instantiate its own internal temporary buffer.
    * @param progressListener An optional progress listener.
@@ -76,13 +70,11 @@ public final class CacheWriter {
   public CacheWriter(
       CacheDataSource dataSource,
       DataSpec dataSpec,
-      boolean allowShortContent,
       @Nullable byte[] temporaryBuffer,
       @Nullable ProgressListener progressListener) {
     this.dataSource = dataSource;
     this.cache = dataSource.getCache();
     this.dataSpec = dataSpec;
-    this.allowShortContent = allowShortContent;
     this.temporaryBuffer =
         temporaryBuffer == null ? new byte[DEFAULT_BUFFER_SIZE_BYTES] : temporaryBuffer;
     this.progressListener = progressListener;
@@ -143,14 +135,6 @@ public final class CacheWriter {
         nextPosition += readBlockToCache(nextPosition, nextRequestLength);
       }
     }
-
-    // TODO: Remove allowShortContent parameter, this code block, and return the number of bytes
-    // cached. The caller can then check whether fewer bytes were cached than were requested.
-    if (!allowShortContent
-        && dataSpec.length != C.LENGTH_UNSET
-        && nextPosition != dataSpec.position + dataSpec.length) {
-      throw new EOFException();
-    }
   }
 
   /**
@@ -176,9 +160,11 @@ public final class CacheWriter {
         isDataSourceOpen = true;
       } catch (IOException e) {
         Util.closeQuietly(dataSource);
-        if (allowShortContent
-            && isLastBlock
-            && DataSourceException.isCausedByPositionOutOfRange(e)) {
+        // TODO: This exception handling may be required for interop with current HttpDataSource
+        // implementations that (incorrectly) throw a position-out-of-range when opened exactly one
+        // byte beyond the end of the resource. It should be removed when the HttpDataSource
+        // implementations are fixed.
+        if (isLastBlock && DataSourceException.isCausedByPositionOutOfRange(e)) {
           // The length of the request exceeds the length of the content. If we allow shorter
           // content and are reading the last block, fall through and try again with an unbounded
           // request to read up to the end of the content.
