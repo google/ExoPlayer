@@ -24,7 +24,7 @@
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to
         `ui.spherical` package, and made package private.
-*   Core
+*   Core:
     *   Move `getRendererCount` and `getRendererType` methods from `Player` to
         `ExoPlayer`.
     *   Reset playback speed when live playback speed control becomes unused
@@ -32,6 +32,11 @@
     *   Fix playback position issue when re-preparing playback after a
         BehindLiveWindowException
         ([#8675](https://github.com/google/ExoPlayer/issues/8675)).
+*   HLS:
+    *   Fix issue that could cause playback to become stuck if corresponding
+        `EXT-X-DISCONTINUITY` tags in different media playlists occur at
+        different positions in time
+        ([#8372](https://github.com/google/ExoPlayer/issues/8372)).
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.

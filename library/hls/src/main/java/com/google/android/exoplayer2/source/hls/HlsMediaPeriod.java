@@ -88,6 +88,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
   private HlsSampleStreamWrapper[] enabledSampleStreamWrappers;
   // Maps sample stream wrappers to variant/rendition index by matching array positions.
   private int[][] manifestUrlIndicesPerWrapper;
+  private int audioVideoSampleStreamWrapperCount;
   private SequenceableLoader compositeSequenceableLoader;
 
   /**
@@ -315,8 +316,9 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
       if (wrapperEnabled) {
         newEnabledSampleStreamWrappers[newEnabledSampleStreamWrapperCount] = sampleStreamWrapper;
         if (newEnabledSampleStreamWrapperCount++ == 0) {
-          // The first enabled wrapper is responsible for initializing timestamp adjusters. This
-          // way, if enabled, variants are responsible. Else audio renditions. Else text renditions.
+          // The first enabled wrapper is always allowed to initialize timestamp adjusters. Note
+          // that the first wrapper will correspond to a variant, or else an audio rendition, or
+          // else a text rendition, in that order.
           sampleStreamWrapper.setIsTimestampMaster(true);
           if (wasReset || enabledSampleStreamWrappers.length == 0
               || sampleStreamWrapper != enabledSampleStreamWrappers[0]) {
@@ -326,7 +328,11 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
             forceReset = true;
           }
         } else {
-          sampleStreamWrapper.setIsTimestampMaster(false);
+          // Additional wrappers are also allowed to initialize timestamp adjusters if they contain
+          // audio or video, since they are expected to contain dense samples. Text wrappers are not
+          // permitted except in the case above in which no variant or audio rendition wrappers are
+          // enabled.
+          sampleStreamWrapper.setIsTimestampMaster(i < audioVideoSampleStreamWrapperCount);
         }
       }
     }
@@ -495,6 +501,8 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsSampleStreamWrapper
         sampleStreamWrappers,
         manifestUrlIndicesPerWrapper,
         overridingDrmInitData);
+
+    audioVideoSampleStreamWrapperCount = sampleStreamWrappers.size();
 
     // Subtitle stream wrappers. We can always use master playlist information to prepare these.
     for (int i = 0; i < subtitleRenditions.size(); i++) {
