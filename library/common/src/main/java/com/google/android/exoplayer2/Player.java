@@ -1031,10 +1031,10 @@ public interface Player {
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
    * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link
    * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link
-   * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
-   * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA} or {@link
-   * #COMMAND_CHANGE_MEDIA_ITEMS}.
+   * #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
+   * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
+   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_MEDIA_ITEMS_METADATA} or {@link #COMMAND_CHANGE_MEDIA_ITEMS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1044,6 +1044,7 @@ public interface Player {
     COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
     COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
+    COMMAND_SEEK_TO_MEDIA_ITEM,
     COMMAND_SET_SPEED_AND_PITCH,
     COMMAND_SET_SHUFFLE_MODE,
     COMMAND_SET_REPEAT_MODE,
@@ -1063,20 +1064,22 @@ public interface Player {
   int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 4;
   /** Command to seek to the previous {@link MediaItem} in the playlist. */
   int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 5;
+  /** Command to seek to a {@link MediaItem} in the playlist. */
+  int COMMAND_SEEK_TO_MEDIA_ITEM = 6;
   /** Command to set the playback speed and pitch. */
-  int COMMAND_SET_SPEED_AND_PITCH = 6;
+  int COMMAND_SET_SPEED_AND_PITCH = 7;
   /** Command to enable shuffling. */
-  int COMMAND_SET_SHUFFLE_MODE = 7;
+  int COMMAND_SET_SHUFFLE_MODE = 8;
   /** Command to set the repeat mode. */
-  int COMMAND_SET_REPEAT_MODE = 8;
+  int COMMAND_SET_REPEAT_MODE = 9;
   /** Command to get the current {@link MediaItem}. */
-  int COMMAND_GET_CURRENT_MEDIA_ITEM = 9;
+  int COMMAND_GET_CURRENT_MEDIA_ITEM = 10;
   /** Command to get the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_GET_MEDIA_ITEMS = 10;
+  int COMMAND_GET_MEDIA_ITEMS = 11;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 11;
+  int COMMAND_GET_MEDIA_ITEMS_METADATA = 12;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 12;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 13;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable

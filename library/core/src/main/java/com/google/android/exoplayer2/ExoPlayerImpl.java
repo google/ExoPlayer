@@ -192,7 +192,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
             new ExoTrackSelection[renderers.length],
             /* info= */ null);
     period = new Timeline.Period();
-    availableCommands = new Commands.Builder().addAll(PERMANENT_AVAILABLE_COMMANDS).build();
+    availableCommands =
+        new Commands.Builder()
+            .addAll(PERMANENT_AVAILABLE_COMMANDS)
+            .add(COMMAND_SEEK_TO_MEDIA_ITEM)
+            .build();
     maskingWindowIndex = C.INDEX_UNSET;
     playbackInfoUpdateHandler = clock.createHandler(applicationLooper, /* callback= */ null);
     playbackInfoUpdateListener =
