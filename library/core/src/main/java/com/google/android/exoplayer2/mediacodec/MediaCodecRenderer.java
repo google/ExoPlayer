@@ -23,6 +23,9 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITHOUT_RECONFIGURATION;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_FLUSH;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_YES_WITH_RECONFIGURATION;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_OMIT_SAMPLE_DATA;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_PEEK;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
@@ -57,6 +60,8 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
+import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -294,7 +299,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final MediaCodecSelector mediaCodecSelector;
   private final boolean enableDecoderFallback;
   private final float assumedMinimumCodecOperatingRate;
-  private final DecoderInputBuffer flagsOnlyBuffer;
+  private final DecoderInputBuffer noDataBuffer;
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer bypassSampleBuffer;
   private final BatchBuffer bypassBatchBuffer;
@@ -388,7 +393,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     this.mediaCodecSelector = checkNotNull(mediaCodecSelector);
     this.enableDecoderFallback = enableDecoderFallback;
     this.assumedMinimumCodecOperatingRate = assumedMinimumCodecOperatingRate;
-    flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
+    noDataBuffer = DecoderInputBuffer.newNoDataInstance();
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     bypassSampleBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     bypassBatchBuffer = new BatchBuffer();
@@ -816,7 +821,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         renderToEndOfStream();
         return;
       }
-      if (inputFormat == null && !readToFlagsOnlyBuffer(/* requireFormat= */ true)) {
+      if (inputFormat == null && !readSourceOmittingSampleData(FLAG_REQUIRE_FORMAT)) {
         // We still don't have a format and can't make progress without one.
         return;
       }
@@ -837,9 +842,9 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         decoderCounters.skippedInputBufferCount += skipSource(positionUs);
         // We need to read any format changes despite not having a codec so that drmSession can be
         // updated, and so that we have the most recent format should the codec be initialized. We
-        // may also reach the end of the stream. Note that readSource will not read a sample into a
-        // flags-only buffer.
-        readToFlagsOnlyBuffer(/* requireFormat= */ false);
+        // may also reach the end of the stream. FLAG_PEEK is used because we don't want to advance
+        // the source further than skipSource has already done.
+        readSourceOmittingSampleData(FLAG_PEEK);
       }
       decoderCounters.ensureUpdated();
     } catch (IllegalStateException e) {
@@ -972,16 +977,24 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return new MediaCodecDecoderException(cause, codecInfo);
   }
 
-  /** Reads into {@link #flagsOnlyBuffer} and returns whether a {@link Format} was read. */
-  private boolean readToFlagsOnlyBuffer(boolean requireFormat) throws ExoPlaybackException {
+  /**
+   * Reads from the source when sample data is not required. If a format or an end of stream buffer
+   * is read, it will be handled before the call returns.
+   *
+   * @param readFlags Additional {@link ReadFlags}. {@link SampleStream#FLAG_OMIT_SAMPLE_DATA} is
+   *     added internally, and so does not need to be passed.
+   * @return Whether a format was read and processed.
+   */
+  private boolean readSourceOmittingSampleData(@SampleStream.ReadFlags int readFlags)
+      throws ExoPlaybackException {
     FormatHolder formatHolder = getFormatHolder();
-    flagsOnlyBuffer.clear();
-    @SampleStream.ReadDataResult
-    int result = readSource(formatHolder, flagsOnlyBuffer, requireFormat);
+    noDataBuffer.clear();
+    @ReadDataResult
+    int result = readSource(formatHolder, noDataBuffer, readFlags | FLAG_OMIT_SAMPLE_DATA);
     if (result == C.RESULT_FORMAT_READ) {
       onInputFormatChanged(formatHolder);
       return true;
-    } else if (result == C.RESULT_BUFFER_READ && flagsOnlyBuffer.isEndOfStream()) {
+    } else if (result == C.RESULT_BUFFER_READ && noDataBuffer.isEndOfStream()) {
       inputStreamEnded = true;
       processEndOfStream();
     }
@@ -1248,8 +1261,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     int adaptiveReconfigurationBytes = buffer.data.position();
 
     FormatHolder formatHolder = getFormatHolder();
-    @SampleStream.ReadDataResult
-    int result = readSource(formatHolder, buffer, /* formatRequired= */ false);
+    @ReadDataResult int result = readSource(formatHolder, buffer, /* readFlags= */ 0);
 
     if (hasReadStreamToEnd()) {
       // Notify output queue of the last buffer's timestamp.
@@ -2264,8 +2276,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     bypassSampleBuffer.clear();
     while (true) {
       bypassSampleBuffer.clear();
-      @SampleStream.ReadDataResult
-      int result = readSource(formatHolder, bypassSampleBuffer, /* formatRequired= */ false);
+      @ReadDataResult int result = readSource(formatHolder, bypassSampleBuffer, /* readFlags= */ 0);
       switch (result) {
         case C.RESULT_FORMAT_READ:
           onInputFormatChanged(formatHolder);

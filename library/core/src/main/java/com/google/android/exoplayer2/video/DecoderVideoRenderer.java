@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.video;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_DRM_SESSION_CHANGED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
+import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static java.lang.Math.max;
 
 import android.os.Handler;
@@ -41,7 +42,7 @@ import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
-import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TimedValueQueue;
@@ -165,7 +166,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     joiningDeadlineMs = C.TIME_UNSET;
     clearReportedVideoSize();
     formatQueue = new TimedValueQueue<>();
-    flagsOnlyBuffer = DecoderInputBuffer.newFlagsOnlyInstance();
+    flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     outputMode = C.VIDEO_OUTPUT_MODE_NONE;
@@ -183,7 +184,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       // We don't have a format yet, so try and read one.
       FormatHolder formatHolder = getFormatHolder();
       flagsOnlyBuffer.clear();
-      @SampleStream.ReadDataResult int result = readSource(formatHolder, flagsOnlyBuffer, true);
+      @ReadDataResult int result = readSource(formatHolder, flagsOnlyBuffer, FLAG_REQUIRE_FORMAT);
       if (result == C.RESULT_FORMAT_READ) {
         onInputFormatChanged(formatHolder);
       } else if (result == C.RESULT_BUFFER_READ) {
@@ -745,7 +746,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     }
 
     FormatHolder formatHolder = getFormatHolder();
-    switch (readSource(formatHolder, inputBuffer, /* formatRequired= */ false)) {
+    switch (readSource(formatHolder, inputBuffer, /* readFlags= */ 0)) {
       case C.RESULT_NOTHING_READ:
         return false;
       case C.RESULT_FORMAT_READ:
