@@ -94,7 +94,6 @@ import com.google.android.exoplayer2.testutil.Action;
 import com.google.android.exoplayer2.testutil.ActionSchedule;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerRunnable;
 import com.google.android.exoplayer2.testutil.ActionSchedule.PlayerTarget;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
 import com.google.android.exoplayer2.testutil.FakeAdaptiveDataSet;
 import com.google.android.exoplayer2.testutil.FakeAdaptiveMediaSource;
@@ -3030,7 +3029,7 @@ public final class ExoPlayerTest {
     MediaSource mediaSource =
         new ClippingMediaSource(
             new FakeMediaSource(), startPositionUs, startPositionUs + expectedDurationUs);
-    Clock clock = new AutoAdvancingFakeClock();
+    Clock clock = new FakeClock(/* isAutoAdvancing= */ true);
     AtomicReference<Player> playerReference = new AtomicReference<>();
     AtomicLong positionAtDiscontinuityMs = new AtomicLong(C.TIME_UNSET);
     AtomicLong clockAtStartMs = new AtomicLong(C.TIME_UNSET);
@@ -8782,7 +8781,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline timeline =
         new FakeTimeline(
@@ -8826,7 +8826,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline timeline =
         new FakeTimeline(
@@ -8866,7 +8867,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline timeline =
         new FakeTimeline(
@@ -8908,7 +8910,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline initialTimeline =
         new FakeTimeline(
@@ -8981,7 +8984,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline timeline =
         new FakeTimeline(
@@ -9028,7 +9032,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 10_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline nonLiveTimeline = new FakeTimeline();
     Timeline liveTimeline =
@@ -9068,7 +9073,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline liveTimeline1 =
         new FakeTimeline(
@@ -9125,7 +9131,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline liveTimeline1 =
         new FakeTimeline(
@@ -9177,7 +9184,8 @@ public final class ExoPlayerTest {
   @Test
   public void targetLiveOffsetInMedia_unknownWindowStartTime_doesNotAdjustLiveOffset()
       throws Exception {
-    FakeClock fakeClock = new AutoAdvancingFakeClock(/* initialTimeMs= */ 987_654_321L);
+    FakeClock fakeClock =
+        new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
     ExoPlayer player = new TestExoPlayerBuilder(context).setClock(fakeClock).build();
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(Uri.EMPTY).setLiveTargetOffsetMs(4_000).build();
@@ -9216,7 +9224,8 @@ public final class ExoPlayerTest {
     long nowUnixTimeMs = windowStartUnixTimeMs + 20_000;
     ExoPlayer player =
         new TestExoPlayerBuilder(context)
-            .setClock(new AutoAdvancingFakeClock(/* initialTimeMs= */ nowUnixTimeMs))
+            .setClock(
+                new FakeClock(/* initialTimeMs= */ nowUnixTimeMs, /* isAutoAdvancing= */ true))
             .build();
     Timeline liveTimelineWithoutTargetLiveOffset =
         new FakeTimeline(

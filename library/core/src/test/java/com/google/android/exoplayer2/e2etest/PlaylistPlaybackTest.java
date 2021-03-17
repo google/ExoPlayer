@@ -24,9 +24,9 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public final class PlaylistPlaybackTest {
         new CapturingRenderersFactory(applicationContext);
     SimpleExoPlayer player =
         new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
@@ -71,7 +71,7 @@ public final class PlaylistPlaybackTest {
         new CapturingRenderersFactory(applicationContext);
     SimpleExoPlayer player =
         new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 

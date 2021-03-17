@@ -25,9 +25,9 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
@@ -81,7 +81,7 @@ public class Mp4PlaybackTest {
     CapturingRenderersFactory renderersFactory = new CapturingRenderersFactory(applicationContext);
     SimpleExoPlayer player =
         new SimpleExoPlayer.Builder(applicationContext, renderersFactory)
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
 

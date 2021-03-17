@@ -29,8 +29,8 @@ import static org.mockito.Mockito.verify;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
-import com.google.android.exoplayer2.testutil.AutoAdvancingFakeClock;
 import com.google.android.exoplayer2.testutil.ExoPlayerTestRunner;
+import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
@@ -67,7 +67,7 @@ public class SimpleExoPlayerTest {
                 ApplicationProvider.getApplicationContext(),
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     AnalyticsListener listener = mock(AnalyticsListener.class);
     player.addAnalyticsListener(listener);
@@ -92,7 +92,7 @@ public class SimpleExoPlayerTest {
                 ApplicationProvider.getApplicationContext(),
                 (handler, videoListener, audioListener, textOutput, metadataOutput) ->
                     new Renderer[] {new FakeVideoRenderer(handler, videoListener)})
-            .setClock(new AutoAdvancingFakeClock())
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
     Player.Listener listener = mock(Player.Listener.class);
     player.addListener(listener);
