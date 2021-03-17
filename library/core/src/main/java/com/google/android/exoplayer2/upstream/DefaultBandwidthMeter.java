@@ -15,29 +15,22 @@
  */
 package com.google.android.exoplayer2.upstream;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Handler;
-import android.os.Looper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener.EventDispatcher;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.NetworkTypeObserver;
 import com.google.android.exoplayer2.util.SlidingPercentile;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Estimates bandwidth by listening to data transfers.
@@ -262,7 +255,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private static final int ELAPSED_MILLIS_FOR_ESTIMATE = 2000;
   private static final int BYTES_TRANSFERRED_FOR_ESTIMATE = 512 * 1024;
 
-  @Nullable private final Context context;
   private final ImmutableMap<Integer, Long> initialBitrateEstimates;
   private final EventDispatcher eventDispatcher;
   private final SlidingPercentile slidingPercentile;
@@ -298,7 +290,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
       int maxWeight,
       Clock clock,
       boolean resetOnNetworkTypeChange) {
-    this.context = context == null ? null : context.getApplicationContext();
     this.initialBitrateEstimates = ImmutableMap.copyOf(initialBitrateEstimates);
     this.eventDispatcher = new EventDispatcher();
     this.slidingPercentile = new SlidingPercentile(maxWeight);
@@ -306,11 +297,10 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     // Set the initial network type and bitrate estimate
     networkType = context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context);
     bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
-    // Register to receive connectivity actions if possible.
+    // Register to receive network change information if possible.
     if (context != null && resetOnNetworkTypeChange) {
-      ConnectivityActionReceiver connectivityActionReceiver =
-          ConnectivityActionReceiver.getInstance(context);
-      connectivityActionReceiver.register(/* bandwidthMeter= */ this);
+      NetworkTypeObserver networkTypeObserver = NetworkTypeObserver.getInstance(context);
+      networkTypeObserver.register(/* listener= */ this::onNetworkTypeChanged);
     }
   }
 
@@ -325,7 +315,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   public synchronized void setNetworkTypeOverride(@C.NetworkType int networkType) {
     networkTypeOverride = networkType;
     networkTypeOverrideSet = true;
-    onConnectivityAction();
+    onNetworkTypeChanged(networkType);
   }
 
   @Override
@@ -400,11 +390,10 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     streamCount--;
   }
 
-  private synchronized void onConnectivityAction() {
-    int networkType =
-        networkTypeOverrideSet
-            ? networkTypeOverride
-            : (context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context));
+  private synchronized void onNetworkTypeChanged(@C.NetworkType int networkType) {
+    if (networkTypeOverrideSet) {
+      networkType = networkTypeOverride;
+    }
     if (this.networkType == networkType) {
       return;
     }
@@ -453,70 +442,6 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   private static boolean isTransferAtFullNetworkSpeed(DataSpec dataSpec, boolean isNetwork) {
     return isNetwork && !dataSpec.isFlagSet(DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED);
-  }
-
-  /*
-   * Note: This class only holds a weak reference to DefaultBandwidthMeter instances. It should not
-   * be made non-static, since doing so adds a strong reference (i.e. DefaultBandwidthMeter.this).
-   */
-  private static class ConnectivityActionReceiver extends BroadcastReceiver {
-
-    private static @MonotonicNonNull ConnectivityActionReceiver staticInstance;
-
-    private final Handler mainHandler;
-    private final ArrayList<WeakReference<DefaultBandwidthMeter>> bandwidthMeters;
-
-    public static synchronized ConnectivityActionReceiver getInstance(Context context) {
-      if (staticInstance == null) {
-        staticInstance = new ConnectivityActionReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        context.registerReceiver(staticInstance, filter);
-      }
-      return staticInstance;
-    }
-
-    private ConnectivityActionReceiver() {
-      mainHandler = new Handler(Looper.getMainLooper());
-      bandwidthMeters = new ArrayList<>();
-    }
-
-    public synchronized void register(DefaultBandwidthMeter bandwidthMeter) {
-      removeClearedReferences();
-      bandwidthMeters.add(new WeakReference<>(bandwidthMeter));
-      // Simulate an initial update on the main thread (like the sticky broadcast we'd receive if
-      // we were to register a separate broadcast receiver for each bandwidth meter).
-      mainHandler.post(() -> updateBandwidthMeter(bandwidthMeter));
-    }
-
-    @Override
-    public synchronized void onReceive(Context context, Intent intent) {
-      if (isInitialStickyBroadcast()) {
-        return;
-      }
-      removeClearedReferences();
-      for (int i = 0; i < bandwidthMeters.size(); i++) {
-        WeakReference<DefaultBandwidthMeter> bandwidthMeterReference = bandwidthMeters.get(i);
-        DefaultBandwidthMeter bandwidthMeter = bandwidthMeterReference.get();
-        if (bandwidthMeter != null) {
-          updateBandwidthMeter(bandwidthMeter);
-        }
-      }
-    }
-
-    private void updateBandwidthMeter(DefaultBandwidthMeter bandwidthMeter) {
-      bandwidthMeter.onConnectivityAction();
-    }
-
-    private void removeClearedReferences() {
-      for (int i = bandwidthMeters.size() - 1; i >= 0; i--) {
-        WeakReference<DefaultBandwidthMeter> bandwidthMeterReference = bandwidthMeters.get(i);
-        DefaultBandwidthMeter bandwidthMeter = bandwidthMeterReference.get();
-        if (bandwidthMeter == null) {
-          bandwidthMeters.remove(i);
-        }
-      }
-    }
   }
 
   private static ImmutableListMultimap<String, Integer>
