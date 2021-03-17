@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DecoderDiscardReasons;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -365,6 +366,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean forceAsyncQueueingSynchronizationWorkaround;
   private boolean enableSynchronizeCodecInteractionsWithQueueing;
   private boolean enableRecoverableCodecExceptionRetries;
+  private boolean enableSkipAndContinueIfSampleTooLarge;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
   private long outputStreamStartPositionUs;
@@ -432,7 +434,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Enable asynchronous input buffer queueing.
+   * Enables asynchronous input buffer queueing.
    *
    * <p>Operates the underlying {@link MediaCodec} in asynchronous mode and submits input buffers
    * from a separate thread to unblock the playback thread.
@@ -445,7 +447,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Enable the asynchronous queueing synchronization workaround.
+   * Enables the asynchronous queueing synchronization workaround.
    *
    * <p>When enabled, the queueing threads for {@link MediaCodec} instance will synchronize on a
    * shared lock when submitting buffers to the respective {@link MediaCodec}.
@@ -458,7 +460,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Enable synchronizing codec interactions with asynchronous buffer queueing.
+   * Enables synchronizing codec interactions with asynchronous buffer queueing.
    *
    * <p>When enabled, codec interactions will wait until all input buffers pending for asynchronous
    * queueing are submitted to the {@link MediaCodec} first. This method is effective only if {@link
@@ -472,7 +474,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   /**
-   * Enable internal player retries for codec exceptions if the underlying platform indicates that
+   * Enables internal player retries for codec exceptions if the underlying platform indicates that
    * they are recoverable.
    *
    * <p>This method is experimental, and will be renamed or removed in a future release. It should
@@ -480,6 +482,18 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   public void experimentalSetRecoverableCodecExceptionRetriesEnabled(boolean enabled) {
     enableRecoverableCodecExceptionRetries = enabled;
+  }
+
+  /**
+   * Enables skipping and continuing playback from the next key frame if a sample is encountered
+   * that's too large to fit into one of the decoder's input buffers. When not enabled, playback
+   * will fail in this case.
+   *
+   * <p>This method is experimental, and will be renamed or removed in a future release. It should
+   * only be called before the renderer is used.
+   */
+  public void experimentalSetSkipAndContinueIfSampleTooLarge(boolean enabled) {
+    enableSkipAndContinueIfSampleTooLarge = enabled;
   }
 
   @Override
@@ -1261,7 +1275,23 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     int adaptiveReconfigurationBytes = buffer.data.position();
 
     FormatHolder formatHolder = getFormatHolder();
-    @ReadDataResult int result = readSource(formatHolder, buffer, /* readFlags= */ 0);
+
+    @SampleStream.ReadDataResult int result;
+    try {
+      result = readSource(formatHolder, buffer, /* readFlags= */ 0);
+    } catch (InsufficientCapacityException e) {
+      onCodecError(e);
+      if (enableSkipAndContinueIfSampleTooLarge) {
+        // Skip the sample that's too large by reading it without its data. Then flush the codec so
+        // that rendering will resume from the next key frame.
+        readSourceOmittingSampleData(/* readFlags= */ 0);
+        flushCodec();
+        return true;
+      } else {
+        throw createRendererException(
+            createDecoderException(e, getCodecInfo()), inputFormat, /* isRecoverable= */ false);
+      }
+    }
 
     if (hasReadStreamToEnd()) {
       // Notify output queue of the last buffer's timestamp.
@@ -1319,7 +1349,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // during normal consumption of samples from the source (i.e., without a corresponding
     // Renderer.enable or Renderer.resetPosition call). This is necessary for certain legacy and
     // workaround behaviors, for example when switching the output Surface on API levels prior to
-    // the introduction of MediaCodec.setOutputSurface.
+    // the introduction of MediaCodec.setOutputSurface, and when it's necessary to skip past a
+    // sample that's too large to be held in one of the decoder's input buffers.
     if (!codecReceivedBuffers && !buffer.isKeyFrame()) {
       buffer.clear();
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
