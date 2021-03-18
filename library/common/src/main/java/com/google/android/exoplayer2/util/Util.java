@@ -37,8 +37,6 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Point;
 import android.media.AudioFormat;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -2149,52 +2147,6 @@ public final class Util {
   }
 
   /**
-   * Returns the {@link C.NetworkType} of the current network connection.
-   *
-   * @param context A context to access the connectivity manager.
-   * @return The {@link C.NetworkType} of the current network connection.
-   */
-  // Intentional null check to guard against user input.
-  @SuppressWarnings("known.nonnull")
-  @C.NetworkType
-  public static int getNetworkType(Context context) {
-    if (context == null) {
-      // Note: This is for backward compatibility only (context used to be @Nullable).
-      return C.NETWORK_TYPE_UNKNOWN;
-    }
-    NetworkInfo networkInfo;
-    @Nullable
-    ConnectivityManager connectivityManager =
-        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    if (connectivityManager == null) {
-      return C.NETWORK_TYPE_UNKNOWN;
-    }
-    try {
-      networkInfo = connectivityManager.getActiveNetworkInfo();
-    } catch (SecurityException e) {
-      // Expected if permission was revoked.
-      return C.NETWORK_TYPE_UNKNOWN;
-    }
-    if (networkInfo == null || !networkInfo.isConnected()) {
-      return C.NETWORK_TYPE_OFFLINE;
-    }
-    switch (networkInfo.getType()) {
-      case ConnectivityManager.TYPE_WIFI:
-        return C.NETWORK_TYPE_WIFI;
-      case ConnectivityManager.TYPE_WIMAX:
-        return C.NETWORK_TYPE_4G;
-      case ConnectivityManager.TYPE_MOBILE:
-      case ConnectivityManager.TYPE_MOBILE_DUN:
-      case ConnectivityManager.TYPE_MOBILE_HIPRI:
-        return getMobileNetworkType(networkInfo);
-      case ConnectivityManager.TYPE_ETHERNET:
-        return C.NETWORK_TYPE_ETHERNET;
-      default:
-        return C.NETWORK_TYPE_OTHER;
-    }
-  }
-
-  /**
    * Returns the upper-case ISO 3166-1 alpha-2 country code of the current registered operator's MCC
    * (Mobile Country Code), or the country code of the default Locale if not available.
    *
@@ -2480,38 +2432,6 @@ public final class Util {
   @RequiresApi(21)
   private static String getLocaleLanguageTagV21(Locale locale) {
     return locale.toLanguageTag();
-  }
-
-  private static @C.NetworkType int getMobileNetworkType(NetworkInfo networkInfo) {
-    switch (networkInfo.getSubtype()) {
-      case TelephonyManager.NETWORK_TYPE_EDGE:
-      case TelephonyManager.NETWORK_TYPE_GPRS:
-        return C.NETWORK_TYPE_2G;
-      case TelephonyManager.NETWORK_TYPE_1xRTT:
-      case TelephonyManager.NETWORK_TYPE_CDMA:
-      case TelephonyManager.NETWORK_TYPE_EVDO_0:
-      case TelephonyManager.NETWORK_TYPE_EVDO_A:
-      case TelephonyManager.NETWORK_TYPE_EVDO_B:
-      case TelephonyManager.NETWORK_TYPE_HSDPA:
-      case TelephonyManager.NETWORK_TYPE_HSPA:
-      case TelephonyManager.NETWORK_TYPE_HSUPA:
-      case TelephonyManager.NETWORK_TYPE_IDEN:
-      case TelephonyManager.NETWORK_TYPE_UMTS:
-      case TelephonyManager.NETWORK_TYPE_EHRPD:
-      case TelephonyManager.NETWORK_TYPE_HSPAP:
-      case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
-        return C.NETWORK_TYPE_3G;
-      case TelephonyManager.NETWORK_TYPE_LTE:
-        return C.NETWORK_TYPE_4G;
-      case TelephonyManager.NETWORK_TYPE_NR:
-        return SDK_INT >= 29 ? C.NETWORK_TYPE_5G : C.NETWORK_TYPE_UNKNOWN;
-      case TelephonyManager.NETWORK_TYPE_IWLAN:
-        return C.NETWORK_TYPE_WIFI;
-      case TelephonyManager.NETWORK_TYPE_GSM:
-      case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-      default: // Future mobile network types.
-        return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
-    }
   }
 
   private static HashMap<String, String> createIsoLanguageReplacementMap() {

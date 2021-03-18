@@ -20,6 +20,7 @@ import static android.net.NetworkInfo.State.DISCONNECTED;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
@@ -30,11 +31,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
+import com.google.android.exoplayer2.util.NetworkTypeObserver;
 import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowNetworkInfo;
 
 /** Unit test for {@link DefaultBandwidthMeter}. */
@@ -56,6 +59,7 @@ public final class DefaultBandwidthMeterTest {
 
   @Before
   public void setUp() {
+    NetworkTypeObserver.resetForTests();
     connectivityManager =
         (ConnectivityManager)
             ApplicationProvider.getApplicationContext()
@@ -559,8 +563,12 @@ public final class DefaultBandwidthMeterTest {
     assertThat(initialEstimateWithoutBuilder).isLessThan(50_000_000L);
   }
 
+  @SuppressWarnings("StickyBroadcast")
   private void setActiveNetworkInfo(NetworkInfo networkInfo) {
     Shadows.shadowOf(connectivityManager).setActiveNetworkInfo(networkInfo);
+    ApplicationProvider.getApplicationContext()
+        .sendStickyBroadcast(new Intent(ConnectivityManager.CONNECTIVITY_ACTION));
+    ShadowLooper.idleMainLooper();
   }
 
   private void setNetworkCountryIso(String countryIso) {

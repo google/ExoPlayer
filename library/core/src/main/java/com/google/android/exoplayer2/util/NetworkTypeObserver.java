@@ -20,13 +20,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
+import android.telephony.TelephonyManager;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Observer for network type changes.
@@ -49,12 +52,16 @@ public final class NetworkTypeObserver {
     void onNetworkTypeChanged(@C.NetworkType int networkType);
   }
 
-  private static @MonotonicNonNull NetworkTypeObserver staticInstance;
+  @Nullable private static NetworkTypeObserver staticInstance;
 
-  private final Context context;
   private final Handler mainHandler;
   // This class needs to hold weak references as it doesn't require listeners to unregister.
   private final CopyOnWriteArrayList<WeakReference<Listener>> listeners;
+  private final Object networkTypeLock;
+
+  @GuardedBy("networkTypeLock")
+  @C.NetworkType
+  private int networkType;
 
   /**
    * Returns a network type observer instance.
@@ -68,10 +75,17 @@ public final class NetworkTypeObserver {
     return staticInstance;
   }
 
+  /** Resets the network type observer for tests. */
+  @VisibleForTesting
+  public static synchronized void resetForTests() {
+    staticInstance = null;
+  }
+
   private NetworkTypeObserver(Context context) {
-    this.context = context.getApplicationContext();
     mainHandler = new Handler(Looper.getMainLooper());
     listeners = new CopyOnWriteArrayList<>();
+    networkTypeLock = new Object();
+    networkType = C.NETWORK_TYPE_UNKNOWN;
     IntentFilter filter = new IntentFilter();
     filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
     context.registerReceiver(/* receiver= */ new Receiver(), filter);
@@ -95,7 +109,9 @@ public final class NetworkTypeObserver {
   /** Returns the current network type. */
   @C.NetworkType
   public int getNetworkType() {
-    return Util.getNetworkType(context);
+    synchronized (networkTypeLock) {
+      return networkType;
+    }
   }
 
   private void removeClearedReferences() {
@@ -106,22 +122,96 @@ public final class NetworkTypeObserver {
     }
   }
 
+  private void updateNetworkType(@C.NetworkType int networkType) {
+    synchronized (networkTypeLock) {
+      if (this.networkType == networkType) {
+        return;
+      }
+      this.networkType = networkType;
+    }
+    for (WeakReference<Listener> listenerReference : listeners) {
+      @Nullable Listener listener = listenerReference.get();
+      if (listener != null) {
+        listener.onNetworkTypeChanged(networkType);
+      } else {
+        listeners.remove(listenerReference);
+      }
+    }
+  }
+
+  @C.NetworkType
+  private static int getNetworkTypeFromConnectivityManager(Context context) {
+    NetworkInfo networkInfo;
+    @Nullable
+    ConnectivityManager connectivityManager =
+        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (connectivityManager == null) {
+      return C.NETWORK_TYPE_UNKNOWN;
+    }
+    try {
+      networkInfo = connectivityManager.getActiveNetworkInfo();
+    } catch (SecurityException e) {
+      // Expected if permission was revoked.
+      return C.NETWORK_TYPE_UNKNOWN;
+    }
+    if (networkInfo == null || !networkInfo.isConnected()) {
+      return C.NETWORK_TYPE_OFFLINE;
+    }
+    switch (networkInfo.getType()) {
+      case ConnectivityManager.TYPE_WIFI:
+        return C.NETWORK_TYPE_WIFI;
+      case ConnectivityManager.TYPE_WIMAX:
+        return C.NETWORK_TYPE_4G;
+      case ConnectivityManager.TYPE_MOBILE:
+      case ConnectivityManager.TYPE_MOBILE_DUN:
+      case ConnectivityManager.TYPE_MOBILE_HIPRI:
+        return getMobileNetworkType(networkInfo);
+      case ConnectivityManager.TYPE_ETHERNET:
+        return C.NETWORK_TYPE_ETHERNET;
+      default:
+        return C.NETWORK_TYPE_OTHER;
+    }
+  }
+
+  @C.NetworkType
+  private static int getMobileNetworkType(NetworkInfo networkInfo) {
+    switch (networkInfo.getSubtype()) {
+      case TelephonyManager.NETWORK_TYPE_EDGE:
+      case TelephonyManager.NETWORK_TYPE_GPRS:
+        return C.NETWORK_TYPE_2G;
+      case TelephonyManager.NETWORK_TYPE_1xRTT:
+      case TelephonyManager.NETWORK_TYPE_CDMA:
+      case TelephonyManager.NETWORK_TYPE_EVDO_0:
+      case TelephonyManager.NETWORK_TYPE_EVDO_A:
+      case TelephonyManager.NETWORK_TYPE_EVDO_B:
+      case TelephonyManager.NETWORK_TYPE_HSDPA:
+      case TelephonyManager.NETWORK_TYPE_HSPA:
+      case TelephonyManager.NETWORK_TYPE_HSUPA:
+      case TelephonyManager.NETWORK_TYPE_IDEN:
+      case TelephonyManager.NETWORK_TYPE_UMTS:
+      case TelephonyManager.NETWORK_TYPE_EHRPD:
+      case TelephonyManager.NETWORK_TYPE_HSPAP:
+      case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
+        return C.NETWORK_TYPE_3G;
+      case TelephonyManager.NETWORK_TYPE_LTE:
+        return C.NETWORK_TYPE_4G;
+      case TelephonyManager.NETWORK_TYPE_NR:
+        return Util.SDK_INT >= 29 ? C.NETWORK_TYPE_5G : C.NETWORK_TYPE_UNKNOWN;
+      case TelephonyManager.NETWORK_TYPE_IWLAN:
+        return C.NETWORK_TYPE_WIFI;
+      case TelephonyManager.NETWORK_TYPE_GSM:
+      case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+      default: // Future mobile network types.
+        return C.NETWORK_TYPE_CELLULAR_UNKNOWN;
+    }
+  }
+
   private final class Receiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-      if (isInitialStickyBroadcast()) {
-        return;
-      }
-      @C.NetworkType int networkType = getNetworkType();
-      for (WeakReference<Listener> listenerReference : listeners) {
-        @Nullable Listener listener = listenerReference.get();
-        if (listener != null) {
-          listener.onNetworkTypeChanged(networkType);
-        } else {
-          listeners.remove(listenerReference);
-        }
-      }
+      @C.NetworkType int networkType = getNetworkTypeFromConnectivityManager(context);
+      updateNetworkType(networkType);
     }
   }
 }

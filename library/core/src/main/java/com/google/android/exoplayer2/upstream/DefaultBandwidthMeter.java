@@ -259,6 +259,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   private final EventDispatcher eventDispatcher;
   private final SlidingPercentile slidingPercentile;
   private final Clock clock;
+  private final boolean resetOnNetworkTypeChange;
 
   private int streamCount;
   private long sampleStartTimeMs;
@@ -294,13 +295,15 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     this.eventDispatcher = new EventDispatcher();
     this.slidingPercentile = new SlidingPercentile(maxWeight);
     this.clock = clock;
-    // Set the initial network type and bitrate estimate
-    networkType = context == null ? C.NETWORK_TYPE_UNKNOWN : Util.getNetworkType(context);
-    bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
-    // Register to receive network change information if possible.
-    if (context != null && resetOnNetworkTypeChange) {
+    this.resetOnNetworkTypeChange = resetOnNetworkTypeChange;
+    if (context != null) {
       NetworkTypeObserver networkTypeObserver = NetworkTypeObserver.getInstance(context);
+      networkType = networkTypeObserver.getNetworkType();
+      bitrateEstimate = getInitialBitrateEstimateForNetworkType(networkType);
       networkTypeObserver.register(/* listener= */ this::onNetworkTypeChanged);
+    } else {
+      networkType = C.NETWORK_TYPE_UNKNOWN;
+      bitrateEstimate = getInitialBitrateEstimateForNetworkType(C.NETWORK_TYPE_UNKNOWN);
     }
   }
 
@@ -391,6 +394,11 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
   }
 
   private synchronized void onNetworkTypeChanged(@C.NetworkType int networkType) {
+    if (this.networkType != C.NETWORK_TYPE_UNKNOWN && !resetOnNetworkTypeChange) {
+      // Reset on network change disabled. Ignore all updates except the initial one.
+      return;
+    }
+
     if (networkTypeOverrideSet) {
       networkType = networkTypeOverride;
     }
