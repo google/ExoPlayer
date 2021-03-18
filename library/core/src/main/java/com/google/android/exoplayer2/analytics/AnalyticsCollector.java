@@ -179,11 +179,6 @@ public class AnalyticsCollector
     }
   }
 
-  /** Resets the analytics collector for a new playlist. */
-  public final void resetForNewPlaylist() {
-    // TODO: remove method.
-  }
-
   // MetadataOutput events.
 
   /**

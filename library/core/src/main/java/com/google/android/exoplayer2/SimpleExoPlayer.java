@@ -1307,7 +1307,6 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setMediaItems(List<MediaItem> mediaItems, boolean resetPosition) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaItems(mediaItems, resetPosition);
   }
 
@@ -1315,21 +1314,18 @@ public class SimpleExoPlayer extends BasePlayer
   public void setMediaItems(
       List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaItems(mediaItems, startWindowIndex, startPositionMs);
   }
 
   @Override
   public void setMediaSources(List<MediaSource> mediaSources) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaSources(mediaSources);
   }
 
   @Override
   public void setMediaSources(List<MediaSource> mediaSources, boolean resetPosition) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaSources(mediaSources, resetPosition);
   }
 
@@ -1337,28 +1333,24 @@ public class SimpleExoPlayer extends BasePlayer
   public void setMediaSources(
       List<MediaSource> mediaSources, int startWindowIndex, long startPositionMs) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaSources(mediaSources, startWindowIndex, startPositionMs);
   }
 
   @Override
   public void setMediaSource(MediaSource mediaSource) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaSource(mediaSource);
   }
 
   @Override
   public void setMediaSource(MediaSource mediaSource, boolean resetPosition) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaSource(mediaSource, resetPosition);
   }
 
   @Override
   public void setMediaSource(MediaSource mediaSource, long startPositionMs) {
     verifyApplicationThread();
-    analyticsCollector.resetForNewPlaylist();
     player.setMediaSource(mediaSource, startPositionMs);
   }
 
