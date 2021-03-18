@@ -88,9 +88,16 @@
         `DashMediaSource.Factory`.
     *   We don't currently support using platform extractors with
         SmoothStreaming.
-*   IMA extension: fix error caused by `AdPlaybackState` ad group times being
-    cleared, which can occur if the `ImaAdsLoader` is released while an ad is
-    pending loading ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
+*   IMA extension:
+    *   Fix error caused by `AdPlaybackState` ad group times being cleared,
+        which can occur if the `ImaAdsLoader` is released while an ad is
+        pending loading
+        ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
+    *   Upgrade IMA SDK dependency to 3.22.3, fixing an issue with
+        `NullPointerExceptions` within `WebView` callbacks
+        ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
+
+the IMA SDK.
 
 ### 2.13.2 (2021-02-25)
 
