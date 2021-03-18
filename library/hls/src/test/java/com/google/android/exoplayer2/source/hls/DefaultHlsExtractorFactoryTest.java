@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.testutil.FakeExtractorInput;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,8 +45,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class DefaultHlsExtractorFactoryTest {
 
-  private static final Uri URI_WITH_TS_EXTENSION = Uri.parse("http://path/filename.ts");
+  private static final Uri URI_WITH_JPEG_EXTENSION = Uri.parse("http://path/filename.jpg");
   private static final Uri URI_WITH_MP4_EXTENSION = Uri.parse("http://path/filename.mp4");
+  private static final Uri URI_WITH_TS_EXTENSION = Uri.parse("http://path/filename.ts");
 
   private Format webVttFormat;
   private TimestampAdjuster timestampAdjuster;
@@ -149,6 +151,28 @@ public class DefaultHlsExtractorFactoryTest {
                 mp3ExtractorInput);
 
     assertThat(result.extractor.getClass()).isEqualTo(Mp3Extractor.class);
+  }
+
+  @Test
+  public void createExtractor_withInvalidFileTypeInUri_returnsSniffedType() throws Exception {
+    ExtractorInput tsExtractorInput =
+        new FakeExtractorInput.Builder()
+            .setData(
+                TestUtil.getByteArray(
+                    ApplicationProvider.getApplicationContext(), "media/ts/sample_ac3.ts"))
+            .build();
+
+    BundledHlsMediaChunkExtractor result =
+        new DefaultHlsExtractorFactory()
+            .createExtractor(
+                URI_WITH_JPEG_EXTENSION,
+                webVttFormat,
+                /* muxedCaptionFormats= */ null,
+                timestampAdjuster,
+                ImmutableMap.of("Content-Type", ImmutableList.of(MimeTypes.IMAGE_JPEG)),
+                tsExtractorInput);
+
+    assertThat(result.extractor.getClass()).isEqualTo(TsExtractor.class);
   }
 
   @Test
