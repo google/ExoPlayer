@@ -136,6 +136,7 @@ public abstract class BasePlayer implements Player {
     removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
   }
 
+  /** @deprecated Use {@link #getPlayerError()} instead. */
   @Deprecated
   @Override
   @Nullable
