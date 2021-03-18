@@ -565,6 +565,16 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     int responseCode = responseInfo.getHttpStatusCode();
     Map<String, List<String>> responseHeaders = responseInfo.getAllHeaders();
     if (responseCode < 200 || responseCode > 299) {
+      if (responseCode == 416) {
+        long documentSize =
+            HttpUtil.getDocumentSize(getFirstHeader(responseHeaders, HttpHeaders.CONTENT_RANGE));
+        if (dataSpec.position == documentSize) {
+          opened = true;
+          transferStarted(dataSpec);
+          return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : 0;
+        }
+      }
+
       byte[] responseBody;
       try {
         responseBody = readResponseBody();

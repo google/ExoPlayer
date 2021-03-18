@@ -330,7 +330,8 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
   @Override
   public long open(DataSpec dataSpec) throws HttpDataSourceException {
     this.dataSpec = dataSpec;
-    this.bytesRead = 0;
+    bytesRead = 0;
+    bytesToRead = 0;
     transferInitializing(dataSpec);
 
     try {
@@ -359,6 +360,16 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     // Check for a valid response code.
     if (responseCode < 200 || responseCode > 299) {
       Map<String, List<String>> headers = connection.getHeaderFields();
+      if (responseCode == 416) {
+        long documentSize =
+            HttpUtil.getDocumentSize(connection.getHeaderField(HttpHeaders.CONTENT_RANGE));
+        if (dataSpec.position == documentSize) {
+          opened = true;
+          transferStarted(dataSpec);
+          return dataSpec.length != C.LENGTH_UNSET ? dataSpec.length : 0;
+        }
+      }
+
       @Nullable InputStream errorStream = connection.getErrorStream();
       byte[] errorResponseBody;
       try {
@@ -371,7 +382,6 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
       InvalidResponseCodeException exception =
           new InvalidResponseCodeException(
               responseCode, responseMessage, headers, dataSpec, errorResponseBody);
-
       if (responseCode == 416) {
         exception.initCause(new DataSourceException(DataSourceException.POSITION_OUT_OF_RANGE));
       }

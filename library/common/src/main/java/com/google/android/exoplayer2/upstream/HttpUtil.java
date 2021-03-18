@@ -32,6 +32,8 @@ public final class HttpUtil {
   private static final String TAG = "HttpUtil";
   private static final Pattern CONTENT_RANGE_WITH_START_AND_END =
       Pattern.compile("bytes (\\d+)-(\\d+)/(?:\\d+|\\*)");
+  private static final Pattern CONTENT_RANGE_WITH_SIZE =
+      Pattern.compile("bytes (?:(?:\\d+-\\d+)|\\*)/(\\d+)");
 
   /** Class only contains static methods. */
   private HttpUtil() {}
@@ -57,6 +59,22 @@ public final class HttpUtil {
       rangeValue.append(position + length - 1);
     }
     return rangeValue.toString();
+  }
+
+  /**
+   * Attempts to parse the document size from a {@link HttpHeaders#CONTENT_RANGE Content-Range
+   * header}.
+   *
+   * @param contentRangeHeader The {@link HttpHeaders#CONTENT_RANGE Content-Range header}, or {@code
+   *     null} if not set.
+   * @return The document size, or {@link C#LENGTH_UNSET} if it could not be determined.
+   */
+  public static long getDocumentSize(@Nullable String contentRangeHeader) {
+    if (TextUtils.isEmpty(contentRangeHeader)) {
+      return C.LENGTH_UNSET;
+    }
+    Matcher matcher = CONTENT_RANGE_WITH_SIZE.matcher(contentRangeHeader);
+    return matcher.matches() ? Long.parseLong(checkNotNull(matcher.group(1))) : C.LENGTH_UNSET;
   }
 
   /**

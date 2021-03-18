@@ -232,27 +232,17 @@ public abstract class DataSourceContractTest {
       DataSpec dataSpec =
           new DataSpec.Builder().setUri(resource.getUri()).setPosition(resourceLength).build();
       try {
-        try {
-          long length = dataSource.open(dataSpec);
-          // The DataSource.open() contract requires the returned length to equal the length in the
-          // DataSpec if set. This is true even though the DataSource implementation may know that
-          // fewer bytes will be read in this case.
-          if (length != C.LENGTH_UNSET) {
-            assertThat(length).isEqualTo(0);
-          }
+        long length = dataSource.open(dataSpec);
+        byte[] data =
+            unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
 
-          try {
-            byte[] data =
-                unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
-            assertThat(data).isEmpty();
-          } catch (IOException e) {
-            // TODO: Remove this catch once the one below is removed.
-            throw new RuntimeException(e);
-          }
-        } catch (IOException e) {
-          // TODO: Remove this catch and require that implementations do not throw.
-          assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
+        // The DataSource.open() contract requires the returned length to equal the length in the
+        // DataSpec if set. This is true even though the DataSource implementation may know that
+        // fewer bytes will be read in this case.
+        if (length != C.LENGTH_UNSET) {
+          assertThat(length).isEqualTo(0);
         }
+        assertThat(data).isEmpty();
       } finally {
         dataSource.close();
       }
@@ -278,25 +268,15 @@ public abstract class DataSourceContractTest {
               .setLength(1)
               .build();
       try {
-        try {
-          long length = dataSource.open(dataSpec);
-          // The DataSource.open() contract requires the returned length to equal the length in the
-          // DataSpec if set. This is true even though the DataSource implementation may know that
-          // fewer bytes will be read in this case.
-          assertThat(length).isEqualTo(1);
+        long length = dataSource.open(dataSpec);
+        byte[] data =
+            unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
 
-          try {
-            byte[] data =
-                unboundedReadsAreIndefinite() ? Util.EMPTY_BYTE_ARRAY : Util.readToEnd(dataSource);
-            assertThat(data).isEmpty();
-          } catch (IOException e) {
-            // TODO: Remove this catch once the one below is removed.
-            throw new RuntimeException(e);
-          }
-        } catch (IOException e) {
-          // TODO: Remove this catch and require that implementations do not throw.
-          assertThat(DataSourceException.isCausedByPositionOutOfRange(e)).isTrue();
-        }
+        // The DataSource.open() contract requires the returned length to equal the length in the
+        // DataSpec if set. This is true even though the DataSource implementation may know that
+        // fewer bytes will be read in this case.
+        assertThat(length).isEqualTo(1);
+        assertThat(data).isEmpty();
       } finally {
         dataSource.close();
       }
