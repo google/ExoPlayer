@@ -37,6 +37,9 @@
         `EXT-X-DISCONTINUITY` tags in different media playlists occur at
         different positions in time
         ([#8372](https://github.com/google/ExoPlayer/issues/8372)).
+    *   Fix container type detection for segments with incorrect file extension
+        or HTTP Content-Type
+        ([#8733](https://github.com/google/ExoPlayer/issues/8733)).
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
