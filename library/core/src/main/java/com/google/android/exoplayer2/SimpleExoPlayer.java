@@ -1247,14 +1247,6 @@ public class SimpleExoPlayer extends BasePlayer
     return player.getPlaybackSuppressionReason();
   }
 
-  /** @deprecated Use {@link #getPlayerError()} instead. */
-  @Deprecated
-  @Override
-  @Nullable
-  public ExoPlaybackException getPlaybackError() {
-    return getPlayerError();
-  }
-
   @Override
   @Nullable
   public ExoPlaybackException getPlayerError() {

@@ -136,6 +136,13 @@ public abstract class BasePlayer implements Player {
     removeMediaItems(/* fromIndex= */ 0, /* toIndex= */ Integer.MAX_VALUE);
   }
 
+  @Deprecated
+  @Override
+  @Nullable
+  public final ExoPlaybackException getPlaybackError() {
+    return getPlayerError();
+  }
+
   @Override
   public final void play() {
     setPlayWhenReady(true);

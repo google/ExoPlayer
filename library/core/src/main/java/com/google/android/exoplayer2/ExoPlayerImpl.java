@@ -333,13 +333,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
     return playbackInfo.playbackSuppressionReason;
   }
 
-  @Deprecated
-  @Override
-  @Nullable
-  public ExoPlaybackException getPlaybackError() {
-    return getPlayerError();
-  }
-
   @Override
   @Nullable
   public ExoPlaybackException getPlayerError() {
