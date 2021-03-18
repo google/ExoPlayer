@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import android.media.MediaCodec.LinearBlock;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -126,6 +127,17 @@ public interface MediaCodecAdapter {
    * @see MediaCodec#queueInputBuffer
    */
   void queueInputBuffer(int index, int offset, int size, long presentationTimeUs, int flags);
+  
+  /**
+   * Submit an LinearBlock for decoding.
+   *
+   * <p>The {@code index} must be an LinearBlock index that has been obtained from a previous call
+   * to {@link #dequeueInputBufferIndex()} in {@link MediaCodec#CONFIGURE_FLAG_USE_BLOCK_MODEL}.
+   *
+   * @see MediaCodec.QueueRequest#setLinearBlock
+   */
+  @RequiresApi(30)
+  void queueInputLinearBlockBuffer(int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags);
 
   /**
    * Submit an input buffer that is potentially encrypted for decoding.
