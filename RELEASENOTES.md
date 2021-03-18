@@ -68,9 +68,14 @@
     *   Fix `onPositionDiscontinuity` event so that it is not triggered with
         reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
         media item and so that it is not triggered after a timeline change.
-*   IMA extension: fix error caused by `AdPlaybackState` ad group times being
-    cleared, which can occur if the `ImaAdsLoader` is released while an ad is
-    pending loading ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
+*   IMA extension:
+    *   Fix error caused by `AdPlaybackState` ad group times being cleared,
+        which can occur if the `ImaAdsLoader` is released while an ad is
+        pending loading
+        ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
+    *   Upgrade IMA SDK dependency to 3.22.3, fixing an issue with
+        `NullPointerExceptions` within `WebView` callbacks
+        ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
 
 ### 2.13.2 (2021-02-25)
 
