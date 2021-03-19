@@ -100,7 +100,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
             parseMotionPhotoPresentationTimestampUsFromDescription(xpp);
         containerItems = parseMicroVideoOffsetFromDescription(xpp);
       } else if (XmlPullParserUtil.isStartTag(xpp, "Container:Directory")) {
-        containerItems = parseMotionPhotoV1Directory(xpp);
+        containerItems = parseMotionPhotoV1Directory(xpp, "Container", "Item");
+      } else if (XmlPullParserUtil.isStartTag(xpp, "GContainer:Directory")) {
+        containerItems = parseMotionPhotoV1Directory(xpp, "GContainer", "GContainerItem");
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, "x:xmpmeta"));
     if (containerItems.isEmpty()) {
@@ -154,16 +156,23 @@ import org.xmlpull.v1.XmlPullParserFactory;
   }
 
   private static ImmutableList<MotionPhotoDescription.ContainerItem> parseMotionPhotoV1Directory(
-      XmlPullParser xpp) throws XmlPullParserException, IOException {
+      XmlPullParser xpp, String containerNamespacePrefix, String itemNamespacePrefix)
+      throws XmlPullParserException, IOException {
     ImmutableList.Builder<MotionPhotoDescription.ContainerItem> containerItems =
         ImmutableList.builder();
+    String itemTagName = containerNamespacePrefix + ":Item";
+    String directoryTagName = containerNamespacePrefix + ":Directory";
     do {
       xpp.next();
-      if (XmlPullParserUtil.isStartTag(xpp, "Container:Item")) {
-        @Nullable String mime = XmlPullParserUtil.getAttributeValue(xpp, "Item:Mime");
-        @Nullable String semantic = XmlPullParserUtil.getAttributeValue(xpp, "Item:Semantic");
-        @Nullable String length = XmlPullParserUtil.getAttributeValue(xpp, "Item:Length");
-        @Nullable String padding = XmlPullParserUtil.getAttributeValue(xpp, "Item:Padding");
+      if (XmlPullParserUtil.isStartTag(xpp, itemTagName)) {
+        String mimeAttributeName = itemNamespacePrefix + ":Mime";
+        String semanticAttributeName = itemNamespacePrefix + ":Semantic";
+        String lengthAttributeName = itemNamespacePrefix + ":Length";
+        String paddinghAttributeName = itemNamespacePrefix + ":Padding";
+        @Nullable String mime = XmlPullParserUtil.getAttributeValue(xpp, mimeAttributeName);
+        @Nullable String semantic = XmlPullParserUtil.getAttributeValue(xpp, semanticAttributeName);
+        @Nullable String length = XmlPullParserUtil.getAttributeValue(xpp, lengthAttributeName);
+        @Nullable String padding = XmlPullParserUtil.getAttributeValue(xpp, paddinghAttributeName);
         if (mime == null || semantic == null) {
           // Required values are missing.
           return ImmutableList.of();
@@ -175,7 +184,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
                 length != null ? Long.parseLong(length) : 0,
                 padding != null ? Long.parseLong(padding) : 0));
       }
-    } while (!XmlPullParserUtil.isEndTag(xpp, "Container:Directory"));
+    } while (!XmlPullParserUtil.isEndTag(xpp, directoryTagName));
     return containerItems.build();
   }
 

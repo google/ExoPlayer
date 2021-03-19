@@ -40,6 +40,9 @@
     *   Fix container type detection for segments with incorrect file extension
         or HTTP Content-Type
         ([#8733](https://github.com/google/ExoPlayer/issues/8733)).
+*   Extractors:
+    *   Add support for `GContainer` and `GContainerItem` XMP namespace prefixes
+        in JPEG motion photo parsing.
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
