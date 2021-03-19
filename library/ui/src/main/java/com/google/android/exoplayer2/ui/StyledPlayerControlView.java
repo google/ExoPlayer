@@ -144,7 +144,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *         <li>Corresponding method: {@link #setShowShuffleButton(boolean)}
  *         <li>Default: false
  *       </ul>
- *   <li><b>{@code show_subtitle_button}</b> - Whether the shuffle button is shown.
+ *   <li><b>{@code show_subtitle_button}</b> - Whether the subtitle button is shown.
  *       <ul>
  *         <li>Corresponding method: {@link #setShowSubtitleButton(boolean)}
  *         <li>Default: false
