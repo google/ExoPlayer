@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.mediacodec;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.media.MediaCodec;
+import android.media.MediaCodec.LinearBlock;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -118,6 +119,10 @@ public final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
       int index, int offset, int size, long presentationTimeUs, int flags) {
     codec.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
   }
+  
+  @Override
+  @RequiresApi(30)
+  void queueInputLinearBlockBuffer(int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {}
 
   @Override
   public void queueSecureInputBuffer(
