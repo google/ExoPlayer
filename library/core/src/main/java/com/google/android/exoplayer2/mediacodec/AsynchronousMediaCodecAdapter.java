@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.mediacodec;
 
 import android.media.MediaCodec;
+import android.media.MediaCodec.LinearBlock;
 import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Bundle;
@@ -182,6 +183,10 @@ import java.nio.ByteBuffer;
   public int dequeueInputBufferIndex() {
     return asynchronousMediaCodecCallback.dequeueInputBufferIndex();
   }
+  
+  @Override
+  @RequiresApi(30)
+  void queueInputLinearBlockBuffer(int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {}
 
   @Override
   public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
