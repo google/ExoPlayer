@@ -122,7 +122,7 @@ public final class SynchronousMediaCodecAdapter implements MediaCodecAdapter {
   
   @Override
   @RequiresApi(30)
-  void queueInputLinearBlockBuffer(int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {}
+  public void queueInputLinearBlockBuffer(int index, LinearBlock linearBlock, int offset, int size, long presentationTimeUs, int flags) {}
 
   @Override
   public void queueSecureInputBuffer(
