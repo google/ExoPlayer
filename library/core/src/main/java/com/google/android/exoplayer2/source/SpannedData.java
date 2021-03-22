@@ -61,8 +61,9 @@ import com.google.android.exoplayer2.util.Consumer;
    *
    * <p>The collection must not be {@link #isEmpty() empty}.
    *
-   * <p>{@code key} must be greater than or equal to the previous value passed to {@link
-   * #discardTo(int)} (or zero after {@link #clear()} has been called).
+   * @param key The key to lookup in the collection. Must be greater than or equal to the previous
+   *     value passed to {@link #discardTo(int)} (or zero after {@link #clear()} has been called).
+   * @return The value associated with the provided key.
    */
   public V get(int key) {
     if (memoizedReadIndex == C.INDEX_UNSET) {
@@ -101,12 +102,11 @@ import com.google.android.exoplayer2.util.Consumer;
   }
 
   /**
-   * Returns the value associated with the end span.
+   * Returns the value associated with the end span. This is either the last value passed to {@link
+   * #appendSpan(int, Object)}, or the value of the span covering the index passed to {@link
+   * #discardFrom(int)}.
    *
    * <p>The collection must not be {@link #isEmpty() empty}.
-   *
-   * <p>This is either the last value passed to {@link #appendSpan(int, Object)}, or the value of
-   * the span covering the index passed to {@link #discardFrom(int)}.
    */
   public V getEndValue() {
     return spans.valueAt(spans.size() - 1);
