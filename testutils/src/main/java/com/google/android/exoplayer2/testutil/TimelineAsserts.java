@@ -105,6 +105,38 @@ public final class TimelineAsserts {
   }
 
   /**
+   * Asserts that previous window indices for each window of the actual timeline are equal to the
+   * indices of the expected timeline depending on the repeat mode and the shuffle mode.
+   */
+  public static void assertEqualPreviousWindowIndices(
+      Timeline expectedTimeline,
+      Timeline actualTimeline,
+      @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
+    for (int windowIndex = 0; windowIndex < actualTimeline.getWindowCount(); windowIndex++) {
+      assertThat(actualTimeline.getPreviousWindowIndex(windowIndex, repeatMode, shuffleModeEnabled))
+          .isEqualTo(
+              expectedTimeline.getPreviousWindowIndex(windowIndex, repeatMode, shuffleModeEnabled));
+    }
+  }
+
+  /**
+   * Asserts that next window indices for each window of the actual timeline are equal to the
+   * indices of the expected timeline depending on the repeat mode and the shuffle mode.
+   */
+  public static void assertEqualNextWindowIndices(
+      Timeline expectedTimeline,
+      Timeline actualTimeline,
+      @Player.RepeatMode int repeatMode,
+      boolean shuffleModeEnabled) {
+    for (int windowIndex = 0; windowIndex < actualTimeline.getWindowCount(); windowIndex++) {
+      assertThat(actualTimeline.getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled))
+          .isEqualTo(
+              expectedTimeline.getNextWindowIndex(windowIndex, repeatMode, shuffleModeEnabled));
+    }
+  }
+
+  /**
    * Asserts that the durations of the periods in the {@link Timeline} and the durations in the
    * given sequence are equal.
    */

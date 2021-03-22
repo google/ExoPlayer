@@ -1707,40 +1707,6 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void
-      testInvalidSeekPositionAfterSourceInfoRefreshWithShuffleModeEnabledUsesCorrectFirstPeriod()
-          throws Exception {
-    FakeMediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 2));
-    AtomicInteger windowIndexAfterUpdate = new AtomicInteger();
-    ActionSchedule actionSchedule =
-        new ActionSchedule.Builder(TAG)
-            .setShuffleOrder(new FakeShuffleOrder(/* length= */ 0))
-            .setShuffleModeEnabled(true)
-            .waitForPlaybackState(Player.STATE_BUFFERING)
-            // Seeking to an invalid position will end playback.
-            .seek(
-                /* windowIndex= */ 100, /* positionMs= */ 0, /* catchIllegalSeekException= */ true)
-            .waitForPlaybackState(Player.STATE_ENDED)
-            .executeRunnable(
-                new PlayerRunnable() {
-                  @Override
-                  public void run(SimpleExoPlayer player) {
-                    windowIndexAfterUpdate.set(player.getCurrentWindowIndex());
-                  }
-                })
-            .build();
-    new ExoPlayerTestRunner.Builder(context)
-        .setMediaSources(mediaSource)
-        .setActionSchedule(actionSchedule)
-        .build()
-        .start()
-        .blockUntilActionScheduleFinished(TIMEOUT_MS)
-        .blockUntilEnded(TIMEOUT_MS);
-
-    assertThat(windowIndexAfterUpdate.get()).isEqualTo(1);
-  }
-
-  @Test
   public void restartAfterEmptyTimelineWithShuffleModeEnabledUsesCorrectFirstPeriod()
       throws Exception {
     ConcatenatingMediaSource concatenatingMediaSource =

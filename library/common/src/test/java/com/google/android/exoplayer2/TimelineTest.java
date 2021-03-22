@@ -238,6 +238,47 @@ public class TimelineTest {
   }
 
   @Test
+  public void roundtripViaBundle_ofTimeline_preservesWindowIndices() {
+    int windowCount = 10;
+    FakeTimeline timeline = new FakeTimeline(windowCount);
+
+    Timeline restoredTimeline = Timeline.CREATOR.fromBundle(timeline.toBundle());
+
+    assertThat(restoredTimeline.getLastWindowIndex(/* shuffleModeEnabled= */ false))
+        .isEqualTo(timeline.getLastWindowIndex(/* shuffleModeEnabled= */ false));
+    assertThat(restoredTimeline.getLastWindowIndex(/* shuffleModeEnabled= */ true))
+        .isEqualTo(timeline.getLastWindowIndex(/* shuffleModeEnabled= */ true));
+    assertThat(restoredTimeline.getFirstWindowIndex(/* shuffleModeEnabled= */ false))
+        .isEqualTo(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ false));
+    assertThat(restoredTimeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true))
+        .isEqualTo(timeline.getFirstWindowIndex(/* shuffleModeEnabled= */ true));
+    TimelineAsserts.assertEqualNextWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false);
+    TimelineAsserts.assertEqualNextWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true);
+    TimelineAsserts.assertEqualNextWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ false);
+    TimelineAsserts.assertEqualNextWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ true);
+    TimelineAsserts.assertEqualNextWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ false);
+    TimelineAsserts.assertEqualNextWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ true);
+    TimelineAsserts.assertEqualPreviousWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ false);
+    TimelineAsserts.assertEqualPreviousWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_OFF, /* shuffleModeEnabled= */ true);
+    TimelineAsserts.assertEqualPreviousWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ false);
+    TimelineAsserts.assertEqualPreviousWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ONE, /* shuffleModeEnabled= */ true);
+    TimelineAsserts.assertEqualPreviousWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ false);
+    TimelineAsserts.assertEqualPreviousWindowIndices(
+        timeline, restoredTimeline, Player.REPEAT_MODE_ALL, /* shuffleModeEnabled= */ true);
+  }
+
+  @Test
   public void roundtripViaBundle_ofWindow_yieldsEqualInstanceExceptUidAndManifest() {
     Timeline.Window window = new Timeline.Window();
     window.uid = new Object();
