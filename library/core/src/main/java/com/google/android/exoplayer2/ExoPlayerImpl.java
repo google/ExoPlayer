@@ -669,7 +669,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
-  public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     if (playbackParameters == null) {
       playbackParameters = PlaybackParameters.DEFAULT;
     }

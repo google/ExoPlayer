@@ -1467,7 +1467,7 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters) {
+  public void setPlaybackParameters(PlaybackParameters playbackParameters) {
     verifyApplicationThread();
     player.setPlaybackParameters(playbackParameters);
   }

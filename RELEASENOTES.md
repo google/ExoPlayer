@@ -30,10 +30,12 @@
     *   Reset playback speed when live playback speed control becomes unused
         ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
     *   Fix playback position issue when re-preparing playback after a
-        BehindLiveWindowException
+        `BehindLiveWindowException`
         ([#8675](https://github.com/google/ExoPlayer/issues/8675)).
     *   Add a `Listener` interface to receive all player events in a single
         object.
+    *   `Player.setPlaybackParameters` no longer accepts null, use
+        `PlaybackParameters.DEFAULT` instead.
 *   HLS:
     *   Fix issue that could cause playback to become stuck if corresponding
         `EXT-X-DISCONTINUITY` tags in different media playlists occur at

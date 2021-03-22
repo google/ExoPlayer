@@ -1491,16 +1491,16 @@ public interface Player {
   void next();
 
   /**
-   * Attempts to set the playback parameters. Passing {@code null} sets the parameters to the
-   * default, {@link PlaybackParameters#DEFAULT}, which means there is no speed or pitch adjustment.
+   * Attempts to set the playback parameters. Passing {@link PlaybackParameters#DEFAULT} resets the
+   * player to the default, which means there is no speed or pitch adjustment.
    *
    * <p>Playback parameters changes may cause the player to buffer. {@link
    * EventListener#onPlaybackParametersChanged(PlaybackParameters)} will be called whenever the
    * currently active playback parameters change.
    *
-   * @param playbackParameters The playback parameters, or {@code null} to use the defaults.
+   * @param playbackParameters The playback parameters.
    */
-  void setPlaybackParameters(@Nullable PlaybackParameters playbackParameters);
+  void setPlaybackParameters(PlaybackParameters playbackParameters);
 
   /**
    * Changes the rate at which playback occurs. The pitch is not changed.
