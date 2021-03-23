@@ -463,7 +463,8 @@ public interface ExoPlayer extends Player {
               pauseAtEndOfMediaItems,
               clock,
               looper,
-              /* wrappingPlayer= */ null);
+              /* wrappingPlayer= */ null,
+              /* additionalPermanentAvailableCommands= */ Commands.EMPTY);
 
       if (setForegroundModeTimeoutMs > 0) {
         player.experimentalSetForegroundModeTimeoutMs(setForegroundModeTimeoutMs);

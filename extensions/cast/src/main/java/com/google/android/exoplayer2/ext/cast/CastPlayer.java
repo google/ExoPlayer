@@ -75,17 +75,18 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @VisibleForTesting
-  /* package */ static final int[] PERMANENT_AVAILABLE_COMMANDS =
-      new int[] {
-        COMMAND_PLAY_PAUSE,
-        COMMAND_PREPARE_STOP_RELEASE,
-        COMMAND_SEEK_TO_MEDIA_ITEM,
-        COMMAND_SET_REPEAT_MODE,
-        COMMAND_GET_CURRENT_MEDIA_ITEM,
-        COMMAND_GET_MEDIA_ITEMS,
-        COMMAND_GET_MEDIA_ITEMS_METADATA,
-        COMMAND_CHANGE_MEDIA_ITEMS
-      };
+  /* package */ static final Commands PERMANENT_AVAILABLE_COMMANDS =
+      new Commands.Builder()
+          .addAll(
+              COMMAND_PLAY_PAUSE,
+              COMMAND_PREPARE_STOP_RELEASE,
+              COMMAND_SEEK_TO_MEDIA_ITEM,
+              COMMAND_SET_REPEAT_MODE,
+              COMMAND_GET_CURRENT_MEDIA_ITEM,
+              COMMAND_GET_MEDIA_ITEMS,
+              COMMAND_GET_MEDIA_ITEMS_METADATA,
+              COMMAND_CHANGE_MEDIA_ITEMS)
+          .build();
 
   private static final String TAG = "CastPlayer";
 

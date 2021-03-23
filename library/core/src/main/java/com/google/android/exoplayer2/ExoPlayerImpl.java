@@ -26,7 +26,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -57,20 +56,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 /* package */ final class ExoPlayerImpl extends BasePlayer implements ExoPlayer {
 
-  @VisibleForTesting
-  /* package */ static final int[] PERMANENT_AVAILABLE_COMMANDS =
-      new int[] {
-        COMMAND_PLAY_PAUSE,
-        COMMAND_PREPARE_STOP_RELEASE,
-        COMMAND_SET_SPEED_AND_PITCH,
-        COMMAND_SET_SHUFFLE_MODE,
-        COMMAND_SET_REPEAT_MODE,
-        COMMAND_GET_CURRENT_MEDIA_ITEM,
-        COMMAND_GET_MEDIA_ITEMS,
-        COMMAND_GET_MEDIA_ITEMS_METADATA,
-        COMMAND_CHANGE_MEDIA_ITEMS
-      };
-
   private static final String TAG = "ExoPlayerImpl";
 
   /**
@@ -81,6 +66,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
    * operation.
    */
   /* package */ final TrackSelectorResult emptyTrackSelectorResult;
+  /* package */ final Commands permanentAvailableCommands;
 
   private final Renderer[] renderers;
   private final TrackSelector trackSelector;
@@ -139,6 +125,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
    *     which is used to call listeners on.
    * @param wrappingPlayer The {@link Player} wrapping this one if applicable. This player instance
    *     should be used for all externally visible callbacks.
+   * @param additionalPermanentAvailableCommands The {@link Commands} that are permanently available
+   *     in the wrapping player but that are not in this player.
    */
   @SuppressLint("HandlerLeak")
   public ExoPlayerImpl(
@@ -155,7 +143,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
       boolean pauseAtEndOfMediaItems,
       Clock clock,
       Looper applicationLooper,
-      @Nullable Player wrappingPlayer) {
+      @Nullable Player wrappingPlayer,
+      Commands additionalPermanentAvailableCommands) {
     Log.i(
         TAG,
         "Init "
@@ -192,9 +181,23 @@ import java.util.concurrent.CopyOnWriteArraySet;
             new ExoTrackSelection[renderers.length],
             /* info= */ null);
     period = new Timeline.Period();
+    permanentAvailableCommands =
+        new Commands.Builder()
+            .addAll(
+                COMMAND_PLAY_PAUSE,
+                COMMAND_PREPARE_STOP_RELEASE,
+                COMMAND_SET_SPEED_AND_PITCH,
+                COMMAND_SET_SHUFFLE_MODE,
+                COMMAND_SET_REPEAT_MODE,
+                COMMAND_GET_CURRENT_MEDIA_ITEM,
+                COMMAND_GET_MEDIA_ITEMS,
+                COMMAND_GET_MEDIA_ITEMS_METADATA,
+                COMMAND_CHANGE_MEDIA_ITEMS)
+            .addAll(additionalPermanentAvailableCommands)
+            .build();
     availableCommands =
         new Commands.Builder()
-            .addAll(PERMANENT_AVAILABLE_COMMANDS)
+            .addAll(permanentAvailableCommands)
             .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
     maskingWindowIndex = C.INDEX_UNSET;
@@ -1188,7 +1191,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
   private void updateAvailableCommands() {
     Commands previousAvailableCommands = availableCommands;
-    availableCommands = getAvailableCommands(PERMANENT_AVAILABLE_COMMANDS);
+    availableCommands = getAvailableCommands(permanentAvailableCommands);
     if (!availableCommands.equals(previousAvailableCommands)) {
       listeners.queueEvent(
           Player.EVENT_AVAILABLE_COMMANDS_CHANGED,

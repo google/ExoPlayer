@@ -668,6 +668,17 @@ public class SimpleExoPlayer extends BasePlayer
     throwsWhenUsingWrongThread = true;
 
     // Build the player and associated objects.
+    Commands additionalPermanentAvailableCommands =
+        new Commands.Builder()
+            .addAll(
+                COMMAND_GET_VOLUME,
+                COMMAND_GET_DEVICE_VOLUME,
+                COMMAND_SET_VOLUME,
+                COMMAND_SET_DEVICE_VOLUME,
+                COMMAND_ADJUST_DEVICE_VOLUME,
+                COMMAND_SET_VIDEO_SURFACE,
+                COMMAND_GET_TEXT)
+            .build();
     player =
         new ExoPlayerImpl(
             renderers,
@@ -683,7 +694,8 @@ public class SimpleExoPlayer extends BasePlayer
             builder.pauseAtEndOfMediaItems,
             builder.clock,
             builder.looper,
-            /* wrappingPlayer= */ this);
+            /* wrappingPlayer= */ this,
+            additionalPermanentAvailableCommands);
     player.addListener(componentListener);
     player.addAudioOffloadListener(componentListener);
 

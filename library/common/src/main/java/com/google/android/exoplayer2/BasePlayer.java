@@ -328,7 +328,7 @@ public abstract class BasePlayer implements Player {
     return repeatMode == REPEAT_MODE_ONE ? REPEAT_MODE_OFF : repeatMode;
   }
 
-  protected Commands getAvailableCommands(@Command int[] permanentAvailableCommands) {
+  protected Commands getAvailableCommands(Commands permanentAvailableCommands) {
     return new Commands.Builder()
         .addAll(permanentAvailableCommands)
         .addIf(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, isCurrentWindowSeekable() && !isPlayingAd())

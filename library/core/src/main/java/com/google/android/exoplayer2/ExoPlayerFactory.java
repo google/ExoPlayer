@@ -261,6 +261,7 @@ public final class ExoPlayerFactory {
         /* pauseAtEndOfMediaItems= */ false,
         Clock.DEFAULT,
         applicationLooper,
-        /* wrappingPlayer= */ null);
+        /* wrappingPlayer= */ null,
+        /* additionalPermanentAvailableCommands= */ Player.Commands.EMPTY);
   }
 }

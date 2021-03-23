@@ -752,6 +752,18 @@ public interface Player {
       }
 
       /**
+       * Adds {@link Commands}.
+       *
+       * @param commands The set of {@link Command commands} to add.
+       * @return This builder.
+       * @throws IllegalStateException If {@link #build()} has already been called.
+       */
+      public Builder addAll(Commands commands) {
+        flagsBuilder.addAll(commands.flags);
+        return this;
+      }
+
+      /**
        * Builds a {@link Commands} instance.
        *
        * @throws IllegalStateException If this method has already been called.
@@ -760,6 +772,9 @@ public interface Player {
         return new Commands(flagsBuilder.build());
       }
     }
+
+    /** An empty set of commands. */
+    public static final Commands EMPTY = new Builder().build();
 
     private final ExoFlags flags;
 
@@ -1034,7 +1049,10 @@ public interface Player {
    * #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
    * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
    * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS_METADATA} or {@link #COMMAND_CHANGE_MEDIA_ITEMS}.
+   * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_CHANGE_MEDIA_ITEMS}, {@link
+   * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
+   * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
+   * #COMMAND_SET_VIDEO_SURFACE} or {@link #COMMAND_GET_TEXT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1051,7 +1069,14 @@ public interface Player {
     COMMAND_GET_CURRENT_MEDIA_ITEM,
     COMMAND_GET_MEDIA_ITEMS,
     COMMAND_GET_MEDIA_ITEMS_METADATA,
-    COMMAND_CHANGE_MEDIA_ITEMS
+    COMMAND_CHANGE_MEDIA_ITEMS,
+    COMMAND_GET_VOLUME,
+    COMMAND_GET_DEVICE_VOLUME,
+    COMMAND_SET_VOLUME,
+    COMMAND_SET_DEVICE_VOLUME,
+    COMMAND_ADJUST_DEVICE_VOLUME,
+    COMMAND_SET_VIDEO_SURFACE,
+    COMMAND_GET_TEXT
   })
   @interface Command {}
   /** Command to start, pause or resume playback. */
@@ -1080,6 +1105,20 @@ public interface Player {
   int COMMAND_GET_MEDIA_ITEMS_METADATA = 12;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
   int COMMAND_CHANGE_MEDIA_ITEMS = 13;
+  /** Command to get the player volume. */
+  int COMMAND_GET_VOLUME = 14;
+  /** Command to get the device volume. */
+  int COMMAND_GET_DEVICE_VOLUME = 15;
+  /** Command to set the player volume. */
+  int COMMAND_SET_VOLUME = 16;
+  /** Command to set the device volume. */
+  int COMMAND_SET_DEVICE_VOLUME = 17;
+  /** Command to increment or decrement the device volume. */
+  int COMMAND_ADJUST_DEVICE_VOLUME = 18;
+  /** Command to set the surface on which to render the video. */
+  int COMMAND_SET_VIDEO_SURFACE = 19;
+  /** Command to get the text that should currently be displayed by the player. */
+  int COMMAND_GET_TEXT = 20;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable

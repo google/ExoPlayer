@@ -85,6 +85,20 @@ public final class ExoFlags {
     }
 
     /**
+     * Adds {@link ExoFlags flags}.
+     *
+     * @param flags The set of flags to add.
+     * @return This builder.
+     * @throws IllegalStateException If {@link #build()} has already been called.
+     */
+    public Builder addAll(ExoFlags flags) {
+      for (int i = 0; i < flags.size(); i++) {
+        add(flags.get(i));
+      }
+      return this;
+    }
+
+    /**
      * Builds an {@link ExoFlags} instance.
      *
      * @throws IllegalStateException If this method has already been called.
