@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.util;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +25,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Looper;
+import android.telephony.PhoneStateListener;
+import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -196,7 +200,7 @@ public final class NetworkTypeObserver {
       case TelephonyManager.NETWORK_TYPE_LTE:
         return C.NETWORK_TYPE_4G;
       case TelephonyManager.NETWORK_TYPE_NR:
-        return Util.SDK_INT >= 29 ? C.NETWORK_TYPE_5G : C.NETWORK_TYPE_UNKNOWN;
+        return Util.SDK_INT >= 29 ? C.NETWORK_TYPE_5G_SA : C.NETWORK_TYPE_UNKNOWN;
       case TelephonyManager.NETWORK_TYPE_IWLAN:
         return C.NETWORK_TYPE_WIFI;
       case TelephonyManager.NETWORK_TYPE_GSM:
@@ -211,7 +215,36 @@ public final class NetworkTypeObserver {
     @Override
     public void onReceive(Context context, Intent intent) {
       @C.NetworkType int networkType = getNetworkTypeFromConnectivityManager(context);
+      if (networkType == C.NETWORK_TYPE_4G && Util.SDK_INT >= 29 && Util.SDK_INT < 31) {
+        // Delay update of the network type to check whether this is actually 5G-NSA.
+        try {
+          // We can't access TelephonyManager.getServiceState() directly as it requires special
+          // permissions. Attaching a listener is permission-free.
+          TelephonyManager telephonyManager =
+              checkNotNull((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
+          ServiceStateListener listener = new ServiceStateListener();
+          telephonyManager.listen(listener, PhoneStateListener.LISTEN_SERVICE_STATE);
+          // We are only interested in the initial response with the current state, so unregister
+          // the listener immediately.
+          telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
+          return;
+        } catch (RuntimeException e) {
+          // Ignore problems with listener registration and keep reporting as 4G.
+        }
+      }
       updateNetworkType(networkType);
+    }
+  }
+
+  private class ServiceStateListener extends PhoneStateListener {
+
+    @Override
+    public void onServiceStateChanged(@Nullable ServiceState serviceState) {
+      String serviceStateString = serviceState == null ? "" : serviceState.toString();
+      boolean is5gNsa =
+          serviceStateString.contains("nrState=CONNECTED")
+              || serviceStateString.contains("nrState=NOT_RESTRICTED");
+      updateNetworkType(is5gNsa ? C.NETWORK_TYPE_5G_NSA : C.NETWORK_TYPE_4G);
     }
   }
 }

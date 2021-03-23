@@ -207,7 +207,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
     private static Map<Integer, Long> getInitialBitrateEstimatesForCountry(String countryCode) {
       List<Integer> groupIndices = getCountryGroupIndices(countryCode);
-      Map<Integer, Long> result = new HashMap<>(/* initialCapacity= */ 6);
+      Map<Integer, Long> result = new HashMap<>(/* initialCapacity= */ 8);
       result.put(C.NETWORK_TYPE_UNKNOWN, DEFAULT_INITIAL_BITRATE_ESTIMATE);
       result.put(
           C.NETWORK_TYPE_WIFI,
@@ -222,7 +222,12 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
           C.NETWORK_TYPE_4G,
           DEFAULT_INITIAL_BITRATE_ESTIMATES_4G.get(groupIndices.get(COUNTRY_GROUP_INDEX_4G)));
       result.put(
-          C.NETWORK_TYPE_5G,
+          C.NETWORK_TYPE_5G_NSA,
+          DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA.get(
+              groupIndices.get(COUNTRY_GROUP_INDEX_5G_NSA)));
+      result.put(
+          C.NETWORK_TYPE_5G_SA,
+          // TODO: Retrieve actual 5G-SA estimates.
           DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA.get(
               groupIndices.get(COUNTRY_GROUP_INDEX_5G_NSA)));
       // Assume default Wifi speed for Ethernet to prevent using the slower fallback.
