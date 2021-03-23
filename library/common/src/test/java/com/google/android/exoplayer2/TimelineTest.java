@@ -279,6 +279,11 @@ public class TimelineTest {
   }
 
   @Test
+  public void roundtripViaBundle_ofEmptyTimeline_returnsEmptyTimeline() {
+    TimelineAsserts.assertEmpty(Timeline.CREATOR.fromBundle(Timeline.EMPTY.toBundle()));
+  }
+
+  @Test
   public void roundtripViaBundle_ofWindow_yieldsEqualInstanceExceptUidAndManifest() {
     Timeline.Window window = new Timeline.Window();
     window.uid = new Object();

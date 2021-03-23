@@ -1291,7 +1291,9 @@ public abstract class Timeline implements Bundleable {
     }
 
     int[] shuffledWindowIndices = new int[windowCount];
-    shuffledWindowIndices[0] = getFirstWindowIndex(/* shuffleModeEnabled= */ true);
+    if (windowCount > 0) {
+      shuffledWindowIndices[0] = getFirstWindowIndex(/* shuffleModeEnabled= */ true);
+    }
     for (int i = 1; i < windowCount; i++) {
       shuffledWindowIndices[i] =
           getNextWindowIndex(
