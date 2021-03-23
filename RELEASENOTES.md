@@ -47,6 +47,8 @@
 *   Extractors:
     *   Add support for `GContainer` and `GContainerItem` XMP namespace prefixes
         in JPEG motion photo parsing.
+    *   Allow JFIF APP0 marker segment preceding Exif APP1 segment in
+        `JpegExtractor`.
 *   Remove deprecated symbols:
     *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
         instead.
@@ -99,9 +101,8 @@
         SmoothStreaming.
 *   IMA extension:
     *   Fix error caused by `AdPlaybackState` ad group times being cleared,
-        which can occur if the `ImaAdsLoader` is released while an ad is
-        pending loading
-        ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
+        which can occur if the `ImaAdsLoader` is released while an ad is pending
+        loading ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
     *   Upgrade IMA SDK dependency to 3.22.3, fixing an issue with
         `NullPointerExceptions` within `WebView` callbacks
         ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
