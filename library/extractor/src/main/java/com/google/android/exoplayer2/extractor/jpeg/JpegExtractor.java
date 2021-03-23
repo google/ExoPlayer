@@ -60,10 +60,11 @@ public final class JpegExtractor implements Extractor {
   private static final int STATE_READING_MOTION_PHOTO_VIDEO = 5;
   private static final int STATE_ENDED = 6;
 
-  private static final int JPEG_EXIF_HEADER_LENGTH = 12;
+  private static final int EXIF_ID_CODE_LENGTH = 6;
   private static final long EXIF_HEADER = 0x45786966; // Exif
   private static final int MARKER_SOI = 0xFFD8; // Start of image marker
   private static final int MARKER_SOS = 0xFFDA; // Start of scan (image data) marker
+  private static final int MARKER_APP0 = 0xFFE0; // Application data 0 marker
   private static final int MARKER_APP1 = 0xFFE1; // Application data 1 marker
   private static final String HEADER_XMP_APP1 = "http://ns.adobe.com/xap/1.0/";
 
@@ -85,21 +86,33 @@ public final class JpegExtractor implements Extractor {
   @Nullable private MotionPhotoMetadata motionPhotoMetadata;
   private @MonotonicNonNull ExtractorInput lastExtractorInput;
   private @MonotonicNonNull StartOffsetExtractorInput mp4ExtractorStartOffsetExtractorInput;
-  private @MonotonicNonNull Mp4Extractor mp4Extractor;
+  @Nullable private Mp4Extractor mp4Extractor;
 
   public JpegExtractor() {
-    scratch = new ParsableByteArray(JPEG_EXIF_HEADER_LENGTH);
+    scratch = new ParsableByteArray(EXIF_ID_CODE_LENGTH);
     mp4StartPosition = C.POSITION_UNSET;
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
     // See ITU-T.81 (1992) subsection B.1.1.3 and Exif version 2.2 (2002) subsection 4.5.4.
-    input.peekFully(scratch.getData(), /* offset= */ 0, JPEG_EXIF_HEADER_LENGTH);
-    if (scratch.readUnsignedShort() != MARKER_SOI || scratch.readUnsignedShort() != MARKER_APP1) {
+    if (peekMarker(input) != MARKER_SOI) {
       return false;
     }
-    scratch.skipBytes(2); // Unused segment length
+    marker = peekMarker(input);
+    // Even though JFIF and Exif standards are incompatible in theory, Exif files often contain a
+    // JFIF APP0 marker segment preceding the Exif APP1 marker segment. Skip the JFIF segment if
+    // present.
+    if (marker == MARKER_APP0) {
+      advancePeekPositionToNextSegment(input);
+      marker = peekMarker(input);
+    }
+    if (marker != MARKER_APP1) {
+      return false;
+    }
+    input.advancePeekPosition(2); // Unused segment length
+    scratch.reset(/* limit= */ EXIF_ID_CODE_LENGTH);
+    input.peekFully(scratch.getData(), /* offset= */ 0, EXIF_ID_CODE_LENGTH);
     return scratch.readUnsignedInt() == EXIF_HEADER && scratch.readUnsignedShort() == 0; // Exif\0\0
   }
 
@@ -152,6 +165,7 @@ public final class JpegExtractor implements Extractor {
   public void seek(long position, long timeUs) {
     if (position == 0) {
       state = STATE_READING_MARKER;
+      mp4Extractor = null;
     } else if (state == STATE_READING_MOTION_PHOTO_VIDEO) {
       checkNotNull(mp4Extractor).seek(position, timeUs);
     }
@@ -162,6 +176,19 @@ public final class JpegExtractor implements Extractor {
     if (mp4Extractor != null) {
       mp4Extractor.release();
     }
+  }
+
+  private int peekMarker(ExtractorInput input) throws IOException {
+    scratch.reset(/* limit= */ 2);
+    input.peekFully(scratch.getData(), /* offset= */ 0, /* length= */ 2);
+    return scratch.readUnsignedShort();
+  }
+
+  private void advancePeekPositionToNextSegment(ExtractorInput input) throws IOException {
+    scratch.reset(/* limit= */ 2);
+    input.peekFully(scratch.getData(), /* offset= */ 0, /* length= */ 2);
+    int segmentLength = scratch.readUnsignedShort() - 2;
+    input.advancePeekPosition(segmentLength);
   }
 
   private void readMarker(ExtractorInput input) throws IOException {
