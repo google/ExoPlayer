@@ -39,7 +39,7 @@ public final class MediaMetadata implements Bundleable {
 
     /** Returns a new {@link MediaMetadata} instance with the current builder values. */
     public MediaMetadata build() {
-      return new MediaMetadata(title);
+      return new MediaMetadata(this);
     }
   }
 
@@ -49,8 +49,8 @@ public final class MediaMetadata implements Bundleable {
   /** Optional title. */
   @Nullable public final String title;
 
-  private MediaMetadata(@Nullable String title) {
-    this.title = title;
+  private MediaMetadata(Builder builder) {
+    this.title = builder.title;
   }
 
   @Override
@@ -89,7 +89,8 @@ public final class MediaMetadata implements Bundleable {
 
   /** Object that can restore {@link MediaMetadata} from a {@link Bundle}. */
   public static final Creator<MediaMetadata> CREATOR =
-      bundle -> new MediaMetadata(bundle.getString(keyForField(FIELD_TITLE)));
+      bundle ->
+          new MediaMetadata.Builder().setTitle(bundle.getString(keyForField(FIELD_TITLE))).build();
 
   private static String keyForField(@FieldNumber int field) {
     return Integer.toString(field, Character.MAX_RADIX);
