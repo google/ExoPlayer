@@ -64,6 +64,8 @@ public class IntentUtil {
   public static final String SUBTITLE_URI_EXTRA = "subtitle_uri";
   public static final String SUBTITLE_MIME_TYPE_EXTRA = "subtitle_mime_type";
   public static final String SUBTITLE_LANGUAGE_EXTRA = "subtitle_language";
+  
+  public static final String TITLE_EXTRA = "title_uri";
 
   /** Creates a list of {@link MediaItem media items} from an {@link Intent}. */
   public static List<MediaItem> createMediaItemsFromIntent(Intent intent) {
@@ -89,6 +91,7 @@ public class IntentUtil {
       MediaItem mediaItem = mediaItems.get(0);
       MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
       intent.setAction(ACTION_VIEW).setData(mediaItem.playbackProperties.uri);
+      intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.title);
       addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "");
       addClippingPropertiesToIntent(
           mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "");
@@ -113,6 +116,7 @@ public class IntentUtil {
         new MediaItem.Builder()
             .setUri(uri)
             .setMimeType(mimeType)
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle(intent.getStringExtra(TITLE_EXTRA)).build())
             .setAdTagUri(intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix))
             .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix))
             .setClipStartPositionMs(
