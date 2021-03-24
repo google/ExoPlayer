@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.upstream.cache;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.upstream.DataSourceException;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException;
@@ -160,17 +159,6 @@ public final class CacheWriter {
         isDataSourceOpen = true;
       } catch (IOException e) {
         Util.closeQuietly(dataSource);
-        // TODO: This exception handling may be required for interop with current HttpDataSource
-        // implementations that (incorrectly) throw a position-out-of-range when opened exactly one
-        // byte beyond the end of the resource. It should be removed when the HttpDataSource
-        // implementations are fixed.
-        if (isLastBlock && DataSourceException.isCausedByPositionOutOfRange(e)) {
-          // The length of the request exceeds the length of the content. If we allow shorter
-          // content and are reading the last block, fall through and try again with an unbounded
-          // request to read up to the end of the content.
-        } else {
-          throw e;
-        }
       }
     }
 

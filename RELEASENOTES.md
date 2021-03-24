@@ -31,6 +31,12 @@
 *   Analytics:
     *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
 *   Downloads and caching:
+    *   Fix `CacheWriter` to correctly handle cases where the request `DataSpec`
+        extends beyond the end of the underlying resource. Caching will now
+        succeed in this case, with data up to the end of the resource being
+        cached. This behaviour is enabled by default, and so the
+        `allowShortContent` parameter has been removed
+        ([#7326](https://github.com/google/ExoPlayer/issues/7326)).
     *   Fix `CacheWriter` to correctly handle `DataSource.close` failures, for
         which it cannot be assumed that data was successfully written to the
         cache.
