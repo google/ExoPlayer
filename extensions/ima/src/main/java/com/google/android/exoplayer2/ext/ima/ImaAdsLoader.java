@@ -613,7 +613,10 @@ public final class ImaAdsLoader implements Player.EventListener, AdsLoader {
   }
 
   @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     maybeUpdateCurrentAdTagLoader();
     maybePreloadNextPeriodAds();
   }

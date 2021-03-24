@@ -460,6 +460,7 @@ public final class CastPlayer extends BasePlayer {
       pendingSeekCount++;
       pendingSeekWindowIndex = windowIndex;
       pendingSeekPositionMs = positionMs;
+      // TODO(b/181262841): call new onPositionDiscontinuity callback
       listeners.queueEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
           listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
@@ -630,6 +631,8 @@ public final class CastPlayer extends BasePlayer {
 
   // Internal methods.
 
+  // Call deprecated callbacks.
+  @SuppressWarnings("deprecation")
   private void updateInternalStateAndNotifyIfChanged() {
     if (remoteMediaClient == null) {
       // There is no session. We leave the state of the player as it is now.
@@ -648,9 +651,10 @@ public final class CastPlayer extends BasePlayer {
     int currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
     if (this.currentWindowIndex != currentWindowIndex && pendingSeekCount == 0) {
       this.currentWindowIndex = currentWindowIndex;
+      // TODO(b/181262841): call new onPositionDiscontinuity callback
       listeners.queueEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
-          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_PERIOD_TRANSITION));
+          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AUTO_TRANSITION));
       listeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener ->

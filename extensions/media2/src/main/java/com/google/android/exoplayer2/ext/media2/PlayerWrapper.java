@@ -437,7 +437,7 @@ import java.util.List;
       case Player.STATE_READY:
         if (!prepared) {
           prepared = true;
-          handlePositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+          handlePositionDiscontinuity(Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
           listener.onPrepared(
               Assertions.checkNotNull(getCurrentMediaItem()), player.getBufferedPercentage());
         }
@@ -517,9 +517,11 @@ import java.util.List;
     int currentWindowIndex = getCurrentMediaItemIndex();
     if (this.currentWindowIndex != currentWindowIndex) {
       this.currentWindowIndex = currentWindowIndex;
-      androidx.media2.common.MediaItem currentMediaItem =
-          Assertions.checkNotNull(getCurrentMediaItem());
-      listener.onCurrentMediaItemChanged(currentMediaItem);
+      if (currentWindowIndex != C.INDEX_UNSET) {
+        androidx.media2.common.MediaItem currentMediaItem =
+            Assertions.checkNotNull(getCurrentMediaItem());
+        listener.onCurrentMediaItemChanged(currentMediaItem);
+      }
     } else {
       listener.onSeekCompleted();
     }
@@ -597,7 +599,10 @@ import java.util.List;
     }
 
     @Override
-    public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @Player.DiscontinuityReason int reason) {
       handlePositionDiscontinuity(reason);
     }
 

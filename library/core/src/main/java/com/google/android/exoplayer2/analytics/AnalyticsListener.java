@@ -236,7 +236,7 @@ public interface AnalyticsListener {
   int EVENT_PLAYER_ERROR = Player.EVENT_PLAYER_ERROR;
   /**
    * A position discontinuity occurred. See {@link
-   * Player.EventListener#onPositionDiscontinuity(int)}.
+   * Player.EventListener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}.
    */
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
   /** {@link Player#getPlaybackParameters()} changed. */
@@ -532,12 +532,25 @@ public interface AnalyticsListener {
       @Player.MediaItemTransitionReason int reason) {}
 
   /**
+   * @deprecated Use {@link #onPositionDiscontinuity(EventTime, Player.PositionInfo,
+   *     Player.PositionInfo, int)} instead.
+   */
+  @Deprecated
+  default void onPositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason) {}
+
+  /**
    * Called when a position discontinuity occurred.
    *
    * @param eventTime The event time.
+   * @param oldPosition The position before the discontinuity.
+   * @param newPosition The position after the discontinuity.
    * @param reason The reason for the position discontinuity.
    */
-  default void onPositionDiscontinuity(EventTime eventTime, @DiscontinuityReason int reason) {}
+  default void onPositionDiscontinuity(
+      EventTime eventTime,
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @DiscontinuityReason int reason) {}
 
   /**
    * Called when a seek operation started.

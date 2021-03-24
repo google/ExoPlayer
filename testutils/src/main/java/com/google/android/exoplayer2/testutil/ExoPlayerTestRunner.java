@@ -575,7 +575,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   /**
-   * Asserts that {@link Player.EventListener#onPositionDiscontinuity(int)} was not called.
+   * Asserts that {@link Player.EventListener#onPositionDiscontinuity(Player.PositionInfo,
+   * Player.PositionInfo, int)} was not called.
    */
   public void assertNoPositionDiscontinuities() {
     assertThat(discontinuityReasons).isEmpty();
@@ -583,7 +584,8 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
 
   /**
    * Asserts that the discontinuity reasons reported by {@link
-   * Player.EventListener#onPositionDiscontinuity(int)} are equal to the provided values.
+   * Player.EventListener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}
+   * are equal to the provided values.
    *
    * @param discontinuityReasons The expected discontinuity reasons.
    */
@@ -676,10 +678,15 @@ public final class ExoPlayerTestRunner implements Player.EventListener, ActionSc
   }
 
   @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     discontinuityReasons.add(reason);
     int currentIndex = player.getCurrentPeriodIndex();
-    if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
+    if ((reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION
+            && oldPosition.adGroupIndex != C.INDEX_UNSET
+            && newPosition.adGroupIndex != C.INDEX_UNSET)
         || periodIndices.isEmpty()
         || periodIndices.get(periodIndices.size() - 1) != currentIndex) {
       // Ignore seek or internal discontinuities within a period.

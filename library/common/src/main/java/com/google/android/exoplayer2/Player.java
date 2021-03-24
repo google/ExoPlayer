@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2;
 
-
 import android.content.Context;
 import android.os.Looper;
 import android.view.Surface;
@@ -40,6 +39,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
+import com.google.common.base.Objects;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -396,10 +396,9 @@ public interface Player {
     /**
      * Called when the timeline has been refreshed.
      *
-     * <p>Note that if the timeline has changed then a position discontinuity may also have
-     * occurred. For example, the current period index may have changed as a result of periods being
-     * added or removed from the timeline. This will <em>not</em> be reported via a separate call to
-     * {@link #onPositionDiscontinuity(int)}.
+     * <p>Note that the current window or period index may change as a result of a timeline change.
+     * If playback can't continue smoothly because of this timeline change, a separate {@link
+     * #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} callback will be triggered.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
@@ -576,21 +575,27 @@ public interface Player {
     default void onPlayerError(ExoPlaybackException error) {}
 
     /**
-     * Called when a position discontinuity occurs without a change to the timeline. A position
-     * discontinuity occurs when the current window or period index changes (as a result of playback
-     * transitioning from one period in the timeline to the next), or when the playback position
-     * jumps within the period currently being played (as a result of a seek being performed, or
-     * when the source introduces a discontinuity internally).
+     * @deprecated Use {@link #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} instead.
+     */
+    @Deprecated
+    default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
+
+    /**
+     * Called when a position discontinuity occurs.
      *
-     * <p>When a position discontinuity occurs as a result of a change to the timeline this method
-     * is <em>not</em> called. {@link #onTimelineChanged(Timeline, int)} is called in this case.
+     * <p>A position discontinuity occurs when the playing period changes, the playback position
+     * jumps within the period currently being played, or when the playing period has been skipped
+     * or removed.
      *
      * <p>{@link #onEvents(Player, Events)} will also be called to report this event along with
      * other events that happen in the same {@link Looper} message queue iteration.
      *
+     * @param oldPosition The position before the discontinuity.
+     * @param newPosition The position after the discontinuity.
      * @param reason The {@link DiscontinuityReason} responsible for the discontinuity.
      */
-    default void onPositionDiscontinuity(@DiscontinuityReason int reason) {}
+    default void onPositionDiscontinuity(
+        PositionInfo oldPosition, PositionInfo newPosition, @DiscontinuityReason int reason) {}
 
     /**
      * Called when the current playback parameters change. The playback parameters may change due to
@@ -607,7 +612,8 @@ public interface Player {
 
     /**
      * @deprecated Seeks are processed without delay. Listen to {@link
-     *     #onPositionDiscontinuity(int)} with reason {@link #DISCONTINUITY_REASON_SEEK} instead.
+     *     #onPositionDiscontinuity(PositionInfo, PositionInfo, int)} with reason {@link
+     *     #DISCONTINUITY_REASON_SEEK} instead.
      */
     @Deprecated
     default void onSeekProcessed() {}
@@ -695,6 +701,94 @@ public interface Player {
     @EventFlags
     public int get(int index) {
       return flags.get(index);
+    }
+  }
+
+  /** Position info describing a playback position involved in a discontinuity. */
+  final class PositionInfo {
+
+    /**
+     * The UID of the window, or {@code null}, if the timeline is {@link Timeline#isEmpty() empty}.
+     */
+    @Nullable public final Object windowUid;
+    /** The window index. */
+    public final int windowIndex;
+    /**
+     * The UID of the period, or {@code null}, if the timeline is {@link Timeline#isEmpty() empty}.
+     */
+    @Nullable public final Object periodUid;
+    /** The period index. */
+    public final int periodIndex;
+    /** The playback position, in milliseconds. */
+    public final long positionMs;
+    /**
+     * The content position, in milliseconds.
+     *
+     * <p>If {@link #adGroupIndex} is {@link C#INDEX_UNSET}, this is the same as {@link
+     * #positionMs}.
+     */
+    public final long contentPositionMs;
+    /**
+     * The ad group index if the playback position is within an ad, {@link C#INDEX_UNSET} otherwise.
+     */
+    public final int adGroupIndex;
+    /**
+     * The index of the ad within the ad group if the playback position is within an ad, {@link
+     * C#INDEX_UNSET} otherwise.
+     */
+    public final int adIndexInAdGroup;
+
+    /** Creates an instance. */
+    public PositionInfo(
+        @Nullable Object windowUid,
+        int windowIndex,
+        @Nullable Object periodUid,
+        int periodIndex,
+        long positionMs,
+        long contentPositionMs,
+        int adGroupIndex,
+        int adIndexInAdGroup) {
+      this.windowUid = windowUid;
+      this.windowIndex = windowIndex;
+      this.periodUid = periodUid;
+      this.periodIndex = periodIndex;
+      this.positionMs = positionMs;
+      this.contentPositionMs = contentPositionMs;
+      this.adGroupIndex = adGroupIndex;
+      this.adIndexInAdGroup = adIndexInAdGroup;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      PositionInfo that = (PositionInfo) o;
+      return windowIndex == that.windowIndex
+          && periodIndex == that.periodIndex
+          && positionMs == that.positionMs
+          && contentPositionMs == that.contentPositionMs
+          && adGroupIndex == that.adGroupIndex
+          && adIndexInAdGroup == that.adIndexInAdGroup
+          && Objects.equal(windowUid, that.windowUid)
+          && Objects.equal(periodUid, that.periodUid);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(
+          windowUid,
+          windowIndex,
+          periodUid,
+          periodIndex,
+          windowIndex,
+          positionMs,
+          contentPositionMs,
+          adGroupIndex,
+          adIndexInAdGroup);
     }
   }
 
@@ -933,25 +1027,30 @@ public interface Player {
   int REPEAT_MODE_ALL = 2;
 
   /**
-   * Reasons for position discontinuities. One of {@link #DISCONTINUITY_REASON_PERIOD_TRANSITION},
+   * Reasons for position discontinuities. One of {@link #DISCONTINUITY_REASON_AUTO_TRANSITION},
    * {@link #DISCONTINUITY_REASON_SEEK}, {@link #DISCONTINUITY_REASON_SEEK_ADJUSTMENT}, {@link
-   * #DISCONTINUITY_REASON_AD_INSERTION} or {@link #DISCONTINUITY_REASON_INTERNAL}.
+   * #DISCONTINUITY_REASON_SKIP}, {@link #DISCONTINUITY_REASON_REMOVE} or {@link
+   * #DISCONTINUITY_REASON_INTERNAL}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
-    DISCONTINUITY_REASON_PERIOD_TRANSITION,
+    DISCONTINUITY_REASON_AUTO_TRANSITION,
     DISCONTINUITY_REASON_SEEK,
     DISCONTINUITY_REASON_SEEK_ADJUSTMENT,
-    DISCONTINUITY_REASON_AD_INSERTION,
+    DISCONTINUITY_REASON_SKIP,
+    DISCONTINUITY_REASON_REMOVE,
     DISCONTINUITY_REASON_INTERNAL
   })
   @interface DiscontinuityReason {}
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
    * be the same as it was before the discontinuity in case the current period is repeated.
+   *
+   * <p>This reason also indicates an automatic transition from the content period to an inserted ad
+   * period or vice versa.
    */
-  int DISCONTINUITY_REASON_PERIOD_TRANSITION = 0;
+  int DISCONTINUITY_REASON_AUTO_TRANSITION = 0;
   /** Seek within the current period or to another period. */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
@@ -959,10 +1058,12 @@ public interface Player {
    * permitted to be inexact.
    */
   int DISCONTINUITY_REASON_SEEK_ADJUSTMENT = 2;
-  /** Discontinuity to or from an ad within one period in the timeline. */
-  int DISCONTINUITY_REASON_AD_INSERTION = 3;
+  /** Discontinuity introduced by a skipped period (for instance a skipped ad). */
+  int DISCONTINUITY_REASON_SKIP = 3;
+  /** Discontinuity caused by the removal of the current period from the {@link Timeline}. */
+  int DISCONTINUITY_REASON_REMOVE = 4;
   /** Discontinuity introduced internally by the source. */
-  int DISCONTINUITY_REASON_INTERNAL = 4;
+  int DISCONTINUITY_REASON_INTERNAL = 5;
 
   /**
    * Reasons for timeline changes. One of {@link #TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED} or {@link
@@ -1053,7 +1154,10 @@ public interface Player {
   int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = 10;
   /** {@link #getPlayerError()} changed. */
   int EVENT_PLAYER_ERROR = 11;
-  /** A position discontinuity occurred. See {@link EventListener#onPositionDiscontinuity(int)}. */
+  /**
+   * A position discontinuity occurred. See {@link
+   * EventListener#onPositionDiscontinuity(PositionInfo, PositionInfo, int)}.
+   */
   int EVENT_POSITION_DISCONTINUITY = 12;
   /** {@link #getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = 13;

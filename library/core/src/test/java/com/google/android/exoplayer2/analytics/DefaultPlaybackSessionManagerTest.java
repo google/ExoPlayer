@@ -461,9 +461,9 @@ public final class DefaultPlaybackSessionManagerTest {
     sessionManager.updateSessionsWithTimelineChange(contentEventTime1);
     sessionManager.updateSessions(adEventTime1);
     sessionManager.updateSessionsWithDiscontinuity(
-        adEventTime1, Player.DISCONTINUITY_REASON_AD_INSERTION);
+        adEventTime1, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     sessionManager.updateSessionsWithDiscontinuity(
-        contentEventTime2, Player.DISCONTINUITY_REASON_AD_INSERTION);
+        contentEventTime2, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     String adSessionId2 =
         sessionManager.getSessionForMediaPeriodId(adTimeline, adEventTime2.mediaPeriodId);
 
@@ -751,7 +751,7 @@ public final class DefaultPlaybackSessionManagerTest {
     sessionManager.updateSessions(eventTime2);
 
     sessionManager.updateSessionsWithDiscontinuity(
-        eventTime2, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        eventTime2, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
 
     verify(mockListener).onSessionCreated(eq(eventTime1), anyString());
     verify(mockListener).onSessionActive(eq(eventTime1), anyString());
@@ -781,7 +781,7 @@ public final class DefaultPlaybackSessionManagerTest {
         sessionManager.getSessionForMediaPeriodId(timeline, eventTime2.mediaPeriodId);
 
     sessionManager.updateSessionsWithDiscontinuity(
-        eventTime2, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        eventTime2, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
 
     verify(mockListener).onSessionCreated(eventTime1, sessionId1);
     verify(mockListener).onSessionActive(eventTime1, sessionId1);
@@ -960,7 +960,7 @@ public final class DefaultPlaybackSessionManagerTest {
             adTimeline, contentEventTimeDuringPreroll.mediaPeriodId);
 
     sessionManager.updateSessionsWithDiscontinuity(
-        contentEventTimeBetweenAds, Player.DISCONTINUITY_REASON_AD_INSERTION);
+        contentEventTimeBetweenAds, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
 
     InOrder inOrder = inOrder(mockListener);
     inOrder.verify(mockListener).onSessionCreated(contentEventTimeDuringPreroll, contentSessionId);
@@ -1025,7 +1025,7 @@ public final class DefaultPlaybackSessionManagerTest {
     sessionManager.updateSessions(adEventTime2);
 
     sessionManager.updateSessionsWithDiscontinuity(
-        adEventTime1, Player.DISCONTINUITY_REASON_AD_INSERTION);
+        adEventTime1, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
 
     verify(mockListener, never()).onSessionFinished(any(), anyString(), anyBoolean());
   }
@@ -1083,7 +1083,7 @@ public final class DefaultPlaybackSessionManagerTest {
         sessionManager.getSessionForMediaPeriodId(adTimeline, adEventTime2.mediaPeriodId);
 
     sessionManager.updateSessionsWithDiscontinuity(
-        adEventTime1, Player.DISCONTINUITY_REASON_AD_INSERTION);
+        adEventTime1, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     sessionManager.updateSessionsWithDiscontinuity(adEventTime2, Player.DISCONTINUITY_REASON_SEEK);
 
     verify(mockListener).onSessionCreated(eq(contentEventTime), anyString());

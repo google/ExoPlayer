@@ -29,6 +29,8 @@ import com.google.android.exoplayer2.util.ListenerSet;
 
   private final ListenerSet<EventListener> listeners;
   private final Timeline.Period period;
+  private final Object windowUid = new Object();
+  private final Object periodUid = new Object();
 
   private Timeline timeline;
   @Player.State private int state;
@@ -65,6 +67,16 @@ import com.google.android.exoplayer2.util.ListenerSet;
    */
   public void setPlayingContentPosition(int periodIndex, long positionMs) {
     boolean notify = isPlayingAd;
+    PositionInfo oldPosition =
+        new PositionInfo(
+            windowUid,
+            /* windowIndex= */ 0,
+            periodUid,
+            /* periodIndex= */ 0,
+            this.positionMs,
+            this.contentPositionMs,
+            this.adGroupIndex,
+            this.adIndexInAdGroup);
     isPlayingAd = false;
     adGroupIndex = C.INDEX_UNSET;
     adIndexInAdGroup = C.INDEX_UNSET;
@@ -72,9 +84,21 @@ import com.google.android.exoplayer2.util.ListenerSet;
     this.positionMs = positionMs;
     contentPositionMs = positionMs;
     if (notify) {
+      PositionInfo newPosition =
+          new PositionInfo(
+              windowUid,
+              /* windowIndex= */ 0,
+              periodUid,
+              /* periodIndex= */ 0,
+              positionMs,
+              this.contentPositionMs,
+              this.adGroupIndex,
+              this.adIndexInAdGroup);
       listeners.sendEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
-          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION));
+          listener ->
+              listener.onPositionDiscontinuity(
+                  oldPosition, newPosition, DISCONTINUITY_REASON_AUTO_TRANSITION));
     }
   }
 
@@ -90,6 +114,16 @@ import com.google.android.exoplayer2.util.ListenerSet;
       long positionMs,
       long contentPositionMs) {
     boolean notify = !isPlayingAd || this.adIndexInAdGroup != adIndexInAdGroup;
+    PositionInfo oldPosition =
+        new PositionInfo(
+            windowUid,
+            /* windowIndex= */ 0,
+            periodUid,
+            /* periodIndex= */ 0,
+            this.positionMs,
+            this.contentPositionMs,
+            this.adGroupIndex,
+            this.adIndexInAdGroup);
     isPlayingAd = true;
     this.periodIndex = periodIndex;
     this.adGroupIndex = adGroupIndex;
@@ -97,9 +131,21 @@ import com.google.android.exoplayer2.util.ListenerSet;
     this.positionMs = positionMs;
     this.contentPositionMs = contentPositionMs;
     if (notify) {
+      PositionInfo newPosition =
+          new PositionInfo(
+              windowUid,
+              /* windowIndex= */ 0,
+              periodUid,
+              /* periodIndex= */ 0,
+              positionMs,
+              contentPositionMs,
+              adGroupIndex,
+              adIndexInAdGroup);
       listeners.sendEvent(
           EVENT_POSITION_DISCONTINUITY,
-          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AD_INSERTION));
+          listener ->
+              listener.onPositionDiscontinuity(
+                  oldPosition, newPosition, DISCONTINUITY_REASON_AUTO_TRANSITION));
     }
   }
 

@@ -1625,7 +1625,10 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
     }
 
     @Override
-    public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
+    public void onPositionDiscontinuity(
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        @DiscontinuityReason int reason) {
       if (isPlayingAd() && controllerHideDuringAds) {
         hideController();
       }

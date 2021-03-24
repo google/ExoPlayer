@@ -281,7 +281,26 @@ public final class ImaAdsLoaderTest {
     videoAdPlayer.pauseAd(TEST_AD_MEDIA_INFO);
     videoAdPlayer.stopAd(TEST_AD_MEDIA_INFO);
     imaAdsLoader.onPlayerError(ExoPlaybackException.createForSource(new IOException()));
-    imaAdsLoader.onPositionDiscontinuity(Player.DISCONTINUITY_REASON_SEEK);
+    imaAdsLoader.onPositionDiscontinuity(
+        new Player.PositionInfo(
+            /* windowUid= */ new Object(),
+            /* windowIndex= */ 0,
+            /* periodUid= */ new Object(),
+            /* periodIndex= */ 0,
+            /* positionMs= */ 10_000,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ -1,
+            /* adIndexInAdGroup= */ -1),
+        new Player.PositionInfo(
+            /* windowUid= */ new Object(),
+            /* windowIndex= */ 1,
+            /* periodUid= */ new Object(),
+            /* periodIndex= */ 0,
+            /* positionMs= */ 20_000,
+            /* contentPositionMs= */ 0,
+            /* adGroupIndex= */ -1,
+            /* adIndexInAdGroup= */ -1),
+        Player.DISCONTINUITY_REASON_SEEK);
     adEventListener.onAdEvent(getAdEvent(AdEventType.CONTENT_RESUME_REQUESTED, /* ad= */ null));
     imaAdsLoader.handlePrepareError(
         adsMediaSource, /* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0, new IOException());

@@ -191,9 +191,7 @@ public final class DefaultPlaybackSessionManager implements PlaybackSessionManag
   public synchronized void updateSessionsWithDiscontinuity(
       EventTime eventTime, @DiscontinuityReason int reason) {
     Assertions.checkNotNull(listener);
-    boolean hasAutomaticTransition =
-        reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION
-            || reason == Player.DISCONTINUITY_REASON_AD_INSERTION;
+    boolean hasAutomaticTransition = reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION;
     Iterator<SessionDescriptor> iterator = sessions.values().iterator();
     while (iterator.hasNext()) {
       SessionDescriptor session = iterator.next();

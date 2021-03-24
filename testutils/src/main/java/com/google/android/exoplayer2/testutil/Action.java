@@ -803,7 +803,10 @@ public abstract class Action {
     }
   }
 
-  /** Waits for {@link Player.EventListener#onPositionDiscontinuity(int)}. */
+  /**
+   * Waits for {@link Player.EventListener#onPositionDiscontinuity(Player.PositionInfo,
+   * Player.PositionInfo, int)}.
+   */
   public static final class WaitForPositionDiscontinuity extends Action {
 
     /** @param tag A tag to use for logging. */
@@ -824,7 +827,10 @@ public abstract class Action {
       player.addListener(
           new Player.EventListener() {
             @Override
-            public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+            public void onPositionDiscontinuity(
+                Player.PositionInfo oldPosition,
+                Player.PositionInfo newPosition,
+                @Player.DiscontinuityReason int reason) {
               player.removeListener(this);
               nextAction.schedule(player, trackSelector, surface, handler);
             }

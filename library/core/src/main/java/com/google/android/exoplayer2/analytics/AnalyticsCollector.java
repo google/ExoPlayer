@@ -706,8 +706,13 @@ public class AnalyticsCollector
         listener -> listener.onPlayerError(eventTime, error));
   }
 
+  // Calling deprecated callback.
+  @SuppressWarnings("deprecation")
   @Override
-  public final void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public final void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     if (reason == Player.DISCONTINUITY_REASON_SEEK) {
       isSeeking = false;
     }
@@ -716,7 +721,10 @@ public class AnalyticsCollector
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_POSITION_DISCONTINUITY,
-        listener -> listener.onPositionDiscontinuity(eventTime, reason));
+        listener -> {
+          listener.onPositionDiscontinuity(eventTime, reason);
+          listener.onPositionDiscontinuity(eventTime, oldPosition, newPosition, reason);
+        });
   }
 
   @Override

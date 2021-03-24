@@ -662,6 +662,8 @@ public final class AnalyticsCollectorTest {
             period0Seq0 /* SOURCE_UPDATE */,
             WINDOW_0 /* PLAYLIST_CHANGE */,
             period0Seq1 /* SOURCE_UPDATE */);
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
+        .containsExactly(WINDOW_0 /* REMOVE */);
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq1, period0Seq1)
         .inOrder();
@@ -937,6 +939,9 @@ public final class AnalyticsCollectorTest {
             period0Seq0 /* SOURCE_UPDATE (second item) */,
             period0Seq1 /* PLAYLIST_CHANGED (remove) */)
         .inOrder();
+    assertThat(listener.getEvents(EVENT_POSITION_DISCONTINUITY))
+        .containsExactly(period0Seq1 /* REMOVE */)
+        .inOrder();
     assertThat(listener.getEvents(EVENT_IS_LOADING_CHANGED))
         .containsExactly(period0Seq0, period0Seq0, period0Seq0, period0Seq0);
     assertThat(listener.getEvents(EVENT_TRACKS_CHANGED))
@@ -1037,9 +1042,11 @@ public final class AnalyticsCollectorTest {
                         new Player.EventListener() {
                           @Override
                           public void onPositionDiscontinuity(
+                              Player.PositionInfo oldPosition,
+                              Player.PositionInfo newPosition,
                               @Player.DiscontinuityReason int reason) {
                             if (!player.isPlayingAd()
-                                && reason == Player.DISCONTINUITY_REASON_AD_INSERTION) {
+                                && reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
                               // Finished playing ad. Marked as played.
                               adPlaybackState.set(
                                   adPlaybackState
@@ -1651,7 +1658,7 @@ public final class AnalyticsCollectorTest {
     player.addMediaSource(new FakeMediaSource(new FakeTimeline(), formats));
     player.play();
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
-        player, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     player.setMediaItem(MediaItem.fromUri("http://this-will-throw-an-exception.mp4"));
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
     ShadowLooper.runMainLooperToNextTask();
@@ -2085,7 +2092,11 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onPositionDiscontinuity(EventTime eventTime, int reason) {
+    public void onPositionDiscontinuity(
+        EventTime eventTime,
+        Player.PositionInfo oldPosition,
+        Player.PositionInfo newPosition,
+        int reason) {
       reportedEvents.add(new ReportedEvent(EVENT_POSITION_DISCONTINUITY, eventTime));
     }
 

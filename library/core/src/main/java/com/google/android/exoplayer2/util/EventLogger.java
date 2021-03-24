@@ -141,8 +141,50 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onPositionDiscontinuity(EventTime eventTime, @Player.DiscontinuityReason int reason) {
-    logd(eventTime, "positionDiscontinuity", getDiscontinuityReasonString(reason));
+  public void onPositionDiscontinuity(
+      EventTime eventTime,
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
+    StringBuilder builder = new StringBuilder();
+    builder
+        .append("reason=")
+        .append(getDiscontinuityReasonString(reason))
+        .append(", PositionInfo:old [")
+        .append("window=")
+        .append(oldPosition.windowIndex)
+        .append(", period=")
+        .append(oldPosition.periodIndex)
+        .append(", pos=")
+        .append(oldPosition.positionMs);
+    if (oldPosition.adGroupIndex != C.INDEX_UNSET) {
+      builder
+          .append(", contentPos=")
+          .append(oldPosition.contentPositionMs)
+          .append(", adGroup=")
+          .append(oldPosition.adGroupIndex)
+          .append(", ad=")
+          .append(oldPosition.adIndexInAdGroup);
+    }
+    builder
+        .append("], PositionInfo:new [")
+        .append("window=")
+        .append(newPosition.windowIndex)
+        .append(", period=")
+        .append(newPosition.periodIndex)
+        .append(", pos=")
+        .append(newPosition.positionMs);
+    if (newPosition.adGroupIndex != C.INDEX_UNSET) {
+      builder
+          .append(", contentPos=")
+          .append(newPosition.contentPositionMs)
+          .append(", adGroup=")
+          .append(newPosition.adGroupIndex)
+          .append(", ad=")
+          .append(newPosition.adIndexInAdGroup);
+    }
+    builder.append("]");
+    logd(eventTime, "positionDiscontinuity", builder.toString());
   }
 
   @Override
@@ -658,14 +700,16 @@ public class EventLogger implements AnalyticsListener {
 
   private static String getDiscontinuityReasonString(@Player.DiscontinuityReason int reason) {
     switch (reason) {
-      case Player.DISCONTINUITY_REASON_PERIOD_TRANSITION:
-        return "PERIOD_TRANSITION";
+      case Player.DISCONTINUITY_REASON_AUTO_TRANSITION:
+        return "AUTO_TRANSITION";
       case Player.DISCONTINUITY_REASON_SEEK:
         return "SEEK";
       case Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT:
         return "SEEK_ADJUSTMENT";
-      case Player.DISCONTINUITY_REASON_AD_INSERTION:
-        return "AD_INSERTION";
+      case Player.DISCONTINUITY_REASON_REMOVE:
+        return "REMOVE";
+      case Player.DISCONTINUITY_REASON_SKIP:
+        return "SKIP";
       case Player.DISCONTINUITY_REASON_INTERNAL:
         return "INTERNAL";
       default:

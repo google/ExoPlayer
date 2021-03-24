@@ -2,6 +2,17 @@
 
 ### dev-v2 (not yet released)
 
+*   Core Library:
+    *   Add position info of the old and the new position as arguments to
+        `EventListener.onPositionDiscontinuity`. Add the new reasons
+        `DISCONTINUITY_REASON_SKIP` and `DISCONTINUITY_REASON_REMOVE` and rename
+        `DISCONTINUITY_REASON_PERIOD_TRANSITION` to
+        `DISCONTINUITY_REASON_AUTO_TRANSITION`. Remove
+        `DISCONTINUITY_REASON_AD_INSERTION` for which
+        `DISCONTINUITY_REASON_AUTO_TRANSITION` is used instead. Deprecate the
+        `onPositionDiscontinuity(int)` callback
+        ([#6163](https://github.com/google/ExoPlayer/issues/6163),
+        [#4768](https://github.com/google/ExoPlayer/issues/4768)).
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.

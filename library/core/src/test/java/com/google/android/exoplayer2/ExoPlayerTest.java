@@ -49,6 +49,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -132,6 +133,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -210,6 +212,7 @@ public final class ExoPlayerTest {
         .onTimelineChanged(
             argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
     assertThat(renderer.getFormatsRead()).isEmpty();
     assertThat(renderer.sampleBufferReadCount).isEqualTo(0);
     assertThat(renderer.isEnded).isFalse();
@@ -244,6 +247,7 @@ public final class ExoPlayerTest {
         .onTracksChanged(
             eq(new TrackGroupArray(new TrackGroup(ExoPlayerTestRunner.VIDEO_FORMAT))), any());
     inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
     assertThat(renderer.getFormatsRead()).containsExactly(ExoPlayerTestRunner.VIDEO_FORMAT);
     assertThat(renderer.sampleBufferReadCount).isEqualTo(1);
     assertThat(renderer.isEnded).isTrue();
@@ -268,14 +272,14 @@ public final class ExoPlayerTest {
         .verify(mockEventListener)
         .onTimelineChanged(
             argThat(noUid(new FakeMediaSource.InitialTimeline(timeline))),
-            eq(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION));
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     inOrder
         .verify(mockEventListener)
         .onTimelineChanged(
             argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder
         .verify(mockEventListener, times(2))
-        .onPositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     assertThat(renderer.getFormatsRead())
         .containsExactly(
             ExoPlayerTestRunner.VIDEO_FORMAT,
@@ -313,7 +317,7 @@ public final class ExoPlayerTest {
             argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder
         .verify(mockEventListener, times(99))
-        .onPositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     assertThat(renderer.getFormatsRead()).hasSize(100);
     assertThat(renderer.sampleBufferReadCount).isEqualTo(100);
     assertThat(renderer.isEnded).isTrue();
@@ -397,7 +401,7 @@ public final class ExoPlayerTest {
             argThat(noUid(timeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder
         .verify(mockEventListener, times(2))
-        .onPositionDiscontinuity(Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
     assertThat(audioRenderer.positionResetCount).isEqualTo(1);
     assertThat(videoRenderer.isEnded).isTrue();
     assertThat(audioRenderer.isEnded).isTrue();
@@ -441,7 +445,6 @@ public final class ExoPlayerTest {
     // second source was suppressed as we replace it with the third source before the update
     // arrives.
     InOrder inOrder = inOrder(mockEventListener);
-    inOrder.verify(mockEventListener, never()).onPositionDiscontinuity(anyInt());
     inOrder
         .verify(mockEventListener)
         .onTimelineChanged(
@@ -452,10 +455,21 @@ public final class ExoPlayerTest {
         .onTimelineChanged(
             argThat(noUid(firstTimeline)), eq(Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE));
     inOrder
-        .verify(mockEventListener, times(2))
+        .verify(mockEventListener)
         .onTimelineChanged(
             argThat(noUid(placeholderTimeline)),
             eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockEventListener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    inOrder
+        .verify(mockEventListener)
+        .onTimelineChanged(
+            argThat(noUid(placeholderTimeline)),
+            eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockEventListener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
     inOrder
         .verify(mockEventListener)
         .onTimelineChanged(
@@ -542,11 +556,11 @@ public final class ExoPlayerTest {
             .blockUntilEnded(TIMEOUT_MS);
     testRunner.assertPlayedPeriodIndices(0, 1, 0, 2, 1, 2);
     testRunner.assertPositionDiscontinuityReasonsEqual(
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION,
-        Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        Player.DISCONTINUITY_REASON_AUTO_TRANSITION,
+        Player.DISCONTINUITY_REASON_AUTO_TRANSITION,
+        Player.DISCONTINUITY_REASON_AUTO_TRANSITION,
+        Player.DISCONTINUITY_REASON_AUTO_TRANSITION,
+        Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     assertThat(renderer.isEnded).isTrue();
   }
 
@@ -603,7 +617,7 @@ public final class ExoPlayerTest {
             .start()
             .blockUntilEnded(TIMEOUT_MS);
     // There is still one discontinuity from content to content for the failed ad insertion.
-    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_AD_INSERTION);
+    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
   }
 
   @Test
@@ -1267,7 +1281,8 @@ public final class ExoPlayerTest {
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
-    testRunner.assertPositionDiscontinuityReasonsEqual(Player.DISCONTINUITY_REASON_SEEK);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_SEEK, Player.DISCONTINUITY_REASON_REMOVE);
 
     assertThat(currentWindowIndex[0]).isEqualTo(1);
     assertThat(currentPosition[0]).isGreaterThan(0);
@@ -2616,8 +2631,7 @@ public final class ExoPlayerTest {
 
   @Test
   public void timelineUpdateWithNewMidrollAdCuePoint_dropsPrebufferedPeriod() throws Exception {
-    Timeline timeline1 =
-        new FakeTimeline(new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 0));
+    Timeline timeline1 = new FakeTimeline(TimelineWindowDefinition.createPlaceholder(/* tag= */ 0));
     AdPlaybackState adPlaybackStateWithMidroll =
         FakeTimeline.createAdPlaybackState(
             /* adsPerAdGroup= */ 1,
@@ -2653,9 +2667,10 @@ public final class ExoPlayerTest {
 
     testRunner.assertTimelineChangeReasonsEqual(
         Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
-        Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE,
         Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
     testRunner.assertPlayedPeriodIndices(0);
+    testRunner.assertPositionDiscontinuityReasonsEqual(
+        Player.DISCONTINUITY_REASON_AUTO_TRANSITION, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     assertThat(mediaSource.getCreatedMediaPeriods()).hasSize(4);
     assertThat(mediaSource.getCreatedMediaPeriods().get(0).nextAdGroupIndex)
         .isEqualTo(C.INDEX_UNSET);
@@ -2718,7 +2733,7 @@ public final class ExoPlayerTest {
 
     // When the ad finishes, the player position should be at or after the requested seek position.
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
-        player, Player.DISCONTINUITY_REASON_AD_INSERTION);
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     assertThat(player.getCurrentPosition()).isAtLeast(seekPositionMs);
   }
 
@@ -3019,7 +3034,7 @@ public final class ExoPlayerTest {
 
           @Override
           public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-            if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+            if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
               positionAtDiscontinuityMs.set(playerReference.get().getCurrentPosition());
               clockAtDiscontinuityMs.set(clock.elapsedRealtime());
             }
@@ -3242,7 +3257,7 @@ public final class ExoPlayerTest {
         new EventListener() {
           @Override
           public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-            if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+            if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
               if (bufferedPositionAtFirstDiscontinuityMs.get() == C.TIME_UNSET) {
                 bufferedPositionAtFirstDiscontinuityMs.set(
                     playerReference.get().getBufferedPosition());
@@ -3296,7 +3311,7 @@ public final class ExoPlayerTest {
         new EventListener() {
           @Override
           public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-            if (reason == Player.DISCONTINUITY_REASON_AD_INSERTION) {
+            if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
               contentStartPositionMs.set(playerReference.get().getContentPosition());
             }
           }
@@ -3349,7 +3364,7 @@ public final class ExoPlayerTest {
         new EventListener() {
           @Override
           public void onPositionDiscontinuity(@DiscontinuityReason int reason) {
-            if (reason == Player.DISCONTINUITY_REASON_AD_INSERTION) {
+            if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
               contentStartPositionMs.set(playerReference.get().getContentPosition());
             }
           }
@@ -7584,7 +7599,7 @@ public final class ExoPlayerTest {
     firstMediaSource.setNewSourceInfo(timelineWithOffsets);
     // Wait until player transitions to second source (which also has non-zero offsets).
     TestPlayerRunHelper.runUntilPositionDiscontinuity(
-        player, Player.DISCONTINUITY_REASON_PERIOD_TRANSITION);
+        player, Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
     assertThat(player.getCurrentWindowIndex()).isEqualTo(1);
     player.release();
 
@@ -7680,7 +7695,7 @@ public final class ExoPlayerTest {
           @Override
           public void onPositionDiscontinuity(int reason) {
             if (reason == Player.DISCONTINUITY_REASON_SEEK
-                || reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+                || reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
               currentMediaItems.add(playerHolder[0].getCurrentMediaItem());
             }
           }
@@ -9271,7 +9286,7 @@ public final class ExoPlayerTest {
 
     verify(listener).onTimelineChanged(any(), anyInt());
     verify(listener).onMediaItemTransition(any(), anyInt());
-    verify(listener).onPositionDiscontinuity(anyInt());
+    verify(listener).onPositionDiscontinuity(any(), any(), anyInt());
     verify(listener).onPlaybackParametersChanged(any());
     ArgumentCaptor<Player.Events> eventCaptor = ArgumentCaptor.forClass(Player.Events.class);
     verify(listener).onEvents(eq(player), eventCaptor.capture());
@@ -9312,7 +9327,7 @@ public final class ExoPlayerTest {
     // Verify that all callbacks have been called at least once.
     verify(listener, atLeastOnce()).onTimelineChanged(any(), anyInt());
     verify(listener, atLeastOnce()).onMediaItemTransition(any(), anyInt());
-    verify(listener, atLeastOnce()).onPositionDiscontinuity(anyInt());
+    verify(listener, atLeastOnce()).onPositionDiscontinuity(any(), any(), anyInt());
     verify(listener, atLeastOnce()).onPlaybackParametersChanged(any());
     verify(listener, atLeastOnce()).onRepeatModeChanged(anyInt());
     verify(listener, atLeastOnce()).onShuffleModeEnabledChanged(anyBoolean());
@@ -9340,6 +9355,877 @@ public final class ExoPlayerTest {
     assertThat(containsEvent(allEvents, Player.EVENT_PLAY_WHEN_READY_CHANGED)).isTrue();
     assertThat(containsEvent(allEvents, Player.EVENT_IS_PLAYING_CHANGED)).isTrue();
     assertThat(containsEvent(allEvents, Player.EVENT_PLAYER_ERROR)).isTrue();
+  }
+
+  @Test
+  public void play_withPreMidAndPostRollAd_callsOnDiscontinuityCorrectly() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 2,
+            /* adGroupTimesUs...= */ 0,
+            7 * C.MICROS_PER_SECOND,
+            C.TIME_END_OF_SOURCE);
+    TimelineWindowDefinition adTimeline =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ 10 * C.MICROS_PER_SECOND,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            adPlaybackState);
+    player.setMediaSource(new FakeMediaSource(new FakeTimeline(adTimeline)));
+
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    verify(listener, never())
+        .onPositionDiscontinuity(
+            any(), any(), not(eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION)));
+    verify(listener, times(8))
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+
+    // first ad group (pre-roll)
+    // starts with ad to ad transition
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isEqualTo(5000);
+    assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
+    assertThat(oldPositions.get(0).adGroupIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).adGroupIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).adIndexInAdGroup).isEqualTo(1);
+    // ad to content transition
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(5000);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(0);
+    assertThat(oldPositions.get(1).adGroupIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).adIndexInAdGroup).isEqualTo(1);
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
+
+    // second add group (mid-roll)
+    assertThat(oldPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(2).positionMs).isEqualTo(7000);
+    assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(7000);
+    assertThat(oldPositions.get(2).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(2).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(2).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(2).contentPositionMs).isEqualTo(7000);
+    assertThat(newPositions.get(2).adGroupIndex).isEqualTo(1);
+    assertThat(newPositions.get(2).adIndexInAdGroup).isEqualTo(0);
+    // ad to ad transition
+    assertThat(oldPositions.get(3).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(3).positionMs).isEqualTo(5000);
+    assertThat(oldPositions.get(3).contentPositionMs).isEqualTo(7000);
+    assertThat(oldPositions.get(3).adGroupIndex).isEqualTo(1);
+    assertThat(oldPositions.get(3).adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPositions.get(3).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(3).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(3).contentPositionMs).isEqualTo(7000);
+    assertThat(newPositions.get(3).adGroupIndex).isEqualTo(1);
+    assertThat(newPositions.get(3).adIndexInAdGroup).isEqualTo(1);
+    // ad to content transition
+    assertThat(oldPositions.get(4).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(4).positionMs).isEqualTo(5000);
+    assertThat(oldPositions.get(4).contentPositionMs).isEqualTo(7000);
+    assertThat(oldPositions.get(4).adGroupIndex).isEqualTo(1);
+    assertThat(oldPositions.get(4).adIndexInAdGroup).isEqualTo(1);
+    assertThat(newPositions.get(4).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(4).positionMs).isEqualTo(7000);
+    assertThat(newPositions.get(4).contentPositionMs).isEqualTo(7000);
+    assertThat(newPositions.get(4).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(4).adIndexInAdGroup).isEqualTo(-1);
+
+    // third add group (post-roll)
+    assertThat(oldPositions.get(5).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(5).positionMs).isEqualTo(10000);
+    assertThat(oldPositions.get(5).contentPositionMs).isEqualTo(10000);
+    assertThat(oldPositions.get(5).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(5).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(5).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(5).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(5).contentPositionMs).isEqualTo(10000);
+    assertThat(newPositions.get(5).adGroupIndex).isEqualTo(2);
+    assertThat(newPositions.get(5).adIndexInAdGroup).isEqualTo(0);
+    // ad to ad transition
+    assertThat(oldPositions.get(6).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(6).positionMs).isEqualTo(5000);
+    assertThat(oldPositions.get(6).contentPositionMs).isEqualTo(10000);
+    assertThat(oldPositions.get(6).adGroupIndex).isEqualTo(2);
+    assertThat(oldPositions.get(6).adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPositions.get(6).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(6).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(6).contentPositionMs).isEqualTo(10000);
+    assertThat(newPositions.get(6).adGroupIndex).isEqualTo(2);
+    assertThat(newPositions.get(6).adIndexInAdGroup).isEqualTo(1);
+    // post roll ad to end of content transition
+    assertThat(oldPositions.get(7).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(7).positionMs).isEqualTo(5000);
+    assertThat(oldPositions.get(7).contentPositionMs).isEqualTo(10000);
+    assertThat(oldPositions.get(7).adGroupIndex).isEqualTo(2);
+    assertThat(oldPositions.get(7).adIndexInAdGroup).isEqualTo(1);
+    assertThat(newPositions.get(7).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(7).positionMs).isEqualTo(9999);
+    assertThat(newPositions.get(7).contentPositionMs).isEqualTo(9999);
+    assertThat(newPositions.get(7).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(7).adIndexInAdGroup).isEqualTo(-1);
+    player.release();
+  }
+
+  @Test
+  public void seekTo_seekOverMidRoll_callsOnDiscontinuityCorrectly() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    AdPlaybackState adPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */ 2 * C.MICROS_PER_SECOND);
+    TimelineWindowDefinition adTimeline =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ 10 * C.MICROS_PER_SECOND,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            adPlaybackState);
+    player.setMediaSource(new FakeMediaSource(new FakeTimeline(adTimeline)));
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 0, /* positionMs= */ 1000);
+    player.seekTo(/* positionMs= */ 8_000);
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT));
+    verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    verify(listener, never())
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    verify(listener, never())
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SKIP));
+
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    // SEEK behind mid roll
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(980L, 1_000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(980L, 1_000L));
+    assertThat(oldPositions.get(0).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(8_000);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(8_000);
+    assertThat(newPositions.get(0).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
+    // SEEK_ADJUSTMENT back to ad
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(8_000);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(8_000);
+    assertThat(oldPositions.get(1).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(8000);
+    assertThat(newPositions.get(1).adGroupIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).adIndexInAdGroup).isEqualTo(0);
+    // AUTO_TRANSITION back to content
+    assertThat(oldPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(2).positionMs).isEqualTo(5_000);
+    assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(8_000);
+    assertThat(oldPositions.get(2).adGroupIndex).isEqualTo(0);
+    assertThat(oldPositions.get(2).adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPositions.get(2).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(2).positionMs).isEqualTo(8_000);
+    assertThat(newPositions.get(2).contentPositionMs).isEqualTo(8_000);
+    assertThat(newPositions.get(2).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(2).adIndexInAdGroup).isEqualTo(-1);
+
+    player.release();
+  }
+
+  @Test
+  public void play_multiItemPlaylistWidthAds_callsOnDiscontinuityCorrectly() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    AdPlaybackState postRollAdPlaybackState =
+        FakeTimeline.createAdPlaybackState(
+            /* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */ C.TIME_END_OF_SOURCE);
+    TimelineWindowDefinition postRollWindow =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ 20 * C.MICROS_PER_SECOND,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            postRollAdPlaybackState);
+    AdPlaybackState preRollAdPlaybackState =
+        FakeTimeline.createAdPlaybackState(/* adsPerAdGroup= */ 1, /* adGroupTimesUs...= */ 0);
+    TimelineWindowDefinition preRollWindow =
+        new TimelineWindowDefinition(
+            /* periodCount= */ 1,
+            /* id= */ 0,
+            /* isSeekable= */ true,
+            /* isDynamic= */ false,
+            /* isLive= */ false,
+            /* isPlaceholder= */ false,
+            /* durationUs= */ 25 * C.MICROS_PER_SECOND,
+            /* defaultPositionUs= */ 0,
+            /* windowOffsetInFirstPeriodUs= */ 0,
+            preRollAdPlaybackState);
+    player.setMediaSources(
+        Lists.newArrayList(
+            new FakeMediaSource(),
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 15 * C.MICROS_PER_SECOND))),
+            new FakeMediaSource(new FakeTimeline(postRollWindow)),
+            new FakeMediaSource(new FakeTimeline(preRollWindow))));
+
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    verify(listener, never())
+        .onPositionDiscontinuity(
+            any(), any(), not(eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION)));
+    verify(listener, times(6))
+        .onPositionDiscontinuity(
+            oldPosition.capture(),
+            newPosition.capture(),
+            eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    // from first to second window
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    Window window = new Window();
+    assertThat(oldPositions.get(0).windowUid)
+        .isEqualTo(player.getCurrentTimeline().getWindow(0, window).uid);
+    assertThat(newPositions.get(0).windowUid)
+        .isEqualTo(player.getCurrentTimeline().getWindow(1, window).uid);
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isEqualTo(10_000);
+    assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(10_000);
+    assertThat(oldPositions.get(0).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(0).adIndexInAdGroup).isEqualTo(-1);
+    // from second window to third
+    assertThat(oldPositions.get(1).windowUid)
+        .isEqualTo(player.getCurrentTimeline().getWindow(1, window).uid);
+    assertThat(newPositions.get(1).windowUid)
+        .isEqualTo(player.getCurrentTimeline().getWindow(2, window).uid);
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(15_000);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(15_000);
+    assertThat(oldPositions.get(1).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(2);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(1).adIndexInAdGroup).isEqualTo(-1);
+    // from third window content to post roll ad
+    assertThat(oldPositions.get(2).windowIndex).isEqualTo(2);
+    assertThat(oldPositions.get(2).windowUid).isEqualTo(newPositions.get(2).windowUid);
+    assertThat(oldPositions.get(2).positionMs).isEqualTo(20_000);
+    assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(20_000);
+    assertThat(oldPositions.get(2).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(2).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(2).windowIndex).isEqualTo(2);
+    assertThat(newPositions.get(2).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(2).contentPositionMs).isEqualTo(20_000);
+    assertThat(newPositions.get(2).adGroupIndex).isEqualTo(0);
+    assertThat(newPositions.get(2).adIndexInAdGroup).isEqualTo(0);
+    // from third window post roll to third window content end
+    assertThat(oldPositions.get(3).windowUid).isEqualTo(newPositions.get(2).windowUid);
+    assertThat(oldPositions.get(3).windowIndex).isEqualTo(2);
+    assertThat(oldPositions.get(3).positionMs).isEqualTo(5_000);
+    assertThat(oldPositions.get(3).contentPositionMs).isEqualTo(20_000);
+    assertThat(oldPositions.get(3).adGroupIndex).isEqualTo(0);
+    assertThat(oldPositions.get(3).adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPositions.get(3).windowUid).isEqualTo(oldPositions.get(3).windowUid);
+    assertThat(newPositions.get(3).windowIndex).isEqualTo(2);
+    assertThat(newPositions.get(3).positionMs).isEqualTo(19_999);
+    assertThat(newPositions.get(3).contentPositionMs).isEqualTo(19_999);
+    assertThat(newPositions.get(3).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(3).adIndexInAdGroup).isEqualTo(-1);
+    // from third window content end to fourth window pre roll ad
+    assertThat(oldPositions.get(4).windowUid).isEqualTo(newPositions.get(3).windowUid);
+    assertThat(oldPositions.get(4).windowIndex).isEqualTo(2);
+    assertThat(oldPositions.get(4).positionMs).isEqualTo(20_000);
+    assertThat(oldPositions.get(4).contentPositionMs).isEqualTo(20_000);
+    assertThat(oldPositions.get(4).adGroupIndex).isEqualTo(-1);
+    assertThat(oldPositions.get(4).adIndexInAdGroup).isEqualTo(-1);
+    assertThat(newPositions.get(4).windowUid).isNotEqualTo(oldPositions.get(4).windowUid);
+    assertThat(newPositions.get(4).windowIndex).isEqualTo(3);
+    assertThat(newPositions.get(4).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(4).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(4).adGroupIndex).isEqualTo(0);
+    assertThat(newPositions.get(4).adIndexInAdGroup).isEqualTo(0);
+    // from fourth window pre roll ad to fourth window content
+    assertThat(oldPositions.get(5).windowUid).isEqualTo(newPositions.get(4).windowUid);
+    assertThat(oldPositions.get(5).windowIndex).isEqualTo(3);
+    assertThat(oldPositions.get(5).positionMs).isEqualTo(5_000);
+    assertThat(oldPositions.get(5).contentPositionMs).isEqualTo(0);
+    assertThat(oldPositions.get(5).adGroupIndex).isEqualTo(0);
+    assertThat(oldPositions.get(5).adIndexInAdGroup).isEqualTo(0);
+    assertThat(newPositions.get(5).windowUid).isEqualTo(oldPositions.get(5).windowUid);
+    assertThat(newPositions.get(5).windowIndex).isEqualTo(3);
+    assertThat(newPositions.get(5).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(5).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(5).adGroupIndex).isEqualTo(-1);
+    assertThat(newPositions.get(5).adIndexInAdGroup).isEqualTo(-1);
+    player.release();
+  }
+
+  @Test
+  public void setMediaSources_removesPlayingPeriod_callsOnPositionDiscontinuity() throws Exception {
+    FakeMediaSource secondMediaSource =
+        new FakeMediaSource(
+            new FakeTimeline(
+                new TimelineWindowDefinition(
+                    /* periodCount= */ 1,
+                    /* id= */ 2,
+                    /* isSeekable= */ true,
+                    /* isDynamic= */ false,
+                    /* durationUs= */ 15 * C.MICROS_PER_SECOND)));
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    player.setMediaSource(
+        new FakeMediaSource(
+            new FakeTimeline(
+                new TimelineWindowDefinition(
+                    /* periodCount= */ 1,
+                    /* id= */ 1,
+                    /* isSeekable= */ true,
+                    /* isDynamic= */ false,
+                    /* durationUs= */ 10 * C.MICROS_PER_SECOND))));
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 0, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    player.setMediaSources(Lists.newArrayList(secondMediaSource, secondMediaSource));
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    InOrder inOrder = inOrder(listener);
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
+    player.release();
+  }
+
+  @Test
+  public void removeMediaItems_removesPlayingPeriod_callsOnPositionDiscontinuity()
+      throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    player.setMediaSources(
+        Lists.newArrayList(
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 1,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 10 * C.MICROS_PER_SECOND))),
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 2,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 8 * C.MICROS_PER_SECOND)))));
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 1, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    player.removeMediaItem(/* index= */ 1);
+    player.seekTo(/* positionMs= */ 0);
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 0, /* positionMs= */ 2 * C.MILLIS_PER_SECOND);
+    // Removing the last item resets the position to 0 with an empty timeline.
+    player.removeMediaItem(0);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    InOrder inOrder = inOrder(listener);
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder
+        .verify(listener)
+        .onTimelineChanged(any(), eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(listener)
+        .onTimelineChanged(any(), eq(Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).positionMs).isIn(Range.closed(1980L, 2000L));
+    assertThat(oldPositions.get(1).contentPositionMs).isIn(Range.closed(1980L, 2000L));
+    assertThat(newPositions.get(1).windowUid).isNull();
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
+    player.release();
+  }
+
+  @Test
+  public void
+      concatenatingMediaSourceRemoveMediaSource_removesPlayingPeriod_callsOnPositionDiscontinuity()
+          throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 1,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 10 * C.MICROS_PER_SECOND))),
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 2,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 8 * C.MICROS_PER_SECOND))),
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 2,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 6 * C.MICROS_PER_SECOND))));
+    player.addMediaSource(concatenatingMediaSource);
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 1, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    concatenatingMediaSource.removeMediaSource(1);
+    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    concatenatingMediaSource.removeMediaSource(1);
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    InOrder inOrder = inOrder(listener);
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder
+        .verify(listener, times(2))
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(0);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(0);
+    player.release();
+  }
+
+  @Test
+  public void
+      concatenatingMediaSourceRemoveMediaSourceWithSeek_overridesRemoval_callsOnPositionDiscontinuity()
+          throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    ConcatenatingMediaSource concatenatingMediaSource =
+        new ConcatenatingMediaSource(
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 1,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 10 * C.MICROS_PER_SECOND))),
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 2,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 8 * C.MICROS_PER_SECOND))),
+            new FakeMediaSource(
+                new FakeTimeline(
+                    new TimelineWindowDefinition(
+                        /* periodCount= */ 1,
+                        /* id= */ 2,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationUs= */ 6 * C.MICROS_PER_SECOND))));
+    player.addMediaSource(concatenatingMediaSource);
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 1, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    concatenatingMediaSource.removeMediaSource(1);
+    player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 1234);
+    TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled(player);
+    concatenatingMediaSource.removeMediaSource(0);
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    InOrder inOrder = inOrder(listener);
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    // SEEK overrides concatenating media source modification.
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    // This fails once out of a hundred test runs due to a race condition whether the seek or the
+    // removal arrives first in EPI.
+    // inOrder.verify(listener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(1234);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(1234);
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(1234);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(1234);
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(1234);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(1234);
+    player.release();
+  }
+
+  @Test
+  public void seekTo_callsOnPositionDiscontinuity() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    player.setMediaSources(Lists.newArrayList(new FakeMediaSource(), new FakeMediaSource()));
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 0, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    player.seekTo(/* positionMs= */ 7 * C.MILLIS_PER_SECOND);
+    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ C.MILLIS_PER_SECOND);
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    verify(listener, never())
+        .onPositionDiscontinuity(any(), any(), not(eq(Player.DISCONTINUITY_REASON_SEEK)));
+    verify(listener, times(2))
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowUid).isEqualTo(newPositions.get(0).windowUid);
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(7_000);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(7_000);
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).windowUid).isNotEqualTo(newPositions.get(1).windowUid);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(7_000);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(7_000);
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(1_000);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(1_000);
+    player.release();
+  }
+
+  @Test
+  public void seekTo_whenTimelineEmpty_callsOnPositionDiscontinuity() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+
+    player.seekTo(/* positionMs= */ 7 * C.MILLIS_PER_SECOND);
+    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ C.MILLIS_PER_SECOND);
+    player.seekTo(/* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    verify(listener, never())
+        .onPositionDiscontinuity(any(), any(), not(eq(Player.DISCONTINUITY_REASON_SEEK)));
+    verify(listener, times(3))
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    // a seek from initial state to masked seek position
+    assertThat(oldPositions.get(0).windowUid).isNull();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(oldPositions.get(0).contentPositionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).windowUid).isNull();
+    assertThat(newPositions.get(0).positionMs).isEqualTo(7_000);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(7_000);
+    // a seek from masked seek position to another masked position across windows
+    assertThat(oldPositions.get(1).windowUid).isNull();
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(7_000);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(7_000);
+    assertThat(newPositions.get(1).windowUid).isNull();
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(1_000);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(1_000);
+    // a seek from masked seek position to another masked position within window
+    assertThat(oldPositions.get(2).windowUid).isNull();
+    assertThat(oldPositions.get(2).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(2).positionMs).isEqualTo(1_000);
+    assertThat(oldPositions.get(2).contentPositionMs).isEqualTo(1_000);
+    assertThat(newPositions.get(2).windowUid).isNull();
+    assertThat(newPositions.get(2).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(2).positionMs).isEqualTo(5_000);
+    assertThat(newPositions.get(2).contentPositionMs).isEqualTo(5_000);
+    player.release();
+  }
+
+  @Test
+  public void stop_doesNotCallOnPositionDiscontinuity() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    player.setMediaSource(new FakeMediaSource());
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 0, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    player.stop();
+
+    verify(listener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+    player.release();
+  }
+
+  // Tests deprecated stop(boolean reset)
+  @SuppressWarnings("deprecation")
+  @Test
+  public void stop_withResetRemovesPlayingPeriod_callsOnPositionDiscontinuity() throws Exception {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    player.setMediaSource(new FakeMediaSource());
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 0, /* positionMs= */ 5 * C.MILLIS_PER_SECOND);
+    player.stop(/* reset= */ true);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    verify(listener, never())
+        .onPositionDiscontinuity(any(), any(), not(eq(Player.DISCONTINUITY_REASON_REMOVE)));
+    verify(listener)
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_REMOVE));
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(4980L, 5000L));
+    assertThat(newPositions.get(0).windowUid).isNull();
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(0);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(0);
+    player.release();
+  }
+
+  @Test
+  public void seekTo_cancelsSourceDiscontinuity_callsOnPositionDiscontinuity() throws Exception {
+    Timeline timeline1 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 1),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 2));
+    final Timeline timeline2 =
+        new FakeTimeline(
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 1),
+            new TimelineWindowDefinition(/* periodCount= */ 1, /* id= */ 3));
+    final FakeMediaSource mediaSource =
+        new FakeMediaSource(timeline1, ExoPlayerTestRunner.VIDEO_FORMAT);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    EventListener listener = mock(EventListener.class);
+    player.addListener(listener);
+    player.setMediaSource(mediaSource);
+
+    player.prepare();
+    TestPlayerRunHelper.playUntilPosition(player, /* windowIndex= */ 1, /* positionMs= */ 2000);
+    player.seekTo(/* windowIndex= */ 1, /* positionMs= */ 2122);
+    // This causes a DISCONTINUITY_REASON_REMOVE between pending operations that needs to be
+    // cancelled by the seek below.
+    mediaSource.setNewSourceInfo(timeline2);
+    player.play();
+    player.seekTo(/* windowIndex= */ 0, /* positionMs= */ 2222);
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    ArgumentCaptor<Player.PositionInfo> oldPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    ArgumentCaptor<Player.PositionInfo> newPosition =
+        ArgumentCaptor.forClass(Player.PositionInfo.class);
+    InOrder inOrder = inOrder(listener);
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder
+        .verify(listener, times(2))
+        .onPositionDiscontinuity(
+            oldPosition.capture(), newPosition.capture(), eq(Player.DISCONTINUITY_REASON_SEEK));
+    inOrder
+        .verify(listener)
+        .onPositionDiscontinuity(any(), any(), eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder.verify(listener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+    List<Player.PositionInfo> oldPositions = oldPosition.getAllValues();
+    List<Player.PositionInfo> newPositions = newPosition.getAllValues();
+    // First seek
+    assertThat(oldPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(0).positionMs).isIn(Range.closed(1980L, 2000L));
+    assertThat(oldPositions.get(0).contentPositionMs).isIn(Range.closed(1980L, 2000L));
+    assertThat(newPositions.get(0).windowIndex).isEqualTo(1);
+    assertThat(newPositions.get(0).positionMs).isEqualTo(2122);
+    assertThat(newPositions.get(0).contentPositionMs).isEqualTo(2122);
+    // Second seek.
+    assertThat(oldPositions.get(1).windowIndex).isEqualTo(1);
+    assertThat(oldPositions.get(1).positionMs).isEqualTo(2122);
+    assertThat(oldPositions.get(1).contentPositionMs).isEqualTo(2122);
+    assertThat(newPositions.get(1).windowIndex).isEqualTo(0);
+    assertThat(newPositions.get(1).positionMs).isEqualTo(2222);
+    assertThat(newPositions.get(1).contentPositionMs).isEqualTo(2222);
+    player.release();
   }
 
   // Internal methods.
