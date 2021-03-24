@@ -119,6 +119,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       case STATE_READ_PAYLOAD:
         castNonNull(oggSeeker);
         return readPayload(input, seekPosition);
+      case STATE_END_OF_INPUT:
+        return C.RESULT_END_OF_INPUT;
       default:
         // Never happens.
         throw new IllegalStateException();
