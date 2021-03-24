@@ -18,6 +18,9 @@
     *   Add group setting to `PlayerNotificationManager`.
     *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
         ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
+    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView`
+        when `wrap_content` is used
+        ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
 *   Audio:
     *   Report unexpected discontinuities in
         `AnalyticsListener.onAudioSinkError`
