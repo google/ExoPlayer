@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -572,7 +573,7 @@ public final class WebvttCueParser {
       StartTag startTag,
       List<Element> nestedElements,
       List<WebvttCssStyle> styles) {
-    @RubySpan.Position int rubyTagPosition = getRubyPosition(styles, cueId, startTag);
+    @TextAnnotation.Position int rubyTagPosition = getRubyPosition(styles, cueId, startTag);
     List<Element> sortedNestedElements = new ArrayList<>(nestedElements.size());
     sortedNestedElements.addAll(nestedElements);
     Collections.sort(sortedNestedElements, Element.BY_START_POSITION_ASC);
@@ -585,12 +586,12 @@ public final class WebvttCueParser {
       Element rubyTextElement = sortedNestedElements.get(i);
       // Use the <rt> element's ruby-position if set, otherwise the <ruby> element's and otherwise
       // default to OVER.
-      @RubySpan.Position
+      @TextAnnotation.Position
       int rubyPosition =
           firstKnownRubyPosition(
               getRubyPosition(styles, cueId, rubyTextElement.startTag),
               rubyTagPosition,
-              RubySpan.POSITION_OVER);
+              TextAnnotation.POSITION_BEFORE);
       // Move the rubyText from spannedText into the RubySpan.
       int adjustedRubyTextStart = rubyTextElement.startTag.position - deletedCharCount;
       int adjustedRubyTextEnd = rubyTextElement.endPosition - deletedCharCount;
@@ -607,31 +608,31 @@ public final class WebvttCueParser {
     }
   }
 
-  @RubySpan.Position
+  @TextAnnotation.Position
   private static int getRubyPosition(
       List<WebvttCssStyle> styles, @Nullable String cueId, StartTag startTag) {
     List<StyleMatch> styleMatches = getApplicableStyles(styles, cueId, startTag);
     for (int i = 0; i < styleMatches.size(); i++) {
       WebvttCssStyle style = styleMatches.get(i).style;
-      if (style.getRubyPosition() != RubySpan.POSITION_UNKNOWN) {
+      if (style.getRubyPosition() != TextAnnotation.POSITION_UNKNOWN) {
         return style.getRubyPosition();
       }
     }
-    return RubySpan.POSITION_UNKNOWN;
+    return TextAnnotation.POSITION_UNKNOWN;
   }
 
-  @RubySpan.Position
+  @TextAnnotation.Position
   private static int firstKnownRubyPosition(
-      @RubySpan.Position int position1,
-      @RubySpan.Position int position2,
-      @RubySpan.Position int position3) {
-    if (position1 != RubySpan.POSITION_UNKNOWN) {
+      @TextAnnotation.Position int position1,
+      @TextAnnotation.Position int position2,
+      @TextAnnotation.Position int position3) {
+    if (position1 != TextAnnotation.POSITION_UNKNOWN) {
       return position1;
     }
-    if (position2 != RubySpan.POSITION_UNKNOWN) {
+    if (position2 != TextAnnotation.POSITION_UNKNOWN) {
       return position2;
     }
-    if (position3 != RubySpan.POSITION_UNKNOWN) {
+    if (position3 != TextAnnotation.POSITION_UNKNOWN) {
       return position3;
     }
     throw new IllegalArgumentException();

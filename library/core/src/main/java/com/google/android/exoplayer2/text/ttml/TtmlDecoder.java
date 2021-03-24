@@ -22,7 +22,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
 import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
-import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.Log;
@@ -582,11 +582,11 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           break;
         case TtmlNode.ATTR_TTS_RUBY_POSITION:
           switch (Util.toLowerInvariant(attributeValue)) {
-            case TtmlNode.RUBY_BEFORE:
-              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_OVER);
+            case TtmlNode.ANNOTATION_POSITION_BEFORE:
+              style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_BEFORE);
               break;
-            case TtmlNode.RUBY_AFTER:
-              style = createIfNull(style).setRubyPosition(RubySpan.POSITION_UNDER);
+            case TtmlNode.ANNOTATION_POSITION_AFTER:
+              style = createIfNull(style).setRubyPosition(TextAnnotation.POSITION_AFTER);
               break;
             default:
               // ignore
@@ -608,6 +608,11 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               style = createIfNull(style).setUnderline(false);
               break;
           }
+          break;
+        case TtmlNode.ATTR_TTS_TEXT_EMPHASIS:
+          style =
+              createIfNull(style)
+                  .setTextEmphasis(TextEmphasis.parse(Util.toLowerInvariant(attributeValue)));
           break;
         default:
           // ignore

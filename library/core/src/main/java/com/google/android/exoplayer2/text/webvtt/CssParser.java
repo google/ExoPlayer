@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.text.webvtt;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -195,9 +195,9 @@ import java.util.regex.Pattern;
       style.setBackgroundColor(ColorParser.parseCssColor(value));
     } else if (PROPERTY_RUBY_POSITION.equals(property)) {
       if (VALUE_OVER.equals(value)) {
-        style.setRubyPosition(RubySpan.POSITION_OVER);
+        style.setRubyPosition(TextAnnotation.POSITION_BEFORE);
       } else if (VALUE_UNDER.equals(value)) {
-        style.setRubyPosition(RubySpan.POSITION_UNDER);
+        style.setRubyPosition(TextAnnotation.POSITION_AFTER);
       }
     } else if (PROPERTY_TEXT_COMBINE_UPRIGHT.equals(property)) {
       style.setCombineUpright(VALUE_ALL.equals(value) || value.startsWith(VALUE_DIGITS));

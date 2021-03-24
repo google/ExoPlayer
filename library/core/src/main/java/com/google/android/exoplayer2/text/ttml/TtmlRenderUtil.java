@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -27,9 +29,12 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
 import com.google.android.exoplayer2.text.span.SpanUtil;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayDeque;
@@ -83,7 +88,8 @@ import java.util.Map;
       int end,
       TtmlStyle style,
       @Nullable TtmlNode parent,
-      Map<String, TtmlStyle> globalStyles) {
+      Map<String, TtmlStyle> globalStyles,
+      @Cue.VerticalType int verticalType) {
 
     if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
       builder.setSpan(new StyleSpan(style.getStyle()), start, end,
@@ -119,6 +125,40 @@ import java.util.Map;
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
+    if (style.getTextEmphasis() != null) {
+      TextEmphasis textEmphasis = checkNotNull(style.getTextEmphasis());
+      @TextEmphasisSpan.MarkShape int markShape;
+      @TextEmphasisSpan.MarkFill int markFill;
+      if (textEmphasis.markShape == TextEmphasis.MARK_SHAPE_AUTO) {
+        // If a vertical writing mode applies, then 'auto' is equivalent to 'filled sesame';
+        // otherwise, it's equivalent to 'filled circle':
+        // https://www.w3.org/TR/ttml2/#style-value-emphasis-style
+        markShape =
+            (verticalType == Cue.VERTICAL_TYPE_LR || verticalType == Cue.VERTICAL_TYPE_RL)
+                ? TextEmphasisSpan.MARK_SHAPE_SESAME
+                : TextEmphasisSpan.MARK_SHAPE_CIRCLE;
+        markFill = TextEmphasisSpan.MARK_FILL_FILLED;
+      } else {
+        markShape = textEmphasis.markShape;
+        markFill = textEmphasis.markFill;
+      }
+
+      @TextEmphasis.Position int position;
+      if (textEmphasis.position == TextEmphasis.POSITION_OUTSIDE) {
+        // 'outside' is not supported by TextEmphasisSpan, so treat it as 'before':
+        // https://www.w3.org/TR/ttml2/#style-value-annotation-position
+        position = TextAnnotation.POSITION_BEFORE;
+      } else {
+        position = textEmphasis.position;
+      }
+
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new TextEmphasisSpan(markShape, markFill, position),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
     switch (style.getRubyType()) {
       case TtmlStyle.RUBY_TYPE_BASE:
         // look for the sibling RUBY_TEXT and add it as span between start & end.
@@ -141,11 +181,11 @@ import java.util.Map;
         }
 
         // TODO: Get rubyPosition from `textNode` when TTML inheritance is implemented.
-        @RubySpan.Position
+        @TextAnnotation.Position
         int rubyPosition =
             containerNode.style != null
                 ? containerNode.style.getRubyPosition()
-                : RubySpan.POSITION_UNKNOWN;
+                : TextAnnotation.POSITION_UNKNOWN;
         builder.setSpan(
             new RubySpan(rubyText, rubyPosition), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         break;

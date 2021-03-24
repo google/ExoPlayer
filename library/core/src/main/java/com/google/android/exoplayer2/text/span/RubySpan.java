@@ -16,12 +16,6 @@
  */
 package com.google.android.exoplayer2.text.span;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-import androidx.annotation.IntDef;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-
 /**
  * A styling span for ruby text.
  *
@@ -38,48 +32,13 @@ import java.lang.annotation.Retention;
 // rubies (e.g. HTML <rp> tag).
 public final class RubySpan {
 
-  /** The ruby position is unknown. */
-  public static final int POSITION_UNKNOWN = -1;
-
-  /**
-   * The ruby text should be positioned above the base text.
-   *
-   * <p>For vertical text it should be positioned to the right, same as CSS's <a
-   * href="https://developer.mozilla.org/en-US/docs/Web/CSS/ruby-position">ruby-position</a>.
-   */
-  public static final int POSITION_OVER = 1;
-
-  /**
-   * The ruby text should be positioned below the base text.
-   *
-   * <p>For vertical text it should be positioned to the left, same as CSS's <a
-   * href="https://developer.mozilla.org/en-US/docs/Web/CSS/ruby-position">ruby-position</a>.
-   */
-  public static final int POSITION_UNDER = 2;
-
-  /**
-   * The possible positions of the ruby text relative to the base text.
-   *
-   * <p>One of:
-   *
-   * <ul>
-   *   <li>{@link #POSITION_UNKNOWN}
-   *   <li>{@link #POSITION_OVER}
-   *   <li>{@link #POSITION_UNDER}
-   * </ul>
-   */
-  @Documented
-  @Retention(SOURCE)
-  @IntDef({POSITION_UNKNOWN, POSITION_OVER, POSITION_UNDER})
-  public @interface Position {}
-
   /** The ruby text, i.e. the smaller explanatory characters. */
   public final String rubyText;
 
   /** The position of the ruby text relative to the base text. */
-  @Position public final int position;
+  @TextAnnotation.Position public final int position;
 
-  public RubySpan(String rubyText, @Position int position) {
+  public RubySpan(String rubyText, @TextAnnotation.Position int position) {
     this.rubyText = rubyText;
     this.position = position;
   }
