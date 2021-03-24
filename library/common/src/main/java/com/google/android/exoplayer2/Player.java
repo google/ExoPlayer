@@ -1044,21 +1044,23 @@ public interface Player {
 
   /**
    * Commands that can be executed on a {@code Player}. One of {@link #COMMAND_PLAY_PAUSE}, {@link
-   * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link
-   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link
-   * #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link #COMMAND_SET_SPEED_AND_PITCH}, {@link
-   * #COMMAND_SET_SHUFFLE_MODE}, {@link #COMMAND_SET_REPEAT_MODE}, {@link
-   * #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link #COMMAND_GET_MEDIA_ITEMS}, {@link
-   * #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link #COMMAND_CHANGE_MEDIA_ITEMS}, {@link
-   * #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME}, {@link #COMMAND_SET_VOLUME}, {@link
-   * #COMMAND_SET_DEVICE_VOLUME}, {@link #COMMAND_ADJUST_DEVICE_VOLUME}, {@link
-   * #COMMAND_SET_VIDEO_SURFACE} or {@link #COMMAND_GET_TEXT}.
+   * #COMMAND_PREPARE_STOP_RELEASE}, {@link #COMMAND_SEEK_TO_DEFAULT_POSITION}, {@link
+   * #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM}, {@link
+   * #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}, {@link #COMMAND_SEEK_TO_MEDIA_ITEM}, {@link
+   * #COMMAND_SET_SPEED_AND_PITCH}, {@link #COMMAND_SET_SHUFFLE_MODE}, {@link
+   * #COMMAND_SET_REPEAT_MODE}, {@link #COMMAND_GET_CURRENT_MEDIA_ITEM}, {@link
+   * #COMMAND_GET_MEDIA_ITEMS}, {@link #COMMAND_GET_MEDIA_ITEMS_METADATA}, {@link
+   * #COMMAND_CHANGE_MEDIA_ITEMS}, {@link #COMMAND_GET_VOLUME}, {@link #COMMAND_GET_DEVICE_VOLUME},
+   * {@link #COMMAND_SET_VOLUME}, {@link #COMMAND_SET_DEVICE_VOLUME}, {@link
+   * #COMMAND_ADJUST_DEVICE_VOLUME}, {@link #COMMAND_SET_VIDEO_SURFACE} or {@link
+   * #COMMAND_GET_TEXT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({
     COMMAND_PLAY_PAUSE,
     COMMAND_PREPARE_STOP_RELEASE,
+    COMMAND_SEEK_TO_DEFAULT_POSITION,
     COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
     COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
     COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM,
@@ -1083,42 +1085,44 @@ public interface Player {
   int COMMAND_PLAY_PAUSE = 1;
   /** Command to prepare the player, stop playback or release the player. */
   int COMMAND_PREPARE_STOP_RELEASE = 2;
-  /** Command to seek into the current window. */
-  int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 3;
+  /** Command to seek to the default position of the current window. */
+  int COMMAND_SEEK_TO_DEFAULT_POSITION = 3;
+  /** Command to seek anywhere into the current window. */
+  int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 4;
   /** Command to seek to the default position of the next window. */
-  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 4;
+  int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 5;
   /** Command to seek to the default position of the previous window. */
-  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 5;
+  int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
   /** Command to seek anywhere in any window. */
-  int COMMAND_SEEK_TO_MEDIA_ITEM = 6;
+  int COMMAND_SEEK_TO_MEDIA_ITEM = 7;
   /** Command to set the playback speed and pitch. */
-  int COMMAND_SET_SPEED_AND_PITCH = 7;
+  int COMMAND_SET_SPEED_AND_PITCH = 8;
   /** Command to enable shuffling. */
-  int COMMAND_SET_SHUFFLE_MODE = 8;
+  int COMMAND_SET_SHUFFLE_MODE = 9;
   /** Command to set the repeat mode. */
-  int COMMAND_SET_REPEAT_MODE = 9;
+  int COMMAND_SET_REPEAT_MODE = 10;
   /** Command to get the {@link MediaItem} of the current window. */
-  int COMMAND_GET_CURRENT_MEDIA_ITEM = 10;
+  int COMMAND_GET_CURRENT_MEDIA_ITEM = 11;
   /** Command to get the current timeline and its {@link MediaItem MediaItems}. */
-  int COMMAND_GET_MEDIA_ITEMS = 11;
+  int COMMAND_GET_MEDIA_ITEMS = 12;
   /** Command to get the {@link MediaItem MediaItems} metadata. */
-  int COMMAND_GET_MEDIA_ITEMS_METADATA = 12;
+  int COMMAND_GET_MEDIA_ITEMS_METADATA = 13;
   /** Command to change the {@link MediaItem MediaItems} in the playlist. */
-  int COMMAND_CHANGE_MEDIA_ITEMS = 13;
+  int COMMAND_CHANGE_MEDIA_ITEMS = 14;
   /** Command to get the player volume. */
-  int COMMAND_GET_VOLUME = 14;
+  int COMMAND_GET_VOLUME = 15;
   /** Command to get the device volume and whether it is muted. */
-  int COMMAND_GET_DEVICE_VOLUME = 15;
+  int COMMAND_GET_DEVICE_VOLUME = 16;
   /** Command to set the player volume. */
-  int COMMAND_SET_VOLUME = 16;
+  int COMMAND_SET_VOLUME = 17;
   /** Command to set the device volume and mute it. */
-  int COMMAND_SET_DEVICE_VOLUME = 17;
+  int COMMAND_SET_DEVICE_VOLUME = 18;
   /** Command to increase and decrease the device volume and mute it. */
-  int COMMAND_ADJUST_DEVICE_VOLUME = 18;
+  int COMMAND_ADJUST_DEVICE_VOLUME = 19;
   /** Command to set and clear the surface on which to render the video. */
-  int COMMAND_SET_VIDEO_SURFACE = 19;
+  int COMMAND_SET_VIDEO_SURFACE = 20;
   /** Command to get the text that should currently be displayed by the player. */
-  int COMMAND_GET_TEXT = 20;
+  int COMMAND_GET_TEXT = 21;
 
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable

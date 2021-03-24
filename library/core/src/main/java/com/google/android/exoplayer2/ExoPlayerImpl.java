@@ -198,6 +198,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
     availableCommands =
         new Commands.Builder()
             .addAll(permanentAvailableCommands)
+            .add(COMMAND_SEEK_TO_DEFAULT_POSITION)
             .add(COMMAND_SEEK_TO_MEDIA_ITEM)
             .build();
     maskingWindowIndex = C.INDEX_UNSET;

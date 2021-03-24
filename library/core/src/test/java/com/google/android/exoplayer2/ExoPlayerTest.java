@@ -26,6 +26,7 @@ import static com.google.android.exoplayer2.Player.COMMAND_GET_VOLUME;
 import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
 import static com.google.android.exoplayer2.Player.COMMAND_PREPARE_STOP_RELEASE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
+import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
@@ -8061,6 +8062,7 @@ public final class ExoPlayerTest {
 
     assertThat(player.isCommandAvailable(COMMAND_PLAY_PAUSE)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_PREPARE_STOP_RELEASE)).isTrue();
+    assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)).isFalse();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)).isTrue();
     assertThat(player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM)).isFalse();
@@ -8132,11 +8134,11 @@ public final class ExoPlayerTest {
   @Test
   public void seekTo_nextWindow_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext =
-        createWithPermanentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekToPrevious =
-        createWithPermanentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekToNextAndPrevious =
-        createWithPermanentCommands(
+        createWithDefaultCommands(
             COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
@@ -8167,11 +8169,11 @@ public final class ExoPlayerTest {
   @Test
   public void seekTo_previousWindow_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext =
-        createWithPermanentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekToPrevious =
-        createWithPermanentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekToNextAndPrevious =
-        createWithPermanentCommands(
+        createWithDefaultCommands(
             COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
@@ -8215,15 +8217,15 @@ public final class ExoPlayerTest {
   @Test
   public void automaticWindowTransition_notifiesAvailableCommandsChanged() throws Exception {
     Player.Commands commandsWithSeekToNext =
-        createWithPermanentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekInCurrentAndToNext =
-        createWithPermanentCommands(
+        createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekInCurrentAndToPrevious =
-        createWithPermanentCommands(
+        createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.Commands commandsWithSeekAnywhere =
-        createWithPermanentCommands(
+        createWithDefaultCommands(
             COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
             COMMAND_SEEK_TO_NEXT_MEDIA_ITEM,
             COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
@@ -8264,7 +8266,7 @@ public final class ExoPlayerTest {
   @Test
   public void addMediaSource_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext =
-        createWithPermanentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8284,7 +8286,7 @@ public final class ExoPlayerTest {
   @Test
   public void addMediaSource_atTheStart_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToPrevious =
-        createWithPermanentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8304,8 +8306,8 @@ public final class ExoPlayerTest {
   @Test
   public void removeMediaItem_atTheEnd_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext =
-        createWithPermanentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
-    Player.Commands commandsWithoutSeek = createWithPermanentCommands();
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createWithDefaultCommands();
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8330,8 +8332,8 @@ public final class ExoPlayerTest {
   @Test
   public void removeMediaItem_atTheStart_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToPrevious =
-        createWithPermanentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
-    Player.Commands commandsWithoutSeek = createWithPermanentCommands();
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createWithDefaultCommands();
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8357,8 +8359,8 @@ public final class ExoPlayerTest {
   @Test
   public void removeMediaItem_current_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext =
-        createWithPermanentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
-    Player.Commands commandsWithoutSeek = createWithPermanentCommands();
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+    Player.Commands commandsWithoutSeek = createWithDefaultCommands();
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -8376,7 +8378,7 @@ public final class ExoPlayerTest {
   @Test
   public void setRepeatMode_all_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNextAndPrevious =
-        createWithPermanentCommands(
+        createWithDefaultCommands(
             COMMAND_SEEK_TO_NEXT_MEDIA_ITEM, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
@@ -8405,9 +8407,9 @@ public final class ExoPlayerTest {
   @Test
   public void setShuffleModeEnabled_notifiesAvailableCommandsChanged() {
     Player.Commands commandsWithSeekToNext =
-        createWithPermanentCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_NEXT_MEDIA_ITEM);
     Player.Commands commandsWithSeekToPrevious =
-        createWithPermanentCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
+        createWithDefaultCommands(COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM);
     Player.EventListener mockListener = mock(Player.EventListener.class);
     ExoPlayer player = new TestExoPlayerBuilder(context).build();
     player.addListener(mockListener);
@@ -9377,7 +9379,7 @@ public final class ExoPlayerTest {
     return false;
   }
 
-  private static Player.Commands createWithPermanentCommands(
+  private static Player.Commands createWithDefaultCommands(
       @Player.Command int... additionalCommands) {
     Player.Commands.Builder builder = new Player.Commands.Builder();
     builder.addAll(
@@ -9397,6 +9399,7 @@ public final class ExoPlayerTest {
         COMMAND_ADJUST_DEVICE_VOLUME,
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
+        COMMAND_SEEK_TO_DEFAULT_POSITION,
         COMMAND_SEEK_TO_MEDIA_ITEM);
     builder.addAll(additionalCommands);
     return builder.build();
