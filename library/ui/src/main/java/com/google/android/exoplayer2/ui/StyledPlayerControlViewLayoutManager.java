@@ -50,6 +50,7 @@ import java.util.List;
 
   private final StyledPlayerControlView styledPlayerControlView;
 
+  @Nullable private final View controlsBackground;
   @Nullable private final ViewGroup centerControls;
   @Nullable private final ViewGroup bottomBar;
   @Nullable private final ViewGroup minimalControls;
@@ -99,7 +100,7 @@ import java.util.List;
     shownButtons = new ArrayList<>();
 
     // Relating to Center View
-    View controlsBackground = styledPlayerControlView.findViewById(R.id.exo_controls_background);
+    controlsBackground = styledPlayerControlView.findViewById(R.id.exo_controls_background);
     centerControls = styledPlayerControlView.findViewById(R.id.exo_center_controls);
 
     // Relating to Minimal Layout
@@ -461,6 +462,15 @@ import java.util.List;
     //  compatibility.
     if (prevUxState != uxState) {
       styledPlayerControlView.notifyOnVisibilityChange();
+    }
+  }
+
+  public void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    if (controlsBackground != null) {
+      // The background view should occupy the entirety of the parent. This is done in code rather
+      // than in layout XML to stop the background view from influencing the size of the parent if
+      // it uses "wrap_content". See: https://github.com/google/ExoPlayer/issues/8726.
+      controlsBackground.layout(0, 0, right - left, bottom - top);
     }
   }
 
