@@ -90,6 +90,12 @@ compileOptions {
 ~~~
 {: .language-gradle}
 
+### Enable multidex ###
+
+If your Gradle `minSdkVersion` is 20 or lower, you should
+[enable multidex](https://developer.android.com/studio/build/multidex) in order
+to prevent build errors.
+
 ## Creating the player ##
 
 You can create an `ExoPlayer` instance using `SimpleExoPlayer.Builder` or
