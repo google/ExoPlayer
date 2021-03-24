@@ -36,6 +36,9 @@
         object.
     *   `Player.setPlaybackParameters` no longer accepts null, use
         `PlaybackParameters.DEFAULT` instead.
+    *   Assume Dolby Vision content is encoded as H264 when calculating maximum
+        codec input size
+        ([#8705](https://github.com/google/ExoPlayer/issues/8705)).
 *   HLS:
     *   Fix issue that could cause playback to become stuck if corresponding
         `EXT-X-DISCONTINUITY` tags in different media playlists occur at
