@@ -81,7 +81,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
   private static final Pattern OFFSET_TIME =
       Pattern.compile("^([0-9]+(?:\\.[0-9]+)?)(h|m|s|ms|f|t)$");
   private static final Pattern FONT_SIZE = Pattern.compile("^(([0-9]*.)?[0-9]+)(px|em|%)$");
-  private static final Pattern PERCENTAGE_COORDINATES =
+  static final Pattern SIGNED_PERCENTAGE =
+      Pattern.compile("^([-+]?\\d+\\.?\\d*?)%$");
+  static final Pattern PERCENTAGE_COORDINATES =
       Pattern.compile("^(\\d+\\.?\\d*?)% (\\d+\\.?\\d*?)%$");
   private static final Pattern PIXEL_COORDINATES =
       Pattern.compile("^(\\d+\\.?\\d*?)px (\\d+\\.?\\d*?)px$");
@@ -613,6 +615,13 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           style =
               createIfNull(style)
                   .setTextEmphasis(TextEmphasis.parse(Util.toLowerInvariant(attributeValue)));
+        case TtmlNode.ATTR_TTS_SHEAR:
+          style = createIfNull(style);
+          try {
+            parseShear(attributeValue, style);
+          } catch (SubtitleDecoderException e) {
+            Log.w(TAG, "Failed parsing shear value: " + attributeValue);
+          }
           break;
         default:
           // ignore
@@ -752,6 +761,27 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
       out.setFontSize(Float.parseFloat(Assertions.checkNotNull(matcher.group(1))));
     } else {
       throw new SubtitleDecoderException("Invalid expression for fontSize: '" + expression + "'.");
+    }
+  }
+
+  private static void parseShear(String expression, TtmlStyle out) throws
+      SubtitleDecoderException {
+    Matcher matcher = SIGNED_PERCENTAGE.matcher(expression);
+    if (matcher.matches()) {
+      try {
+        float value = Float.parseFloat(matcher.group(1));
+        // https://www.w3.org/TR/2018/REC-ttml2-20181108/#semantics-style-procedures-shear
+        // If the absolute value of the specified percentage is greater than 100%, then it must be
+        // interpreted as if 100% were specified with the appropriate sign.
+        value = Math.max(-100f, value);
+        value = Math.min(100f, value);
+        out.setShearPercentage(value);
+      } catch (NumberFormatException e) {
+        throw new SubtitleDecoderException("Invalid expression for shear: '" + expression + "'.",
+            e);
+      }
+    } else {
+      throw new SubtitleDecoderException("Invalid expression for shear: '" + expression + "'.");
     }
   }
 

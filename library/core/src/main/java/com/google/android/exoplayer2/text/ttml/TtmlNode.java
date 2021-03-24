@@ -71,6 +71,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ATTR_TTS_TEXT_COMBINE = "textCombine";
   public static final String ATTR_TTS_TEXT_EMPHASIS = "textEmphasis";
   public static final String ATTR_TTS_WRITING_MODE = "writingMode";
+  public static final String ATTR_TTS_SHEAR = "shear";
 
   // Values for ruby
   public static final String RUBY_CONTAINER = "container";
@@ -408,6 +409,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (resolvedStyle != null) {
       TtmlRenderUtil.applyStylesToSpan(
           text, start, end, resolvedStyle, parent, globalStyles, verticalType);
+      if (resolvedStyle.getShearPercentage() != 0.0f && TAG_P.equals(tag)) {
+        // Shear style should only be applied to P nodes
+        // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
+        // The spec doesn't specify the coordinate system to use for block shear
+        // however the spec shows examples of how different values are expected to be rendered.
+        // See: https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
+        // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-fontShear
+        // This maps the shear percentage to shear angle in graphics coordinates
+        regionOutput.setShearDegrees(resolvedStyle.getShearPercentage() * -90 / 100);
+      }
       regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
     }
   }
