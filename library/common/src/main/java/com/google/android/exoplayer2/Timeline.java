@@ -25,9 +25,9 @@ import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.core.app.BundleCompat;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.BundleUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -1301,9 +1301,9 @@ public abstract class Timeline implements Bundleable {
     }
 
     Bundle bundle = new Bundle();
-    BundleCompat.putBinder(
+    BundleUtil.putBinder(
         bundle, keyForField(FIELD_WINDOWS), new BundleListRetriever(windowBundles));
-    BundleCompat.putBinder(
+    BundleUtil.putBinder(
         bundle, keyForField(FIELD_PERIODS), new BundleListRetriever(periodBundles));
     bundle.putIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES), shuffledWindowIndices);
     return bundle;
@@ -1321,10 +1321,10 @@ public abstract class Timeline implements Bundleable {
   private static Timeline fromBundle(Bundle bundle) {
     ImmutableList<Window> windows =
         fromBundleListRetriever(
-            Window.CREATOR, BundleCompat.getBinder(bundle, keyForField(FIELD_WINDOWS)));
+            Window.CREATOR, BundleUtil.getBinder(bundle, keyForField(FIELD_WINDOWS)));
     ImmutableList<Period> periods =
         fromBundleListRetriever(
-            Period.CREATOR, BundleCompat.getBinder(bundle, keyForField(FIELD_PERIODS)));
+            Period.CREATOR, BundleUtil.getBinder(bundle, keyForField(FIELD_PERIODS)));
     @Nullable
     int[] shuffledWindowIndices = bundle.getIntArray(keyForField(FIELD_SHUFFLED_WINDOW_INDICES));
     return new RemotableTimeline(
