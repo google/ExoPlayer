@@ -690,6 +690,7 @@ public interface Player {
      *
      * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
      * @return The {@link EventFlags event} at the given index.
+     * @throws IndexOutOfBoundsException If index is outside the allowed range.
      */
     @EventFlags
     public int get(int index) {
@@ -785,6 +786,23 @@ public interface Player {
     /** Returns whether the set of commands contains the specified {@link Command}. */
     public boolean contains(@Command int command) {
       return flags.contains(command);
+    }
+
+    /** Returns the number of commands in this set. */
+    public int size() {
+      return flags.size();
+    }
+
+    /**
+     * Returns the {@link Command} at the given index.
+     *
+     * @param index The index. Must be between 0 (inclusive) and {@link #size()} (exclusive).
+     * @return The {@link Command} at the given index.
+     * @throws IndexOutOfBoundsException If index is outside the allowed range.
+     */
+    @Command
+    public int get(int index) {
+      return flags.get(index);
     }
 
     @Override

@@ -122,17 +122,17 @@ public final class ExoFlagsTest {
   }
 
   @Test
-  public void get_withNegativeIndex_throwsIllegalArgumentException() {
+  public void get_withNegativeIndex_throwsIndexOutOfBoundsException() {
     ExoFlags flags = new ExoFlags.Builder().build();
 
-    assertThrows(IllegalArgumentException.class, () -> flags.get(/* index= */ -1));
+    assertThrows(IndexOutOfBoundsException.class, () -> flags.get(/* index= */ -1));
   }
 
   @Test
-  public void get_withIndexExceedingSize_throwsIllegalArgumentException() {
+  public void get_withIndexExceedingSize_throwsIndexOutOfBoundsException() {
     ExoFlags flags = new ExoFlags.Builder().add(/* flag= */ 0).add(/* flag= */ 123).build();
 
-    assertThrows(IllegalArgumentException.class, () -> flags.get(/* index= */ 2));
+    assertThrows(IndexOutOfBoundsException.class, () -> flags.get(/* index= */ 2));
   }
 
   @Test
