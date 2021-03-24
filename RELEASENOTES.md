@@ -67,6 +67,7 @@
         [#8456](https://github.com/google/ExoPlayer/issues/8456)).
     *   Fix CEA-708 priority handling to sort cues in the order defined by the
         spec ([#8704](https://github.com/google/ExoPlayer/issues/8704)).
+    *   Support TTML `textEmphasis` attributes, used for Japanese boutens.
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.

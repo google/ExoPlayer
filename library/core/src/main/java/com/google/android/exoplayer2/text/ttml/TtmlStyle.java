@@ -19,7 +19,7 @@ import android.graphics.Typeface;
 import android.text.Layout;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -83,9 +83,10 @@ import java.lang.annotation.RetentionPolicy;
   private float fontSize;
   @Nullable private String id;
   @RubyType private int rubyType;
-  @RubySpan.Position private int rubyPosition;
+  @TextAnnotation.Position private int rubyPosition;
   @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
+  @Nullable private TextEmphasis textEmphasis;
 
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
@@ -94,7 +95,7 @@ import java.lang.annotation.RetentionPolicy;
     italic = UNSPECIFIED;
     fontSizeUnit = UNSPECIFIED;
     rubyType = UNSPECIFIED;
-    rubyPosition = RubySpan.POSITION_UNKNOWN;
+    rubyPosition = TextAnnotation.POSITION_UNKNOWN;
     textCombine = UNSPECIFIED;
   }
 
@@ -225,7 +226,7 @@ import java.lang.annotation.RetentionPolicy;
       if (underline == UNSPECIFIED) {
         underline = ancestor.underline;
       }
-      if (rubyPosition == RubySpan.POSITION_UNKNOWN) {
+      if (rubyPosition == TextAnnotation.POSITION_UNKNOWN) {
         rubyPosition = ancestor.rubyPosition;
       }
       if (textAlign == null && ancestor.textAlign != null) {
@@ -237,6 +238,9 @@ import java.lang.annotation.RetentionPolicy;
       if (fontSizeUnit == UNSPECIFIED) {
         fontSizeUnit = ancestor.fontSizeUnit;
         fontSize = ancestor.fontSize;
+      }
+      if (textEmphasis == null) {
+        textEmphasis = ancestor.textEmphasis;
       }
       // attributes not inherited as of http://www.w3.org/TR/ttml1/
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {
@@ -269,12 +273,12 @@ import java.lang.annotation.RetentionPolicy;
     return rubyType;
   }
 
-  public TtmlStyle setRubyPosition(@RubySpan.Position int position) {
+  public TtmlStyle setRubyPosition(@TextAnnotation.Position int position) {
     this.rubyPosition = position;
     return this;
   }
 
-  @RubySpan.Position
+  @TextAnnotation.Position
   public int getRubyPosition() {
     return rubyPosition;
   }
@@ -296,6 +300,16 @@ import java.lang.annotation.RetentionPolicy;
 
   public TtmlStyle setTextCombine(boolean combine) {
     this.textCombine = combine ? ON : OFF;
+    return this;
+  }
+
+  @Nullable
+  public TextEmphasis getTextEmphasis() {
+    return textEmphasis;
+  }
+
+  public TtmlStyle setTextEmphasis(@Nullable TextEmphasis textEmphasis) {
+    this.textEmphasis = textEmphasis;
     return this;
   }
 

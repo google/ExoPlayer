@@ -41,6 +41,9 @@ import com.google.android.exoplayer2.testutil.truth.SpannedSubject.AndSpanFlags;
 import com.google.android.exoplayer2.testutil.truth.SpannedSubject.WithSpanFlags;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.truth.ExpectFailure;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -607,23 +610,26 @@ public class SpannedSubjectTest {
   public void rubySpan_success() {
     SpannableString spannable =
         createSpannable(
-            new RubySpan("ruby text", RubySpan.POSITION_OVER), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE),
+            Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
     assertThat(spannable)
         .hasRubySpanBetween(SPAN_START, SPAN_END)
-        .withTextAndPosition("ruby text", RubySpan.POSITION_OVER)
+        .withTextAndPosition("ruby text", TextAnnotation.POSITION_BEFORE)
         .andFlags(Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
   }
 
   @Test
   public void rubySpan_wrongEndIndex() {
     checkHasSpanFailsDueToIndexMismatch(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER), SpannedSubject::hasRubySpanBetween);
+        new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE),
+        SpannedSubject::hasRubySpanBetween);
   }
 
   @Test
   public void rubySpan_wrongText() {
-    SpannableString spannable = createSpannable(new RubySpan("ruby text", RubySpan.POSITION_OVER));
+    SpannableString spannable =
+        createSpannable(new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE));
 
     AssertionError expected =
         expectFailure(
@@ -631,7 +637,7 @@ public class SpannedSubjectTest {
                 whenTesting
                     .that(spannable)
                     .hasRubySpanBetween(SPAN_START, SPAN_END)
-                    .withTextAndPosition("incorrect text", RubySpan.POSITION_OVER));
+                    .withTextAndPosition("incorrect text", TextAnnotation.POSITION_BEFORE));
 
     assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
     assertThat(expected).factValue("expected").contains("text='incorrect text'");
@@ -640,7 +646,8 @@ public class SpannedSubjectTest {
 
   @Test
   public void rubySpan_wrongPosition() {
-    SpannableString spannable = createSpannable(new RubySpan("ruby text", RubySpan.POSITION_OVER));
+    SpannableString spannable =
+        createSpannable(new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE));
 
     AssertionError expected =
         expectFailure(
@@ -648,27 +655,32 @@ public class SpannedSubjectTest {
                 whenTesting
                     .that(spannable)
                     .hasRubySpanBetween(SPAN_START, SPAN_END)
-                    .withTextAndPosition("ruby text", RubySpan.POSITION_UNDER));
+                    .withTextAndPosition("ruby text", TextAnnotation.POSITION_AFTER));
 
     assertThat(expected).factValue("value of").contains("rubyTextAndPosition");
-    assertThat(expected).factValue("expected").contains("position=" + RubySpan.POSITION_UNDER);
-    assertThat(expected).factValue("but was").contains("position=" + RubySpan.POSITION_OVER);
+    assertThat(expected)
+        .factValue("expected")
+        .contains("position=" + TextAnnotation.POSITION_AFTER);
+    assertThat(expected)
+        .factValue("but was")
+        .contains("position=" + TextAnnotation.POSITION_BEFORE);
   }
 
   @Test
   public void rubySpan_wrongFlags() {
     checkHasSpanFailsDueToFlagMismatch(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER),
+        new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE),
         (subject, start, end) ->
             subject
                 .hasRubySpanBetween(start, end)
-                .withTextAndPosition("ruby text", RubySpan.POSITION_OVER));
+                .withTextAndPosition("ruby text", TextAnnotation.POSITION_BEFORE));
   }
 
   @Test
   public void noRubySpan_success() {
     SpannableString spannable =
-        createSpannableWithUnrelatedSpanAnd(new RubySpan("ruby text", RubySpan.POSITION_OVER));
+        createSpannableWithUnrelatedSpanAnd(
+            new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE));
 
     assertThat(spannable).hasNoRubySpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
   }
@@ -676,7 +688,191 @@ public class SpannedSubjectTest {
   @Test
   public void noRubySpan_failure() {
     checkHasNoSpanFails(
-        new RubySpan("ruby text", RubySpan.POSITION_OVER), SpannedSubject::hasNoRubySpanBetween);
+        new RubySpan("ruby text", TextAnnotation.POSITION_BEFORE),
+        SpannedSubject::hasNoRubySpanBetween);
+  }
+
+  @Test
+  public void textEmphasis_success() {
+    SpannableString spannable =
+        createSpannable(
+            new TextEmphasisSpan(
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+
+    assertThat(spannable)
+        .hasTextEmphasisSpanBetween(SPAN_START, SPAN_END)
+        .withMarkAndPosition(
+            TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+            TextEmphasisSpan.MARK_FILL_FILLED,
+            TextAnnotation.POSITION_AFTER)
+        .andFlags(Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+  }
+
+  @Test
+  public void textEmphasis_wrongIndex() {
+    checkHasSpanFailsDueToIndexMismatch(
+        new TextEmphasisSpan(
+            TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+            TextEmphasisSpan.MARK_FILL_FILLED,
+            TextAnnotation.POSITION_AFTER),
+        SpannedSubject::hasTextEmphasisSpanBetween);
+  }
+
+  @Test
+  public void textEmphasis_wrongMarkShape() {
+    SpannableString spannable =
+        createSpannable(
+            new TextEmphasisSpan(
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasTextEmphasisSpanBetween(SPAN_START, SPAN_END)
+                    .withMarkAndPosition(
+                        TextEmphasisSpan.MARK_SHAPE_SESAME,
+                        TextEmphasisSpan.MARK_FILL_FILLED,
+                        TextAnnotation.POSITION_AFTER));
+
+    assertThat(expected).factValue("value of").contains("textEmphasisMarkAndPosition");
+    assertThat(expected)
+        .factValue("expected")
+        .contains(
+            Util.formatInvariant(
+                "{markShape=%d,markFill=%d,position=%d}",
+                TextEmphasisSpan.MARK_SHAPE_SESAME,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+    assertThat(expected)
+        .factValue("but was")
+        .contains(
+            Util.formatInvariant(
+                "{markShape=%d,markFill=%d,position=%d}",
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+  }
+
+  @Test
+  public void textEmphasis_wrongMarkFill() {
+    SpannableString spannable =
+        createSpannable(
+            new TextEmphasisSpan(
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasTextEmphasisSpanBetween(SPAN_START, SPAN_END)
+                    .withMarkAndPosition(
+                        TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                        TextEmphasisSpan.MARK_FILL_OPEN,
+                        TextAnnotation.POSITION_AFTER));
+
+    assertThat(expected).factValue("value of").contains("textEmphasisMarkAndPosition");
+    assertThat(expected)
+        .factValue("expected")
+        .contains(
+            Util.formatInvariant(
+                "{markShape=%d,markFill=%d,position=%d}",
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_OPEN,
+                TextAnnotation.POSITION_AFTER));
+    assertThat(expected)
+        .factValue("but was")
+        .contains(
+            Util.formatInvariant(
+                "{markShape=%d,markFill=%d,position=%d}",
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+  }
+
+  @Test
+  public void textEmphasis_wrongPosition() {
+    SpannableString spannable =
+        createSpannable(
+            new TextEmphasisSpan(
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_BEFORE));
+
+    AssertionError expected =
+        expectFailure(
+            whenTesting ->
+                whenTesting
+                    .that(spannable)
+                    .hasTextEmphasisSpanBetween(SPAN_START, SPAN_END)
+                    .withMarkAndPosition(
+                        TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                        TextEmphasisSpan.MARK_FILL_FILLED,
+                        TextAnnotation.POSITION_AFTER));
+
+    assertThat(expected).factValue("value of").contains("textEmphasisMarkAndPosition");
+    assertThat(expected)
+        .factValue("expected")
+        .contains(
+            Util.formatInvariant(
+                "{markShape=%d,markFill=%d,position=%d}",
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+    assertThat(expected)
+        .factValue("but was")
+        .contains(
+            Util.formatInvariant(
+                "{markShape=%d,markFill=%d,position=%d}",
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_BEFORE));
+  }
+
+  @Test
+  public void textEmphasis_wrongFlags() {
+    checkHasSpanFailsDueToFlagMismatch(
+        new TextEmphasisSpan(
+            TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+            TextEmphasisSpan.MARK_FILL_FILLED,
+            TextAnnotation.POSITION_AFTER),
+        (subject, start, end) ->
+            subject
+                .hasTextEmphasisSpanBetween(start, end)
+                .withMarkAndPosition(
+                    TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                    TextEmphasisSpan.MARK_FILL_FILLED,
+                    TextAnnotation.POSITION_AFTER));
+  }
+
+  @Test
+  public void noTextEmphasis_success() {
+    SpannableString spannable =
+        createSpannableWithUnrelatedSpanAnd(
+            new TextEmphasisSpan(
+                TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+                TextEmphasisSpan.MARK_FILL_FILLED,
+                TextAnnotation.POSITION_AFTER));
+
+    assertThat(spannable).hasNoTextEmphasisSpanBetween(UNRELATED_SPAN_START, UNRELATED_SPAN_END);
+  }
+
+  @Test
+  public void noTextEmphasis_failure() {
+    checkHasNoSpanFails(
+        new TextEmphasisSpan(
+            TextEmphasisSpan.MARK_SHAPE_CIRCLE,
+            TextEmphasisSpan.MARK_FILL_FILLED,
+            TextAnnotation.POSITION_AFTER),
+        SpannedSubject::hasNoTextEmphasisSpanBetween);
   }
 
   @Test
