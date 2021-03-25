@@ -56,8 +56,8 @@ public final class DefaultBandwidthMeterTest {
   private NetworkInfo networkInfo2g;
   private NetworkInfo networkInfo3g;
   private NetworkInfo networkInfo4g;
-  // TODO: Add tests covering 5G-NSA networks. Not testable right now because Robolectric's
-  // ShadowTelephonyManager doesn't handle requests to return the ServiceState.
+  // TODO: Add tests covering 5G-NSA networks. Not testable right now because we need to set the
+  // TelephonyDisplayInfo on API 31, which isn't available for Robolectric yet.
   private NetworkInfo networkInfo5gSa;
   private NetworkInfo networkInfoEthernet;
 

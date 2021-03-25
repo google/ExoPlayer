@@ -27,9 +27,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
+import android.telephony.TelephonyDisplayInfo;
 import android.telephony.TelephonyManager;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import java.lang.ref.WeakReference;
@@ -215,15 +217,21 @@ public final class NetworkTypeObserver {
     @Override
     public void onReceive(Context context, Intent intent) {
       @C.NetworkType int networkType = getNetworkTypeFromConnectivityManager(context);
-      if (networkType == C.NETWORK_TYPE_4G && Util.SDK_INT >= 29 && Util.SDK_INT < 31) {
+      if (networkType == C.NETWORK_TYPE_4G && Util.SDK_INT >= 29) {
         // Delay update of the network type to check whether this is actually 5G-NSA.
         try {
-          // We can't access TelephonyManager.getServiceState() directly as it requires special
-          // permissions. Attaching a listener is permission-free.
+          // We can't access TelephonyManager getters like getServiceState() directly as they
+          // require special permissions. Attaching a listener is permission-free because the
+          // callback data is censored to not include sensitive information.
           TelephonyManager telephonyManager =
               checkNotNull((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE));
-          ServiceStateListener listener = new ServiceStateListener();
-          telephonyManager.listen(listener, PhoneStateListener.LISTEN_SERVICE_STATE);
+          TelephonyManagerListener listener = new TelephonyManagerListener();
+          if (Util.SDK_INT < 31) {
+            telephonyManager.listen(listener, PhoneStateListener.LISTEN_SERVICE_STATE);
+          } else {
+            // Display info information can only be requested without permission from API 31.
+            telephonyManager.listen(listener, PhoneStateListener.LISTEN_DISPLAY_INFO_CHANGED);
+          }
           // We are only interested in the initial response with the current state, so unregister
           // the listener immediately.
           telephonyManager.listen(listener, PhoneStateListener.LISTEN_NONE);
@@ -236,14 +244,25 @@ public final class NetworkTypeObserver {
     }
   }
 
-  private class ServiceStateListener extends PhoneStateListener {
+  private class TelephonyManagerListener extends PhoneStateListener {
 
     @Override
     public void onServiceStateChanged(@Nullable ServiceState serviceState) {
+      // This workaround to check the toString output of ServiceState only works on API 29 and 30.
       String serviceStateString = serviceState == null ? "" : serviceState.toString();
       boolean is5gNsa =
           serviceStateString.contains("nrState=CONNECTED")
               || serviceStateString.contains("nrState=NOT_RESTRICTED");
+      updateNetworkType(is5gNsa ? C.NETWORK_TYPE_5G_NSA : C.NETWORK_TYPE_4G);
+    }
+
+    @RequiresApi(31)
+    @Override
+    public void onDisplayInfoChanged(TelephonyDisplayInfo telephonyDisplayInfo) {
+      int overrideNetworkType = telephonyDisplayInfo.getOverrideNetworkType();
+      boolean is5gNsa =
+          overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA
+              || overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE;
       updateNetworkType(is5gNsa ? C.NETWORK_TYPE_5G_NSA : C.NETWORK_TYPE_4G);
     }
   }
