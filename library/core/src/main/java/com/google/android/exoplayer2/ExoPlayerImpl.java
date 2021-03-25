@@ -301,8 +301,20 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public void addListener(Listener listener) {
+    EventListener eventListener = listener;
+    addListener(eventListener);
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
     listeners.add(listener);
+  }
+
+  @Override
+  public void removeListener(Listener listener) {
+    EventListener eventListener = listener;
+    removeListener(eventListener);
   }
 
   @Override

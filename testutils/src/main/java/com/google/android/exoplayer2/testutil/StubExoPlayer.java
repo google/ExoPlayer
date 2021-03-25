@@ -82,7 +82,17 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
   }
 
   @Override
+  public void addListener(Listener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void removeListener(Listener listener) {
     throw new UnsupportedOperationException();
   }
 

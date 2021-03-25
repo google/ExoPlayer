@@ -1233,10 +1233,34 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public void addListener(Listener listener) {
+    Assertions.checkNotNull(listener);
+    addAudioListener(listener);
+    addVideoListener(listener);
+    addTextOutput(listener);
+    addMetadataOutput(listener);
+    addDeviceListener(listener);
+    EventListener eventListener = listener;
+    addListener(eventListener);
+  }
+
+  @Override
   public void addListener(Player.EventListener listener) {
     // Don't verify application thread. We allow calls to this method from any thread.
     Assertions.checkNotNull(listener);
     player.addListener(listener);
+  }
+
+  @Override
+  public void removeListener(Listener listener) {
+    Assertions.checkNotNull(listener);
+    removeAudioListener(listener);
+    removeVideoListener(listener);
+    removeTextOutput(listener);
+    removeMetadataOutput(listener);
+    removeDeviceListener(listener);
+    EventListener eventListener = listener;
+    removeListener(eventListener);
   }
 
   @Override
