@@ -39,7 +39,7 @@ import java.util.List;
  * An abstract {@link ExoPlayer} implementation that throws {@link UnsupportedOperationException}
  * from every method.
  */
-public abstract class StubExoPlayer extends BasePlayer implements ExoPlayer {
+public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public AudioComponent getAudioComponent() {
