@@ -1447,7 +1447,8 @@ public interface Player {
    * <p>This method does not execute the command.
    *
    * <p>Executing a command that is not available (for example, calling {@link #next()} if {@link
-   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) is a no-op.
+   * #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} is unavailable) will neither throw an exception nor generate
+   * a {@link #getPlayerError()} player error}.
    *
    * <p>{@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} and {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM}
    * are unavailable if there is no such {@link MediaItem}.

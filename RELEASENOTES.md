@@ -13,6 +13,8 @@
         `onPositionDiscontinuity(int)` callback
         ([#6163](https://github.com/google/ExoPlayer/issues/6163),
         [#4768](https://github.com/google/ExoPlayer/issues/4768)).
+    *   Add `isCommandAvailable` method and `onAvailableCommandsChanged`
+        listener to query the commands that can be executed on the player.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.
