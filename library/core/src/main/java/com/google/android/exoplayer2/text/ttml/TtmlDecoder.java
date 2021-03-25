@@ -615,13 +615,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
           style =
               createIfNull(style)
                   .setTextEmphasis(TextEmphasis.parse(Util.toLowerInvariant(attributeValue)));
+          break;
         case TtmlNode.ATTR_TTS_SHEAR:
-          style = createIfNull(style);
-          try {
-            parseShear(attributeValue, style);
-          } catch (SubtitleDecoderException e) {
-            Log.w(TAG, "Failed parsing shear value: " + attributeValue);
-          }
+          style = createIfNull(style).setShearPercentage(parseShear(attributeValue));
           break;
         default:
           // ignore
@@ -764,25 +760,25 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
     }
   }
 
-  private static void parseShear(String expression, TtmlStyle out) throws
-      SubtitleDecoderException {
+  private static float parseShear(String expression) {
     Matcher matcher = SIGNED_PERCENTAGE.matcher(expression);
     if (matcher.matches()) {
       try {
-        float value = Float.parseFloat(matcher.group(1));
+        String percentage = Assertions.checkNotNull(matcher.group(1));
+        float value = Float.parseFloat(percentage);
         // https://www.w3.org/TR/2018/REC-ttml2-20181108/#semantics-style-procedures-shear
         // If the absolute value of the specified percentage is greater than 100%, then it must be
         // interpreted as if 100% were specified with the appropriate sign.
         value = Math.max(-100f, value);
         value = Math.min(100f, value);
-        out.setShearPercentage(value);
+        return value;
       } catch (NumberFormatException e) {
-        throw new SubtitleDecoderException("Invalid expression for shear: '" + expression + "'.",
-            e);
+        Log.w(TAG, "NumberFormatException while parsing shear: " + expression);
       }
     } else {
-      throw new SubtitleDecoderException("Invalid expression for shear: '" + expression + "'.");
+      Log.w(TAG, "Invalid value for shear: " + expression);
     }
+    return 0f;
   }
 
   /**

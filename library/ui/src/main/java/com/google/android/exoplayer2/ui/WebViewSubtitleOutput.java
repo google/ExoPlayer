@@ -326,7 +326,7 @@ import java.util.Map;
       String direction =
           (cue.verticalType == Cue.VERTICAL_TYPE_LR || cue.verticalType == Cue.VERTICAL_TYPE_RL) ?
               "skewY" : "skewX";
-      return Util.formatInvariant(" %s(%.2fdeg)", direction, cue.shearDegrees);
+      return Util.formatInvariant("%s(%.2fdeg)", direction, cue.shearDegrees);
     }
     return "";
   }
