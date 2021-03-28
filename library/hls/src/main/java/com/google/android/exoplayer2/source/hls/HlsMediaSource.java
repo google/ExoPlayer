@@ -597,20 +597,24 @@ public final class HlsMediaSource extends BaseMediaSource
     int segmentIndex = segments.size() - 1;
     long minStartPositionUs =
         playlist.durationUs + liveEdgeOffsetUs - C.msToUs(liveConfiguration.targetOffsetMs);
+    if (playlist.preciseStart)
+      return minStartPositionUs;
     while (segmentIndex > 0
         && segments.get(segmentIndex).relativeStartTimeUs > minStartPositionUs) {
       segmentIndex--;
     }
     HlsMediaPlaylist.Segment segment = segments.get(segmentIndex);
-    List<HlsMediaPlaylist.Part> parts = segment.parts;
-    int partIndex = parts.size();
-    if (partIndex > 1) {
-      HlsMediaPlaylist.Part part;
-      do {
-        partIndex--;
-        part = parts.get(partIndex);
-      } while (part.relativeStartTimeUs > minStartPositionUs || !part.isIndependent);
-      return part.relativeStartTimeUs;
+    if (playlist.startOffsetUs == C.TIME_UNSET) {
+      List<HlsMediaPlaylist.Part> parts = segment.parts;
+      int partIndex = parts.size();
+      if (partIndex > 1) {
+        HlsMediaPlaylist.Part part;
+        do {
+          partIndex--;
+          part = parts.get(partIndex);
+        } while (part.relativeStartTimeUs > minStartPositionUs || !part.isIndependent);
+        return part.relativeStartTimeUs;
+      }
     }
     return segment.relativeStartTimeUs;
   }

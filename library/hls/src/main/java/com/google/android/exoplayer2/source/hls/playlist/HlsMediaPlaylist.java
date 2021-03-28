@@ -398,6 +398,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
    */
   public final long startOffsetUs;
   /**
+   * Whether the start position should be precise, as defined by #EXT-X-START.
+   */
+  public final boolean preciseStart;
+  /**
    * If {@link #hasProgramDateTime} is true, contains the datetime as microseconds since epoch.
    * Otherwise, contains the aggregated duration of removed segments up to this snapshot of the
    * playlist.
@@ -481,6 +485,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
       String baseUri,
       List<String> tags,
       long startOffsetUs,
+      boolean preciseStart,
       long startTimeUs,
       boolean hasDiscontinuitySequence,
       int discontinuitySequence,
@@ -499,6 +504,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
     super(baseUri, tags, hasIndependentSegments);
     this.playlistType = playlistType;
     this.startTimeUs = startTimeUs;
+    this.preciseStart = preciseStart;
     this.hasDiscontinuitySequence = hasDiscontinuitySequence;
     this.discontinuitySequence = discontinuitySequence;
     this.mediaSequence = mediaSequence;
@@ -576,6 +582,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         baseUri,
         tags,
         startOffsetUs,
+        preciseStart,
         startTimeUs,
         /* hasDiscontinuitySequence= */ true,
         discontinuitySequence,
@@ -606,6 +613,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
         baseUri,
         tags,
         startOffsetUs,
+        preciseStart,
         startTimeUs,
         hasDiscontinuitySequence,
         discontinuitySequence,
