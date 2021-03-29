@@ -278,6 +278,7 @@ import java.util.Map;
               Util.formatInvariant(
                   "<div style='"
                       + "position:absolute;"
+                      + "z-index:%s;"
                       + "%s:%.2f%%;"
                       + "%s:%s;"
                       + "%s:%s;"
@@ -287,6 +288,7 @@ import java.util.Map;
                       + "background-color:%s;"
                       + "transform:translate(%s%%,%s%%);"
                       + "'>",
+                  /* z-index */ i,
                   positionProperty,
                   positionPercent,
                   lineProperty,
