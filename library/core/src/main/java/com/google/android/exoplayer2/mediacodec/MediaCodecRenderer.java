@@ -365,7 +365,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean enableAsynchronousBufferQueueing;
   private boolean forceAsyncQueueingSynchronizationWorkaround;
   private boolean enableSynchronizeCodecInteractionsWithQueueing;
-  private boolean enableRecoverableCodecExceptionRetries;
   private boolean enableSkipAndContinueIfSampleTooLarge;
   @Nullable private ExoPlaybackException pendingPlaybackException;
   protected DecoderCounters decoderCounters;
@@ -471,17 +470,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    */
   public void experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(boolean enabled) {
     enableSynchronizeCodecInteractionsWithQueueing = enabled;
-  }
-
-  /**
-   * Enables internal player retries for codec exceptions if the underlying platform indicates that
-   * they are recoverable.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release. It should
-   * only be called before the renderer is used.
-   */
-  public void experimentalSetRecoverableCodecExceptionRetriesEnabled(boolean enabled) {
-    enableRecoverableCodecExceptionRetries = enabled;
   }
 
   /**
@@ -864,10 +852,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     } catch (IllegalStateException e) {
       if (isMediaCodecException(e)) {
         onCodecError(e);
-        boolean isRecoverable =
-            enableRecoverableCodecExceptionRetries
-                && Util.SDK_INT >= 21
-                && isRecoverableMediaCodecExceptionV21(e);
+        boolean isRecoverable = Util.SDK_INT >= 21 && isRecoverableMediaCodecExceptionV21(e);
         if (isRecoverable) {
           releaseCodec();
         }
