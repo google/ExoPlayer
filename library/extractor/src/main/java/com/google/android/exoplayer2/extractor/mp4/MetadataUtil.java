@@ -279,8 +279,6 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         "Psybient"
       };
 
-  private static final String LANGUAGE_UNDEFINED = "und";
-
   private static final int TYPE_TOP_BYTE_COPYRIGHT = 0xA9;
   private static final int TYPE_TOP_BYTE_REPLACEMENT = 0xFD; // Truncated value of \uFFFD.
 
@@ -467,7 +465,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (atomType == Atom.TYPE_data) {
       data.skipBytes(8); // version (1), flags (3), empty (4)
       String value = data.readNullTerminatedString(atomSize - 16);
-      return new CommentFrame(LANGUAGE_UNDEFINED, value, value);
+      return new CommentFrame(C.LANGUAGE_UNDETERMINED, value, value);
     }
     Log.w(TAG, "Failed to parse comment attribute: " + Atom.getAtomTypeString(type));
     return null;
@@ -487,7 +485,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (value >= 0) {
       return isTextInformationFrame
           ? new TextInformationFrame(id, /* description= */ null, Integer.toString(value))
-          : new CommentFrame(LANGUAGE_UNDEFINED, id, Integer.toString(value));
+          : new CommentFrame(C.LANGUAGE_UNDETERMINED, id, Integer.toString(value));
     }
     Log.w(TAG, "Failed to parse uint8 attribute: " + Atom.getAtomTypeString(type));
     return null;

@@ -670,7 +670,7 @@ public final class Util {
     // Locale data (especially for API < 21) may produce tags with '_' instead of the
     // standard-conformant '-'.
     String normalizedTag = language.replace('_', '-');
-    if (normalizedTag.isEmpty() || "und".equals(normalizedTag)) {
+    if (normalizedTag.isEmpty() || normalizedTag.equals(C.LANGUAGE_UNDETERMINED)) {
       // Tag isn't valid, keep using the original.
       normalizedTag = language;
     }
