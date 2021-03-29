@@ -38,6 +38,7 @@ import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   private final UUID uuid;
   private final MediaDrm mediaDrm;
   private int referenceCount;
+  private final ArrayList<String> widevineL3ForcedDevices = new ArrayList<>(Arrays.asList("ASUS_Z00AD"));
 
   /**
    * Returns whether the DRM scheme with the given UUID is supported on this device.
@@ -119,6 +121,15 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
             ? null
             : (mediaDrm, sessionId, event, extra, data) ->
                 listener.onEvent(FrameworkMediaDrm.this, sessionId, event, extra, data));
+  }
+
+  /**
+   * Adds the given BuildModel identifier to the list of devices on which L3 will be forced
+   *
+   * @param deviceModelName
+   */
+  public void addWidevineL3ForcedDevice(String deviceModelName) {
+    widevineL3ForcedDevices.add(deviceModelName);
   }
 
   /**
@@ -428,8 +439,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    *
    * <p>See <a href="https://github.com/google/ExoPlayer/issues/4413">GitHub issue #4413</a>.
    */
-  private static boolean needsForceWidevineL3Workaround() {
-    return "ASUS_Z00AD".equals(Util.MODEL);
+  private boolean needsForceWidevineL3Workaround() {
+    return widevineL3ForcedDevices.contains(Util.MODEL);
   }
 
   /**
