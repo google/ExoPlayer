@@ -188,11 +188,6 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onSeekStarted(EventTime eventTime) {
-    logd(eventTime, "seekStarted");
-  }
-
-  @Override
   public void onPlaybackParametersChanged(
       EventTime eventTime, PlaybackParameters playbackParameters) {
     logd(eventTime, "playbackParameters", playbackParameters.toString());
