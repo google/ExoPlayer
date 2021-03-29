@@ -40,8 +40,10 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /** An {@link ExoMediaDrm} implementation that wraps the framework {@link MediaDrm}. */
@@ -69,11 +71,11 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   private static final String MOCK_LA_URL_VALUE = "https://x";
   private static final String MOCK_LA_URL = "<LA_URL>" + MOCK_LA_URL_VALUE + "</LA_URL>";
   private static final int UTF_16_BYTES_PER_CHARACTER = 2;
+  private static final Set<String> WIDEVINE_L3_FORCED_DEVICES = new HashSet<>(Arrays.asList("ASUS_Z00AD"));
 
   private final UUID uuid;
   private final MediaDrm mediaDrm;
   private int referenceCount;
-  private final ArrayList<String> widevineL3ForcedDevices = new ArrayList<>(Arrays.asList("ASUS_Z00AD"));
 
   /**
    * Returns whether the DRM scheme with the given UUID is supported on this device.
@@ -128,8 +130,8 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    *
    * @param deviceModelName
    */
-  public void addWidevineL3ForcedDevice(String deviceModelName) {
-    widevineL3ForcedDevices.add(deviceModelName);
+  public static void addWidevineL3ForcedDevice(String deviceModelName) {
+    WIDEVINE_L3_FORCED_DEVICES.add(deviceModelName);
   }
 
   /**
@@ -440,7 +442,7 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
    * <p>See <a href="https://github.com/google/ExoPlayer/issues/4413">GitHub issue #4413</a>.
    */
   private boolean needsForceWidevineL3Workaround() {
-    return widevineL3ForcedDevices.contains(Util.MODEL);
+    return WIDEVINE_L3_FORCED_DEVICES.contains(Util.MODEL);
   }
 
   /**
