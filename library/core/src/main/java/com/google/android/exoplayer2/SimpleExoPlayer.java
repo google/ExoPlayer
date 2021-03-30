@@ -57,6 +57,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
@@ -566,6 +567,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   protected final Renderer[] renderers;
 
+  private final ConditionVariable constructorFinished;
   private final Context applicationContext;
   private final ExoPlayerImpl player;
   private final ComponentListener componentListener;
@@ -635,6 +637,7 @@ public class SimpleExoPlayer extends BasePlayer
 
   /** @param builder The {@link Builder} to obtain all construction parameters. */
   protected SimpleExoPlayer(Builder builder) {
+    constructorFinished = new ConditionVariable();
     applicationContext = builder.context.getApplicationContext();
     analyticsCollector = builder.analyticsCollector;
     priorityTaskManager = builder.priorityTaskManager;
@@ -718,6 +721,8 @@ public class SimpleExoPlayer extends BasePlayer
     sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
     sendRendererMessage(
         C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
+
+    constructorFinished.open();
   }
 
   @Override
@@ -1929,6 +1934,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   private void verifyApplicationThread() {
+    // The constructor may be executed on a background thread. Wait with accessing the player from
+    // the app thread until the constructor finished executing.
+    constructorFinished.blockUninterruptible();
     if (Looper.myLooper() != getApplicationLooper()) {
       if (throwsWhenUsingWrongThread) {
         throw new IllegalStateException(WRONG_THREAD_ERROR_MESSAGE);
