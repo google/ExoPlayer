@@ -48,8 +48,6 @@ import org.junit.runner.RunWith;
 
 /** Tests Widevine encrypted DASH playbacks using offline keys. */
 @RunWith(AndroidJUnit4.class)
-@Ignore(
-    "Need to be reconfigured/rewritten with an offline-compatible licence [internal b/176960595].")
 public final class DashWidevineOfflineTest {
 
   private static final String TAG = "DashWidevineOfflineTest";
@@ -103,6 +101,9 @@ public final class DashWidevineOfflineTest {
   // Offline license tests
 
   @Test
+  @Ignore(
+      "Needs to be reconfigured/rewritten with an offline-compatible licence [internal"
+          + " b/176960595].")
   public void widevineOfflineLicenseV22() throws Exception {
     if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
@@ -116,6 +117,9 @@ public final class DashWidevineOfflineTest {
   }
 
   @Test
+  @Ignore(
+      "Needs to be reconfigured/rewritten with an offline-compatible licence [internal"
+          + " b/176960595].")
   public void widevineOfflineReleasedLicenseV22() throws Throwable {
     if (Util.SDK_INT < 22
         || Util.SDK_INT > 28
@@ -141,6 +145,9 @@ public final class DashWidevineOfflineTest {
   }
 
   @Test
+  @Ignore(
+      "Needs to be reconfigured/rewritten with an offline-compatible licence [internal"
+          + " b/176960595].")
   public void widevineOfflineReleasedLicenseV29() throws Throwable {
     if (Util.SDK_INT < 29 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
@@ -164,6 +171,9 @@ public final class DashWidevineOfflineTest {
   }
 
   @Test
+  @Ignore(
+      "Needs to be reconfigured/rewritten with an offline-compatible licence [internal"
+          + " b/176960595].")
   public void widevineOfflineExpiredLicenseV22() throws Exception {
     if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
@@ -194,6 +204,9 @@ public final class DashWidevineOfflineTest {
   }
 
   @Test
+  @Ignore(
+      "Needs to be reconfigured/rewritten with an offline-compatible licence [internal"
+          + " b/176960595].")
   public void widevineOfflineLicenseExpiresOnPauseV22() throws Exception {
     if (Util.SDK_INT < 22 || GtsTestUtil.shouldSkipWidevineTest(testRule.getActivity())) {
       return; // Pass.
