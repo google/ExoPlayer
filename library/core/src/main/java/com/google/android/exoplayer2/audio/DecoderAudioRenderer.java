@@ -698,7 +698,7 @@ public abstract class DecoderAudioRenderer<
     eventDispatcher.inputFormatChanged(inputFormat, evaluation);
   }
 
-  private void onQueueInputBuffer(DecoderInputBuffer buffer) {
+  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
     if (allowFirstBufferPositionDiscontinuity && !buffer.isDecodeOnly()) {
       // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
       // Allow the position to jump if the first presentable input buffer has a timestamp that
