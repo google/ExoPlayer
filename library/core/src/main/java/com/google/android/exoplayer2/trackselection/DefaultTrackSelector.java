@@ -2125,8 +2125,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             || (minVideoHeight <= format.height && format.height <= maxVideoHeight))
         && (format.frameRate == Format.NO_VALUE
             || (minVideoFrameRate <= format.frameRate && format.frameRate <= maxVideoFrameRate))
-        && (format.bitrate == Format.NO_VALUE
-            || (minVideoBitrate <= format.bitrate && format.bitrate <= maxVideoBitrate));
+        && format.bitrate != Format.NO_VALUE
+        && minVideoBitrate <= format.bitrate
+        && format.bitrate <= maxVideoBitrate;
   }
 
   @Nullable
