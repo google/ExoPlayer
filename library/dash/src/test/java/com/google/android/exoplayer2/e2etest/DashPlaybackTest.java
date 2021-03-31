@@ -73,4 +73,27 @@ public final class DashPlaybackTest {
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/dash/webvtt-in-mp4.dump");
   }
+
+  // https://github.com/google/ExoPlayer/issues/8710
+  @Test
+  public void emsgNearToPeriodBoundary() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    SimpleExoPlayer player =
+        new SimpleExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/emsg/sample.mpd"));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/dash/emsg.dump");
+  }
 }
