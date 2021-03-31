@@ -22,34 +22,25 @@ and extend, and can be updated through Play Store application updates.
 
 ## Using ExoPlayer ##
 
-ExoPlayer modules can be obtained from JCenter. It's also possible to clone the
-repository and depend on the modules locally.
+ExoPlayer modules can be obtained from [the Google Maven repository][]. It's
+also possible to clone the repository and depend on the modules locally.
 
-### From JCenter ###
+### From the Google Maven repository
 
-#### 1. Add repositories ####
+#### 1. Add ExoPlayer module dependencies ####
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency. You need to make sure you have the Google and JCenter repositories
-included in the `build.gradle` file in the root of your project:
-
-```gradle
-repositories {
-    google()
-    jcenter()
-}
-```
-
-#### 2. Add ExoPlayer module dependencies ####
-
-Next add a dependency in the `build.gradle` file of your app module. The
-following will add a dependency to the full library:
+dependency in the `build.gradle` file of your app module. The following will add
+a dependency to the full library:
 
 ```gradle
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
 where `2.X.X` is your preferred version.
+
+Note: old versions of ExoPlayer are available via JCenter. To use them, you need
+to add `jcenter()` to your project's root build.gradle `repositories` block.
 
 As an alternative to the full library, you can depend on only the library
 modules that you actually need. For example the following will add dependencies
@@ -72,18 +63,19 @@ individually.
 * `exoplayer-smoothstreaming`: Support for SmoothStreaming content.
 * `exoplayer-ui`: UI components and resources for use with ExoPlayer.
 
-In addition to library modules, ExoPlayer has multiple extension modules that
-depend on external libraries to provide additional functionality. Some
-extensions are available from JCenter, whereas others must be built manually.
+In addition to library modules, ExoPlayer has extension modules that depend on
+external libraries to provide additional functionality. Some extensions are
+available from the Maven repository, whereas others must be built manually.
 Browse the [extensions directory][] and their individual READMEs for details.
 
-More information on the library and extension modules that are available from
-JCenter can be found on [Bintray][].
+More information on the library and extension modules that are available can be
+found on the [Google Maven ExoPlayer page][].
 
 [extensions directory]: https://github.com/google/ExoPlayer/tree/release-v2/extensions/
-[Bintray]: https://bintray.com/google/exoplayer
+[the Google Maven repository]: https://developer.android.com/studio/build/dependencies#google-maven
+[Google Maven ExoPlayer page]: https://maven.google.com/web/index.html#com.google.android.exoplayer
 
-#### 3. Turn on Java 8 support ####
+#### 2. Turn on Java 8 support ####
 
 If not enabled already, you also need to turn on Java 8 support in all
 `build.gradle` files depending on ExoPlayer, by adding the following to the
