@@ -176,7 +176,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         allowedJoiningTimeMs,
         /* eventHandler= */ null,
         /* eventListener= */ null,
-        /* maxDroppedFramesToNotify= */ -1);
+        /* maxDroppedFramesToNotify= */ 0);
   }
 
   /**
