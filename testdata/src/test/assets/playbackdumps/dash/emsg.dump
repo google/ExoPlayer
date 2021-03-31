@@ -92,3 +92,8 @@ MediaCodecAdapter (exotest.audio.aac):
   buffers[89] = length 229, hash FFF98DF0
   buffers[90] = length 6, hash 31B22286
   buffers[91] = length 0, hash 1
+MetadataOutput:
+  Metadata[0]:
+    entry[0] = EMSG: scheme=urn:mpeg:dash:event:callback:2015, id=0, durationMs=1000, value=1
+  Metadata[1]:
+    entry[0] = EMSG: scheme=urn:mpeg:dash:event:callback:2015, id=1, durationMs=1000, value=1
