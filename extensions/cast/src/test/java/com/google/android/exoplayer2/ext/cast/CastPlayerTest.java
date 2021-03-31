@@ -76,7 +76,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 
 /** Tests for {@link CastPlayer}. */
 @RunWith(AndroidJUnit4.class)
@@ -593,6 +595,46 @@ public class CastPlayerTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation") // Mocks deprecated method used by the CastPlayer.
+  public void autoTransition_notifiesMediaItemTransitionAndPositionDiscontinuity() {
+    int[] mediaQueueItemIds = new int[] {1, 2};
+    int[] streamTypes = {MediaInfo.STREAM_TYPE_BUFFERED, MediaInfo.STREAM_TYPE_BUFFERED};
+    long[] durationsFirstMs = {12500, C.TIME_UNSET};
+    // When the remote Cast player transitions to an item that wasn't played before, the media state
+    // delivers the duration for that media item which updates the timeline accordingly.
+    long[] durationsSecondMs = {12500, 22000};
+    List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
+
+    castPlayer.addMediaItems(mediaItems);
+    updateTimeLine(
+        mediaItems,
+        mediaQueueItemIds,
+        /* currentItemId= */ 1,
+        /* streamTypes= */ streamTypes,
+        /* durationsMs= */ durationsFirstMs);
+    updateTimeLine(
+        mediaItems,
+        mediaQueueItemIds,
+        /* currentItemId= */ 2,
+        /* streamTypes= */ streamTypes,
+        /* durationsMs= */ durationsSecondMs);
+
+    InOrder inOrder = Mockito.inOrder(mockListener);
+    inOrder
+        .verify(mockListener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
+    inOrder
+        .verify(mockListener)
+        .onPositionDiscontinuity(eq(Player.DISCONTINUITY_REASON_AUTO_TRANSITION));
+    inOrder
+        .verify(mockListener)
+        .onMediaItemTransition(any(), eq(Player.MEDIA_ITEM_TRANSITION_REASON_AUTO));
+    inOrder.verify(mockListener, never()).onMediaItemTransition(any(), anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(anyInt());
+    inOrder.verify(mockListener, never()).onPositionDiscontinuity(any(), any(), anyInt());
+  }
+
+  @Test
   public void isCommandAvailable_isTrueForAvailableCommands() {
     int[] mediaQueueItemIds = new int[] {1, 2};
     List<MediaItem> mediaItems = createMediaItems(mediaQueueItemIds);
@@ -1038,7 +1080,7 @@ public class CastPlayerTest {
         .thenReturn(currentItemId == C.INDEX_UNSET ? 0 : currentItemId);
 
     // Call listener to update the timeline of the player.
-    remoteMediaClientCallback.onQueueStatusUpdated();
+    remoteMediaClientCallback.onStatusUpdated();
   }
 
   private static Player.Commands createWithPermanentCommands(

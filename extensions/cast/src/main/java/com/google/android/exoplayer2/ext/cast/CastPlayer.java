@@ -650,6 +650,7 @@ public final class CastPlayer extends BasePlayer {
       // There is no session. We leave the state of the player as it is now.
       return;
     }
+    int previousWindowIndex = this.currentWindowIndex;
     boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
     updatePlayerStateAndNotifyIfChanged(/* resultCallback= */ null);
     boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
@@ -658,10 +659,12 @@ public final class CastPlayer extends BasePlayer {
           Player.EVENT_IS_PLAYING_CHANGED, listener -> listener.onIsPlayingChanged(isPlaying));
     }
     updateRepeatModeAndNotifyIfChanged(/* resultCallback= */ null);
-    updateTimelineAndNotifyIfChanged();
+    boolean playingPeriodChangedByTimelineChange = updateTimelineAndNotifyIfChanged();
 
     int currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
-    if (this.currentWindowIndex != currentWindowIndex && pendingSeekCount == 0) {
+    if (!playingPeriodChangedByTimelineChange
+        && previousWindowIndex != currentWindowIndex
+        && pendingSeekCount == 0) {
       this.currentWindowIndex = currentWindowIndex;
       // TODO(b/181262841): call new onPositionDiscontinuity callback
       listeners.queueEvent(
@@ -714,10 +717,16 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
+  /**
+   * Updates the timeline and notifies {@link Player.EventListener event listeners} if required.
+   *
+   * @return Whether the timeline change has caused a change of the period currently being played.
+   */
   @SuppressWarnings("deprecation") // Calling deprecated listener method.
-  private void updateTimelineAndNotifyIfChanged() {
+  private boolean updateTimelineAndNotifyIfChanged() {
     Timeline previousTimeline = currentTimeline;
     int previousWindowIndex = currentWindowIndex;
+    boolean playingPeriodChanged = false;
     if (updateTimeline()) {
       // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
       //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
@@ -732,17 +741,14 @@ public final class CastPlayer extends BasePlayer {
 
       updateAvailableCommandsAndNotifyIfChanged();
 
-      boolean mediaItemTransitioned;
-      if (currentTimeline.isEmpty() && previousTimeline.isEmpty()) {
-        mediaItemTransitioned = false;
-      } else if (currentTimeline.isEmpty() != previousTimeline.isEmpty()) {
-        mediaItemTransitioned = true;
-      } else {
+      if (currentTimeline.isEmpty() != previousTimeline.isEmpty()) {
+        // Timeline initially populated or timeline cleared.
+        playingPeriodChanged = true;
+      } else if (!currentTimeline.isEmpty()) {
         Object previousWindowUid = previousTimeline.getWindow(previousWindowIndex, window).uid;
-        Object currentWindowUid = currentTimeline.getWindow(currentWindowIndex, window).uid;
-        mediaItemTransitioned = !currentWindowUid.equals(previousWindowUid);
+        playingPeriodChanged = currentTimeline.getIndexOfPeriod(previousWindowUid) == C.INDEX_UNSET;
       }
-      if (mediaItemTransitioned) {
+      if (playingPeriodChanged) {
         listeners.queueEvent(
             Player.EVENT_MEDIA_ITEM_TRANSITION,
             listener ->
@@ -750,6 +756,7 @@ public final class CastPlayer extends BasePlayer {
                     getCurrentMediaItem(), MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
       }
     }
+    return playingPeriodChanged;
   }
 
   /**
