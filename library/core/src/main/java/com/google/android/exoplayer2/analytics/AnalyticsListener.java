@@ -553,10 +553,11 @@ public interface AnalyticsListener {
       @DiscontinuityReason int reason) {}
 
   /**
-   * Called when a seek operation started.
-   *
-   * @param eventTime The event time.
+   * @deprecated Use {@link #onPositionDiscontinuity(EventTime, Player.PositionInfo,
+   *     Player.PositionInfo, int)} instead, listening to changes with {@link
+   *     Player#DISCONTINUITY_REASON_SEEK}.
    */
+  @Deprecated
   default void onSeekStarted(EventTime eventTime) {}
 
   /**

@@ -170,6 +170,7 @@ public class AnalyticsCollector
    * Notify analytics collector that a seek operation will start. Should be called before the player
    * adjusts its state and position to the seek.
    */
+  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   public final void notifySeekStarted() {
     if (!isSeeking) {
       EventTime eventTime = generateCurrentPlayerMediaPeriodEventTime();
