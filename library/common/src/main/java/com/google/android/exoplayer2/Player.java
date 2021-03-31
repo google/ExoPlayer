@@ -1339,7 +1339,7 @@ public interface Player {
    *     C#TIME_UNSET} is passed, the default position of the given window is used. In any case, if
    *     {@code startWindowIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored and the
    *     position is not reset at all.
-   * @throws IllegalSeekPositionException If the provided {@code windowIndex} is not within the
+   * @throws IllegalSeekPositionException If the provided {@code startWindowIndex} is not within the
    *     bounds of the list of media items.
    */
   void setMediaItems(List<MediaItem> mediaItems, int startWindowIndex, long startPositionMs);
