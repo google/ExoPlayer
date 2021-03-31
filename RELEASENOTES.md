@@ -91,6 +91,8 @@
     *   Upgrade IMA SDK dependency to 3.22.3, fixing an issue with
         `NullPointerExceptions` within `WebView` callbacks
         ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
+*   Update instructions and publishing configuration for releasing to Google's
+    Maven repository instead of bintray/JCenter.
 
 ### 2.13.2 (2021-02-25)
 
