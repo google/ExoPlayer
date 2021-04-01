@@ -7,8 +7,8 @@
     *   Add group setting to `PlayerNotificationManager`.
     *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
         ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
-    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView`
-        when `wrap_content` is used
+    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView` when
+        `wrap_content` is used
         ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
 *   Audio:
     *   Report unexpected discontinuities in
@@ -76,6 +76,7 @@
     *   Fix CEA-708 priority handling to sort cues in the order defined by the
         spec ([#8704](https://github.com/google/ExoPlayer/issues/8704)).
     *   Support TTML `textEmphasis` attributes, used for Japanese boutens.
+    *   Support TTML `shear` attributes.
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
