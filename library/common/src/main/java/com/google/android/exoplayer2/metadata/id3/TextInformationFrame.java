@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Util.castNonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Util;
 
 /**
@@ -40,6 +41,18 @@ public final class TextInformationFrame extends Id3Frame {
     super(castNonNull(in.readString()));
     description = in.readString();
     value = castNonNull(in.readString());
+  }
+
+  @Override
+  public void populateMediaMetadata(MediaMetadata.Builder builder) {
+    switch (id) {
+      case "TT2":
+      case "TIT2":
+        builder.setTitle(value);
+        break;
+      default:
+        break;
+    }
   }
 
   @Override
