@@ -638,91 +638,94 @@ public class SimpleExoPlayer extends BasePlayer
   /** @param builder The {@link Builder} to obtain all construction parameters. */
   protected SimpleExoPlayer(Builder builder) {
     constructorFinished = new ConditionVariable();
-    applicationContext = builder.context.getApplicationContext();
-    analyticsCollector = builder.analyticsCollector;
-    priorityTaskManager = builder.priorityTaskManager;
-    audioAttributes = builder.audioAttributes;
-    videoScalingMode = builder.videoScalingMode;
-    skipSilenceEnabled = builder.skipSilenceEnabled;
-    detachSurfaceTimeoutMs = builder.detachSurfaceTimeoutMs;
-    componentListener = new ComponentListener();
-    videoListeners = new CopyOnWriteArraySet<>();
-    audioListeners = new CopyOnWriteArraySet<>();
-    textOutputs = new CopyOnWriteArraySet<>();
-    metadataOutputs = new CopyOnWriteArraySet<>();
-    deviceListeners = new CopyOnWriteArraySet<>();
-    Handler eventHandler = new Handler(builder.looper);
-    renderers =
-        builder.renderersFactory.createRenderers(
-            eventHandler,
-            componentListener,
-            componentListener,
-            componentListener,
-            componentListener);
+    try {
+      applicationContext = builder.context.getApplicationContext();
+      analyticsCollector = builder.analyticsCollector;
+      priorityTaskManager = builder.priorityTaskManager;
+      audioAttributes = builder.audioAttributes;
+      videoScalingMode = builder.videoScalingMode;
+      skipSilenceEnabled = builder.skipSilenceEnabled;
+      detachSurfaceTimeoutMs = builder.detachSurfaceTimeoutMs;
+      componentListener = new ComponentListener();
+      videoListeners = new CopyOnWriteArraySet<>();
+      audioListeners = new CopyOnWriteArraySet<>();
+      textOutputs = new CopyOnWriteArraySet<>();
+      metadataOutputs = new CopyOnWriteArraySet<>();
+      deviceListeners = new CopyOnWriteArraySet<>();
+      Handler eventHandler = new Handler(builder.looper);
+      renderers =
+          builder.renderersFactory.createRenderers(
+              eventHandler,
+              componentListener,
+              componentListener,
+              componentListener,
+              componentListener);
 
-    // Set initial values.
-    audioVolume = 1;
-    if (Util.SDK_INT < 21) {
-      audioSessionId = initializeKeepSessionIdAudioTrack(C.AUDIO_SESSION_ID_UNSET);
-    } else {
-      audioSessionId = C.generateAudioSessionIdV21(applicationContext);
+      // Set initial values.
+      audioVolume = 1;
+      if (Util.SDK_INT < 21) {
+        audioSessionId = initializeKeepSessionIdAudioTrack(C.AUDIO_SESSION_ID_UNSET);
+      } else {
+        audioSessionId = C.generateAudioSessionIdV21(applicationContext);
+      }
+      currentCues = Collections.emptyList();
+      throwsWhenUsingWrongThread = true;
+
+      // Build the player and associated objects.
+      Commands additionalPermanentAvailableCommands =
+          new Commands.Builder()
+              .addAll(
+                  COMMAND_GET_VOLUME,
+                  COMMAND_GET_DEVICE_VOLUME,
+                  COMMAND_SET_VOLUME,
+                  COMMAND_SET_DEVICE_VOLUME,
+                  COMMAND_ADJUST_DEVICE_VOLUME,
+                  COMMAND_SET_VIDEO_SURFACE,
+                  COMMAND_GET_TEXT)
+              .build();
+      player =
+          new ExoPlayerImpl(
+              renderers,
+              builder.trackSelector,
+              builder.mediaSourceFactory,
+              builder.loadControl,
+              builder.bandwidthMeter,
+              analyticsCollector,
+              builder.useLazyPreparation,
+              builder.seekParameters,
+              builder.livePlaybackSpeedControl,
+              builder.releaseTimeoutMs,
+              builder.pauseAtEndOfMediaItems,
+              builder.clock,
+              builder.looper,
+              /* wrappingPlayer= */ this,
+              additionalPermanentAvailableCommands);
+      player.addListener(componentListener);
+      player.addAudioOffloadListener(componentListener);
+
+      audioBecomingNoisyManager =
+          new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
+      audioBecomingNoisyManager.setEnabled(builder.handleAudioBecomingNoisy);
+      audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
+      audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
+      streamVolumeManager =
+          new StreamVolumeManager(builder.context, eventHandler, componentListener);
+      streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
+      wakeLockManager = new WakeLockManager(builder.context);
+      wakeLockManager.setEnabled(builder.wakeMode != C.WAKE_MODE_NONE);
+      wifiLockManager = new WifiLockManager(builder.context);
+      wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
+      deviceInfo = createDeviceInfo(streamVolumeManager);
+
+      sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+      sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
+      sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
+      sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
+      sendRendererMessage(
+          C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
+    } finally {
+      constructorFinished.open();
     }
-    currentCues = Collections.emptyList();
-    throwsWhenUsingWrongThread = true;
-
-    // Build the player and associated objects.
-    Commands additionalPermanentAvailableCommands =
-        new Commands.Builder()
-            .addAll(
-                COMMAND_GET_VOLUME,
-                COMMAND_GET_DEVICE_VOLUME,
-                COMMAND_SET_VOLUME,
-                COMMAND_SET_DEVICE_VOLUME,
-                COMMAND_ADJUST_DEVICE_VOLUME,
-                COMMAND_SET_VIDEO_SURFACE,
-                COMMAND_GET_TEXT)
-            .build();
-    player =
-        new ExoPlayerImpl(
-            renderers,
-            builder.trackSelector,
-            builder.mediaSourceFactory,
-            builder.loadControl,
-            builder.bandwidthMeter,
-            analyticsCollector,
-            builder.useLazyPreparation,
-            builder.seekParameters,
-            builder.livePlaybackSpeedControl,
-            builder.releaseTimeoutMs,
-            builder.pauseAtEndOfMediaItems,
-            builder.clock,
-            builder.looper,
-            /* wrappingPlayer= */ this,
-            additionalPermanentAvailableCommands);
-    player.addListener(componentListener);
-    player.addAudioOffloadListener(componentListener);
-
-    audioBecomingNoisyManager =
-        new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
-    audioBecomingNoisyManager.setEnabled(builder.handleAudioBecomingNoisy);
-    audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
-    audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
-    streamVolumeManager = new StreamVolumeManager(builder.context, eventHandler, componentListener);
-    streamVolumeManager.setStreamType(Util.getStreamTypeForAudioUsage(audioAttributes.usage));
-    wakeLockManager = new WakeLockManager(builder.context);
-    wakeLockManager.setEnabled(builder.wakeMode != C.WAKE_MODE_NONE);
-    wifiLockManager = new WifiLockManager(builder.context);
-    wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
-    deviceInfo = createDeviceInfo(streamVolumeManager);
-
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-    sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
-    sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_ATTRIBUTES, audioAttributes);
-    sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_SCALING_MODE, videoScalingMode);
-    sendRendererMessage(
-        C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_SKIP_SILENCE_ENABLED, skipSilenceEnabled);
-
-    constructorFinished.open();
   }
 
   @Override
