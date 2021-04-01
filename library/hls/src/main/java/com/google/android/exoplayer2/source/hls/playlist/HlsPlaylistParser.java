@@ -702,6 +702,10 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
             segmentByteRangeOffset = Long.parseLong(splitByteRange[1]);
           }
         }
+        if (segmentByteRangeLength == C.LENGTH_UNSET) {
+          // The segment has no byte range defined.
+          segmentByteRangeOffset = 0;
+        }
         if (fullSegmentEncryptionKeyUri != null && fullSegmentEncryptionIV == null) {
           // See RFC 8216, Section 4.3.2.5.
           throw new ParserException(
@@ -715,7 +719,9 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
                 segmentByteRangeLength,
                 fullSegmentEncryptionKeyUri,
                 fullSegmentEncryptionIV);
-        segmentByteRangeOffset = 0;
+        if (segmentByteRangeLength != C.LENGTH_UNSET) {
+          segmentByteRangeOffset += segmentByteRangeLength;
+        }
         segmentByteRangeLength = C.LENGTH_UNSET;
       } else if (line.startsWith(TAG_TARGET_DURATION)) {
         targetDurationUs = parseIntAttr(line, REGEX_TARGET_DURATION) * C.MICROS_PER_SECOND;
@@ -948,7 +954,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
         String segmentUri = replaceVariableReferences(line, variableDefinitions);
         @Nullable Segment inferredInitSegment = urlToInferredInitSegment.get(segmentUri);
         if (segmentByteRangeLength == C.LENGTH_UNSET) {
-          // The segment is not byte range defined.
+          // The segment has no byte range defined.
           segmentByteRangeOffset = 0;
         } else if (isIFrameOnly && initializationSegment == null && inferredInitSegment == null) {
           // The segment is a resource byte range without an initialization segment.
