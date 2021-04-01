@@ -14,6 +14,7 @@
 buildscript {
     repositories {
         google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
@@ -23,6 +24,7 @@ buildscript {
 allprojects {
     repositories {
         google()
+        jcenter()
     }
     if (it.hasProperty('externalBuildDir')) {
         if (!new File(externalBuildDir).isAbsolute()) {
