@@ -96,6 +96,9 @@
         ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
 *   Update instructions and publishing configuration for releasing to Google's
     Maven repository instead of bintray/JCenter.
+*   FFmpeg extension: Fix playback failure when switching to TrueHD tracks
+    during playback
+    ([#8616](https://github.com/google/ExoPlayer/issues/8616)).
 
 ### 2.13.2 (2021-02-25)
 
