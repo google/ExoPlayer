@@ -1074,6 +1074,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             drmSessionManager,
             drmEventDispatcher,
             overridingDrmInitData);
+    sampleQueue.setStartTimeUs(lastSeekPositionUs);
     if (isAudioVideo) {
       sampleQueue.setDrmInitData(drmInitData);
     }
