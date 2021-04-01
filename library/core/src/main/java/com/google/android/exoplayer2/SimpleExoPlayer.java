@@ -609,6 +609,7 @@ public class SimpleExoPlayer extends BasePlayer
   private boolean isPriorityTaskManagerRegistered;
   private boolean playerReleased;
   private DeviceInfo deviceInfo;
+  private MediaMetadata currentMediaMetadata;
 
   /** @deprecated Use the {@link Builder} and pass it to {@link #SimpleExoPlayer(Builder)}. */
   @Deprecated
@@ -716,6 +717,7 @@ public class SimpleExoPlayer extends BasePlayer
       wifiLockManager = new WifiLockManager(builder.context);
       wifiLockManager.setEnabled(builder.wakeMode == C.WAKE_MODE_NETWORK);
       deviceInfo = createDeviceInfo(streamVolumeManager);
+      currentMediaMetadata = MediaMetadata.EMPTY;
 
       sendRendererMessage(C.TRACK_TYPE_AUDIO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
       sendRendererMessage(C.TRACK_TYPE_VIDEO, Renderer.MSG_SET_AUDIO_SESSION_ID, audioSessionId);
@@ -1621,6 +1623,11 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
+  public MediaMetadata getMediaMetadata() {
+    return currentMediaMetadata;
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     verifyApplicationThread();
     return player.getCurrentTimeline();
@@ -2273,6 +2280,12 @@ public class SimpleExoPlayer extends BasePlayer
           isPriorityTaskManagerRegistered = false;
         }
       }
+    }
+
+    @Override
+    public void onMediaItemTransition(
+        @Nullable MediaItem mediaItem, @MediaItemTransitionReason int reason) {
+      currentMediaMetadata = mediaItem == null ? MediaMetadata.EMPTY : mediaItem.mediaMetadata;
     }
 
     @Override

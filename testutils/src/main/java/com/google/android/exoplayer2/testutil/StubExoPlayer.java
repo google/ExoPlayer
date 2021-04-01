@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.BasePlayer;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
@@ -353,6 +354,11 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public List<Metadata> getCurrentStaticMetadata() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public MediaMetadata getMediaMetadata() {
     throw new UnsupportedOperationException();
   }
 

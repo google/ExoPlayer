@@ -49,6 +49,7 @@
 *   Core:
     *   Move `getRendererCount` and `getRendererType` methods from `Player` to
         `ExoPlayer`.
+    *   Add `getMediaMetadata` to `Player` interface.
     *   Reset playback speed when live playback speed control becomes unused
         ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
     *   Fix playback position issue when re-preparing playback after a

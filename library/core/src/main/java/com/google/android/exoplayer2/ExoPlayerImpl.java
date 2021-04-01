@@ -975,6 +975,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   }
 
   @Override
+  public MediaMetadata getMediaMetadata() {
+    // Unsupported operation.
+    return MediaMetadata.EMPTY;
+  }
+
+  @Override
   public Timeline getCurrentTimeline() {
     return playbackInfo.timeline;
   }

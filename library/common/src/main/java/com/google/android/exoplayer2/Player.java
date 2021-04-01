@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.util.StableApiCandidate;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
@@ -1748,6 +1749,16 @@ public interface Player {
    * @see EventListener#onStaticMetadataChanged(List)
    */
   List<Metadata> getCurrentStaticMetadata();
+
+  /**
+   * Returns the current combined {@link MediaMetadata}, or {@link MediaMetadata#EMPTY} if not
+   * supported.
+   *
+   * <p>This {@link MediaMetadata} is a combination of the {@link MediaItem#mediaMetadata} and the
+   * static and dynamic metadata sourced from {@link EventListener#onStaticMetadataChanged(List)}
+   * and {@link MetadataOutput#onMetadata(Metadata)}.
+   */
+  MediaMetadata getMediaMetadata();
 
   /**
    * Returns the current manifest. The type depends on the type of media being played. May be null.
