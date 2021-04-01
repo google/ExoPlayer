@@ -150,4 +150,10 @@ public final class FakeTrackSelection implements ExoTrackSelection {
     assertThat(isEnabled).isTrue();
     return false;
   }
+
+  @Override
+  public boolean isBlacklisted(int index, long exclusionDurationMs) {
+    assertThat(isEnabled).isTrue();
+    return false;
+  }
 }

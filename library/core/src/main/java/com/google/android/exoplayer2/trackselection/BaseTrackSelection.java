@@ -164,7 +164,7 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
   }
 
   @Override
-  public final boolean blacklist(int index, long exclusionDurationMs) {
+  public boolean blacklist(int index, long exclusionDurationMs) {
     long nowMs = SystemClock.elapsedRealtime();
     boolean canExclude = isBlacklisted(index, nowMs);
     for (int i = 0; i < length && !canExclude; i++) {
@@ -180,15 +180,8 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
     return true;
   }
 
-  // Internal methods.
-
-  /**
-   * Returns whether the track at the specified index in the selection is excluded.
-   *
-   * @param index The index of the track in the selection.
-   * @param nowMs The current time in the timebase of {@link SystemClock#elapsedRealtime()}.
-   */
-  protected final boolean isBlacklisted(int index, long nowMs) {
+  @Override
+  public boolean isBlacklisted(int index, long nowMs) {
     return excludeUntilTimes[index] > nowMs;
   }
 
