@@ -49,6 +49,7 @@ public final class TtmlStyleTest {
   private static final Layout.Alignment TEXT_ALIGN = Layout.Alignment.ALIGN_CENTER;
   private static final boolean TEXT_COMBINE = true;
   public static final String TEXT_EMPHASIS_STYLE = "dot before";
+  public static final float SHEAR_PERCENTAGE = 16f;
 
   private final TtmlStyle populatedStyle =
       new TtmlStyle()
@@ -66,7 +67,8 @@ public final class TtmlStyleTest {
           .setRubyPosition(RUBY_POSITION)
           .setTextAlign(TEXT_ALIGN)
           .setTextCombine(TEXT_COMBINE)
-          .setTextEmphasis(TextEmphasis.parse(TEXT_EMPHASIS_STYLE));
+          .setTextEmphasis(TextEmphasis.parse(TEXT_EMPHASIS_STYLE))
+          .setShearPercentage(SHEAR_PERCENTAGE);
 
   @Test
   public void inheritStyle() {
@@ -94,6 +96,7 @@ public final class TtmlStyleTest {
     assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_DOT);
     assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
     assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
+    assertThat(style.getShearPercentage()).isEqualTo(SHEAR_PERCENTAGE);
   }
 
   @Test
@@ -121,6 +124,7 @@ public final class TtmlStyleTest {
     assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_DOT);
     assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
     assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
+    assertThat(style.getShearPercentage()).isEqualTo(SHEAR_PERCENTAGE);
   }
 
   @Test
@@ -266,5 +270,17 @@ public final class TtmlStyleTest {
     assertThat(style.getTextEmphasis().markShape).isEqualTo(TextEmphasisSpan.MARK_SHAPE_SESAME);
     assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_OPEN);
     assertThat(style.getTextEmphasis().position).isEqualTo(TextAnnotation.POSITION_AFTER);
+  }
+
+  @Test
+  public void shear() {
+    TtmlStyle style = new TtmlStyle();
+    assertThat(style.getShearPercentage()).isEqualTo(TtmlStyle.UNSPECIFIED_SHEAR);
+    style.setShearPercentage(101f);
+    assertThat(style.getShearPercentage()).isEqualTo(101f);
+    style.setShearPercentage(-200f);
+    assertThat(style.getShearPercentage()).isEqualTo(-200f);
+    style.setShearPercentage(0.1f);
+    assertThat(style.getShearPercentage()).isEqualTo(0.1f);
   }
 }

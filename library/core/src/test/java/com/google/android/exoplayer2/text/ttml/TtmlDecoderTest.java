@@ -69,6 +69,7 @@ public final class TtmlDecoderTest {
   private static final String TEXT_COMBINE_FILE = "media/ttml/text_combine.xml";
   private static final String RUBIES_FILE = "media/ttml/rubies.xml";
   private static final String TEXT_EMPHASIS_FILE = "media/ttml/text_emphasis.xml";
+  private static final String SHEAR_FILE = "media/ttml/shear.xml";
 
   @Test
   public void inlineAttributes() throws IOException, SubtitleDecoderException {
@@ -814,6 +815,35 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_SHAPE_CIRCLE,
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
+  }
+
+  @Test
+  public void shear() throws IOException, SubtitleDecoderException {
+    TtmlSubtitle subtitle = getSubtitle(SHEAR_FILE);
+
+    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    assertThat(firstCue.shearDegrees).isZero();
+
+    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    assertThat(secondCue.shearDegrees).isWithin(0.01f).of(-15f);
+
+    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    assertThat(thirdCue.shearDegrees).isWithin(0.01f).of(15f);
+
+    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    assertThat(fourthCue.shearDegrees).isWithin(0.01f).of(-15f);
+
+    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    assertThat(fifthCue.shearDegrees).isWithin(0.01f).of(-22.5f);
+
+    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    assertThat(sixthCue.shearDegrees).isWithin(0.01f).of(0f);
+
+    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    assertThat(seventhCue.shearDegrees).isWithin(0.01f).of(-90f);
+
+    Cue eighthCue = getOnlyCueAtTimeUs(subtitle, 80_000_000);
+    assertThat(eighthCue.shearDegrees).isWithin(0.01f).of(90f);
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {

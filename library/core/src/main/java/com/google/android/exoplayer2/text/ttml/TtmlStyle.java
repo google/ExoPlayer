@@ -30,6 +30,7 @@ import java.lang.annotation.RetentionPolicy;
 /* package */ final class TtmlStyle {
 
   public static final int UNSPECIFIED = -1;
+  public static final float UNSPECIFIED_SHEAR = Float.MAX_VALUE;
 
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -87,6 +88,7 @@ import java.lang.annotation.RetentionPolicy;
   @Nullable private Layout.Alignment textAlign;
   @OptionalBoolean private int textCombine;
   @Nullable private TextEmphasis textEmphasis;
+  private float shearPercentage;
 
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
@@ -97,6 +99,7 @@ import java.lang.annotation.RetentionPolicy;
     rubyType = UNSPECIFIED;
     rubyPosition = TextAnnotation.POSITION_UNKNOWN;
     textCombine = UNSPECIFIED;
+    shearPercentage = UNSPECIFIED_SHEAR;
   }
 
   /**
@@ -185,6 +188,15 @@ import java.lang.annotation.RetentionPolicy;
     return hasBackgroundColor;
   }
 
+  public TtmlStyle setShearPercentage(float shearPercentage) {
+    this.shearPercentage = shearPercentage;
+    return this;
+  }
+
+  public float getShearPercentage() {
+    return shearPercentage;
+  }
+
   /**
    * Chains this style to referential style. Local properties which are already set are never
    * overridden.
@@ -241,6 +253,9 @@ import java.lang.annotation.RetentionPolicy;
       }
       if (textEmphasis == null) {
         textEmphasis = ancestor.textEmphasis;
+      }
+      if (shearPercentage == UNSPECIFIED_SHEAR) {
+        shearPercentage = ancestor.shearPercentage;
       }
       // attributes not inherited as of http://www.w3.org/TR/ttml1/
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {

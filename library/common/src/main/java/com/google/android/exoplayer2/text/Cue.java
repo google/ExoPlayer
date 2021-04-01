@@ -270,6 +270,12 @@ public final class Cue {
   public final @VerticalType int verticalType;
 
   /**
+   * The shear angle in degrees to be applied to this Cue, expressed in graphics coordinates. This
+   * results in a skew transform for the block along the inline progression axis.
+   */
+  public final float shearDegrees;
+
+  /**
    * Creates a text cue whose {@link #textAlignment} is null, whose type parameters are set to
    * {@link #TYPE_UNSET} and whose dimension parameters are set to {@link #DIMEN_UNSET}.
    *
@@ -370,7 +376,8 @@ public final class Cue {
         /* bitmapHeight= */ DIMEN_UNSET,
         /* windowColorSet= */ false,
         /* windowColor= */ Color.BLACK,
-        /* verticalType= */ TYPE_UNSET);
+        /* verticalType= */ TYPE_UNSET,
+        /* shearDegrees= */ 0f);
   }
 
   /**
@@ -415,7 +422,8 @@ public final class Cue {
         /* bitmapHeight= */ DIMEN_UNSET,
         windowColorSet,
         windowColor,
-        /* verticalType= */ TYPE_UNSET);
+        /* verticalType= */ TYPE_UNSET,
+        /* shearDegrees= */ 0f);
   }
 
   private Cue(
@@ -433,7 +441,8 @@ public final class Cue {
       float bitmapHeight,
       boolean windowColorSet,
       int windowColor,
-      @VerticalType int verticalType) {
+      @VerticalType int verticalType,
+      float shearDegrees) {
     // Exactly one of text or bitmap should be set.
     if (text == null) {
       Assertions.checkNotNull(bitmap);
@@ -455,6 +464,7 @@ public final class Cue {
     this.textSizeType = textSizeType;
     this.textSize = textSize;
     this.verticalType = verticalType;
+    this.shearDegrees = shearDegrees;
   }
 
   /** Returns a new {@link Cue.Builder} initialized with the same values as this Cue. */
@@ -479,6 +489,7 @@ public final class Cue {
     private boolean windowColorSet;
     @ColorInt private int windowColor;
     @VerticalType private int verticalType;
+    private float shearDegrees;
 
     public Builder() {
       text = null;
@@ -514,6 +525,7 @@ public final class Cue {
       windowColorSet = cue.windowColorSet;
       windowColor = cue.windowColor;
       verticalType = cue.verticalType;
+      shearDegrees = cue.shearDegrees;
     }
 
     /**
@@ -794,6 +806,12 @@ public final class Cue {
       return this;
     }
 
+    /** Sets the shear angle for this Cue. */
+    public Builder setShearDegrees(float shearDegrees) {
+      this.shearDegrees = shearDegrees;
+      return this;
+    }
+
     /**
      * Gets the vertical formatting for this Cue.
      *
@@ -821,7 +839,8 @@ public final class Cue {
           bitmapHeight,
           windowColorSet,
           windowColor,
-          verticalType);
+          verticalType,
+          shearDegrees);
     }
   }
 }
