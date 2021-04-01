@@ -43,6 +43,9 @@
         `EXT-X-DISCONTINUITY` tags in different media playlists occur at
         different positions in time
         ([#8372](https://github.com/google/ExoPlayer/issues/8372)).
+    *   Fix issue that could cause playback of on-demand content to not start in
+        cases where the media playlists referenced by the master playlist have
+        different starting `EXT-X-PROGRAM-DATE-TIME` tags.
     *   Fix container type detection for segments with incorrect file extension
         or HTTP Content-Type
         ([#8733](https://github.com/google/ExoPlayer/issues/8733)).
