@@ -144,7 +144,7 @@ public class SimpleExoPlayer extends BasePlayer
      *   <li>{@link PriorityTaskManager}: {@code null} (not used)
      *   <li>{@link AudioAttributes}: {@link AudioAttributes#DEFAULT}, not handling audio focus
      *   <li>{@link C.WakeMode}: {@link C#WAKE_MODE_NONE}
-     *   <li>{@code handleAudioBecomingNoisy}: {@code true}
+     *   <li>{@code handleAudioBecomingNoisy}: {@code false}
      *   <li>{@code skipSilenceEnabled}: {@code false}
      *   <li>{@link C.VideoScalingMode}: {@link C#VIDEO_SCALING_MODE_DEFAULT}
      *   <li>{@code useLazyPreparation}: {@code true}
@@ -1047,8 +1047,6 @@ public class SimpleExoPlayer extends BasePlayer
    * href="https://developer.android.com/guide/topics/media-apps/volume-and-earphones#becoming-noisy">audio
    * becoming noisy</a> documentation for more information.
    *
-   * <p>This feature is not enabled by default.
-   *
    * @param handleAudioBecomingNoisy Whether the player should pause automatically when audio is
    *     rerouted from a headset to device speakers.
    */
@@ -1717,10 +1715,6 @@ public class SimpleExoPlayer extends BasePlayer
    * It should be used together with a foreground {@link android.app.Service} for use cases where
    * playback can occur when the screen is off (e.g. background audio playback). It is not useful if
    * the screen will always be on during playback (e.g. foreground video playback).
-   *
-   * <p>This feature is not enabled by default. If enabled, a WakeLock is held whenever the player
-   * is in the {@link #STATE_READY READY} or {@link #STATE_BUFFERING BUFFERING} states with {@code
-   * playWhenReady = true}.
    *
    * @param handleWakeLock Whether the player should use a {@link android.os.PowerManager.WakeLock}
    *     to ensure the device stays awake for playback, even when the screen is off.
