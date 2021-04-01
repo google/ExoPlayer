@@ -155,6 +155,52 @@ public class HlsMediaPlaylistParserTest {
   }
 
   @Test
+  public void parseMediaPlaylist_withByteRanges() throws Exception {
+    Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
+    String playlistString =
+        "#EXTM3U\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-TARGETDURATION:5\n"
+            + "\n"
+            + "#EXT-X-BYTERANGE:200@100\n"
+            + "#EXT-X-MAP:URI=\"stream.mp4\"\n"
+            + "#EXTINF:5,\n"
+            + "#EXT-X-BYTERANGE:400\n"
+            + "stream.mp4\n"
+            + "#EXTINF:5,\n"
+            + "#EXT-X-BYTERANGE:500\n"
+            + "stream.mp4\n"
+            + "#EXT-X-DISCONTINUITY\n"
+            + "#EXT-X-MAP:URI=\"init.mp4\"\n"
+            + "#EXTINF:5,\n"
+            + "segment.mp4\n";
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HlsPlaylist playlist = new HlsPlaylistParser().parse(playlistUri, inputStream);
+
+    HlsMediaPlaylist mediaPlaylist = (HlsMediaPlaylist) playlist;
+    List<Segment> segments = mediaPlaylist.segments;
+
+    assertThat(segments).isNotNull();
+    assertThat(segments).hasSize(3);
+
+    Segment segment = segments.get(0);
+    assertThat(segment.initializationSegment.byteRangeOffset).isEqualTo(100);
+    assertThat(segment.initializationSegment.byteRangeLength).isEqualTo(200);
+    assertThat(segment.byteRangeOffset).isEqualTo(300);
+    assertThat(segment.byteRangeLength).isEqualTo(400);
+
+    segment = segments.get(1);
+    assertThat(segment.byteRangeOffset).isEqualTo(700);
+    assertThat(segment.byteRangeLength).isEqualTo(500);
+
+    segment = segments.get(2);
+    assertThat(segment.initializationSegment.byteRangeOffset).isEqualTo(0);
+    assertThat(segment.initializationSegment.byteRangeLength).isEqualTo(C.LENGTH_UNSET);
+    assertThat(segment.byteRangeOffset).isEqualTo(0);
+    assertThat(segment.byteRangeLength).isEqualTo(C.LENGTH_UNSET);
+  }
+
+  @Test
   public void parseSampleAesMethod() throws Exception {
     Uri playlistUri = Uri.parse("https://example.com/test.m3u8");
     String playlistString =
