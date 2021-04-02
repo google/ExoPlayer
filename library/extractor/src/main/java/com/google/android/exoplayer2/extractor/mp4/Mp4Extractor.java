@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp4;
 
+import static com.google.android.exoplayer2.audio.Ac3Util.TRUEHD_RECHUNK_SAMPLE_COUNT;
 import static com.google.android.exoplayer2.extractor.mp4.AtomParsers.parseTraks;
 import static com.google.android.exoplayer2.extractor.mp4.Sniffer.BRAND_HEIC;
 import static com.google.android.exoplayer2.extractor.mp4.Sniffer.BRAND_QUICKTIME;
@@ -44,6 +45,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.metadata.mp4.SlowMotionData;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.NalUnitUtil;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -506,6 +508,12 @@ public final class Mp4Extractor implements Extractor, SeekMap {
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
+
+      if (track.format.sampleMimeType.equals(MimeTypes.AUDIO_TRUEHD)) {
+        // TrueHD collates 16 source samples per output
+        maxInputSize = trackSampleTable.maximumSize * TRUEHD_RECHUNK_SAMPLE_COUNT;
+      }
+
       Format.Builder formatBuilder = track.format.buildUpon();
       formatBuilder.setMaxInputSize(maxInputSize);
       if (track.type == C.TRACK_TYPE_VIDEO
@@ -554,7 +562,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * @return One of the {@code RESULT_*} flags in {@link Extractor}.
    * @throws IOException If an error occurs reading from the input.
    */
-  private int readSample(ExtractorInput input, PositionHolder positionHolder) throws IOException {
+  private int readSample1(ExtractorInput input, PositionHolder positionHolder) throws IOException {
     long inputPosition = input.getPosition();
     if (sampleTrackIndex == C.INDEX_UNSET) {
       sampleTrackIndex = getTrackIndexOfNextReadSample(inputPosition);
@@ -632,18 +640,71 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
     }
-    trackOutput.sampleMetadata(
-        track.sampleTable.timestampsUs[sampleIndex],
-        track.sampleTable.flags[sampleIndex],
-        sampleSize,
-        0,
-        null);
+
     track.sampleIndex++;
     sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesRead = 0;
     sampleBytesWritten = 0;
     sampleCurrentNalBytesRemaining = 0;
     return RESULT_CONTINUE;
+  }
+
+  /**
+   * Attempts to extract the next sample or the next 16 samples in case of Dolby TrueHD audio
+   * in the current mdat atom for the specified track.
+   *
+   * <p>Returns {@link #RESULT_SEEK} if the source should be reloaded from the position in {@code
+   * positionHolder}.
+   *
+   * <p>Returns {@link #RESULT_END_OF_INPUT} if no samples are left. Otherwise, returns {@link
+   * #RESULT_CONTINUE}.
+   *
+   * @param input The {@link ExtractorInput} from which to read data.
+   * @param positionHolder If {@link #RESULT_SEEK} is returned, this holder is updated to hold the
+   *     position of the required data.
+   * @return One of the {@code RESULT_*} flags in {@link Extractor}.
+   * @throws IOException If an error occurs reading from the input.
+   */
+  private int readSample(ExtractorInput input, PositionHolder positionHolder) throws IOException {
+    long inputPosition = input.getPosition();
+    if (sampleTrackIndex == C.INDEX_UNSET) {
+      sampleTrackIndex = getTrackIndexOfNextReadSample(inputPosition);
+      if (sampleTrackIndex == C.INDEX_UNSET) {
+        return RESULT_END_OF_INPUT;
+      }
+    }
+
+    Mp4Track track = castNonNull(tracks)[sampleTrackIndex];
+    TrackOutput trackOutput = track.trackOutput;
+    int sampleIndex = track.sampleIndex;
+    int sampleSize = track.sampleTable.sizes[sampleIndex];
+    int result = readSample1(input, positionHolder);
+
+    if (result != RESULT_CONTINUE) {
+      return result;
+    }
+
+    if (MimeTypes.AUDIO_TRUEHD.equals(track.track.format.sampleMimeType)) {
+      int untilIdx = sampleIndex + TRUEHD_RECHUNK_SAMPLE_COUNT;
+      int lastIdx = track.sampleTable.sizes.length;
+
+      untilIdx = min(untilIdx, lastIdx);
+
+      while (result == RESULT_CONTINUE && track.sampleIndex < untilIdx) {
+        int i = track.sampleIndex;
+        result = readSample1(input, positionHolder);
+        sampleSize += result == RESULT_CONTINUE ? track.sampleTable.sizes[i] : 0;
+      }
+    }
+
+    trackOutput.sampleMetadata(
+        track.sampleTable.timestampsUs[sampleIndex],
+        track.sampleTable.flags[sampleIndex],
+        sampleSize,
+        0,
+        null);
+
+    return result;
   }
 
   /**
