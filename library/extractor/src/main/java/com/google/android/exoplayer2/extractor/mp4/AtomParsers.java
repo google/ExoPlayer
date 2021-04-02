@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.Ac4Util;
+import com.google.android.exoplayer2.audio.MlpUtil;
 import com.google.android.exoplayer2.audio.OpusUtil;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ExtractorUtil;
@@ -962,6 +963,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           || childAtomType == Atom.TYPE_ac_3
           || childAtomType == Atom.TYPE_ec_3
           || childAtomType == Atom.TYPE_ac_4
+          || childAtomType == Atom.TYPE_mlpa
           || childAtomType == Atom.TYPE_dtsc
           || childAtomType == Atom.TYPE_dtse
           || childAtomType == Atom.TYPE_dtsh
@@ -1312,14 +1314,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       parent.skipBytes(8);
     }
 
-    int channelCount;
-    int sampleRate;
+    int  channelCount;
+    int  sampleRate;
+    int  sampleRate32 = 0;
     @C.PcmEncoding int pcmEncoding = Format.NO_VALUE;
     @Nullable String codecs = null;
 
     if (quickTimeSoundDescriptionVersion == 0 || quickTimeSoundDescriptionVersion == 1) {
       channelCount = parent.readUnsignedShort();
-      parent.skipBytes(6); // sampleSize, compressionId, packetSize.
+      parent.skipBytes(6);  // sampleSize, compressionId, packetSize.
+
+      int pos = parent.getPosition();
+      sampleRate32 = (int) parent.readUnsignedInt();
+
+      parent.setPosition(pos);
       sampleRate = parent.readUnsignedFixedPoint1616();
 
       if (quickTimeSoundDescriptionVersion == 1) {
@@ -1401,6 +1409,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       mimeType = MimeTypes.AUDIO_OPUS;
     } else if (atomType == Atom.TYPE_fLaC) {
       mimeType = MimeTypes.AUDIO_FLAC;
+    } else if (atomType == Atom.TYPE_mlpa) {
+      mimeType = MimeTypes.AUDIO_TRUEHD;
     }
 
     @Nullable List<byte[]> initializationData = null;
@@ -1442,6 +1452,10 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             initializationData = ImmutableList.of(initializationDataBytes);
           }
         }
+      } else if (childAtomType == Atom.TYPE_dmlp) {
+        parent.setPosition(Atom.HEADER_SIZE + childPosition);
+        out.format = MlpUtil.parseMlpFormat(parent, Integer.toString(trackId),
+            sampleRate32, language, drmInitData);
       } else if (childAtomType == Atom.TYPE_dac3) {
         parent.setPosition(Atom.HEADER_SIZE + childPosition);
         out.format =

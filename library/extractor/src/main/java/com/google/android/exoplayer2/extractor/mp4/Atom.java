@@ -153,6 +153,12 @@ import java.util.List;
   public static final int TYPE_dac4 = 0x64616334;
 
   @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_mlpa = 0x6d6c7061;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_dmlp = 0x646d6c70;
+
+  @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_dtsc = 0x64747363;
 
   @SuppressWarnings("ConstantCaseForConstants")
