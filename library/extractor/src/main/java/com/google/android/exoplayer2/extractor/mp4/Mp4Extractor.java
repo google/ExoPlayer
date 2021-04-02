@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.audio.Ac4Util;
+import com.google.android.exoplayer2.audio.MlpUtil;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
@@ -501,11 +502,17 @@ public final class Mp4Extractor implements Extractor, SeekMap {
           track.durationUs != C.TIME_UNSET ? track.durationUs : trackSampleTable.durationUs;
       durationUs = max(durationUs, trackDurationUs);
       Mp4Track mp4Track =
-          new Mp4Track(track, trackSampleTable, extractorOutput.track(i, track.type));
+          new Mp4Track(track, trackSampleTable, extractorOutput.track(i, track.type), track.format.sampleMimeType);
 
       // Each sample has up to three bytes of overhead for the start code that replaces its length.
       // Allow ten source samples per output sample, like the platform extractor.
       int maxInputSize = trackSampleTable.maximumSize + 3 * 10;
+
+      if ((track.format.sampleMimeType != null) && (track.format.sampleMimeType.equals(MimeTypes.AUDIO_TRUEHD))) {
+        // TrueHD collates 16 source samples per output
+        maxInputSize = trackSampleTable.maximumSize * MlpUtil.TRUEHD_RECHUNK_SAMPLE_COUNT;
+      }
+
       Format.Builder formatBuilder = track.format.buildUpon();
       formatBuilder.setMaxInputSize(maxInputSize);
       if (track.type == C.TRACK_TYPE_VIDEO
@@ -540,7 +547,8 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   }
 
   /**
-   * Attempts to extract the next sample in the current mdat atom for the specified track.
+   * Attempts to extract the next sample or the next 16 samples in case of Dolby TrueHD audio
+   * in the current mdat atom for the specified track.
    *
    * <p>Returns {@link #RESULT_SEEK} if the source should be reloaded from the position in {@code
    * positionHolder}.
@@ -632,12 +640,9 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         sampleCurrentNalBytesRemaining -= writtenBytes;
       }
     }
-    trackOutput.sampleMetadata(
-        track.sampleTable.timestampsUs[sampleIndex],
-        track.sampleTable.flags[sampleIndex],
-        sampleSize,
-        0,
-        null);
+
+    track.sampleMetadata(sampleIndex, sampleSize, 0, null);
+
     track.sampleIndex++;
     sampleTrackIndex = C.INDEX_UNSET;
     sampleBytesRead = 0;
@@ -904,11 +909,40 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     public final TrackOutput trackOutput;
 
     public int sampleIndex;
+    @Nullable public MlpUtil.TrueHdSampleRechunker trueHdSampleRechunker;
 
-    public Mp4Track(Track track, TrackSampleTable sampleTable, TrackOutput trackOutput) {
+    public Mp4Track(Track track, TrackSampleTable sampleTable, TrackOutput trackOutput, @Nullable String mimeType) {
       this.track = track;
       this.sampleTable = sampleTable;
       this.trackOutput = trackOutput;
+      this.trueHdSampleRechunker = null;
+
+      if ((mimeType != null) && mimeType.equals(MimeTypes.AUDIO_TRUEHD)) {
+        this.trueHdSampleRechunker = new MlpUtil.TrueHdSampleRechunker();
+      }
+    }
+
+    public void sampleMetadata( int sampleIndex, int sampleSize, int offset,
+        @Nullable TrackOutput.CryptoData cryptoData) {
+
+      long timeUs = sampleTable.timestampsUs[sampleIndex];
+      @C.BufferFlags int flags = sampleTable.flags[sampleIndex];
+
+      if (trueHdSampleRechunker != null) {
+        boolean fullChunk = trueHdSampleRechunker.appendSampleMetadata(timeUs,flags,sampleSize);
+
+        if (fullChunk || (sampleIndex+1 == sampleTable.sampleCount)) {
+          timeUs = trueHdSampleRechunker.timeUs;
+          flags = trueHdSampleRechunker.flags;
+          sampleSize = trueHdSampleRechunker.sampleSize;
+
+          trackOutput.sampleMetadata( timeUs, flags, sampleSize, offset, cryptoData);
+          trueHdSampleRechunker.reset();
+        }
+      } else {
+        trackOutput.sampleMetadata( timeUs, flags, sampleSize, offset, cryptoData);
+      }
     }
   }
+
 }
