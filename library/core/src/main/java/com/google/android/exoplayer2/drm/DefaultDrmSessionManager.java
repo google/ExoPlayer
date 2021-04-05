@@ -483,6 +483,8 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     exoMediaDrm = null;
   }
 
+  // precondition of preacquiredSessionReference.acquire is not satisfied.
+  @SuppressWarnings("nullness:contracts.precondition.not.satisfied")
   @Override
   public DrmSessionReference preacquireSession(
       Looper playbackLooper,
