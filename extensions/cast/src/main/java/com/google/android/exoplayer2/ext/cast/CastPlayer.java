@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.cast;
 
+import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static java.lang.Math.min;
 
 import android.os.Looper;
@@ -39,6 +40,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.cast.CastStatusCodes;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaQueueItem;
@@ -129,6 +131,7 @@ public final class CastPlayer extends BasePlayer {
   private int pendingSeekCount;
   private int pendingSeekWindowIndex;
   private long pendingSeekPositionMs;
+  @Nullable private PositionInfo pendingMediaItemRemovalPosition;
 
   /**
    * Creates a new cast player that uses a {@link DefaultMediaItemConverter}.
@@ -460,23 +463,29 @@ public final class CastPlayer extends BasePlayer {
       if (getCurrentWindowIndex() != windowIndex) {
         remoteMediaClient.queueJumpToItem((int) currentTimeline.getPeriod(windowIndex, period).uid,
             positionMs, null).setResultCallback(seekResultCallback);
+      } else {
+        remoteMediaClient.seek(positionMs).setResultCallback(seekResultCallback);
+      }
+      PositionInfo oldPosition = getCurrentPositionInfo();
+      pendingSeekCount++;
+      pendingSeekWindowIndex = windowIndex;
+      pendingSeekPositionMs = positionMs;
+      PositionInfo newPosition = getCurrentPositionInfo();
+      listeners.queueEvent(
+          Player.EVENT_POSITION_DISCONTINUITY,
+          listener -> {
+            listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK);
+            listener.onPositionDiscontinuity(oldPosition, newPosition, DISCONTINUITY_REASON_SEEK);
+          });
+      if (oldPosition.windowIndex != newPosition.windowIndex) {
         // TODO(internal b/182261884): queue `onMediaItemTransition` event when the media item is
         // repeated.
-        MediaItem mediaItem = currentTimeline.getWindow(windowIndex, window).mediaItem;
+        MediaItem mediaItem = getCurrentTimeline().getWindow(windowIndex, window).mediaItem;
         listeners.queueEvent(
             Player.EVENT_MEDIA_ITEM_TRANSITION,
             listener ->
                 listener.onMediaItemTransition(mediaItem, MEDIA_ITEM_TRANSITION_REASON_SEEK));
-      } else {
-        remoteMediaClient.seek(positionMs).setResultCallback(seekResultCallback);
       }
-      pendingSeekCount++;
-      pendingSeekWindowIndex = windowIndex;
-      pendingSeekPositionMs = positionMs;
-      // TODO(b/181262841): call new onPositionDiscontinuity callback
-      listeners.queueEvent(
-          Player.EVENT_POSITION_DISCONTINUITY,
-          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_SEEK));
       updateAvailableCommandsAndNotifyIfChanged();
     } else if (pendingSeekCount == 0) {
       listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);
@@ -657,7 +666,12 @@ public final class CastPlayer extends BasePlayer {
       // There is no session. We leave the state of the player as it is now.
       return;
     }
-    int previousWindowIndex = this.currentWindowIndex;
+    int oldWindowIndex = this.currentWindowIndex;
+    @Nullable
+    Object oldPeriodUid =
+        !getCurrentTimeline().isEmpty()
+            ? getCurrentTimeline().getPeriod(oldWindowIndex, period, /* setIds= */ true).uid
+            : null;
     boolean wasPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
     updatePlayerStateAndNotifyIfChanged(/* resultCallback= */ null);
     boolean isPlaying = playbackState == Player.STATE_READY && playWhenReady.value;
@@ -667,16 +681,49 @@ public final class CastPlayer extends BasePlayer {
     }
     updateRepeatModeAndNotifyIfChanged(/* resultCallback= */ null);
     boolean playingPeriodChangedByTimelineChange = updateTimelineAndNotifyIfChanged();
-
-    int currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
+    Timeline currentTimeline = getCurrentTimeline();
+    currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
+    @Nullable
+    Object currentPeriodUid =
+        !currentTimeline.isEmpty()
+            ? currentTimeline.getPeriod(currentWindowIndex, period, /* setIds= */ true).uid
+            : null;
     if (!playingPeriodChangedByTimelineChange
-        && previousWindowIndex != currentWindowIndex
+        && !Util.areEqual(oldPeriodUid, currentPeriodUid)
         && pendingSeekCount == 0) {
-      this.currentWindowIndex = currentWindowIndex;
-      // TODO(b/181262841): call new onPositionDiscontinuity callback
+      // Report discontinuity and media item auto transition.
+      currentTimeline.getPeriod(oldWindowIndex, period, /* setIds= */ true);
+      currentTimeline.getWindow(oldWindowIndex, window);
+      long windowDurationMs = window.getDurationMs();
+      PositionInfo oldPosition =
+          new PositionInfo(
+              window.uid,
+              period.windowIndex,
+              period.uid,
+              period.windowIndex,
+              /* positionMs= */ windowDurationMs,
+              /* contentPositionMs= */ windowDurationMs,
+              /* adGroupIndex= */ C.INDEX_UNSET,
+              /* adIndexInAdGroup= */ C.INDEX_UNSET);
+      currentTimeline.getPeriod(currentWindowIndex, period, /* setIds= */ true);
+      currentTimeline.getWindow(currentWindowIndex, window);
+      PositionInfo newPosition =
+          new PositionInfo(
+              window.uid,
+              period.windowIndex,
+              period.uid,
+              period.windowIndex,
+              /* positionMs= */ window.getDefaultPositionMs(),
+              /* contentPositionMs= */ window.getDefaultPositionMs(),
+              /* adGroupIndex= */ C.INDEX_UNSET,
+              /* adIndexInAdGroup= */ C.INDEX_UNSET);
       listeners.queueEvent(
           Player.EVENT_POSITION_DISCONTINUITY,
-          listener -> listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AUTO_TRANSITION));
+          listener -> {
+            listener.onPositionDiscontinuity(DISCONTINUITY_REASON_AUTO_TRANSITION);
+            listener.onPositionDiscontinuity(
+                oldPosition, newPosition, DISCONTINUITY_REASON_AUTO_TRANSITION);
+          });
       listeners.queueEvent(
           Player.EVENT_MEDIA_ITEM_TRANSITION,
           listener ->
@@ -731,13 +778,14 @@ public final class CastPlayer extends BasePlayer {
    */
   @SuppressWarnings("deprecation") // Calling deprecated listener method.
   private boolean updateTimelineAndNotifyIfChanged() {
-    Timeline previousTimeline = currentTimeline;
-    int previousWindowIndex = currentWindowIndex;
+    Timeline oldTimeline = currentTimeline;
+    int oldWindowIndex = currentWindowIndex;
     boolean playingPeriodChanged = false;
     if (updateTimeline()) {
       // TODO: Differentiate TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED and
       //     TIMELINE_CHANGE_REASON_SOURCE_UPDATE [see internal: b/65152553].
       Timeline timeline = currentTimeline;
+      // Call onTimelineChanged.
       listeners.queueEvent(
           Player.EVENT_TIMELINE_CHANGED,
           listener -> {
@@ -746,15 +794,48 @@ public final class CastPlayer extends BasePlayer {
             listener.onTimelineChanged(timeline, Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
           });
 
-      updateAvailableCommandsAndNotifyIfChanged();
-
-      if (currentTimeline.isEmpty() != previousTimeline.isEmpty()) {
-        // Timeline initially populated or timeline cleared.
-        playingPeriodChanged = true;
-      } else if (!currentTimeline.isEmpty()) {
-        Object previousWindowUid = previousTimeline.getWindow(previousWindowIndex, window).uid;
-        playingPeriodChanged = currentTimeline.getIndexOfPeriod(previousWindowUid) == C.INDEX_UNSET;
+      // Call onPositionDiscontinuity if required.
+      Timeline currentTimeline = getCurrentTimeline();
+      boolean playingPeriodRemoved = false;
+      if (!oldTimeline.isEmpty()) {
+        Object oldPeriodUid =
+            castNonNull(oldTimeline.getPeriod(oldWindowIndex, period, /* setIds= */ true).uid);
+        playingPeriodRemoved = currentTimeline.getIndexOfPeriod(oldPeriodUid) == C.INDEX_UNSET;
       }
+      if (playingPeriodRemoved) {
+        PositionInfo oldPosition;
+        if (pendingMediaItemRemovalPosition != null) {
+          oldPosition = pendingMediaItemRemovalPosition;
+          pendingMediaItemRemovalPosition = null;
+        } else {
+          // If the media item has been removed by another client, we don't know the removal
+          // position. We use the current position as a fallback.
+          oldTimeline.getPeriod(oldWindowIndex, period, /* setIds= */ true);
+          oldTimeline.getWindow(period.windowIndex, window);
+          oldPosition =
+              new PositionInfo(
+                  window.uid,
+                  period.windowIndex,
+                  period.uid,
+                  period.windowIndex,
+                  getCurrentPosition(),
+                  getContentPosition(),
+                  /* adGroupIndex= */ C.INDEX_UNSET,
+                  /* adIndexInAdGroup= */ C.INDEX_UNSET);
+        }
+        PositionInfo newPosition = getCurrentPositionInfo();
+        listeners.queueEvent(
+            Player.EVENT_POSITION_DISCONTINUITY,
+            listener -> {
+              listener.onPositionDiscontinuity(DISCONTINUITY_REASON_REMOVE);
+              listener.onPositionDiscontinuity(
+                  oldPosition, newPosition, DISCONTINUITY_REASON_REMOVE);
+            });
+      }
+
+      // Call onMediaItemTransition if required.
+      playingPeriodChanged =
+          currentTimeline.isEmpty() != oldTimeline.isEmpty() || playingPeriodRemoved;
       if (playingPeriodChanged) {
         listeners.queueEvent(
             Player.EVENT_MEDIA_ITEM_TRANSITION,
@@ -762,6 +843,7 @@ public final class CastPlayer extends BasePlayer {
                 listener.onMediaItemTransition(
                     getCurrentMediaItem(), MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED));
       }
+      updateAvailableCommandsAndNotifyIfChanged();
     }
     return playingPeriodChanged;
   }
@@ -856,6 +938,10 @@ public final class CastPlayer extends BasePlayer {
       startWindowIndex = getCurrentWindowIndex();
       startPositionMs = getCurrentPosition();
     }
+    Timeline currentTimeline = getCurrentTimeline();
+    if (!currentTimeline.isEmpty()) {
+      pendingMediaItemRemovalPosition = getCurrentPositionInfo();
+    }
     return remoteMediaClient.queueLoad(
         mediaQueueItems,
         min(startWindowIndex, mediaQueueItems.length - 1),
@@ -891,7 +977,39 @@ public final class CastPlayer extends BasePlayer {
     if (remoteMediaClient == null || getMediaStatus() == null) {
       return null;
     }
+    Timeline timeline = getCurrentTimeline();
+    if (!timeline.isEmpty()) {
+      Object periodUid =
+          castNonNull(timeline.getPeriod(getCurrentPeriodIndex(), period, /* setIds= */ true).uid);
+      for (int uid : uids) {
+        if (periodUid.equals(uid)) {
+          pendingMediaItemRemovalPosition = getCurrentPositionInfo();
+          break;
+        }
+      }
+    }
     return remoteMediaClient.queueRemoveItems(uids, /* customData= */ null);
+  }
+
+  private PositionInfo getCurrentPositionInfo() {
+    Timeline currentTimeline = getCurrentTimeline();
+    @Nullable
+    Object newPeriodUid =
+        !currentTimeline.isEmpty()
+            ? currentTimeline.getPeriod(getCurrentPeriodIndex(), period, /* setIds= */ true).uid
+            : null;
+    @Nullable
+    Object newWindowUid =
+        newPeriodUid != null ? currentTimeline.getWindow(period.windowIndex, window).uid : null;
+    return new PositionInfo(
+        newWindowUid,
+        getCurrentWindowIndex(),
+        newPeriodUid,
+        getCurrentPeriodIndex(),
+        getCurrentPosition(),
+        getContentPosition(),
+        /* adGroupIndex= */ C.INDEX_UNSET,
+        /* adIndexInAdGroup= */ C.INDEX_UNSET);
   }
 
   private void setRepeatModeAndNotifyIfChanged(@Player.RepeatMode int repeatMode) {
