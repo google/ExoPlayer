@@ -1190,7 +1190,8 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
     }
   }
 
-  private static @Nullable String parseOptionalStringAttr(
+  @Nullable
+  private static String parseOptionalStringAttr(
       String line, Pattern pattern, Map<String, String> variableDefinitions) {
     return parseOptionalStringAttr(line, pattern, null, variableDefinitions);
   }
