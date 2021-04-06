@@ -23,6 +23,9 @@
     *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView` when
         `wrap_content` is used
         ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
+    *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
+        mode) when possible
+        ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
 *   Audio:
     *   Report unexpected discontinuities in
         `AnalyticsListener.onAudioSinkError`

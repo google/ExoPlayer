@@ -587,13 +587,17 @@ import java.util.List;
             - (centerControls != null
                 ? (centerControls.getPaddingLeft() + centerControls.getPaddingRight())
                 : 0);
+    int centerControlHeight =
+        getHeightWithMargins(centerControls)
+            - (centerControls != null
+                ? (centerControls.getPaddingTop() + centerControls.getPaddingBottom())
+                : 0);
 
     int defaultModeMinimumWidth =
         Math.max(
             centerControlWidth,
             getWidthWithMargins(timeView) + getWidthWithMargins(overflowShowButton));
-    int defaultModeMinimumHeight =
-        getHeightWithMargins(centerControls) + 2 * getHeightWithMargins(bottomBar);
+    int defaultModeMinimumHeight = centerControlHeight + (2 * getHeightWithMargins(bottomBar));
 
     return width <= defaultModeMinimumWidth || height <= defaultModeMinimumHeight;
   }
