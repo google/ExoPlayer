@@ -130,7 +130,8 @@
       android:layout_gravity="center"
       android:background="@android:color/transparent"
       android:gravity="center"
-      android:padding="@dimen/exo_styled_controls_padding">
+      android:padding="@dimen/exo_styled_controls_padding"
+      android:clipToPadding="false">
 
     <ImageButton android:id="@id/exo_prev"
         style="@style/ExoStyledControls.Button.Center.Previous"/>
