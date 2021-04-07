@@ -928,7 +928,14 @@ public interface Player {
           TextOutput,
           MetadataOutput,
           DeviceListener,
-          EventListener {}
+          EventListener {
+
+    @Override
+    default void onMetadata(Metadata metadata) {}
+
+    @Override
+    default void onCues(List<Cue> cues) {}
+  }
 
   /**
    * Playback state. One of {@link #STATE_IDLE}, {@link #STATE_BUFFERING}, {@link #STATE_READY} or
