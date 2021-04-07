@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C.FormatSupport;
 import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -269,7 +270,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
   }
 
   private ExoPlaybackException(
-      @Nullable String message,
+      String message,
       @Nullable Throwable cause,
       @Type int type,
       @Nullable String rendererName,
@@ -331,7 +332,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
   @CheckResult
   /* package */ ExoPlaybackException copyWithMediaPeriodId(@Nullable MediaPeriodId mediaPeriodId) {
     return new ExoPlaybackException(
-        getMessage(),
+        Util.castNonNull(getMessage()),
         cause,
         type,
         rendererName,
@@ -343,7 +344,6 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
         isRecoverable);
   }
 
-  @Nullable
   private static String deriveMessage(
       @Type int type,
       @Nullable String customMessage,
@@ -351,7 +351,7 @@ public final class ExoPlaybackException extends Exception implements Bundleable 
       int rendererIndex,
       @Nullable Format rendererFormat,
       @FormatSupport int rendererFormatSupport) {
-    @Nullable String message;
+    String message;
     switch (type) {
       case TYPE_SOURCE:
         message = "Source error";
