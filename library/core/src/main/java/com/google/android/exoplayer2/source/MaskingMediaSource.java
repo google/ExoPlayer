@@ -395,12 +395,14 @@ public final class MaskingMediaSource extends CompositeMediaSource<Void> {
 
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean setIds) {
-      return period.set(
+      period.set(
           /* id= */ setIds ? 0 : null,
           /* uid= */ setIds ? MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID : null,
           /* windowIndex= */ 0,
           /* durationUs = */ C.TIME_UNSET,
           /* positionInWindowUs= */ 0);
+      period.isPlaceholder = true;
+      return period;
     }
 
     @Override

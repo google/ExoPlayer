@@ -589,6 +589,12 @@ public abstract class Timeline implements Bundleable {
      */
     public long positionInWindowUs;
 
+    /**
+     * Whether this period contains placeholder information because the real information has yet to
+     * be loaded.
+     */
+    public boolean isPlaceholder;
+
     private AdPlaybackState adPlaybackState;
 
     /** Creates a new instance with no ad playback state. */
@@ -650,6 +656,7 @@ public abstract class Timeline implements Bundleable {
       this.durationUs = durationUs;
       this.positionInWindowUs = positionInWindowUs;
       this.adPlaybackState = adPlaybackState;
+      this.isPlaceholder = false;
       return this;
     }
 
@@ -814,6 +821,7 @@ public abstract class Timeline implements Bundleable {
           && windowIndex == that.windowIndex
           && durationUs == that.durationUs
           && positionInWindowUs == that.positionInWindowUs
+          && isPlaceholder == that.isPlaceholder
           && Util.areEqual(adPlaybackState, that.adPlaybackState);
     }
 
@@ -825,6 +833,7 @@ public abstract class Timeline implements Bundleable {
       result = 31 * result + windowIndex;
       result = 31 * result + (int) (durationUs ^ (durationUs >>> 32));
       result = 31 * result + (int) (positionInWindowUs ^ (positionInWindowUs >>> 32));
+      result = 31 * result + (isPlaceholder ? 1 : 0);
       result = 31 * result + adPlaybackState.hashCode();
       return result;
     }
@@ -837,6 +846,7 @@ public abstract class Timeline implements Bundleable {
       FIELD_WINDOW_INDEX,
       FIELD_DURATION_US,
       FIELD_POSITION_IN_WINDOW_US,
+      FIELD_PLACEHOLDER,
       FIELD_AD_PLAYBACK_STATE
     })
     private @interface FieldNumber {}
@@ -844,7 +854,8 @@ public abstract class Timeline implements Bundleable {
     private static final int FIELD_WINDOW_INDEX = 0;
     private static final int FIELD_DURATION_US = 1;
     private static final int FIELD_POSITION_IN_WINDOW_US = 2;
-    private static final int FIELD_AD_PLAYBACK_STATE = 3;
+    private static final int FIELD_PLACEHOLDER = 3;
+    private static final int FIELD_AD_PLAYBACK_STATE = 4;
 
     /**
      * {@inheritDoc}
@@ -859,6 +870,7 @@ public abstract class Timeline implements Bundleable {
       bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
       bundle.putLong(keyForField(FIELD_DURATION_US), durationUs);
       bundle.putLong(keyForField(FIELD_POSITION_IN_WINDOW_US), positionInWindowUs);
+      bundle.putBoolean(keyForField(FIELD_PLACEHOLDER), isPlaceholder);
       bundle.putBundle(keyForField(FIELD_AD_PLAYBACK_STATE), adPlaybackState.toBundle());
       return bundle;
     }
@@ -876,6 +888,7 @@ public abstract class Timeline implements Bundleable {
           bundle.getLong(keyForField(FIELD_DURATION_US), /* defaultValue= */ C.TIME_UNSET);
       long positionInWindowUs =
           bundle.getLong(keyForField(FIELD_POSITION_IN_WINDOW_US), /* defaultValue= */ 0);
+      boolean isPlaceholder = bundle.getBoolean(keyForField(FIELD_PLACEHOLDER));
       @Nullable
       Bundle adPlaybackStateBundle = bundle.getBundle(keyForField(FIELD_AD_PLAYBACK_STATE));
       AdPlaybackState adPlaybackState =
@@ -884,13 +897,15 @@ public abstract class Timeline implements Bundleable {
               : AdPlaybackState.NONE;
 
       Period period = new Period();
-      return period.set(
+      period.set(
           /* id= */ null,
           /* uid= */ null,
           windowIndex,
           durationUs,
           positionInWindowUs,
           adPlaybackState);
+      period.isPlaceholder = isPlaceholder;
+      return period;
     }
 
     private static String keyForField(@Period.FieldNumber int field) {
@@ -1469,8 +1484,9 @@ public abstract class Timeline implements Bundleable {
     @Override
     public Period getPeriod(int periodIndex, Period period, boolean ignoredSetIds) {
       Period p = periods.get(periodIndex);
-      return period.set(
-          p.id, p.uid, p.windowIndex, p.durationUs, p.positionInWindowUs, p.adPlaybackState);
+      period.set(p.id, p.uid, p.windowIndex, p.durationUs, p.positionInWindowUs, p.adPlaybackState);
+      period.isPlaceholder = p.isPlaceholder;
+      return period;
     }
 
     @Override

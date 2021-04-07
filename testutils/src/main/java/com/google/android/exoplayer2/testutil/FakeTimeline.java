@@ -410,13 +410,15 @@ public final class FakeTimeline extends Timeline {
     } else {
       positionInWindowUs = periodDurationUs * windowPeriodIndex;
     }
-    return period.set(
+    period.set(
         id,
         uid,
         windowIndex,
         periodDurationUs,
         positionInWindowUs,
         windowDefinition.adPlaybackState);
+    period.isPlaceholder = windowDefinition.isPlaceholder;
+    return period;
   }
 
   @Override

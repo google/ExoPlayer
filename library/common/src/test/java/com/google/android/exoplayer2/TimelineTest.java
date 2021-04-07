@@ -176,10 +176,15 @@ public class TimelineTest {
     assertThat(period).isNotEqualTo(otherPeriod);
 
     otherPeriod = new Timeline.Period();
+    otherPeriod.isPlaceholder = true;
+    assertThat(period).isNotEqualTo(otherPeriod);
+
+    otherPeriod = new Timeline.Period();
     period.id = new Object();
     period.uid = new Object();
     period.windowIndex = 1;
     period.durationUs = 123L;
+    period.isPlaceholder = true;
     otherPeriod =
         otherPeriod.set(
             period.id,
@@ -187,6 +192,7 @@ public class TimelineTest {
             period.windowIndex,
             period.durationUs,
             /* positionInWindowUs= */ 0);
+    otherPeriod.isPlaceholder = true;
     assertThat(period).isEqualTo(otherPeriod);
   }
 
@@ -323,6 +329,7 @@ public class TimelineTest {
     period.windowIndex = 1;
     period.durationUs = 123_000;
     period.positionInWindowUs = 4_000;
+    period.isPlaceholder = true;
 
     Timeline.Period restoredPeriod = Timeline.Period.CREATOR.fromBundle(period.toBundle());
 
