@@ -23,6 +23,7 @@ import android.view.Surface;
 import android.widget.FrameLayout;
 import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
@@ -186,7 +187,9 @@ import java.util.List;
 
   private DashHostedTest createDashHostedTest(
       boolean canIncludeAdditionalVideoFormats, boolean isCddLimitedRetry) {
-    MetricsLogger metricsLogger = MetricsLogger.Factory.createDefault(tag);
+    MetricsLogger metricsLogger =
+        MetricsLogger.DEFAULT_FACTORY.create(
+            InstrumentationRegistry.getInstrumentation(), tag, streamName);
     return new DashHostedTest(tag, streamName, manifestUrl, metricsLogger, fullPlaybackNoSeeking,
         audioFormat, canIncludeAdditionalVideoFormats, isCddLimitedRetry, actionSchedule,
         offlineLicenseKeySetId, widevineLicenseUrl, useL1Widevine, dataSourceFactory,
@@ -344,15 +347,20 @@ import java.util.List;
             videoCounters.inputBufferCount - 1, videoCounters.inputBufferCount);
       }
       try {
-        int droppedFrameLimit = (int) Math.ceil(MAX_DROPPED_VIDEO_FRAME_FRACTION
-            * DecoderCountersUtil.getTotalBufferCount(videoCounters));
-        // Assert that performance is acceptable.
-        // Assert that total dropped frames were within limit.
-        DecoderCountersUtil.assertDroppedBufferLimit(tag + VIDEO_TAG_SUFFIX, videoCounters,
-            droppedFrameLimit);
-        // Assert that consecutive dropped frames were within limit.
-        DecoderCountersUtil.assertConsecutiveDroppedBufferLimit(tag + VIDEO_TAG_SUFFIX,
-            videoCounters, MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
+        if (!shouldSkipDroppedOutputBufferPerformanceAssertions()) {
+          int droppedFrameLimit =
+              (int)
+                  Math.ceil(
+                      MAX_DROPPED_VIDEO_FRAME_FRACTION
+                          * DecoderCountersUtil.getTotalBufferCount(videoCounters));
+          // Assert that performance is acceptable.
+          // Assert that total dropped frames were within limit.
+          DecoderCountersUtil.assertDroppedBufferLimit(
+              tag + VIDEO_TAG_SUFFIX, videoCounters, droppedFrameLimit);
+          // Assert that consecutive dropped frames were within limit.
+          DecoderCountersUtil.assertConsecutiveDroppedBufferLimit(
+              tag + VIDEO_TAG_SUFFIX, videoCounters, MAX_CONSECUTIVE_DROPPED_VIDEO_FRAMES);
+        }
       } catch (AssertionError e) {
         if (trackSelector.includedAdditionalVideoFormats) {
           // Retry limiting to CDD mandated formats (b/28220076).
@@ -363,6 +371,11 @@ import java.util.List;
         }
       }
     }
+  }
+
+  /** Provides a hook to skip dropped output buffer assertions in specific circumstances. */
+  private static boolean shouldSkipDroppedOutputBufferPerformanceAssertions() {
+    return false;
   }
 
   private static final class DashTestTrackSelector extends DefaultTrackSelector {

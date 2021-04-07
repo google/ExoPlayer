@@ -20,6 +20,9 @@ import com.google.android.exoplayer2.util.Log;
 /** Implementation of {@link MetricsLogger} that prints the metrics to logcat. */
 /* package */ final class LogcatMetricsLogger implements MetricsLogger {
 
+  public static final Factory FACTORY =
+      (instrumentation, tag, streamName) -> new LogcatMetricsLogger(tag);
+
   private final String tag;
 
   public LogcatMetricsLogger(String tag) {
