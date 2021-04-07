@@ -15,6 +15,11 @@
         [#4768](https://github.com/google/ExoPlayer/issues/4768)).
     *   Add `isCommandAvailable` method and `onAvailableCommandsChanged`
         listener to query the commands that can be executed on the player.
+    *   `AdsLoader.AdViewProvider` and `AdsLoader.OverlayInfo` have been renamed
+        `com.google.android.exoplayer2.ui.AdViewProvider` and
+        `com.google.android.exoplayer2.ui.AdOverlayInfo` respectively.
+    *   `CaptionStyleCompat` has been moved to the
+        `com.google.android.exoplayer2.ui` package.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.
