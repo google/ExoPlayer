@@ -232,7 +232,7 @@ public final class SphericalGLSurfaceView extends GLSurfaceView {
    * onDrawFrame and updatePitchMatrix.
    */
   @VisibleForTesting
-  /* package */ class Renderer
+  /* package */ final class Renderer
       implements GLSurfaceView.Renderer, TouchTracker.Listener, OrientationListener.Listener {
     private final SceneRenderer scene;
     private final float[] projectionMatrix = new float[16];

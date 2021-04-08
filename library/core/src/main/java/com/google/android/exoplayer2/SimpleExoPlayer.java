@@ -857,9 +857,9 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void setVideoSurfaceView(@Nullable SurfaceView surfaceView) {
     verifyApplicationThread();
-    if (surfaceView instanceof VideoDecoderGLSurfaceView) {
+    if (surfaceView instanceof VideoDecoderOutputBufferRenderer) {
       VideoDecoderOutputBufferRenderer videoDecoderOutputBufferRenderer =
-          ((VideoDecoderGLSurfaceView) surfaceView).getVideoDecoderOutputBufferRenderer();
+          (VideoDecoderOutputBufferRenderer) surfaceView;
       clearVideoSurface();
       surfaceHolder = surfaceView.getHolder();
       setVideoDecoderOutputBufferRenderer(videoDecoderOutputBufferRenderer);
