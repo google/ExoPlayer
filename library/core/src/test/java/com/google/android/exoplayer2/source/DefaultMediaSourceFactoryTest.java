@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Arrays;
 import java.util.Collections;
@@ -205,7 +206,7 @@ public final class DefaultMediaSourceFactoryTest {
     DefaultMediaSourceFactory defaultMediaSourceFactory =
         new DefaultMediaSourceFactory((Context) ApplicationProvider.getApplicationContext())
             .setAdsLoaderProvider(ignoredAdsConfiguration -> mock(AdsLoader.class))
-            .setAdViewProvider(mock(AdsLoader.AdViewProvider.class));
+            .setAdViewProvider(mock(AdViewProvider.class));
 
     MediaSource mediaSource = defaultMediaSourceFactory.createMediaSource(mediaItem);
 

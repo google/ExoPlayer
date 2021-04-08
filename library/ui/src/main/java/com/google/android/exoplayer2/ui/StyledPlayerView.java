@@ -56,7 +56,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -266,7 +265,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * attribute on a StyledPlayerView. This will cause the specified layout to be inflated instead of
  * {@code exo_styled_player_view.xml} for only the instance on which the attribute is set.
  */
-public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewProvider {
+public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   // LINT.IfChange
   /**
@@ -1251,18 +1250,17 @@ public class StyledPlayerView extends FrameLayout implements AdsLoader.AdViewPro
   }
 
   @Override
-  public List<AdsLoader.OverlayInfo> getAdOverlayInfos() {
-    List<AdsLoader.OverlayInfo> overlayViews = new ArrayList<>();
+  public List<AdOverlayInfo> getAdOverlayInfos() {
+    List<AdOverlayInfo> overlayViews = new ArrayList<>();
     if (overlayFrameLayout != null) {
       overlayViews.add(
-          new AdsLoader.OverlayInfo(
+          new AdOverlayInfo(
               overlayFrameLayout,
-              AdsLoader.OverlayInfo.PURPOSE_NOT_VISIBLE,
+              AdOverlayInfo.PURPOSE_NOT_VISIBLE,
               /* detailedReason= */ "Transparent overlay does not impact viewability"));
     }
     if (controller != null) {
-      overlayViews.add(
-          new AdsLoader.OverlayInfo(controller, AdsLoader.OverlayInfo.PURPOSE_CONTROLS));
+      overlayViews.add(new AdOverlayInfo(controller, AdOverlayInfo.PURPOSE_CONTROLS));
     }
     return ImmutableList.copyOf(overlayViews);
   }
