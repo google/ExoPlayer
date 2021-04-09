@@ -146,7 +146,7 @@
     *   Fix error caused by `AdPlaybackState` ad group times being cleared,
         which can occur if the `ImaAdsLoader` is released while an ad is pending
         loading ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
-    *   Upgrade IMA SDK dependency to 3.22.3, fixing an issue with
+    *   Upgrade IMA SDK dependency to 3.23.0, fixing an issue with
         `NullPointerExceptions` within `WebView` callbacks
         ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
 *   Update instructions and publishing configuration for releasing to Google's
