@@ -293,18 +293,16 @@ public final class PlaybackStatsListener
   }
 
   private void maybeAddSessions(Player player, Events events) {
-    if (player.getCurrentTimeline().isEmpty() && player.getPlaybackState() == Player.STATE_IDLE) {
-      // Player is completely idle. Don't add new sessions.
-      return;
-    }
+    boolean isCompletelyIdle =
+        player.getCurrentTimeline().isEmpty() && player.getPlaybackState() == Player.STATE_IDLE;
     for (int i = 0; i < events.size(); i++) {
       @EventFlags int event = events.get(i);
       EventTime eventTime = events.getEventTime(event);
       if (event == EVENT_TIMELINE_CHANGED) {
         sessionManager.updateSessionsWithTimelineChange(eventTime);
-      } else if (event == EVENT_POSITION_DISCONTINUITY) {
+      } else if (!isCompletelyIdle && event == EVENT_POSITION_DISCONTINUITY) {
         sessionManager.updateSessionsWithDiscontinuity(eventTime, discontinuityReason);
-      } else {
+      } else if (!isCompletelyIdle) {
         sessionManager.updateSessions(eventTime);
       }
     }
