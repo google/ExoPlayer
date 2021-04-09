@@ -26,6 +26,8 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.SurfaceTexture;
+import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -87,6 +89,7 @@ public class SimpleExoPlayerTest {
 
   @Test
   public void releaseAfterRendererEvents_triggersPendingVideoEventsInListener() throws Exception {
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     SimpleExoPlayer player =
         new SimpleExoPlayer.Builder(
                 ApplicationProvider.getApplicationContext(),
@@ -98,11 +101,13 @@ public class SimpleExoPlayerTest {
     player.addListener(listener);
     player.setMediaSource(
         new FakeMediaSource(new FakeTimeline(), ExoPlayerTestRunner.VIDEO_FORMAT));
+    player.setVideoSurface(surface);
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_READY);
 
     player.release();
+    surface.release();
     ShadowLooper.runMainLooperToNextTask();
 
     verify(listener, atLeastOnce()).onEvents(any(), any()); // EventListener

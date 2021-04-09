@@ -67,11 +67,13 @@ public final class DecoderVideoRendererTest {
           .setHeight(1080)
           .build();
 
+  private Surface surface;
   private DecoderVideoRenderer renderer;
   @Mock private VideoRendererEventListener eventListener;
 
   @Before
   public void setUp() {
+    surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     renderer =
         new DecoderVideoRenderer(
             /* allowedJoiningTimeMs= */ 0,
@@ -168,17 +170,18 @@ public final class DecoderVideoRendererTest {
             };
           }
         };
-    renderer.setOutputSurface(new Surface(new SurfaceTexture(/* texName= */ 0)));
+    renderer.setOutputSurface(surface);
   }
 
   @After
-  public void shutDown() throws Exception {
+  public void shutDown() {
     if (renderer.getState() == Renderer.STATE_STARTED) {
       renderer.stop();
     }
     if (renderer.getState() == Renderer.STATE_ENABLED) {
       renderer.disable();
     }
+    surface.release();
   }
 
   @Test

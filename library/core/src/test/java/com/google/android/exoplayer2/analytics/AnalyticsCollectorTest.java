@@ -60,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import android.graphics.SurfaceTexture;
 import android.os.Looper;
 import android.util.SparseArray;
 import android.view.Surface;
@@ -1638,6 +1639,9 @@ public final class AnalyticsCollectorTest {
   public void onEvents_isReportedWithCorrectEventTimes() throws Exception {
     SimpleExoPlayer player =
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext()).build();
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
+    player.setVideoSurface(surface);
+
     AnalyticsListener listener = mock(AnalyticsListener.class);
     Format[] formats =
         new Format[] {
@@ -1663,6 +1667,7 @@ public final class AnalyticsCollectorTest {
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_IDLE);
     ShadowLooper.runMainLooperToNextTask();
     player.release();
+    surface.release();
 
     // Verify that expected individual callbacks have been called and capture EventTimes.
     ArgumentCaptor<AnalyticsListener.EventTime> individualTimelineChangedEventTimes =
@@ -1982,11 +1987,13 @@ public final class AnalyticsCollectorTest {
       @Nullable ActionSchedule actionSchedule,
       RenderersFactory renderersFactory)
       throws Exception {
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     TestAnalyticsListener listener = new TestAnalyticsListener();
     try {
       new ExoPlayerTestRunner.Builder(ApplicationProvider.getApplicationContext())
           .setMediaSources(mediaSource)
           .setRenderersFactory(renderersFactory)
+          .setVideoSurface(surface)
           .setAnalyticsListener(listener)
           .setActionSchedule(actionSchedule)
           .build()
@@ -1995,6 +2002,8 @@ public final class AnalyticsCollectorTest {
           .blockUntilEnded(TIMEOUT_MS);
     } catch (ExoPlaybackException e) {
       // Ignore ExoPlaybackException as these may be expected.
+    } finally {
+      surface.release();
     }
     return listener;
   }
@@ -2358,12 +2367,7 @@ public final class AnalyticsCollectorTest {
 
       @Override
       public String toString() {
-        return "{"
-            + "type="
-            + Long.numberOfTrailingZeros(eventType)
-            + ", windowAndPeriodId="
-            + eventWindowAndPeriodId
-            + '}';
+        return "{" + "type=" + eventType + ", windowAndPeriodId=" + eventWindowAndPeriodId + '}';
       }
     }
   }
@@ -2375,14 +2379,12 @@ public final class AnalyticsCollectorTest {
    */
   private static final class EmptyDrmCallback implements MediaDrmCallback {
     @Override
-    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request)
-        throws MediaDrmCallbackException {
+    public byte[] executeProvisionRequest(UUID uuid, ExoMediaDrm.ProvisionRequest request) {
       return new byte[0];
     }
 
     @Override
-    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request)
-        throws MediaDrmCallbackException {
+    public byte[] executeKeyRequest(UUID uuid, ExoMediaDrm.KeyRequest request) {
       return new byte[0];
     }
   }
