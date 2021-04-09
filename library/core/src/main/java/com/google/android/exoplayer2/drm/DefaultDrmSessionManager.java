@@ -52,7 +52,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
  * A {@link DrmSessionManager} that supports playbacks using {@link ExoMediaDrm}.
@@ -483,8 +482,6 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
     exoMediaDrm = null;
   }
 
-  // precondition of preacquiredSessionReference.acquire is not satisfied.
-  @SuppressWarnings("nullness:contracts.precondition.not.satisfied")
   @Override
   public DrmSessionReference preacquireSession(
       Looper playbackLooper,
@@ -943,23 +940,23 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
      *
      * <p>Must be called at most once. Can be called from any thread.
      */
-    @RequiresNonNull("playbackHandler")
     public void acquire(Format format) {
-      playbackHandler.post(
-          () -> {
-            if (prepareCallsCount == 0 || isReleased) {
-              // The manager has been fully released or this reference has already been released.
-              // Abort the acquisition attempt.
-              return;
-            }
-            this.session =
-                acquireSession(
-                    checkNotNull(playbackLooper),
-                    eventDispatcher,
-                    format,
-                    /* shouldReleasePreacquiredSessionsBeforeRetrying= */ false);
-            preacquiredSessionReferences.add(this);
-          });
+      checkNotNull(playbackHandler)
+          .post(
+              () -> {
+                if (prepareCallsCount == 0 || isReleased) {
+                  // The manager has been fully released or this reference has already been
+                  // released. Abort the acquisition attempt.
+                  return;
+                }
+                this.session =
+                    acquireSession(
+                        checkNotNull(playbackLooper),
+                        eventDispatcher,
+                        format,
+                        /* shouldReleasePreacquiredSessionsBeforeRetrying= */ false);
+                preacquiredSessionReferences.add(this);
+              });
     }
 
     @Override
