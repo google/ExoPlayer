@@ -424,7 +424,7 @@ public class PlayerNotificationManager {
      * The resource id of the small icon of the notification shown in the status bar. See {@link
      * NotificationCompat.Builder#setSmallIcon(int)}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_small_icon}.
+     * <p>The default is {@code R.drawable#exo_notification_small_icon}.
      *
      * @return This builder.
      */
@@ -436,7 +436,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_PLAY}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_play}.
+     * <p>The default is {@code R.drawable#exo_notification_play}.
      *
      * @return This builder.
      */
@@ -448,7 +448,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_PAUSE}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_pause}.
+     * <p>The default is {@code R.drawable#exo_notification_pause}.
      *
      * @return This builder.
      */
@@ -460,7 +460,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_STOP}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_stop}.
+     * <p>The default is {@code R.drawable#exo_notification_stop}.
      *
      * @return This builder.
      */
@@ -472,7 +472,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_REWIND}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_rewind}.
+     * <p>The default is {@code R.drawable#exo_notification_rewind}.
      *
      * @return This builder.
      */
@@ -485,7 +485,7 @@ public class PlayerNotificationManager {
      * The resource id of the drawable to be used as the icon of action {@link
      * #ACTION_FAST_FORWARD}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_fastforward}.
+     * <p>The default is {@code R.drawable#exo_notification_fastforward}.
      *
      * @return This builder.
      */
@@ -497,7 +497,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_PREVIOUS}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_previous}.
+     * <p>The default is {@code R.drawable#exo_notification_previous}.
      *
      * @return This builder.
      */
@@ -509,7 +509,7 @@ public class PlayerNotificationManager {
     /**
      * The resource id of the drawable to be used as the icon of action {@link #ACTION_NEXT}.
      *
-     * <p>The default is {@link R.drawable#exo_notification_next}.
+     * <p>The default is {@code R.drawable#exo_notification_next}.
      *
      * @return This builder.
      */
