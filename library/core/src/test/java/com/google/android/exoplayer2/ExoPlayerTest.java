@@ -88,7 +88,6 @@ import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.CompositeMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -3643,7 +3642,6 @@ public final class ExoPlayerTest {
   public void seekTo_windowIndexIsReset_deprecated() throws Exception {
     FakeTimeline fakeTimeline = new FakeTimeline();
     FakeMediaSource mediaSource = new FakeMediaSource(fakeTimeline);
-    LoopingMediaSource loopingMediaSource = new LoopingMediaSource(mediaSource, 2);
     final int[] windowIndex = {C.INDEX_UNSET};
     final long[] positionMs = {C.TIME_UNSET, C.TIME_UNSET, C.TIME_UNSET};
     final long[] bufferedPositions = {C.TIME_UNSET, C.TIME_UNSET, C.TIME_UNSET};
@@ -3677,7 +3675,7 @@ public final class ExoPlayerTest {
                 })
             .build();
     new ExoPlayerTestRunner.Builder(context)
-        .setMediaSources(loopingMediaSource)
+        .setMediaSources(mediaSource, mediaSource)
         .setActionSchedule(actionSchedule)
         .build()
         .start()
@@ -3697,7 +3695,6 @@ public final class ExoPlayerTest {
   public void seekTo_windowIndexIsReset() throws Exception {
     FakeTimeline fakeTimeline = new FakeTimeline();
     FakeMediaSource mediaSource = new FakeMediaSource(fakeTimeline);
-    LoopingMediaSource loopingMediaSource = new LoopingMediaSource(mediaSource, 2);
     final int[] windowIndex = {C.INDEX_UNSET};
     final long[] positionMs = {C.TIME_UNSET, C.TIME_UNSET, C.TIME_UNSET};
     final long[] bufferedPositions = {C.TIME_UNSET, C.TIME_UNSET, C.TIME_UNSET};
@@ -3731,7 +3728,7 @@ public final class ExoPlayerTest {
                 })
             .build();
     new ExoPlayerTestRunner.Builder(context)
-        .setMediaSources(loopingMediaSource)
+        .setMediaSources(mediaSource, mediaSource)
         .setActionSchedule(actionSchedule)
         .build()
         .start()

@@ -26,16 +26,10 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
-import com.google.android.exoplayer2.source.ClippingMediaSource;
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
-import com.google.android.exoplayer2.source.LoopingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
-import com.google.android.exoplayer2.source.MergingMediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
-import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -61,15 +55,13 @@ import java.util.List;
  * Components common to all ExoPlayer implementations are:
  *
  * <ul>
- *   <li>A <b>{@link MediaSource}</b> that defines the media to be played, loads the media, and from
- *       which the loaded media can be read. A MediaSource is injected via {@link
- *       #setMediaSource(MediaSource)} at the start of playback. The library modules provide default
- *       implementations for progressive media files ({@link ProgressiveMediaSource}), DASH
- *       (DashMediaSource), SmoothStreaming (SsMediaSource) and HLS (HlsMediaSource), an
- *       implementation for loading single media samples ({@link SingleSampleMediaSource}) that's
- *       most often used for side-loaded subtitle files, and implementations for building more
- *       complex MediaSources from simpler ones ({@link MergingMediaSource}, {@link
- *       ConcatenatingMediaSource}, {@link LoopingMediaSource} and {@link ClippingMediaSource}).
+ *   <li><b>{@link MediaSource MediaSources}</b> that define the media to be played, load the media,
+ *       and from which the loaded media can be read. MediaSources are created from {@link MediaItem
+ *       MediaItems} by the {@link MediaSourceFactory} injected in the {@link
+ *       Builder#setMediaSourceFactory Builder}, or can be added directly by methods like {@link
+ *       #setMediaSource(MediaSource)}. The library provides a {@link DefaultMediaSourceFactory} for
+ *       progressive media files, DASH, SmoothStreaming and HLS, including functionality for
+ *       side-loading subtitle files and clipping media.
  *   <li><b>{@link Renderer}</b>s that render individual components of the media. The library
  *       provides default implementations for common media types ({@link MediaCodecVideoRenderer},
  *       {@link MediaCodecAudioRenderer}, {@link TextRenderer} and {@link MetadataRenderer}). A

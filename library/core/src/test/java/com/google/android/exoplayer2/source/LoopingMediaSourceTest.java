@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Unit tests for {@link LoopingMediaSource}. */
+@SuppressWarnings("deprecation") // Testing deprecated class.
 @RunWith(AndroidJUnit4.class)
 public class LoopingMediaSourceTest {
 
