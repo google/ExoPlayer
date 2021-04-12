@@ -293,6 +293,44 @@ public class HlsMediaSourceTest {
   }
 
   @Test
+  public void loadPlaylist_withPlaylistStartTime_targetLiveOffsetFromStartTime()
+      throws TimeoutException, ParserException {
+    String playlistUri = "fake://foo.bar/media0/playlist.m3u8";
+    // The playlist has a duration of 16 seconds, and part hold back, hold back and start time
+    // defined.
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PROGRAM-DATE-TIME:2020-01-01T00:00:00.0+00:00\n"
+            + "#EXT-X-TARGETDURATION:4\n"
+            + "#EXT-X-VERSION:3\n"
+            + "#EXT-X-START:TIME-OFFSET=-15"
+            + "#EXT-X-MEDIA-SEQUENCE:0\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence0.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence1.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence2.ts\n"
+            + "#EXTINF:4.00000,\n"
+            + "fileSequence3.ts\n"
+            + "#EXT-X-PART-INF:PART-TARGET=0.5\n"
+            + "#EXT-X-SERVER-CONTROL:HOLD-BACK=12,PART-HOLD-BACK=3";
+    // The playlist finishes 1 second before the current time.
+    SystemClock.setCurrentTimeMillis(Util.parseXsDateTime("2020-01-01T00:00:17.0+00:00"));
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    MediaItem mediaItem = MediaItem.fromUri(playlistUri);
+    HlsMediaSource mediaSource = factory.createMediaSource(mediaItem);
+
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    Timeline.Window window = timeline.getWindow(0, new Timeline.Window());
+    // The target live offset is picked from start time and then expressed in relation to the live
+    // edge (+1 seconds).
+    assertThat(window.liveConfiguration.targetOffsetMs).isEqualTo(16000);
+    assertThat(window.defaultPositionUs).isEqualTo(0);
+  }
+
+  @Test
   public void loadPlaylist_targetLiveOffsetInMediaItem_targetLiveOffsetPickedFromMediaItem()
       throws TimeoutException, ParserException {
     String playlistUri = "fake://foo.bar/media0/playlist.m3u8";

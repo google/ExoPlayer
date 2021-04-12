@@ -71,6 +71,8 @@
         codec input size
         ([#8705](https://github.com/google/ExoPlayer/issues/8705)).
 *   HLS:
+    *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
+        ([#8764](https://github.com/google/ExoPlayer/pull/8764)).
     *   Fix incorrect application of byte ranges to `EXT-X-MAP` tags
         ([#8783](https://github.com/google/ExoPlayer/issues/8783)).
     *   Fix issue that could cause playback to become stuck if corresponding
@@ -152,8 +154,7 @@
 *   Update instructions and publishing configuration for releasing to Google's
     Maven repository instead of bintray/JCenter.
 *   FFmpeg extension: Fix playback failure when switching to TrueHD tracks
-    during playback
-    ([#8616](https://github.com/google/ExoPlayer/issues/8616)).
+    during playback ([#8616](https://github.com/google/ExoPlayer/issues/8616)).
 
 ### 2.13.2 (2021-02-25)
 
