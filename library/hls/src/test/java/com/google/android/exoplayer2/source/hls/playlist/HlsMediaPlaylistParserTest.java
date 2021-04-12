@@ -34,6 +34,8 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1218,6 +1220,34 @@ public class HlsMediaPlaylistParserTest {
       // Expected because the initialization segment does not have a defined initialization vector,
       // although it is affected by an EXT-X-KEY tag.
     }
+  }
+
+  @Test
+  public void testExplicitInitSegment_withRange() throws IOException {
+    Uri playlistUri = Uri.parse("https://example.com/test3.m3u8");
+    String playlistString =
+      "#EXTM3U\n"
+        + "#EXT-X-VERSION:6\n"
+        + "#EXT-X-MEDIA-SEQUENCE:1616630672\n"
+        + "#EXT-X-TARGETDURATION:7\n"
+        + "#EXT-X-DISCONTINUITY-SEQUENCE:491 \n"
+        + "#EXT-X-MAP:URI=\"iframe0.tsv\",BYTERANGE=\"564@0\"\n"
+        + "\n"
+        + "#EXT-X-I-FRAMES-ONLY\n"
+        + "#EXT-X-PROGRAM-DATE-TIME:2021-04-12T17:08:22.000Z\n"
+        + "#EXTINF:1.001000,\n"
+        + "#EXT-X-BYTERANGE:121260@1128\n"
+        + "iframe0.tsv";
+
+    InputStream inputStream = new ByteArrayInputStream(Util.getUtf8Bytes(playlistString));
+    HlsMediaPlaylist standalonePlaylist =
+            (HlsMediaPlaylist) new HlsPlaylistParser().parse(playlistUri, inputStream);
+    assertThat(standalonePlaylist.segments.size()).isEqualTo(1);
+
+    @Nullable Segment initSegment = standalonePlaylist.segments.get(0).initializationSegment;
+    assertThat(initSegment).isNotNull();
+    assertThat(initSegment.byteRangeLength).isEqualTo(564);
+    assertThat(initSegment.byteRangeOffset).isEqualTo(0);
   }
 
   @Test
