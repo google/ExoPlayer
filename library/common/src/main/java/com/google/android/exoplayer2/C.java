@@ -588,7 +588,15 @@ public final class C {
    * Indicates that the track should be selected if user preferences do not state otherwise.
    */
   public static final int SELECTION_FLAG_DEFAULT = 1;
-  /** Indicates that the track must be displayed. Only applies to text tracks. */
+  /**
+   * Indicates that the track should be selected if its language matches the language of the
+   * selected audio track and user preferences do not state otherwise. Only applies to text tracks.
+   *
+   * <p>Tracks with this flag generally provide translation for elements that don't match the
+   * declared language of the selected audio track (e.g. speech in an alien language). See <a
+   * href="https://partnerhelp.netflixstudios.com/hc/en-us/articles/217558918">Netflix's summary</a>
+   * for more info.
+   */
   public static final int SELECTION_FLAG_FORCED = 1 << 1; // 2
   /**
    * Indicates that the player may choose to play the track in absence of an explicit user
