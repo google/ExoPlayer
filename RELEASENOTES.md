@@ -31,6 +31,10 @@
     *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
         mode) when possible
         ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
+    *   Remove `setUseSensorRotation` from `PlayerView` and `StyledPlayerView`.
+        Instead, cast the view returned by `getVideoSurfaceView` to
+        `SphericalGLSurfaceView`, and then call `setUseSensorRotation` on the
+        `SphericalGLSurfaceView` directly.
 *   Audio:
     *   Report unexpected discontinuities in
         `AnalyticsListener.onAudioSinkError`

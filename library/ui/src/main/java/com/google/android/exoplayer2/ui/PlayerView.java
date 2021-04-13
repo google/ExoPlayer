@@ -146,12 +146,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *         <li>Corresponding method: None
  *         <li>Default: {@code surface_view}
  *       </ul>
- *   <li><b>{@code use_sensor_rotation}</b> - Whether to use the orientation sensor for rotation
- *       during spherical playbacks (if available).
- *       <ul>
- *         <li>Corresponding method: {@link #setUseSensorRotation(boolean)}
- *         <li>Default: {@code true}
- *       </ul>
  *   <li><b>{@code shutter_background_color}</b> - The background color of the {@code exo_shutter}
  *       view.
  *       <ul>
@@ -315,7 +309,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
-  private boolean useSensorRotation;
   @Nullable private ErrorMessageProvider<? super ExoPlaybackException> errorMessageProvider;
   @Nullable private CharSequence customErrorMessage;
   private int controllerShowTimeoutMs;
@@ -375,7 +368,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     boolean controllerAutoShow = true;
     boolean controllerHideDuringAds = true;
     int showBuffering = SHOW_BUFFERING_NEVER;
-    useSensorRotation = true;
     if (attrs != null) {
       TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayerView, 0, 0);
       try {
@@ -399,8 +391,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
                 R.styleable.PlayerView_keep_content_on_player_reset, keepContentOnPlayerReset);
         controllerHideDuringAds =
             a.getBoolean(R.styleable.PlayerView_hide_during_ads, controllerHideDuringAds);
-        useSensorRotation =
-            a.getBoolean(R.styleable.PlayerView_use_sensor_rotation, useSensorRotation);
       } finally {
         a.recycle();
       }
@@ -433,7 +423,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         case SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW:
           SphericalGLSurfaceView sphericalGLSurfaceView = new SphericalGLSurfaceView(context);
           sphericalGLSurfaceView.setSingleTapListener(componentListener);
-          sphericalGLSurfaceView.setUseSensorRotation(useSensorRotation);
           surfaceView = sphericalGLSurfaceView;
           break;
         case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
@@ -739,22 +728,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     if (this.keepContentOnPlayerReset != keepContentOnPlayerReset) {
       this.keepContentOnPlayerReset = keepContentOnPlayerReset;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
-    }
-  }
-
-  /**
-   * Sets whether to use the orientation sensor for rotation during spherical playbacks (if
-   * available)
-   *
-   * @param useSensorRotation Whether to use the orientation sensor for rotation during spherical
-   *     playbacks.
-   */
-  public void setUseSensorRotation(boolean useSensorRotation) {
-    if (this.useSensorRotation != useSensorRotation) {
-      this.useSensorRotation = useSensorRotation;
-      if (surfaceView instanceof SphericalGLSurfaceView) {
-        ((SphericalGLSurfaceView) surfaceView).setUseSensorRotation(useSensorRotation);
-      }
     }
   }
 
