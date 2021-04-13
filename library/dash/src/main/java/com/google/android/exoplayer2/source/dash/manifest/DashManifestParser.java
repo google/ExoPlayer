@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
+import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayOutputStream;
@@ -1393,7 +1394,7 @@ public class DashManifestParser extends DefaultHandler
   protected int parseSelectionFlagsFromRoleDescriptors(List<Descriptor> roleDescriptors) {
     for (int i = 0; i < roleDescriptors.size(); i++) {
       Descriptor descriptor = roleDescriptors.get(i);
-      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri)
+      if (Ascii.equalsIgnoreCase("urn:mpeg:dash:role:2011", descriptor.schemeIdUri)
           && "main".equals(descriptor.value)) {
         return C.SELECTION_FLAG_DEFAULT;
       }
@@ -1408,7 +1409,7 @@ public class DashManifestParser extends DefaultHandler
     @C.RoleFlags int result = 0;
     for (int i = 0; i < roleDescriptors.size(); i++) {
       Descriptor descriptor = roleDescriptors.get(i);
-      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri)) {
+      if (Ascii.equalsIgnoreCase("urn:mpeg:dash:role:2011", descriptor.schemeIdUri)) {
         result |= parseDashRoleSchemeValue(descriptor.value);
       }
     }
@@ -1421,10 +1422,10 @@ public class DashManifestParser extends DefaultHandler
     @C.RoleFlags int result = 0;
     for (int i = 0; i < accessibilityDescriptors.size(); i++) {
       Descriptor descriptor = accessibilityDescriptors.get(i);
-      if ("urn:mpeg:dash:role:2011".equalsIgnoreCase(descriptor.schemeIdUri)) {
+      if (Ascii.equalsIgnoreCase("urn:mpeg:dash:role:2011", descriptor.schemeIdUri)) {
         result |= parseDashRoleSchemeValue(descriptor.value);
-      } else if ("urn:tva:metadata:cs:AudioPurposeCS:2007"
-          .equalsIgnoreCase(descriptor.schemeIdUri)) {
+      } else if (Ascii.equalsIgnoreCase(
+          "urn:tva:metadata:cs:AudioPurposeCS:2007", descriptor.schemeIdUri)) {
         result |= parseTvaAudioPurposeCsValue(descriptor.value);
       }
     }
@@ -1436,7 +1437,8 @@ public class DashManifestParser extends DefaultHandler
     @C.RoleFlags int result = 0;
     for (int i = 0; i < accessibilityDescriptors.size(); i++) {
       Descriptor descriptor = accessibilityDescriptors.get(i);
-      if ("http://dashif.org/guidelines/trickmode".equalsIgnoreCase(descriptor.schemeIdUri)) {
+      if (Ascii.equalsIgnoreCase(
+          "http://dashif.org/guidelines/trickmode", descriptor.schemeIdUri)) {
         result |= C.ROLE_FLAG_TRICK_PLAY;
       }
     }
@@ -1801,8 +1803,8 @@ public class DashManifestParser extends DefaultHandler
       List<Descriptor> supplementalProperties) {
     for (int i = 0; i < supplementalProperties.size(); i++) {
       Descriptor descriptor = supplementalProperties.get(i);
-      if ("http://dashif.org/guidelines/last-segment-number"
-          .equalsIgnoreCase(descriptor.schemeIdUri)) {
+      if (Ascii.equalsIgnoreCase(
+          "http://dashif.org/guidelines/last-segment-number", descriptor.schemeIdUri)) {
         return Long.parseLong(descriptor.value);
       }
     }
