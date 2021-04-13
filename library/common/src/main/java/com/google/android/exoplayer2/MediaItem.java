@@ -147,17 +147,17 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
-     * Sets the optional media ID which identifies the media item. If not specified, {@link #setUri}
-     * must be called and the string representation of {@link PlaybackProperties#uri} is used as the
-     * media ID.
+     * Sets the optional media ID which identifies the media item.
+     *
+     * <p>By default {@link #DEFAULT_MEDIA_ID} is used.
      */
-    public Builder setMediaId(@Nullable String mediaId) {
-      this.mediaId = mediaId;
+    public Builder setMediaId(String mediaId) {
+      this.mediaId = checkNotNull(mediaId);
       return this;
     }
 
     /**
-     * Sets the optional URI. If not specified, {@link #setMediaId(String)} must be called.
+     * Sets the optional URI.
      *
      * <p>If {@code uri} is null or unset no {@link PlaybackProperties} object is created during
      * {@link #build()} and any other {@code Builder} methods that would populate {@link
@@ -168,7 +168,7 @@ public final class MediaItem implements Bundleable {
     }
 
     /**
-     * Sets the optional URI. If not specified, {@link #setMediaId(String)} must be called.
+     * Sets the optional URI.
      *
      * <p>If {@code uri} is null or unset no {@link PlaybackProperties} object is created during
      * {@link #build()} and any other {@code Builder} methods that would populate {@link
@@ -587,10 +587,9 @@ public final class MediaItem implements Bundleable {
                 customCacheKey,
                 subtitles,
                 tag);
-        mediaId = mediaId != null ? mediaId : uri.toString();
       }
       return new MediaItem(
-          checkNotNull(mediaId),
+          mediaId != null ? mediaId : DEFAULT_MEDIA_ID,
           new ClippingProperties(
               clipStartPositionMs,
               clipEndPositionMs,
@@ -1194,6 +1193,12 @@ public final class MediaItem implements Bundleable {
     }
   }
 
+  /**
+   * The default media ID that is used if the media ID is not explicitly set by {@link
+   * Builder#setMediaId(String)}.
+   */
+  public static final String DEFAULT_MEDIA_ID = "";
+
   /** Identifies the media item. */
   public final String mediaId;
 
@@ -1296,7 +1301,7 @@ public final class MediaItem implements Bundleable {
   public static final Creator<MediaItem> CREATOR = MediaItem::fromBundle;
 
   private static MediaItem fromBundle(Bundle bundle) {
-    String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID)));
+    String mediaId = checkNotNull(bundle.getString(keyForField(FIELD_MEDIA_ID), DEFAULT_MEDIA_ID));
     @Nullable
     Bundle liveConfigurationBundle = bundle.getBundle(keyForField(FIELD_LIVE_CONFIGURATION));
     LiveConfiguration liveConfiguration;

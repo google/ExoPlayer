@@ -74,6 +74,8 @@
     *   Assume Dolby Vision content is encoded as H264 when calculating maximum
         codec input size
         ([#8705](https://github.com/google/ExoPlayer/issues/8705)).
+    *   Use an empty string instead of the URI if the media ID is not explicitly
+        set with `MediaItem.Builder.setMediaId(String)`.
 *   HLS:
     *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
         ([#8764](https://github.com/google/ExoPlayer/pull/8764)).
