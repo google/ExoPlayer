@@ -2309,8 +2309,7 @@ public final class AnalyticsCollectorTest {
     }
 
     @Override
-    public void onRenderedFirstFrame(
-        EventTime eventTime, @Nullable Surface surface, long renderTimeMs) {
+    public void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {
       reportedEvents.add(new ReportedEvent(EVENT_RENDERED_FIRST_FRAME, eventTime));
     }
 

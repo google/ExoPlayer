@@ -76,8 +76,9 @@ import java.util.List;
  * on the playback thread:
  *
  * <ul>
- *   <li>Message with type {@link #MSG_SET_SURFACE} to set the output surface. The message payload
- *       should be the target {@link Surface}, or null.
+ *   <li>Message with type {@link #MSG_SET_VIDEO_OUTPUT} to set the output. The message payload
+ *       should be the target {@link Surface}, or null to clear the output. Other non-null payloads
+ *       have the effect of clearing the output.
  *   <li>Message with type {@link #MSG_SET_SCALING_MODE} to set the video scaling mode. The message
  *       payload should be one of the integer scaling modes in {@link C.VideoScalingMode}. Note that
  *       the scaling mode only applies if the {@link Surface} targeted by this renderer is owned by
@@ -506,8 +507,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   public void handleMessage(int messageType, @Nullable Object message) throws ExoPlaybackException {
     switch (messageType) {
-      case MSG_SET_SURFACE:
-        setSurface((Surface) message);
+      case MSG_SET_VIDEO_OUTPUT:
+        setOutput(message);
         break;
       case MSG_SET_SCALING_MODE:
         scalingMode = (Integer) message;
@@ -533,7 +534,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
   }
 
-  private void setSurface(Surface surface) throws ExoPlaybackException {
+  private void setOutput(@Nullable Object output) throws ExoPlaybackException {
+    // Handle unsupported (i.e., non-Surface) outputs by clearing the surface.
+    @Nullable Surface surface = output instanceof Surface ? (Surface) output : null;
+
     if (surface == null) {
       // Use a dummy surface if possible.
       if (dummySurface != null) {
@@ -546,6 +550,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         }
       }
     }
+
     // We only need to update the codec if the surface has changed.
     if (this.surface != surface) {
       this.surface = surface;

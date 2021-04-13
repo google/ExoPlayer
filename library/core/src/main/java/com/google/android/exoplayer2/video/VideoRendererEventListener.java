@@ -125,18 +125,14 @@ public interface VideoRendererEventListener {
       int width, int height, int unappliedRotationDegrees, float pixelWidthHeightRatio) {}
 
   /**
-   * Called when a frame is rendered for the first time since setting the surface, or since the
+   * Called when a frame is rendered for the first time since setting the output, or since the
    * renderer was reset, or since the stream being rendered was changed.
    *
-   * @param surface The {@link Surface} to which a first frame has been rendered, or {@code null} if
-   *     the renderer renders to something that isn't a {@link Surface}.
+   * @param output The output of the video renderer. Normally a {@link Surface}, however some video
+   *     renderers may have other output types (e.g., a {@link VideoDecoderOutputBufferRenderer}).
    * @param renderTimeMs The {@link SystemClock#elapsedRealtime()} when the frame was rendered.
    */
-  default void onRenderedFirstFrame(@Nullable Surface surface, long renderTimeMs) {}
-
-  /** @deprecated Use {@link #onRenderedFirstFrame(Surface, long)}. */
-  @Deprecated
-  default void onRenderedFirstFrame(@Nullable Surface surface) {}
+  default void onRenderedFirstFrame(Object output, long renderTimeMs) {}
 
   /**
    * Called when a decoder is released.
@@ -251,16 +247,12 @@ public interface VideoRendererEventListener {
       }
     }
 
-    /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Surface, long)}. */
-    public void renderedFirstFrame(@Nullable Surface surface) {
+    /** Invokes {@link VideoRendererEventListener#onRenderedFirstFrame(Object, long)}. */
+    public void renderedFirstFrame(Object output) {
       if (handler != null) {
         // TODO: Replace this timestamp with the actual frame release time.
         long renderTimeMs = SystemClock.elapsedRealtime();
-        handler.post(
-            () -> {
-              castNonNull(listener).onRenderedFirstFrame(surface);
-              castNonNull(listener).onRenderedFirstFrame(surface, renderTimeMs);
-            });
+        handler.post(() -> castNonNull(listener).onRenderedFirstFrame(output, renderTimeMs));
       }
     }
 

@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.os.Looper;
 import android.util.SparseArray;
-import android.view.Surface;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -442,17 +441,13 @@ public class AnalyticsCollector
                 eventTime, width, height, unappliedRotationDegrees, pixelWidthHeightRatio));
   }
 
-  @SuppressWarnings("deprecation") // Calling deprecated listener method.
   @Override
-  public final void onRenderedFirstFrame(@Nullable Surface surface, long renderTimeMs) {
+  public final void onRenderedFirstFrame(Object output, long renderTimeMs) {
     EventTime eventTime = generateReadingMediaPeriodEventTime();
     sendEvent(
         eventTime,
         AnalyticsListener.EVENT_RENDERED_FIRST_FRAME,
-        listener -> {
-          listener.onRenderedFirstFrame(eventTime, surface);
-          listener.onRenderedFirstFrame(eventTime, surface, renderTimeMs);
-        });
+        listener -> listener.onRenderedFirstFrame(eventTime, output, renderTimeMs));
   }
 
   @Override

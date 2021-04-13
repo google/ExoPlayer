@@ -19,7 +19,6 @@ import static java.lang.Math.min;
 
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -453,8 +452,8 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
-  public void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {
-    logd(eventTime, "renderedFirstFrame", String.valueOf(surface));
+  public void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {
+    logd(eventTime, "renderedFirstFrame", String.valueOf(output));
   }
 
   @Override

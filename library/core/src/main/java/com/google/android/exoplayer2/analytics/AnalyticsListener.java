@@ -48,6 +48,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.ExoFlags;
+import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.common.base.Objects;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -1020,16 +1021,11 @@ public interface AnalyticsListener {
    * renderer was reset, or since the stream being rendered was changed.
    *
    * @param eventTime The event time.
-   * @param surface The {@link Surface} to which a frame has been rendered, or {@code null} if the
-   *     renderer renders to something that isn't a {@link Surface}.
+   * @param output The output to which a frame has been rendered. Normally a {@link Surface},
+   *     however may also be other output types (e.g., a {@link VideoDecoderOutputBufferRenderer}).
    * @param renderTimeMs {@link SystemClock#elapsedRealtime()} when the first frame was rendered.
    */
-  default void onRenderedFirstFrame(
-      EventTime eventTime, @Nullable Surface surface, long renderTimeMs) {}
-
-  /** @deprecated Use {@link #onRenderedFirstFrame(EventTime, Surface, long)} instead. */
-  @Deprecated
-  default void onRenderedFirstFrame(EventTime eventTime, @Nullable Surface surface) {}
+  default void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {}
 
   /**
    * Called before a frame is rendered for the first time since setting the surface, and each time

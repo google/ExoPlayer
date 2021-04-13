@@ -196,7 +196,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   // PlayerMessage.Target implementation.
 
   @Override
-  public void handleMessage(int what, @Nullable Object object) throws ExoPlaybackException {
+  public void handleMessage(int messageType, @Nullable Object payload) throws ExoPlaybackException {
     // Do nothing.
   }
 

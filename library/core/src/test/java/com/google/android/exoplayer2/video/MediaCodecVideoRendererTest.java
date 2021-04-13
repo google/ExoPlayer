@@ -120,7 +120,7 @@ public class MediaCodecVideoRendererTest {
         };
 
     surface = new Surface(new SurfaceTexture(/* texName= */ 0));
-    mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_SURFACE, surface);
+    mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
   }
 
   @After

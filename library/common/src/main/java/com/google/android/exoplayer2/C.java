@@ -782,7 +782,7 @@ public final class C {
    */
   public static final UUID PLAYREADY_UUID = new UUID(0x9A04F07998404286L, 0xAB92E65BE0885F95L);
 
-  /** @deprecated Use {@code Renderer.MSG_SET_SURFACE}. */
+  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_OUTPUT}. */
   @Deprecated public static final int MSG_SET_SURFACE = 1;
 
   /** @deprecated Use {@code Renderer.MSG_SET_VOLUME}. */
@@ -802,9 +802,6 @@ public final class C {
 
   /** @deprecated Use {@code Renderer.MSG_SET_CAMERA_MOTION_LISTENER}. */
   @Deprecated public static final int MSG_SET_CAMERA_MOTION_LISTENER = 7;
-
-  /** @deprecated Use {@code Renderer.MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER}. */
-  @Deprecated public static final int MSG_SET_VIDEO_DECODER_OUTPUT_BUFFER_RENDERER = 8;
 
   /** @deprecated Use {@code Renderer.MSG_CUSTOM_BASE}. */
   @Deprecated public static final int MSG_CUSTOM_BASE = 10000;
