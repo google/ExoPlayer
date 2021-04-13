@@ -220,18 +220,22 @@ public class DashManifestParserTest {
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_RAWCC);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_CEA608);
     assertThat(format.codecs).isEqualTo("cea608");
+    assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE);
     assertThat(adaptationSets.get(0).type).isEqualTo(C.TRACK_TYPE_TEXT);
 
     format = adaptationSets.get(1).representations.get(0).format;
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_MP4);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.codecs).isEqualTo("stpp.ttml.im1t");
+    assertThat(format.roleFlags).isEqualTo(C.ROLE_FLAG_SUBTITLE);
+    assertThat(format.selectionFlags).isEqualTo(C.SELECTION_FLAG_FORCED);
     assertThat(adaptationSets.get(1).type).isEqualTo(C.TRACK_TYPE_TEXT);
 
     format = adaptationSets.get(2).representations.get(0).format;
     assertThat(format.containerMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_TTML);
     assertThat(format.codecs).isNull();
+    assertThat(format.roleFlags).isEqualTo(0);
     assertThat(adaptationSets.get(2).type).isEqualTo(C.TRACK_TYPE_TEXT);
   }
 

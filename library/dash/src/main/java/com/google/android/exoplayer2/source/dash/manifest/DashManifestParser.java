@@ -1391,15 +1391,31 @@ public class DashManifestParser extends DefaultHandler
 
   // Selection flag parsing.
 
+  @C.SelectionFlags
   protected int parseSelectionFlagsFromRoleDescriptors(List<Descriptor> roleDescriptors) {
+    @C.SelectionFlags int result = 0;
     for (int i = 0; i < roleDescriptors.size(); i++) {
       Descriptor descriptor = roleDescriptors.get(i);
-      if (Ascii.equalsIgnoreCase("urn:mpeg:dash:role:2011", descriptor.schemeIdUri)
-          && "main".equals(descriptor.value)) {
-        return C.SELECTION_FLAG_DEFAULT;
+      if (Ascii.equalsIgnoreCase("urn:mpeg:dash:role:2011", descriptor.schemeIdUri)) {
+        result |= parseSelectionFlagsFromDashRoleScheme(descriptor.value);
       }
     }
-    return 0;
+    return result;
+  }
+
+  @C.SelectionFlags
+  protected int parseSelectionFlagsFromDashRoleScheme(@Nullable String value) {
+    if (value == null) {
+      return 0;
+    }
+    switch (value) {
+      case "main":
+        return C.SELECTION_FLAG_DEFAULT;
+      case "forced_subtitle":
+        return C.SELECTION_FLAG_FORCED;
+      default:
+        return 0;
+    }
   }
 
   // Role and Accessibility parsing.
@@ -1410,7 +1426,7 @@ public class DashManifestParser extends DefaultHandler
     for (int i = 0; i < roleDescriptors.size(); i++) {
       Descriptor descriptor = roleDescriptors.get(i);
       if (Ascii.equalsIgnoreCase("urn:mpeg:dash:role:2011", descriptor.schemeIdUri)) {
-        result |= parseDashRoleSchemeValue(descriptor.value);
+        result |= parseRoleFlagsFromDashRoleScheme(descriptor.value);
       }
     }
     return result;
@@ -1423,7 +1439,7 @@ public class DashManifestParser extends DefaultHandler
     for (int i = 0; i < accessibilityDescriptors.size(); i++) {
       Descriptor descriptor = accessibilityDescriptors.get(i);
       if (Ascii.equalsIgnoreCase("urn:mpeg:dash:role:2011", descriptor.schemeIdUri)) {
-        result |= parseDashRoleSchemeValue(descriptor.value);
+        result |= parseRoleFlagsFromDashRoleScheme(descriptor.value);
       } else if (Ascii.equalsIgnoreCase(
           "urn:tva:metadata:cs:AudioPurposeCS:2007", descriptor.schemeIdUri)) {
         result |= parseTvaAudioPurposeCsValue(descriptor.value);
@@ -1446,7 +1462,7 @@ public class DashManifestParser extends DefaultHandler
   }
 
   @C.RoleFlags
-  protected int parseDashRoleSchemeValue(@Nullable String value) {
+  protected int parseRoleFlagsFromDashRoleScheme(@Nullable String value) {
     if (value == null) {
       return 0;
     }
@@ -1465,6 +1481,7 @@ public class DashManifestParser extends DefaultHandler
         return C.ROLE_FLAG_EMERGENCY;
       case "caption":
         return C.ROLE_FLAG_CAPTION;
+      case "forced_subtitle":
       case "subtitle":
         return C.ROLE_FLAG_SUBTITLE;
       case "sign":
