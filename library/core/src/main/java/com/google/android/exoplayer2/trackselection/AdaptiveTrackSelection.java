@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -41,6 +42,8 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * one of highest quality given the current network conditions and the state of the buffer.
  */
 public class AdaptiveTrackSelection extends BaseTrackSelection {
+
+  private static final String TAG = "AdaptiveTrackSelection";
 
   /** Factory for {@link AdaptiveTrackSelection} instances. */
   public static class Factory implements ExoTrackSelection.Factory {
@@ -73,7 +76,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
      *     quality, the selection may indicate that media already buffered at the lower quality can
      *     be discarded to speed up the switch. This is the minimum duration of media that must be
-     *     retained at the lower quality.
+     *     retained at the lower quality. It must be at least {@code
+     *     minDurationForQualityIncreaseMs}.
      * @param bandwidthFraction The fraction of the available bandwidth that the selection should
      *     consider available for use. Setting to a value less than 1 is recommended to account for
      *     inaccuracies in the bandwidth estimator.
@@ -102,7 +106,8 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
      * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
      *     quality, the selection may indicate that media already buffered at the lower quality can
      *     be discarded to speed up the switch. This is the minimum duration of media that must be
-     *     retained at the lower quality.
+     *     retained at the lower quality. It must be at least {@code
+     *     minDurationForQualityIncreaseMs}.
      * @param bandwidthFraction The fraction of the available bandwidth that the selection should
      *     consider available for use. Setting to a value less than 1 is recommended to account for
      *     inaccuracies in the bandwidth estimator.
@@ -249,7 +254,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
    * @param minDurationToRetainAfterDiscardMs When switching to a track of significantly higher
    *     quality, the selection may indicate that media already buffered at the lower quality can be
    *     discarded to speed up the switch. This is the minimum duration of media that must be
-   *     retained at the lower quality.
+   *     retained at the lower quality. It must be at least {@code minDurationForQualityIncreaseMs}.
    * @param bandwidthFraction The fraction of the available bandwidth that the selection should
    *     consider available for use. Setting to a value less than 1 is recommended to account for
    *     inaccuracies in the bandwidth estimator.
@@ -276,6 +281,13 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       List<AdaptationCheckpoint> adaptationCheckpoints,
       Clock clock) {
     super(group, tracks, type);
+    if (minDurationToRetainAfterDiscardMs < minDurationForQualityIncreaseMs) {
+      Log.w(
+          TAG,
+          "Adjusting minDurationToRetainAfterDiscardMs to be at least"
+              + " minDurationForQualityIncreaseMs");
+      minDurationToRetainAfterDiscardMs = minDurationForQualityIncreaseMs;
+    }
     this.bandwidthMeter = bandwidthMeter;
     this.minDurationForQualityIncreaseUs = minDurationForQualityIncreaseMs * 1000L;
     this.maxDurationForQualityDecreaseUs = maxDurationForQualityDecreaseMs * 1000L;
