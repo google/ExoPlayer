@@ -1,38 +1,8 @@
 # Release notes
 
-### dev-v2 (not yet released)
+### 2.13.3 (2021-04-14)
 
-*   UI:
-    *   Add builder for `PlayerNotificationManager`.
-    *   Add group setting to `PlayerNotificationManager`.
-    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
-        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
-    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView` when
-        `wrap_content` is used
-        ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
-    *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
-        mode) when possible
-        ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
-*   Audio:
-    *   Report unexpected discontinuities in
-        `AnalyticsListener.onAudioSinkError`
-        ([#6384](https://github.com/google/ExoPlayer/issues/6384)).
-    *   Allow forcing offload for gapless content even if gapless playback is
-        not supported.
-    *   Allow fall back from DTS-HD to DTS when playing via passthrough.
-*   Analytics:
-    *   Add `onAudioCodecError` and `onVideoCodecError` to `AnalyticsListener`.
-*   Downloads and caching:
-    *   Fix `CacheWriter` to correctly handle `DataSource.close` failures, for
-        which it cannot be assumed that data was successfully written to the
-        cache.
-*   Library restructuring:
-    *   `DebugTextViewHelper` moved from `ui` package to `util` package.
-    *   Spherical UI components moved from `video.spherical` package to
-        `ui.spherical` package, and made package private.
 *   Core:
-    *   Move `getRendererCount` and `getRendererType` methods from `Player` to
-        `ExoPlayer`.
     *   Reset playback speed when live playback speed control becomes unused
         ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
     *   Fix playback position issue when re-preparing playback after a
@@ -41,6 +11,15 @@
     *   Assume Dolby Vision content is encoded as H264 when calculating maximum
         codec input size
         ([#8705](https://github.com/google/ExoPlayer/issues/8705)).
+*   UI:
+    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
+        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
+    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView` when
+        `wrap_content` is used
+        ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
+    *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
+        mode) when possible
+        ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
 *   HLS:
     *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
         ([#8764](https://github.com/google/ExoPlayer/pull/8764)).
@@ -61,20 +40,7 @@
         in JPEG motion photo parsing.
     *   Allow JFIF APP0 marker segment preceding Exif APP1 segment in
         `JpegExtractor`.
-*   Remove deprecated symbols:
-    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
-        instead.
-    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
-        instead.
-    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
-        module instead.
-*   DRM:
-    *   Only dispatch DRM session acquire and release events once per period
-        when playing content that uses the same encryption keys for both audio &
-        video tracks (previously separate acquire and release events were
-        dispatched for each track in each period).
-    *   Include the session state in DRM session-acquired listener methods.
-*   Text
+*   Text:
     *   Parse SSA/ASS bold & italic info in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
     *   Don't display subtitles after the end position of the current media
@@ -90,12 +56,6 @@
 *   Metadata:
     *   Ensure that timed metadata near the end of a period is not dropped
         ([#8710](https://github.com/google/ExoPlayer/issues/8710)).
-*   DASH:
-    *   Parse `forced_subtitle` role from DASH manifests
-        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
-*   MediaSession extension: Remove dependency to core module and rely on common
-    only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
-    this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
 *   Cast extension:
     *   Fix `onPositionDiscontinuity` event so that it is not triggered with
         reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
