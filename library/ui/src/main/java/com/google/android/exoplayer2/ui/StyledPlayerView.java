@@ -27,6 +27,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.opengl.GLSurfaceView;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -1169,28 +1170,28 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Should be called when the player is visible to the user and if {@code surface_type} is {@code
-   * spherical_gl_surface_view}. It is the counterpart to {@link #onPause()}.
+   * Should be called when the player is visible to the user, if the {@code surface_type} extends
+   * {@link GLSurfaceView}. It is the counterpart to {@link #onPause()}.
    *
    * <p>This method should typically be called in {@code Activity.onStart()}, or {@code
    * Activity.onResume()} for API versions &lt;= 23.
    */
   public void onResume() {
-    if (surfaceView instanceof SphericalGLSurfaceView) {
-      ((SphericalGLSurfaceView) surfaceView).onResume();
+    if (surfaceView instanceof GLSurfaceView) {
+      ((GLSurfaceView) surfaceView).onResume();
     }
   }
 
   /**
-   * Should be called when the player is no longer visible to the user and if {@code surface_type}
-   * is {@code spherical_gl_surface_view}. It is the counterpart to {@link #onResume()}.
+   * Should be called when the player is no longer visible to the user, if the {@code surface_type}
+   * extends {@link GLSurfaceView}. It is the counterpart to {@link #onResume()}.
    *
    * <p>This method should typically be called in {@code Activity.onStop()}, or {@code
    * Activity.onPause()} for API versions &lt;= 23.
    */
   public void onPause() {
-    if (surfaceView instanceof SphericalGLSurfaceView) {
-      ((SphericalGLSurfaceView) surfaceView).onPause();
+    if (surfaceView instanceof GLSurfaceView) {
+      ((GLSurfaceView) surfaceView).onPause();
     }
   }
 
