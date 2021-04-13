@@ -90,6 +90,9 @@
 *   Metadata:
     *   Ensure that timed metadata near the end of a period is not dropped
         ([#8710](https://github.com/google/ExoPlayer/issues/8710)).
+*   DASH:
+    *   Parse `forced_subtitle` role from DASH manifests
+        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
 *   MediaSession extension: Remove dependency to core module and rely on common
     only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
     this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
