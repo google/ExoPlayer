@@ -20,17 +20,18 @@
         `com.google.android.exoplayer2.ui.AdOverlayInfo` respectively.
     *   `CaptionStyleCompat` has been moved to the
         `com.google.android.exoplayer2.ui` package.
+    *   Move `getRendererCount` and `getRendererType` methods from `Player` to
+        `ExoPlayer`.
+    *   Add `getMediaMetadata` to `Player` interface.
+    *   Add a `Listener` interface to receive all player events in a single
+        object.
+    *   `Player.setPlaybackParameters` no longer accepts null, use
+        `PlaybackParameters.DEFAULT` instead.
+    *   Use an empty string instead of the URI if the media ID is not explicitly
+        set with `MediaItem.Builder.setMediaId(String)`.
 *   UI:
     *   Add builder for `PlayerNotificationManager`.
     *   Add group setting to `PlayerNotificationManager`.
-    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
-        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
-    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView` when
-        `wrap_content` is used
-        ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
-    *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
-        mode) when possible
-        ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
     *   Remove `setUseSensorRotation` from `PlayerView` and `StyledPlayerView`.
         Instead, cast the view returned by `getVideoSurfaceView` to
         `SphericalGLSurfaceView`, and then call `setUseSensorRotation` on the
@@ -58,24 +59,65 @@
     *   `DebugTextViewHelper` moved from `ui` package to `util` package.
     *   Spherical UI components moved from `video.spherical` package to
         `ui.spherical` package, and made package private.
+*   Remove deprecated symbols:
+    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
+        instead.
+    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
+        instead.
+    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
+        module instead.
+*   DRM:
+    *   Only dispatch DRM session acquire and release events once per period
+        when playing content that uses the same encryption keys for both audio &
+        video tracks (previously separate acquire and release events were
+        dispatched for each track in each period).
+    *   Include the session state in DRM session-acquired listener methods.
+    *   Prepare DRM sessions (and fetch keys) ahead of the playback position
+        ([#4133](https://github.com/google/ExoPlayer/issues/4133)).
+*   DASH:
+    *   Parse `forced_subtitle` role from DASH manifests
+        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
+*   MediaSession extension: Remove dependency to core module and rely on common
+    only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
+    this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
+*   Cast extension:
+    *   Trigger `onMediaItemTransition` event for all reasons except
+        `MEDIA_ITEM_TRANSITION_REASON_REPEAT`.
+*   Allow the use of platform extractors through
+    [MediaParser](https://developer.android.com/reference/android/media/MediaParser).
+    Only supported on API 30+.
+    *   You can use it for progressive media by passing a
+        `MediaParserExtractorAdapter.FACTORY` when creating the
+        `ProgressiveMediaSource.Factory`.
+    *   You can use it for HLS by passing a
+        `MediaParserHlsMediaChunkExtractor.FACTORY` when creating the
+        `HlsMediaSource.Factory`.
+    *   You can use it for DASH by passing a `DefaultDashChunkSource` which
+        depends on `MediaParserChunkExtractor.FACTORY` when creating the
+        `DashMediaSource.Factory`.
+    *   We don't currently support using platform extractors with
+        SmoothStreaming.
+
+### 2.13.3 (2021-04-14)
+
 *   Core:
-    *   Move `getRendererCount` and `getRendererType` methods from `Player` to
-        `ExoPlayer`.
-    *   Add `getMediaMetadata` to `Player` interface.
     *   Reset playback speed when live playback speed control becomes unused
         ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
     *   Fix playback position issue when re-preparing playback after a
         `BehindLiveWindowException`
         ([#8675](https://github.com/google/ExoPlayer/issues/8675)).
-    *   Add a `Listener` interface to receive all player events in a single
-        object.
-    *   `Player.setPlaybackParameters` no longer accepts null, use
-        `PlaybackParameters.DEFAULT` instead.
     *   Assume Dolby Vision content is encoded as H264 when calculating maximum
         codec input size
         ([#8705](https://github.com/google/ExoPlayer/issues/8705)).
-    *   Use an empty string instead of the URI if the media ID is not explicitly
-        set with `MediaItem.Builder.setMediaId(String)`.
+*   UI:
+    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
+        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
+    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView` when
+        `wrap_content` is used
+        ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
+    *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
+        mode) when possible
+        ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
 *   HLS:
     *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
         ([#8764](https://github.com/google/ExoPlayer/pull/8764)).
@@ -96,22 +138,7 @@
         in JPEG motion photo parsing.
     *   Allow JFIF APP0 marker segment preceding Exif APP1 segment in
         `JpegExtractor`.
-*   Remove deprecated symbols:
-    *   Remove `Player.DefaultEventListener`. Use `Player.EventListener`
-        instead.
-    *   Remove `DownloadNotificationUtil`. Use `DownloadNotificationHelper`
-        instead.
-    *   Remove `extension-jobdispatcher` module. Use the `extension-workmanager`
-        module instead.
-*   DRM:
-    *   Only dispatch DRM session acquire and release events once per period
-        when playing content that uses the same encryption keys for both audio &
-        video tracks (previously separate acquire and release events were
-        dispatched for each track in each period).
-    *   Include the session state in DRM session-acquired listener methods.
-    *   Prepare DRM sessions (and fetch keys) ahead of the playback position
-        ([#4133](https://github.com/google/ExoPlayer/issues/4133)).
-*   Text
+*   Text:
     *   Parse SSA/ASS bold & italic info in `Style:` lines
         ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
     *   Don't display subtitles after the end position of the current media
@@ -127,32 +154,10 @@
 *   Metadata:
     *   Ensure that timed metadata near the end of a period is not dropped
         ([#8710](https://github.com/google/ExoPlayer/issues/8710)).
-*   DASH:
-    *   Parse `forced_subtitle` role from DASH manifests
-        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
-*   MediaSession extension: Remove dependency to core module and rely on common
-    only. The `TimelineQueueEditor` uses a new `MediaDescriptionConverter` for
-    this purpose and does not rely on the `ConcatenatingMediaSource` anymore.
 *   Cast extension:
     *   Fix `onPositionDiscontinuity` event so that it is not triggered with
         reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
         media item and so that it is not triggered after a timeline change.
-    *   Trigger `onMediaItemTransition` event for all reasons except
-        `MEDIA_ITEM_TRANSITION_REASON_REPEAT`.
-*   Allow the use of platform extractors through
-    [MediaParser](https://developer.android.com/reference/android/media/MediaParser).
-    Only supported on API 30+.
-    *   You can use it for progressive media by passing a
-        `MediaParserExtractorAdapter.FACTORY` when creating the
-        `ProgressiveMediaSource.Factory`.
-    *   You can use it for HLS by passing a
-        `MediaParserHlsMediaChunkExtractor.FACTORY` when creating the
-        `HlsMediaSource.Factory`.
-    *   You can use it for DASH by passing a `DefaultDashChunkSource` which
-        depends on `MediaParserChunkExtractor.FACTORY` when creating the
-        `DashMediaSource.Factory`.
-    *   We don't currently support using platform extractors with
-        SmoothStreaming.
 *   IMA extension:
     *   Fix error caused by `AdPlaybackState` ad group times being cleared,
         which can occur if the `ImaAdsLoader` is released while an ad is pending
