@@ -15,9 +15,7 @@
  */
 package com.google.android.exoplayer2.device;
 
-import com.google.android.exoplayer2.Player;
-
-/** A listener for changes of {@link Player.DeviceComponent}. */
+/** A listener for changes of {@link DeviceInfo} or device volume. */
 public interface DeviceListener {
 
   /** Called when the device information changes. */

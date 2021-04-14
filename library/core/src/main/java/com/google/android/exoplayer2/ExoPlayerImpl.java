@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.PlayerMessage.Target;
 import com.google.android.exoplayer2.analytics.AnalyticsCollector;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -1008,6 +1009,40 @@ import java.util.concurrent.CopyOnWriteArraySet;
   public ImmutableList<Cue> getCurrentCues() {
     return ImmutableList.of();
   }
+
+  /** This method is not supported and always returns {@link DeviceInfo#UNKNOWN}. */
+  @Override
+  public DeviceInfo getDeviceInfo() {
+    return DeviceInfo.UNKNOWN;
+  }
+
+  /** This method is not supported and always returns {@code 0}. */
+  @Override
+  public int getDeviceVolume() {
+    return 0;
+  }
+
+  /** This method is not supported and always returns {@link false}. */
+  @Override
+  public boolean isDeviceMuted() {
+    return false;
+  }
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setDeviceVolume(int volume) {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void increaseDeviceVolume() {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void decreaseDeviceVolume() {}
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setDeviceMuted(boolean muted) {}
 
   private int getCurrentWindowIndexInternal() {
     if (playbackInfo.timeline.isEmpty()) {

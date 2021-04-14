@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.device.DeviceInfo;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
@@ -441,6 +442,41 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public List<Cue> getCurrentCues() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public DeviceInfo getDeviceInfo() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isDeviceMuted() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDeviceVolume(int volume) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void increaseDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void decreaseDeviceVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setDeviceMuted(boolean muted) {
     throw new UnsupportedOperationException();
   }
 

@@ -28,6 +28,8 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.device.DeviceInfo;
+import com.google.android.exoplayer2.device.DeviceListener;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -258,6 +260,51 @@ public interface ExoPlayer extends Player {
      * @param output The output to remove.
      */
     void removeMetadataOutput(MetadataOutput output);
+  }
+
+  /** The device component of an {@link ExoPlayer}. */
+  interface DeviceComponent {
+
+    /** Adds a listener to receive device events. */
+    void addDeviceListener(DeviceListener listener);
+
+    /** Removes a listener of device events. */
+    void removeDeviceListener(DeviceListener listener);
+
+    /** Gets the device information. */
+    DeviceInfo getDeviceInfo();
+
+    /**
+     * Gets the current volume of the device.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_LOCAL local playback}, the volume
+     * returned by this method varies according to the current {@link C.StreamType stream type}. The
+     * stream type is determined by {@link AudioAttributes#usage} which can be converted to stream
+     * type with {@link Util#getStreamTypeForAudioUsage(int)}.
+     *
+     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of
+     * the remote device is returned.
+     */
+    int getDeviceVolume();
+
+    /** Gets whether the device is muted or not. */
+    boolean isDeviceMuted();
+
+    /**
+     * Sets the volume of the device.
+     *
+     * @param volume The volume to set.
+     */
+    void setDeviceVolume(int volume);
+
+    /** Increases the volume of the device. */
+    void increaseDeviceVolume();
+
+    /** Decreases the volume of the device. */
+    void decreaseDeviceVolume();
+
+    /** Sets the mute state of the device. */
+    void setDeviceMuted(boolean muted);
   }
 
   /**
@@ -612,6 +659,10 @@ public interface ExoPlayer extends Player {
    */
   @Nullable
   MetadataComponent getMetadataComponent();
+
+  /** Returns the component of this player for playback device, or null if it's not supported. */
+  @Nullable
+  DeviceComponent getDeviceComponent();
 
   /**
    * Adds a listener to receive audio offload events.

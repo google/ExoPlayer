@@ -82,7 +82,7 @@ public class SimpleExoPlayer extends BasePlayer
         Player.VideoComponent,
         ExoPlayer.TextComponent,
         ExoPlayer.MetadataComponent,
-        Player.DeviceComponent {
+        ExoPlayer.DeviceComponent {
 
   /** The default timeout for detaching a surface from the player, in milliseconds. */
   public static final long DEFAULT_DETACH_SURFACE_TIMEOUT_MS = 2_000;

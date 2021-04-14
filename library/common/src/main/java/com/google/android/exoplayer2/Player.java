@@ -206,51 +206,6 @@ public interface Player {
     void clearVideoTextureView(@Nullable TextureView textureView);
   }
 
-  /** The device component of a {@link Player}. */
-  interface DeviceComponent {
-
-    /** Adds a listener to receive device events. */
-    void addDeviceListener(DeviceListener listener);
-
-    /** Removes a listener of device events. */
-    void removeDeviceListener(DeviceListener listener);
-
-    /** Gets the device information. */
-    DeviceInfo getDeviceInfo();
-
-    /**
-     * Gets the current volume of the device.
-     *
-     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_LOCAL local playback}, the volume
-     * returned by this method varies according to the current {@link C.StreamType stream type}. The
-     * stream type is determined by {@link AudioAttributes#usage} which can be converted to stream
-     * type with {@link Util#getStreamTypeForAudioUsage(int)}.
-     *
-     * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of
-     * the remote device is returned.
-     */
-    int getDeviceVolume();
-
-    /** Gets whether the device is muted or not. */
-    boolean isDeviceMuted();
-
-    /**
-     * Sets the volume of the device.
-     *
-     * @param volume The volume to set.
-     */
-    void setDeviceVolume(int volume);
-
-    /** Increases the volume of the device. */
-    void increaseDeviceVolume();
-
-    /** Decreases the volume of the device. */
-    void decreaseDeviceVolume();
-
-    /** Sets the mute state of the device. */
-    void setDeviceMuted(boolean muted);
-  }
-
   /**
    * Listener of changes in player state.
    *
@@ -1130,10 +1085,6 @@ public interface Player {
   @Nullable
   VideoComponent getVideoComponent();
 
-  /** Returns the component of this player for playback device, or null if it's not supported. */
-  @Nullable
-  DeviceComponent getDeviceComponent();
-
   /**
    * Returns the {@link Looper} associated with the application thread that's used to access the
    * player and on which player events are received.
@@ -1810,4 +1761,39 @@ public interface Player {
 
   /** Returns the current {@link Cue Cues}. This list may be empty. */
   List<Cue> getCurrentCues();
+
+  /** Gets the device information. */
+  DeviceInfo getDeviceInfo();
+
+  /**
+   * Gets the current volume of the device.
+   *
+   * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_LOCAL local playback}, the volume returned
+   * by this method varies according to the current {@link C.StreamType stream type}. The stream
+   * type is determined by {@link AudioAttributes#usage} which can be converted to stream type with
+   * {@link Util#getStreamTypeForAudioUsage(int)}.
+   *
+   * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of the
+   * remote device is returned.
+   */
+  int getDeviceVolume();
+
+  /** Gets whether the device is muted or not. */
+  boolean isDeviceMuted();
+
+  /**
+   * Sets the volume of the device.
+   *
+   * @param volume The volume to set.
+   */
+  void setDeviceVolume(int volume);
+
+  /** Increases the volume of the device. */
+  void increaseDeviceVolume();
+
+  /** Decreases the volume of the device. */
+  void decreaseDeviceVolume();
+
+  /** Sets the mute state of the device. */
+  void setDeviceMuted(boolean muted);
 }
