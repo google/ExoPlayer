@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.ima;
 
+import static com.google.android.exoplayer2.Player.COMMAND_GET_VOLUME;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.BITRATE_UNSET;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.TIMEOUT_UNSET;
 import static com.google.android.exoplayer2.ext.ima.ImaUtil.getAdGroupTimesUsForCuePoints;
@@ -700,9 +701,8 @@ import java.util.Map;
       return lastVolumePercent;
     }
 
-    @Nullable Player.AudioComponent audioComponent = player.getAudioComponent();
-    if (audioComponent != null) {
-      return (int) (audioComponent.getVolume() * 100);
+    if (player.isCommandAvailable(COMMAND_GET_VOLUME)) {
+      return (int) (player.getVolume() * 100);
     }
 
     // Check for a selected track using an audio renderer.

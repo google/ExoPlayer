@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -251,14 +252,13 @@ public final class CastPlayer extends BasePlayer {
   public MediaQueueItem getItem(int periodId) {
     MediaStatus mediaStatus = getMediaStatus();
     return mediaStatus != null && currentTimeline.getIndexOfPeriod(periodId) != C.INDEX_UNSET
-        ? mediaStatus.getItemById(periodId) : null;
+        ? mediaStatus.getItemById(periodId)
+        : null;
   }
 
   // CastSession methods.
 
-  /**
-   * Returns whether a cast session is available.
-   */
+  /** Returns whether a cast session is available. */
   public boolean isCastSessionAvailable() {
     return remoteMediaClient != null;
   }
@@ -273,12 +273,6 @@ public final class CastPlayer extends BasePlayer {
   }
 
   // Player implementation.
-
-  @Override
-  @Nullable
-  public AudioComponent getAudioComponent() {
-    return null;
-  }
 
   @Override
   @Nullable
@@ -461,8 +455,10 @@ public final class CastPlayer extends BasePlayer {
     positionMs = positionMs != C.TIME_UNSET ? positionMs : 0;
     if (mediaStatus != null) {
       if (getCurrentWindowIndex() != windowIndex) {
-        remoteMediaClient.queueJumpToItem((int) currentTimeline.getPeriod(windowIndex, period).uid,
-            positionMs, null).setResultCallback(seekResultCallback);
+        remoteMediaClient
+            .queueJumpToItem(
+                (int) currentTimeline.getPeriod(windowIndex, period).uid, positionMs, null)
+            .setResultCallback(seekResultCallback);
       } else {
         remoteMediaClient.seek(positionMs).setResultCallback(seekResultCallback);
       }
@@ -545,7 +541,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  @RepeatMode public int getRepeatMode() {
+  @RepeatMode
+  public int getRepeatMode() {
     return repeatMode.value;
   }
 
@@ -655,6 +652,22 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public long getContentBufferedPosition() {
     return getBufferedPosition();
+  }
+
+  /** This method is not supported and returns {@link AudioAttributes#DEFAULT}. */
+  @Override
+  public AudioAttributes getAudioAttributes() {
+    return AudioAttributes.DEFAULT;
+  }
+
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setVolume(float audioVolume) {}
+
+  /** This method is not supported and returns 1. */
+  @Override
+  public float getVolume() {
+    return 1;
   }
 
   // Internal methods.
@@ -897,7 +910,8 @@ public final class CastPlayer extends BasePlayer {
       long id = mediaTrack.getId();
       int trackType = MimeTypes.getTrackType(mediaTrack.getContentType());
       int rendererIndex = getRendererIndexForTrackType(trackType);
-      if (isTrackActive(id, activeTrackIds) && rendererIndex != C.INDEX_UNSET
+      if (isTrackActive(id, activeTrackIds)
+          && rendererIndex != C.INDEX_UNSET
           && trackSelections[rendererIndex] == null) {
         trackSelections[rendererIndex] = new CastTrackSelection(trackGroups[i]);
       }
@@ -1097,8 +1111,8 @@ public final class CastPlayer extends BasePlayer {
   }
 
   /**
-   * Retrieves the repeat mode from {@code remoteMediaClient} and maps it into a
-   * {@link Player.RepeatMode}.
+   * Retrieves the repeat mode from {@code remoteMediaClient} and maps it into a {@link
+   * Player.RepeatMode}.
    */
   @RepeatMode
   private static int fetchRepeatMode(RemoteMediaClient remoteMediaClient) {
@@ -1238,8 +1252,12 @@ public final class CastPlayer extends BasePlayer {
 
     @Override
     public void onSessionResumeFailed(CastSession castSession, int statusCode) {
-      Log.e(TAG, "Session resume failed. Error code " + statusCode + ": "
-          + CastUtils.getLogString(statusCode));
+      Log.e(
+          TAG,
+          "Session resume failed. Error code "
+              + statusCode
+              + ": "
+              + CastUtils.getLogString(statusCode));
     }
 
     @Override
@@ -1249,8 +1267,12 @@ public final class CastPlayer extends BasePlayer {
 
     @Override
     public void onSessionStartFailed(CastSession castSession, int statusCode) {
-      Log.e(TAG, "Session start failed. Error code " + statusCode + ": "
-          + CastUtils.getLogString(statusCode));
+      Log.e(
+          TAG,
+          "Session start failed. Error code "
+              + statusCode
+              + ": "
+              + CastUtils.getLogString(statusCode));
     }
 
     @Override
@@ -1262,7 +1284,6 @@ public final class CastPlayer extends BasePlayer {
     public void onSessionResuming(CastSession castSession, String s) {
       // Do nothing.
     }
-
   }
 
   private final class SeekResultCallback implements ResultCallback<MediaChannelResult> {
@@ -1274,8 +1295,9 @@ public final class CastPlayer extends BasePlayer {
     public void onResult(MediaChannelResult result) {
       int statusCode = result.getStatus().getStatusCode();
       if (statusCode != CastStatusCodes.SUCCESS && statusCode != CastStatusCodes.REPLACED) {
-        Log.e(TAG, "Seek failed. Error code " + statusCode + ": "
-            + CastUtils.getLogString(statusCode));
+        Log.e(
+            TAG,
+            "Seek failed. Error code " + statusCode + ": " + CastUtils.getLogString(statusCode));
       }
       if (--pendingSeekCount == 0) {
         currentWindowIndex = pendingSeekWindowIndex;

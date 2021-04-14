@@ -78,7 +78,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
-        Player.AudioComponent,
+        ExoPlayer.AudioComponent,
         Player.VideoComponent,
         Player.TextComponent,
         Player.MetadataComponent,
@@ -676,6 +676,7 @@ public class SimpleExoPlayer extends BasePlayer
       Commands additionalPermanentAvailableCommands =
           new Commands.Builder()
               .addAll(
+                  COMMAND_GET_AUDIO_ATTRIBUTES,
                   COMMAND_GET_VOLUME,
                   COMMAND_GET_DEVICE_VOLUME,
                   COMMAND_SET_VOLUME,

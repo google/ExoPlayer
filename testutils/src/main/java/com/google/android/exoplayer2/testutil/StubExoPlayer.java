@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
@@ -419,6 +420,21 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public long getContentBufferedPosition() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public AudioAttributes getAudioAttributes() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVolume(float audioVolume) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public float getVolume() {
     throw new UnsupportedOperationException();
   }
 
