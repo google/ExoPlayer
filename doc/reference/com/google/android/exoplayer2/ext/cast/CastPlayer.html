@@ -1130,6 +1130,8 @@ public&nbsp;int&nbsp;getPlaybackState()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current <a href="../../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1147,6 +1149,8 @@ public&nbsp;int&nbsp;getPlaybackSuppressionReason()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current <a href="../../../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>playback suppression reason</code></a>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackSuppressionReasonChanged-int-"><code>Player.EventListener.onPlaybackSuppressionReasonChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1180,6 +1184,8 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ExoPlayback
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The error, or <code>null</code>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1212,6 +1218,8 @@ public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/ExoPlayback
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether playback will proceed when ready.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayWhenReadyChanged-boolean-int-"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1349,6 +1357,8 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current repeat mode.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onRepeatModeChanged-int-"><code>Player.EventListener.onRepeatModeChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1376,6 +1386,10 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 <pre>public&nbsp;boolean&nbsp;getShuffleModeEnabled()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getShuffleModeEnabled--">Player</a></code></span></div>
 <div class="block">Returns whether shuffling of windows is enabled.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onShuffleModeEnabledChanged-boolean-"><code>Player.EventListener.onShuffleModeEnabledChanged(boolean)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="getCurrentTrackSelections--">
@@ -1386,7 +1400,11 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 <h4>getCurrentTrackSelections</h4>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;getCurrentTrackSelections()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackSelections--">Player</a></code></span></div>
-<div class="block">Returns the current track selections for each renderer.</div>
+<div class="block">Returns the current track selections for each renderer.
+
+ <p>A concrete implementation may include null elements if it has a fixed number of renderer
+ components, wishes to report a TrackSelection for each of them, and has one or more renderer
+ components that is not assigned any selected tracks.</div>
 </li>
 </ul>
 <a name="getCurrentTrackGroups--">
@@ -1398,6 +1416,10 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getCurrentTrackGroups()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackGroups--">Player</a></code></span></div>
 <div class="block">Returns the available track groups.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="getCurrentStaticMetadata--">
@@ -1417,6 +1439,10 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 
  <p>This metadata is considered static in that it comes from the tracks' declared Formats,
  rather than being timed (or dynamic) metadata, which is represented within a metadata track.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onStaticMetadataChanged-java.util.List-"><code>Player.EventListener.onStaticMetadataChanged(List)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="getCurrentTimeline--">
@@ -1428,6 +1454,10 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 <pre>public&nbsp;<a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;getCurrentTimeline()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--">Player</a></code></span></div>
 <div class="block">Returns the current <a href="../../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>. Never null, but may be empty.</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a name="getCurrentPeriodIndex--">
@@ -1547,6 +1577,8 @@ public&nbsp;int&nbsp;getRepeatMode()</pre>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the player is currently loading the source.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsLoadingChanged-boolean-"><code>Player.EventListener.onIsLoadingChanged(boolean)</code></a></dd>
 </dl>
 </li>
 </ul>

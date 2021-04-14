@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":42,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":42,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -212,7 +212,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowShuffleButton-boolean-"><code>setShowShuffleButton(boolean)</code></a>
          <li>Default: false
        </ul>
-   <li><b><code>show_subtitle_button</code></b> - Whether the shuffle button is shown.
+   <li><b><code>show_subtitle_button</code></b> - Whether the subtitle button is shown.
        <ul>
          <li>Corresponding method: <a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowSubtitleButton-boolean-"><code>setShowSubtitleButton(boolean)</code></a>
          <li>Default: false
@@ -657,27 +657,36 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i16" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#onLayout-boolean-int-int-int-int-">onLayout</a></span>&#8203;(boolean&nbsp;changed,
+        int&nbsp;left,
+        int&nbsp;top,
+        int&nbsp;right,
+        int&nbsp;bottom)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#removeVisibilityListener-com.google.android.exoplayer2.ui.StyledPlayerControlView.VisibilityListener-">removeVisibilityListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerControlView.VisibilityListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Removes a <a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView.VisibilityListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setAnimationEnabled-boolean-">setAnimationEnabled</a></span>&#8203;(boolean&nbsp;animationEnabled)</code></th>
 <td class="colLast">
 <div class="block">Sets whether an animation is used to show and hide the playback controls.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setControlDispatcher-com.google.android.exoplayer2.ControlDispatcher-">setControlDispatcher</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2">ControlDispatcher</a>&nbsp;controlDispatcher)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ControlDispatcher.html" title="interface in com.google.android.exoplayer2"><code>ControlDispatcher</code></a>.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setExtraAdGroupMarkers-long:A-boolean:A-">setExtraAdGroupMarkers</a></span>&#8203;(long[]&nbsp;extraAdGroupTimesMs,
                       boolean[]&nbsp;extraPlayedAdGroups)</code></th>
@@ -686,14 +695,14 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
  timeline, if in multi-window mode) and whether each extra ad has been played or not.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setOnFullScreenModeChangedListener-com.google.android.exoplayer2.ui.StyledPlayerControlView.OnFullScreenModeChangedListener-">setOnFullScreenModeChangedListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.OnFullScreenModeChangedListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerControlView.OnFullScreenModeChangedListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets a listener to be called when the fullscreen mode should be changed.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setPlaybackPreparer-com.google.android.exoplayer2.PlaybackPreparer-">setPlaybackPreparer</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/PlaybackPreparer.html" title="interface in com.google.android.exoplayer2">PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
 <td class="colLast">
@@ -702,105 +711,105 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setPlayer-com.google.android.exoplayer2.Player-">setPlayer</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to control.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setProgressUpdateListener-com.google.android.exoplayer2.ui.StyledPlayerControlView.ProgressUpdateListener-">setProgressUpdateListener</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">StyledPlayerControlView.ProgressUpdateListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><code>StyledPlayerControlView.ProgressUpdateListener</code></a>.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setRepeatToggleModes-int-">setRepeatToggleModes</a></span>&#8203;(int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowFastForwardButton-boolean-">setShowFastForwardButton</a></span>&#8203;(boolean&nbsp;showFastForwardButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the fast forward button is shown.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowMultiWindowTimeBar-boolean-">setShowMultiWindowTimeBar</a></span>&#8203;(boolean&nbsp;showMultiWindowTimeBar)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowNextButton-boolean-">setShowNextButton</a></span>&#8203;(boolean&nbsp;showNextButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the next button is shown.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowPreviousButton-boolean-">setShowPreviousButton</a></span>&#8203;(boolean&nbsp;showPreviousButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the previous button is shown.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowRewindButton-boolean-">setShowRewindButton</a></span>&#8203;(boolean&nbsp;showRewindButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the rewind button is shown.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowShuffleButton-boolean-">setShowShuffleButton</a></span>&#8203;(boolean&nbsp;showShuffleButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowSubtitleButton-boolean-">setShowSubtitleButton</a></span>&#8203;(boolean&nbsp;showSubtitleButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the subtitle button is shown.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowTimeoutMs-int-">setShowTimeoutMs</a></span>&#8203;(int&nbsp;showTimeoutMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the playback controls timeout.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setShowVrButton-boolean-">setShowVrButton</a></span>&#8203;(boolean&nbsp;showVrButton)</code></th>
 <td class="colLast">
 <div class="block">Sets whether the VR button is shown.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setTimeBarMinUpdateInterval-int-">setTimeBarMinUpdateInterval</a></span>&#8203;(int&nbsp;minUpdateIntervalMs)</code></th>
 <td class="colLast">
 <div class="block">Sets the minimum interval between time bar position updates.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#setVrButtonListener-android.view.View.OnClickListener-">setVrButtonListener</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/View.OnClickListener.html" title="class or interface in android.view" class="externalLink" target="_top">View.OnClickListener</a>&nbsp;onClickListener)</code></th>
 <td class="colLast">
 <div class="block">Sets listener for the VR button.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/ui/StyledPlayerControlView.html#show--">show</a></span>()</code></th>
 <td class="colLast">
@@ -813,7 +822,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;android.widget.<a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a></h3>
-<code><a href="https://developer.android.com/reference/android/widget/FrameLayout.html#checkLayoutParams-android.view.ViewGroup.LayoutParams-" title="class or interface in android.widget" class="externalLink">checkLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#generateDefaultLayoutParams--" title="class or interface in android.widget" class="externalLink">generateDefaultLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#generateLayoutParams-android.util.AttributeSet-" title="class or interface in android.widget" class="externalLink">generateLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#generateLayoutParams-android.view.ViewGroup.LayoutParams-" title="class or interface in android.widget" class="externalLink">generateLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#getAccessibilityClassName--" title="class or interface in android.widget" class="externalLink">getAccessibilityClassName</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#getConsiderGoneChildrenWhenMeasuring--" title="class or interface in android.widget" class="externalLink">getConsiderGoneChildrenWhenMeasuring</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#getMeasureAllChildren--" title="class or interface in android.widget" class="externalLink">getMeasureAllChildren</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#onLayout-boolean-int-int-int-int-" title="class or interface in android.widget" class="externalLink">onLayout</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#onMeasure-int-int-" title="class or interface in android.widget" class="externalLink">onMeasure</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#setForegroundGravity-int-" title="class or interface in android.widget" class="externalLink">setForegroundGravity</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#setMeasureAllChildren-boolean-" title="class or interface in android.widget" class="externalLink">setMeasureAllChildren</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#shouldDelayChildPressedState--" title="class or interface in android.widget" class="externalLink" target="_top">shouldDelayChildPressedState</a></code></li>
+<code><a href="https://developer.android.com/reference/android/widget/FrameLayout.html#checkLayoutParams-android.view.ViewGroup.LayoutParams-" title="class or interface in android.widget" class="externalLink">checkLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#generateDefaultLayoutParams--" title="class or interface in android.widget" class="externalLink">generateDefaultLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#generateLayoutParams-android.util.AttributeSet-" title="class or interface in android.widget" class="externalLink">generateLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#generateLayoutParams-android.view.ViewGroup.LayoutParams-" title="class or interface in android.widget" class="externalLink">generateLayoutParams</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#getAccessibilityClassName--" title="class or interface in android.widget" class="externalLink">getAccessibilityClassName</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#getConsiderGoneChildrenWhenMeasuring--" title="class or interface in android.widget" class="externalLink">getConsiderGoneChildrenWhenMeasuring</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#getMeasureAllChildren--" title="class or interface in android.widget" class="externalLink">getMeasureAllChildren</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#onMeasure-int-int-" title="class or interface in android.widget" class="externalLink">onMeasure</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#setForegroundGravity-int-" title="class or interface in android.widget" class="externalLink">setForegroundGravity</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#setMeasureAllChildren-boolean-" title="class or interface in android.widget" class="externalLink">setMeasureAllChildren</a>, <a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true#shouldDelayChildPressedState--" title="class or interface in android.widget" class="externalLink" target="_top">shouldDelayChildPressedState</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
@@ -1474,7 +1483,7 @@ public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
 <a name="dispatchMediaKeyEvent-android.view.KeyEvent-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>dispatchMediaKeyEvent</h4>
 <pre>public&nbsp;boolean&nbsp;dispatchMediaKeyEvent&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</pre>
@@ -1485,6 +1494,23 @@ public&nbsp;int&nbsp;getRepeatToggleModes()</pre>
 <dd><code>event</code> - A key event.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the key event was handled.</dd>
+</dl>
+</li>
+</ul>
+<a name="onLayout-boolean-int-int-int-int-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onLayout</h4>
+<pre>protected&nbsp;void&nbsp;onLayout&#8203;(boolean&nbsp;changed,
+                        int&nbsp;left,
+                        int&nbsp;top,
+                        int&nbsp;right,
+                        int&nbsp;bottom)</pre>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/android/widget/FrameLayout.html#onLayout-boolean-int-int-int-int-" title="class or interface in android.widget" class="externalLink">onLayout</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a></code></dd>
 </dl>
 </li>
 </ul>

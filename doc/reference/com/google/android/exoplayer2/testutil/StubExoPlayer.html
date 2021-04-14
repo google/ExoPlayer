@@ -1075,6 +1075,8 @@ public&nbsp;int&nbsp;getPlaybackState()</pre>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackState--">getPlaybackState</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current <a href="../../../../../com/google/android/exoplayer2/Player.State.html" title="annotation in com.google.android.exoplayer2"><code>playback state</code></a>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackStateChanged-int-"><code>Player.EventListener.onPlaybackStateChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1094,6 +1096,8 @@ public&nbsp;int&nbsp;getPlaybackSuppressionReason()</pre>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlaybackSuppressionReason--">getPlaybackSuppressionReason</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current <a href="../../../../../com/google/android/exoplayer2/Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2"><code>playback suppression reason</code></a>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlaybackSuppressionReasonChanged-int-"><code>Player.EventListener.onPlaybackSuppressionReasonChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1133,6 +1137,8 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/ExoPlaybackExc
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayerError--">getPlayerError</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The error, or <code>null</code>.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayerError-com.google.android.exoplayer2.ExoPlaybackException-"><code>Player.EventListener.onPlayerError(ExoPlaybackException)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1738,6 +1744,8 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../../../../../com/google/android/
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getPlayWhenReady--">getPlayWhenReady</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether playback will proceed when ready.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onPlayWhenReadyChanged-boolean-int-"><code>Player.EventListener.onPlayWhenReadyChanged(boolean, int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1773,6 +1781,8 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../../../../../com/google/android/
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getRepeatMode--">getRepeatMode</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The current repeat mode.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onRepeatModeChanged-int-"><code>Player.EventListener.onRepeatModeChanged(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1822,6 +1832,8 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../../../../../com/google/android/
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getShuffleModeEnabled--">getShuffleModeEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onShuffleModeEnabledChanged-boolean-"><code>Player.EventListener.onShuffleModeEnabledChanged(boolean)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1839,6 +1851,8 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="../../../../../com/google/android/
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#isLoading--">isLoading</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether the player is currently loading the source.</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onIsLoadingChanged-boolean-"><code>Player.EventListener.onIsLoadingChanged(boolean)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2047,6 +2061,8 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackGroups--">getCurrentTrackGroups</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTracksChanged-com.google.android.exoplayer2.source.TrackGroupArray-com.google.android.exoplayer2.trackselection.TrackSelectionArray-"><code>Player.EventListener.onTracksChanged(TrackGroupArray, TrackSelectionArray)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2058,7 +2074,11 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <h4>getCurrentTrackSelections</h4>
 <pre>public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection/TrackSelectionArray.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionArray</a>&nbsp;getCurrentTrackSelections()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackSelections--">Player</a></code></span></div>
-<div class="block">Returns the current track selections for each renderer.</div>
+<div class="block">Returns the current track selections for each renderer.
+
+ <p>A concrete implementation may include null elements if it has a fixed number of renderer
+ components, wishes to report a TrackSelection for each of them, and has one or more renderer
+ components that is not assigned any selected tracks.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTrackSelections--">getCurrentTrackSelections</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
@@ -2085,6 +2105,8 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentStaticMetadata--">getCurrentStaticMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onStaticMetadataChanged-java.util.List-"><code>Player.EventListener.onStaticMetadataChanged(List)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2100,6 +2122,8 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/Player.html#getCurrentTimeline--">getCurrentTimeline</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onTimelineChanged-com.google.android.exoplayer2.Timeline-int-"><code>Player.EventListener.onTimelineChanged(Timeline, int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -2413,7 +2437,8 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/trackselection
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#experimentalIsSleepingForOffload--">experimentalIsSleepingForOffload</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-"><code>ExoPlayer.experimentalSetOffloadSchedulingEnabled(boolean)</code></a></dd>
+<dd><a href="../../../../../com/google/android/exoplayer2/ExoPlayer.html#experimentalSetOffloadSchedulingEnabled-boolean-"><code>ExoPlayer.experimentalSetOffloadSchedulingEnabled(boolean)</code></a>, 
+<a href="../../../../../com/google/android/exoplayer2/Player.EventListener.html#onExperimentalSleepingForOffloadChanged-boolean-"><code>Player.EventListener.onExperimentalSleepingForOffloadChanged(boolean)</code></a></dd>
 </dl>
 </li>
 </ul>

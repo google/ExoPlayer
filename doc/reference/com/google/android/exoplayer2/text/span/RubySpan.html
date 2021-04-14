@@ -51,7 +51,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/text/span/HorizontalTextInVerticalContextSpan.html" title="class in com.google.android.exoplayer2.text.span"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.Position.html" title="annotation in com.google.android.exoplayer2.text.span"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/text/span/SpanUtil.html" title="class in com.google.android.exoplayer2.text.span"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/text/span/RubySpan.html" target="_top">Frames</a></li>
@@ -84,7 +84,7 @@ var pathtoroot = "../../../../../../";loadScripts(document, 'script');</script>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>
@@ -139,29 +139,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="summary">
 <ul class="blockList">
 <li class="blockList">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<ul class="blockList">
-<li class="blockList"><a name="nested.class.summary">
-<!--   -->
-</a>
-<h3>Nested Class Summary</h3>
-<table class="memberSummary" summary="Nested Class Summary table, listing nested classes, and an explanation">
-<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Class</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static interface&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.Position.html" title="annotation in com.google.android.exoplayer2.text.span">RubySpan.Position</a></span></code></th>
-<td class="colLast">
-<div class="block">The possible positions of the ruby text relative to the base text.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
 <!-- =========== FIELD SUMMARY =========== -->
 <ul class="blockList">
 <li class="blockList"><a name="field.summary">
@@ -183,27 +160,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.html#POSITION_OVER">POSITION_OVER</a></span></code></th>
-<td class="colLast">
-<div class="block">The ruby text should be positioned above the base text.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.html#POSITION_UNDER">POSITION_UNDER</a></span></code></th>
-<td class="colLast">
-<div class="block">The ruby text should be positioned below the base text.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.html#POSITION_UNKNOWN">POSITION_UNKNOWN</a></span></code></th>
-<td class="colLast">
-<div class="block">The ruby position is unknown.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.html#rubyText">rubyText</a></span></code></th>
 <td class="colLast">
@@ -260,52 +216,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a name="POSITION_UNKNOWN">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>POSITION_UNKNOWN</h4>
-<pre>public static final&nbsp;int POSITION_UNKNOWN</pre>
-<div class="block">The ruby position is unknown.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.text.span.RubySpan.POSITION_UNKNOWN">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="POSITION_OVER">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>POSITION_OVER</h4>
-<pre>public static final&nbsp;int POSITION_OVER</pre>
-<div class="block">The ruby text should be positioned above the base text.
-
- <p>For vertical text it should be positioned to the right, same as CSS's <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/ruby-position">ruby-position</a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.text.span.RubySpan.POSITION_OVER">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a name="POSITION_UNDER">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>POSITION_UNDER</h4>
-<pre>public static final&nbsp;int POSITION_UNDER</pre>
-<div class="block">The ruby text should be positioned below the base text.
-
- <p>For vertical text it should be positioned to the left, same as CSS's <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/ruby-position">ruby-position</a>.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.text.span.RubySpan.POSITION_UNDER">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
 <a name="rubyText">
 <!--   -->
 </a>
@@ -322,7 +232,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockListLast">
 <li class="blockList">
 <h4>position</h4>
-<pre><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
+<pre><a href="../../../../../../com/google/android/exoplayer2/text/span/TextAnnotation.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
 public final&nbsp;int position</pre>
 <div class="block">The position of the ruby text relative to the base text.</div>
 </li>
@@ -342,7 +252,7 @@ public final&nbsp;int position</pre>
 <li class="blockList">
 <h4>RubySpan</h4>
 <pre>public&nbsp;RubySpan&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rubyText,
-                <a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
+                <a href="../../../../../../com/google/android/exoplayer2/text/span/TextAnnotation.Position.html" title="annotation in com.google.android.exoplayer2.text.span">@Position</a>
                 int&nbsp;position)</pre>
 </li>
 </ul>
@@ -374,7 +284,7 @@ public final&nbsp;int position</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../../com/google/android/exoplayer2/text/span/HorizontalTextInVerticalContextSpan.html" title="class in com.google.android.exoplayer2.text.span"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../../com/google/android/exoplayer2/text/span/RubySpan.Position.html" title="annotation in com.google.android.exoplayer2.text.span"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../../com/google/android/exoplayer2/text/span/SpanUtil.html" title="class in com.google.android.exoplayer2.text.span"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../../index.html?com/google/android/exoplayer2/text/span/RubySpan.html" target="_top">Frames</a></li>
@@ -401,7 +311,7 @@ public final&nbsp;int position</pre>
 <div>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#methods.inherited.from.class.java.lang.Object">Method</a></li>

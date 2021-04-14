@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":42,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":42,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -398,12 +398,19 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setAllowPreparation-boolean-">setAllowPreparation</a></span>&#8203;(boolean&nbsp;allowPreparation)</code></th>
+<td class="colLast">
+<div class="block">Sets whether the next call to <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller, com.google.android.exoplayer2.upstream.TransferListener)</code></a> is allowed to finish.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-">setNewSourceInfo</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline)</code></th>
 <td class="colLast">
 <div class="block">Sets a new timeline.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setNewSourceInfo-com.google.android.exoplayer2.Timeline-boolean-">setNewSourceInfo</a></span>&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline,
                 boolean&nbsp;sendManifestLoadEvents)</code></th>
@@ -545,6 +552,22 @@ extends <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSo
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="setAllowPreparation-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAllowPreparation</h4>
+<pre>public&nbsp;void&nbsp;setAllowPreparation&#8203;(boolean&nbsp;allowPreparation)</pre>
+<div class="block">Sets whether the next call to <a href="../../../../../com/google/android/exoplayer2/source/BaseMediaSource.html#prepareSource-com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller-com.google.android.exoplayer2.upstream.TransferListener-"><code>BaseMediaSource.prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller, com.google.android.exoplayer2.upstream.TransferListener)</code></a> is allowed to finish. If not allowed, a
+ later call to this method with <code>allowPreparation</code> set to true will finish the
+ preparation.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>allowPreparation</code> - Whether preparation is allowed to finish.</dd>
+</dl>
+</li>
+</ul>
 <a name="getTimeline--">
 <!--   -->
 </a>
@@ -741,7 +764,9 @@ public&nbsp;<a href="../../../../../com/google/android/exoplayer2/Timeline.html"
 <pre>public&nbsp;void&nbsp;setNewSourceInfo&#8203;(<a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline,
                              boolean&nbsp;sendManifestLoadEvents)</pre>
 <div class="block">Sets a new timeline. If the source is already prepared, this triggers a source info refresh
- message being sent to the listener.</div>
+ message being sent to the listener.
+
+ <p>Must only be called if preparation is <a href="../../../../../com/google/android/exoplayer2/testutil/FakeMediaSource.html#setAllowPreparation-boolean-"><code>allowed</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>newTimeline</code> - The new <a href="../../../../../com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.</dd>
