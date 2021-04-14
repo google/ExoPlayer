@@ -20,6 +20,9 @@
     *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
         mode) when possible
         ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
+*   DASH:
+    *   Parse `forced_subtitle` role from DASH manifests
+        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
 *   HLS:
     *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
         ([#8764](https://github.com/google/ExoPlayer/pull/8764)).
