@@ -1489,7 +1489,7 @@ public interface Player {
   int getPlaybackSuppressionReason();
 
   /**
-   * Returns whether the player is playing, i.e. {@link #getContentPosition()} is advancing.
+   * Returns whether the player is playing, i.e. {@link #getCurrentPosition()} is advancing.
    *
    * <p>If {@code false}, then at least one of the following is true:
    *
