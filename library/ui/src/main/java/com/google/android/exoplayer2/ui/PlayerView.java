@@ -295,6 +295,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   @Nullable private final AspectRatioFrameLayout contentFrame;
   @Nullable private final View shutterView;
   @Nullable private final View surfaceView;
+  private final boolean surfaceViewIgnoresVideoAspectRatio;
   @Nullable private final ImageView artworkView;
   @Nullable private final SubtitleView subtitleView;
   @Nullable private final View bufferingView;
@@ -339,6 +340,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       contentFrame = null;
       shutterView = null;
       surfaceView = null;
+      surfaceViewIgnoresVideoAspectRatio = false;
       artworkView = null;
       subtitleView = null;
       bufferingView = null;
@@ -413,6 +415,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     }
 
     // Create a surface view and insert it into the content frame, if there is one.
+    boolean surfaceViewIgnoresVideoAspectRatio = false;
     if (contentFrame != null && surfaceType != SURFACE_TYPE_NONE) {
       ViewGroup.LayoutParams params =
           new ViewGroup.LayoutParams(
@@ -425,6 +428,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
           SphericalGLSurfaceView sphericalGLSurfaceView = new SphericalGLSurfaceView(context);
           sphericalGLSurfaceView.setSingleTapListener(componentListener);
           surfaceView = sphericalGLSurfaceView;
+          surfaceViewIgnoresVideoAspectRatio = true;
           break;
         case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
           surfaceView = new VideoDecoderGLSurfaceView(context);
@@ -438,6 +442,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
     } else {
       surfaceView = null;
     }
+    this.surfaceViewIgnoresVideoAspectRatio = surfaceViewIgnoresVideoAspectRatio;
 
     // Ad overlay frame layout.
     adOverlayFrameLayout = findViewById(R.id.exo_ad_overlay);
@@ -1178,22 +1183,16 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Called when there's a change in the aspect ratio of the content being displayed. The default
-   * implementation sets the aspect ratio of the content frame to that of the content, unless the
-   * content view is a {@link SphericalGLSurfaceView} in which case the frame's aspect ratio is
-   * cleared.
+   * Called when there's a change in the desired aspect ratio of the content frame. The default
+   * implementation sets the aspect ratio of the content frame to the specified value.
    *
-   * @param contentAspectRatio The aspect ratio of the content.
    * @param contentFrame The content frame, or {@code null}.
-   * @param contentView The view that holds the content being displayed, or {@code null}.
+   * @param aspectRatio The aspect ratio to apply.
    */
   protected void onContentAspectRatioChanged(
-      float contentAspectRatio,
-      @Nullable AspectRatioFrameLayout contentFrame,
-      @Nullable View contentView) {
+      @Nullable AspectRatioFrameLayout contentFrame, float aspectRatio) {
     if (contentFrame != null) {
-      contentFrame.setAspectRatio(
-          contentView instanceof SphericalGLSurfaceView ? 0 : contentAspectRatio);
+      contentFrame.setAspectRatio(aspectRatio);
     }
   }
 
@@ -1366,7 +1365,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       int drawableHeight = drawable.getIntrinsicHeight();
       if (drawableWidth > 0 && drawableHeight > 0) {
         float artworkAspectRatio = (float) drawableWidth / drawableHeight;
-        onContentAspectRatioChanged(artworkAspectRatio, contentFrame, artworkView);
+        onContentAspectRatioChanged(contentFrame, artworkAspectRatio);
         artworkView.setImageDrawable(drawable);
         artworkView.setVisibility(VISIBLE);
         return true;
@@ -1542,7 +1541,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         applyTextureViewRotation((TextureView) surfaceView, textureViewRotation);
       }
 
-      onContentAspectRatioChanged(videoAspectRatio, contentFrame, surfaceView);
+      onContentAspectRatioChanged(
+          contentFrame, surfaceViewIgnoresVideoAspectRatio ? 0 : videoAspectRatio);
     }
 
     @Override
