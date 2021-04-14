@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
@@ -435,6 +436,11 @@ public class StubExoPlayer extends BasePlayer implements ExoPlayer {
 
   @Override
   public float getVolume() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<Cue> getCurrentCues() {
     throw new UnsupportedOperationException();
   }
 

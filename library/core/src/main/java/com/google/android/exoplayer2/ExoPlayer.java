@@ -34,6 +34,8 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
+import com.google.android.exoplayer2.text.Cue;
+import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -217,6 +219,27 @@ public interface ExoPlayer extends Player {
 
     /** Returns whether skipping silences in the audio stream is enabled. */
     boolean getSkipSilenceEnabled();
+  }
+
+  /** The text component of an {@link ExoPlayer}. */
+  interface TextComponent {
+
+    /**
+     * Registers an output to receive text events.
+     *
+     * @param listener The output to register.
+     */
+    void addTextOutput(TextOutput listener);
+
+    /**
+     * Removes a text output.
+     *
+     * @param listener The output to remove.
+     */
+    void removeTextOutput(TextOutput listener);
+
+    /** Returns the current {@link Cue Cues}. This list may be empty. */
+    List<Cue> getCurrentCues();
   }
 
   /** The metadata component of an {@link ExoPlayer}. */
@@ -579,6 +602,10 @@ public interface ExoPlayer extends Player {
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
   AudioComponent getAudioComponent();
+
+  /** Returns the component of this player for text output, or null if text is not supported. */
+  @Nullable
+  TextComponent getTextComponent();
 
   /**
    * Returns the component of this player for metadata output, or null if metadata is not supported.

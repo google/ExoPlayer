@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -1000,6 +1001,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
   @Override
   public float getVolume() {
     return 1;
+  }
+
+  /** This method is not supported and returns an empty list. */
+  @Override
+  public ImmutableList<Cue> getCurrentCues() {
+    return ImmutableList.of();
   }
 
   private int getCurrentWindowIndexInternal() {

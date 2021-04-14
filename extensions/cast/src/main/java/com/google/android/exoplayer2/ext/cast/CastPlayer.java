@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.Assertions;
@@ -55,7 +56,7 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient.MediaChannelResult;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -277,12 +278,6 @@ public final class CastPlayer extends BasePlayer {
   @Override
   @Nullable
   public VideoComponent getVideoComponent() {
-    return null;
-  }
-
-  @Override
-  @Nullable
-  public TextComponent getTextComponent() {
     return null;
   }
 
@@ -562,9 +557,9 @@ public final class CastPlayer extends BasePlayer {
   }
 
   @Override
-  public List<Metadata> getCurrentStaticMetadata() {
+  public ImmutableList<Metadata> getCurrentStaticMetadata() {
     // CastPlayer does not currently support metadata.
-    return Collections.emptyList();
+    return ImmutableList.of();
   }
 
   @Override
@@ -662,6 +657,12 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public float getVolume() {
     return 1;
+  }
+
+  /** This method is not supported and returns an empty list. */
+  @Override
+  public ImmutableList<Cue> getCurrentCues() {
+    return ImmutableList.of();
   }
 
   // Internal methods.

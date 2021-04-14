@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -56,7 +58,6 @@ import com.google.android.exoplayer2.metadata.flac.PictureFrame;
 import com.google.android.exoplayer2.metadata.id3.ApicFrame;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
@@ -562,7 +563,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
       oldPlayer.removeListener(componentListener);
       @Nullable Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
       if (oldVideoComponent != null) {
-        oldVideoComponent.removeVideoListener(componentListener);
         if (surfaceView instanceof TextureView) {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
@@ -570,10 +570,6 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
-      }
-      @Nullable Player.TextComponent oldTextComponent = oldPlayer.getTextComponent();
-      if (oldTextComponent != null) {
-        oldTextComponent.removeTextOutput(componentListener);
       }
     }
     if (subtitleView != null) {
@@ -598,12 +594,8 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
         }
         newVideoComponent.addVideoListener(componentListener);
       }
-      @Nullable Player.TextComponent newTextComponent = player.getTextComponent();
-      if (newTextComponent != null) {
-        newTextComponent.addTextOutput(componentListener);
-        if (subtitleView != null) {
-          subtitleView.setCues(newTextComponent.getCurrentCues());
-        }
+      if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
+        subtitleView.setCues(player.getCurrentCues());
       }
       player.addListener(componentListener);
       maybeShowController(false);
@@ -1491,8 +1483,7 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   private final class ComponentListener
-      implements Player.EventListener,
-          TextOutput,
+      implements Player.Listener,
           VideoListener,
           OnLayoutChangeListener,
           SingleTapListener,

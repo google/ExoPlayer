@@ -80,7 +80,7 @@ public class SimpleExoPlayer extends BasePlayer
     implements ExoPlayer,
         ExoPlayer.AudioComponent,
         Player.VideoComponent,
-        Player.TextComponent,
+        ExoPlayer.TextComponent,
         ExoPlayer.MetadataComponent,
         Player.DeviceComponent {
 

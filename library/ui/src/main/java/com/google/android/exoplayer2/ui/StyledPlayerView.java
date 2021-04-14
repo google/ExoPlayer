@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ui;
 
+import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.annotation.SuppressLint;
@@ -571,7 +572,6 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       oldPlayer.removeListener(componentListener);
       @Nullable Player.VideoComponent oldVideoComponent = oldPlayer.getVideoComponent();
       if (oldVideoComponent != null) {
-        oldVideoComponent.removeVideoListener(componentListener);
         if (surfaceView instanceof TextureView) {
           oldVideoComponent.clearVideoTextureView((TextureView) surfaceView);
         } else if (surfaceView instanceof SphericalGLSurfaceView) {
@@ -579,10 +579,6 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         } else if (surfaceView instanceof SurfaceView) {
           oldVideoComponent.clearVideoSurfaceView((SurfaceView) surfaceView);
         }
-      }
-      @Nullable Player.TextComponent oldTextComponent = oldPlayer.getTextComponent();
-      if (oldTextComponent != null) {
-        oldTextComponent.removeTextOutput(componentListener);
       }
     }
     if (subtitleView != null) {
@@ -607,12 +603,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         }
         newVideoComponent.addVideoListener(componentListener);
       }
-      @Nullable Player.TextComponent newTextComponent = player.getTextComponent();
-      if (newTextComponent != null) {
-        newTextComponent.addTextOutput(componentListener);
-        if (subtitleView != null) {
-          subtitleView.setCues(newTextComponent.getCurrentCues());
-        }
+      if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
+        subtitleView.setCues(player.getCurrentCues());
       }
       player.addListener(componentListener);
       maybeShowController(false);

@@ -206,27 +206,6 @@ public interface Player {
     void clearVideoTextureView(@Nullable TextureView textureView);
   }
 
-  /** The text component of a {@link Player}. */
-  interface TextComponent {
-
-    /**
-     * Registers an output to receive text events.
-     *
-     * @param listener The output to register.
-     */
-    void addTextOutput(TextOutput listener);
-
-    /**
-     * Removes a text output.
-     *
-     * @param listener The output to remove.
-     */
-    void removeTextOutput(TextOutput listener);
-
-    /** Returns the current {@link Cue Cues}. This list may be empty. */
-    List<Cue> getCurrentCues();
-  }
-
   /** The device component of a {@link Player}. */
   interface DeviceComponent {
 
@@ -1151,10 +1130,6 @@ public interface Player {
   @Nullable
   VideoComponent getVideoComponent();
 
-  /** Returns the component of this player for text output, or null if text is not supported. */
-  @Nullable
-  TextComponent getTextComponent();
-
   /** Returns the component of this player for playback device, or null if it's not supported. */
   @Nullable
   DeviceComponent getDeviceComponent();
@@ -1832,4 +1807,7 @@ public interface Player {
    * @return The linear gain applied to all audio channels.
    */
   float getVolume();
+
+  /** Returns the current {@link Cue Cues}. This list may be empty. */
+  List<Cue> getCurrentCues();
 }
