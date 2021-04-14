@@ -63,7 +63,6 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode;
-import com.google.android.exoplayer2.ui.spherical.SingleTapListener;
 import com.google.android.exoplayer2.ui.spherical.SphericalGLSurfaceView;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
@@ -433,9 +432,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
           surfaceView = new TextureView(context);
           break;
         case SURFACE_TYPE_SPHERICAL_GL_SURFACE_VIEW:
-          SphericalGLSurfaceView sphericalGLSurfaceView = new SphericalGLSurfaceView(context);
-          sphericalGLSurfaceView.setSingleTapListener(componentListener);
-          surfaceView = sphericalGLSurfaceView;
+          surfaceView = new SphericalGLSurfaceView(context);
           surfaceViewIgnoresVideoAspectRatio = true;
           break;
         case SURFACE_TYPE_VIDEO_DECODER_GL_SURFACE_VIEW:
@@ -446,6 +443,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
           break;
       }
       surfaceView.setLayoutParams(params);
+      surfaceView.setOnClickListener(componentListener);
       contentFrame.addView(surfaceView, 0);
     } else {
       surfaceView = null;
@@ -1509,7 +1507,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
           TextOutput,
           VideoListener,
           OnLayoutChangeListener,
-          SingleTapListener,
+          OnClickListener,
           StyledPlayerControlView.VisibilityListener {
 
     private final Period period;
@@ -1636,11 +1634,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       applyTextureViewRotation((TextureView) view, textureViewRotation);
     }
 
-    // SingleTapListener implementation
+    // OnClickListener implementation
 
     @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-      return toggleControllerVisibility();
+    public void onClick(View view) {
+      toggleControllerVisibility();
     }
 
     // StyledPlayerControlView.VisibilityListener implementation
