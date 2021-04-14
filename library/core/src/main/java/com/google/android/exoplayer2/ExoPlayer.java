@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -216,6 +217,24 @@ public interface ExoPlayer extends Player {
 
     /** Returns whether skipping silences in the audio stream is enabled. */
     boolean getSkipSilenceEnabled();
+  }
+
+  /** The metadata component of an {@link ExoPlayer}. */
+  interface MetadataComponent {
+
+    /**
+     * Adds a {@link MetadataOutput} to receive metadata.
+     *
+     * @param output The output to register.
+     */
+    void addMetadataOutput(MetadataOutput output);
+
+    /**
+     * Removes a {@link MetadataOutput}.
+     *
+     * @param output The output to remove.
+     */
+    void removeMetadataOutput(MetadataOutput output);
   }
 
   /**
@@ -560,6 +579,12 @@ public interface ExoPlayer extends Player {
   /** Returns the component of this player for audio output, or null if audio is not supported. */
   @Nullable
   AudioComponent getAudioComponent();
+
+  /**
+   * Returns the component of this player for metadata output, or null if metadata is not supported.
+   */
+  @Nullable
+  MetadataComponent getMetadataComponent();
 
   /**
    * Adds a listener to receive audio offload events.

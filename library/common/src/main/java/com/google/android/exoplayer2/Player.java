@@ -227,24 +227,6 @@ public interface Player {
     List<Cue> getCurrentCues();
   }
 
-  /** The metadata component of a {@link Player}. */
-  interface MetadataComponent {
-
-    /**
-     * Adds a {@link MetadataOutput} to receive metadata.
-     *
-     * @param output The output to register.
-     */
-    void addMetadataOutput(MetadataOutput output);
-
-    /**
-     * Removes a {@link MetadataOutput}.
-     *
-     * @param output The output to remove.
-     */
-    void removeMetadataOutput(MetadataOutput output);
-  }
-
   /** The device component of a {@link Player}. */
   interface DeviceComponent {
 
@@ -1172,12 +1154,6 @@ public interface Player {
   /** Returns the component of this player for text output, or null if text is not supported. */
   @Nullable
   TextComponent getTextComponent();
-
-  /**
-   * Returns the component of this player for metadata output, or null if metadata is not supported.
-   */
-  @Nullable
-  MetadataComponent getMetadataComponent();
 
   /** Returns the component of this player for playback device, or null if it's not supported. */
   @Nullable

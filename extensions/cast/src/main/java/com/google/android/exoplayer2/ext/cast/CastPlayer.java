@@ -288,12 +288,6 @@ public final class CastPlayer extends BasePlayer {
 
   @Override
   @Nullable
-  public MetadataComponent getMetadataComponent() {
-    return null;
-  }
-
-  @Override
-  @Nullable
   public DeviceComponent getDeviceComponent() {
     // TODO(b/151792305): Implement the component.
     return null;
