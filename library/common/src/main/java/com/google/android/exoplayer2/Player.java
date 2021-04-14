@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import android.os.Bundle;
 import android.os.Looper;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -529,7 +530,7 @@ public interface Player {
   }
 
   /** Position info describing a playback position involved in a discontinuity. */
-  final class PositionInfo {
+  final class PositionInfo implements Bundleable {
 
     /**
      * The UID of the window, or {@code null}, if the timeline is {@link Timeline#isEmpty() empty}.
@@ -613,6 +614,75 @@ public interface Player {
           contentPositionMs,
           adGroupIndex,
           adIndexInAdGroup);
+    }
+
+    // Bundleable implementation.
+    @Documented
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({
+      FIELD_WINDOW_INDEX,
+      FIELD_PERIOD_INDEX,
+      FIELD_POSITION_MS,
+      FIELD_CONTENT_POSITION_MS,
+      FIELD_AD_GROUP_INDEX,
+      FIELD_AD_INDEX_IN_AD_GROUP
+    })
+    private @interface FieldNumber {}
+
+    private static final int FIELD_WINDOW_INDEX = 0;
+    private static final int FIELD_PERIOD_INDEX = 1;
+    private static final int FIELD_POSITION_MS = 2;
+    private static final int FIELD_CONTENT_POSITION_MS = 3;
+    private static final int FIELD_AD_GROUP_INDEX = 4;
+    private static final int FIELD_AD_INDEX_IN_AD_GROUP = 5;
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>It omits the {@link #windowUid} and {@link #periodUid} fields. The {@link #windowUid} and
+     * {@link #periodUid} of an instance restored by {@link #CREATOR} will always be {@code null}.
+     */
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt(keyForField(FIELD_WINDOW_INDEX), windowIndex);
+      bundle.putInt(keyForField(FIELD_PERIOD_INDEX), periodIndex);
+      bundle.putLong(keyForField(FIELD_POSITION_MS), positionMs);
+      bundle.putLong(keyForField(FIELD_CONTENT_POSITION_MS), contentPositionMs);
+      bundle.putInt(keyForField(FIELD_AD_GROUP_INDEX), adGroupIndex);
+      bundle.putInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), adIndexInAdGroup);
+      return bundle;
+    }
+
+    /** Object that can restore {@link PositionInfo} from a {@link Bundle}. */
+    public static final Creator<PositionInfo> CREATOR = PositionInfo::fromBundle;
+
+    private static PositionInfo fromBundle(Bundle bundle) {
+      int windowIndex =
+          bundle.getInt(keyForField(FIELD_WINDOW_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      int periodIndex =
+          bundle.getInt(keyForField(FIELD_PERIOD_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      long positionMs =
+          bundle.getLong(keyForField(FIELD_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
+      long contentPositionMs =
+          bundle.getLong(keyForField(FIELD_CONTENT_POSITION_MS), /* defaultValue= */ C.TIME_UNSET);
+      int adGroupIndex =
+          bundle.getInt(keyForField(FIELD_AD_GROUP_INDEX), /* defaultValue= */ C.INDEX_UNSET);
+      int adIndexInAdGroup =
+          bundle.getInt(keyForField(FIELD_AD_INDEX_IN_AD_GROUP), /* defaultValue= */ C.INDEX_UNSET);
+      return new PositionInfo(
+          /* windowUid= */ null,
+          windowIndex,
+          /* periodUid= */ null,
+          periodIndex,
+          positionMs,
+          contentPositionMs,
+          adGroupIndex,
+          adIndexInAdGroup);
+    }
+
+    private static String keyForField(@FieldNumber int field) {
+      return Integer.toString(field, Character.MAX_RADIX);
     }
   }
 
