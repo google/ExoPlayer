@@ -410,7 +410,10 @@ import java.util.Map;
     stopUpdatingAdProgress();
     imaAdInfo = null;
     pendingAdLoadError = null;
-    adPlaybackState = new AdPlaybackState(adsId);
+    // No more ads will play once the loader is released, so mark all ad groups as skipped.
+    for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
+      adPlaybackState = adPlaybackState.withSkippedAdGroup(i);
+    }
     updateAdPlaybackState();
   }
 

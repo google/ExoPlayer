@@ -31,6 +31,8 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
+import com.google.android.exoplayer2.text.span.TextAnnotation;
+import com.google.android.exoplayer2.text.span.TextEmphasisSpan;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
@@ -186,17 +188,26 @@ import java.util.regex.Pattern;
     } else if (span instanceof RubySpan) {
       RubySpan rubySpan = (RubySpan) span;
       switch (rubySpan.position) {
-        case RubySpan.POSITION_OVER:
+        case TextAnnotation.POSITION_BEFORE:
           return "<ruby style='ruby-position:over;'>";
-        case RubySpan.POSITION_UNDER:
+        case TextAnnotation.POSITION_AFTER:
           return "<ruby style='ruby-position:under;'>";
-        case RubySpan.POSITION_UNKNOWN:
+        case TextAnnotation.POSITION_UNKNOWN:
           return "<ruby style='ruby-position:unset;'>";
         default:
           return null;
       }
     } else if (span instanceof UnderlineSpan) {
       return "<u>";
+    } else if (span instanceof TextEmphasisSpan) {
+      TextEmphasisSpan textEmphasisSpan = (TextEmphasisSpan) span;
+      String style = getTextEmphasisStyle(textEmphasisSpan.markShape, textEmphasisSpan.markFill);
+      String position = getTextEmphasisPosition(textEmphasisSpan.position);
+      return Util.formatInvariant(
+          "<span style='-webkit-text-emphasis-style:%1$s;text-emphasis-style:%1$s;"
+              + "-webkit-text-emphasis-position:%2$s;text-emphasis-position:%2$s;"
+              + "display:inline-block;'>",
+          style, position);
     } else {
       return null;
     }
@@ -209,7 +220,8 @@ import java.util.regex.Pattern;
         || span instanceof BackgroundColorSpan
         || span instanceof HorizontalTextInVerticalContextSpan
         || span instanceof AbsoluteSizeSpan
-        || span instanceof RelativeSizeSpan) {
+        || span instanceof RelativeSizeSpan
+        || span instanceof TextEmphasisSpan) {
       return "</span>";
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
@@ -230,6 +242,52 @@ import java.util.regex.Pattern;
       return "</u>";
     }
     return null;
+  }
+
+  private static String getTextEmphasisStyle(
+      @TextEmphasisSpan.MarkShape int shape, @TextEmphasisSpan.MarkFill int fill) {
+    StringBuilder builder = new StringBuilder();
+    switch (fill) {
+      case TextEmphasisSpan.MARK_FILL_FILLED:
+        builder.append("filled ");
+        break;
+      case TextEmphasisSpan.MARK_FILL_OPEN:
+        builder.append("open ");
+        break;
+      case TextEmphasisSpan.MARK_FILL_UNKNOWN:
+      default:
+        break;
+    }
+
+    switch (shape) {
+      case TextEmphasisSpan.MARK_SHAPE_CIRCLE:
+        builder.append("circle");
+        break;
+      case TextEmphasisSpan.MARK_SHAPE_DOT:
+        builder.append("dot");
+        break;
+      case TextEmphasisSpan.MARK_SHAPE_SESAME:
+        builder.append("sesame");
+        break;
+      case TextEmphasisSpan.MARK_SHAPE_NONE:
+        builder.append("none");
+        break;
+      default:
+        builder.append("unset");
+        break;
+    }
+    return builder.toString();
+  }
+
+  private static String getTextEmphasisPosition(@TextAnnotation.Position int position) {
+    switch (position) {
+      case TextAnnotation.POSITION_AFTER:
+        return "under left";
+      case TextAnnotation.POSITION_UNKNOWN:
+      case TextAnnotation.POSITION_BEFORE:
+      default:
+        return "over right";
+    }
   }
 
   private static Transition getOrCreate(SparseArray<Transition> transitions, int key) {

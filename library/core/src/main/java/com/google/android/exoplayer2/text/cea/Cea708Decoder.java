@@ -41,6 +41,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
@@ -798,9 +799,7 @@ public final class Cea708Decoder extends CeaDecoder {
         }
       }
     }
-    Collections.sort(
-        displayCueInfos,
-        (thisInfo, thatInfo) -> Integer.compare(thisInfo.priority, thatInfo.priority));
+    Collections.sort(displayCueInfos, Cea708CueInfo.LEAST_IMPORTANT_FIRST);
     List<Cue> displayCues = new ArrayList<>(displayCueInfos.size());
     for (int i = 0; i < displayCueInfos.size(); i++) {
       displayCues.add(displayCueInfos.get(i).cue);
@@ -1321,9 +1320,22 @@ public final class Cea708Decoder extends CeaDecoder {
   /** A {@link Cue} for CEA-708. */
   private static final class Cea708CueInfo {
 
+    /**
+     * Sorts cue infos in order of ascending {@link Cea708CueInfo#priority} (which is descending by
+     * numeric value).
+     */
+    private static final Comparator<Cea708CueInfo> LEAST_IMPORTANT_FIRST =
+        (thisInfo, thatInfo) -> Integer.compare(thatInfo.priority, thisInfo.priority);
+
     public final Cue cue;
 
-    /** The priority of the cue box. */
+    /**
+     * The priority of the cue box. Low values are higher priority.
+     *
+     * <p>If cue boxes overlap, higher priority cue boxes are drawn on top.
+     *
+     * <p>See 8.4.2 of the CEA-708B spec.
+     */
     public final int priority;
 
     /**

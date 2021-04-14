@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -86,6 +87,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
   private final DrmSessionManager drmSessionManager;
 
+  private boolean preparationAllowed;
   private @MonotonicNonNull Timeline timeline;
   private boolean preparedSource;
   private boolean releasedSource;
@@ -154,6 +156,22 @@ public class FakeMediaSource extends BaseMediaSource {
     this.createdMediaPeriods = new ArrayList<>();
     this.drmSessionManager = drmSessionManager;
     this.trackDataFactory = trackDataFactory;
+    preparationAllowed = true;
+  }
+
+  /**
+   * Sets whether the next call to {@link #prepareSource} is allowed to finish. If not allowed, a
+   * later call to this method with {@code allowPreparation} set to true will finish the
+   * preparation.
+   *
+   * @param allowPreparation Whether preparation is allowed to finish.
+   */
+  public synchronized void setAllowPreparation(boolean allowPreparation) {
+    preparationAllowed = allowPreparation;
+    if (allowPreparation && sourceInfoRefreshHandler != null) {
+      sourceInfoRefreshHandler.post(
+          () -> finishSourcePreparation(/* sendManifestLoadEvents= */ true));
+    }
   }
 
   @Nullable
@@ -186,14 +204,14 @@ public class FakeMediaSource extends BaseMediaSource {
   @Override
   @Nullable
   public Timeline getInitialTimeline() {
-    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1
+    return timeline == null || timeline.isEmpty() || timeline.getWindowCount() == 1
         ? null
         : new InitialTimeline(timeline);
   }
 
   @Override
   public boolean isSingleWindow() {
-    return timeline == null || timeline == Timeline.EMPTY || timeline.getWindowCount() == 1;
+    return timeline == null || timeline.isEmpty() || timeline.getWindowCount() == 1;
   }
 
   @Override
@@ -204,7 +222,7 @@ public class FakeMediaSource extends BaseMediaSource {
     preparedSource = true;
     releasedSource = false;
     sourceInfoRefreshHandler = Util.createHandlerForCurrentLooper();
-    if (timeline != null) {
+    if (preparationAllowed && timeline != null) {
       finishSourcePreparation(/* sendManifestLoadEvents= */ true);
     }
   }
@@ -273,11 +291,14 @@ public class FakeMediaSource extends BaseMediaSource {
    * Sets a new timeline. If the source is already prepared, this triggers a source info refresh
    * message being sent to the listener.
    *
+   * <p>Must only be called if preparation is {@link #setAllowPreparation(boolean) allowed}.
+   *
    * @param newTimeline The new {@link Timeline}.
    * @param sendManifestLoadEvents Whether to treat this as a manifest refresh and send manifest
    *     load events to listeners.
    */
   public synchronized void setNewSourceInfo(Timeline newTimeline, boolean sendManifestLoadEvents) {
+    checkState(preparationAllowed);
     if (sourceInfoRefreshHandler != null) {
       sourceInfoRefreshHandler.post(
           () -> {

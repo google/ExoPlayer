@@ -12,8 +12,8 @@ MediaCodecAdapter (exotest.video.mpeg2):
   buffers[2] = length 0, hash 1
 MetadataOutput:
   Metadata[0]:
-    entry[0] = SpliceInsertCommand
+    entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
   Metadata[1]:
-    entry[0] = SpliceInsertCommand
+    entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
   Metadata[2]:
-    entry[0] = SpliceInsertCommand
+    entry[0] = SCTE-35 splice command: type=SpliceInsertCommand

@@ -144,8 +144,7 @@ public final class PsExtractor implements Extractor {
       // we have to set the first sample timestamp manually.
       // - If the timestamp adjuster has its timestamp set manually before, and now we seek to a
       // different position, we need to set the first sample timestamp manually again.
-      timestampAdjuster.reset();
-      timestampAdjuster.setFirstSampleTimestampUs(timeUs);
+      timestampAdjuster.reset(timeUs);
     }
 
     if (psBinarySearchSeeker != null) {

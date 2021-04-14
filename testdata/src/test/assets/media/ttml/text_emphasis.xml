@@ -1,0 +1,65 @@
+<tt xmlns:ttm="http://www.w3.org/2006/10/ttaf1#metadata"
+  xmlns:ttp="http://www.w3.org/2006/10/ttaf1#parameter"
+  xmlns:tts="http://www.w3.org/2006/10/ttaf1#style"
+  xmlns="http://www.w3.org/ns/ttml">
+  <head>
+    <region xml:id="region_tbrl" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%" tts:writingMode="tbrl"/>
+    <region xml:id="region_tblr" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%" tts:writingMode="tblr"/>
+    <region xml:id="region_tb" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%" tts:writingMode="tb"/>
+    <region xml:id="region_lr" tts:extent="80.000% 80.000%" tts:origin="10.000% 10.000%" tts:writingMode="lr"/>
+  </head>
+  <body>
+    <div>
+      <p begin="10s" end="18s">None <span tts:textEmphasis="none">おはよ</span></p>
+    </div>
+    <div>
+      <p begin="20s" end="28s">Auto <span tts:textEmphasis="auto">ございます</span></p>
+    </div>
+    <div>
+      <p begin="30s" end="38s">Filled circle <span tts:textEmphasis="filled circle">こんばんは</span></p>
+    </div>
+    <div>
+      <p begin="40s" end="48s">Filled dot <span tts:textEmphasis="filled dot">ございます</span></p>
+    </div>
+    <div>
+      <p begin="50s" end="58s">Filled sesame <span tts:textEmphasis="filled sesame">おはよ</span></p>
+    </div>
+    <div>
+      <p begin="60s" end="68s">Open circle before <span tts:textEmphasis="open circle before">ございます</span></p>
+    </div>
+    <div>
+      <p begin="70s" end="78s">Open dot after <span tts:textEmphasis="open dot after">おはよ</span></p>
+    </div>
+    <div>
+      <p begin="80s" end="88s">Open sesame outside <span tts:textEmphasis="open sesame outside">ございます</span></p>
+    </div>
+    <div>
+      <p begin="90s" end="98s">Auto outside <span tts:textEmphasis="auto outside">おはよ</span></p>
+    </div>
+    <div>
+      <p begin="100s" end="108s">Circle before <span tts:textEmphasis="circle before">ございます</span></p>
+    </div>
+    <div>
+      <p begin="110s" end="118s">Sesame after <span tts:textEmphasis="sesame after">おはよ</span></p>
+    </div>
+    <div>
+      <p begin="120s" end="128s">Dot outside <span tts:textEmphasis="dot outside">ございます</span></p>
+    </div>
+    <div>
+      <p begin="130s" end="138s">No textEmphasis property <span>おはよ</span></p>
+    </div>
+    <div>
+      <p begin="140s" end="148s" region="region_tbrl">Auto (TBLR) <span tts:textEmphasis="auto">ございます</span></p>
+    </div>
+    <div>
+      <p begin="150s" end="158s" region="region_tblr">Auto (TBRL) <span tts:textEmphasis="auto">おはよ</span></p>
+    </div>
+    <div>
+      <p begin="160s" end="168s" region="region_tb">Auto (TB) <span tts:textEmphasis="auto">ございます</span></p>
+    </div>
+    <div>
+      <p begin="170s" end="178s" region="region_lr">Auto (LR) <span tts:textEmphasis="auto">おはよ</span></p>
+    </div>
+
+  </body>
+</tt>

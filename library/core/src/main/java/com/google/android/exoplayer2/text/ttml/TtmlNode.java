@@ -69,7 +69,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ATTR_TTS_TEXT_DECORATION = "textDecoration";
   public static final String ATTR_TTS_TEXT_ALIGN = "textAlign";
   public static final String ATTR_TTS_TEXT_COMBINE = "textCombine";
+  public static final String ATTR_TTS_TEXT_EMPHASIS = "textEmphasis";
   public static final String ATTR_TTS_WRITING_MODE = "writingMode";
+  public static final String ATTR_TTS_SHEAR = "shear";
 
   // Values for ruby
   public static final String RUBY_CONTAINER = "container";
@@ -79,9 +81,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String RUBY_TEXT_CONTAINER = "textContainer";
   public static final String RUBY_DELIMITER = "delimiter";
 
-  // Values for rubyPosition
-  public static final String RUBY_BEFORE = "before";
-  public static final String RUBY_AFTER = "after";
+  // Values for text annotation (i.e. ruby, text emphasis) position
+  public static final String ANNOTATION_POSITION_BEFORE = "before";
+  public static final String ANNOTATION_POSITION_AFTER = "after";
+  public static final String ANNOTATION_POSITION_OUTSIDE = "outside";
+
   // Values for textDecoration
   public static final String LINETHROUGH = "linethrough";
   public static final String NO_LINETHROUGH = "nolinethrough";
@@ -105,6 +109,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String VERTICAL = "tb";
   public static final String VERTICAL_LR = "tblr";
   public static final String VERTICAL_RL = "tbrl";
+
+  // Values for textEmphasis
+  public static final String TEXT_EMPHASIS_NONE = "none";
+  public static final String TEXT_EMPHASIS_AUTO = "auto";
+  public static final String TEXT_EMPHASIS_MARK_DOT = "dot";
+  public static final String TEXT_EMPHASIS_MARK_SESAME = "sesame";
+  public static final String TEXT_EMPHASIS_MARK_CIRCLE = "circle";
+  public static final String TEXT_EMPHASIS_MARK_FILLED = "filled";
+  public static final String TEXT_EMPHASIS_MARK_OPEN = "open";
 
   @Nullable public final String tag;
   @Nullable public final String text;
@@ -243,7 +256,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     TreeMap<String, Cue.Builder> regionTextOutputs = new TreeMap<>();
     traverseForText(timeUs, false, regionId, regionTextOutputs);
-    traverseForStyle(timeUs, globalStyles, regionTextOutputs);
+    traverseForStyle(timeUs, globalStyles, regionMap, regionId, regionTextOutputs);
 
     List<Cue> cues = new ArrayList<>();
 
@@ -354,26 +367,39 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   private void traverseForStyle(
-      long timeUs, Map<String, TtmlStyle> globalStyles, Map<String, Cue.Builder> regionOutputs) {
+      long timeUs,
+      Map<String, TtmlStyle> globalStyles,
+      Map<String, TtmlRegion> regionMaps,
+      String inheritedRegion,
+      Map<String, Cue.Builder> regionOutputs) {
     if (!isActive(timeUs)) {
       return;
     }
+    String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
+
     for (Map.Entry<String, Integer> entry : nodeEndsByRegion.entrySet()) {
       String regionId = entry.getKey();
       int start = nodeStartsByRegion.containsKey(regionId) ? nodeStartsByRegion.get(regionId) : 0;
       int end = entry.getValue();
       if (start != end) {
         Cue.Builder regionOutput = Assertions.checkNotNull(regionOutputs.get(regionId));
-        applyStyleToOutput(globalStyles, regionOutput, start, end);
+        @Cue.VerticalType
+        int verticalType = Assertions.checkNotNull(regionMaps.get(resolvedRegionId)).verticalType;
+        applyStyleToOutput(globalStyles, regionOutput, start, end, verticalType);
       }
     }
     for (int i = 0; i < getChildCount(); ++i) {
-      getChild(i).traverseForStyle(timeUs, globalStyles, regionOutputs);
+      getChild(i)
+          .traverseForStyle(timeUs, globalStyles, regionMaps, resolvedRegionId, regionOutputs);
     }
   }
 
   private void applyStyleToOutput(
-      Map<String, TtmlStyle> globalStyles, Cue.Builder regionOutput, int start, int end) {
+      Map<String, TtmlStyle> globalStyles,
+      Cue.Builder regionOutput,
+      int start,
+      int end,
+      @Cue.VerticalType int verticalType) {
     @Nullable TtmlStyle resolvedStyle = TtmlRenderUtil.resolveStyle(style, styleIds, globalStyles);
     @Nullable SpannableStringBuilder text = (SpannableStringBuilder) regionOutput.getText();
     if (text == null) {
@@ -381,7 +407,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       regionOutput.setText(text);
     }
     if (resolvedStyle != null) {
-      TtmlRenderUtil.applyStylesToSpan(text, start, end, resolvedStyle, parent, globalStyles);
+      TtmlRenderUtil.applyStylesToSpan(
+          text, start, end, resolvedStyle, parent, globalStyles, verticalType);
+      if (resolvedStyle.getShearPercentage() != TtmlStyle.UNSPECIFIED_SHEAR && TAG_P.equals(tag)) {
+        // Shear style should only be applied to P nodes
+        // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
+        // The spec doesn't specify the coordinate system to use for block shear
+        // however the spec shows examples of how different values are expected to be rendered.
+        // See: https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
+        // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-fontShear
+        // This maps the shear percentage to shear angle in graphics coordinates
+        regionOutput.setShearDegrees((resolvedStyle.getShearPercentage() * -90) / 100);
+      }
       regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
     }
   }

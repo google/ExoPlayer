@@ -1488,6 +1488,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         maxPixels = width * height;
         minCompressionRatio = 2;
         break;
+      case MimeTypes.VIDEO_DOLBY_VISION:
+        // Dolby vision can be a wrapper around H264 or H265. We assume H264 here because the
+        // minimum compression ratio is lower, meaning we overestimate the maximum input size.
       case MimeTypes.VIDEO_H264:
         if ("BRAVIA 4K 2015".equals(Util.MODEL) // Sony Bravia 4K
             || ("Amazon".equals(Util.MANUFACTURER)
@@ -1603,6 +1606,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         case "dangalFHD":
         case "magnolia":
         case "machuca":
+        case "once":
         case "oneday":
           return true;
         default:

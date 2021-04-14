@@ -58,6 +58,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   private int pendingMetadataCount;
   @Nullable private MetadataDecoder decoder;
   private boolean inputStreamEnded;
+  private boolean outputStreamEnded;
   private long subsampleOffsetUs;
 
   /**
@@ -118,6 +119,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   protected void onPositionReset(long positionUs, boolean joining) {
     flushPendingMetadata();
     inputStreamEnded = false;
+    outputStreamEnded = false;
   }
 
   @Override
@@ -157,6 +159,9 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
       pendingMetadata[pendingMetadataIndex] = null;
       pendingMetadataIndex = (pendingMetadataIndex + 1) % MAX_PENDING_METADATA_COUNT;
       pendingMetadataCount--;
+    }
+    if (inputStreamEnded && pendingMetadataCount == 0) {
+      outputStreamEnded = true;
     }
   }
 
@@ -198,7 +203,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
 
   @Override
   public boolean isEnded() {
-    return inputStreamEnded;
+    return outputStreamEnded;
   }
 
   @Override

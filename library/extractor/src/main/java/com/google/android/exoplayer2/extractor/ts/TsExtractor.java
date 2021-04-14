@@ -268,8 +268,7 @@ public final class TsExtractor implements Extractor {
         // sample timestamp for that track manually.
         // - If the timestamp adjuster has its timestamp set manually before, and now we seek to a
         // different position, we need to set the first sample timestamp manually again.
-        timestampAdjuster.reset();
-        timestampAdjuster.setFirstSampleTimestampUs(timeUs);
+        timestampAdjuster.reset(timeUs);
       }
     }
     if (timeUs != 0 && tsBinarySearchSeeker != null) {

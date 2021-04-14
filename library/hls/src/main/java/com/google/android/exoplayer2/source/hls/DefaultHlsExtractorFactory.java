@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.FileTypes;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.common.primitives.Ints;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -107,11 +108,11 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
     // Defines the order in which to try the extractors.
     List<Integer> fileTypeOrder =
         new ArrayList<>(/* initialCapacity= */ DEFAULT_EXTRACTOR_ORDER.length);
-    addFileTypeIfNotPresent(formatInferredFileType, fileTypeOrder);
-    addFileTypeIfNotPresent(responseHeadersInferredFileType, fileTypeOrder);
-    addFileTypeIfNotPresent(uriInferredFileType, fileTypeOrder);
+    addFileTypeIfValidAndNotPresent(formatInferredFileType, fileTypeOrder);
+    addFileTypeIfValidAndNotPresent(responseHeadersInferredFileType, fileTypeOrder);
+    addFileTypeIfValidAndNotPresent(uriInferredFileType, fileTypeOrder);
     for (int fileType : DEFAULT_EXTRACTOR_ORDER) {
-      addFileTypeIfNotPresent(fileType, fileTypeOrder);
+      addFileTypeIfValidAndNotPresent(fileType, fileTypeOrder);
     }
 
     // Extractor to be used if the type is not recognized.
@@ -125,9 +126,13 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
       if (sniffQuietly(extractor, extractorInput)) {
         return new BundledHlsMediaChunkExtractor(extractor, format, timestampAdjuster);
       }
-      if (fileType == FileTypes.TS) {
-        // Fall back on TsExtractor to handle TS streams with an EXT-X-MAP tag. See
-        // https://github.com/google/ExoPlayer/issues/8219.
+      if (fallBackExtractor == null
+          && (fileType == formatInferredFileType
+              || fileType == responseHeadersInferredFileType
+              || fileType == uriInferredFileType
+              || fileType == FileTypes.TS)) {
+        // If sniffing fails, fallback to the file types inferred from context. If all else fails,
+        // fallback to Transport Stream. See https://github.com/google/ExoPlayer/issues/8219.
         fallBackExtractor = extractor;
       }
     }
@@ -136,9 +141,9 @@ public final class DefaultHlsExtractorFactory implements HlsExtractorFactory {
         checkNotNull(fallBackExtractor), format, timestampAdjuster);
   }
 
-  private static void addFileTypeIfNotPresent(
+  private static void addFileTypeIfValidAndNotPresent(
       @FileTypes.Type int fileType, List<Integer> fileTypes) {
-    if (fileType == FileTypes.UNKNOWN || fileTypes.contains(fileType)) {
+    if (Ints.indexOf(DEFAULT_EXTRACTOR_ORDER, fileType) == -1 || fileTypes.contains(fileType)) {
       return;
     }
     fileTypes.add(fileType);

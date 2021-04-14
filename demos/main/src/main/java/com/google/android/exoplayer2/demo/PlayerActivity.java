@@ -440,8 +440,8 @@ public class PlayerActivity extends AppCompatActivity
     @Override
     public void onPlayerError(@NonNull ExoPlaybackException e) {
       if (isBehindLiveWindow(e)) {
-        clearStartPosition();
-        initializePlayer();
+        player.seekToDefaultPosition();
+        player.prepare();
       } else {
         updateButtonVisibility();
         showControls();

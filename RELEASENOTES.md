@@ -1,5 +1,79 @@
 # Release notes
 
+### 2.13.3 (2021-04-14)
+
+*   Published via the Google Maven repository (i.e., google()) rather than JCenter.
+*   Core:
+    *   Reset playback speed when live playback speed control becomes unused
+        ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
+    *   Fix playback position issue when re-preparing playback after a
+        BehindLiveWindowException
+        ([#8675](https://github.com/google/ExoPlayer/issues/8675)).
+    *   Assume Dolby Vision content is encoded as H264 when calculating maximum
+        codec input size
+        ([#8705](https://github.com/google/ExoPlayer/issues/8705)).
+*   UI:
+    *   Fix `StyledPlayerView` scrubber not reappearing correctly in some cases
+        ([#8646](https://github.com/google/ExoPlayer/issues/8646)).
+    *   Fix measurement of `StyledPlayerView` and `StyledPlayerControlView` when
+        `wrap_content` is used
+        ([#8726](https://github.com/google/ExoPlayer/issues/8726)).
+    *   Fix `StyledPlayerControlView` to stay in full mode (rather than minimal
+        mode) when possible
+        ([#8763](https://github.com/google/ExoPlayer/issues/8763)).
+*   DASH:
+    *   Parse `forced_subtitle` role from DASH manifests
+        ([#8781](https://github.com/google/ExoPlayer/issues/8781)).
+*   HLS:
+    *   Fix bug of ignoring `EXT-X-START` when setting the live target offset
+        ([#8764](https://github.com/google/ExoPlayer/pull/8764)).
+    *   Fix incorrect application of byte ranges to `EXT-X-MAP` tags
+        ([#8783](https://github.com/google/ExoPlayer/issues/8783)).
+    *   Fix issue that could cause playback to become stuck if corresponding
+        `EXT-X-DISCONTINUITY` tags in different media playlists occur at
+        different positions in time
+        ([#8372](https://github.com/google/ExoPlayer/issues/8372)).
+    *   Fix issue that could cause playback of on-demand content to not start in
+        cases where the media playlists referenced by the master playlist have
+        different starting `EXT-X-PROGRAM-DATE-TIME` tags.
+    *   Fix container type detection for segments with incorrect file extension
+        or HTTP Content-Type
+        ([#8733](https://github.com/google/ExoPlayer/issues/8733)).
+*   Extractors:
+    *   Add support for `GContainer` and `GContainerItem` XMP namespace prefixes
+        in JPEG motion photo parsing.
+    *   Allow JFIF APP0 marker segment preceding Exif APP1 segment in
+        `JpegExtractor`.
+*   Text:
+    *   Parse SSA/ASS bold & italic info in `Style:` lines
+        ([#8435](https://github.com/google/ExoPlayer/issues/8435)).
+    *   Don't display subtitles after the end position of the current media
+        period (if known). This ensures sideloaded subtitles respect the end
+        point of `ClippingMediaPeriod` and prevents content subtitles from
+        continuing to be displayed over mid-roll ads
+        ([#5317](https://github.com/google/ExoPlayer/issues/5317),
+        [#8456](https://github.com/google/ExoPlayer/issues/8456)).
+    *   Fix CEA-708 priority handling to sort cues in the order defined by the
+        spec ([#8704](https://github.com/google/ExoPlayer/issues/8704)).
+    *   Support TTML `textEmphasis` attributes, used for Japanese boutens.
+    *   Support TTML `shear` attributes.
+*   Metadata:
+    *   Ensure that timed metadata near the end of a period is not dropped
+        ([#8710](https://github.com/google/ExoPlayer/issues/8710)).
+*   Cast extension:
+    *   Fix `onPositionDiscontinuity` event so that it is not triggered with
+        reason `DISCONTINUITY_REASON_PERIOD_TRANSITION` after a seek to another
+        media item and so that it is not triggered after a timeline change.
+*   IMA extension:
+    *   Fix error caused by `AdPlaybackState` ad group times being cleared,
+        which can occur if the `ImaAdsLoader` is released while an ad is pending
+        loading ([#8693](https://github.com/google/ExoPlayer/issues/8693)).
+    *   Upgrade IMA SDK dependency to 3.23.0, fixing an issue with
+        `NullPointerExceptions` within `WebView` callbacks
+        ([#8447](https://github.com/google/ExoPlayer/issues/8447)).
+*   FFmpeg extension: Fix playback failure when switching to TrueHD tracks
+    during playback ([#8616](https://github.com/google/ExoPlayer/issues/8616)).
+
 ### 2.13.2 (2021-02-25)
 
 *   Extractors:

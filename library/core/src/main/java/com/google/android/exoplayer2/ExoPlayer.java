@@ -682,6 +682,7 @@ public interface ExoPlayer extends Player {
    * Returns whether the player has paused its main loop to save power in offload scheduling mode.
    *
    * @see #experimentalSetOffloadSchedulingEnabled(boolean)
+   * @see EventListener#onExperimentalSleepingForOffloadChanged(boolean)
    */
   boolean experimentalIsSleepingForOffload();
 }

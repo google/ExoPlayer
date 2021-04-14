@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source.ads;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -290,6 +291,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     if (this.adPlaybackState == null) {
       adMediaSourceHolders = new AdMediaSourceHolder[adPlaybackState.adGroupCount][];
       Arrays.fill(adMediaSourceHolders, new AdMediaSourceHolder[0]);
+    } else {
+      checkState(adPlaybackState.adGroupCount == this.adPlaybackState.adGroupCount);
     }
     this.adPlaybackState = adPlaybackState;
     maybeUpdateAdMediaSources();
@@ -350,12 +353,12 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
   private void maybeUpdateSourceInfo() {
     @Nullable Timeline contentTimeline = this.contentTimeline;
     if (adPlaybackState != null && contentTimeline != null) {
-      adPlaybackState = adPlaybackState.withAdDurationsUs(getAdDurationsUs());
-      Timeline timeline =
-          adPlaybackState.adGroupCount == 0
-              ? contentTimeline
-              : new SinglePeriodAdTimeline(contentTimeline, adPlaybackState);
-      refreshSourceInfo(timeline);
+      if (adPlaybackState.adGroupCount == 0) {
+        refreshSourceInfo(contentTimeline);
+      } else {
+        adPlaybackState = adPlaybackState.withAdDurationsUs(getAdDurationsUs());
+        refreshSourceInfo(new SinglePeriodAdTimeline(contentTimeline, adPlaybackState));
+      }
     }
   }
 

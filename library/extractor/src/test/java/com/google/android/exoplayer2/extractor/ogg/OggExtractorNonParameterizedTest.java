@@ -16,11 +16,15 @@
 package com.google.android.exoplayer2.extractor.ogg;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.getByteArray;
+import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.testutil.ExtractorAsserts;
 import com.google.android.exoplayer2.testutil.FakeExtractorInput;
+import com.google.android.exoplayer2.testutil.FakeExtractorOutput;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +37,19 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class OggExtractorNonParameterizedTest {
+
+  @Test
+  public void read_afterEndOfInput_doesNotThrowIllegalState() throws Exception {
+    byte[] data =
+        getByteArray(ApplicationProvider.getApplicationContext(), "media/ogg/bear_flac.ogg");
+    FakeExtractorInput input = new FakeExtractorInput.Builder().setData(data).build();
+    OggExtractor oggExtractor = new OggExtractor();
+    oggExtractor.init(new FakeExtractorOutput());
+    // We feed data to the extractor until the end of input is reached.
+    while (oggExtractor.read(input, new PositionHolder()) != C.RESULT_END_OF_INPUT) {}
+    // We call read again to check that it does not throw an IllegalStateException.
+    assertThat(oggExtractor.read(input, new PositionHolder())).isEqualTo(C.RESULT_END_OF_INPUT);
+  }
 
   @Test
   public void sniffVorbis() throws Exception {

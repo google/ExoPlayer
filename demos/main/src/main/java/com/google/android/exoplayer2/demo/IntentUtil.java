@@ -23,6 +23,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -42,12 +43,12 @@ public class IntentUtil {
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
 
   // Activity extras.
-
   public static final String PREFER_EXTENSION_DECODERS_EXTRA = "prefer_extension_decoders";
 
   // Media item configuration extras.
 
   public static final String URI_EXTRA = "uri";
+  public static final String TITLE_EXTRA = "title";
   public static final String MIME_TYPE_EXTRA = "mime_type";
   public static final String CLIP_START_POSITION_MS_EXTRA = "clip_start_position_ms";
   public static final String CLIP_END_POSITION_MS_EXTRA = "clip_end_position_ms";
@@ -89,6 +90,9 @@ public class IntentUtil {
       MediaItem mediaItem = mediaItems.get(0);
       MediaItem.PlaybackProperties playbackProperties = checkNotNull(mediaItem.playbackProperties);
       intent.setAction(ACTION_VIEW).setData(mediaItem.playbackProperties.uri);
+      if (mediaItem.mediaMetadata.title != null) {
+        intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.title);
+      }
       addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "");
       addClippingPropertiesToIntent(
           mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "");
@@ -102,6 +106,9 @@ public class IntentUtil {
         addPlaybackPropertiesToIntent(playbackProperties, intent, /* extrasKeySuffix= */ "_" + i);
         addClippingPropertiesToIntent(
             mediaItem.clippingProperties, intent, /* extrasKeySuffix= */ "_" + i);
+        if (mediaItem.mediaMetadata.title != null) {
+          intent.putExtra(TITLE_EXTRA + ("_" + i), mediaItem.mediaMetadata.title);
+        }
       }
     }
   }
@@ -109,10 +116,12 @@ public class IntentUtil {
   private static MediaItem createMediaItemFromIntent(
       Uri uri, Intent intent, String extrasKeySuffix) {
     @Nullable String mimeType = intent.getStringExtra(MIME_TYPE_EXTRA + extrasKeySuffix);
+    @Nullable String title = intent.getStringExtra(TITLE_EXTRA + extrasKeySuffix);
     MediaItem.Builder builder =
         new MediaItem.Builder()
             .setUri(uri)
             .setMimeType(mimeType)
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle(title).build())
             .setAdTagUri(intent.getStringExtra(AD_TAG_URI_EXTRA + extrasKeySuffix))
             .setSubtitles(createSubtitlesFromIntent(intent, extrasKeySuffix))
             .setClipStartPositionMs(

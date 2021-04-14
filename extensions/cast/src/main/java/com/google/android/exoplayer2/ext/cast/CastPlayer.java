@@ -653,15 +653,7 @@ public final class CastPlayer extends BasePlayer {
     updateRepeatModeAndNotifyIfChanged(/* resultCallback= */ null);
     updateTimelineAndNotifyIfChanged();
 
-    int currentWindowIndex = C.INDEX_UNSET;
-    MediaQueueItem currentItem = remoteMediaClient.getCurrentItem();
-    if (currentItem != null) {
-      currentWindowIndex = currentTimeline.getIndexOfPeriod(currentItem.getItemId());
-    }
-    if (currentWindowIndex == C.INDEX_UNSET) {
-      // The timeline is empty. Fall back to index 0, which is what ExoPlayer would do.
-      currentWindowIndex = 0;
-    }
+    int currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
     if (this.currentWindowIndex != currentWindowIndex && pendingSeekCount == 0) {
       this.currentWindowIndex = currentWindowIndex;
       listeners.queueEvent(
@@ -721,7 +713,9 @@ public final class CastPlayer extends BasePlayer {
   }
 
   /**
-   * Updates the current timeline and returns whether it has changed.
+   * Updates the current timeline. The current window index may change as a result.
+   *
+   * @return Whether the current timeline has changed.
    */
   private boolean updateTimeline() {
     CastTimeline oldTimeline = currentTimeline;
@@ -730,7 +724,11 @@ public final class CastPlayer extends BasePlayer {
         status != null
             ? timelineTracker.getCastTimeline(remoteMediaClient)
             : CastTimeline.EMPTY_CAST_TIMELINE;
-    return !oldTimeline.equals(currentTimeline);
+    boolean timelineChanged = !oldTimeline.equals(currentTimeline);
+    if (timelineChanged) {
+      currentWindowIndex = fetchCurrentWindowIndex(remoteMediaClient, currentTimeline);
+    }
+    return timelineChanged;
   }
 
   /** Updates the internal tracks and selection and returns whether they have changed. */
@@ -940,6 +938,24 @@ public final class CastPlayer extends BasePlayer {
     }
   }
 
+  private static int fetchCurrentWindowIndex(
+      @Nullable RemoteMediaClient remoteMediaClient, Timeline timeline) {
+    if (remoteMediaClient == null) {
+      return 0;
+    }
+
+    int currentWindowIndex = C.INDEX_UNSET;
+    @Nullable MediaQueueItem currentItem = remoteMediaClient.getCurrentItem();
+    if (currentItem != null) {
+      currentWindowIndex = timeline.getIndexOfPeriod(currentItem.getItemId());
+    }
+    if (currentWindowIndex == C.INDEX_UNSET) {
+      // The timeline is empty. Fall back to index 0, which is what ExoPlayer would do.
+      currentWindowIndex = 0;
+    }
+    return currentWindowIndex;
+  }
+
   private static boolean isTrackActive(long id, long[] activeTrackIds) {
     for (long activeTrackId : activeTrackIds) {
       if (activeTrackId == id) {
@@ -1078,6 +1094,7 @@ public final class CastPlayer extends BasePlayer {
             + CastUtils.getLogString(statusCode));
       }
       if (--pendingSeekCount == 0) {
+        currentWindowIndex = pendingSeekWindowIndex;
         pendingSeekWindowIndex = C.INDEX_UNSET;
         pendingSeekPositionMs = C.TIME_UNSET;
         listeners.sendEvent(/* eventFlag= */ C.INDEX_UNSET, EventListener::onSeekProcessed);

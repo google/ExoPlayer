@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
@@ -1829,7 +1830,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
       MediaPeriodId oldPeriodId,
       long positionForTargetOffsetOverrideUs) {
     if (newTimeline.isEmpty() || !shouldUseLivePlaybackSpeedControl(newTimeline, newPeriodId)) {
-      // Live playback speed control is unused.
+      // Live playback speed control is unused for the current period, reset speed if adjusted.
+      if (mediaClock.getPlaybackParameters().speed != playbackInfo.playbackParameters.speed) {
+        mediaClock.setPlaybackParameters(playbackInfo.playbackParameters);
+      }
       return;
     }
     int windowIndex = newTimeline.getPeriodByUid(newPeriodId.periodUid, period).windowIndex;
@@ -1937,7 +1941,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
           if (sampleStream != null
               && renderer.getStream() == sampleStream
               && renderer.hasReadStreamToEnd()) {
-            renderer.setCurrentStreamFinal();
+            long streamEndPositionUs =
+                readingPeriodHolder.info.durationUs != C.TIME_UNSET
+                        && readingPeriodHolder.info.durationUs != C.TIME_END_OF_SOURCE
+                    ? readingPeriodHolder.getRendererOffset() + readingPeriodHolder.info.durationUs
+                    : C.TIME_UNSET;
+            setCurrentStreamFinal(renderer, streamEndPositionUs);
           }
         }
       }
@@ -1962,7 +1971,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         && readingPeriodHolder.mediaPeriod.readDiscontinuity() != C.TIME_UNSET) {
       // The new period starts with a discontinuity, so the renderers will play out all data, then
       // be disabled and re-enabled when they start playing the next period.
-      setAllRendererStreamsFinal();
+      setAllRendererStreamsFinal(
+          /* streamEndPositionUs= */ readingPeriodHolder.getStartPositionRendererTime());
       return;
     }
     for (int i = 0; i < renderers.length; i++) {
@@ -1978,7 +1988,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
           // it's a no-sample renderer for which rendererOffsetUs should be updated only when
           // starting to play the next period. Mark the SampleStream as final to play out any
           // remaining data.
-          renderers[i].setCurrentStreamFinal();
+          setCurrentStreamFinal(
+              renderers[i],
+              /* streamEndPositionUs= */ readingPeriodHolder.getStartPositionRendererTime());
         }
       }
     }
@@ -2103,11 +2115,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
     return true;
   }
 
-  private void setAllRendererStreamsFinal() {
+  private void setAllRendererStreamsFinal(long streamEndPositionUs) {
     for (Renderer renderer : renderers) {
       if (renderer.getStream() != null) {
-        renderer.setCurrentStreamFinal();
+        setCurrentStreamFinal(renderer, streamEndPositionUs);
       }
+    }
+  }
+
+  private void setCurrentStreamFinal(Renderer renderer, long streamEndPositionUs) {
+    renderer.setCurrentStreamFinal();
+    if (renderer instanceof TextRenderer) {
+      ((TextRenderer) renderer).setFinalStreamEndPositionUs(streamEndPositionUs);
     }
   }
 

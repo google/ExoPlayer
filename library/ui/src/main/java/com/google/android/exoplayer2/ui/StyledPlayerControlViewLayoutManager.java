@@ -50,6 +50,7 @@ import java.util.List;
 
   private final StyledPlayerControlView styledPlayerControlView;
 
+  @Nullable private final View controlsBackground;
   @Nullable private final ViewGroup centerControls;
   @Nullable private final ViewGroup bottomBar;
   @Nullable private final ViewGroup minimalControls;
@@ -99,7 +100,7 @@ import java.util.List;
     shownButtons = new ArrayList<>();
 
     // Relating to Center View
-    View controlsBackground = styledPlayerControlView.findViewById(R.id.exo_controls_background);
+    controlsBackground = styledPlayerControlView.findViewById(R.id.exo_controls_background);
     centerControls = styledPlayerControlView.findViewById(R.id.exo_center_controls);
 
     // Relating to Minimal Layout
@@ -464,6 +465,15 @@ import java.util.List;
     }
   }
 
+  public void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    if (controlsBackground != null) {
+      // The background view should occupy the entirety of the parent. This is done in code rather
+      // than in layout XML to stop the background view from influencing the size of the parent if
+      // it uses "wrap_content". See: https://github.com/google/ExoPlayer/issues/8726.
+      controlsBackground.layout(0, 0, right - left, bottom - top);
+    }
+  }
+
   private void onLayoutChange(
       View v,
       int left,
@@ -577,13 +587,17 @@ import java.util.List;
             - (centerControls != null
                 ? (centerControls.getPaddingLeft() + centerControls.getPaddingRight())
                 : 0);
+    int centerControlHeight =
+        getHeightWithMargins(centerControls)
+            - (centerControls != null
+                ? (centerControls.getPaddingTop() + centerControls.getPaddingBottom())
+                : 0);
 
     int defaultModeMinimumWidth =
         Math.max(
             centerControlWidth,
             getWidthWithMargins(timeView) + getWidthWithMargins(overflowShowButton));
-    int defaultModeMinimumHeight =
-        getHeightWithMargins(centerControls) + 2 * getHeightWithMargins(bottomBar);
+    int defaultModeMinimumHeight = centerControlHeight + (2 * getHeightWithMargins(bottomBar));
 
     return width <= defaultModeMinimumWidth || height <= defaultModeMinimumHeight;
   }
@@ -607,7 +621,7 @@ import java.util.List;
           defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ true);
         } else if (uxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
           defaultTimeBar.hideScrubber(/* disableScrubberPadding= */ false);
-        } else if (uxState != UX_STATE_ANIMATING_HIDE && uxState != UX_STATE_ANIMATING_SHOW) {
+        } else if (uxState != UX_STATE_ANIMATING_HIDE) {
           defaultTimeBar.showScrubber();
         }
       }

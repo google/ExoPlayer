@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.analytics;
 
+import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -42,6 +43,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.robolectric.shadows.ShadowLooper;
 
 /** Unit test for {@link PlaybackStatsListener}. */
 @RunWith(AndroidJUnit4.class)
@@ -149,6 +151,35 @@ public final class PlaybackStatsListenerTest {
     runMainLooperToNextTask();
 
     verify(callback).onPlaybackStatsReady(any(), any());
+  }
+
+  @Test
+  public void playlistClear_callsAllPendingCallbacks() throws Exception {
+    PlaybackStatsListener.Callback callback = mock(PlaybackStatsListener.Callback.class);
+    PlaybackStatsListener playbackStatsListener =
+        new PlaybackStatsListener(/* keepHistory= */ true, callback);
+    player.addAnalyticsListener(playbackStatsListener);
+
+    MediaSource mediaSource = new FakeMediaSource(new FakeTimeline(/* windowCount= */ 1));
+    player.setMediaSources(ImmutableList.of(mediaSource, mediaSource));
+    player.prepare();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
+    // Play close to the end of the first item to ensure the second session is already created, but
+    // the first one isn't finished yet.
+    TestPlayerRunHelper.playUntilPosition(
+        player, /* windowIndex= */ 0, /* positionMs= */ player.getDuration());
+    runUntilPendingCommandsAreFullyHandled(player);
+    player.clearMediaItems();
+    ShadowLooper.idleMainLooper();
+
+    ArgumentCaptor<AnalyticsListener.EventTime> eventTimeCaptor =
+        ArgumentCaptor.forClass(AnalyticsListener.EventTime.class);
+    verify(callback, times(2)).onPlaybackStatsReady(eventTimeCaptor.capture(), any());
+    assertThat(
+            eventTimeCaptor.getAllValues().stream()
+                .map(eventTime -> eventTime.windowIndex)
+                .collect(Collectors.toList()))
+        .containsExactly(0, 1);
   }
 
   @Test

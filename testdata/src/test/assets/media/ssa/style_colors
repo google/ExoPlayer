@@ -5,22 +5,22 @@ PlayResX: 1280
 PlayResY: 720
 
 [V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: PrimaryColourStyleHexRed        ,Roboto,50,&H000000FF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,50,50,70,1
-Style: PrimaryColourStyleHexYellow     ,Roboto,50,&H0000FFFF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,50,50,70,1
-Style: PrimaryColourStyleHexGreen      ,Roboto,50,&HFF00    ,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,50,50,70,1
-Style: PrimaryColourStyleHexAlpha      ,Roboto,50,&HA00000FF,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,50,50,70,1
-Style: PrimaryColourStyleDecimal       ,Roboto,50,16711680  ,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,50,50,70,1
-Style: PrimaryColourStyleDecimalAlpha  ,Roboto,50,2164195328,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,50,50,70,1
-Style: PrimaryColourStyleInvalid       ,Roboto,50,blue      ,&H000000FF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,3,0,2,50,50,70,1
+Format: Name                         ,PrimaryColour
+Style: PrimaryColourStyleHexRed      ,&H000000FF
+Style: PrimaryColourStyleHexYellow   ,&H0000FFFF
+Style: PrimaryColourStyleHexGreen    ,&HFF00
+Style: PrimaryColourStyleHexAlpha    ,&HA00000FF
+Style: PrimaryColourStyleDecimal     ,16711680
+Style: PrimaryColourStyleDecimalAlpha,2164195328
+Style: PrimaryColourStyleInvalid     ,blue
 
 
 [Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-Dialogue: 0,0:00:01.00,0:00:02.00,PrimaryColourStyleHexRed         ,Arnold,0,0,0,,First line in RED (&H000000FF).
-Dialogue: 0,0:00:03.00,0:00:04.00,PrimaryColourStyleHexYellow      ,Arnold,0,0,0,,Second line in YELLOW (&H0000FFFF).
-Dialogue: 0,0:00:05.00,0:00:06.00,PrimaryColourStyleHexGreen       ,Arnold,0,0,0,,Third line in GREEN (leading zeros &HFF00).
-Dialogue: 0,0:00:07.00,0:00:08.00,PrimaryColourStyleHexAlpha       ,Arnold,0,0,0,,Fourth line in RED with alpha (&H400000FF).
-Dialogue: 0,0:00:09.00,0:00:10.00,PrimaryColourStyleDecimal        ,Arnold,0,0,0,,Fifth line in BLUE (16711680).
-Dialogue: 0,0:00:11.00,0:00:12.00,PrimaryColourStyleDecimalAlpha   ,Arnold,0,0,0,,Sixth line in BLUE with alpha (2164195328).
-Dialogue: 0,0:00:13.00,0:00:14.00,PrimaryColourInvalid             ,Arnold,0,0,0,,Seventh line with invalid color .
+Format:   Start     ,End       ,Style                         ,Text
+Dialogue: 0:00:01.00,0:00:02.00,PrimaryColourStyleHexRed      ,First line in RED (&H000000FF).
+Dialogue: 0:00:03.00,0:00:04.00,PrimaryColourStyleHexYellow   ,Second line in YELLOW (&H0000FFFF).
+Dialogue: 0:00:05.00,0:00:06.00,PrimaryColourStyleHexGreen    ,Third line in GREEN (leading zeros &HFF00).
+Dialogue: 0:00:07.00,0:00:08.00,PrimaryColourStyleHexAlpha    ,Fourth line in RED with alpha (&H400000FF).
+Dialogue: 0:00:09.00,0:00:10.00,PrimaryColourStyleDecimal     ,Fifth line in BLUE (16711680).
+Dialogue: 0:00:11.00,0:00:12.00,PrimaryColourStyleDecimalAlpha,Sixth line in BLUE with alpha (2164195328).
+Dialogue: 0:00:13.00,0:00:14.00,PrimaryColourInvalid          ,Seventh line with invalid color.
