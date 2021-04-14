@@ -22,7 +22,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 
 /**
  * Represents a {@code Format:} line from the {@code [Events]} section
@@ -61,7 +61,7 @@ import com.google.android.exoplayer2.util.Util;
     Assertions.checkArgument(formatLine.startsWith(FORMAT_LINE_PREFIX));
     String[] keys = TextUtils.split(formatLine.substring(FORMAT_LINE_PREFIX.length()), ",");
     for (int i = 0; i < keys.length; i++) {
-      switch (Util.toLowerInvariant(keys[i].trim())) {
+      switch (Ascii.toLowerCase(keys[i].trim())) {
         case "start":
           startTimeIndex = i;
           break;

@@ -35,6 +35,7 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
 import com.google.common.primitives.Ints;
@@ -546,8 +547,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       @Nullable IOException connectionOpenException = exception;
       if (connectionOpenException != null) {
         @Nullable String message = connectionOpenException.getMessage();
-        if (message != null
-            && Util.toLowerInvariant(message).contains("err_cleartext_not_permitted")) {
+        if (message != null && Ascii.toLowerCase(message).contains("err_cleartext_not_permitted")) {
           throw new CleartextNotPermittedException(connectionOpenException, dataSpec);
         }
         throw new OpenException(connectionOpenException, dataSpec, getStatus(urlRequest));

@@ -30,6 +30,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.decoder.CryptoInfo;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
@@ -303,7 +304,7 @@ class AsynchronousMediaCodecBufferEnqueuer {
    * buffers (see [Internal: b/149908061]).
    */
   private static boolean needsSynchronizationWorkaround() {
-    String manufacturer = Util.toLowerInvariant(Util.MANUFACTURER);
+    String manufacturer = Ascii.toLowerCase(Util.MANUFACTURER);
     return manufacturer.contains("samsung") || manufacturer.contains("motorola");
   }
 

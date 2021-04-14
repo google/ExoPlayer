@@ -674,7 +674,7 @@ public final class Util {
       // Tag isn't valid, keep using the original.
       normalizedTag = language;
     }
-    normalizedTag = Util.toLowerInvariant(normalizedTag);
+    normalizedTag = Ascii.toLowerCase(normalizedTag);
     String mainLanguage = Util.splitAtFirst(normalizedTag, "-")[0];
     if (languageTagReplacementMap == null) {
       languageTagReplacementMap = createIsoLanguageReplacementMap();
@@ -758,16 +758,6 @@ public final class Util {
    */
   public static boolean isLinebreak(int c) {
     return c == '\n' || c == '\r';
-  }
-
-  /**
-   * Converts text to lower case using {@link Locale#US}.
-   *
-   * @param text The text to convert.
-   * @return The lower case text, or null if {@code text} is null.
-   */
-  public static @PolyNull String toLowerInvariant(@PolyNull String text) {
-    return text == null ? text : text.toLowerCase(Locale.US);
   }
 
   /**
@@ -1784,7 +1774,7 @@ public final class Util {
    * @return The derived {@link UUID}, or {@code null} if one could not be derived.
    */
   public static @Nullable UUID getDrmUuid(String drmScheme) {
-    switch (toLowerInvariant(drmScheme)) {
+    switch (Ascii.toLowerCase(drmScheme)) {
       case "widevine":
         return C.WIDEVINE_UUID;
       case "playready":
@@ -1834,7 +1824,7 @@ public final class Util {
    */
   @ContentType
   public static int inferContentType(String fileName) {
-    fileName = toLowerInvariant(fileName);
+    fileName = Ascii.toLowerCase(fileName);
     if (fileName.endsWith(".mpd")) {
       return C.TYPE_DASH;
     } else if (fileName.endsWith(".m3u8")) {
@@ -1907,11 +1897,11 @@ public final class Util {
    * @return The fixed URI.
    */
   public static Uri fixSmoothStreamingIsmManifestUri(Uri uri) {
-    @Nullable String path = toLowerInvariant(uri.getPath());
+    @Nullable String path = uri.getPath();
     if (path == null) {
       return uri;
     }
-    Matcher ismMatcher = ISM_URL_PATTERN.matcher(path);
+    Matcher ismMatcher = ISM_URL_PATTERN.matcher(Ascii.toLowerCase(path));
     if (ismMatcher.matches() && ismMatcher.group(1) == null) {
       // Add missing "Manifest" suffix.
       return Uri.withAppendedPath(uri, "Manifest");

@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec.HttpMethod;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Predicate;
 import com.google.common.net.HttpHeaders;
 import java.io.IOException;
@@ -339,7 +340,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
     } catch (IOException e) {
       @Nullable String message = e.getMessage();
       if (message != null
-          && Util.toLowerInvariant(message).matches("cleartext http traffic.*not permitted.*")) {
+          && Ascii.toLowerCase(message).matches("cleartext http traffic.*not permitted.*")) {
         throw new CleartextNotPermittedException(e, dataSpec);
       }
       throw new HttpDataSourceException(

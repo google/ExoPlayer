@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.metadata.SimpleMetadataDecoder;
-import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -57,10 +57,10 @@ public final class IcyDecoder extends SimpleMetadataDecoder {
     int index = 0;
     Matcher matcher = METADATA_ELEMENT.matcher(icyString);
     while (matcher.find(index)) {
-      @Nullable String key = Util.toLowerInvariant(matcher.group(1));
+      @Nullable String key = matcher.group(1);
       @Nullable String value = matcher.group(2);
       if (key != null) {
-        switch (key) {
+        switch (Ascii.toLowerCase(key)) {
           case STREAM_KEY_NAME:
             name = value;
             break;
