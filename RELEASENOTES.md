@@ -2,6 +2,7 @@
 
 ### 2.13.3 (2021-04-14)
 
+*   Published via the Google Maven repository (i.e., google()) rather than JCenter.
 *   Core:
     *   Reset playback speed when live playback speed control becomes unused
         ([#8664](https://github.com/google/ExoPlayer/issues/8664)).
