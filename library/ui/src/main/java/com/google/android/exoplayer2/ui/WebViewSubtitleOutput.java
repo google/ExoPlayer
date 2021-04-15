@@ -21,7 +21,6 @@ import static com.google.android.exoplayer2.ui.SubtitleView.DEFAULT_TEXT_SIZE_FR
 
 import android.content.Context;
 import android.graphics.Color;
-import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -225,7 +224,7 @@ import java.util.Map;
               ? Util.formatInvariant("%.2f%%", cue.size * 100)
               : "fit-content";
 
-      String textAlign = convertAlignmentToCss(cue.textAlignment);
+      String textAlign = SpannedToHtmlConverter.convertAlignmentToCss(cue.textAlignment);
       String writingMode = convertVerticalTypeToCss(cue.verticalType);
       String cueTextSizeCssPx = convertTextSizeToCss(cue.textSizeType, cue.textSize);
       String windowCssColor =
@@ -385,21 +384,6 @@ import java.util.Map;
       case Cue.TYPE_UNSET:
       default:
         return "horizontal-tb";
-    }
-  }
-
-  private static String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
-    if (alignment == null) {
-      return "center";
-    }
-    switch (alignment) {
-      case ALIGN_NORMAL:
-        return "start";
-      case ALIGN_OPPOSITE:
-        return "end";
-      case ALIGN_CENTER:
-      default:
-        return "center";
     }
   }
 

@@ -20,9 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.text.Layout;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -331,6 +333,49 @@ public class SpannedToHtmlConverterTest {
 
     assertThat(htmlAndCss.cssRuleSets).isEmpty();
     assertThat(htmlAndCss.html).isEqualTo("String with <u>underlined</u> section.");
+  }
+
+  @Test
+  public void convert_supportsAlignmentSpan() {
+    SpannableString startSpanned = new SpannableString("String with\nmultirow alignment.");
+    startSpanned.setSpan(
+        new AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL),
+        "".length(),
+        "String with\nmultirow alignment.".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    SpannedToHtmlConverter.HtmlAndCss htmlAndCss =
+        SpannedToHtmlConverter.convert(startSpanned, displayDensity);
+
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo(
+        "<span style='display:inline-block; text-align:start;'>String with<br>multirow alignment.</span>");
+
+    SpannableString centerSpanned = new SpannableString("String with\nmultirow alignment.");
+    centerSpanned.setSpan(
+        new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER),
+        "".length(),
+        "String with\nmultirow alignment.".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    htmlAndCss = SpannedToHtmlConverter.convert(centerSpanned, displayDensity);
+
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo(
+        "<span style='display:inline-block; text-align:center;'>String with<br>multirow alignment.</span>");
+
+    SpannableString endSpanned = new SpannableString("String with\nmultirow alignment.");
+    endSpanned.setSpan(
+        new AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
+        "".length(),
+        "String with\nmultirow alignment.".length(),
+        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+    htmlAndCss = SpannedToHtmlConverter.convert(endSpanned, displayDensity);
+
+    assertThat(htmlAndCss.cssRuleSets).isEmpty();
+    assertThat(htmlAndCss.html).isEqualTo(
+        "<span style='display:inline-block; text-align:end;'>String with<br>multirow alignment.</span>");
   }
 
   @Test

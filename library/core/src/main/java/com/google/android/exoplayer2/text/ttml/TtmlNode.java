@@ -72,6 +72,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public static final String ATTR_TTS_TEXT_EMPHASIS = "textEmphasis";
   public static final String ATTR_TTS_WRITING_MODE = "writingMode";
   public static final String ATTR_TTS_SHEAR = "shear";
+  public static final String ATTR_EBUTTS_MULTI_ROW_ALIGN = "multiRowAlign";
 
   // Values for ruby
   public static final String RUBY_CONTAINER = "container";
@@ -376,7 +377,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
     String resolvedRegionId = ANONYMOUS_REGION_ID.equals(regionId) ? inheritedRegion : regionId;
-
     for (Map.Entry<String, Integer> entry : nodeEndsByRegion.entrySet()) {
       String regionId = entry.getKey();
       int start = nodeStartsByRegion.containsKey(regionId) ? nodeStartsByRegion.get(regionId) : 0;
@@ -407,9 +407,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       regionOutput.setText(text);
     }
     if (resolvedStyle != null) {
+      boolean isPNode = TAG_P.equals(tag);
       TtmlRenderUtil.applyStylesToSpan(
-          text, start, end, resolvedStyle, parent, globalStyles, verticalType);
-      if (resolvedStyle.getShearPercentage() != TtmlStyle.UNSPECIFIED_SHEAR && TAG_P.equals(tag)) {
+          text, start, end, resolvedStyle, parent, globalStyles, verticalType, isPNode);
+      if (resolvedStyle.getShearPercentage() != TtmlStyle.UNSPECIFIED_SHEAR && isPNode) {
         // Shear style should only be applied to P nodes
         // https://www.w3.org/TR/2018/REC-ttml2-20181108/#style-attribute-shear
         // The spec doesn't specify the coordinate system to use for block shear
@@ -419,7 +420,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         // This maps the shear percentage to shear angle in graphics coordinates
         regionOutput.setShearDegrees((resolvedStyle.getShearPercentage() * -90) / 100);
       }
-      regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
+
+      if (resolvedStyle.getTextAlign() != null) {
+        // Only set text alignment if defined in current node, otherwise could overwrite
+        // inherited text alignment
+        regionOutput.setTextAlignment(resolvedStyle.getTextAlign());
+      }
     }
   }
 

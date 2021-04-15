@@ -17,10 +17,12 @@ package com.google.android.exoplayer2.text.ttml;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -89,8 +91,8 @@ import java.util.Map;
       TtmlStyle style,
       @Nullable TtmlNode parent,
       Map<String, TtmlStyle> globalStyles,
-      @Cue.VerticalType int verticalType) {
-
+      @Cue.VerticalType int verticalType,
+      boolean isPNode) {
     if (style.getStyle() != TtmlStyle.UNSPECIFIED) {
       builder.setSpan(new StyleSpan(style.getStyle()), start, end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -209,6 +211,16 @@ import java.util.Map;
       SpanUtil.addOrReplaceSpan(
           builder,
           new HorizontalTextInVerticalContextSpan(),
+          start,
+          end,
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    if (style.getMultiRowAlign() != null && isPNode) {
+      // Only applies to P nodes
+      // https://www.w3.org/TR/ttml-imsc1.1/#text-multiRowAlign
+      SpanUtil.addOrReplaceSpan(
+          builder,
+          new AlignmentSpan.Standard(style.getMultiRowAlign()),
           start,
           end,
           Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

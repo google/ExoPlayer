@@ -18,8 +18,10 @@ package com.google.android.exoplayer2.ui;
 
 import android.graphics.Typeface;
 import android.text.Html;
+import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.AlignmentSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -208,6 +210,11 @@ import java.util.regex.Pattern;
               + "-webkit-text-emphasis-position:%2$s;text-emphasis-position:%2$s;"
               + "display:inline-block;'>",
           style, position);
+    } else if (span instanceof AlignmentSpan) {
+      AlignmentSpan alignmentSpan = (AlignmentSpan) span;
+      return Util.formatInvariant(
+          "<span style='display:inline-block; text-align:%s;'>",
+          convertAlignmentToCss(alignmentSpan.getAlignment()));
     } else {
       return null;
     }
@@ -221,7 +228,8 @@ import java.util.regex.Pattern;
         || span instanceof HorizontalTextInVerticalContextSpan
         || span instanceof AbsoluteSizeSpan
         || span instanceof RelativeSizeSpan
-        || span instanceof TextEmphasisSpan) {
+        || span instanceof TextEmphasisSpan
+        || span instanceof AlignmentSpan) {
       return "</span>";
     } else if (span instanceof TypefaceSpan) {
       @Nullable String fontFamily = ((TypefaceSpan) span).getFamily();
@@ -379,6 +387,21 @@ import java.util.regex.Pattern;
     public Transition() {
       this.spansAdded = new ArrayList<>();
       this.spansRemoved = new ArrayList<>();
+    }
+  }
+
+  static String convertAlignmentToCss(@Nullable Layout.Alignment alignment) {
+    if (alignment == null) {
+      return "center";
+    }
+    switch (alignment) {
+      case ALIGN_NORMAL:
+        return "start";
+      case ALIGN_OPPOSITE:
+        return "end";
+      case ALIGN_CENTER:
+      default:
+        return "center";
     }
   }
 }

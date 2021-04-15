@@ -533,22 +533,7 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
               TtmlNode.ITALIC.equalsIgnoreCase(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_TEXT_ALIGN:
-          switch (Util.toLowerInvariant(attributeValue)) {
-            case TtmlNode.LEFT:
-            case TtmlNode.START:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_NORMAL);
-              break;
-            case TtmlNode.RIGHT:
-            case TtmlNode.END:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_OPPOSITE);
-              break;
-            case TtmlNode.CENTER:
-              style = createIfNull(style).setTextAlign(Layout.Alignment.ALIGN_CENTER);
-              break;
-            default:
-              // ignore
-              break;
-          }
+          style = createIfNull(style).setTextAlign(parseAlignment(attributeValue));
           break;
         case TtmlNode.ATTR_TTS_TEXT_COMBINE:
           switch (Util.toLowerInvariant(attributeValue)) {
@@ -621,6 +606,9 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
         case TtmlNode.ATTR_TTS_SHEAR:
           style = createIfNull(style).setShearPercentage(parseShear(attributeValue));
           break;
+        case TtmlNode.ATTR_EBUTTS_MULTI_ROW_ALIGN:
+          style = createIfNull(style).setMultiRowAlign(parseAlignment(attributeValue));
+          break;
         default:
           // ignore
           break;
@@ -631,6 +619,24 @@ public final class TtmlDecoder extends SimpleSubtitleDecoder {
 
   private static TtmlStyle createIfNull(@Nullable TtmlStyle style) {
     return style == null ? new TtmlStyle() : style;
+  }
+
+  @Nullable
+  private static Layout.Alignment parseAlignment(@Nullable String alignment) {
+    switch (Util.toLowerInvariant(alignment)) {
+      case TtmlNode.LEFT:
+      case TtmlNode.START:
+        return Layout.Alignment.ALIGN_NORMAL;
+      case TtmlNode.RIGHT:
+      case TtmlNode.END:
+        return Layout.Alignment.ALIGN_OPPOSITE;
+      case TtmlNode.CENTER:
+        return Layout.Alignment.ALIGN_CENTER;
+      default:
+        // ignore
+        break;
+    }
+    return null;
   }
 
   private static TtmlNode parseNode(
