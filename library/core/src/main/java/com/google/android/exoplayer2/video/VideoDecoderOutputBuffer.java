@@ -30,7 +30,7 @@ public class VideoDecoderOutputBuffer extends OutputBuffer {
   public static final int COLORSPACE_BT709 = 2;
   public static final int COLORSPACE_BT2020 = 3;
   // LINT.ThenChange(
-  //     ../../../../../../../../../../extensions/av1/src/main/jni/gav1_jni.cc,
+  //     ../../../../../../../../../../../../media/libraries/decoder_av1/src/main/jni/gav1_jni.cc,
   //     ../../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
   // )
 

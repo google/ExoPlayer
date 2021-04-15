@@ -553,7 +553,7 @@ public final class C {
   /** Video decoder output mode that renders 4:2:0 YUV planes directly to a surface. */
   public static final int VIDEO_OUTPUT_MODE_SURFACE_YUV = 1;
   // LINT.ThenChange(
-  //     ../../../../../../../../../extensions/av1/src/main/jni/gav1_jni.cc,
+  //     ../../../../../../../../../../../media/libraries/decoder_av1/src/main/jni/gav1_jni.cc,
   //     ../../../../../../../../../extensions/vp9/src/main/jni/vpx_jni.cc
   // )
 
