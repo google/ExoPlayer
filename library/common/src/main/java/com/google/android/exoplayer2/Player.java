@@ -946,14 +946,15 @@ public interface Player {
   })
   @interface DiscontinuityReason {}
   /**
-   * Automatic playback transition from one period in the timeline to the next. The period index may
-   * be the same as it was before the discontinuity in case the current period is repeated.
+   * Automatic playback transition from one period in the timeline to the next without explicit
+   * interaction by this player. The period index may be the same as it was before the discontinuity
+   * in case the current period is repeated.
    *
    * <p>This reason also indicates an automatic transition from the content period to an inserted ad
    * period or vice versa.
    */
   int DISCONTINUITY_REASON_AUTO_TRANSITION = 0;
-  /** Seek within the current period or to another period. */
+  /** Seek within the current period or to another period by this player. */
   int DISCONTINUITY_REASON_SEEK = 1;
   /**
    * Seek adjustment due to being unable to seek to the requested position or because the seek was
@@ -964,7 +965,7 @@ public interface Player {
   int DISCONTINUITY_REASON_SKIP = 3;
   /** Discontinuity caused by the removal of the current period from the {@link Timeline}. */
   int DISCONTINUITY_REASON_REMOVE = 4;
-  /** Discontinuity introduced internally by the source. */
+  /** Discontinuity introduced internally (e.g. by the source). */
   int DISCONTINUITY_REASON_INTERNAL = 5;
 
   /**
