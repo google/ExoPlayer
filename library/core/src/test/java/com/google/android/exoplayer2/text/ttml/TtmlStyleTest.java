@@ -68,7 +68,8 @@ public final class TtmlStyleTest {
           .setTextAlign(TEXT_ALIGN)
           .setTextCombine(TEXT_COMBINE)
           .setTextEmphasis(TextEmphasis.parse(TEXT_EMPHASIS_STYLE))
-          .setShearPercentage(SHEAR_PERCENTAGE);
+          .setShearPercentage(SHEAR_PERCENTAGE)
+          .setMultiRowAlign(Layout.Alignment.ALIGN_NORMAL);
 
   @Test
   public void inheritStyle() {
@@ -97,6 +98,7 @@ public final class TtmlStyleTest {
     assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
     assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
     assertThat(style.getShearPercentage()).isEqualTo(SHEAR_PERCENTAGE);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
   }
 
   @Test
@@ -125,6 +127,7 @@ public final class TtmlStyleTest {
     assertThat(style.getTextEmphasis().markFill).isEqualTo(TextEmphasisSpan.MARK_FILL_FILLED);
     assertThat(style.getTextEmphasis().position).isEqualTo(POSITION_BEFORE);
     assertThat(style.getShearPercentage()).isEqualTo(SHEAR_PERCENTAGE);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
   }
 
   @Test
@@ -282,5 +285,17 @@ public final class TtmlStyleTest {
     assertThat(style.getShearPercentage()).isEqualTo(-200f);
     style.setShearPercentage(0.1f);
     assertThat(style.getShearPercentage()).isEqualTo(0.1f);
+  }
+
+  @Test
+  public void multiRowAlign() {
+    TtmlStyle style = new TtmlStyle();
+    assertThat(style.getMultiRowAlign()).isEqualTo(null);
+    style.setMultiRowAlign(Layout.Alignment.ALIGN_CENTER);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_CENTER);
+    style.setMultiRowAlign(Layout.Alignment.ALIGN_NORMAL);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
+    style.setMultiRowAlign(Layout.Alignment.ALIGN_OPPOSITE);
+    assertThat(style.getMultiRowAlign()).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
   }
 }

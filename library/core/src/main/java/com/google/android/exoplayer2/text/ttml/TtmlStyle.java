@@ -89,6 +89,7 @@ import java.lang.annotation.RetentionPolicy;
   @OptionalBoolean private int textCombine;
   @Nullable private TextEmphasis textEmphasis;
   private float shearPercentage;
+  @Nullable private Layout.Alignment multiRowAlign;
 
   public TtmlStyle() {
     linethrough = UNSPECIFIED;
@@ -197,6 +198,16 @@ import java.lang.annotation.RetentionPolicy;
     return shearPercentage;
   }
 
+  @Nullable
+  public Layout.Alignment getMultiRowAlign() {
+    return multiRowAlign;
+  }
+
+  public TtmlStyle setMultiRowAlign(@Nullable Layout.Alignment multiRowAlign) {
+    this.multiRowAlign = multiRowAlign;
+    return this;
+  }
+
   /**
    * Chains this style to referential style. Local properties which are already set are never
    * overridden.
@@ -256,6 +267,9 @@ import java.lang.annotation.RetentionPolicy;
       }
       if (shearPercentage == UNSPECIFIED_SHEAR) {
         shearPercentage = ancestor.shearPercentage;
+      }
+      if (multiRowAlign == null && ancestor.multiRowAlign != null) {
+        multiRowAlign = ancestor.multiRowAlign;
       }
       // attributes not inherited as of http://www.w3.org/TR/ttml1/
       if (chaining && !hasBackgroundColor && ancestor.hasBackgroundColor) {

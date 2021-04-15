@@ -140,6 +140,12 @@ public final class Cue {
   /** The alignment of the cue text within the cue box, or null if the alignment is undefined. */
   @Nullable public final Alignment textAlignment;
 
+  /**
+   * The alignment of the other lines of text relative to the longest line of text, or null if the
+   * alignment is undefined.
+   */
+  @Nullable public final Alignment multiRowAlignment;
+
   /** The cue image, or null if this is a text cue. */
   @Nullable public final Bitmap bitmap;
 
@@ -377,7 +383,8 @@ public final class Cue {
         /* windowColorSet= */ false,
         /* windowColor= */ Color.BLACK,
         /* verticalType= */ TYPE_UNSET,
-        /* shearDegrees= */ 0f);
+        /* shearDegrees= */ 0f,
+        /* multiRowAlignment= */ null);
   }
 
   /**
@@ -423,7 +430,8 @@ public final class Cue {
         windowColorSet,
         windowColor,
         /* verticalType= */ TYPE_UNSET,
-        /* shearDegrees= */ 0f);
+        /* shearDegrees= */ 0f,
+        /* multiRowAlignment= */null);
   }
 
   private Cue(
@@ -442,7 +450,8 @@ public final class Cue {
       boolean windowColorSet,
       int windowColor,
       @VerticalType int verticalType,
-      float shearDegrees) {
+      float shearDegrees,
+      @Nullable Alignment multiRowAlignment) {
     // Exactly one of text or bitmap should be set.
     if (text == null) {
       Assertions.checkNotNull(bitmap);
@@ -465,6 +474,7 @@ public final class Cue {
     this.textSize = textSize;
     this.verticalType = verticalType;
     this.shearDegrees = shearDegrees;
+    this.multiRowAlignment = multiRowAlignment;
   }
 
   /** Returns a new {@link Cue.Builder} initialized with the same values as this Cue. */
@@ -477,6 +487,7 @@ public final class Cue {
     @Nullable private CharSequence text;
     @Nullable private Bitmap bitmap;
     @Nullable private Alignment textAlignment;
+    @Nullable private Alignment multiRowAlignment;
     private float line;
     @LineType private int lineType;
     @AnchorType private int lineAnchor;
@@ -495,6 +506,7 @@ public final class Cue {
       text = null;
       bitmap = null;
       textAlignment = null;
+      multiRowAlignment = null;
       line = DIMEN_UNSET;
       lineType = TYPE_UNSET;
       lineAnchor = TYPE_UNSET;
@@ -513,6 +525,7 @@ public final class Cue {
       text = cue.text;
       bitmap = cue.bitmap;
       textAlignment = cue.textAlignment;
+      multiRowAlignment = cue.multiRowAlignment;
       line = cue.line;
       lineType = cue.lineType;
       lineAnchor = cue.lineAnchor;
@@ -590,6 +603,18 @@ public final class Cue {
     @Nullable
     public Alignment getTextAlignment() {
       return textAlignment;
+    }
+
+    /**
+     * Sets the multi-row alignment of the cue within the cue box.
+     *
+     * <p>Passing null means the alignment is undefined.
+     *
+     * @see Cue#multiRowAlignment
+     */
+    public Builder setMultiRowAlignment(@Nullable Layout.Alignment multiRowAlignment) {
+      this.multiRowAlignment = multiRowAlignment;
+      return this;
     }
 
     /**
@@ -840,7 +865,8 @@ public final class Cue {
           windowColorSet,
           windowColor,
           verticalType,
-          shearDegrees);
+          shearDegrees,
+          multiRowAlignment);
     }
   }
 }
