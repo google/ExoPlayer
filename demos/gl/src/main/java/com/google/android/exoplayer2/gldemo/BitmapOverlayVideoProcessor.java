@@ -140,6 +140,7 @@ import javax.microedition.khronos.opengles.GL10;
         case "scaleY":
           uniform.setFloat(bitmapScaleY);
           break;
+        default: // fall out
       }
     }
     for (GlUtil.Attribute copyExternalAttribute : attributes) {
