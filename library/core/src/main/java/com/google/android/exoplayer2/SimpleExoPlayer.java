@@ -98,6 +98,7 @@ public class SimpleExoPlayer extends BasePlayer
     private final RenderersFactory renderersFactory;
 
     private Clock clock;
+    private long foregroundModeTimeoutMs;
     private TrackSelector trackSelector;
     private MediaSourceFactory mediaSourceFactory;
     private LoadControl loadControl;
@@ -250,6 +251,20 @@ public class SimpleExoPlayer extends BasePlayer
       clock = Clock.DEFAULT;
       releaseTimeoutMs = ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
       detachSurfaceTimeoutMs = DEFAULT_DETACH_SURFACE_TIMEOUT_MS;
+    }
+
+    /**
+     * Set a limit on the time a call to {@link #setForegroundMode} can spend. If a call to {@link
+     * #setForegroundMode} takes more than {@code timeoutMs} milliseconds to complete, the player
+     * will raise an error via {@link Player.EventListener#onPlayerError}.
+     *
+     * <p>This method is experimental, and will be renamed or removed in a future release.
+     *
+     * @param timeoutMs The time limit in milliseconds.
+     */
+    public Builder experimentalSetForegroundModeTimeoutMs(long timeoutMs) {
+      foregroundModeTimeoutMs = timeoutMs;
+      return this;
     }
 
     /**
@@ -704,6 +719,9 @@ public class SimpleExoPlayer extends BasePlayer
               additionalPermanentAvailableCommands);
       player.addListener(componentListener);
       player.addAudioOffloadListener(componentListener);
+      if (builder.foregroundModeTimeoutMs > 0) {
+        player.experimentalSetForegroundModeTimeoutMs(builder.foregroundModeTimeoutMs);
+      }
 
       audioBecomingNoisyManager =
           new AudioBecomingNoisyManager(builder.context, eventHandler, componentListener);
