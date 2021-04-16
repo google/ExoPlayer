@@ -1354,10 +1354,7 @@ public class SimpleExoPlayer extends BasePlayer
   @Override
   public void prepare(MediaSource mediaSource, boolean resetPosition, boolean resetState) {
     verifyApplicationThread();
-    setMediaSources(
-        Collections.singletonList(mediaSource),
-        /* startWindowIndex= */ resetPosition ? 0 : C.INDEX_UNSET,
-        /* startPositionMs= */ C.TIME_UNSET);
+    setMediaSources(Collections.singletonList(mediaSource), resetPosition);
     prepare();
   }
 
