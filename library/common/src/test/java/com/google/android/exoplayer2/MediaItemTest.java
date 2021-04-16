@@ -395,7 +395,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundtripViaBundle_withoutPlaybackProperties_yieldsEqualInstance() {
+  public void roundTripViaBundle_withoutPlaybackProperties_yieldsEqualInstance() {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setMediaId("mediaId")
@@ -417,7 +417,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundtripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
+  public void roundTripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.playbackProperties).isNotNull();

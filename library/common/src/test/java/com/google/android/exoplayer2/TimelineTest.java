@@ -209,7 +209,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void roundtripViaBundle_ofTimeline_yieldsEqualInstanceExceptIdsAndManifest() {
+  public void roundTripViaBundle_ofTimeline_yieldsEqualInstanceExceptIdsAndManifest() {
     Timeline timeline =
         new FakeTimeline(
             new TimelineWindowDefinition(
@@ -244,7 +244,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void roundtripViaBundle_ofTimeline_preservesWindowIndices() {
+  public void roundTripViaBundle_ofTimeline_preservesWindowIndices() {
     int windowCount = 10;
     FakeTimeline timeline = new FakeTimeline(windowCount);
 
@@ -285,12 +285,12 @@ public class TimelineTest {
   }
 
   @Test
-  public void roundtripViaBundle_ofEmptyTimeline_returnsEmptyTimeline() {
+  public void roundTripViaBundle_ofEmptyTimeline_returnsEmptyTimeline() {
     TimelineAsserts.assertEmpty(Timeline.CREATOR.fromBundle(Timeline.EMPTY.toBundle()));
   }
 
   @Test
-  public void roundtripViaBundle_ofWindow_yieldsEqualInstanceExceptUidAndManifest() {
+  public void roundTripViaBundle_ofWindow_yieldsEqualInstanceExceptUidAndManifest() {
     Timeline.Window window = new Timeline.Window();
     window.uid = new Object();
     window.mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
@@ -322,7 +322,7 @@ public class TimelineTest {
   }
 
   @Test
-  public void roundtripViaBundle_ofPeriod_yieldsEqualInstanceExceptIds() {
+  public void roundTripViaBundle_ofPeriod_yieldsEqualInstanceExceptIds() {
     Timeline.Period period = new Timeline.Period();
     period.id = new Object();
     period.uid = new Object();

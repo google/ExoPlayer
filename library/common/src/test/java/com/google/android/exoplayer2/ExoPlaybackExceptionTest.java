@@ -28,14 +28,14 @@ import org.junit.runner.RunWith;
 public class ExoPlaybackExceptionTest {
 
   @Test
-  public void roundtripViaBundle_ofExoPlaybackExceptionTypeRemote_yieldsEqualInstance() {
+  public void roundTripViaBundle_ofExoPlaybackExceptionTypeRemote_yieldsEqualInstance() {
     ExoPlaybackException before = ExoPlaybackException.createForRemote(/* message= */ "test");
     ExoPlaybackException after = ExoPlaybackException.CREATOR.fromBundle(before.toBundle());
     assertThat(areEqual(before, after)).isTrue();
   }
 
   @Test
-  public void roundtripViaBundle_ofExoPlaybackExceptionTypeRenderer_yieldsEqualInstance() {
+  public void roundTripViaBundle_ofExoPlaybackExceptionTypeRenderer_yieldsEqualInstance() {
     ExoPlaybackException before =
         ExoPlaybackException.createForRenderer(
             new IllegalStateException("ExoPlaybackExceptionTest"),
@@ -51,7 +51,7 @@ public class ExoPlaybackExceptionTest {
 
   @Test
   public void
-      roundtripViaBundle_ofExoPlaybackExceptionTypeRendererWithPrivateCause_yieldsRemoteExceptionWithSameMessage() {
+      roundTripViaBundle_ofExoPlaybackExceptionTypeRendererWithPrivateCause_yieldsRemoteExceptionWithSameMessage() {
     ExoPlaybackException before =
         ExoPlaybackException.createForRenderer(
             new Exception(/* message= */ "anonymous exception that class loader cannot know") {});

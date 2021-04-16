@@ -27,7 +27,7 @@ import org.junit.runner.RunWith;
 public class PositionInfoTest {
 
   @Test
-  public void roundtripViaBundle_ofPositionInfoWithoutObjectFields_yieldsEqualInstance() {
+  public void roundTripViaBundle_ofPositionInfoWithoutObjectFields_yieldsEqualInstance() {
     PositionInfo positionInfo =
         new PositionInfo(
             /* windowUid= */ null,
@@ -43,7 +43,7 @@ public class PositionInfoTest {
   }
 
   @Test
-  public void roundtripViaBundle_ofPositionInfoWithWindowUid_yieldsNullWindowUid() {
+  public void roundTripViaBundle_ofPositionInfoWithWindowUid_yieldsNullWindowUid() {
     PositionInfo positionInfo =
         new PositionInfo(
             /* windowUid= */ new Object(),
@@ -60,7 +60,7 @@ public class PositionInfoTest {
   }
 
   @Test
-  public void roundtripViaBundle_ofPositionInfoWithPeriodUid_yieldsNullPeriodUid() {
+  public void roundTripViaBundle_ofPositionInfoWithPeriodUid_yieldsNullPeriodUid() {
     PositionInfo positionInfo =
         new PositionInfo(
             /* windowUid= */ null,

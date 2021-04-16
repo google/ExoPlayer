@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 public class DeviceInfoTest {
 
   @Test
-  public void roundtripViaBundle_yieldsEqualInstance() {
+  public void roundTripViaBundle_yieldsEqualInstance() {
     DeviceInfo deviceInfo =
         new DeviceInfo(DeviceInfo.PLAYBACK_TYPE_REMOTE, /* minVolume= */ 1, /* maxVolume= */ 9);
 
