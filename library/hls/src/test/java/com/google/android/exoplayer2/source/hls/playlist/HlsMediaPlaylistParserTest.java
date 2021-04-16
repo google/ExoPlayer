@@ -135,7 +135,7 @@ public class HlsMediaPlaylistParserTest {
         .isEqualTo("https://priv.example.com/key.php?r=2682");
     // 0xA7A == 2682.
     assertThat(segment.encryptionIV).isNotNull();
-    assertThat(Util.toUpperInvariant(segment.encryptionIV)).isEqualTo("A7A");
+    assertThat(segment.encryptionIV).ignoringCase().isEqualTo("A7A");
     assertThat(segment.byteRangeLength).isEqualTo(51740);
     assertThat(segment.byteRangeOffset).isEqualTo(2147586650L);
     assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2682.ts");
@@ -148,7 +148,7 @@ public class HlsMediaPlaylistParserTest {
         .isEqualTo("https://priv.example.com/key.php?r=2682");
     // 0xA7B == 2683.
     assertThat(segment.encryptionIV).isNotNull();
-    assertThat(Util.toUpperInvariant(segment.encryptionIV)).isEqualTo("A7B");
+    assertThat(segment.encryptionIV).ignoringCase().isEqualTo("A7B");
     assertThat(segment.byteRangeLength).isEqualTo(C.LENGTH_UNSET);
     assertThat(segment.byteRangeOffset).isEqualTo(0);
     assertThat(segment.url).isEqualTo("https://priv.example.com/fileSequence2683.ts");

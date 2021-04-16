@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.NetworkTypeObserver;
 import com.google.android.exoplayer2.util.SlidingPercentile;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -170,7 +171,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
      */
     public Builder setInitialBitrateEstimate(String countryCode) {
       initialBitrateEstimates =
-          getInitialBitrateEstimatesForCountry(Util.toUpperInvariant(countryCode));
+          getInitialBitrateEstimatesForCountry(Ascii.toUpperCase(countryCode));
       return this;
     }
 

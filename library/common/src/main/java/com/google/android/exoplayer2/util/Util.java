@@ -761,16 +761,6 @@ public final class Util {
   }
 
   /**
-   * Converts text to upper case using {@link Locale#US}.
-   *
-   * @param text The text to convert.
-   * @return The upper case text, or null if {@code text} is null.
-   */
-  public static @PolyNull String toUpperInvariant(@PolyNull String text) {
-    return text == null ? text : text.toUpperCase(Locale.US);
-  }
-
-  /**
    * Formats a string using {@link Locale#US}.
    *
    * @see String#format(String, Object...)
@@ -2151,11 +2141,11 @@ public final class Util {
       if (telephonyManager != null) {
         String countryCode = telephonyManager.getNetworkCountryIso();
         if (!TextUtils.isEmpty(countryCode)) {
-          return toUpperInvariant(countryCode);
+          return Ascii.toUpperCase(countryCode);
         }
       }
     }
-    return toUpperInvariant(Locale.getDefault().getCountry());
+    return Ascii.toUpperCase(Locale.getDefault().getCountry());
   }
 
   /**
